@@ -1037,6 +1037,20 @@ endclass
             id="net.sf.sveditor.ui.editor.svTextFont"
             label="label">
       </fontDefinition>
+      <colorDefinition
+            categoryId="net.sf.sveditor.ui.presentation"
+            id="net.sf.sveditor.ui.docHoverBackgroundColor"
+            isEditable="true"
+            label="Doc Hover background color"
+            value="#ffffc0">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="net.sf.sveditor.ui.presentation"
+            id="net.sf.sveditor.ui.docHoverForegroundColor"
+            isEditable="true"
+            label="Doc Hover foreground color"
+            value="#000000">
+      </colorDefinition>
    </extension>
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">

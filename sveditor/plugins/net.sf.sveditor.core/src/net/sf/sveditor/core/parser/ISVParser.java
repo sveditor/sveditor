@@ -23,7 +23,7 @@ public interface ISVParser {
 	// ITextScanner scanner();
 	
 	void error(String msg) throws SVParseException;
-	
+
 	void error(SVParseException e) throws SVParseException;
 	
 	void warning(String msg, int lineno);

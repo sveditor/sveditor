@@ -60,7 +60,7 @@ public class TestPreProc extends TestCase {
 		super.tearDown();
 
 		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-		
+
 		if (fTmpDir != null) {
 			TestUtils.delete(fTmpDir);
 			fTmpDir = null;

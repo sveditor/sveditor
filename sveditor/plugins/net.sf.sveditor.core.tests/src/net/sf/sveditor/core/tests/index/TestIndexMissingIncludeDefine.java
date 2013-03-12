@@ -14,10 +14,13 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
@@ -82,6 +85,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 	}
 
 	public void testWSArgFileMissingIncludeDefine() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
@@ -136,13 +140,25 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		index.setFileSystemProvider(fs_provider_m);
 		
 		// Force the file database to be built
+		index.loadIndex(new NullProgressMonitor());
+		/*
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			it.nextItem();
 		}
+		 */
 		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		for (String file : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> m_tmp = index.getMarkers(file);
+			markers.addAll(m_tmp);
+		}
+	
+		/*
 		assertEquals("Expecting a total of two errors", 
 				2, fs_provider_m.getMarkers().size());
+		 */
+		assertEquals("Expecting a total of two errors", 2, markers.size());
 
 		// Ensure that the define- and include-missing markers exist
 		fs_provider_m.getMarkers().clear();

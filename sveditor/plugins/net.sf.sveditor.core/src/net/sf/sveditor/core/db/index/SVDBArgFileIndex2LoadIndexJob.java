@@ -2,6 +2,7 @@ package net.sf.sveditor.core.db.index;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -16,18 +17,22 @@ public class SVDBArgFileIndex2LoadIndexJob {
 	}
 	
 	public void load() {
+		fIndex.loadIndex(new NullProgressMonitor());
+		/*
 		synchronized (this) {
 			if (fJob == null) {
 				fJob = new LoadIndexJob();
 				fJob.schedule();
-			} else {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			}
+			
+			// Wait for the job to complete
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
+		 */
 	}
 	
 	private class LoadIndexJob extends Job {
@@ -38,7 +43,9 @@ public class SVDBArgFileIndex2LoadIndexJob {
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			try {
+				System.out.println("--> loadIndex()");
 				fIndex.loadIndex(monitor);
+				System.out.println("<-- loadIndex()");
 			} finally {
 				synchronized (SVDBArgFileIndex2LoadIndexJob.this) {
 					fJob = null;

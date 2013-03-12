@@ -80,9 +80,19 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	public boolean isDefined(String name, int lineno) {
 		SVDBMacroDef m = fMacroProvider.findMacro(name, lineno);
 		
+		/*
+		return (m != null);
+		 */
+	
 		// The location is null for command-line defines
 		if (m != null) {
-			return (m.getLocation() == null || m.getLocation().getLine() <= lineno);
+			// TODO: unsure 
+			if (lineno == -1) {
+				return true;
+			} else {
+				return (m.getLocation() == null || m.getLocation().getLine() <= lineno);
+			}
+//			return true;
 		} else {
 			return false;
 		}

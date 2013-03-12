@@ -96,6 +96,7 @@ public class TestGlobalDefine extends TestCase {
 	}
 
 	public void testArgFileIndexGlobalDefine() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		CoreReleaseTests.clearErrors();
 		
@@ -172,6 +173,10 @@ public class TestGlobalDefine extends TestCase {
 		}
 		
 		assertNotNull("Expect to find \"class1\"", class1_it);
+		for (Exception err : CoreReleaseTests.getErrors()) {
+			log.debug("Core Error: " + err.getMessage());
+			err.printStackTrace();
+		}
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}

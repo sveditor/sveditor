@@ -88,6 +88,7 @@ public class WSArgFileIndexChanges extends TestCase {
 		
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
+			System.out.println("Item: " + SVDBItem.getName(tmp_it));
 			
 			if (SVDBItem.getName(tmp_it).equals("class1")) {
 				class1_it = tmp_it;
