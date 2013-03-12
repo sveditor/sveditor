@@ -811,7 +811,7 @@ public class TestAutoIndent extends TestCase {
 		tester.type(input);
 		String result = tester.getContent();
 
-		IndentComparator.compare("testBasedEnumIndent", expected, result);
+		IndentComparator.compare("testBasedEmptyEnumIndent", expected, result);
 	}
 
 	public void testEnumForwardDeclIndent() throws BadLocationException {
@@ -830,7 +830,7 @@ public class TestAutoIndent extends TestCase {
 		tester.type(input);
 		String result = tester.getContent();
 
-		IndentComparator.compare("testBasedEnumIndent", expected, result);
+		IndentComparator.compare("testEnumForwardDeclIndent", expected, result);
 	}
 
 	public void testBasedEnumIndent() throws BadLocationException {
@@ -874,7 +874,7 @@ public class TestAutoIndent extends TestCase {
 		tester.type(input);
 		String result = tester.getContent();
 
-		IndentComparator.compare("testBasedEnumIndent", expected, result);
+		IndentComparator.compare("testBasicEnumDecl", expected, result);
 	}
 
 	public void testProperIndentEndPackage() throws BadLocationException {
@@ -962,8 +962,54 @@ public class TestAutoIndent extends TestCase {
 		String result = tester.getContent();
 
 		System.out.println("Result:\n" + result);
-		IndentComparator.compare("testBasedEnumIndent", expected, result);
+		IndentComparator.compare("testMoveLineDown", expected, result);
 	}
 
 	
+
+// This test checks that port lists indent the same as function inputs (if on multiple lines)
+public void testModulePorts() throws BadLocationException {
+	String input =
+		"module p #(\n" +
+		"parameter a = 10\n" +
+		")\n" +
+		"(\n" +
+		"input logic a\n" +
+		");\n" +
+		"typedef enum logic[1:0] {\n" +
+		"A,\n" +
+		"B\n" +
+		"};\n" +
+		"function fctn (\n" +
+		"input logic a\n" +
+		");\n" +
+		"endfunction\n" +
+		"endmodule"
+		;
+	String expected =
+		"module p #(\n" +
+		"		parameter a = 10\n" +
+		"		)\n" +
+		"		(\n" +
+		"		input logic a\n" +
+		"		);\n" +
+		"	typedef enum logic[1:0] {\n" +
+		"		A,\n" +
+		"		B\n" +
+		"	};\n" +
+		"	function fctn (\n" +
+		"		input logic a\n" +
+		"		);\n" +
+		"	endfunction\n" +
+		"endmodule"
+		;
+	
+	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+	tester.type(input);
+	String result = tester.getContent();
+
+	IndentComparator.compare("testModulePorts", expected, result);
+}
+
+
 }
