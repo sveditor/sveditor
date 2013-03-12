@@ -40,6 +40,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
@@ -80,6 +81,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private boolean						fDebugEn;
 	private List<SVDBMarker>			fMarkers;
 	private boolean						fDisableErrors;
+	private ISVPreProcFileMapper		fFileMapper;
 	
 	public ParserSVDBFileFactory() {
 		this(null);
@@ -101,6 +103,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	public void setDefineProvider(IDefineProvider p) {
 		fDefineProvider = p;
+	}
+	
+	public void setFileMapper(ISVPreProcFileMapper mapper) {
+		fFileMapper = mapper;
 	}
 
 	public ScanLocation getStmtLocation() {
@@ -563,6 +569,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVPreProcessor preproc = new SVPreProcessor(
 				in, filename, fDefineProvider);
 		fInput = preproc.preprocess();
+		
+		fLog.debug("File Input: " + filename);
+		fLog.debug(fInput.toString());
+		
 		fLexer = new SVLexer();
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();
@@ -790,10 +800,19 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 	
 	public void error(String msg) throws SVParseException {
-		error(SVParseException.createParseException(msg, 
-				fFile.getFilePath(), getLocation().getLineNo(), getLocation().getLinePos()));
+		ScanLocation loc = getLocation();
+		String filename = fFile.getFilePath();
+		int fileid = loc.getFileId();
+		int lineno = loc.getLineNo();
+		int linepos = loc.getLinePos();
+	
+		if (fFileMapper != null) {
+			filename = fFileMapper.mapFileIdToPath(fileid);
+		}
+		
+		error(SVParseException.createParseException(msg, filename, lineno, linepos));
 	}
-
+	
 	public SVParsers parsers() {
 		return fSVParsers;
 	}

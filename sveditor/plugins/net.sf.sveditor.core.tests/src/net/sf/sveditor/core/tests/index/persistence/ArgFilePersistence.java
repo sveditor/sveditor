@@ -36,7 +36,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -44,7 +43,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -205,8 +203,8 @@ public class ArgFilePersistence extends TestCase
 		IndexTestUtils.assertNoErrWarn(log, target_index);
 
 		String path = "${workspace_loc}/xbus/sv/xbus_transfer.sv";
-		ISVDBFileSystemProvider fs = ((SVDBArgFileIndex)target_index).getFileSystemProvider();
-		SVPreProcessor pp = ((SVDBArgFileIndex)target_index).createPreProcScanner(path);
+		ISVDBFileSystemProvider fs = target_index.getFileSystemProvider();
+		ISVPreProcessor pp = ((ISVDBIndexInt)target_index).createPreProcScanner(path);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
 
@@ -324,6 +322,8 @@ public class ArgFilePersistence extends TestCase
 		Tuple<SVDBFile, SVDBFile> parse_res = 
 				target_index.parse(new NullProgressMonitor(), in, path, null);
 		
+		assertNotNull(parse_res);
+		
 		if (result != null) {
 			file = parse_res.second();
 		}
@@ -379,9 +379,13 @@ public class ArgFilePersistence extends TestCase
 		ISVPreProcessor pp = ((ISVDBIndexInt)target_index).createPreProcScanner(path);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
+		
+		Tuple<SVDBFile, SVDBFile> result = target_index.parse(new NullProgressMonitor(), in, path, null);
+		
+		assertNotNull(result);
 
 		log.debug("--> Parse 1");
-		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null).second();
+		SVDBFile file = result.second();
 		log.debug("<-- Parse 1");
 		
 		SVPreProcOutput pp_out = pp.preprocess();

@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.tests.parser.perf;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -22,15 +24,15 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -39,10 +41,23 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestParserPerf extends TestCase {
 	
 	private File				fTmpDir;
+	private String				fTestPluginPath;
 	
 	@Override
 	protected void setUp() throws Exception {
 		fTmpDir = TestUtils.createTempDir();
+		SVCorePlugin.testInit();
+		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
+		
+		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
+		System.out.println("plugin_class: " + plugin_class.toExternalForm());
+		String path = plugin_class.toExternalForm();
+		path = path.substring("file:".length());
+		path = path.substring(0, path.length()-(cls_path.length()+"/class/".length()));		
+		
+		fTestPluginPath = path;
+		
 //		SVCorePlugin.testInit(); 
 	}
 
@@ -51,7 +66,7 @@ public class TestParserPerf extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 //		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-		TestUtils.delete(fTmpDir);
+//		TestUtils.delete(fTmpDir);
 		// TODO Auto-generated method stub
 		super.tearDown();
 	}
@@ -118,7 +133,7 @@ public class TestParserPerf extends TestCase {
 		 */
 	}
 
-	public void testUVMPreProc() {
+	public void testUVMPreProc() throws IOException {
 		/*
 		LogFactory.getDefault().addLogListener(new ILogListener() {
 			
@@ -128,6 +143,7 @@ public class TestParserPerf extends TestCase {
 		});
 		 */
 //		LogFactory.getDefault().setLogLevel(null, 10);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
@@ -143,21 +159,39 @@ public class TestParserPerf extends TestCase {
 
 		TestUtils.unpackZipToFS(uvm_zip, fTmpDir);
 
-		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
-		SVDBLibPathIndexFactory factory = new SVDBLibPathIndexFactory();
-//		rgy.test_init(TestIndexCacheFactory.instance(null));
-		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
+		TestIndexCacheFactory factory = TestIndexCacheFactory.instance(fTmpDir);
 	
 		File uvm = new File(fTmpDir, "uvm");
 		File uvm_pkg = new File(uvm, "src/uvm_pkg.sv");
 		
 		System.out.println("uvm_pkg: " + uvm_pkg.getAbsolutePath());
+	
+		File uvm_f = new File(uvm, "uvm.f");
+		PrintStream ps = new PrintStream(uvm_f);
+		ps.println("+define+MODEL_TECH");
+		ps.println("+define+QUESTA");
+		ps.println("+incdir+./src");
+		ps.println("src/uvm_pkg.sv");
+		ps.close();
 
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
-				uvm_pkg.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, 
-				factory, 
-				null);
+		ISVDBIndex index;
+		boolean use_index2 = true;
+		
+		if (use_index2) {
+			index = new SVDBArgFileIndex2("GENERIC", 
+					uvm_f.getAbsolutePath(),
+					new SVDBFSFileSystemProvider(),
+					factory.createIndexCache("GENERIC",  uvm_f.getAbsolutePath()),
+					null);
+		} else {
+			index = new SVDBArgFileIndex("GENERIC", 
+					uvm_f.getAbsolutePath(),
+					new SVDBFSFileSystemProvider(),
+					factory.createIndexCache("GENERIC",  uvm_f.getAbsolutePath()),
+					null);
+		}
+		
+		index.init(new NullProgressMonitor());
 		
 		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		long fullparse_start = System.currentTimeMillis();
@@ -226,15 +260,32 @@ public class TestParserPerf extends TestCase {
 	}
 	
 	public void testOpenSparc() {
-		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
-
-		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
-		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
+		System.out.println("BEGIN");
+		try {
+			Thread.sleep(15000);
+		} catch (InterruptedException e) {}
+		System.out.println("END");
 		
-		ISVDBIndex index = rgy.findCreateIndex("GENERIC",
-				opensparc_design.getAbsolutePath(), 
-				SVDBArgFileIndexFactory.TYPE, factory, null);
+		SVCorePlugin.getDefault().enableDebug(false);
+		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
+		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		
+		ISVDBIndex index;
+		
+		boolean use_argfile2 = true;
+		
+		if (use_argfile2) {
+			index = new SVDBArgFileIndex2("GENERIC", opensparc_design.getAbsolutePath(), 
+					new SVDBFSFileSystemProvider(), 
+					cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
+					null);
+		} else {
+			index = new SVDBArgFileIndex("GENERIC", opensparc_design.getAbsolutePath(), 
+					new SVDBFSFileSystemProvider(), 
+					cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
+					null);
+		}
+		index.init(new NullProgressMonitor());
 		
 		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		long fullparse_start = System.currentTimeMillis();
@@ -350,5 +401,79 @@ public class TestParserPerf extends TestCase {
 		index.loadIndex(new NullProgressMonitor());
 		long fullparse_end = System.currentTimeMillis();
 		System.out.println("Full parse: " + (fullparse_end-fullparse_start));
+	}	
+	
+	public void testEthernetExample() {
+		LogHandle log = LogFactory.getLogHandle("testEthernetExample");
+//		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		File test_dir = new File(fTmpDir, "testEthernetExample");
+		if (test_dir.exists()) {
+			TestUtils.delete(test_dir);
+		}
+		test_dir.mkdirs();
+
+		File vmm_zip = new File(fTestPluginPath, "vmm.zip");
+		TestUtils.unpackZipToFS(vmm_zip, test_dir);
+		
+		File ethernet_f = new File(test_dir, "vmm/sv/examples/std_lib/ethernet/ethernet.f");
+	
+//		IProject project = TestUtils.createProject("ethernet", ethernet);
+		
+		File db = new File(fTmpDir, "db");
+		if (db.exists()) {
+			TestUtils.delete(db);
+		}
+
+		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		
+		ISVDBIndex index = null;
+		boolean use_index2 = true;
+		
+		if (use_index2) {
+			index = new SVDBArgFileIndex2("GENERIC", 
+				ethernet_f.getAbsolutePath(),
+				new SVDBFSFileSystemProvider(),
+				cache_f.createIndexCache("GENERIC", ethernet_f.getAbsolutePath()),
+				null);
+		} else {
+			index = new SVDBArgFileIndex("GENERIC", 
+				ethernet_f.getAbsolutePath(),
+				new SVDBFSFileSystemProvider(),
+				cache_f.createIndexCache("GENERIC", ethernet_f.getAbsolutePath()),
+				null);
+		}
+		index.init(new NullProgressMonitor());
+	
+		long start = System.currentTimeMillis();
+		index.loadIndex(new NullProgressMonitor());
+		long end = System.currentTimeMillis();
+		System.out.println("Load: " + (end-start) + "ms");
+
+		/*
+		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
+		
+		int count = 0;
+		while (it.hasNext()) {
+			ISVDBItemBase tmp_it = it.nextItem();
+			
+			if (tmp_it.getType() == SVDBItemType.Marker) {
+				SVDBMarker m = (SVDBMarker)tmp_it;
+				if (m.getMarkerType() == MarkerType.Error) {
+					errors.add(m);
+				}
+			}
+			
+			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
+		}
+		
+		for (SVDBMarker m : errors) {
+			log.debug("[ERROR] " + m.getMessage());
+		}
+		assertEquals("No errors", 0, errors.size());
+		 */
+		LogFactory.removeLogHandle(log);
 	}	
 }

@@ -40,6 +40,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
@@ -536,7 +537,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 			// TODO: should actually remove?
 			cfi.fSVDBFile = new WeakReference<SVDBFile>(null);
 			String target_dir = computePathDir(path);
-			fSVDBFS.delete(null, target_dir + "/" + name);
+			fSVDBFS.delete(new NullProgressMonitor(), target_dir + "/" + name);
 		} else {
 			cfi.fSVDBFile = (Reference<SVDBFile>)createRef(file);
 			cfi.fSVDBFileRef = file;

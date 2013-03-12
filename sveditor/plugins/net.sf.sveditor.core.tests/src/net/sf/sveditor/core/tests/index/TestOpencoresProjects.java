@@ -72,24 +72,21 @@ public class TestOpencoresProjects extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 
 		runTest("testEthernetMac", "/wb_ethmac.zip", "wb_ethmac",
-				new String[] {"${workspace_loc}/wb_ethmac/dut.f",
-							  "${workspace_loc}/wb_ethmac/bench.f"});
+				new String[] {"${workspace_loc}/wb_ethmac/wb_ethmac.f"});
 	}
 	
 	public void testI2C() throws CoreException {
 		SVCorePlugin.getDefault().enableDebug(false);
 
 		runTest("testI2C", "/i2c.zip", "i2c",
-				new String[] {"${workspace_loc}/i2c/dut.f",
-							  "${workspace_loc}/i2c/bench.f"});
+				new String[] {"${workspace_loc}/i2c/i2c.f"});
 	}
 
 	public void testDMA() throws CoreException {
 		SVCorePlugin.getDefault().enableDebug(false);
 
 		runTest("testDMA", "/wb_dma.zip", "wb_dma",
-				new String[] {"${workspace_loc}/wb_dma/dut.f",
-							  "${workspace_loc}/wb_dma/bench.f"});
+				new String[] {"${workspace_loc}/wb_dma/wb_dma.f"});
 	}
 	
 	public void testUSBHostSlave() throws CoreException {

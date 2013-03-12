@@ -14,7 +14,6 @@ package net.sf.sveditor.core.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -44,12 +43,13 @@ import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class SVDBTestUtils {
 
@@ -198,6 +198,34 @@ public class SVDBTestUtils {
 	}
 	
 	public static Tuple<SVDBFile, SVDBFile> parse(
+			LogHandle				log,
+			InputStream				content_i, 
+			String 					filename,
+			List<SVDBMarker>		markers) {
+		SVPreProcessor2 pp = new SVPreProcessor2(filename, content_i, null, null);
+		
+		SVPreProcOutput pp_out = pp.preprocess();
+	
+		if (log != null) {
+			log.debug("Content (SVPreProc):");
+			log.debug(pp_out.toString());
+		}
+		
+		SVDBFile pp_file = pp.getFileTree().getSVDBFile();
+		
+		ParserSVDBFileFactory parser = new ParserSVDBFileFactory();
+		SVDBFile file = parser.parse(pp_out, filename, markers);
+		
+		for (SVDBMarker m : markers) {
+			if (log != null) {
+				log.debug("[MARKER] " + m.getMessage());
+			}
+		}
+		
+		return new Tuple<SVDBFile, SVDBFile>(pp_file, file);
+	}	
+	
+	public static Tuple<SVDBFile, SVDBFile> parse_old(
 			LogHandle				log,
 			InputStream				content_i, 
 			String 					filename,

@@ -18,8 +18,8 @@ import java.io.InputStream;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -156,11 +156,15 @@ public class TestIndexParse extends TestCase {
 		InputStream in = index.getFileSystemProvider().openStream(path);
 		
 		assertNotNull("Failed to open path \"" + path + "\"", in);
+	
+		Tuple<SVDBFile, SVDBFile> result = index.parse(new NullProgressMonitor(), in, path, null);
 		
-		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null).second();
+		assertNotNull(result);
+
+		SVDBFile file = result.second();
 		
 		assertNotNull("Failed to parse path \"" + path + "\"", file);
-		
+
 		index.getFileSystemProvider().closeStream(in);
 
 		// If the normalized path is different (ie Windows), then

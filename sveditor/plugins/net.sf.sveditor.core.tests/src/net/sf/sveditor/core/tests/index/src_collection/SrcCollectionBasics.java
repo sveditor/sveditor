@@ -134,6 +134,8 @@ public class SrcCollectionBasics extends SVTestCaseBase {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
 			
+			log.debug("Item: " + tmp_it.getType() + " " + name);
+			
 			if (name.equals("class1")) {
 				class1 = tmp_it;
 			} else if (name.equals("class2")) {
