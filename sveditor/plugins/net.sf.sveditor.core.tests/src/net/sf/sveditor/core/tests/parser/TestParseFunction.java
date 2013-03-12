@@ -251,6 +251,21 @@ public class TestParseFunction extends TestCase {
 		parse_tf(content, "testIfElseBody");
 	}
 
+	public void testIfInside() throws SVParseException {
+		String content =
+			"task atask;\n" +
+			"int a_thing ;\n" +
+			"if( !(a_thing inside things)) begin\n" +
+			"	$display(\"Arggg!\n\") ;\n" +
+			"end\n" +
+			"endtask\n"				
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		parse_tf(content, "testIfInside");
+	}
+
 	public void testAutomaticFunction() throws SVParseException {
 		String content =
 			"function automatic void foobar();\n" +
