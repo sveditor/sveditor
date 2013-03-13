@@ -78,5 +78,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS           	= OUTLINE_SETTINGS + "outlineShowCoverPointGroupCross";
 	public static final String P_OUTLINE_SHOW_CONSTRAINTS                       	= OUTLINE_SETTINGS + "outlineShowConstraints";
 	public static final String P_OUTLINE_SORT                                   	= OUTLINE_SETTINGS + "outlineSort";
-	
+
+	// Code Style Preferences
+	public static final String P_SV_CODE_STYLE_PREFS								= INDEX_SETTINGS + "codeStylePrefs";
 }

@@ -49,6 +49,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 
@@ -96,11 +97,13 @@ public class SVCorePlugin extends Plugin
 	private TemplateRegistry				fTemplateRgy;
 	private static boolean				fEnableAsyncCacheClear;
 	private static boolean				fTestMode = false;
+	private SVParserConfig				fParserConfig;
 	
 	/**
 	 * The constructor
 	 */
 	public SVCorePlugin() {
+		fParserConfig = new SVParserConfig();
 	}
 
 	/*
@@ -143,6 +146,10 @@ public class SVCorePlugin extends Plugin
 		return fTestMode;
 	}
 	
+	public SVParserConfig getParserConfig() {
+		return fParserConfig;
+	}
+	
 	public boolean getEnableAsyncCacheClear() {
 		return fEnableAsyncCacheClear;
 	}
@@ -172,7 +179,10 @@ public class SVCorePlugin extends Plugin
 	}
 	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
-		return new ParserSVDBFileFactory(dp);
+		ParserSVDBFileFactory f = new ParserSVDBFileFactory(dp);
+		f.setConfig(getDefault().getParserConfig());
+		
+		return f;
 	}
 	
 	public ISVIndenter createIndenter() {

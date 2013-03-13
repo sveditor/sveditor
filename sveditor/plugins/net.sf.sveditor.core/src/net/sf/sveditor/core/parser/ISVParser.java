@@ -38,4 +38,6 @@ public interface ISVParser {
 	
 	ILogHandle getLogHandle();
 	
+	SVParserConfig getConfig();
+	
 }

@@ -18,6 +18,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ISVParser;
 import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.parser.SVParsers;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
@@ -83,6 +84,10 @@ public class SVExprUtilsParser implements ISVParser {
 
 	public SVParsers parsers() {
 		return fParsers;
+	}
+	
+	public SVParserConfig getConfig() {
+		return null;
 	}
 
 	public void debug(String msg, Exception e) {
