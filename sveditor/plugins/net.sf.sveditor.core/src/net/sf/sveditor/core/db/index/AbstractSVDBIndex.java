@@ -64,6 +64,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
@@ -1707,7 +1708,7 @@ public abstract class AbstractSVDBIndex implements
 		}
 		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(null);
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
-
+		
 		path = SVFileUtils.normalize(path);
 
 		SVDBFileTree file_tree = findFileTree(path, false);

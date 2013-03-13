@@ -21,6 +21,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.XMLTransformUtils;
@@ -29,6 +30,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
 import net.sf.sveditor.core.templates.ITemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateParameterProvider;
@@ -132,6 +134,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 					getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
 			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
 					getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
+	
+			update_parser_prefs();
 		}
 		
 		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
@@ -164,6 +168,20 @@ public class SVUiPlugin extends AbstractUIPlugin
 		if (params != null) {
 			fGlobalPrefsProvider = new TemplateParameterProvider(params);
 		}
+	}
+	
+	private void update_parser_prefs() {
+		try {
+			Map<String, String> parser_opts = XMLTransformUtils.xml2Map(
+					getPreferenceStore().getString(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS),
+					"preferences", "preference");
+		
+			SVParserConfig cfg = SVCorePlugin.getDefault().getParserConfig();
+			for (Entry<String, String> entry : parser_opts.entrySet()) {
+				cfg.setOption(entry.getKey(), entry.getValue().equals("true"));
+			}
+		} catch (Exception e) {}
+		
 	}
 	
 	public List<String> getExternalTemplatePath() {
@@ -260,6 +278,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 					(Boolean)event.getNewValue());
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES)) {
 			update_global_parameters();
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS)) {
+			update_parser_prefs();
 		}
 	}
 	

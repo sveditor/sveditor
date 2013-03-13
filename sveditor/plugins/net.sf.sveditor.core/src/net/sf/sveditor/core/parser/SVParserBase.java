@@ -88,6 +88,10 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 	public void debug(String msg, Exception e) {
 		fParser.debug(msg, e);
 	}
+	
+	public SVParserConfig getConfig() {
+		return fParser.getConfig();
+	}
 
 	protected void setStartLocation(SVDBItem item) {
 		item.setLocation(getLocation());

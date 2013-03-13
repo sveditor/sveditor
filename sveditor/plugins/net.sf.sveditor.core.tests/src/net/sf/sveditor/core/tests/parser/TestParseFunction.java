@@ -28,13 +28,23 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.parser.SVParserConfig;
 
 public class TestParseFunction extends TestCase {
 	
+
 	private SVDBTask parse_tf(String content, String name) throws SVParseException {
+		return parse_tf(null, content, name);
+	}
+	
+	private SVDBTask parse_tf(SVParserConfig config, String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
 		parser.init(new StringInputStream(content), name);
+		
+		if (config != null) {
+			parser.setConfig(config);
+		}
 		
 		parser.parsers().taskFuncParser().parse(scope, null, 0);
 
@@ -260,10 +270,13 @@ public class TestParseFunction extends TestCase {
 			"end\n" +
 			"endtask\n"				
 			;
+		SVParserConfig config = new SVParserConfig();
+		
+		config.setAllowInsideQWithoutBraces(true);
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		parse_tf(content, "testIfInside");
+		parse_tf(config, content, "testIfInside");
 	}
 
 	public void testAutomaticFunction() throws SVParseException {
