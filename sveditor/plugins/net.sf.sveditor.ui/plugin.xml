@@ -684,6 +684,12 @@
             id="net.sf.sveditor.ui.indexPreferences"
             name="Index Preferences">
       </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVEditorCodeStylePrefsPage"
+            id="net.sf.sveditor.ui.svEditorCodeStylePrefs"
+            name="Code Style Preferences">
+      </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">

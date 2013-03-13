@@ -82,6 +82,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private List<SVDBMarker>			fMarkers;
 	private boolean						fDisableErrors;
 	private ISVPreProcFileMapper		fFileMapper;
+	private SVParserConfig				fConfig;
 	
 	public ParserSVDBFileFactory() {
 		this(null);
@@ -99,6 +100,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		fParseErrorCount = 0;
 		fParseErrorMax = 100;
+		
+		fConfig = new SVParserConfig();
+	}
+	
+	public void setConfig(SVParserConfig config) {
+		fConfig = config;
+	}
+	
+	public SVParserConfig getConfig() {
+		return fConfig;
 	}
 
 	public void setDefineProvider(IDefineProvider p) {

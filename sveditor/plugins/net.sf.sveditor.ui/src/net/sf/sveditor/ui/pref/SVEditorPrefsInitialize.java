@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.XMLTransformUtils;
+import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditorColors;
@@ -92,6 +93,20 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 			try {
 				store.setDefault(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES,
 						XMLTransformUtils.map2Xml(p, "parameters", "parameter"));
+			} catch (Exception e) {}
+		}
+		
+		/**
+		 * Initialize code-style preferences
+		 */
+		{
+			Map<String, String> map = new HashMap<String, String>();
+			for (String key : SVParserConfig.getOptionSet()) {
+				map.put(key, "false");
+			}
+			try {
+				String val = XMLTransformUtils.map2Xml(map, "preferences", "preference");
+				store.setDefault(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS, val);
 			} catch (Exception e) {}
 		}
 	}

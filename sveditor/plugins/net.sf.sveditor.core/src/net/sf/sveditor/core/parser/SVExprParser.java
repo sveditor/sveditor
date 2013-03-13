@@ -660,8 +660,13 @@ public class SVExprParser extends SVParserBase {
 		} else if (fLexer.peekKeyword("inside")) {
 			fLexer.eatToken();
 			SVDBInsideExpr inside = new SVDBInsideExpr(a);
-			
-			open_range_list(inside.getValueRangeList());
+
+			if (fLexer.peekId() &&
+					getConfig().allowInsideQWithoutBraces()) {
+				inside.getValueRangeList().add(idExpr());
+			} else {
+				open_range_list(inside.getValueRangeList());
+			}
 			
 			a = inside;
 			
