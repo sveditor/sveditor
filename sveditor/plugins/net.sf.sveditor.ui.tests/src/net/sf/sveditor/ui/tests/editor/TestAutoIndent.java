@@ -126,10 +126,12 @@ public class TestAutoIndent extends TestCase {
 						"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 						"end\n" +
 						"initial\n" +
+						"@(posedge bob) begin\n" +
 						"if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
 						"else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 						"else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 						"else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"end\n" +
 						"endmodule\n"
 						;
 		// Type & then paste, to make sure that what we type, and what we get are identical!
@@ -154,10 +156,12 @@ public class TestAutoIndent extends TestCase {
 						"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
 						"	end\n" +
 						"	initial\n" +
-						"		if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
-						"		else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
-						"		else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
-						"		else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		@(posedge bob) begin\n" +
+						"			if (~rst_n_clk) bus_release_cnt <= 'b0;\n" +
+						"			else if (slow_packet_finished) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"			else if (|bus_release_cnt) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"			else if(jill) bus_release_cnt <= bus_release_cnt + 1'b1;\n" +
+						"		end\n" +
 						"endmodule\n"
 						;
 		
