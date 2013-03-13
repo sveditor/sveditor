@@ -607,6 +607,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok.isOp("@"));
 	}
 
+	/**
+	 * Checks to see if id is one of the "normal" case statements:
+	 *  - case
+	 *  - casez
+	 *  - casex
+	 * @param tok
+	 * @return boolean, true if is a match
+	 */
+	private static boolean is_case(SVIndentToken tok) {
+//		return (tok.isId("case"));
+		return (tok.isId("case") || tok.isId("casez") ||
+				tok.isId("casex"));
+	}
+	
 	private SVIndentToken indent_covergroup() {
 		SVIndentToken tok = current_s();
 		
@@ -830,7 +844,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_if(false);
 		} else if (tok.isId("fork")) {
 			tok = indent_fork();
-		} else if (tok.isId("case") || tok.isId("randcase")) {
+		} else if (is_case(tok) || tok.isId("randcase")) {
 			tok = indent_case();
 		} else if (is_always(tok))  {
 			tok = indent_always();
@@ -1043,7 +1057,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		start_of_scope(tok);
 
 		// randcase does not have an expression
-		if (type.equals("case")) {
+		if (is_case(tok)) {
 			tok = next_s(); // should be expression
 		}
 

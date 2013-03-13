@@ -796,7 +796,7 @@ public class TestAutoIndent extends TestCase {
 		tester.type(input);
 		String result = tester.getContent();
 
-		IndentComparator.compare("", expected, result);
+		IndentComparator.compare("testCaseStatement", expected, result);
 	}
 	
 	public void testBasedEmptyEnumIndent() throws BadLocationException {
@@ -1012,6 +1012,69 @@ public void testModulePorts() throws BadLocationException {
 	tester.type(input);
 	String result = tester.getContent();
 
+	IndentComparator.compare("testModulePorts", expected, result);
+}
+
+// This test checks case, casex and casez statments
+public void testIndentCase() throws BadLocationException {
+	String input =
+			"module foo;\n" +
+			"always_comb begin\n" +
+			"// Case\n" +
+			"case (someting)\n" +
+			"8'b0000_0000 : begin out = 4'b0000; end\n" +
+			"default      : begin\n" +
+			"out = '0;\n" +
+			"end\n" +
+			"endcase\n" +
+			"// casex\n" +
+			"casex (someting)\n" +
+			"8'b0000_0000 :\n" +
+			"begin\n" +
+			"out = 4'b0000;\n" +
+			"end\n" +
+			"default      : out = '0;\n" +
+			"endcase\n" +
+			"// casez\n" +
+			"casez (someting)\n" +
+			"8'b0000_0000 : out = 4'b0000;\n" +
+			"default      : out = '0;\n" +
+			"endcase\n" +
+			"end\n" +
+			"endmodule\n"
+			;
+	
+	String expected =
+			"module foo;\n" +
+			"	always_comb begin\n" +
+			"		// Case\n" +
+			"		case (someting)\n" +
+			"			8'b0000_0000 : begin out = 4'b0000; end\n" +
+			"			default      : begin\n" +
+			"				out = '0;\n" +
+			"			end\n" +
+			"		endcase\n" +
+			"		// casex\n" +
+			"		casex (someting)\n" +
+			"			8'b0000_0000 :\n" +
+			"			begin\n" +
+			"				out = 4'b0000;\n" +
+			"			end\n" +
+			"			default      : out = '0;\n" +
+			"		endcase\n" +
+			"		// casez\n" +
+			"		casez (someting)\n" +
+			"			8'b0000_0000 : out = 4'b0000;\n" +
+			"			default      : out = '0;\n" +
+			"		endcase\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+	
+	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+	tester.type(input);
+	String result = tester.getContent();
+	
 	IndentComparator.compare("testModulePorts", expected, result);
 }
 
