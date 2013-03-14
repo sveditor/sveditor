@@ -502,21 +502,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("struct") || tok.isId("union") || tok.isId("enum")) {
 				tok = indent_struct_union_enum("");
 				fQualifiers = 0;
-			} else if (tok.isId("initial") || is_always(tok) || tok.isId("final") || tok.isId("generate")) {
-				// enter_scope(tok);
+			} else if (is_always(tok))  {
+				tok = indent_always();
+			} else if (tok.isId("initial") || tok.isId("final") || tok.isId("generate")) {
 				tok = next_s();
-				
-				if (tok.isOp("@")) {
-					tok = next_s(); // paren
-					tok = consume_expression();
-				}
-
-				if (current().getImage().equals("begin")) {
-					tok = indent_block_or_statement(null, false);
-				} else {
-					tok = indent_block_or_statement(null, false);
-//					leave_scope();
-				}
+				tok = indent_block_or_statement(null, false);
 				// look for and consume endgenerate
 				if (tok.isId("endgenerate"))  {
 					tok = next_s();
@@ -613,9 +603,24 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 	private static boolean is_always(SVIndentToken tok) {
 		return (tok.isId("always") || tok.isId("always_comb") ||
-				tok.isId("always_latch") || tok.isId("always_ff"));
+				tok.isId("always_latch") || tok.isId("always_ff") ||
+				tok.isOp("@"));
 	}
 
+	/**
+	 * Checks to see if id is one of the "normal" case statements:
+	 *  - case
+	 *  - casez
+	 *  - casex
+	 * @param tok
+	 * @return boolean, true if is a match
+	 */
+	private static boolean is_case(SVIndentToken tok) {
+//		return (tok.isId("case"));
+		return (tok.isId("case") || tok.isId("casez") ||
+				tok.isId("casex"));
+	}
+	
 	private SVIndentToken indent_covergroup() {
 		SVIndentToken tok = current_s();
 		
@@ -839,16 +844,14 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_if(false);
 		} else if (tok.isId("fork")) {
 			tok = indent_fork();
-		} else if (tok.isId("case") || tok.isId("randcase")) {
+		} else if (is_case(tok) || tok.isId("randcase")) {
 			tok = indent_case();
-		} else if (is_always(tok) || tok.isId("initial") || tok.isId("final")) {
-			enter_scope(tok);
-			if ((tok = next_s()).isOp("@")) {
-				tok = next_s();
-				tok = next_s(); // Should be either stmt or begin
-				indent_block_or_statement(null, false);
-			}
-			leave_scope();
+		} else if (is_always(tok))  {
+			tok = indent_always();
+		} else if (tok.isId("initial") || tok.isId("final")) {
+			// enter_scope(tok);
+			tok = next_s();
+			tok = indent_block_or_statement(null, false);
 		} else if (tok.isId("typedef")) {
 			tok = indent_typedef();
 		} else if (tok.isId("while") || tok.isId("do") ||
@@ -1019,6 +1022,31 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 	
 	
+	/**
+	 * This will take a look at the various always... constructs and move through them, 
+	 * hopefully working through the rest of the line to either a begin or a statement...
+	 * Rules:
+	 * always_latch, always_comb : jump straight to parsing statement or block
+	 * always, always_ff, or @: make way through the @(...) and then parse statement or block
+	 * @return
+	 */
+	private SVIndentToken indent_always() {
+		SVIndentToken tok = current();
+//		return (tok.isId("always") || tok.isId("always_comb") ||
+//				tok.isId("always_latch") || tok.isId("always_ff"));
+		if (tok.isId("always") || (tok.isId("always_ff") || tok.isId("always_latch") || tok.isId("always_comb")))  {
+			tok=next_s();	// on always, always_ff this will be an @, otherwise will be begin or start of statement
+		}
+		// If we have an @, make way to the end of the expression
+		if (tok.isOp("@"))  {
+			// swallow the expression (...) or @*
+			tok = next_s();
+			tok=consume_expression();
+		}
+		// By this point we should have reached a begin or statement
+		return (indent_block_or_statement(null, false));
+	}
+	
 	private SVIndentToken indent_case() {
 		SVIndentToken tok = current();
 		String type = tok.getImage();
@@ -1029,7 +1057,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		start_of_scope(tok);
 
 		// randcase does not have an expression
-		if (type.equals("case")) {
+		if (is_case(tok)) {
 			tok = next_s(); // should be expression
 		}
 
