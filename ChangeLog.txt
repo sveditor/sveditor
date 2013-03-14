@@ -19,13 +19,18 @@
 
 - #(nobug) Updated SVCodeScanner to recognize that "?" is also a valid operator character
 
-- #(nobug) Covergroup <name> with function sample was creating errors, and cratering the file in progress.  Modification
-           done to run to end of line, and treat as a normal, simple covergroup.
+- #(nobug) Covergroup <name> with function sample was creating errors, and 
+  cratering the file in progress.  Modification done to run to end of line, 
+  and treat as a normal, simple covergroup.
            
 - #(165)   Outline view does not jump when selecting primitives
 
-- #(170)   Outline view does not jump when selecting properties 
+- #(170)   Outline view does not jump when selecting properties
 
+- #(nobug) Fixed auto-indenter surrounding @(...); inside an initial block
+
+- #(nobug) Fixed auto-indenter casez and casex not handled
+    
 - #(247) - Support this case (if (a inside b)) as a non-LRM-compliant case. Added an extensible
   preference scheme to allow the user to selectively enable non-LRM cases.
 
