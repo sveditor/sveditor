@@ -20,7 +20,6 @@ import net.sf.sveditor.core.templates.ITemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateParameter;
 import net.sf.sveditor.core.templates.TemplateParameterProvider;
-import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
@@ -113,10 +112,11 @@ public class SVTemplateParameterPage extends WizardPage {
 		
 		final Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout());
+		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		Composite src_c = new Composite(c, SWT.NONE);
 		src_c.setLayout(new GridLayout(3, false));
-		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		/** Select the destination location */
 		l = new Label(src_c, SWT.NONE);

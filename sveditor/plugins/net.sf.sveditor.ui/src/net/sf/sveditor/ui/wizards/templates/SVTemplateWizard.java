@@ -45,6 +45,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 public class SVTemplateWizard extends BasicNewResourceWizard {
 	public static final String						ID = SVUiPlugin.PLUGIN_ID + ".svMethodologyClass";
 	private SVTemplateSelectionPage						fBasicsPage;
+	private SVTemplateParametersPage2					fParametersPage;
 	private SVTemplateParameterPage						fParamsPage;
 	private ISVSubWizard								fSubWizard;
 	private Map<String, Object>							fOptions;
@@ -60,6 +61,7 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 		
 		fBasicsPage = new SVTemplateSelectionPage();
 		fParamsPage = new SVTemplateParameterPage();
+		fParametersPage = new SVTemplateParametersPage2();
 		
 		Object sel = getSelection().getFirstElement();
 		if (sel != null && sel instanceof IResource) {
@@ -71,6 +73,7 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 			fParamsPage.setSourceFolder(r.getFullPath().toOSString());
 		}
 		addPage(fBasicsPage);
+		addPage(fParametersPage);
 		addPage(fParamsPage);
 	}
 	
