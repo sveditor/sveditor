@@ -852,6 +852,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// enter_scope(tok);
 			tok = next_s();
 			tok = indent_block_or_statement(null, false);
+		} else if (tok.isId("assign")) {
+			tok = next_s();
+			tok = indent_block_or_statement(null, false);
 		} else if (tok.isId("typedef")) {
 			tok = indent_typedef();
 		} else if (tok.isId("while") || tok.isId("do") ||

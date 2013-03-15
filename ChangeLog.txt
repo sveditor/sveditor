@@ -7,6 +7,7 @@
 - #(nobug) Fixed auto-indenter surrounding @(...); inside an initial block
 - #(nobug) Fixed auto-indenter casez and casex not handled
 - #(nobug) Updated auto-indenter to add "dist" in constraints
+- #(nobug) Fixed auto-indenter, multi-line assign statements weren't being indented
     
 
 -- 1.1.8 Release --

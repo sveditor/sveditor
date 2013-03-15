@@ -1077,7 +1077,7 @@ public void testIndentCase() throws BadLocationException {
 	
 	IndentComparator.compare("testModulePorts", expected, result);
 }
-// This test checks case, casex and casez statments
+// This test checks constraints
 public void testIndentConstraint() throws BadLocationException {
 	String input =
 		"class someclass;\n" +
@@ -1114,5 +1114,39 @@ public void testIndentConstraint() throws BadLocationException {
 	IndentComparator.compare("testIndentConstraint", expected, result);
 }
 
+//This test checks assign statments, these can run onto multiple lines
+public void testAssignStatements() throws BadLocationException {
+	String input =
+			"module foo;\n" +
+			"assign bob = 1'b0;\n" +
+			"assign bob = jane |\n" +
+			"jack & \n" +
+			"jill;\n" +
+			"assign bob = jane ? jack : jill;\n" +
+			"assign bob = jane ?\n" +
+			"jack :\n" +
+			"jill;\n" +
+			"endmodule\n"
+			;
+	
+	String expected =
+			"module foo;\n" +
+			"	assign bob = 1'b0;\n" +
+			"	assign bob = jane |\n" +
+			"		jack & \n" +
+			"		jill;\n" +
+			"	assign bob = jane ? jack : jill;\n" +
+			"	assign bob = jane ?\n" +
+			"		jack :\n" +
+			"		jill;\n" +
+			"endmodule\n"
+			;
+	
+	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+	tester.type(input);
+	String result = tester.getContent();
+	
+	IndentComparator.compare("testAssignStatements", expected, result);
+}
 
 }
