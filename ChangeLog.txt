@@ -6,6 +6,7 @@
 - #(170)   Outline view does not jump when selecting properties
 - #(nobug) Fixed auto-indenter surrounding @(...); inside an initial block
 - #(nobug) Fixed auto-indenter casez and casex not handled
+- #(nobug) Updated auto-indenter to add "dist" in constraints
     
 
 -- 1.1.8 Release --

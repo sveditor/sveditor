@@ -1077,6 +1077,42 @@ public void testIndentCase() throws BadLocationException {
 	
 	IndentComparator.compare("testModulePorts", expected, result);
 }
+// This test checks case, casex and casez statments
+public void testIndentConstraint() throws BadLocationException {
+	String input =
+		"class someclass;\n" +
+		"constraint clock {\n" +
+		"clk_cfg.period dist {\n" +
+		"[1:10  ] :/ 1,\n" +
+		"11       := 1,\n" +
+		"12       := 1,\n" +
+		"[13: 15] :/ 1\n" +
+		"};\n" +
+		"clk_cfg.jitter < (3 * 1000);\n" +
+		"}\n" +
+		"endclass\n"
+		;
+	
+	String expected =
+			"class someclass;\n" +
+			"	constraint clock {\n" +
+			"		clk_cfg.period dist {\n" +
+			"			[1:10  ] :/ 1,\n" +
+			"			11       := 1,\n" +
+			"			12       := 1,\n" +
+			"			[13: 15] :/ 1\n" +
+			"		};\n" +
+			"		clk_cfg.jitter < (3 * 1000);\n" +
+			"	}\n" +
+			"endclass\n"
+			;
+	
+	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+	tester.type(input);
+	String result = tester.getContent();
+	
+	IndentComparator.compare("testIndentConstraint", expected, result);
+}
 
 
 }
