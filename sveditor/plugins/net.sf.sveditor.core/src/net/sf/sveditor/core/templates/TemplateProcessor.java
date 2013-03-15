@@ -60,6 +60,8 @@ public class TemplateProcessor {
 		}
 		 */
 		
+		// TODO: Execute a JavaScript script if specified
+		
 		for (Tuple<String, String> t : template.getTemplates()) {
 			int n_replacements = 0;
 			String templ = t.first();

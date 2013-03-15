@@ -182,11 +182,15 @@ public class TestIndexParse extends TestCase {
 		}
 	}
 
+	/**
+	 * This test appears to fail with the new index because
+	 * index-iteration relies on findFile 
+	 */
 	public void testRecursiveIncludeParse() {
-		String testname = "testRecursiveIncludeParse";
+		String testname = getName();
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		fProject = TestUtils.createProject("recursive_include", fTmpDir);
 		
@@ -202,7 +206,6 @@ public class TestIndexParse extends TestCase {
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertNoErrWarn(log, index);
-		IndexTestUtils.assertFileHasElements(index,
-				"t1", "t2");
+		IndexTestUtils.assertFileHasElements(log, index, "t1", "t2");
 	}
 }

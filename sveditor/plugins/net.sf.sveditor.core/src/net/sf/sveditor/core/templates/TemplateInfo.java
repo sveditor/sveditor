@@ -29,6 +29,7 @@ public class TemplateInfo {
 	private List<Tuple<String, String>>		fTemplateList;
 	private Map<String, Boolean>			fExecutableMap;
 	private List<TemplateParameter>			fParameters;
+	private String							fGenerateScript;
 	private ITemplateInStreamProvider		fStreamProvider;
 	
 	public TemplateInfo(
@@ -126,4 +127,11 @@ public class TemplateInfo {
 		fStreamProvider.closeStream(in);
 	}
 
+	public void setGeneratorScript(String path) {
+		fGenerateScript = path;
+	}
+	
+	public String getGenerateScript() {
+		return fGenerateScript;
+	}
 }
