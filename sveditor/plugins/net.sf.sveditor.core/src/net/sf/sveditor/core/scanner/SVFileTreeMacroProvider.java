@@ -110,7 +110,7 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel
 		
 		SVDBFileTree ib = fContext;
 		
-		if (ib != null) {
+		if (ib != null && ib.getIncludedByFiles() != null) {
 			file_list.add(ib);
 			while (ib.getIncludedByFiles().size() > 0) {
 				String ib_s = ib.getIncludedByFiles().get(0); 
