@@ -852,6 +852,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// enter_scope(tok);
 			tok = next_s();
 			tok = indent_block_or_statement(null, false);
+		} else if (tok.isId("assign")) {
+			tok = next_s();
+			tok = indent_block_or_statement(null, false);
 		} else if (tok.isId("typedef")) {
 			tok = indent_typedef();
 		} else if (tok.isId("while") || tok.isId("do") ||
@@ -973,13 +976,32 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			// Otherwise, really don't know what's being specified
 		} else {
-			// Read a statement up to a semi-colon
-			
-			while (!tok.isOp(";")) {
+			// expression_or_dist ::= expression [ dist { dist_list } ];
+			tok = next_skip_over_hier();
+			// check if we have a distribution here
+			if (tok.isId("dist"))  {
+				tok = next_s();			// move onto '{'
+				start_of_scope(tok);
+				tok = next_s();
+				enter_scope(tok);
+				
+				while (!tok.isOp("}")) {
+					tok = next_s();
+				}
+				leave_scope(tok);
+				tok = next_s();			// move onto ';'
+				tok = next_s();
+				
+			}
+			// Expression
+			else  {
+				// Read a statement up to a semi-colon
+				while (!tok.isOp(";")) {
+					tok = next_s();
+				}
+				
 				tok = next_s();
 			}
-			
-			tok = next_s();
 		}
 
 		return tok;
@@ -1378,6 +1400,23 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return ret;
 	}
 
+	/**
+	 * This function was written to replace next_s when we are expecting an identifier with a hierarchy in it
+	 * for example:
+	 * top.bob = ... the function will run past the ., and return bob
+	 * 
+	 * @return The identifier in the hierarchy 
+	 */
+	private SVIndentToken next_skip_over_hier () {
+		SVIndentToken tok = current();
+		tok = next_s();						// get the next id (possibly a hierarchy delimiter '.') 
+		while (tok.isOp("."))  {
+			tok = next_s();					// identifier
+			tok = next_s();					// possible hierarchy delimiter '.'
+		}
+		return (tok);				// return the last token in hierarchy
+	}
+	
 	private static String get_end_kw(String kw) {
 		if (kw.equals("covergroup")) {
 			return "endgroup";
