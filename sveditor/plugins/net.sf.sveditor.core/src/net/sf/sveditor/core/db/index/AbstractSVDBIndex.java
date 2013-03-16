@@ -2336,7 +2336,11 @@ public abstract class AbstractSVDBIndex implements
 	
 		SVDBFile file = findFile(item.getFilename());
 		
-		return finder.find_refs(file);
+		if(file != null) {
+			return finder.find_refs(file);
+		} else {
+			return new ArrayList<SVDBRefItem>(); 
+		}
 	}
 	
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
