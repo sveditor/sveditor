@@ -203,7 +203,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
 		addProject(project_dir);

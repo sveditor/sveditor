@@ -3,9 +3,7 @@ package net.sf.sveditor.core.templates;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TemplateParameter {
-	private TemplateParameterType			fType;
-	private String							fName;
+public class TemplateParameter extends TemplateParameterBase {
 	private String							fDefault;
 	private String							fValue;
 	private String							fExtFrom;
@@ -16,16 +14,25 @@ public class TemplateParameter {
 			String						name,
 			String						dflt,
 			String						ext_from) {
-		fType 		= type;
-		fName 		= name;
+		super(type);
+		setName(name);
 		fDefault 	= dflt;
 		fValue		= dflt;
 		fExtFrom	= ext_from;
 		fValues		= new ArrayList<String>();
 	}
 	
-	public TemplateParameterType getType() {
-		return fType;
+	public TemplateParameter(TemplateParameter other) {
+		super(other);
+	
+		fDefault = other.fDefault;
+		fValue   = other.fValue;
+		fExtFrom = other.fExtFrom;
+		
+		fValues = new ArrayList<String>();
+		for (String v : other.fValues) {
+			fValues.add(v);
+		}
 	}
 	
 	public String getTypeName() {
@@ -41,10 +48,6 @@ public class TemplateParameter {
 			case ParameterType_Int: return "integer"; 
 			default: return "unknown";
 		}
-	}
-	
-	public String getName() {
-		return fName;
 	}
 	
 	public String getDefault() {
@@ -73,15 +76,9 @@ public class TemplateParameter {
 		}
 	}
 	
-	public TemplateParameter duplicate() {
-		TemplateParameter p = new TemplateParameter(fType, fName, fDefault, fExtFrom);
-		p.setValue(fValue);
-		
-		for (String v : fValues) {
-			p.addValue(v);
-		}
-		
-		return p;
+	public TemplateParameter clone() {
+		return new TemplateParameter(this);
 	}
+	
 }
 

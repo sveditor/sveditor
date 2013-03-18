@@ -16,8 +16,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
@@ -51,20 +57,65 @@ public class TemplateProcessor {
 		return ret;
 	}
 	
+	private void runGenerateScript(
+			InputStream 			in,
+			TemplateInfo			template,
+			TemplateParameterSet	parameters) throws ScriptException, NoSuchMethodException {
+		ScriptEngineManager factory = new ScriptEngineManager();
+		ScriptEngine engine = factory.getEngineByName("JavaScript");
+		
+		// Source script
+		engine.eval(new InputStreamReader(in));
+	
+		try {
+			in.close();
+		} catch (IOException e) {}
+	
+		Invocable inv = (Invocable)engine;
+		
+		inv.invokeFunction("generate", template, parameters);
+//		inv.invokeFunction("generate", args)
+	}
+	
 	public void process(TemplateInfo template, TagProcessor proc) {
 		TemplateParameterProvider local_p = new TemplateParameterProvider();
 		proc.addParameterProvider(local_p);
+		
+		TemplateParameterSet parameters = new TemplateParameterSet();
+	
+		// TODO: This should probably be getParametersFlat()
+		for (TemplateParameterBase p : template.getParameters().getParameters()) {
+			parameters.addParameter(p.clone());
+		}
+		
 		/*
 		if (!proc.hasTag("file_header")) {
 			proc.setTag("file_header", fDefaultFileHeader);
 		}
 		 */
 		
+		// TODO: Execute a JavaScript script if specified
+		if (template.getGenerateScript() != null) {
+			InputStream in = template.openTemplate(template.getGenerateScript());
+			
+			System.out.println(" IN: " + in);
+			if (in != null) {
+				try {
+					runGenerateScript(in, template, parameters);
+				} catch (ScriptException e) {
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				}
+				template.closeTemplate(in);
+			}
+		}
+		
 		for (Tuple<String, String> t : template.getTemplates()) {
 			int n_replacements = 0;
 			String templ = t.first();
 			String name = proc.process(t.second());
-		
+			
 			name = name.trim();
 			
 			local_p.setTag("filename", name);

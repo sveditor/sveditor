@@ -38,7 +38,7 @@ public class SVTEditor extends FormEditor {
 	private LogHandle						fLog;
 	private Document						fDocument;
 	private Element							fRootElement;
-	private boolean						fIsDirty;
+	private boolean							fIsDirty;
 	
 	public SVTEditor() {
 		fLog = LogFactory.getLogHandle("SVTEditor");
