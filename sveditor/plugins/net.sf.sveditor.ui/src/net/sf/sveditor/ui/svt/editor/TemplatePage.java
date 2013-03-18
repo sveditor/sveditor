@@ -68,6 +68,7 @@ public class TemplatePage extends FormPage {
 	private Text						fParameterExtFromClass;
 	private Button						fParameterExtFromClassBrowse;
 	private Text						fParameterDefault;
+	private Text						fParameterDescription;
 	
 	private Composite					fFileDetailsPane;
 	private Text						fFileName;
@@ -279,6 +280,19 @@ public class TemplatePage extends FormPage {
 		fParameterDefault.addModifyListener(modifyListener);
 		fAttrMap.put(fParameterDefault, "default");
 		
+		Group g = new Group(c, SWT.NONE);
+		g.setText("Description");
+		tk.adapt(g);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 3;
+		g.setLayoutData(gd);
+		g.setLayout(new GridLayout());
+		fParameterDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterDescription.addModifyListener(modifyListener);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		fParameterDescription.setLayoutData(gd);
+		fElemMap.put(fParameterDescription, "description");		
+		
 		return c;
 	}
 
@@ -395,6 +409,8 @@ public class TemplatePage extends FormPage {
 		fParameterDefault.setText(getAttribute(fActiveElement, "default"));
 		fParameterExtFromClass.setText(getAttribute(fActiveElement, "extends_from"));
 		fParameterRestrictions.setText(getAttribute(fActiveElement, "restrictions"));
+		
+		fParameterDescription.setText(getElementText(fActiveElement, "description"));
 		
 		updateParameterFields();
 		

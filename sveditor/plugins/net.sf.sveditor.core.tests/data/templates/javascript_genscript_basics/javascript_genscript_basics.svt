@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<category category="category.id" id="subdir_output" name="subdir output">
+<description/>
+</category>
+<template 
+	category="subdir_output" 
+	id="subdir_output" 
+	name="subdir_output"
+	genscript="genscript.js">
+<description/>
+<parameters/>
+<files>
+<file name=" subdir/${name}_1.svh" template=" class_1.svh"/>
+<file name="subdir/${name}_2.svh " template="class_2.svh "/>
+</files>
+</template>
+</sv_template>

@@ -34,7 +34,6 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -617,7 +616,7 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBIndexInt,
 		monitor.done();
 
 		if (fDebugEn) {
-			fLog.debug("--> findFile: " + path + " ret=" + ret);
+			fLog.debug("<-- findFile: " + path + " ret=" + ret);
 		}
 
 		return ret;
@@ -732,18 +731,40 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBIndexInt,
 		// we've found scopes in the target file
 		boolean found_file = false;
 		
-		for (ISVDBChildItem c : parent.getChildren()) {
-			SVDBLocation l = c.getLocation();
-			if (l != null && l.getFileId() == file_id) {
-				ret.addChildItem(c);
-				found_file = true;
-			} else if (c instanceof ISVDBChildParent) {
-				if (!found_file) {
-					extractFileContents(ret, (ISVDBChildParent)c, file_id);
-				} else {
-					break;
+		SVDBLocation l = parent.getLocation();
+		
+		if (fDebugEn) {
+			fLog.debug("--> extractFileContents " + SVDBItem.getName(parent) + 
+					" l.file_id=" + ((l != null)?l.getFileId():"null") + " " + file_id);
+		}
+	
+		if (l != null && l.getFileId() == file_id) {
+			ret.addChildItem(parent);
+			found_file = true;
+			if (fDebugEn) {
+				fLog.debug("  -- foundFile(parent) ; add " + SVDBItem.getName(parent));
+			}
+		} else {
+			for (ISVDBChildItem c : parent.getChildren()) {
+				l = c.getLocation();
+				if (l != null && l.getFileId() == file_id) {
+					ret.addChildItem(c);
+					found_file = true;
+					if (fDebugEn) {
+						fLog.debug("  -- foundFile ; add " + SVDBItem.getName(c));
+					}
+				} else if (c instanceof ISVDBChildParent) {
+					if (!found_file) {
+						extractFileContents(ret, (ISVDBChildParent)c, file_id);
+					} else {
+						break;
+					}
 				}
 			}
+		}
+		
+		if (fDebugEn) {
+			fLog.debug("<-- extractFileContents " + SVDBItem.getName(parent));
 		}
 	}
 	
@@ -1077,12 +1098,16 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBIndexInt,
 //			return null;
 		}
 		
+		fLog.debug("--> PreProcess " + r_path);
 		SVPreProcOutput out = preproc.preprocess();
+		fLog.debug("<-- PreProcess " + r_path);
 		
 		ParserSVDBFileFactory f = new ParserSVDBFileFactory();
 		f.setFileMapper(this);
-		
+
+		fLog.debug("--> Parse " + r_path);
 		SVDBFile file = f.parse(out, r_path, markers);
+		fLog.debug("<-- Parse " + r_path);
 		SVDBFile file_ft = null;
 		
 		// TODO: collect markers from FT 
@@ -2053,29 +2078,37 @@ public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBIndexInt,
 			}
 		}
 
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MID, "--> PreProcess " + path);
+		}
 		SVPreProcOutput pp_out = pp.preprocess();
 		end = System.currentTimeMillis();
 		
 //		System.out.println("Pre-process " + path + " " + (end-start));
 		
 		if (fDebugEn) {
-			fLog.debug(LEVEL_MIN, "Pre-process " + path + ": " +
+			fLog.debug(LEVEL_MID, "<-- PreProcess " + path + ": " +
 					(end-start) + "ms");
 		}
 		
 		SVDBFileTree ft = pp_out.getFileTree();
 
 		start = System.currentTimeMillis();
+		
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MID, "--> Parse " + path);
+		}
 		SVDBFile file = f.parse(pp_out, path, markers);
 		end = System.currentTimeMillis();
+		
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MIN, "<-- Parse " + path + ": " +
+					(end-start) + "ms");
+		}
 //		System.out.println("Parse " + path + " " + (end-start));
 
 		cacheDeclarations(file, ft);
 		
-		if (fDebugEn) {
-			fLog.debug(LEVEL_MIN, "Parse " + path + ": " +
-					(end-start) + "ms");
-		}
 	
 		synchronized (fCache) {
 			fCache.setFile(path, file, false);

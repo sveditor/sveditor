@@ -35,6 +35,9 @@
     
 - #(247) - Support this case (if (a inside b)) as a non-LRM-compliant case. Added an extensible
   preference scheme to allow the user to selectively enable non-LRM cases.
+  
+- #(enh) - Enhancements to template parser, wizard, and editor. Add support 
+  for documentation of template parameters.
 
 ------------------------------------------------------------------------------
 -- 1.1.8 Release --

@@ -23,23 +23,22 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Text;
 
 public class SVTemplateSelectionPage extends WizardPage {
 	
 	private TreeViewer				fTemplateTree;
 	private TemplateInfo			fTemplate;
 	private TemplateCategory		fCategory;
-	
-	private Text					fDescription;
+
+	private Browser					fDescription;
 	
 	
 	public SVTemplateSelectionPage() {
@@ -101,7 +100,7 @@ public class SVTemplateSelectionPage extends WizardPage {
 		g.setLayout(new GridLayout());
 		g.setLayoutData(gd);
 		
-		fDescription = new Text(g, SWT.READ_ONLY);
+		fDescription = new Browser(g, SWT.NONE);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fDescription.setLayoutData(gd);
 

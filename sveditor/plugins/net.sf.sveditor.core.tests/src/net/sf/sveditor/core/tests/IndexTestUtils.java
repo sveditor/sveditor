@@ -75,8 +75,12 @@ public class IndexTestUtils {
 			}
 		}
 	}
-
+	
 	public static void assertFileHasElements(ISVDBIndexIterator index_it, String ... elems) {
+		assertFileHasElements(null, index_it, elems);
+	}
+
+	public static void assertFileHasElements(LogHandle log, ISVDBIndexIterator index_it, String ... elems) {
 		Set<String> exp = new HashSet<String>();
 		for (String e : elems) {
 			exp.add(e);
@@ -86,6 +90,10 @@ public class IndexTestUtils {
 		while (item_it.hasNext()) {
 			ISVDBItemBase it = item_it.nextItem();
 			String name = SVDBItem.getName(it);
+			
+			if (log != null) {
+				log.debug("assertFileHasElements: " + it.getType() + " " + name);
+			}
 			if (exp.contains(name)) {
 				exp.remove(name);
 			}
