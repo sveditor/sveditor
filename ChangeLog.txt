@@ -1,4 +1,7 @@
 
+-- 1.2.0 Release --
+
+------------------------------------------------------------------------------
 -- 1.1.9 Release --
 
 - #(nobug) - Correct an argument-file content assist issue involving +plusarg=<>. 
@@ -30,14 +33,9 @@
 - #(nobug) Fixed auto-indenter surrounding @(...); inside an initial block
 
 - #(nobug) Fixed auto-indenter casez and casex not handled
-- #(nobug) Updated auto-indenter to add "dist" in constraints
-- #(nobug) Fixed auto-indenter, multi-line assign statements weren't being indented
     
 - #(247) - Support this case (if (a inside b)) as a non-LRM-compliant case. Added an extensible
   preference scheme to allow the user to selectively enable non-LRM cases.
-  
-- #(enh) - Enhancements to template parser, wizard, and editor. Add support 
-  for documentation of template parameters.
 
 ------------------------------------------------------------------------------
 -- 1.1.8 Release --
