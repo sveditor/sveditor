@@ -43,10 +43,11 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 public class SVTemplateWizard extends BasicNewResourceWizard {
-	public static final String						ID = SVUiPlugin.PLUGIN_ID + ".svMethodologyClass";
-	private SVTemplateSelectionPage						fBasicsPage;
+	public static final String							ID = SVUiPlugin.PLUGIN_ID + ".svMethodologyClass";
+	private SVTemplateSelectionPage						fTemplateSelectionPage;
+	private SVNameFilesPage								fNameFilesPage;
 	private SVTemplateParametersPage2					fParametersPage;
-	private SVTemplateParameterPage						fParamsPage;
+//	private SVTemplateParameterPage						fParamsPage;
 	private ISVSubWizard								fSubWizard;
 	private Map<String, Object>							fOptions;
 	
@@ -59,8 +60,9 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 	public void addPages() {
 		super.addPages();
 		
-		fBasicsPage = new SVTemplateSelectionPage();
-		fParamsPage = new SVTemplateParameterPage();
+		fTemplateSelectionPage = new SVTemplateSelectionPage();
+//		fParamsPage = new SVTemplateParameterPage();
+		fNameFilesPage = new SVNameFilesPage();
 		fParametersPage = new SVTemplateParametersPage2();
 		
 		Object sel = getSelection().getFirstElement();
@@ -70,11 +72,13 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 			if (!(r instanceof IContainer)) {
 				r = r.getParent();
 			}
-			fParamsPage.setSourceFolder(r.getFullPath().toOSString());
+//			fParamsPage.setSourceFolder(r.getFullPath().toOSString());
+			fNameFilesPage.setSourceFolder(r.getFullPath().toOSString());
 		}
-		addPage(fBasicsPage);
+		addPage(fTemplateSelectionPage);
+		addPage(fNameFilesPage);
 		addPage(fParametersPage);
-		addPage(fParamsPage);
+//		addPage(fParamsPage);
 	}
 	
 	@Override
@@ -95,9 +99,18 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 		} else {
 			next = super.getNextPage(page);
 		}
-		
+	
+		/*
 		if (next == fParamsPage) {
 			fParamsPage.setTemplate(fBasicsPage.getTemplate());
+		}
+		 */
+		if (next == fNameFilesPage) {
+			fNameFilesPage.setTemplate(fTemplateSelectionPage.getTemplate());
+		}
+		
+		if (next == fParametersPage) {
+			fParametersPage.setParameters(fTemplateSelectionPage.getTemplate().getParameters());
 		}
 		
 		return next;
@@ -128,10 +141,14 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 
 	@Override
 	public boolean performFinish() {
-		final IContainer folder = SVFileUtils.getWorkspaceFolder(fParamsPage.getSourceFolder());
+		final IContainer folder = SVFileUtils.getWorkspaceFolder(fNameFilesPage.getSourceFolder());
 		final TagProcessor tp = new TagProcessor();
 		tp.addParameterProvider(new DynamicTemplateParameterProvider());
-		tp.addParameterProvider(fParamsPage.getTagProcessor(false));
+//		tp.addParameterProvider(fParamsPage.getTagProcessor(false));
+		// TODO:
+		tp.addParameterProvider(fNameFilesPage.getTagProcessor(false));
+		tp.addParameterProvider(fParametersPage.getTagProcessor());
+//		tp.addParameterProvider(fParametersPage.getTagProcessor(false));
 		tp.addParameterProvider(new DefaultTemplateParameterProvider(
 				SVUiPlugin.getDefault().getGlobalTemplateParameters()));
 		// Add the global parameters, to allow users to 'bend' the rules a bit
@@ -173,7 +190,7 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 							}
 						}
 					});
-					templ_proc.process(fBasicsPage.getTemplate(), tp);
+					templ_proc.process(fTemplateSelectionPage.getTemplate(), tp);
 					monitor.done();
 				}
 			});

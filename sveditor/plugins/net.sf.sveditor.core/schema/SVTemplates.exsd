@@ -78,6 +78,16 @@
                </documentation>
             </annotation>
          </attribute>
+         <attribute name="generate_script" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="resource"/>
+               </appInfo>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -152,9 +162,10 @@
 
    <element name="parameters">
       <complexType>
-         <sequence minOccurs="1" maxOccurs="unbounded">
+         <choice minOccurs="1" maxOccurs="unbounded">
             <element ref="parameter"/>
-         </sequence>
+            <element ref="group"/>
+         </choice>
       </complexType>
    </element>
 
@@ -214,6 +225,25 @@
                <appInfo>
                   <meta.attribute kind="resource"/>
                </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="group">
+      <complexType>
+         <choice minOccurs="1" maxOccurs="unbounded">
+            <element ref="parameter"/>
+            <element ref="group"/>
+            <sequence minOccurs="0" maxOccurs="1">
+               <element ref="description"/>
+            </sequence>
+         </choice>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>

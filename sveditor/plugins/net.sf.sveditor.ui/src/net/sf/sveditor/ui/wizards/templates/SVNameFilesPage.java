@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-public class SVTemplateParameterPage extends WizardPage {
+public class SVNameFilesPage extends WizardPage {
 	private Text							fSourceFolder;
 	private String							fSourceFolderStr;
 	private Button							fBrowse;
@@ -49,15 +49,15 @@ public class SVTemplateParameterPage extends WizardPage {
 	
 	private TemplateFilesTableViewer		fFileTable;
 	
-	private TemplateParametersTreeViewer	fParamsTable;
+//	private TemplateParametersTreeViewer	fParamsTable;
 
 	private TemplateInfo					fTemplate;
 	
 	private TemplateParameterProvider		fParameters;
 	
-	public SVTemplateParameterPage() {
-		super("New SystemVerilog Class", "SystemVerilog Class", null);
-		setDescription("Specify template parameters");
+	public SVNameFilesPage() {
+		super("Select Name and Destination", "", null);
+		setDescription("Specify template name parameter");
 		fParameters = new TemplateParameterProvider();
 	}
 
@@ -80,7 +80,7 @@ public class SVTemplateParameterPage extends WizardPage {
 		fTemplate = template;
 		
 		updateFilenamesDescription();
-		updateParameters();
+//		updateParameters();
 	}
 	
 	public ITemplateParameterProvider getTagProcessor(boolean dont_expand_null_name) {
@@ -149,7 +149,8 @@ public class SVTemplateParameterPage extends WizardPage {
 		fOverwrite = new Button(src_c, SWT.CHECK);
 		fOverwrite.addSelectionListener(selectionListener);
 		
-		
+	
+		/*
 		g = new Group(src_c, SWT.NONE);
 		g.setText("Parameters");
 		
@@ -158,11 +159,12 @@ public class SVTemplateParameterPage extends WizardPage {
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
 		
-		fParamsTable = new TemplateParametersTreeViewer(g);
+		fParamsTable = new TemplateParametersTableViewer(g);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 100;
-		fParamsTable.getTree().setLayoutData(gd);
+		fParamsTable.getTable().setLayoutData(gd);
 		fParamsTable.addModifyListener(modifyListener);
+		 */
 		
 		g = new Group(src_c, SWT.NONE);
 		g.setText("Filenames");
@@ -209,9 +211,9 @@ public class SVTemplateParameterPage extends WizardPage {
 			fFileTable.setSourceFolder(fSourceFolderStr);
 			fFileTable.setTemplate(fTemplate);
 		}
-	
+		
 		/*
-		if (fParamsTable != null && !fParamsTable.getTree().isDisposed()) {
+		if (fParamsTable != null && !fParamsTable.getTable().isDisposed()) {
 			fParamsTable.setSourceFolder(fSourceFolderStr);
 		}
 		 */
@@ -219,8 +221,9 @@ public class SVTemplateParameterPage extends WizardPage {
 		validate();
 	}
 	
+	/*
 	private void updateParameters() {
-		if (fParamsTable != null && !fParamsTable.getTree().isDisposed()) {
+		if (fParamsTable != null && !fParamsTable.getTable().isDisposed()) {
 			if (fTemplate != null) {
 				fParamsTable.setParameters(fTemplate.getParameters());
 			} else {
@@ -228,6 +231,7 @@ public class SVTemplateParameterPage extends WizardPage {
 			}
 		}
 	}
+	 */
 
 	private IProject findDestProject() {
 		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
@@ -286,22 +290,5 @@ public class SVTemplateParameterPage extends WizardPage {
 		
 		public void widgetDefaultSelected(SelectionEvent e) {}
 	};
-
-	/*
-	private void browseClass() {
-		SVDBProjectData pdata = getProjectData();
-		
-		BrowseClasses dlg = new BrowseClasses(
-				fSuperClass.getShell(), pdata.getProjectIndexMgr());
-		dlg.setClassName(fSuperClassStr);
-		
-		if (dlg.open() == Window.OK) {
-			SVDBModIfcDecl cls = dlg.getSelectedClass();
-			if (cls != null) {
-				fSuperClass.setText(cls.getName());
-			}
-		}
-	}
-	 */
 
 }

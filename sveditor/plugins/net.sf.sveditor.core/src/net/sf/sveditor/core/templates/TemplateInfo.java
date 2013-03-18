@@ -22,15 +22,16 @@ import java.util.Map;
 import net.sf.sveditor.core.Tuple;
 
 public class TemplateInfo {
-	private String							fId;
-	private String							fName;
-	private String							fCategoryId;
-	private String							fDescription;
-	private List<Tuple<String, String>>		fTemplateList;
-	private Map<String, Boolean>			fExecutableMap;
-	private List<TemplateParameter>			fParameters;
-	private String							fGenerateScript;
-	private ITemplateInStreamProvider		fStreamProvider;
+	private String								fId;
+	private String								fName;
+	private String								fCategoryId;
+	private String								fDescription;
+	private List<Tuple<String, String>>			fTemplateList;
+	private Map<String, Boolean>				fExecutableMap;
+	private TemplateParameterSet				fParameters;
+	private String								fGenerateScript;
+	private ITemplateInStreamProvider			fStreamProvider;
+	private List<TemplateParameterComposite>	fCompositeTemplateTypes;
 	
 	public TemplateInfo(
 			String 						id, 
@@ -44,8 +45,9 @@ public class TemplateInfo {
 		fDescription	= description;
 		fTemplateList	= new ArrayList<Tuple<String,String>>();
 		fExecutableMap  = new HashMap<String, Boolean>();
-		fParameters		= new ArrayList<TemplateParameter>();
+		fParameters		= new TemplateParameterSet();
 		fStreamProvider = stream_provider;
+		fCompositeTemplateTypes = new ArrayList<TemplateParameterComposite>();
 	}
 	
 	public String getId() {
@@ -69,6 +71,27 @@ public class TemplateInfo {
 	}
 	public String getDescription() {
 		return fDescription;
+	}
+	
+	public List<TemplateParameterComposite> getCompositeTypes() {
+		return fCompositeTemplateTypes;
+	}
+	
+	public void addCompositeType(TemplateParameterComposite c) {
+		fCompositeTemplateTypes.add(c);
+	}
+	
+	public TemplateParameterComposite findCompositeType(String name) {
+		TemplateParameterComposite ret = null;
+		
+		for (TemplateParameterComposite c : fCompositeTemplateTypes) {
+			if (c.getName().equals(name)) {
+				ret = c;
+				break;
+			}
+		}
+		
+		return ret;
 	}
 	
 	/**
@@ -111,11 +134,11 @@ public class TemplateInfo {
 		fTemplateList.add(template);
 	}
 	
-	public void addParameter(TemplateParameter p) {
-		fParameters.add(p);
+	public void addParameter(TemplateParameterBase p) {
+		fParameters.addParameter(p);
 	}
 	
-	public List<TemplateParameter> getParameters() {
+	public TemplateParameterSet getParameters() {
 		return fParameters;
 	}
 	
@@ -127,7 +150,7 @@ public class TemplateInfo {
 		fStreamProvider.closeStream(in);
 	}
 
-	public void setGeneratorScript(String path) {
+	public void setGenerateScript(String path) {
 		fGenerateScript = path;
 	}
 	

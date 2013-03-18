@@ -102,14 +102,36 @@ public class SVTParser {
 		String name 	= template.getAttribute("name");
 		String id   	= template.getAttribute("id");
 		String category = template.getAttribute("category");
+		String genscript = template.getAttribute("genscript");
 		
 		TemplateInfo t = new TemplateInfo(id, name, category, "", fInProvider);
+		
+		if (genscript != null && !genscript.trim().equals("")) {
+			genscript = fTemplateBase + "/" + genscript;
+			
+			t.setGenerateScript(genscript);
+		}
+		
 		
 		NodeList description = template.getElementsByTagName("description");
 		
 		if (description.getLength() > 0) {
 			Element e = (Element)description.item(0);
 			t.setDescription(e.getTextContent());
+		}
+		
+		// First, parse the composite template types
+		NodeList compositeTypes = template.getElementsByTagName("compositeTypes");
+		
+		if (compositeTypes.getLength() > 0) {
+			Element e = (Element)compositeTypes.item(0);
+			NodeList compositeTypes_list = e.getElementsByTagName("compositeType");
+			
+			for (int i=0; i<compositeTypes_list.getLength(); i++) {
+				Element compositeType = (Element)compositeTypes_list.item(i);
+				TemplateParameterComposite composite = parseCompositeType(t, compositeType);
+				t.addCompositeType(composite);
+			}
 		}
 		
 		NodeList files = template.getElementsByTagName("files");
@@ -141,38 +163,154 @@ public class SVTParser {
 			
 			for (int i=0; i<parameters_list.getLength(); i++) {
 				Element parameter = (Element)parameters_list.item(i);
+			
+				TemplateParameterBase p = parseParameter(t, parameter);
 				
-				TemplateParameterType p_type = TemplateParameterType.ParameterType_Id;
-				String p_name   = parameter.getAttribute("name");
-				String p_type_s = parameter.getAttribute("type");
-				String p_dflt   = parameter.getAttribute("default");
-				String p_ext    = parameter.getAttribute("extends_from");
-				String p_restr  = parameter.getAttribute("restrictions");
-				
-				if (p_type_s.equals("class")) {
-					p_type = TemplateParameterType.ParameterType_Class;
-				} else if (p_type_s.equals("id")) {
-					p_type = TemplateParameterType.ParameterType_Id;
-				} else if (p_type_s.equals("int")) {
-					p_type = TemplateParameterType.ParameterType_Int;
+				if (p != null) {
+					t.addParameter(p);
 				}
-				
-				TemplateParameter p = new TemplateParameter(
-						p_type, p_name, p_dflt, p_ext);
-				
-				if (p_restr != null && !p_restr.trim().equals("")) {
-					String restr[] = p_restr.split(",");
-					
-					for (String r : restr) {
-						r = r.trim();
-						p.addValue(r);
-					}
-				}
-				t.addParameter(p);
 			}
 		}
 		
 		fTemplates.add(t);
+	}
+	
+	private TemplateParameterComposite parseCompositeType(TemplateInfo t, Element compositeType) {
+		TemplateParameterComposite ret = null;
+		String description 	= "";
+		String name 		= null;
+		
+		NodeList description_nl = compositeType.getElementsByTagName("description");
+		
+		if (description_nl.getLength() > 0) {
+			Element description_e = (Element)description_nl.item(0);
+			description = description_e.getTextContent();
+		}
+		
+		name = compositeType.getAttribute("name");
+		
+		ret = new TemplateParameterComposite();
+		ret.setName(name);
+		ret.setDescription(description);
+
+		NodeList parameters_nl = compositeType.getElementsByTagName("parameter");
+		
+		for (int i=0; i<parameters_nl.getLength(); i++) {
+			Element parameter_e = (Element)parameters_nl.item(i);
+			TemplateParameterBase p = parseParameter(t, parameter_e);
+			
+			if (p != null) {
+				ret.addParameter(p);
+			}
+		}
+	
+		return ret;
+	}
+	
+	private TemplateParameterBase parseParameter(TemplateInfo t, Element parameter) {
+		TemplateParameterBase ret = null;
+		String name = parameter.getAttribute("name");
+		String type = parameter.getAttribute("type");
+		
+		NodeList desc_n = parameter.getElementsByTagName("description");
+		String description = null;
+		
+		if (desc_n.getLength() > 0) {
+			description = desc_n.item(0).getTextContent();
+		}
+		
+		if (type.equals("id") || type.equals("enum")) {
+			String p_restr  = parameter.getAttribute("restrictions");
+			String p_dflt   = parameter.getAttribute("default");
+			TemplateParameterType type_e;
+			
+			if (type.equals("id")) {
+				type_e = TemplateParameterType.ParameterType_Id;
+			} else {
+				type_e = TemplateParameterType.ParameterType_Enum;
+			}
+			TemplateParameter p = new TemplateParameter(
+					type_e, name, p_dflt, null);
+
+			if (p_restr != null && !p_restr.trim().equals("")) {
+				String restr[] = p_restr.split(",");
+				
+				for (String r : restr) {
+					r = r.trim();
+					p.addValue(r);
+				}
+			}
+			
+			ret = p;
+		} else if (type.equals("class")) {
+			String p_dflt   = parameter.getAttribute("default");
+			String p_ext    = parameter.getAttribute("extends_from");
+			ret = new TemplateParameter(
+					TemplateParameterType.ParameterType_Class,
+					name, p_dflt, p_ext);
+		} else if (type.equals("int")) {
+			String p_dflt   = parameter.getAttribute("default");
+			ret = new TemplateParameter(
+					TemplateParameterType.ParameterType_Int,
+					name, p_dflt, null);
+			
+		} else if (type.equals("composite")) {
+			String p_deftype = parameter.getAttribute("deftype");
+			
+			// Search for the defini
+			TemplateParameterComposite deftype = findCompositeDef(t, p_deftype);
+			
+			TemplateParameterComposite p = deftype.clone();
+			p.setName(name);
+			
+//			setCompositeItemNames(p);
+			
+			ret = p;
+		} else if (type.equals("group")) {
+			TemplateParameterGroup p = new TemplateParameterGroup(name);
+			
+			NodeList parameters_nl = parameter.getElementsByTagName("parameter");
+
+			for (int i=0; i<parameters_nl.getLength(); i++) {
+				Element parameter_e = (Element)parameters_nl.item(i);
+				TemplateParameterBase gp = parseParameter(t, parameter_e);
+
+				if (gp != null) {
+					p.addParameter(gp);
+				}
+			}
+			ret = p;
+		} else {
+			// ERROR:
+			System.out.println("[ERROR] Unknown parameter type \"" + type + "\"");
+		}
+		
+		if (ret != null) {
+			ret.setDescription(description);
+		}
+		
+		return ret;
+	}
+	
+	private void setCompositeItemNames(TemplateParameterComposite p) {
+		String pname = p.getName();
+		
+		for (TemplateParameterBase pc : p.getParameters()) {
+			pc.setName(pname + "." + pc.getName());
+			
+			if (pc.getType() == TemplateParameterType.ParameterType_Composite) {
+				setCompositeItemNames((TemplateParameterComposite)pc);
+			}
+		}
+	}
+	
+	private TemplateParameterComposite findCompositeDef(TemplateInfo t, String deftype) {
+		for (TemplateParameterComposite c : t.getCompositeTypes()) {
+			if (c.getName().equals(deftype)) {
+				return c;
+			}
+		}
+		return null;
 	}
 
 	private ErrorHandler fErrorHandler = new ErrorHandler() {
