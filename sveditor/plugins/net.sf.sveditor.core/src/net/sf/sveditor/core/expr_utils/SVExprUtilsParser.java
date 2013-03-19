@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.expr_utils;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -87,7 +88,7 @@ public class SVExprUtilsParser implements ISVParser {
 	}
 	
 	public SVParserConfig getConfig() {
-		return null;
+		return SVCorePlugin.getDefault().getParserConfig();
 	}
 
 	public void debug(String msg, Exception e) {
