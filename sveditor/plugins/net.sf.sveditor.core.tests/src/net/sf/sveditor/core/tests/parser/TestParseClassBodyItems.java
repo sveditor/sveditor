@@ -175,7 +175,21 @@ public class TestParseClassBodyItems extends TestCase {
 				new String[] {"my_class"});
 	}
 	
-
+	public void testNameMappedParamClassCall() {
+		String content = 
+				"class my_class;\n" +
+				"	function void doit();\n" +
+				"		foo = myclass #(.A(5), .B(int))::type_id::create();\n" +
+				"	endfunction\n" +
+				"\n" +
+				"endclass\n" +
+				"\n";
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		runTest(getName(), content, 
+				new String[] {"my_class", "doit"});
+	}
+	
 	public void testAttrInstance() {
 		String content = 
 			"(*attr1=\"foo\", attr2=bar*)\n" +

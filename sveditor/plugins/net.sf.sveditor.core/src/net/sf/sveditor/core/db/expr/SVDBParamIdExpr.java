@@ -16,9 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 
 public class SVDBParamIdExpr extends SVDBIdentifierExpr {
-	public List<SVDBExpr>				fParamExpr;
+	public SVDBParamValueAssignList		fParamExpr;
 	
 	public SVDBParamIdExpr() {
 		this(null);
@@ -26,15 +27,14 @@ public class SVDBParamIdExpr extends SVDBIdentifierExpr {
 
 	public SVDBParamIdExpr(String id) {
 		super(SVDBItemType.ParamIdExpr, id);
-		fParamExpr = new ArrayList<SVDBExpr>();
 	}
 
-	public List<SVDBExpr> getParamExpr() {
+	public SVDBParamValueAssignList getParamExpr() {
 		return fParamExpr;
 	}
 	
-	public void addParamExpr(SVDBExpr expr) {
-		fParamExpr.add(expr);
+	public void setParamExpr(SVDBParamValueAssignList plist) {
+		fParamExpr = plist;
 	}
 	
 }
