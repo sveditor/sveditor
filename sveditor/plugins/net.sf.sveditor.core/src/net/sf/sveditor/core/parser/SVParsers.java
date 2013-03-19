@@ -23,6 +23,7 @@ public class SVParsers {
 	
 	private ISVParser							fSVParser;
 	private ParserSVDBFileFactory				fSVDBFileFactory;
+	private SVCommonParserUtils					fCommonParserUtils;
 	private SVClassDeclParser					fClassParser;
 	private SVCovergroupParser					fCovergroupParser;
 	private SVParameterDeclParser				fParamDeclParser;
@@ -65,6 +66,7 @@ public class SVParsers {
 	
 	public void init(ISVParser parser) {
 		fSVParser = parser;
+		fCommonParserUtils = new SVCommonParserUtils(fSVParser);
 		fClassParser = new SVClassDeclParser(fSVParser);
 		fParamDeclParser = new SVParameterDeclParser(fSVParser);
 		fParamPortParser = new SVParameterPortListParser(fSVParser);
@@ -96,6 +98,10 @@ public class SVParsers {
 	
 	public ParserSVDBFileFactory SVParser() {
 		return fSVDBFileFactory;
+	}
+	
+	public SVCommonParserUtils commonParserUtils() {
+		return fCommonParserUtils;
 	}
 	
 	public final SVClassDeclParser classParser() {

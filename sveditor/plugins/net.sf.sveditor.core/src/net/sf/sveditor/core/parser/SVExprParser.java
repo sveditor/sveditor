@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVCoverageExpr;
 import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
@@ -1124,10 +1125,18 @@ public class SVExprParser extends SVParserBase {
 					}
 					// Parameterized identifier
 					ret = new SVDBParamIdExpr(id);
+					/*
 					fLexer.eatToken(); // #
 					fLexer.readOperator("(");
+					 */
 					// Catch case where no parameters are specified in the parameter list
+					boolean name_mapped = false;
+					SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
+					
+
+					/**
 					while (fLexer.peek() != null && !fLexer.peekOperator(")")) {
+						// TODO: should preserve the 
 						((SVDBParamIdExpr)ret).addParamExpr(datatype_or_expression());
 						if (fLexer.peekOperator(",")) {
 							fLexer.eatToken();
@@ -1136,6 +1145,7 @@ public class SVExprParser extends SVParserBase {
 						}
 					}
 					fLexer.readOperator(")");
+					 */
 				} else if (fLexer.peekOperator("(") || fLexer.peekKeyword("with")) {
 					if (id.equals("randomize")) {
 						ret = randomize_call(null);

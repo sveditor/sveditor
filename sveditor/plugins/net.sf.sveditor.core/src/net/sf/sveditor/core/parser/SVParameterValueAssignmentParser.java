@@ -75,7 +75,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 					ret.addParameter(new SVDBParamValueAssign(name, new SVDBNullExpr()));
 				}
 				else if (!fLexer.peekOperator(")")) {
-					List<SVToken> id_list = parsers().SVParser().peekScopedStaticIdentifier_l(false);
+					List<SVToken> id_list = parsers().commonParserUtils().peekScopedStaticIdentifier_l(false);
 
 					if (fLexer.peekOperator("#") /*|| fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
 							fLexer.peekKeyword("virtual") */) {
