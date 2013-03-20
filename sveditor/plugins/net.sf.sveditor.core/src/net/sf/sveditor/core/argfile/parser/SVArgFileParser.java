@@ -63,147 +63,155 @@ public class SVArgFileParser {
 		
 		while (fLexer.peek() != null) {
 			if (fLexer.isOption()) {
-				SVArgFileToken tok = fLexer.consumeToken();
-				OptionType type = fOptionProviders.getOptionType(tok.getImage());
-				int arg_count = fOptionProviders.optionArgCount(tok.getImage());
-				
-				if (fDebugEn) {
-					fLog.debug("  isOption: " + tok.getImage() + " type=" + type + 
-							" arg_count=" + arg_count);
-				}
-				
-				// Determine what type of option this is
-				switch (type) {
-					case Unrecognized: {
-						// TODO: Treat as a single-item option and ignore
-						fLexer.eatToken();
-						} break;
+				// Recognize the special-case -SVE_SET_CWD option
+				if (fLexer.peek().equals("-SVE_SET_CWD")) {
+					// Reset the working directory
+					fLexer.consumeToken();
+					fBaseLocation = fLexer.readPath();
+					fResolvedBaseLocation = fBaseLocation;
+				} else {
+					SVArgFileToken tok = fLexer.consumeToken();
+					OptionType type = fOptionProviders.getOptionType(tok.getImage());
+					int arg_count = fOptionProviders.optionArgCount(tok.getImage());
 					
-						// Recognized, but ignored, option
-					case Ignored: {
-						// TODO: Consume known options
-						for (int i=0; i<arg_count; i++) {
+					if (fDebugEn) {
+						fLog.debug("  isOption: " + tok.getImage() + " type=" + type + 
+								" arg_count=" + arg_count);
+					}
+					
+					// Determine what type of option this is
+					switch (type) {
+						case Unrecognized: {
+							// TODO: Treat as a single-item option and ignore
 							fLexer.eatToken();
-						}
-						} break;
+							} break;
 						
-					case Incdir: {
-						SVDBArgFileIncDirStmt stmt = new SVDBArgFileIncDirStmt();
-						stmt.setLocation(fLexer.getStartLocation());
-						String path;
-						
-						if (arg_count > 0) {
-							// include path is the argument
-							path = fLexer.readPath();
-							List<String> inc_path_l = fOptionProviders.getIncPaths(tok.getImage(), path);
-							path = inc_path_l.get(0);
-						} else {
-							List<String> inc_path_l = fOptionProviders.getIncPaths(
-									tok.getImage(), 
-									tok.getOptionVal());
-							path = inc_path_l.get(0);
-						}
-
-						if (path != null) {
-							path = SVFileUtils.resolvePath(path, 
-									fResolvedBaseLocation, fFSProvider, true);
-
-							if (!fFSProvider.fileExists(path)) {
-								error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
-										"Resolved relative to \"" + fResolvedBaseLocation + "\"");
-
+							// Recognized, but ignored, option
+						case Ignored: {
+							// TODO: Consume known options
+							for (int i=0; i<arg_count; i++) {
+								fLexer.eatToken();
 							}
-							stmt.setIncludePath(path);
-						} else {
-							error(tok.getStartLocation(), "No include-file path provided");
-							stmt.setIncludePath("");
-						}
-						
-						file.addChildItem(stmt);
-						} break;
-						
-					case Define: {
-						SVDBArgFileDefineStmt stmt = new SVDBArgFileDefineStmt();
-						stmt.setLocation(fLexer.getStartLocation());
-						Tuple<String, String> def;
-						
-						if  (arg_count > 0) {
-							// Define is the argument
-							def = fOptionProviders.getDefValue(
-									tok.getImage(),
-									fLexer.readPath());
-						} else {
-							def = fOptionProviders.getDefValue(
-									tok.getImage(),
-									tok.getOptionVal());
-						}
-						
-						stmt.setKey(def.first());
-						stmt.setValue(def.second());
-						
-						file.addChildItem(stmt);
-						} break;
-						
-					case ArgFileInc: 
-					case ArgFileRootInc: {
-						SVDBArgFileIncFileStmt stmt = new SVDBArgFileIncFileStmt();
-						stmt.setLocation(tok.getStartLocation());
-						List<String> incs;
-						
-					
-						// Flag the root-include status
-						stmt.setRootInclude((type == OptionType.ArgFileRootInc));
-						
-						if (arg_count > 0) {
-							incs = fOptionProviders.getArgFilePaths(
-									tok.getImage(), fLexer.readPath());
-						} else {
-							incs = fOptionProviders.getArgFilePaths(
-									tok.getImage(),
-									tok.getOptionVal());
-						}
-						
-						if (incs == null || incs.size() == 0) {
-							error(tok.getStartLocation(), "No argument-file path provided");
-						} else {
-							String inc = incs.get(0);
+							} break;
 							
-							if (inc != null) {
-								String path = SVFileUtils.resolvePath(incs.get(0),
-										fResolvedBaseLocation, fFSProvider, true);
-								if (!fFSProvider.fileExists(path)) {
-									error(tok.getStartLocation(), 
-											"Argument-file path \"" + path + "\" does not exist; " +
-													"Resolved relative to \"" + fResolvedBaseLocation + "\"");
-								}
-								stmt.setPath(path);
+						case Incdir: {
+							SVDBArgFileIncDirStmt stmt = new SVDBArgFileIncDirStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							String path;
+							
+							if (arg_count > 0) {
+								// include path is the argument
+								path = fLexer.readPath();
+								List<String> inc_path_l = fOptionProviders.getIncPaths(tok.getImage(), path);
+								path = inc_path_l.get(0);
 							} else {
-								error(tok.getStartLocation(), "No argument-file path provided");
-								stmt.setPath("");
+								List<String> inc_path_l = fOptionProviders.getIncPaths(
+										tok.getImage(), 
+										tok.getOptionVal());
+								path = inc_path_l.get(0);
 							}
+
+							if (path != null) {
+								path = SVFileUtils.resolvePath(path, 
+										fResolvedBaseLocation, fFSProvider, true);
+
+								if (!fFSProvider.fileExists(path)) {
+									error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
+											"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+
+								}
+								stmt.setIncludePath(path);
+							} else {
+								error(tok.getStartLocation(), "No include-file path provided");
+								stmt.setIncludePath("");
+							}
+							
 							file.addChildItem(stmt);
-						}
-						} break;
+							} break;
+							
+						case Define: {
+							SVDBArgFileDefineStmt stmt = new SVDBArgFileDefineStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							Tuple<String, String> def;
+							
+							if  (arg_count > 0) {
+								// Define is the argument
+								def = fOptionProviders.getDefValue(
+										tok.getImage(),
+										fLexer.readPath());
+							} else {
+								def = fOptionProviders.getDefValue(
+										tok.getImage(),
+										tok.getOptionVal());
+							}
+							
+							stmt.setKey(def.first());
+							stmt.setValue(def.second());
+							
+							file.addChildItem(stmt);
+							} break;
+							
+						case ArgFileInc: 
+						case ArgFileRootInc: {
+							SVDBArgFileIncFileStmt stmt = new SVDBArgFileIncFileStmt();
+							stmt.setLocation(tok.getStartLocation());
+							List<String> incs;
+							
 						
-					case SrcLibPath: {
-						SVDBArgFileSrcLibPathStmt stmt = new SVDBArgFileSrcLibPathStmt();
-						stmt.setLocation(fLexer.getStartLocation());
-						
-						String path = fLexer.readPath();
-						path = SVFileUtils.resolvePath(path, fResolvedBaseLocation, 
-								fFSProvider, true);
-						if (!fFSProvider.isDir(path)) {
-							error(tok.getStartLocation(),
-									"Source library path \"" + path + "\" does not exist; " + 
-										"Resolved relative to \"" + fResolvedBaseLocation + "\"");
-						}
-						stmt.setSrcLibPath(path);
-						file.addChildItem(stmt);
-						} break;
-						
-					default:
-						error(tok.getStartLocation(), "Unrecognized option type " + type);
-						break;
+							// Flag the root-include status
+							stmt.setRootInclude((type == OptionType.ArgFileRootInc));
+							
+							if (arg_count > 0) {
+								incs = fOptionProviders.getArgFilePaths(
+										tok.getImage(), fLexer.readPath());
+							} else {
+								incs = fOptionProviders.getArgFilePaths(
+										tok.getImage(),
+										tok.getOptionVal());
+							}
+							
+							if (incs == null || incs.size() == 0) {
+								error(tok.getStartLocation(), "No argument-file path provided");
+							} else {
+								String inc = incs.get(0);
+								
+								if (inc != null) {
+									String path = SVFileUtils.resolvePath(incs.get(0),
+											fResolvedBaseLocation, fFSProvider, true);
+									if (!fFSProvider.fileExists(path)) {
+										error(tok.getStartLocation(), 
+												"Argument-file path \"" + path + "\" does not exist; " +
+														"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+									}
+									stmt.setPath(path);
+								} else {
+									error(tok.getStartLocation(), "No argument-file path provided");
+									stmt.setPath("");
+								}
+								file.addChildItem(stmt);
+							}
+							} break;
+							
+						case SrcLibPath: {
+							SVDBArgFileSrcLibPathStmt stmt = new SVDBArgFileSrcLibPathStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							String path = fLexer.readPath();
+							path = SVFileUtils.resolvePath(path, fResolvedBaseLocation, 
+									fFSProvider, true);
+							if (!fFSProvider.isDir(path)) {
+								error(tok.getStartLocation(),
+										"Source library path \"" + path + "\" does not exist; " + 
+											"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+							}
+							stmt.setSrcLibPath(path);
+							file.addChildItem(stmt);
+							} break;
+							
+						default:
+							error(tok.getStartLocation(), "Unrecognized option type " + type);
+							break;
+					}					
 				}
 			} else {
 				// It's a path
