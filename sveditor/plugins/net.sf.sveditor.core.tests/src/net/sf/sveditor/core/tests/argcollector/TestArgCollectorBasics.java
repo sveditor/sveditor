@@ -33,7 +33,7 @@ public class TestArgCollectorBasics extends SVCoreTestCaseBase {
 		File ubus_examples = new File(fTmpDir, "uvm/examples/integrated/ubus/examples");
 		List<String> args = new ArrayList<String>();
 		
-		args.add("make");
+		args.add("make.exe");
 		args.add("-f");
 		// VCS makefile doesn't require DPI library to be compiled
 		args.add("Makefile.vcs");
