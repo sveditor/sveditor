@@ -20,6 +20,7 @@ public class CompilationArgImportWizard extends Wizard implements IImportWizard 
 	public void addPages() {
 		super.addPages();
 		addPage(new CompilationArgImportSrcInfoPage());
+		addPage(new CompilationArgImportOutPage());
 	}
 
 	@Override
