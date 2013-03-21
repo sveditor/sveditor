@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SystemOutLineListener;
 import net.sf.sveditor.core.argcollector.ArgCollectorFactory;
 import net.sf.sveditor.core.argcollector.IArgCollector;
@@ -25,6 +26,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 public class TestArgCollectorBasics extends SVCoreTestCaseBase {
 	
 	public void testUvmUbus() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(true);
 		IArgCollector collector = ArgCollectorFactory.create();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -33,11 +35,11 @@ public class TestArgCollectorBasics extends SVCoreTestCaseBase {
 		File ubus_examples = new File(fTmpDir, "uvm/examples/integrated/ubus/examples");
 		List<String> args = new ArrayList<String>();
 		
-		args.add("make.exe");
+		args.add("make");
 		args.add("-f");
 		// VCS makefile doesn't require DPI library to be compiled
-		args.add("Makefile.vcs");
-		args.add("comp");
+		args.add("Makefile.questa");
+		args.add("alt");
 	
 		collector.addStderrListener(new SystemOutLineListener());
 		collector.addStdoutListener(new SystemOutLineListener());

@@ -170,7 +170,18 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 	public List<String> getIncPaths(String option, String arg) {
 		if (option.startsWith("+incdir+")) {
 			List<String> ret = new ArrayList<String>();
-			ret.add(arg);
+			
+			int last_plus = -1, next_plus = -1;
+			do {
+				next_plus = arg.indexOf('+', last_plus+1);
+				
+				if (next_plus != -1) {
+					ret.add(arg.substring(last_plus+1, next_plus));
+				} else {
+					ret.add(arg.substring(last_plus+1));
+				}
+				last_plus = next_plus;
+			} while (next_plus != -1);
 			return ret;
 		} else {
 			return null;

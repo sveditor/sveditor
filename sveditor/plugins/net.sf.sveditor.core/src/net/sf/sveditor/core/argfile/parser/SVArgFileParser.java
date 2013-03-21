@@ -82,8 +82,11 @@ public class SVArgFileParser {
 					// Determine what type of option this is
 					switch (type) {
 						case Unrecognized: {
-							// TODO: Treat as a single-item option and ignore
-							fLexer.eatToken();
+							// Treat plus-args as zero-option switches
+							// Treat dash-args are one-option switches
+							if (tok.getImage().startsWith("-")) {
+								fLexer.eatToken();
+							}
 							} break;
 						
 							// Recognized, but ignored, option
@@ -95,38 +98,36 @@ public class SVArgFileParser {
 							} break;
 							
 						case Incdir: {
-							SVDBArgFileIncDirStmt stmt = new SVDBArgFileIncDirStmt();
-							stmt.setLocation(fLexer.getStartLocation());
-							String path;
+							List<String> inc_path_l = null;
+							SVDBLocation loc = fLexer.getStartLocation();
 							
 							if (arg_count > 0) {
 								// include path is the argument
-								path = fLexer.readPath();
-								List<String> inc_path_l = fOptionProviders.getIncPaths(tok.getImage(), path);
-								path = inc_path_l.get(0);
+								String path = fLexer.readPath();
+								inc_path_l = fOptionProviders.getIncPaths(tok.getImage(), path);
 							} else {
-								List<String> inc_path_l = fOptionProviders.getIncPaths(
+								inc_path_l = fOptionProviders.getIncPaths(
 										tok.getImage(), 
 										tok.getOptionVal());
-								path = inc_path_l.get(0);
 							}
 
-							if (path != null) {
-								path = SVFileUtils.resolvePath(path, 
-										fResolvedBaseLocation, fFSProvider, true);
+							if (inc_path_l != null) {
+								for (String path : inc_path_l) {
+									path = SVFileUtils.resolvePath(path, 
+											fResolvedBaseLocation, fFSProvider, true);
 
-								if (!fFSProvider.fileExists(path)) {
-									error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
-											"Resolved relative to \"" + fResolvedBaseLocation + "\"");
-
+									if (!fFSProvider.fileExists(path)) {
+										error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
+												"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+									}
+									SVDBArgFileIncDirStmt stmt = new SVDBArgFileIncDirStmt();
+									stmt.setLocation(loc);
+									stmt.setIncludePath(path);
+									file.addChildItem(stmt);
 								}
-								stmt.setIncludePath(path);
 							} else {
 								error(tok.getStartLocation(), "No include-file path provided");
-								stmt.setIncludePath("");
 							}
-							
-							file.addChildItem(stmt);
 							} break;
 							
 						case Define: {
