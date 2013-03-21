@@ -8,6 +8,7 @@ public class ArgCollectorFactory {
 		String os = System.getProperty("os.name");
 		
 		if (os.toLowerCase().contains("win")) {
+			ret = new WindowsArgCollector();
 		} else {
 			// Default to Linux
 			ret = new LinuxArgCollector();
