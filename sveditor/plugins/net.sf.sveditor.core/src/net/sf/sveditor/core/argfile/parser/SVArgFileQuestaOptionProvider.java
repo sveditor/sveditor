@@ -23,6 +23,7 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 		fOptions.put("-note", 1);
 		fOptions.put("-suppress", 1);
 		fOptions.put("-msglimit", 1);
+		fOptions.put("-c", 0); // qverilog option
 		fOptions.put("-compat", 0);
 		fOptions.put("-ccflags", 1);
 		fOptions.put("-compile_uselibs", 0);
@@ -46,6 +47,7 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 		fOptions.put("-deglitchalways", 0);
 		fOptions.put("-dpiforceheader", 0);
 		fOptions.put("-dpiheader", 1);
+		fOptions.put("-do", 1); // qverilog option
 		fOptions.put("-E", 1);
 		fOptions.put("-Epretty", 1);
 		fOptions.put("-Edebug", 1);

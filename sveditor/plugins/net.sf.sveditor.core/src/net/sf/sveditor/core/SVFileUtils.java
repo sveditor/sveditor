@@ -134,10 +134,6 @@ public class SVFileUtils {
 
 		f = root.getFile(new Path(path));
 		
-		if (!f.exists()) {
-			f = null;
-		}
-		
 		return f;
 	}
 
@@ -516,4 +512,78 @@ public class SVFileUtils {
 		}
 		return sb.toString();
 	}
+	
+	public static File getLocation(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			path = path.substring("${workspace_loc}".length());
+			IResource rsrc = null;
+		
+			try {
+				rsrc = root.getFile(new Path(path));
+			} catch (IllegalArgumentException e) {}
+			
+			if (rsrc == null || !rsrc.exists()) {
+				try {
+					rsrc = root.getFolder(new Path(path));
+				} catch (IllegalArgumentException e) {}
+			}
+		
+			if (rsrc == null || !rsrc.exists()) {
+				// See if this is a project
+				String path_t = path;
+				if (path_t.startsWith("/")) {
+					path_t = path_t.substring(1);
+				}
+				
+				try {
+					rsrc = root.getProject(path_t);
+				} catch (IllegalArgumentException e) {}
+			}
+			
+			if (rsrc != null && rsrc.exists()) {
+				return rsrc.getLocation().toFile();
+			} else {
+				return new File(path);
+			}
+		} else {
+			return new File(path);
+		}
+	}
+	
+	public static void refresh(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			path = path.substring("${workspace_loc}".length());
+			IResource rsrc = null;
+		
+			try {
+				rsrc = root.getFile(new Path(path));
+			} catch (IllegalArgumentException e) {}
+			
+			if (rsrc == null || !rsrc.exists()) {
+				try {
+					rsrc = root.getFolder(new Path(path));
+				} catch (IllegalArgumentException e) {}
+			}
+		
+			if (rsrc == null || !rsrc.exists()) {
+				// See if this is a project
+				String path_t = path;
+				if (path_t.startsWith("/")) {
+					path_t = path_t.substring(1);
+				}
+				
+				try {
+					rsrc = root.getProject(path_t);
+				} catch (IllegalArgumentException e) {}
+			}
+			
+			if (rsrc != null && rsrc.exists()) {
+				try {
+					rsrc.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				} catch (CoreException e) {}
+			}
+		}
+	}	
 }

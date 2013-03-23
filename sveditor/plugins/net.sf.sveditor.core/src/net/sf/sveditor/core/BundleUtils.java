@@ -43,13 +43,20 @@ public class BundleUtils {
 			File			fs_path) throws IOException {
 		URL url = fBundle.getEntry(bundle_file);
 		byte tmp[] = new byte[1024*1024];
+	
+		File outfile;
+		if (fs_path.isDirectory()) {
+			String leafname = new File(bundle_file).getName();
+			outfile = new File(fs_path, leafname);
+		} else {
+			outfile = fs_path;
+		}
 		
-		if (!fs_path.exists()) {
+		if (!fs_path.getParentFile().isDirectory()) {
 			fs_path.mkdirs();
 		}
 
-		FileOutputStream out = new FileOutputStream(
-				new File(fs_path, new File(bundle_file).getName()));
+		FileOutputStream out = new FileOutputStream(outfile);
 		InputStream in = url.openStream();
 		int len;
 

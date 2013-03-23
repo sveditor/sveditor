@@ -1,0 +1,35 @@
+#!/bin/sh
+#****************************************************************************
+#* wrapper
+#*
+#* Wrapper for compilers
+#****************************************************************************
+
+if test "x$SVE_COMPILER_ARGS_FILE" = "x"; then
+	echo "[ERROR] SVE_COMPILER_ARGS_FILE not set"
+	exit 1
+fi
+
+target=`basename $0`
+
+echo "/**" >> $SVE_COMPILER_ARGS_FILE
+echo " * Invoking $target in $CWD" >> $SVE_COMPILER_ARGS_FILE
+echo " * $target $*" >> $SVE_COMPILER_ARGS_FILE
+echo " */" >> $SVE_COMPILER_ARGS_FILE
+echo "-SVE_SET_CWD `pwd`" >> $SVE_COMPILER_ARGS_FILE
+
+while test -n "$1"; do
+	case "$1" in
+		*[[:space:]]*)
+			echo "\"$1\"" >> $SVE_COMPILER_ARGS_FILE
+			;;
+		
+		*)
+			echo "$1" >> $SVE_COMPILER_ARGS_FILE
+			;;
+	esac
+	shift
+done
+
+echo "" >> $SVE_COMPILER_ARGS_FILE
+echo "" >> $SVE_COMPILER_ARGS_FILE

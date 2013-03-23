@@ -13,7 +13,7 @@ import net.sf.sveditor.core.InputStreamLineReader;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 
-public abstract class AbstractArgCollector implements IArgCollector {
+public class BaseArgCollector implements IArgCollector {
 
 	private File					fTmpDir;
 	private File					fOutFile;
@@ -26,7 +26,7 @@ public abstract class AbstractArgCollector implements IArgCollector {
 	private InputStreamLineReader	fStdoutReader;
 	private InputStreamLineReader	fStderrReader;
 	
-	protected AbstractArgCollector() {
+	public BaseArgCollector() {
 		fStdoutListener = new ArrayList<ILineListener>();
 		fStderrListener = new ArrayList<ILineListener>();
 	}
@@ -43,12 +43,10 @@ public abstract class AbstractArgCollector implements IArgCollector {
 		// Create a temp directory
 		fTmpDir = SVCorePlugin.getDefault().createWSTmpDir();
 		
-		File sve_collect_compiler_args = copyWrapperFiles(fTmpDir);
-		File sve_collect_compiler_dir = sve_collect_compiler_args.getParentFile();
+		File sve_collect_compiler_dir = CompilerWrapperCopier.copy(fTmpDir, true);
 		
 		List<String> full_args = new ArrayList<String>();
 		
-//		full_args.add(sve_collect_compiler_args.getAbsolutePath());
 		full_args.addAll(args);
 		
 		fOutFile = new File(fTmpDir, "collected_args.f");
@@ -63,7 +61,7 @@ public abstract class AbstractArgCollector implements IArgCollector {
 					env.env(),
 					cwd);
 		} catch (IOException e) {
-//			SVFileUtils.delete(fTmpDir);
+			SVFileUtils.delete(fTmpDir);
 			fTmpDir = null;
 			throw e;
 		}
@@ -108,5 +106,4 @@ public abstract class AbstractArgCollector implements IArgCollector {
 		return fArguments;
 	}	
 
-	protected abstract File copyWrapperFiles(File dest);
 }

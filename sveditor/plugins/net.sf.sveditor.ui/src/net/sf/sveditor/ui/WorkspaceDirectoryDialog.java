@@ -12,12 +12,15 @@
 
 package net.sf.sveditor.ui;
 
+import net.sf.sveditor.core.SVFileUtils;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -41,6 +44,17 @@ public class WorkspaceDirectoryDialog extends Dialog {
 
 	public String getPath() {
 		return fPathStr;
+	}
+	
+	public void setInitialPath(String path) {
+		fPathStr = path;
+		
+		if (fTreeViewer != null) {
+			IContainer c = SVFileUtils.getWorkspaceFolder(fPathStr);
+			if (c != null) {
+				fTreeViewer.setSelection(new StructuredSelection(c), true);
+			}
+		}
 	}
 	
 	@Override
@@ -75,6 +89,13 @@ public class WorkspaceDirectoryDialog extends Dialog {
 				}
 			}
 		});
+	
+		if (fPathStr != null) {
+			IContainer c = SVFileUtils.getWorkspaceFolder(fPathStr);
+			if (c != null) {
+				fTreeViewer.setSelection(new StructuredSelection(c), true);
+			}
+		}
 
 		return fTreeViewer.getControl();
 	}

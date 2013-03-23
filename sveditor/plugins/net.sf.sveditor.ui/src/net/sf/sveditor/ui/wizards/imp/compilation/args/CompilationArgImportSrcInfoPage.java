@@ -7,17 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.ILineListener;
-import net.sf.sveditor.core.argcollector.ArgCollectorFactory;
-import net.sf.sveditor.core.argcollector.IArgCollector;
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.argcollector.BaseArgCollector;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.argfile.parser.SVArgFileToken;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -30,12 +32,17 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 public class CompilationArgImportSrcInfoPage extends WizardPage {
+	private Text						fDestDirText;
+	private String						fDestDir;
+	private Button						fDestDirBrowse;
+	
 	private Text						fDestFileText;
 	private String						fDestFile;
 	
@@ -50,18 +57,45 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	private boolean						fImportRun;
 	
 	private Text						fImportCmdOutputText;
-	private StringBuilder				fImportCmdOutput;
 	
 	private Text						fImportCmdArgsText;
-	private String						fImportCmdArgs;
+	
+	private String						fCapturedArgs;
+	
 	private SVDBWSFileSystemProvider	fFSProvider;
 	
 	public CompilationArgImportSrcInfoPage() {
 		super("Source Info");
-		fImportCmdOutput = new StringBuilder();
 		fFSProvider = new SVDBWSFileSystemProvider();
 		
 		fSrcDirStr = "";
+		fDestDir = "";
+	}
+	
+	public void setDestDir(String dir) {
+		fDestDir = (dir != null)?dir:"";
+		if (fDestDirText != null) {
+			fDestDirText.setText(fDestDir);
+		}
+	}
+	
+	public void setSrcDir(String dir) {
+		fSrcDirStr = (dir != null)?dir:"";
+		if (fSrcDir != null) {
+			fSrcDir.setText(fSrcDirStr);
+		}
+	}
+	
+	public String getDestFile() {
+		return fDestFile;
+	}
+	
+	public String getDestDir() {
+		return fDestDir;
+	}
+	
+	public String getCapturedArgs() {
+		return fCapturedArgs;
 	}
 
 	public void createControl(Composite parent) {
@@ -73,41 +107,66 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		top.setLayout(new GridLayout(3, false));
 
 		Label l;
-		
-		// Source directory
-		l = new Label(top, SWT.NONE);
-		l.setText("Source Directory:");
-		
-		fSrcDir = new Text(top, SWT.SINGLE+SWT.BORDER);
-		fSrcDir.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-		fSrcDir.addModifyListener(textModifyListener);
-		
-		fSrcDirBrowse = new Button(top, SWT.PUSH);
-		fSrcDirBrowse.setText("Browse");
+		Group g;
 	
-		// Import arguments
+		/*
+		g = new Group(top, SWT.BORDER);
+		g.setText("Output")
+		 */
+		
+		// Output information
 		l = new Label(top, SWT.NONE);
+		l.setText("Destination Directory:");
+		fDestDirText = new Text(top, SWT.BORDER);
+		fDestDirText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fDestDirBrowse = new Button(top, SWT.PUSH);
+		fDestDirBrowse.setText("Browse...");
+		fDestDirBrowse.addSelectionListener(selectionListener);
+		
+		l = new Label(top, SWT.NONE);
+		l.setText("Destination File:");
+		fDestFileText = new Text(top, SWT.BORDER);
+		fDestFileText.addModifyListener(textModifyListener);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		fDestFileText.setLayoutData(gd);
+
+		g = new Group(top, SWT.BORDER);
+		g.setText("Compilation Command");
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 3;
+		g.setLayoutData(gd);
+		g.setLayout(new GridLayout(3, false));
+		
+		// Import arguments
+		l = new Label(g, SWT.NONE);
 		l.setText("Command:");
 		
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 2;
-		fImportCmdText = new Text(top, SWT.SINGLE+SWT.BORDER);
+		fImportCmdText = new Text(g, SWT.SINGLE+SWT.BORDER);
 		fImportCmdText.setLayoutData(gd);
 		fImportCmdText.addModifyListener(textModifyListener);
+		
+		// Source directory
+		l = new Label(g, SWT.NONE);
+		l.setText("Working Directory:");
+		
+		fSrcDir = new Text(g, SWT.SINGLE+SWT.BORDER);
+		fSrcDir.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		fSrcDir.addModifyListener(textModifyListener);
+		
+		fSrcDirBrowse = new Button(g, SWT.PUSH);
+		fSrcDirBrowse.setText("Browse");
+		fSrcDirBrowse.addSelectionListener(selectionListener);
+	
 		
 		fImportButton = new Button(top, SWT.PUSH);
 		fImportButton.setText("Run Compilation Command");
 		gd = new GridData(SWT.CENTER, SWT.FILL, true, false);
 		gd.horizontalSpan = 3;
 		fImportButton.setLayoutData(gd);
-		fImportButton.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
-				runCompilation();
-			}
-			
-			public void widgetDefaultSelected(SelectionEvent e) { }
-		});
-
+		fImportButton.addSelectionListener(selectionListener);
 		
 		Composite bottom = new Composite(sash, SWT.BORDER);
 		bottom.setLayout(new GridLayout());
@@ -133,6 +192,9 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		args.setControl(fImportCmdArgsText);
 		args.setText("Captured Arguments");
 		
+		fDestDirText.setText(fDestDir);
+		fSrcDir.setText(fSrcDirStr);
+		
 		validate();
 		
 		setControl(sash);
@@ -143,7 +205,7 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 			
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				IArgCollector collector = ArgCollectorFactory.create();
+				BaseArgCollector collector = new BaseArgCollector();
 				
 				collector.addStderrListener(fLineListener);
 				collector.addStdoutListener(fLineListener);
@@ -169,21 +231,28 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				setCapturedArgs("");
 			
 				String srcdir = fSrcDirStr.trim();
-				File srcdir_f = null;
-				
-				if (srcdir.startsWith("${workspace_loc}")) {
-					// TODO: 
-				} else {
-					srcdir_f = new File(srcdir);
-				}
-				
+				File srcdir_f = SVFileUtils.getLocation(srcdir);
+				Exception exception = null;
+
 				try {
 					collector.process(srcdir_f, args);
 				} catch (IOException e) {
-					e.printStackTrace();
+					exception = e;
 				}
+			
+				SVFileUtils.refresh(srcdir);
 				
-				setCapturedArgs(collector.getArguments());
+				if (exception == null) {
+					fCapturedArgs = collector.getArguments();
+				
+					setCapturedArgs(collector.getArguments());
+					fImportRun = true;
+				} else {
+					fCapturedArgs = "";
+					setCapturedArgs(fCapturedArgs);
+					setCommandError(exception.getMessage());
+					fImportRun = false;
+				}
 				
 				return Status.OK_STATUS;
 			}
@@ -211,12 +280,24 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	};
 	
 	private void setCapturedArgs(String args) {
-		fImportCmdArgs = args;
+		fCapturedArgs = args;
+		
+		if (fCapturedArgs == null) {
+			fCapturedArgs = "";
+		}
 		Display.getDefault().asyncExec(new Runnable() {
 			
 			public void run() {
-				fImportCmdArgsText.setText(
-						(fImportCmdArgs != null)?fImportCmdArgs:"");
+				fImportCmdArgsText.setText(fCapturedArgs);
+			}
+		});
+	}
+	
+	private void setCommandError(final String out) {
+		Display.getDefault().asyncExec(new Runnable() {
+			
+			public void run() {
+				fImportCmdOutputText.setText(out);
 			}
 		});
 	}
@@ -224,10 +305,23 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	private void validate() {
 		setErrorMessage(null);
 		boolean have_command = true;
+		
+		if (fDestDirText.getText().trim().equals("") ||
+				!fFSProvider.isDir("${workspace_loc}" + fDestDirText.getText().trim())) {
+			if (getErrorMessage() == null) {
+				setErrorMessage("Must specify a destination directory");
+			}
+		}
+		
+		if (fDestFileText.getText().trim().equals("")) {
+			if (getErrorMessage() == null) {
+				setErrorMessage("Must specify a destination file");
+			}
+		}
 
 		// Check whether src path exists
 		if (fSrcDir.getText().trim().equals("")) {
-			if (getErrorMessage() != null) {
+			if (getErrorMessage() == null) {
 				setErrorMessage("Must Specify Source Directory");
 			}
 			have_command = false;
@@ -266,6 +360,12 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 			}
 		}
 		
+		if (!fImportRun) {
+			if (getErrorMessage() == null) {
+				setErrorMessage("Must run compilation");
+			}
+		}
+		
 		
 		setPageComplete((getErrorMessage() == null));
 	}
@@ -273,6 +373,14 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	private ModifyListener				textModifyListener = new ModifyListener() {
 		public void modifyText(ModifyEvent e) {
 			Object src = e.getSource();
+			
+			if (src == fDestDirText) {
+				fDestDir = fDestDirText.getText();
+			}
+			
+			if (src == fDestFileText) {
+				fDestFile = fDestFileText.getText();
+			}
 			
 			if (src == fSrcDir) {
 				fSrcDirStr = fSrcDir.getText();
@@ -284,12 +392,43 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 			
 			if (src == fImportCmdText ||
 					src == fDestFileText || src == fSrcDir) {
-				fImportCmdOutputText.setText("");
-				fImportCmdArgsText.setText("");
+				if (fImportCmdOutputText != null) {
+					fImportCmdOutputText.setText("");
+				}
+				if (fImportCmdArgsText != null) {
+					fImportCmdArgsText.setText("");
+				}
 			}
 			
 			validate();
 		}
+	};
+	
+	private SelectionListener				selectionListener = new SelectionListener() {
+		
+		public void widgetSelected(SelectionEvent e) {
+			Object src = e.getSource();
+			
+			if (src == fDestDirBrowse) {
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(fDestDirBrowse.getShell());
+				dlg.setInitialPath(fDestDirText.getText().trim());
+				
+				if (dlg.open() == Window.OK) {
+					fDestDirText.setText(dlg.getPath());
+				}
+			} else if (src == fSrcDirBrowse) {
+				BrowseDirectoryPathDialog dlg = new BrowseDirectoryPathDialog(fSrcDir.getShell());
+				dlg.setInitialPath(fSrcDir.getText());
+				
+				if (dlg.open() == Window.OK) {
+					fSrcDir.setText(dlg.getPath());
+				}
+			} else if (src == fImportButton) {
+				runCompilation();
+			}
+		}
+		
+		public void widgetDefaultSelected(SelectionEvent e) { }
 	};
 
 }
