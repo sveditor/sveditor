@@ -39,7 +39,7 @@
          </property>
          <property
                name="aboutText"
-               value="%productBlurb">
+               value="SVE SystemVerilog IDE">
          </property>
          
          <!--
