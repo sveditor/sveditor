@@ -1,0 +1,27 @@
+= Helpful Eclipse Plugins =
+
+== Vrapper ==
+
+http://vrapper.sourceforge.net
+
+
+== EPIC ==
+
+http://www.epic-ide.org
+
+
+== TCL ==
+
+http://www.eclipse.org/dltk/
+
+== CDT ==
+
+http://www.eclipse.org/cdt/
+
+* Install via the Eclipse update site
+
+== Egit ==
+
+http://www.eclipse.org/egit/
+
+* Install via the Eclipse update site

@@ -1101,4 +1101,17 @@ endclass
             contentTypeId="net.sf.sveditor.core.systemverilog">
       </factory>
    </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="net.sf.sveditor.ui.importWizardCategory"
+            name="SVEditor">
+      </category>
+      <wizard
+            category="net.sf.sveditor.ui.importWizardCategory"
+            class="net.sf.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportWizard"
+            id="net.sf.sveditor.ui.compilationArgWizard"
+            name="Compilation Arguments">
+      </wizard>
+   </extension>
 </plugin>

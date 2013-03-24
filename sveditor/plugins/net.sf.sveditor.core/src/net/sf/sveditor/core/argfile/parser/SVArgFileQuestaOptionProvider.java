@@ -23,6 +23,7 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 		fOptions.put("-note", 1);
 		fOptions.put("-suppress", 1);
 		fOptions.put("-msglimit", 1);
+		fOptions.put("-c", 0); // qverilog option
 		fOptions.put("-compat", 0);
 		fOptions.put("-ccflags", 1);
 		fOptions.put("-compile_uselibs", 0);
@@ -46,6 +47,7 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 		fOptions.put("-deglitchalways", 0);
 		fOptions.put("-dpiforceheader", 0);
 		fOptions.put("-dpiheader", 1);
+		fOptions.put("-do", 1); // qverilog option
 		fOptions.put("-E", 1);
 		fOptions.put("-Epretty", 1);
 		fOptions.put("-Edebug", 1);
@@ -170,7 +172,18 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 	public List<String> getIncPaths(String option, String arg) {
 		if (option.startsWith("+incdir+")) {
 			List<String> ret = new ArrayList<String>();
-			ret.add(arg);
+			
+			int last_plus = -1, next_plus = -1;
+			do {
+				next_plus = arg.indexOf('+', last_plus+1);
+				
+				if (next_plus != -1) {
+					ret.add(arg.substring(last_plus+1, next_plus));
+				} else {
+					ret.add(arg.substring(last_plus+1));
+				}
+				last_plus = next_plus;
+			} while (next_plus != -1);
 			return ret;
 		} else {
 			return null;

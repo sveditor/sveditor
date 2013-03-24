@@ -12,9 +12,15 @@
 
 package net.sf.sveditor.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.regex.Pattern;
@@ -27,11 +33,14 @@ import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
 
@@ -124,10 +133,6 @@ public class SVFileUtils {
 		path = normalize(path);
 
 		f = root.getFile(new Path(path));
-		
-		if (!f.exists()) {
-			f = null;
-		}
 		
 		return f;
 	}
@@ -423,4 +428,162 @@ public class SVFileUtils {
 
 		return ret.reverse().toString();
 	}    
+	
+	public static void copy(ByteArrayOutputStream in, File out) {
+		byte tmp[] = new byte[1024*8];
+		try {
+			OutputStream out_s = new FileOutputStream(out);
+			InputStream  in_s = new ByteArrayInputStream(in.toByteArray());
+	
+			int len;
+			
+			do {
+				len = in_s.read(tmp, 0, tmp.length);
+				if (len > 0) {
+					out_s.write(tmp, 0, len);
+				}
+			} while (len > 0);
+			
+			out_s.close();
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+
+	public static void copy(ByteArrayOutputStream in, IFile out) {
+		try {
+			InputStream  in_s = new ByteArrayInputStream(in.toByteArray());
+
+			if (out.exists()) {
+				out.setContents(in_s, true, false, new NullProgressMonitor());
+			} else {
+				out.create(in_s, true, new NullProgressMonitor());
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+	
+	public static void copy(String in, IFile out) {
+		try {
+			InputStream  in_s = new StringInputStream(in);
+
+			if (out.exists()) {
+				out.setContents(in_s, true, false, new NullProgressMonitor());
+			} else {
+				out.create(in_s, true, new NullProgressMonitor());
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+
+	public static void copy(String in, File out) {
+		try {
+			PrintStream ps = new PrintStream(out);
+			ps.print(in);
+			ps.close();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to write file \"" + out + "\"");
+		}
+	}
+	
+	public static void mkdir(IContainer c, String dir) {
+		IFolder f = c.getFolder(new Path(dir));
+		
+		try {
+			f.create(true, true, new NullProgressMonitor());
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String readInput(InputStream in) {
+		StringBuilder sb = new StringBuilder();
+		byte tmp[] = new byte[1024];
+		int len;
+		
+		try {
+			while ((len = in.read(tmp, 0, tmp.length)) > 0) {
+				sb.append(new String(tmp, 0, len));
+			}
+		} catch (IOException e) {
+			
+		}
+		return sb.toString();
+	}
+	
+	public static File getLocation(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			path = path.substring("${workspace_loc}".length());
+			IResource rsrc = null;
+		
+			try {
+				rsrc = root.getFile(new Path(path));
+			} catch (IllegalArgumentException e) {}
+			
+			if (rsrc == null || !rsrc.exists()) {
+				try {
+					rsrc = root.getFolder(new Path(path));
+				} catch (IllegalArgumentException e) {}
+			}
+		
+			if (rsrc == null || !rsrc.exists()) {
+				// See if this is a project
+				String path_t = path;
+				if (path_t.startsWith("/")) {
+					path_t = path_t.substring(1);
+				}
+				
+				try {
+					rsrc = root.getProject(path_t);
+				} catch (IllegalArgumentException e) {}
+			}
+			
+			if (rsrc != null && rsrc.exists()) {
+				return rsrc.getLocation().toFile();
+			} else {
+				return new File(path);
+			}
+		} else {
+			return new File(path);
+		}
+	}
+	
+	public static void refresh(String path) {
+		if (path.startsWith("${workspace_loc}")) {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			path = path.substring("${workspace_loc}".length());
+			IResource rsrc = null;
+		
+			try {
+				rsrc = root.getFile(new Path(path));
+			} catch (IllegalArgumentException e) {}
+			
+			if (rsrc == null || !rsrc.exists()) {
+				try {
+					rsrc = root.getFolder(new Path(path));
+				} catch (IllegalArgumentException e) {}
+			}
+		
+			if (rsrc == null || !rsrc.exists()) {
+				// See if this is a project
+				String path_t = path;
+				if (path_t.startsWith("/")) {
+					path_t = path_t.substring(1);
+				}
+				
+				try {
+					rsrc = root.getProject(path_t);
+				} catch (IllegalArgumentException e) {}
+			}
+			
+			if (rsrc != null && rsrc.exists()) {
+				try {
+					rsrc.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				} catch (CoreException e) {}
+			}
+		}
+	}	
 }

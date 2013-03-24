@@ -1,0 +1,31 @@
+= Building SVE =
+
+== Required Software ==
+
+* Eclipse SDK
+* Eclipse Deltapack
+
+* Set ECLIPSE_HOME=<sdk_install>
+* Unpack Deltapack inside Eclipse install (name deltapack)
+
+== SVE Addins Directory ==
+
+* Set SVE_ADDINS=<addins_dir>
+
+* Expect the following
+** gef_zest/eclipse/...
+** equinox
+** mpc
+
+* Zest + Draw2D Runtime from: http://www.eclipse.org/gef/downloads/index.php
+* Equinox SDK from: http://download.eclipse.org/equinox/
+* Marketplace Client (MPC) from: http://www.eclipse.org/mpc/
+
+== Platform-Specific Tools ==
+
+=== Linux ===
+
+=== Windows ===
+
+* WiX Toolset from: http://wixtoolset.org/releases
+

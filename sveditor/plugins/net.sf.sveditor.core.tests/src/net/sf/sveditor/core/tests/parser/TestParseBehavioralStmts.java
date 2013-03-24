@@ -383,6 +383,19 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest(getName(), doc, new String[] {"c", "f"});
 	}
 
+	public void testDefineAmbiguousTimeUnit() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"`define DLY 0.25\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		pre <= #`DLY pre_next;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+
+		runTest(getName(), doc, new String[] {"top"});
+	}
 	
 	private void runTest(
 			String			testname,
