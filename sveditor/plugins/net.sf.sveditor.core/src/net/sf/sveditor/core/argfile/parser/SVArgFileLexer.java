@@ -87,11 +87,14 @@ public class SVArgFileLexer extends SVArgFileToken {
 
 	// Returns a token
 	public SVArgFileToken consumeToken() {
-		peek();
-		SVArgFileToken tok = this.duplicate();
-		eatToken();
+		if (peek() != null) {;
+			SVArgFileToken tok = this.duplicate();
+			eatToken();
 
-		return tok;
+			return tok;
+		} else {
+			return null;
+		}
 	}
 	
 	public String readPath() throws SVParseException {

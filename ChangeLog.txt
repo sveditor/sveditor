@@ -4,6 +4,17 @@
 - #(nobug) - Correct parse error with named-mapped parameters to
   class type in function call. Eg: foo = my_class #(.A(5), .B(int))::type_id::create();
   
+- #(nobug) - Correct issue with the argument-file parser that caused unrecognized
+  plusargs (eg +my_plusarg) to be treated as a single-argument option. This
+  caused the argument following the plusarg to be ignored
+
+- #(nobug) - Enhance argument-file parser to support multi-path incdir directives. 
+  For example: +incdir+../mydir1+../mydir2+../mydir3
+  
+- #(enh) - Add wizard and scripts to create an argument file by running 
+  compilation and capturing the arguments passed to standard compilers
+  (vlog, ncvlog, vcs, iverilog)
+  
 
 ------------------------------------------------------------------------------
 -- 1.1.9 Release --

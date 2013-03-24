@@ -86,18 +86,18 @@ public class SVCorePlugin extends Plugin
 	private SVTodoScanner					fTodoScanner;
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
-	private int							fDebugLevel = 0;
+	private int								fDebugLevel = 0;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	private static IJobMgr					fJobMgr;
-	private int							fNumIndexCacheThreads = 0;
-	private int							fMaxIndexThreads = 0;
+	private int								fNumIndexCacheThreads = 0;
+	private int								fMaxIndexThreads = 0;
 	private TemplateRegistry				fTemplateRgy;
-	private static boolean				fEnableAsyncCacheClear;
-	private static boolean				fTestMode = false;
-	private SVParserConfig				fParserConfig;
+	private static boolean					fEnableAsyncCacheClear;
+	private static boolean					fTestMode = false;
+	private SVParserConfig					fParserConfig;
 	
 	/**
 	 * The constructor
@@ -289,7 +289,6 @@ public class SVCorePlugin extends Plugin
 						is_default, desc);
 				
 				ret.add(lib_desc);
-
 			}
 		}
 		
@@ -511,5 +510,28 @@ public class SVCorePlugin extends Plugin
 			"net.sf.sveditor.core.db.argfile."
 		};
 	}
+	
+	public File createWSTmpDir() {
+		File state_loc = getStateLocation().toFile();
+		File state_tmpdir = new File(state_loc, "tmpdir");
+		
+		if (!state_tmpdir.isDirectory()) {
+			state_tmpdir.mkdirs();
+		}
+		
+		File tmp  = null;
+		
+		try {
+			tmp = File.createTempFile("XXXX", "XXXX", state_tmpdir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
+		tmp.delete();
+		tmp.mkdirs();
+		
+		return tmp;
+	}
+	
 }
 
