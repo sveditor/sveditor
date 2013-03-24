@@ -254,6 +254,13 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 					fImportRun = false;
 				}
 				
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						validate();
+					}
+				});
+				
 				return Status.OK_STATUS;
 			}
 		};
@@ -343,19 +350,20 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		
 		
 		fImportButton.setEnabled(have_command);
-		
+
 		if (!have_command) {
 			fImportRun = false;
 		}
 		
 		if (fImportCmdArgsText.getText().trim().equals("")) {
-			if (have_command) {
+			if (have_command && fImportRun) {
 				if (getErrorMessage() == null) {
 					setErrorMessage("No compiler arguments found");
 				}
 			} else {
 				if (getErrorMessage() == null) {
-					setErrorMessage("Must run command");
+					setErrorMessage("Must run compilation");
+//					setErrorMessage("Must run command");
 				}
 			}
 		}
@@ -365,7 +373,6 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				setErrorMessage("Must run compilation");
 			}
 		}
-		
 		
 		setPageComplete((getErrorMessage() == null));
 	}
@@ -398,6 +405,7 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				if (fImportCmdArgsText != null) {
 					fImportCmdArgsText.setText("");
 				}
+				fImportRun = false;
 			}
 			
 			validate();

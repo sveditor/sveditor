@@ -33,6 +33,11 @@ public class CompilationArgImportOutPage extends WizardPage {
 			"Remove C++ files"
 	};
 	
+	private boolean					fOptionDefaults[] = {
+			true, // FILTER_CPP_FILES
+			
+	};
+	
 	private CheckboxTableViewer		fOptionViewer;
 	
 	public CompilationArgImportOutPage() {
@@ -82,6 +87,10 @@ public class CompilationArgImportOutPage extends WizardPage {
 			}
 		});
 		fOptionViewer.setInput(fOptions);
+		
+		for (int i=0; i<fOptions.length; i++) {
+			fOptionViewer.setChecked(fOptions[i], fOptionDefaults[i]);
+		}
 		
 		Group bottom = new Group(sash, SWT.BORDER);
 		bottom.setText("Argument File");

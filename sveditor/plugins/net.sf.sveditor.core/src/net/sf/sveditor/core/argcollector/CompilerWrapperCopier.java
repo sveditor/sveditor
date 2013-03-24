@@ -12,6 +12,7 @@ public class CompilerWrapperCopier {
 		BundleUtils utils = new BundleUtils(SVCorePlugin.getDefault().getBundle());
 		String os = System.getProperty("os.name");
 		String wrappers[] = {
+				"iverilog",
 				"vcs",
 				"vlog",
 				"qverilog",

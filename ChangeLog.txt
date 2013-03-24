@@ -11,7 +11,9 @@
 - #(nobug) - Enhance argument-file parser to support multi-path incdir directives. 
   For example: +incdir+../mydir1+../mydir2+../mydir3
   
-
+- #(enh) - Add wizard and scripts to create an argument file by running 
+  compilation and capturing the arguments passed to standard compilers
+  (vlog, ncvlog, vcs, iverilog)
   
 
 ------------------------------------------------------------------------------
