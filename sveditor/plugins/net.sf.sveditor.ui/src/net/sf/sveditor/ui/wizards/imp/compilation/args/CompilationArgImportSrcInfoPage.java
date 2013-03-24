@@ -255,7 +255,6 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				}
 				
 				Display.getDefault().asyncExec(new Runnable() {
-					@Override
 					public void run() {
 						validate();
 					}
