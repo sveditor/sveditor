@@ -1,4 +1,6 @@
+-- 1.2.1 Release --
 
+------------------------------------------------------------------------------
 -- 1.2.0 Release --
 
 - #(nobug) - Correct parse error with named-mapped parameters to
