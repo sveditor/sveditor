@@ -6,8 +6,8 @@
 		<os arch="amd64"/>
 	</condition>
 	<property file="${script.dir}/../etc/sveditor.info"/>
-	<property name="candle" value="${wix}/bin/candle.exe"/>
-	<property name="light" value="${wix}/bin/light.exe"/>
+	<property name="candle" value="candle.exe"/>
+	<property name="light" value="light.exe"/>
 	<property name="script.dir" value="${basedir}/scripts"/>
 	<property name="etc.dir" value="${basedir}/etc"/>
 	<property name="dest" value="${basedir}/sve.msi"/>
