@@ -268,4 +268,28 @@
 		</zip>
 	</target>
 
+	<target name="upload_sve">
+		<!-- First, create appropriate directories -->
+		<tempfile property="release_mkdirs_cmds"/>
+		<echo file="${release_mkdirs_cmds}">
+                cd ${sveditor_dir}
+                -mkdir sve
+                cd sve
+                -mkdir ${sve_version}
+		</echo>
+		<exec executable="sftp" input="${release_mkdirs_cmds}">
+                    <arg value="-b"/>
+                    <arg value="/dev/stdin"/>
+                    <arg value="${sf_frs_url}"/>
+                </exec>
+		<delete file="${release_mkdirs_cmds}"/>
+		<!-- Now, copy the release files to the SVE release dir -->
+		<exec executable="sftp" dir="${buildResult}"
+                    inputstring="put sve-${sve_version}*">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_frs_url}:${sveditor_dir}/sve/${sve_version}"/>
+		</exec>
+	</target>
+
 </project>
