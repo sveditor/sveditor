@@ -87,7 +87,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(getName());
 		
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		IProject project = TestUtils.createProject("project");
 		addProject(project);
@@ -101,9 +101,26 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				"${workspace_loc}/project/arg_file_multi_include_multi_root/arg_file_multi_include_multi_root.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+//		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1_dir2 = null, class3_dir2 = null;
+		List<SVDBDeclCacheItem> f = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class1_dir2", 
+				new SVDBFindDefaultNameMatcher());
+
 		
+		if (f.size() > 0) {
+			class1_dir2 = f.get(0).getSVDBItem();
+		}
+		
+		f = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class3", 
+				new SVDBFindDefaultNameMatcher());
+		
+		if (f.size() > 0) {
+			class3_dir2 = f.get(0).getSVDBItem();
+		}
+
+		/*
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
@@ -116,6 +133,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				class3_dir2 = tmp_it;
 			}
 		}
+		 */
 		
 		assertNull("Incorrectly found class1_dir2", class1_dir2);
 		assertNotNull("Failed to find class1_dir1", class3_dir2);
