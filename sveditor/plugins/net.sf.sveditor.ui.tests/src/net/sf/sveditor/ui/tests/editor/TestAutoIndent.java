@@ -590,31 +590,52 @@ public class TestAutoIndent extends TestCase {
 		String input = 
 			"class foobar;\n\n" +
 			"covergroup foobar;\n\n" +
-			"var_cp : coverpoint (var) iff (var_cond);\n\n" +
+			"var_cp : coverpoint (var) iff (var_cond);\n" +
+			"var1_cp : coverpoint (var) iff (var_cond);\n" +
 			"var2_cp : coverpoint (var) iff (var_cond) {\n" +
 			"bins subrange1[] = {[0:3]};\n" +
-			"bins subrange2[] = {\n" +
+			"bins subrange2[] = " +
+			"{\n" +
 			"[0:3],\n" +
 			"[4:7]\n" +
 			"};\n" +
 			"}\n" +
+			"endgroup\n" +
+			"covergroup cg_1;\n" +
+			"cp_3: coverpoint \n" +
+			"{\n" +
+			"top.bit1,\n" +
+			"top.bit2\n" +
+			"} {\n" +
+			"wildcard bins bin_0 = {2'b?0};\n" +
+			"wildcard bins bin_1 = {2'b?1};\n" +
+			"}\n" +
 			"endgroup\n";
 		String expected =
 			"class foobar;\n" +
-			"\t\n" +
-			"\tcovergroup foobar;\n" +
-			"\t\t\n" +
-			"\t\tvar_cp : coverpoint (var) iff (var_cond);\n" +
-			"\t\t\n" +
-			"\t\tvar2_cp : coverpoint (var) iff (var_cond) {\n" +
-			"\t\t\tbins subrange1[] = {[0:3]};\n" +
-			"\t\t\tbins subrange2[] = {\n" +
-			"\t\t\t\t[0:3],\n" +
-			"\t\t\t\t[4:7]\n" +
-			"\t\t\t};\n" +
-			"\t\t}\n" +
-			"\tendgroup\n" +
-			"\t";
+			"	\n" +
+			"	covergroup foobar;\n" +
+			"		\n" +
+			"		var_cp : coverpoint (var) iff (var_cond);\n" +
+			"		var1_cp : coverpoint (var) iff (var_cond);\n" +
+			"		var2_cp : coverpoint (var) iff (var_cond) {\n" +
+			"				bins subrange1[] = {[0:3]};\n" +
+			"				bins subrange2[] = {\n" +
+			"					[0:3],\n" +
+			"					[4:7]\n" +
+			"				};\n" +
+			"			}\n" +
+			"	endgroup\n" +
+			"	covergroup cg_1;\n" +
+			"		cp_3: coverpoint \n" +
+			"			{\n" +
+			"				top.bit1,\n" +
+			"				top.bit2\n" +
+			"			} {\n" +
+			"				wildcard bins bin_0 = {2'b?0};\n" +
+			"				wildcard bins bin_1 = {2'b?1};\n" +
+			"			}\n" +
+			"	endgroup\n";
 		
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input);
