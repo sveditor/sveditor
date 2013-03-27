@@ -82,7 +82,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-public class SVDBArgFileIndex2 implements ISVDBIndex, ISVDBIndexInt,
+public class SVDBArgFileIndex2 implements 
+		ISVDBIndex, ISVDBIndexInt,
 		ISVDBRefFinder, ILogLevelListener, ILogLevel, 
 		ISVPreProcIncFileProvider, ISVPreProcFileMapper {
 
