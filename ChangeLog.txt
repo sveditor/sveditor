@@ -1,3 +1,7 @@
+
+-- 1.2.2 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.1 Release --
 
 - #(nobug) - Ensure new compilation-wrapper scripts are included in the release
