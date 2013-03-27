@@ -7,6 +7,7 @@
 	<property file="${basedir}/../etc/sveditor.info"/>
 	<property environment="env"/>
 	<property name="feature.version" value="${version}"/>
+	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
 
 	<property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
 	<condition property="eclipsec" 
