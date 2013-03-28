@@ -55,4 +55,18 @@ public class TestParseCovergroups extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"c","cg"});
 	}
 
+	public void testTransitionBins2() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"class c;\n" +
+			"	covergroup cg;\n" +
+			"		a_cp : coverpoint a {\n" +
+			"			bins a_bins[] = (0,1,2 => 1,2,3 => 2,3,4);\n" +
+			"		}\n" +
+			"	endgroup\n" +
+			"endclass\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"c","cg"});
+	}
 }
