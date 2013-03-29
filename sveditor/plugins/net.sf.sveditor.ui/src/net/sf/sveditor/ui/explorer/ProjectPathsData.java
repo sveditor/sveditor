@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class ProjectPathsData implements IProjectPathsData {

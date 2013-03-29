@@ -26,7 +26,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 public class TestArgCollectorBasics extends SVCoreTestCaseBase {
 	
 	public void testUvmUbus() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IArgCollector collector = ArgCollectorFactory.create();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		

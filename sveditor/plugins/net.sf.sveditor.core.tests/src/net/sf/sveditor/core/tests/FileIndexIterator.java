@@ -18,10 +18,10 @@ import java.util.Map;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.old.AbstractSVDBIndex;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 

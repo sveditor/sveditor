@@ -1,6 +1,8 @@
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.old;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 import org.eclipse.core.runtime.IProgressMonitor;

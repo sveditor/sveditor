@@ -184,7 +184,7 @@ public class TestParseClassBodyItems extends TestCase {
 				"\n" +
 				"endclass\n" +
 				"\n";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest(getName(), content, 
 				new String[] {"my_class", "doit"});

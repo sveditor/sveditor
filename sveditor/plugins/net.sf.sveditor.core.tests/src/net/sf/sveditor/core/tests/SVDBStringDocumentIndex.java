@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBLibIndex;
+import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 
 public class SVDBStringDocumentIndex extends SVDBLibIndex {
 	

@@ -10,8 +10,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.old;
 
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 public class SVDBLibPathIndexFactory implements ISVDBIndexFactory {

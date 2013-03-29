@@ -13,18 +13,28 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -41,7 +51,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
  * @author ballance
  *
  */
-public class SVDBIndexRegistry implements ILogLevel {
+public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	public static final String								GLOBAL_PROJECT = "GLOBAL";
 	
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
@@ -401,5 +411,27 @@ public class SVDBIndexRegistry implements ILogLevel {
 		}
 		 */
 	}
-	
+
+	public void resourceChanged(IResourceChangeEvent event) {
+		final Map<IProject, List<SVDBIndexResourceChangeEvent>> map = 
+				new HashMap<IProject, List<SVDBIndexResourceChangeEvent>>(); 
+
+		try {
+			event.getDelta().accept(new IResourceDeltaVisitor() {
+				public boolean visit(IResourceDelta delta) throws CoreException {
+					if (delta.getResource() instanceof IFile) {
+						IFile file = (IFile)delta.getResource();
+						IProject project = file.getProject();
+						if (delta.getKind() == IResourceDelta.ADDED) {
+						} else if (delta.getKind() == IResourceDelta.CHANGED) {
+						} else if (delta.getKind() == IResourceDelta.REMOVED) {
+						}
+					}
+					return false;
+				}
+			});
+		} catch (CoreException e) {}
+		
+	}
+
 }

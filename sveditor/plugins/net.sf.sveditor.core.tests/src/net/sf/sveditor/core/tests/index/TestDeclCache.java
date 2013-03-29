@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;

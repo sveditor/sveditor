@@ -21,13 +21,13 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.old.AbstractSVDBIndex;
+import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -87,7 +87,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 	}
 
 	public void testWSArgFileMissingIncludeDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");

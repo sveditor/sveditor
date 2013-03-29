@@ -9,7 +9,7 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.argfile;
 
 import java.io.File;
 import java.io.InputStream;
@@ -49,6 +49,19 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
+import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
+import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
