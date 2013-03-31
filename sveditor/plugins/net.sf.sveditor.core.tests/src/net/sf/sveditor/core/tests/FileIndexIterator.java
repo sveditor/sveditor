@@ -40,7 +40,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(file.getName(), file);
-		init(new NullProgressMonitor());
+		init(new NullProgressMonitor(), null);
 		loadIndex(new NullProgressMonitor());
 	}
 	
@@ -51,7 +51,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(fFile.getName(), fFile);
-		init(new NullProgressMonitor());
+		init(new NullProgressMonitor(), null);
 		loadIndex(new NullProgressMonitor());
 	}
 	

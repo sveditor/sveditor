@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -40,6 +40,7 @@ public class SVDBFindIncludedFile {
 	}
 	
 	public List<SVDBFile> find(String name) {
+		/*
 		ISVDBItemIterator item_it = fIndexIterator.getItemIterator(new NullProgressMonitor());
 		List<SVDBFile> ret = new ArrayList<SVDBFile>();
 		
@@ -51,6 +52,21 @@ public class SVDBFindIncludedFile {
 				if (fMatcher.match((SVDBFile)it, name)) {
 					ret.add((SVDBFile)it);
 				}
+			}
+		}
+		
+		return ret;
+		 */
+		List<SVDBDeclCacheItem> result = fIndexIterator.findGlobalScopeDecl(
+				new NullProgressMonitor(), name, fMatcher);
+		List<SVDBFile> ret = new ArrayList<SVDBFile>();
+		
+		for (SVDBDeclCacheItem ci : result) {
+			ISVDBItemBase it = ci.getSVDBItem();
+			
+			if (it != null && 
+					it.getType() == SVDBItemType.File) {
+				ret.add((SVDBFile)it);
 			}
 		}
 		

@@ -36,6 +36,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -211,13 +212,23 @@ public class TestOvmBasics extends TestCase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(TestIndexCacheFactory.instance(db));
 		
+		System.out.println("--> findCreateIndex");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/trivial/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		System.out.println("<-- findCreateIndex");
+		System.out.println("--> loadIndex");
+		index.loadIndex(new NullProgressMonitor());
+		System.out.println("<-- loadIndex");
 		
+		/*
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
+		 */
 		
+		IndexTestUtils.assertNoErrWarn(log, index);
+	
+		/*
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			
@@ -233,6 +244,7 @@ public class TestOvmBasics extends TestCase {
 			log.debug("[ERROR] " + m.getMessage());
 		}
 		assertEquals("No errors", 0, errors.size());
+		 */
 		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}

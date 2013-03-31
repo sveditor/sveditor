@@ -55,7 +55,7 @@ public class TestDeclCache extends TestCase {
 				new InMemoryIndexCache(),
 				null);
 	
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 
 		List<SVDBDeclCacheItem> pkg_list = index.findGlobalScopeDecl(new NullProgressMonitor(), 
@@ -97,7 +97,7 @@ public class TestDeclCache extends TestCase {
 				new InMemoryIndexCache(),
 				null);
 	
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 
 		List<SVDBDeclCacheItem> pkg_list = index.findGlobalScopeDecl(new NullProgressMonitor(), 

@@ -33,6 +33,12 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 				null, new InMemoryIndexCache(), null);
 	}
 	
+	public void init(IProgressMonitor monitor) {
+		init(monitor, null);
+	}
+
+
+
 	@Override
 	protected String getLogName() {
 		return "ContentAssistIndex";

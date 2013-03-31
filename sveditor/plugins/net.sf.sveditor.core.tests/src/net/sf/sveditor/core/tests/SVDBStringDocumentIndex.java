@@ -54,6 +54,6 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 			public void addMarker(String path, String type, int lineno, String msg) {}
 			public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
 		}, TestIndexCacheFactory.instance(null).createIndexCache("__", "__"), null);
-		init(new NullProgressMonitor());
+		init(new NullProgressMonitor(), null);
 	}
 }

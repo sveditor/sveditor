@@ -41,7 +41,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		long start, end;
 		
 		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 		
@@ -96,7 +96,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		long start, end;
 		
 		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 		
@@ -145,7 +145,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		long start, end;
 		
 		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 		

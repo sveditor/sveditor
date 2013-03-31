@@ -19,6 +19,9 @@ import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
@@ -84,6 +87,25 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		
 		for (ISVDBIndex i : fIndexList) {
 			i.setEnableAutoRebuild(fAutoRebuildEn);
+		}
+	}
+	
+	public void notifyChanges(List<SVDBIndexResourceChangeEvent> changes) {
+		List<ISVDBIndexChangePlan> plans = new ArrayList<ISVDBIndexChangePlan>();
+
+		synchronized (fIndexList) {
+			for (ISVDBIndex index : fIndexList) {
+				ISVDBIndexChangePlan plan = index.createIndexChangePlan(changes);
+				
+				if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
+					plans.add(plan);
+				}
+			}
+		}
+		
+		SVDBIndexBuilder builder = SVCorePlugin.getDefault().getIndexBuilder();
+		for (ISVDBIndexChangePlan plan : plans) {
+			builder.build(plan);
 		}
 	}
 	
@@ -247,12 +269,13 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 					" does not exist -- creating: " + ret);
 			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			ret.init(m);
+			ret.init(m, SVCorePlugin.getDefault().getIndexBuilder());
 			
 			synchronized (fIndexList) {
 				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
 				fIndexList.add(ret);
 			}
+			
 		} else {
 			fLog.debug("    Index already exists");
 		}
@@ -311,7 +334,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			ret.init(m);
+			ret.init(m, SVCorePlugin.getDefault().getIndexBuilder());
 			
 			synchronized (fIndexList) {
 				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");

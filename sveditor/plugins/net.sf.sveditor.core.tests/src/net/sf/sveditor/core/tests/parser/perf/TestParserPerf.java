@@ -191,7 +191,7 @@ public class TestParserPerf extends TestCase {
 					null);
 		}
 		
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 		
 		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		long fullparse_start = System.currentTimeMillis();
@@ -285,7 +285,7 @@ public class TestParserPerf extends TestCase {
 					cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 					null);
 		}
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 		
 		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		long fullparse_start = System.currentTimeMillis();
@@ -305,7 +305,7 @@ public class TestParserPerf extends TestCase {
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 				null);
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 				
 		long fullparse_start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());
@@ -334,7 +334,7 @@ public class TestParserPerf extends TestCase {
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 				null);
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 				
 		long fullparse_start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());
@@ -377,7 +377,7 @@ public class TestParserPerf extends TestCase {
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 				null);
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 				
 		long fullparse_start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());
@@ -395,7 +395,7 @@ public class TestParserPerf extends TestCase {
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 				null);
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 				
 		long fullparse_start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());
@@ -444,7 +444,7 @@ public class TestParserPerf extends TestCase {
 				cache_f.createIndexCache("GENERIC", ethernet_f.getAbsolutePath()),
 				null);
 		}
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), null);
 	
 		long start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());

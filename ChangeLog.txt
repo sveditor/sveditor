@@ -8,8 +8,9 @@
 - #(nobug) - Correct a parse error involving multi-step transition bins. 
   For example: (0,1,2 => 1,2,3 => 2,3,4)
   
-- #(enh) - Update Compilation Argument Import wizard to automatically
-  add the new argument file to the containing project settings
+- #(enh) - Update Compilation Argument Import wizard to enable 
+  automatic addition of the new argument file to the containing 
+  project's settings
 
 
 ------------------------------------------------------------------------------
