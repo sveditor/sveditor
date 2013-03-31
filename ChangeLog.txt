@@ -1,6 +1,8 @@
 
 -- 1.2.2 Release --
 
+- #(nobug) - Updates to indenter for covegroups / points with lots of {}
+
 - #(enh) - Add new filters for the Import Compilation Arguments wizard:
   - Filter duplicate options/paths
   - Organize options before paths

@@ -691,40 +691,44 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken indent_covergroup_item() {
 		SVIndentToken tok = current();
+		int lb_count = 0, rb_count = 0;
 		
 		// Scan to the end of the statement / beginning of the block
 		tok = next_s();
 		start_of_scope(tok);
 		enter_scope(tok);
-		while (!tok.isOp(";") && !tok.isOp("{")) {
-			tok = next_s();
+		boolean keep_going = true;
+		while (keep_going)  {
+			
+			if (tok.isOp(";") && (lb_count == rb_count)) {
+				keep_going = false;
+				tok = next_s();
+			}
+			else if (tok.isOp("{")) {
+				lb_count ++;
+				start_of_scope(tok);
+				tok = next_s();
+				enter_scope(tok);
+			} 
+			else if (tok.isOp("}")) {
+				rb_count++;
+				leave_scope(tok);
+				tok = next_s();
+				// Check to see if we have a case where we have an } {
+				if (tok.isOp("{"))  {
+					lb_count ++;
+					start_of_scope(tok);
+					tok = next_s();
+				}
+				if (lb_count == rb_count)  {
+					keep_going = false;
+				}
+			}
+			else  {
+				tok = next_s();
+			}
 		}
 		leave_scope(tok);
-		
-		if (tok.isOp("{")) {
-			boolean do_indent = true;
-			int lb_count = 1, rb_count = 0;
-			
-			start_of_scope(tok);
-			
-			do {
-				tok = next_s();
-				if (do_indent) {
-					enter_scope(tok);
-					do_indent = false;
-				}
-				if (tok.isOp("{")) {
-					lb_count++;
-					start_of_scope(tok);
-					do_indent = true;
-				} else if (tok.isOp("}")) {
-					rb_count++;
-					leave_scope(tok);
-				}
-			} while (lb_count != rb_count);
-		}
-		
-		tok = next_s();
 		
 		return tok;
 	}
