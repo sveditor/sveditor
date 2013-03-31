@@ -16,7 +16,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 
 public interface ISVDBIndexIterator extends ISVDBDeclCache {
-	
+
+	/**
+	 * This method is deprecated. The 'findGlobal' methods should be
+	 * used instead
+	 * 
+	 * @param monitor
+	 * @return
+	 */
+	@Deprecated
 	ISVDBItemIterator 		getItemIterator(IProgressMonitor monitor);
 	
 }

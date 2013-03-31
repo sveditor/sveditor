@@ -32,6 +32,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
@@ -98,12 +99,15 @@ public class SVCorePlugin extends Plugin
 	private static boolean					fEnableAsyncCacheClear;
 	private static boolean					fTestMode = false;
 	private SVParserConfig					fParserConfig;
+	private SVResourceChangeListener		fResourceChangeListener;
+	private SVDBIndexBuilder				fIndexBuilder;
 	
 	/**
 	 * The constructor
 	 */
 	public SVCorePlugin() {
 		fParserConfig = new SVParserConfig();
+		fIndexBuilder = new SVDBIndexBuilder();
 	}
 
 	/*
@@ -113,6 +117,9 @@ public class SVCorePlugin extends Plugin
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		fPlugin = this;
+		
+		fProjManager = new SVDBProjectManager();
+		fResourceChangeListener = new SVResourceChangeListener(fProjManager);
 		
 		if (context.getProperty("osgi.os").toLowerCase().startsWith("win")) {
 			SVFileUtils.fIsWinPlatform = true;
@@ -178,6 +185,10 @@ public class SVCorePlugin extends Plugin
 		return fDebugLevel;
 	}
 	
+	public SVDBIndexBuilder getIndexBuilder() {
+		return fIndexBuilder;
+	}
+	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
 		ParserSVDBFileFactory f = new ParserSVDBFileFactory(dp);
 		f.setConfig(getDefault().getParserConfig());
@@ -210,6 +221,7 @@ public class SVCorePlugin extends Plugin
 	 */
 	public void stop(BundleContext context) throws Exception {
 		
+		
 		if (fTodoScanner != null) {
 			fTodoScanner.dispose();
 		}
@@ -217,6 +229,8 @@ public class SVCorePlugin extends Plugin
 		if (fProjManager != null) {
 			fProjManager.dispose();
 		}
+		
+		fResourceChangeListener.dispose();
 		
 		if (fIndexRegistry != null) {
 			fIndexRegistry.save_state();
@@ -234,6 +248,8 @@ public class SVCorePlugin extends Plugin
 		if (fJobMgr != null) {
 			fJobMgr.dispose();
 		}
+		
+		fIndexBuilder.dispose();
 		
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;
@@ -256,9 +272,6 @@ public class SVCorePlugin extends Plugin
 	}
 	
 	public SVDBProjectManager getProjMgr() {
-		if (fProjManager == null) {
-			fProjManager = new SVDBProjectManager();
-		}
 		return fProjManager;
 	}
 	

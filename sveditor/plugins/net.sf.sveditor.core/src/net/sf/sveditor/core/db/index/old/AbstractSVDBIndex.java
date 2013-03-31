@@ -9,7 +9,7 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.old;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +46,25 @@ import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
+import net.sf.sveditor.core.db.index.ISVDBIncludeFileProviderObsolete;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
+import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
+import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
@@ -191,6 +210,24 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected abstract String getLogName();
+	
+
+	public void setIndexBuilder(ISVDBIndexBuilder builder) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public ISVDBIndexChangePlan createIndexChangePlan(
+			List<SVDBIndexResourceChangeEvent> changes) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void execIndexChangePlan(IProgressMonitor monitor,
+			ISVDBIndexChangePlan plan) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	/**
 	 * Called when the index is initialized to determine whether the cached
@@ -309,8 +346,10 @@ public abstract class AbstractSVDBIndex implements
 	 * @param monitor
 	 */
 	@SuppressWarnings("unchecked")
-	public void init(IProgressMonitor monitor) {
+	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder) {
 		SubProgressMonitor m;
+	
+		// TODO: save builder
 		
 		monitor.beginTask("Initialize index " + getBaseLocation(), 100);
 		

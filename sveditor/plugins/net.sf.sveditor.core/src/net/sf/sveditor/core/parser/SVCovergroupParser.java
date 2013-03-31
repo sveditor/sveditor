@@ -252,7 +252,7 @@ public class SVCovergroupParser extends SVParserBase {
 		// TODO:
 		trans_range_list();
 		
-		if (fLexer.peekOperator("=>")) {
+		while (fLexer.peekOperator("=>")) {
 			// TODO:
 			fLexer.eatToken();
 			trans_range_list();

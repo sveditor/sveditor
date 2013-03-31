@@ -9,13 +9,15 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.old;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
 import net.sf.sveditor.core.log.LogFactory;

@@ -1,7 +1,9 @@
 package net.sf.sveditor.ui.wizards.imp.compilation.args;
 
 import net.sf.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
+import net.sf.sveditor.core.argfile.filter.ArgFileFilterDuplicates;
 import net.sf.sveditor.core.argfile.filter.ArgFileFilterList;
+import net.sf.sveditor.core.argfile.filter.ArgFileFilterOptionsFirst;
 import net.sf.sveditor.core.argfile.filter.StringArgFileFilter;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -26,16 +28,21 @@ public class CompilationArgImportOutPage extends WizardPage {
 	private Text					fResultText;
 	private String					fResult;
 	
-	private static final int		FILTER_CPP_FILES = 0;
+	private static final int		ORDER_OPTIONS_FIRST = 0;
+	private static final int		FILTER_CPP_FILES = 1;
+	private static final int		FILTER_DUPLICATES = 2;
 	
 	private String					fOptions[] = {
 //			"Convert paths in the containing project to relative paths"
-			"Remove C++ files"
+			"Order Options First",
+			"Remove C++ files",
+			"Remove Duplicate Paths/Options",
 	};
 	
 	private boolean					fOptionDefaults[] = {
+			false,
 			true, // FILTER_CPP_FILES
-			
+			true
 	};
 	
 	private CheckboxTableViewer		fOptionViewer;
@@ -113,15 +120,15 @@ public class CompilationArgImportOutPage extends WizardPage {
 		if (fOptionViewer.getChecked(fOptions[FILTER_CPP_FILES])) {
 			filter.addFilter(new ArgFileFilterCppFiles());
 		}
-	
-		/*
-		if (fOptionViewer.getChecked(fOptions[0])) {
-			System.out.println("Options 0 checked");
-		} else {
-			System.out.println("Options 0 not checked");
-		}
-		 */
 		
+		if (fOptionViewer.getChecked(fOptions[ORDER_OPTIONS_FIRST])) {
+			filter.addFilter(new ArgFileFilterOptionsFirst());
+		}
+		
+		if (fOptionViewer.getChecked(fOptions[FILTER_DUPLICATES])) {
+			filter.addFilter(new ArgFileFilterDuplicates());
+		}
+	
 		String input = (fSrcText != null)?fSrcText:"";
 
 		// TODO: Apply filter

@@ -21,13 +21,15 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.old.AbstractSVDBIndex;
+import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SaveMarkersFileSystemProvider;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -135,6 +137,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 			ISVDBIndex					index,
 			String						path,
 			int							expected_errors) {
+		LogHandle log = LogFactory.getLogHandle(getName());
 		SaveMarkersFileSystemProvider fs_provider_m = new SaveMarkersFileSystemProvider(
 					index.getFileSystemProvider());
 		index.setFileSystemProvider(fs_provider_m);
@@ -152,6 +155,9 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		for (String file : index.getFileList(new NullProgressMonitor())) {
 			List<SVDBMarker> m_tmp = index.getMarkers(file);
 			markers.addAll(m_tmp);
+			for (SVDBMarker m : m_tmp) {
+				log.debug("[MARKER] " + m.getMessage());
+			}
 		}
 	
 		/*
@@ -167,6 +173,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null).second();
 		
 		assertNotNull("Failed to parse target file", file);
+		LogFactory.removeLogHandle(log);
 	}
 
 }

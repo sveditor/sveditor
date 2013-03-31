@@ -1,6 +1,18 @@
 
 -- 1.2.2 Release --
 
+- #(enh) - Add new filters for the Import Compilation Arguments wizard:
+  - Filter duplicate options/paths
+  - Organize options before paths
+
+- #(nobug) - Correct a parse error involving multi-step transition bins. 
+  For example: (0,1,2 => 1,2,3 => 2,3,4)
+  
+- #(enh) - Update Compilation Argument Import wizard to enable 
+  automatic addition of the new argument file to the containing 
+  project's settings
+
+
 ------------------------------------------------------------------------------
 -- 1.2.1 Release --
 
