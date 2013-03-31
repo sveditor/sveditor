@@ -10,12 +10,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.argfile;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 
 public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	

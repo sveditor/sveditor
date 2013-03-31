@@ -23,9 +23,9 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -101,9 +101,26 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				"${workspace_loc}/project/arg_file_multi_include_multi_root/arg_file_multi_include_multi_root.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+//		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1_dir2 = null, class3_dir2 = null;
+		List<SVDBDeclCacheItem> f = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class1_dir2", 
+				new SVDBFindDefaultNameMatcher());
+
 		
+		if (f.size() > 0) {
+			class1_dir2 = f.get(0).getSVDBItem();
+		}
+		
+		f = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class3", 
+				new SVDBFindDefaultNameMatcher());
+		
+		if (f.size() > 0) {
+			class3_dir2 = f.get(0).getSVDBItem();
+		}
+
+		/*
 		while (it.hasNext()) {
 			ISVDBItemBase tmp_it = it.nextItem();
 			String name = SVDBItem.getName(tmp_it);
@@ -116,6 +133,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				class3_dir2 = tmp_it;
 			}
 		}
+		 */
 		
 		assertNull("Incorrectly found class1_dir2", class1_dir2);
 		assertNotNull("Failed to find class1_dir1", class3_dir2);
@@ -203,7 +221,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
 		addProject(project_dir);

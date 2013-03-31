@@ -18,10 +18,10 @@ import java.util.Map;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.old.AbstractSVDBIndex;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
@@ -40,7 +40,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(file.getName(), file);
-		init(new NullProgressMonitor());
+		init(new NullProgressMonitor(), null);
 		loadIndex(new NullProgressMonitor());
 	}
 	
@@ -51,7 +51,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(fFile.getName(), fFile);
-		init(new NullProgressMonitor());
+		init(new NullProgressMonitor(), null);
 		loadIndex(new NullProgressMonitor());
 	}
 	

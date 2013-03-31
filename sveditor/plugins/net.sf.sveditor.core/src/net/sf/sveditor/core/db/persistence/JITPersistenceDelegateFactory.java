@@ -31,9 +31,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 
 import org.objectweb.asm.ClassWriter;

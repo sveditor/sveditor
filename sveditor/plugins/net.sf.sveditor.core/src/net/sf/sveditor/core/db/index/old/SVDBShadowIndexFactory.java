@@ -1,5 +1,11 @@
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.old;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexConfig;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
@@ -45,7 +51,7 @@ public class SVDBShadowIndexFactory implements ISVDBIndexFactory {
 		SVDBShadowIndexFactory f = new SVDBShadowIndexFactory();
 		ISVDBIndex ret = f.createSVDBIndex(project, path, new InMemoryIndexCache(), null);
 		
-		ret.init(new NullProgressMonitor());
+		ret.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		
 		return ret;
 	}

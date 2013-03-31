@@ -12,6 +12,10 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
@@ -60,6 +64,17 @@ public class SVDBFileOverrideIndex
 	public ISVDBIndex getBaseIndex() {
 		return fIndex;
 	}
+
+	public void setIndexBuilder(ISVDBIndexBuilder builder) { }
+
+	public ISVDBIndexChangePlan createIndexChangePlan(List<SVDBIndexResourceChangeEvent> changes) {
+		return new SVDBIndexChangePlan(this, SVDBIndexChangePlanType.Empty);
+	}
+
+	public void execIndexChangePlan(IProgressMonitor monitor, ISVDBIndexChangePlan plan) {
+		// Do nothing
+	}
+	
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		if (fSuperIterator != null) {
@@ -194,8 +209,8 @@ public class SVDBFileOverrideIndex
 		fIndex.setFileSystemProvider(fs_provider);
 	}
 
-	public void init(IProgressMonitor monitor) {
-		fIndex.init(monitor);
+	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder) {
+		fIndex.init(monitor, builder);
 	}
 
 	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor,

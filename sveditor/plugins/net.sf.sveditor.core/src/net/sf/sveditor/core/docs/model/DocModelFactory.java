@@ -153,7 +153,8 @@ public class DocModelFactory {
 				visitedIndex.add(index) ;
 				for(String file: index.getFileList(new NullProgressMonitor())) {
 					DocTopic parent = null ;
-					SVDBFile ppFile = index.getCache().getPreProcFile(new NullProgressMonitor(), file) ;
+//					SVDBFile ppFile = index.getCache().getPreProcFile(new NullProgressMonitor(), file) ;
+					SVDBFile ppFile = index.findPreProcFile(new NullProgressMonitor(), file);
 					if(ppFile == null) {
 						fLog.error("Failed to find pre proc file for: " + file) ;
 					} else {
@@ -385,7 +386,8 @@ public class DocModelFactory {
 				 * For each decl cache item, search for an associate doc comment in the preprocessor
 				 * view of the file the item was declared in.
 				 */
-				SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), pkgDecl.getFile().getFilePath()) ;
+//				SVDBFile ppFile = isvdbIndex.getCache().getPreProcFile(new NullProgressMonitor(), pkgDecl.getFile().getFilePath()) ;
+				SVDBFile ppFile = isvdbIndex.findPreProcFile(new NullProgressMonitor(), pkgDecl.getFile().getFilePath()) ;
 				if(ppFile != null) {
 					String symbol = String.format("%s::%s", pkg.getName(), pkgDecl.getName()) ;
 					DocFile docFile = model.getDocFile(pkgDecl.getFile().getFilePath()) ;

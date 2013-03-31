@@ -7,9 +7,9 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -41,7 +41,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		long start, end;
 		
 		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 		
@@ -96,7 +96,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		long start, end;
 		
 		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 		
@@ -145,7 +145,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		long start, end;
 		
 		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 		

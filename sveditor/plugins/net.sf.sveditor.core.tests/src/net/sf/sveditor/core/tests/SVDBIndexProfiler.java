@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBSourceCollectionIndexFactory;
+import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 
 public class SVDBIndexProfiler {
 	

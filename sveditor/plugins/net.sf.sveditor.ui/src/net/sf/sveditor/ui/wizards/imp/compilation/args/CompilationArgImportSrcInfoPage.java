@@ -46,6 +46,9 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	private Text						fDestFileText;
 	private String						fDestFile;
 	
+	private Button						fAddToProjectButton;
+	private boolean						fAddToProject;
+	
 	private Text						fSrcDir;
 	private Button						fSrcDirBrowse;
 	private String						fSrcDirStr;
@@ -97,6 +100,10 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	public String getCapturedArgs() {
 		return fCapturedArgs;
 	}
+	
+	public boolean getAddToProject() {
+		return fAddToProject;
+	}
 
 	public void createControl(Composite parent) {
 		GridData gd;
@@ -130,6 +137,16 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 2;
 		fDestFileText.setLayoutData(gd);
+		
+		l = new Label(top, SWT.NONE);
+		l.setText("Update Project Settings:");
+		fAddToProjectButton = new Button(top, SWT.CHECK);
+		fAddToProjectButton.addSelectionListener(selectionListener);
+		gd = new GridData(SWT.RIGHT, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		fAddToProjectButton.setLayoutData(gd);
+		fAddToProjectButton.setSelection(true);
+		fAddToProject = true;
 
 		g = new Group(top, SWT.BORDER);
 		g.setText("Compilation Command");
@@ -432,6 +449,8 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				}
 			} else if (src == fImportButton) {
 				runCompilation();
+			} else if (src == fAddToProjectButton) {
+				fAddToProject = fAddToProjectButton.getSelection();
 			}
 		}
 		
