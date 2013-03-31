@@ -5,10 +5,10 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -55,7 +55,7 @@ public class TestDeclCache extends TestCase {
 				new InMemoryIndexCache(),
 				null);
 	
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 
 		List<SVDBDeclCacheItem> pkg_list = index.findGlobalScopeDecl(new NullProgressMonitor(), 
@@ -97,7 +97,7 @@ public class TestDeclCache extends TestCase {
 				new InMemoryIndexCache(),
 				null);
 	
-		index.init(new NullProgressMonitor());
+		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
 		index.loadIndex(new NullProgressMonitor());
 
 		List<SVDBDeclCacheItem> pkg_list = index.findGlobalScopeDecl(new NullProgressMonitor(), 

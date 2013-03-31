@@ -19,18 +19,21 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlanner;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndex extends 
-	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache {
+	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache,
+	ISVDBIndexChangePlanner {
 	
 	ISVDBFileSystemProvider getFileSystemProvider();
 	
 	void setFileSystemProvider(ISVDBFileSystemProvider fs_provider);
 	
-	public void init(IProgressMonitor monitor);
+	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder);
 
 	Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor monitor,

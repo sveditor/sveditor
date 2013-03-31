@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.argfile;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;

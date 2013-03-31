@@ -17,10 +17,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
+import net.sf.sveditor.core.db.index.old.AbstractSVDBIndex;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,6 +33,12 @@ public class ContentAssistIndex extends AbstractSVDBIndex {
 				null, new InMemoryIndexCache(), null);
 	}
 	
+	public void init(IProgressMonitor monitor) {
+		init(monitor, null);
+	}
+
+
+
 	@Override
 	protected String getLogName() {
 		return "ContentAssistIndex";

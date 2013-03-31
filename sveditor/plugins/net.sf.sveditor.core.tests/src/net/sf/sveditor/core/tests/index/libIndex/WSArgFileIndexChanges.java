@@ -15,15 +15,16 @@ package net.sf.sveditor.core.tests.index.libIndex;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -83,30 +84,26 @@ public class WSArgFileIndexChanges extends TestCase {
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1_it = null, class1_2_it = null;
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			System.out.println("Item: " + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				class1_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2_it = tmp_it;
-			}
+		List<SVDBDeclCacheItem> result;
+		
+		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
+				"class1", SVDBFindDefaultNameMatcher.getDefault());
+		
+		if (result.size() > 0) {
+			class1_it = result.get(0).getSVDBItem();
 		}
 		
+		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
+				"class1_2", SVDBFindDefaultNameMatcher.getDefault());
+		
+		if (result.size() > 0) {
+			class1_2_it = result.get(0).getSVDBItem();
+		}
+				
 		assertNotNull("Expect to find class1", class1_it);
-		assertNull("Expect to not fine class1_2", class1_2_it);
-
-
-		// Wait a bit...
-		/*
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) { }
-		 */
+		assertNull("Expect to not find class1_2", class1_2_it);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(out);
@@ -130,21 +127,30 @@ public class WSArgFileIndexChanges extends TestCase {
 		
 		// Now, write back the file
 		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
+	
+		System.out.println("--> Sleep");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {}
+		System.out.println("<-- Sleep");
 
-		it = index.getItemIterator(new NullProgressMonitor());
 		class1_it = null;
 		class1_2_it = null;
 
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				class1_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2_it = tmp_it;
-			}
+		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
+				"class1", SVDBFindDefaultNameMatcher.getDefault());
+		
+		if (result.size() > 0) {
+			class1_it = result.get(0).getSVDBItem();
 		}
-
+		
+		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
+				"class1_2", SVDBFindDefaultNameMatcher.getDefault());
+		
+		if (result.size() > 0) {
+			class1_2_it = result.get(0).getSVDBItem();
+		}
+		
 		assertNotNull("Expect to find class1", class1_it);
 		assertNotNull("Expect to find class1_2", class1_2_it);
 		index.dispose();

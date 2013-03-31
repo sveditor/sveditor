@@ -1,9 +1,17 @@
 package net.sf.sveditor.ui.wizards.imp.compilation.args;
 
+import java.util.List;
+
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.project.SVDBPath;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
@@ -69,6 +77,31 @@ public class CompilationArgImportWizard extends Wizard implements IImportWizard 
 		
 		IFile file = SVFileUtils.getWorkspaceFile(dest_dir + "/" + dest_file);
 		SVFileUtils.copy(content, file);
+		
+		if (fSrcInfoPage.getAddToProject()) {
+			String newpath = "${workspace_loc}" + file.getFullPath();
+
+			// Add the new file to the project settings
+			IProject p = file.getProject();
+			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+			SVDBProjectData pdata = pmgr.getProjectData(p);
+			
+			SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+			List<SVDBPath> paths = fw.getArgFilePaths();
+			boolean already_added = false;
+			
+			for (SVDBPath path : paths) {
+				if (path.getPath().equals(newpath)) {
+					already_added = true;
+					break;
+				}
+			}
+			
+			if (!already_added) {
+				paths.add(new SVDBPath(newpath));
+				pdata.setProjectFileWrapper(fw, true);
+			}
+		}
 
 		return true;
 	}
