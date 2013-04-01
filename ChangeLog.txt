@@ -1,4 +1,7 @@
 
+-- 1.2.3 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.2 Release --
 
 - #(nobug) - Updates to indenter for covegroups / points with lots of {}
