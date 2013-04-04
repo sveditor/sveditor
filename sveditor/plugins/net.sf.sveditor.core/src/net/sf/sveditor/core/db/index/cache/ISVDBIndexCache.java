@@ -24,8 +24,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndexCache {
 	
-	long numFilesRead();
-	
 	/**
 	 * The cache must remove the path corresponding to this cache
 	 * instance from the supplied list. This method is used in the
@@ -58,11 +56,6 @@ public interface ISVDBIndexCache {
 	 * @param monitor
 	 */
 	boolean init(IProgressMonitor monitor, Object index_data, String base_location);
-	
-	/**
-	 * Perform the initial load
-	 */
-	void initLoad(IProgressMonitor monitor);
 	
 	/**
 	 * Invalidate this cache, clearing any backing storage
@@ -114,6 +107,10 @@ public interface ISVDBIndexCache {
 	 * Synchronize the cache with the backing storage
 	 */
 	void sync();
-	
+
+	/**
+	 * Cleans up after this cache. 
+	 */
+	void dispose();
 
 }

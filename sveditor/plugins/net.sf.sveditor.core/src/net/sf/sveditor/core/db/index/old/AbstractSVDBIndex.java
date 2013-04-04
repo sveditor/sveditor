@@ -617,9 +617,7 @@ public abstract class AbstractSVDBIndex implements
 						" to state AllFilesParsed from " + fIndexState);
 			}
 			
-			if (fCacheDataValid) {
-				fCache.initLoad(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
-			} else {
+			if (!fCacheDataValid) {
 				parseFiles(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			}
 			fIndexState = IndexState_AllFilesParsed;

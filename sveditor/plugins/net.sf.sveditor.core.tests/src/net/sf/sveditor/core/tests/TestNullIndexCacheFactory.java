@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 
-public class TestNullIndexCacheFactory implements ISVDBIndexCacheFactory {
+public class TestNullIndexCacheFactory implements ISVDBIndexCacheMgr {
 	private List<InMemoryIndexCache>			fCacheList;
 	
 	public TestNullIndexCacheFactory() {
@@ -39,6 +39,23 @@ public class TestNullIndexCacheFactory implements ISVDBIndexCacheFactory {
 	
 	public List<InMemoryIndexCache> getCacheList() {
 		return fCacheList;
+	}
+
+	// TODO: IndexCache
+	public ISVDBIndexCache findIndexCache(String project_name,
+			String base_location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void sync() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

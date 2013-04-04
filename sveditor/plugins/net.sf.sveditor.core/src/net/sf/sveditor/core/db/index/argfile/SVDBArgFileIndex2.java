@@ -225,6 +225,8 @@ public class SVDBArgFileIndex2 implements
 				
 			} break;
 		}
+		
+		monitor.done();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -233,17 +235,18 @@ public class SVDBArgFileIndex2 implements
 
 		// Initialize the cache
 		IProgressMonitor m = new SubProgressMonitor(monitor, 1);
-		fIndexCacheData = new SVDBArgFileIndexCacheData(getBaseLocation());
-		fCacheDataValid = fCache.init(m, fIndexCacheData, fBaseLocation);
 
 		if (fCacheDataValid) {
 			fCacheDataValid = checkCacheValid();
+		} else {
+			System.out.println("Cache " + getBaseLocation() + " is invalid on entry");
 		}
 
 		if (fCacheDataValid) {
 			if (fDebugEn) {
 				fLog.debug("Cache is valid");
 			}
+			System.out.println("Cache is valid");
 			fIndexValid = true;
 
 			// If we've determined the index data is valid, then we need to
@@ -280,6 +283,7 @@ public class SVDBArgFileIndex2 implements
 				addFileDir(f);
 			}
 		} else {
+			System.out.println("Cache " + getBaseLocation() + " is invalid");
 			if (fDebugEn) {
 				fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			}
@@ -303,7 +307,7 @@ public class SVDBArgFileIndex2 implements
 	
 	private void rebuild_index(IProgressMonitor monitor) {
 	
-		monitor.beginTask("Rebuild " + getBaseLocation(), 1000);
+		monitor.beginTask("Rebuild " + getBaseLocation(), 10000);
 
 		// Invalidate Index
 		fIndexValid = false;
@@ -314,7 +318,7 @@ public class SVDBArgFileIndex2 implements
 		fMissingIncludes.clear();
 
 		// Rebuild the index
-		buildIndex(new SubProgressMonitor(monitor, 750));
+		buildIndex(new SubProgressMonitor(monitor, 9750));
 	
 		synchronized (fCache) {
 			fCache.sync();
@@ -493,8 +497,13 @@ public class SVDBArgFileIndex2 implements
 		
 		fIndexBuilder = builder;
 		
+		fIndexCacheData = new SVDBArgFileIndexCacheData(getBaseLocation());
+		fCacheDataValid = fCache.init(new NullProgressMonitor(), 
+				fIndexCacheData, fBaseLocation);
+		
 		if (fIndexBuilder != null) {
 			SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
+			System.out.println("Launch refresh: " + getBaseLocation());
 			fIndexBuilder.build(plan);
 		} else {
 			// run the refresh in-line
@@ -510,12 +519,18 @@ public class SVDBArgFileIndex2 implements
 	 * 
 	 */
 	public void loadIndex(IProgressMonitor monitor) {
-		
-		if (fIndexBuilder != null) {
-			SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-			SVDBIndexBuildJob job = fIndexBuilder.build(plan);
-			
-			job.waitComplete();
+
+		if (!fIndexValid) {
+			if (fIndexBuilder != null) {
+				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
+				System.out.println("loadIndex build: " + getBaseLocation());
+				SVDBIndexBuildJob job = fIndexBuilder.build(plan);
+
+				job.waitComplete();
+			} else {
+				buildIndex(monitor);
+			}
+			fIndexValid = true;
 		}
 	
 		/*
@@ -554,12 +569,18 @@ public class SVDBArgFileIndex2 implements
 				// See if there is an active job 
 				build_job = fIndexBuilder.findJob(this);
 				
-				if (build_job == null) {
+				if (build_job != null) {
+					build_job.waitComplete();
+				}
+				
+				if (!fIndexValid) {
 					// Schedule a job
 					SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
+					System.out.println("ensureIndexUpToDate Build: " + getBaseLocation());
 					build_job = fIndexBuilder.build(plan);
+					build_job.waitComplete();
 				}
-				build_job.waitComplete();
+				fIndexValid = true;
 			} else {
 				System.out.println("[ERROR] no builder and invalid");
 			}
@@ -610,7 +631,19 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) {
-		invalidateIndex(monitor, "Rebuild Index Requested", true);
+		try {
+			throw new Exception();
+		} catch (Exception e) {
+			System.out.println("rebuildIndex Request:");
+			e.printStackTrace();
+		}
+		if (fIndexBuilder != null) {
+			SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
+			System.out.println("rebuildIndex Build: " + getBaseLocation());
+			fIndexBuilder.build(plan);
+		} else {
+			invalidateIndex(monitor, "Rebuild Index Requested", true);
+		}
 	}
 
 	public ISVDBIndexCache getCache() {
@@ -1240,10 +1273,12 @@ public class SVDBArgFileIndex2 implements
 		ensureIndexUpToDate(monitor);
 		
 		SVDBFileTree ft = findTargetFileTree(r_path);
-		
-		
+	
+		//
+		// TODO: using 'this' as the include provider 
+		// may not be ideal
 		SVPreProcessor2 preproc = new SVPreProcessor2(
-				r_path, in, null, null);
+				r_path, in, this, fReadOnlyFileMapper);
 		
 		// TODO: add macros from FT
 		if (ft != null) {
@@ -1358,7 +1393,7 @@ public class SVDBArgFileIndex2 implements
 		return findFile(new NullProgressMonitor(), path);
 	}
 
-	public synchronized SVDBFile findPreProcFile(String path) {
+	public SVDBFile findPreProcFile(String path) {
 		return findPreProcFile(new NullProgressMonitor(), path);
 	}
 
@@ -2308,18 +2343,28 @@ public class SVDBArgFileIndex2 implements
 		}
 //		System.out.println("Parse " + path + " " + (end-start));
 
+		start = System.currentTimeMillis();
 		cacheDeclarations(file, ft);
+		end = System.currentTimeMillis();
+//		System.out.println("CacheDecl " + path + " " + (end-start));
 		
 	
+		start = System.currentTimeMillis();
 		synchronized (fCache) {
 			fCache.setFile(path, file, false);
 			fCache.setFileTree(path, ft, false);
 			fCache.setMarkers(path, markers, false);
 		}
+		end = System.currentTimeMillis();
+//		System.out.println("SetCache " + path + " " + (end-start));
 	}
 	
 	private void buildIndex(IProgressMonitor monitor) {
 		long start_time, end_time;
+		int total_work = 10000;
+		int per_file_work = 0;
+		
+		monitor.beginTask("Build Index", total_work);
 
 		// First, parse the argument files
 		start_time = System.currentTimeMillis();
@@ -2343,18 +2388,34 @@ public class SVDBArgFileIndex2 implements
 
 //		System.out.println("--> parseFiles");
 		start_time = System.currentTimeMillis();
-		for (String path : paths) {
-			fLog.debug("Path: " + path);
+	
+		if (paths.size() > 0) {
+			per_file_work = (total_work / paths.size());
+		}
+		if (per_file_work == 0) {
+			per_file_work = 1;
+		}
+		
+		for (int i=0; i<paths.size(); i++) {
+			String path = paths.get(i);
+			
+			if (fDebugEn) {
+				fLog.debug("Path: " + path);
+			}
+			
+			long start_time_1 = System.currentTimeMillis();
+			
 			if (fFileSystemProvider.fileExists(path)) {
-				long start_time_1 = System.currentTimeMillis();
+				monitor.subTask("Parse " + path);
 //				System.out.println("--> parseFile " + path);
 				parseFile(path);
+				monitor.worked(per_file_work);
 				long end_time_1 = System.currentTimeMillis();
-//				System.out.println("<-- parseFile " + (end_time_1-start_time_1));
+//				System.out.println("Full Parse: " + path + " " + (end_time_1-start_time_1));
 			}
 		}
 		end_time = System.currentTimeMillis();
-//		System.out.println("--> parseFiles " + (end_time-start_time));
+		System.out.println("parseFiles " + paths.size() + " " + (end_time-start_time));
 	
 		synchronized (fIndexChangeListeners) {
 			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
@@ -2367,6 +2428,8 @@ public class SVDBArgFileIndex2 implements
 					+ ": Parse source files -- " + (end_time - start_time)
 					+ "ms");
 		}
+		
+		monitor.done();
 	}
 
 	public ISVPreProcessor createPreProcScanner(String path) {
@@ -2404,4 +2467,14 @@ public class SVDBArgFileIndex2 implements
 		return mapFileIdToPath(fileid);
 	}
 
+	private ISVPreProcFileMapper fReadOnlyFileMapper = new ISVPreProcFileMapper() {
+		
+		public int mapFilePathToId(String path, boolean add) {
+			return SVDBArgFileIndex2.this.mapFilePathToId(path, false);
+		}
+		
+		public String mapFileIdToPath(int id) {
+			return SVDBArgFileIndex2.this.mapFileIdToPath(id);
+		}
+	};
 }
