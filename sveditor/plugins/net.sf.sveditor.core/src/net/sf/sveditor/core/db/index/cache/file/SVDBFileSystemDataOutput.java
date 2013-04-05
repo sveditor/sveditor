@@ -73,19 +73,22 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 
 	}
 
-	public void writeDouble(double arg0) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void writeFloat(float arg0) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void writeInt(int arg0) throws IOException {
-		// TODO Auto-generated method stub
-
+	public void writeInt(int val) throws IOException {
+		if (fPageIdx+4 < fPages.get(fPages.size()-1).length) {
+			byte data[] = fPages.get(fPages.size()-1);
+			byte tmp;
+			
+			tmp = (byte)(val >> 0);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 8);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 16);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 24);
+			data[fPageIdx++] = tmp;
+		} else {
+			
+		}
 	}
 
 	public void writeLong(long arg0) throws IOException {
@@ -99,8 +102,14 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 	}
 
 	public void writeUTF(String arg0) throws IOException {
-		// TODO Auto-generated method stub
-
+		throw new RuntimeException("writeUTF not supported");
 	}
 
+	public void writeDouble(double arg0) throws IOException {
+		throw new RuntimeException("writeDouble not supported");
+	}
+
+	public void writeFloat(float arg0) throws IOException {
+		throw new RuntimeException("writeFloat not supported");
+	}
 }

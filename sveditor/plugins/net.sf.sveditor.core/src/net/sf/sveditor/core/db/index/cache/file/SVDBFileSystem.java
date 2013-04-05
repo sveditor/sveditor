@@ -14,15 +14,17 @@ import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBFileSystem implements ILogLevelListener {
 	private static final int			BLK_SIZE = 4096;
-	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
-//	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
+//	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
+	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
 	private static final int			ALLOC_PAGE_INCR = 1024;
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
 	private File						fDBDir;
 	private byte						fUserData[];
+	
 	private byte						fAllocList[];
 	private int							fFirstEmptyIdx;
+	private int							fAllocListFile;
 	
 	private List<RandomAccessFile>		fFileRWList;
 	private int							fLastRwBlkLen;
@@ -44,7 +46,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	 * 
 	 * @return
 	 */
-	public boolean init() {
+	public synchronized boolean init() throws IOException {
 		boolean ret = true;
 		
 		// See if the DBDir exists
@@ -58,6 +60,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 		// Try to load the first file
 		File f = new File(fDBDir, "1.db");
 		
+		fLastRwBlkLen = 0;
+		
 		if (!f.isFile()) {
 			// Nothing here yet
 			RandomAccessFile rw = null;
@@ -68,36 +72,108 @@ public class SVDBFileSystem implements ILogLevelListener {
 						f.getAbsolutePath(), e);
 			}
 			fFileRWList.add(rw);
-			fLastRwBlkLen = 0;
 			fAllocList = new byte[ALLOC_PAGE_INCR];
+			
+			// Reserve the first block
+			fAllocList[0] = 1; 
+			fAllocListFile = -1;
 		} else {
 			RandomAccessFile rw = null;
-			try {
-				rw = new RandomAccessFile(f, "rw");
-				fLastRwBlkLen = (int)(rw.length() / FILE_BLK_SIZE);
-			} catch (IOException e) {
-				fLog.error("Failed to create first DB file " + 
-						f.getAbsolutePath(), e);
-			}
+			
+			rw = new RandomAccessFile(f, "rw");
+			
 			fFileRWList.add(rw);
 			
-			// TODO: read in the alloc list and initialize the AllocList
+			// Read the root block
+			byte tmp[] = new byte[BLK_SIZE];
+			readBlock(0, tmp);
+			
+			SVDBFileSystemDataInput in = new SVDBFileSystemDataInput();
+			in.addPage(tmp);
+			
+			int n_files = in.readInt();
+			fAllocListFile = in.readInt();
+			int ud_len = in.readInt();
+			
+			if (ud_len == -1) {
+				fUserData = null;
+			} else {
+				fUserData = new byte[ud_len];
+				in.readFully(fUserData);
+			}
+			
+			System.out.println("Sync: n_files=" + n_files);
+			
+			for (int i=2; i<=n_files; i++) {
+				f = new File(fDBDir, i + ".db");
+				rw = new RandomAccessFile(f, "rw");
+				fFileRWList.add(rw);
+			}
+			
+			// Now we can read in the alloc list and initialize the AllocList
+			SVDBFileSystemDataInput alloc_in = readFile(fAllocListFile);
+			int alloc_listlen = alloc_in.getLength();
+			fAllocList = new byte[alloc_listlen];
+			alloc_in.readFully(fAllocList);
 		}
 	
 		return ret;
 	}
 	
 	public DataInput getUserData() {
-
-		return null;
+		if (fUserData != null) {
+			return null;
+		} else {
+			SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
+			ret.addPage(fUserData);
+			return ret;
+		}
 	}
 	
 	public void setUserData(SVDBFileSystemDataOutput data) {
-		
+		if (data == null) {
+			fUserData = null;
+		} else {
+			byte tdata[] = data.getPage(0);
+			fUserData = new byte[tdata.length];
+			// Only the first 2K is available for user data
+			for (int i=0; (i<tdata.length && i<2048); i++) {
+				fUserData[i] = tdata[i];
+			}
+		}
 	}
 
-	public void sync() {
+	public synchronized void sync() throws IOException {
+		SVDBFileSystemDataOutput alloc_out = new SVDBFileSystemDataOutput();
+		// TODO: Create and save the root block
+		SVDBFileSystemDataOutput out = new SVDBFileSystemDataOutput();
 		
+		// If we already have an alloc file, delete it
+		if (fAllocListFile != -1) {
+			deleteFile(fAllocListFile);
+		}
+		
+		alloc_out.write(fAllocList);
+		fAllocListFile = writeFile(alloc_out);
+		
+		/**
+		 * Root block is:
+		 * - Number of files in this filesystem
+		 * - Handle to the alloc list
+		 * - user data length
+		 * - user data
+		 */
+		out.writeInt(fFileRWList.size());
+		out.writeInt(fAllocListFile);
+		if (fUserData != null) {
+			out.writeInt(fUserData.length);
+			out.write(fUserData);
+		} else {
+			out.writeInt(-1);
+		}
+
+		// Write back the root block
+		writeBlock(0, out.getPage(0));
 	}
 	
 	public synchronized void close() throws IOException {
@@ -108,8 +184,28 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	}
 	
-	public DataInput readFile(int id) {
-		return null;
+	public SVDBFileSystemDataInput readFile(int id) throws IOException {
+		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
+		byte tmp[] = new byte[BLK_SIZE];
+	
+		// Read root block
+		readBlock(id, tmp);
+		ret.addPage(tmp);
+		
+		int length  = ret.readInt(); // Total length of the file
+		int nblocks = ret.readInt(); // Number of non-root blocks
+		
+		// Read in the remaining root and storage blocks
+		for (int i=0; i<nblocks; i++) {
+			int block_id = ret.readInt();
+			tmp = new byte[BLK_SIZE];
+			readBlock(block_id, tmp);
+			ret.addPage(tmp);
+		}
+		
+		ret.finalize(length);
+		
+		return ret;
 	}
 	
 	public int writeFile(SVDBFileSystemDataOutput data) throws IOException {
@@ -126,12 +222,21 @@ public class SVDBFileSystem implements ILogLevelListener {
 				;
 		int reqd_blocks = 1;
 		int remaining_size = length;
+		int last_rootblk_idx = 0;
 
 		while (remaining_size > avail_rootblock_bytes) {
 			reqd_blocks++;
 			avail_rootblock_bytes -= 4;
+			if (avail_rootblock_bytes <= 0) {
+				avail_rootblock_bytes = BLK_SIZE;
+				last_rootblk_idx++;
+				// Need an additional root block
+				reqd_blocks++;
+			}
 			remaining_size -= BLK_SIZE;
 		}
+		
+		System.out.println("last_rootblk_idx=" + last_rootblk_idx);
 
 		/*
 		System.out.println("Size: " + length + " " + reqd_blocks + " " + 
@@ -147,16 +252,22 @@ public class SVDBFileSystem implements ILogLevelListener {
 		byte block[] = new byte[BLK_SIZE];
 		int idx = 0;
 		
-		// Write the first block
+		// Fill in the base root block
 		idx = write32(idx, block, length);
 		idx = write32(idx, block, (reqd_blocks-1));
-		
+	
+		// Add the additional-block pointers
 		for (int i=1; i<blocks.length; i++) {
 			idx = write32(idx, block, blocks[i]);
+			
+			if (idx >= BLK_SIZE) {
+				// write back the block and move on to the next
+				writeBlock(blocks[blocks_idx], block);
+				blocks_idx++;
+				idx = 0;
+			}
 		}
 		
-		// TODO: may need to write multiple block-idx blocks
-	
 		int page_idx = 0, tmp_idx = 0;
 		byte tmp[] = null;
 		for (int i=0; i<length; i++) {
@@ -186,7 +297,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	
 	private static int write32(int idx, byte data[], int val) {
 		byte tmp;
-		int idx0 = idx;
+//		int idx0 = idx;
 
 		tmp = (byte)(val >> 0);
 		data[idx++] = tmp;
@@ -208,26 +319,72 @@ public class SVDBFileSystem implements ILogLevelListener {
 		return idx;
 	}
 
-	public void deleteFile(int id) {
+	public void deleteFile(int id) throws IOException {
+		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
+		byte tmp[] = new byte[BLK_SIZE];
+	
+		// Read root block
+		readBlock(id, tmp);
+		ret.addPage(tmp);
 		
+		/* int length  = */ ret.readInt(); // Total length of the file
+		int nblocks = ret.readInt(); // Number of non-root blocks
+		int blocks[] = new int[nblocks+1];
+		blocks[0] = id;
+		int blocks_to_read = computeRootBlockCount(nblocks);
+		
+		// Read in the remaining block ids and free them
+		for (int i=0; i<nblocks; i++) {
+			int block_id = ret.readInt();
+			if (i < blocks_to_read) {
+				tmp = new byte[BLK_SIZE];
+				readBlock(block_id, tmp);
+				ret.addPage(tmp);
+			}
+			freeBlock(block_id);
+		}		
+		
+		freeBlock(id);
 	}
 	
-	private byte [] readBlock(int id) throws IOException {
+	/**
+	 * Computes the number of root blocks that must be read
+	 * given the number of non-root blocks required
+	 * 
+	 * @param nblocks
+	 * @return
+	 */
+	private static int computeRootBlockCount(int nblocks) {
+		int first_rootblk_blk_pointers = (BLK_SIZE -
+				(
+						4 + // length
+						4 + // nblocks
+						0
+				)) / 4;
+		if (nblocks > first_rootblk_blk_pointers) {
+			nblocks -= first_rootblk_blk_pointers;
+			return ((nblocks-1) / (BLK_SIZE/4)) + 1;
+		} else {
+			return 0;
+		}
+	}
+	
+	private void readBlock(int id, byte data[]) throws IOException {
 		int writer_id = (id / FILE_BLK_SIZE);
 		int writer_blk_id = (id % FILE_BLK_SIZE);
 		
 		if (writer_id >= fFileRWList.size()) {
-			return null;
+			return;
 		}
 	
 		RandomAccessFile rw = fFileRWList.get(writer_id);
 		
 		rw.seek(BLK_SIZE * writer_blk_id);
-	
-		return null;
+
+		rw.read(data, 0, BLK_SIZE);
 	}
 	
-	public void writeBlock(int id, byte data[]) throws IOException {
+	private void writeBlock(int id, byte data[]) throws IOException {
 		int writer_id = (id / FILE_BLK_SIZE);
 		int writer_blk_id = (id % FILE_BLK_SIZE);
 	
@@ -258,8 +415,13 @@ public class SVDBFileSystem implements ILogLevelListener {
 		rw.seek(writer_blk_id*BLK_SIZE);
 		rw.write(data);
 	}
-	
-	public synchronized int allocBlock() {
+
+	/**
+	 * Allocate a filesystem block
+	 * 
+	 * @return
+	 */
+	private synchronized int allocBlock() {
 		int blk_id = -1;
 		
 		// First, see if we can find
@@ -288,14 +450,18 @@ public class SVDBFileSystem implements ILogLevelListener {
 				fAllocList[i] = tmp[i];
 			}
 			
+			fAllocList[fFirstEmptyIdx] |= 1;
 			blk_id = 8*fFirstEmptyIdx;
-			fAllocList[blk_id] |= 1;
 		}
 	
 		return blk_id;
 	}
 	
-	public synchronized void freeBlock(int id) {
+	/**
+	 * Free a filesystem block
+	 * @param id
+	 */
+	private synchronized void freeBlock(int id) {
 		int alloc_idx = (id/8);
 		if (alloc_idx < fFirstEmptyIdx) {
 			fFirstEmptyIdx = alloc_idx;
@@ -303,4 +469,5 @@ public class SVDBFileSystem implements ILogLevelListener {
 		int mask = ~(1 << (id & 7));
 		fAllocList[alloc_idx] &= mask;
 	}
+
 }
