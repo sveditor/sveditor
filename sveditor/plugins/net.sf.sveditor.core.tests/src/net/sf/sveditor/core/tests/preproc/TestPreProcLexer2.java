@@ -1,15 +1,12 @@
 package net.sf.sveditor.core.tests.preproc;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVToken;

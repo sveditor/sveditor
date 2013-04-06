@@ -6,7 +6,6 @@ import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 
 public class SVEditorIndexPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 	
