@@ -1114,4 +1114,22 @@ endclass
             name="Compilation Arguments">
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            id="net.sf.sveditor.ui.svCode"
+            name="SystemVerilog Editor">
+            <context type="org.eclipse.ui.texteditor.ITextEditor"/>
+      </target>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            class="net.sf.sveditor.ui.editor.SVElementHyperlinkDetector"
+            id="net.sf.sveditor.ui.editor.SVElementHyperlinkDetector"
+            name="SystemVerilog Elements"
+            targetId="net.sf.sveditor.ui.svCode">
+      </hyperlinkDetector>
+   </extension>
+
 </plugin>
