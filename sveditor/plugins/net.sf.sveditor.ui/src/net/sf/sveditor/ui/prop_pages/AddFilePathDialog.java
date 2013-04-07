@@ -15,6 +15,9 @@ package net.sf.sveditor.ui.prop_pages;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -83,10 +86,11 @@ public class AddFilePathDialog extends Dialog {
 
 			public void widgetSelected(SelectionEvent e) {
 				ProjectFileDialog dlg = new ProjectFileDialog(getShell(), fProject);
-				
 				if (dlg.open() == Window.OK) {
 					if (dlg.getPath() != null) {
-						fPath.setText("${workspace_loc}" + dlg.getPath());
+						IPath proj_loc = new Path("${project_loc}") ;
+						IPath path = new Path(dlg.getPath()) ;
+						fPath.setText(proj_loc.append(path.removeFirstSegments(1)).toString()) ;
 					}
 				}
 			}
