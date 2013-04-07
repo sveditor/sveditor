@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -110,12 +111,14 @@ public class SVNameFilesPage extends WizardPage {
 		Label l;
 		GridData gd;
 		Group g;
+	
+		SashForm sash = new SashForm(parent, SWT.VERTICAL);
 		
-		final Composite c = new Composite(parent, SWT.NONE);
-		c.setLayout(new GridLayout());
-		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Composite top = new Composite(sash, SWT.BORDER);
+		top.setLayout(new GridLayout());
+		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Composite src_c = new Composite(c, SWT.NONE);
+		Composite src_c = new Composite(top, SWT.NONE);
 		src_c.setLayout(new GridLayout(3, false));
 		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -149,24 +152,8 @@ public class SVNameFilesPage extends WizardPage {
 		fOverwrite = new Button(src_c, SWT.CHECK);
 		fOverwrite.addSelectionListener(selectionListener);
 		
-	
-		/*
-		g = new Group(src_c, SWT.NONE);
-		g.setText("Parameters");
-		
-		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.horizontalSpan = 3;
-		g.setLayoutData(gd);
-		g.setLayout(new GridLayout());
-		
-		fParamsTable = new TemplateParametersTableViewer(g);
-		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.heightHint = 100;
-		fParamsTable.getTable().setLayoutData(gd);
-		fParamsTable.addModifyListener(modifyListener);
-		 */
-		
-		g = new Group(src_c, SWT.NONE);
+
+		g = new Group(sash, SWT.BORDER);
 		g.setText("Filenames");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 100;
@@ -179,7 +166,7 @@ public class SVNameFilesPage extends WizardPage {
 		fFileTable.getTable().setLayoutData(gd);
 
 		setPageComplete(false);
-		setControl(c);
+		setControl(sash);
 		
 		updateFilenamesDescription();
 		

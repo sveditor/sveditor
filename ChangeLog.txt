@@ -13,6 +13,9 @@
   
 - #(65) - Add spell checking for comments in SV files
 
+- #(enh) - Update template wizard to support NaturalDoc formatting for
+  template-element descriptions
+
 ------------------------------------------------------------------------------
 -- 1.2.2 Release --
 
