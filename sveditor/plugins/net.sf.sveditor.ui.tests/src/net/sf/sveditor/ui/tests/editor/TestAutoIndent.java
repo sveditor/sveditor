@@ -903,17 +903,6 @@ public class TestAutoIndent extends TestCase {
 
         IndentComparator.compare(getName(), expected, result);
         
-        // Swap from Linux Windows line endings - see bug: 
-        //    "56 Outdent Too Many Spaces for enum"
-        input = input.replace("\n", "\r\n");
-        expected = expected.replace("\n", "\r\n");
-
-        AutoEditTester tester2 = UiReleaseTests.createAutoEditTester();
-        tester2.type(input);
-        result = tester2.getContent();
-        
-        IndentComparator.compare(getName(), expected, result);
-        
     }
 	
 	public void testBasicEnumDecl() throws BadLocationException {
@@ -1170,7 +1159,7 @@ public void testIndentConstraint() throws BadLocationException {
 	IndentComparator.compare("testIndentConstraint", expected, result);
 }
 
-//This test checks assign statments, these can run onto multiple lines
+//This test checks assign statements, these can run onto multiple lines
 public void testAssignStatements() throws BadLocationException {
 	String input =
 			"module foo;\n" +
@@ -1203,6 +1192,38 @@ public void testAssignStatements() throws BadLocationException {
 	String result = tester.getContent();
 	
 	IndentComparator.compare("testAssignStatements", expected, result);
+}
+
+//This test checks preprocessor directives. At this point the test only checks:
+// - import 
+// - `include statements 
+// - `define
+public void testProgramPreProcDir() throws BadLocationException {
+	String input =
+			"`include \"global.sv\"\n" +
+			"program somep;\n" +
+			"import pkg_1::*;\n" +
+			"`include \"macros.sv\"\n" +
+			"import pkg_2::*;\n" +
+			"`define BOB 1\n" +
+			"endprogram\n"
+			;
+	
+	String expected =
+			"`include \"global.sv\"\n" +
+			"program somep;\n" +
+			"	import pkg_1::*;\n" +
+			"	`include \"macros.sv\"\n" +
+			"	import pkg_2::*;\n" +
+			"	`define BOB 1\n" +
+			"endprogram\n"
+			;
+	
+	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+	tester.type(input);
+	String result = tester.getContent();
+	
+	IndentComparator.compare("testProgramPreProcDir", expected, result);
 }
 
 }
