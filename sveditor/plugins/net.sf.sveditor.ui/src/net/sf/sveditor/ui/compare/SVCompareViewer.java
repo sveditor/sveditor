@@ -34,7 +34,7 @@ public class SVCompareViewer extends TextMergeViewer {
 	protected void configureTextViewer(TextViewer textViewer) {
 		if(textViewer instanceof SourceViewer) {
 			SourceViewer viewer = (SourceViewer)textViewer;
-			SVSourceViewerConfiguration configuration = new SVSourceViewerConfiguration(null);
+			SVSourceViewerConfiguration configuration = new SVSourceViewerConfiguration(null,null);
 			viewer.configure(configuration);
 		}
 	}
