@@ -45,7 +45,7 @@ import org.eclipse.jface.text.information.InformationPresenter;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
-import org.eclipse.jface.text.reconciler.MonoReconciler;
+import org.eclipse.jface.text.reconciler.Reconciler;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.Token;
@@ -56,6 +56,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
@@ -227,7 +228,20 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 
 	@Override
 	public IReconciler getReconciler(ISourceViewer viewer) {
-		return new MonoReconciler(new SVReconcilingStrategy(fEditor), false);
+		Reconciler r = new Reconciler();
+
+		SVSpellingReconcileStrategy spelling_strategy = 
+				new SVSpellingReconcileStrategy(viewer, EditorsUI.getSpellingService());
+		
+		r.setReconcilingStrategy(spelling_strategy, 
+				SVDocumentPartitions.SV_SINGLELINE_COMMENT);
+		r.setReconcilingStrategy(spelling_strategy, 
+				SVDocumentPartitions.SV_MULTILINE_COMMENT);
+		r.setReconcilingStrategy(new SVReconcilingStrategy(fEditor), 
+				IDocument.DEFAULT_CONTENT_TYPE);
+		r.setDocumentPartitioning(SVDocumentPartitions.SV_PARTITIONING);
+
+		return r;
 	}
 	
 	@Override
