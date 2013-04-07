@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.db.persistence;
 
 import java.io.DataOutput;
-import java.util.Collection;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -32,7 +31,7 @@ public interface IDBWriter {
 	
 	void writeLong(long val) throws DBWriteException;
 	
-	void writeObject(Class cls, Object obj) throws DBWriteException;
+	void writeObject(Class<?> cls, Object obj) throws DBWriteException;
 	
 	void writeByteArray(byte data[]) throws DBWriteException;
 	
@@ -40,7 +39,7 @@ public interface IDBWriter {
 	
 	void writeItemType(SVDBItemType type) throws DBWriteException;
 	
-	void writeEnumType(Class enum_type, Enum value) throws DBWriteException;
+	void writeEnumType(Class<?> enum_type, Enum<?> value) throws DBWriteException;
 	
 	void writeItemList(List items) throws DBWriteException;
 	

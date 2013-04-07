@@ -475,6 +475,8 @@ public class SVDBElemIterator {
 //		CoverpointExpr,
 //		CoverBinsExpr,
 		
+			default:
+				break;
 		}
 		
 	}

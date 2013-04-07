@@ -11,12 +11,12 @@ import net.sf.sveditor.core.db.SVDBItemType;
 public abstract class SVDBPersistenceRWDelegateBase extends SVDBPersistenceRWBase 
 		implements ISVDBPersistenceRWDelegate {
 	protected Set<SVDBItemType>						fSupportedItems;
-	protected Set<Class>							fSupportedObjects;
+	protected Set<Class<?>>							fSupportedObjects;
 	protected ISVDBPersistenceRWDelegateParent		fParent; 
 	
 	public SVDBPersistenceRWDelegateBase() {
 		fSupportedItems = new HashSet<SVDBItemType>();
-		fSupportedObjects = new HashSet<Class>();
+		fSupportedObjects = new HashSet<Class<?>>();
 	}
 
 	public void init(
@@ -29,7 +29,7 @@ public abstract class SVDBPersistenceRWDelegateBase extends SVDBPersistenceRWBas
 	}
 
 	public void init(Set<SVDBItemType> supported_items,
-			Set<Class> supported_objects) {
+			Set<Class<?>> supported_objects) {
 		fSupportedItems.addAll(supported_items);
 		fSupportedObjects.addAll(supported_objects);
 	}
@@ -38,11 +38,11 @@ public abstract class SVDBPersistenceRWDelegateBase extends SVDBPersistenceRWBas
 		fSupportedItems.add(t);
 	}
 
-	public Set<Class> getSupportedObjects() {
+	public Set<Class<?>> getSupportedObjects() {
 		return fSupportedObjects;
 	}
 
-	public Set<Class> getSupportedEnumTypes() {
+	public Set<Class<?>> getSupportedEnumTypes() {
 		// TODO Auto-generated method stub
 		return null;
 	}

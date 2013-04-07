@@ -935,6 +935,7 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 	
+	@SuppressWarnings("unused")
 	private SVDBFileTree findRootFileTree(String path) {
 		SVDBFileTree ret = null;
 		String paths[] = new String[3];
@@ -970,6 +971,7 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 	
+	@SuppressWarnings("unused")
 	private SVDBFileTree findRootFileTree(SVDBFileTree parent, String paths[]) {
 		for (String path : paths) {
 			if (path == null) {
@@ -1692,6 +1694,7 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void cacheFileTreeDeclarations(
 			SVDBFileTree				ft,
 			List<SVDBDeclCacheItem>		file_item_list) {
@@ -1708,6 +1711,7 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void cacheDeclarations_old(
 			Set<String> 			processed_files,
 			String 					filename, 

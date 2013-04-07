@@ -20,19 +20,19 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 @SuppressWarnings("rawtypes")
 public abstract class JITPersistenceDelegateBase extends SVDBPersistenceRWDelegateBase {
-	protected List<Class>				fObjectTypeList;
+	protected List<Class<?>>				fObjectTypeList;
 	
 	public JITPersistenceDelegateBase() {
-		fObjectTypeList = new ArrayList<Class>();
+		fObjectTypeList = new ArrayList<Class<?>>();
 	}
 	
-	public void setSupportedClasses(List<Class> s) {
+	public void setSupportedClasses(List<Class<?>> s) {
 		fObjectTypeList = s;
 	}
 	
 	@Override
 	public void init(Set<SVDBItemType> supported_items,
-			Set<Class> supported_objects) {
+			Set<Class<?>> supported_objects) {
 		super.init(supported_items, supported_objects);
 	}
 
