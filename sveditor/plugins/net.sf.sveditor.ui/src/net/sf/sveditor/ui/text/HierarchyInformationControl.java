@@ -9,8 +9,7 @@ package net.sf.sveditor.ui.text;
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Armond Paiva - repurposed from JDT for SVEditor Objects Quick View
- *     Armond Paiva - repurposed from Objects Quick View to Outline Quick View
+ *     Armond Paiva - repurposed from JDT
  *******************************************************************************/
 
 import net.sf.sveditor.core.db.ISVDBItemBase;

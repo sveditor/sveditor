@@ -2,7 +2,6 @@ package net.sf.sveditor.core.templates;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 
 public class DynamicTemplateParameterProvider implements
 		ITemplateParameterProvider {

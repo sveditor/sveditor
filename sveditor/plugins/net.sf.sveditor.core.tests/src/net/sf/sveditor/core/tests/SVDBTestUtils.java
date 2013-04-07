@@ -139,6 +139,8 @@ public class SVDBTestUtils {
 						return findElement(inst, e);
 					}
 					} break;
+				default:
+					break;
 			}
 		}
 		

@@ -24,8 +24,6 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.ide.DialogUtil;
-import org.eclipse.ui.internal.wizards.newresource.ResourceMessages;
 import org.eclipse.ui.part.ISetSelectionTarget;
 
 public class NewSVTDescriptorWizard extends Wizard implements INewWizard {
