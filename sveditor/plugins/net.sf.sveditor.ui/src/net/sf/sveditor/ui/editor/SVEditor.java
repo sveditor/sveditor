@@ -104,6 +104,7 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AddTaskAction;
@@ -736,7 +737,8 @@ public class SVEditor extends TextEditor
 	}
 
 	public void createPartControl(Composite parent) {
-		setSourceViewerConfiguration(new SVSourceViewerConfiguration(this));
+		
+		setSourceViewerConfiguration(new SVSourceViewerConfiguration(this,SVUiPlugin.getDefault().getPreferenceStore()));
 		
 		super.createPartControl(parent);
 		
