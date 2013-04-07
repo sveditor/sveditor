@@ -75,6 +75,8 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			case ProgramDecl:
 				module = new SVDBProgramDecl(module_type_name);
 				break;
+			default:
+				break;
 		}
 
 		module.setLocation(start);

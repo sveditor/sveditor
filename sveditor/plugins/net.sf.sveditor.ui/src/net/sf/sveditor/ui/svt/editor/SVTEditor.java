@@ -174,6 +174,7 @@ public class SVTEditor extends FormEditor {
 		return true;
 	}
 	
+	@SuppressWarnings("unused")
 	private void dump() {
 		SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
 		

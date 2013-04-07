@@ -19,9 +19,7 @@ import net.sf.sveditor.ui.text.SVWordFinder;
 
 import org.eclipse.swt.widgets.Shell;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
@@ -29,7 +27,6 @@ import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
 
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
 import org.eclipse.ui.editors.text.EditorsUI;

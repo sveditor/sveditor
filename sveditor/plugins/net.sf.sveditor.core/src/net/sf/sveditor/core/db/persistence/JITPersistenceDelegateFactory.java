@@ -48,8 +48,8 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 	private String										fTargetPkg;
 	private List<String>								fTargetPkgList;
 	private Map<SVDBItemType, Class>					fTypeClassMap;
-	private List<Class>									fClassList;
-	private Set<Class>									fClassSet;
+	private List<Class<?>>								fClassList;
+	private Set<Class<?>>								fClassSet;
 	private static final String						fBaseClass = getClassName(JITPersistenceDelegateBase.class);
 	private static final String						fPersistenceDelegateParentClass = getClassName(ISVDBPersistenceRWDelegateParent.class);
 	private static final String	fChildItem = "net/sf/sveditor/core/db/ISVDBChildItem";
@@ -109,8 +109,8 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 	
 	private JITPersistenceDelegateFactory() {
 		fTypeClassMap	= new HashMap<SVDBItemType, Class>();
-		fClassList		= new ArrayList<Class>();
-		fClassSet		= new HashSet<Class>();
+		fClassList		= new ArrayList<Class<?>>();
+		fClassSet		= new HashSet<Class<?>>();
 		fTargetPkg = "net.sf.sveditor.core.db.persistence";
 		fTargetPkgList = new ArrayList<String>();
 		fTargetPkgList.add("net.sf.sveditor.core.db");

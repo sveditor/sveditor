@@ -461,6 +461,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 		return is_string;
 	}
 	
+	@SuppressWarnings("unused")
 	private void append_ch(int ch) {
 		fStringBuffer.append((char)ch);
 		if (fDebugEn) {
