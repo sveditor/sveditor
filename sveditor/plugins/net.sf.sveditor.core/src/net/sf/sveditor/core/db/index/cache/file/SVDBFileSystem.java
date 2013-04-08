@@ -14,8 +14,8 @@ import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBFileSystem implements ILogLevelListener {
 	private static final int			BLK_SIZE = 4096;
-//	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
-	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
+	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
+//	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
 	private static final int			ALLOC_PAGE_INCR = 1024;
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
@@ -235,13 +235,6 @@ public class SVDBFileSystem implements ILogLevelListener {
 			}
 			remaining_size -= BLK_SIZE;
 		}
-		
-		System.out.println("last_rootblk_idx=" + last_rootblk_idx);
-
-		/*
-		System.out.println("Size: " + length + " " + reqd_blocks + " " + 
-				remaining_size + " " + avail_rootblock_bytes);
-		 */
 		
 		int blocks[] = new int[reqd_blocks];
 		for (int i=0; i<blocks.length; i++) {

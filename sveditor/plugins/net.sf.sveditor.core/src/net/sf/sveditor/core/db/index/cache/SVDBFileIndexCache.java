@@ -126,6 +126,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		fPersistenceWriterSet = new ArrayList<IDBWriter>();
 	}
 	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		// TODO:
+		return null;
+	}
+
 	public void dispose() { }
 
 	public void logLevelChanged(ILogHandle handle) {

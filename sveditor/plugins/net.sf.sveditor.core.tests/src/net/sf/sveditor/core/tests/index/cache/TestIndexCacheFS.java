@@ -104,7 +104,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 		List<Integer> file_ids = new ArrayList<Integer>();
 		
 		for (int i=0; i<4; i++) {
-			byte tdata[] = new byte[1024*1024*48];
+			byte tdata[] = new byte[1024*1024*16];
 		
 			for (int j=0; j<tdata.length; j++) {
 				tdata[j] = (byte)(i+j);

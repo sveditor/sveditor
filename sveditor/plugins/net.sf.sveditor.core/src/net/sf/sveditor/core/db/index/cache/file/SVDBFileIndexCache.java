@@ -1,15 +1,19 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -25,7 +29,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	/**
 	 * Map from the 
 	 */
-	private Map<Integer, Map<String, SVDBFileIndexCacheEntry>>		fCache;
+	private Map<String, SVDBFileIndexCacheEntry>					fCache;
 	
 	public SVDBFileIndexCache(
 			SVDBFileIndexCacheMgr 	mgr, 
@@ -36,8 +40,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fCacheId = id;
 		fProjectName = project_name;
 		fBaseLocation = base_location;
+		fCache = new HashMap<String, SVDBFileIndexCacheEntry>();
 	}
 	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		return fCacheMgr;
+	}
+
 	public int getCacheId() {
 		return fCacheId;
 	}
@@ -49,37 +58,28 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	public String getBaseLocation() {
 		return fBaseLocation;
 	}
-	
-	Map<Integer, Map<String, SVDBFileIndexCacheEntry>> getCache() {
+
+	Map<String, SVDBFileIndexCacheEntry> getCache() {
 		return fCache;
 	}
 	
-	SVDBFileIndexCacheEntry getCacheEntry(String path, int type, boolean add) {
+	synchronized SVDBFileIndexCacheEntry getCacheEntry(String path, int type, boolean add) {
 		SVDBFileIndexCacheEntry entry = null;
+		boolean added = false;
 		
 		synchronized (fCache) {
-			Map<String, SVDBFileIndexCacheEntry> c;
-			if (!fCache.containsKey(type)) {
-				c = new HashMap<String, SVDBFileIndexCacheEntry>();
-				fCache.put(type, c);
-			} else {
-				c = fCache.get(type);
-			}
-			
-			entry = c.get(path);
+			entry = fCache.get(path);
 			
 			if (entry == null && add) {
-				entry = new SVDBFileIndexCacheEntry();
-				c.put(path, entry);
+				entry = new SVDBFileIndexCacheEntry(path, type);
+				fCache.put(path, entry);
+				added = true;
 			}
 		}
 		
-		if (entry != null) {
-			if (entry.isCached()) {
-				fCacheMgr.moveElementToTail(entry);
-			} else {
-				fCacheMgr.addElementToTail(entry);
-			}
+		if (added) {
+			entry.setCached();
+			fCacheMgr.addToCachedList(entry);
 		}
 		
 		return entry;
@@ -118,36 +118,75 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public Set<String> getFileList(boolean is_argfile) {
-		// TODO Auto-generated method stub
-		return null;
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		HashSet<String> ret = new HashSet<String>();
+	
+		synchronized (fCache) {
+			for (Entry<String, SVDBFileIndexCacheEntry> e : fCache.entrySet()) {
+				if (e.getValue().getType() == type) {
+					ret.add(e.getKey());
+				}
+			}
+		}
+
+		return ret;
 	}
 
 	public long getLastModified(String path) {
-		// TODO Auto-generated method stub
-		return 0;
+		SVDBFileIndexCacheEntry entry = null;
+		
+		synchronized (fCache) {
+			entry = fCache.get(path);
+		}
+		
+		if (entry != null) {
+			return entry.getLastModified();
+		} else {
+			return -1;
+		}
 	}
 
 	public void setLastModified(String path, long timestamp, boolean is_argfile) {
-		// TODO Auto-generated method stub
-
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+	
+		entry.setLastModified(timestamp);
 	}
 
 	public void addFile(String path, boolean is_argfile) {
-		// TODO Auto-generated method stub
-
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		/* SVDBFileIndexCacheEntry entry = */ getCacheEntry(path, type, true);
 	}
 
 	public List<SVDBMarker> getMarkers(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFileIndexCacheEntry entry = null;
+		
+		synchronized (fCache) {
+			entry = fCache.get(path);
+		}
+	
+		if (entry != null) {
+//			fCacheMgr.ensureUpToDate(entry);
+			List<SVDBMarker> mlist = entry.getMarkersRef();
+			if (mlist != null) {
+				markers.addAll(mlist);
+			}
+		}
+		
+		return markers;
 	}
 
 	public void setMarkers(
 			String 				path, 
 			List<SVDBMarker> 	markers,
 			boolean 		 	is_argfile) {
-		// TODO Auto-generated method stub
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 
+		fCacheMgr.ensureUpToDate(entry);
+		
+		entry.setMarkersRef(markers);
 	}
 
 	public SVDBFile getPreProcFile(IProgressMonitor monitor, String path) {
@@ -161,16 +200,28 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		entry.setPreProcFile(file);
 	}
 
-	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path,
+	public SVDBFileTree getFileTree(
+			IProgressMonitor monitor, 
+			String path,
 			boolean is_argfile) {
-		// TODO Auto-generated method stub
-		return null;
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, false);
+		SVDBFileTree ft = null;
+		
+		if (entry != null) {
+			fCacheMgr.ensureUpToDate(entry);
+			ft = entry.getSVDBFileTreeRef();
+		}
+		
+		return ft;
 	}
 
 	public void setFileTree(String path, SVDBFileTree file, boolean is_argfile) {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+		
+		fCacheMgr.ensureUpToDate(entry);
 
 		entry.setFileTree(file);
 	}
@@ -186,7 +237,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			return null;
 		} else {
 			// Load the file
-			return null;
+			fCacheMgr.ensureUpToDate(entry);
+			return entry.getSVDBFileRef();
 		}
 	}
 
@@ -194,6 +246,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+		
+		fCacheMgr.ensureUpToDate(entry);
 
 		entry.setFile(file);
 	}
