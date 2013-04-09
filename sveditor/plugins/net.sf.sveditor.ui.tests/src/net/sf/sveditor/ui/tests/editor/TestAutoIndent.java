@@ -1226,4 +1226,53 @@ public void testProgramPreProcDir() throws BadLocationException {
 	IndentComparator.compare("testProgramPreProcDir", expected, result);
 }
 
+//This test multi-line statements
+public void testMultiLineStatements() throws BadLocationException {
+	String input =
+			"program some_pgm;\n" +
+			"always @*\n" +
+			"begin\n" +
+			"jane = bob +\n" +
+			"other;\n" +
+			"jane = thing + thong;\n" +
+			"asdf = 1 + 2;\n" +
+			"if ((a ||b) &&\n" +
+			"c)\n" +
+			"begin\n" +
+			"jane = bob +\n" +
+			"other;\n" +
+			"end\n" +
+			"end\n" +
+			"assign jane = bob +\n" +
+			"other;\n" +
+			"endprogram\n"
+			;
+	
+	String expected =
+			"program some_pgm;\n" +
+			"	always @*\n" +
+			"	begin\n" +
+			"		jane = bob +\n" +
+			"			other;\n" +
+			"		jane = thing + thong;\n" +
+			"		asdf = 1 + 2;\n" +
+			"		if ((a ||b) &&\n" +
+			"			c)\n" +
+			"		begin\n" +
+			"			jane = bob +\n" +
+			"				other;\n" +
+			"		end\n" +
+			"	end\n" +
+			"	assign jane = bob +\n" +
+			"		other;\n" +
+			"endprogram\n"
+			;
+	
+	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+	tester.type(input);
+	String result = tester.getContent();
+	
+	IndentComparator.compare("testMultiLineStatements", expected, result);
+}
+
 }
