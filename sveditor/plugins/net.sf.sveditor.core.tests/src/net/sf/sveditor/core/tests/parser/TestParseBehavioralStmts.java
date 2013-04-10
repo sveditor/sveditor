@@ -154,7 +154,7 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testNonBlockingEventTrigger", doc, new String[] { "t" });
 		
 	}
-
+	
 	public void testVirtualInterfaceParameterizedStaticCall() throws SVParseException {
 		String doc =
 			"module t;\n" +
@@ -237,6 +237,40 @@ public class TestParseBehavioralStmts extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest("testVarDeclListForStmt", doc, new String[] { "t" });
+		
+	}
+	
+	public void testBasicDelay() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"		#10 ;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testBasicDelay", doc, new String[] { "t" });
+		
+	}
+	
+	public void testDelayFromClassMember() throws SVParseException {
+		String doc =
+			"class cfg;\n" +
+		    "   int dly;" +
+			"endclass\n" +
+			"class t;\n" +
+			"   cfg c;" +
+			"	task sometask();\n" +
+			"       for (int i = 0 ; i < 8 ; i++) begin" +
+			"			#this.c.dly ;\n" +
+			"       end" +
+			"	endtask\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testDelayFormClassMember", doc, new String[] { "t" });
 		
 	}
 
