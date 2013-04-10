@@ -1269,7 +1269,7 @@ public void testMultiLineStatements() throws BadLocationException {
 			"		jane = thing + thong;\n" +
 			"		asdf = 1 + 2;\n" +
 			"		if ((a ||b) &&\n" +
-			"			c)\n" +
+			"				c)\n" +
 			"		begin\n" +
 			"			jane = bob +\n" +
 			"				other;\n" +
@@ -1281,8 +1281,8 @@ public void testMultiLineStatements() throws BadLocationException {
 			"			thing = 1;\n" +
 			"		else if (\n" +
 			"				(\n" +
-			"				c ||\n" +
-			"				d\n" +
+			"					c ||\n" +
+			"					d\n" +
 			"				)\n" +
 			"			)\n" +
 			"			thing2 = 1;\n" +
