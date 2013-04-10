@@ -19,6 +19,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -91,9 +92,16 @@ public class RebuildSvIndexAction extends CommonActionProvider implements ILogLe
 				SVDBIndexCollection ic = pd.getProjectIndexMgr();
 //				List<ISVDBIndex> index_list = rgy.getProjectIndexList(p.getName());
 				List<ISVDBIndex> index_list = ic.getIndexList();
+				List<ISVDBIndex> refresh_list = new ArrayList<ISVDBIndex>();
+				List<ISVDBIndex> rebuild_list = new ArrayList<ISVDBIndex>();
 				
 				for (ISVDBIndex index : index_list) {
 					fLog.debug(LEVEL_MIN, "  Rebuild index " + index.getBaseLocation());
+					if (index instanceof SVDBArgFileIndex2) {
+						rebuild_list.add(index);
+					} else {
+						refresh_list.add(index);
+					}
 				}
 
 				/*
@@ -102,7 +110,14 @@ public class RebuildSvIndexAction extends CommonActionProvider implements ILogLe
 					index.rebuildIndex();
 				}
 				 */
-				SVUiPlugin.getDefault().refreshIndexList(index_list);
+				
+				if (refresh_list.size() > 0) {
+					SVUiPlugin.getDefault().refreshIndexList(refresh_list);
+				}
+			
+				for (ISVDBIndex index : rebuild_list) {
+					index.rebuildIndex(new NullProgressMonitor());
+				}
 			}
 			
 			// Finally, rebuild global index

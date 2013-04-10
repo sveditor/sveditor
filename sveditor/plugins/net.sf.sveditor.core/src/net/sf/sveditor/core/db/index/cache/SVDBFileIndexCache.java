@@ -126,6 +126,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		fPersistenceWriterSet = new ArrayList<IDBWriter>();
 	}
 	
+	public void dispose() { }
+
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = handle.isEnabled();
 	}
@@ -146,11 +148,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return fIndexData;
 	}
 
-	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
 	public void clear(IProgressMonitor monitor) {
 		// Delete entire index
 		if (fDebugEn) {
@@ -348,17 +345,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		return valid;
 	}
 	
-	public void initLoad(IProgressMonitor monitor) {
-		/**
-		for (int i=0; i<fCacheSize && i<fFileList.size(); i++) {
-			String path = fFileList.get(i);
-			getPreProcFile(new NullProgressMonitor(), path);
-			getFileTree(new NullProgressMonitor(), path);
-			getFile(new NullProgressMonitor(), path);
-		}
-		 */
-	}
-
 	public synchronized Set<String> getFileList(boolean is_argfile) {
 		if (fDebugEn) {
 			fLog.debug("--> getFileList: " + is_argfile);

@@ -227,6 +227,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
+	/*
 	public synchronized void refreshIndex(ISVDBIndex index) {
 		if (fRefreshIndexJob == null) {
 			fRefreshIndexJob = new RefreshIndexJob(this);
@@ -235,6 +236,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 		fRefreshIndexJob.addIndex(index);
 	}
+	 */
 	
 	public synchronized void refreshIndexList(List<ISVDBIndex> list) {
 		if (fRefreshIndexJob == null) {

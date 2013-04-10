@@ -1,5 +1,3 @@
-- #(nobug) Indenter update.  Modified multi-line statements indent, so that lines  
-  after first line are indented.
 -- 1.2.3 Release --
 
 - #(64) Indenter import `include / import statements not lined up
@@ -12,6 +10,19 @@
   open the declaration or hierarchy. Can be enabled/disabled in the general text 
   editor properties under hyperlinking.
   
+- #(65) - Add spell checking for comments in SV files
+
+- #(enh) - Update template wizard to support NaturalDoc formatting for
+  template-element descriptions
+  
+- #(251) - Corrected a parse bug involving using 'super' or 'this' 
+  as the root element in a delay expression  
+
+- #(252) - Correct a parse bug involving lists of continuous assigns
+
+- #(nobug) Indenter update.  Modified multi-line statements indent, so that lines  
+  after first line are indented.
+
 ------------------------------------------------------------------------------
 -- 1.2.2 Release --
 

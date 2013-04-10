@@ -18,12 +18,12 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 
-public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
+public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 	private File				fRoot;
 	
 	public TestIndexCacheFactory(File dir) {
@@ -57,6 +57,25 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheFactory {
 	}
 	
 	public void compactCache(List<ISVDBIndexCache> cache_list) { }
+	
+
+	// TODO: IndexCache
+
+	public ISVDBIndexCache findIndexCache(String project_name,
+			String base_location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void sync() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	public static TestIndexCacheFactory instance(File dir) {
 		return new TestIndexCacheFactory(dir);

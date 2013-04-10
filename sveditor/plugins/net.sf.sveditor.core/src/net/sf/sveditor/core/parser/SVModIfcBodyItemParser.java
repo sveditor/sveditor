@@ -17,6 +17,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBAssignItem;
 import net.sf.sveditor.core.db.SVDBBind;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -313,11 +314,23 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			assign.setDelay(fParsers.exprParser().delay_expr(3));
 		}
 		
-		assign.setLHS(fParsers.exprParser().variable_lvalue());
-		
-		fLexer.readOperator("=");
-		
-		assign.setRHS(fParsers.exprParser().expression());
+		while (fLexer.peek() != null) {
+			SVDBAssignItem item = new SVDBAssignItem();
+			item.setLocation(fLexer.getStartLocation());
+			item.setLHS(fParsers.exprParser().variable_lvalue());
+			
+			fLexer.readOperator("=");
+			
+			item.setRHS(fParsers.exprParser().expression());
+			
+			assign.addChildItem(item);
+			
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+			} else {
+				break;
+			}
+		}
 		
 		fLexer.readOperator(";");
 		

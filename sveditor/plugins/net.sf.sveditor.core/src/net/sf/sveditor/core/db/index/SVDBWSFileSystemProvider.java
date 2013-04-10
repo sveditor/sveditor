@@ -44,7 +44,9 @@ import org.eclipse.core.runtime.Path;
 
 public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider, 
 		IResourceChangeListener, IResourceDeltaVisitor {
-	
+
+	private IWorkspaceRoot											fRoot;
+	private boolean													fListenerAdded;
 	private List<Reference<ISVDBFileSystemChangeListener>>			fChangeListeners;
 	private LogHandle												fLog;
 	
@@ -64,6 +66,8 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		} catch (IllegalStateException e) {
 			// workspace isn't open
 		}
+		
+		fRoot = root;
 		
 		if (path.startsWith("${workspace_loc}")) {
 			path = path.substring("${workspace_loc}".length());
@@ -111,9 +115,6 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		}
 		 */
 
-		if (root != null) {
-			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-		}
 	}
 
 	public void addMarker(
@@ -510,6 +511,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 
 	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {
 		synchronized (fChangeListeners) {
+			if (!fListenerAdded && fRoot != null) {
+				ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+				fListenerAdded = true;
+			}
 			fChangeListeners.add(new WeakReference<ISVDBFileSystemChangeListener>(l));
 		}
 	}

@@ -450,7 +450,8 @@ public class SVEditor extends TextEditor
 					fSVDBFilePath = SVFileUtils.normalize(uri_in.getURI().getPath());
 					fLog.debug(LEVEL_MIN, "Normalizing file \"" + uri_in.getURI().getPath() + "\" to \"" + fSVDBFilePath + "\"");
 					fLog.debug(LEVEL_MIN, "File \"" + fSVDBFilePath + "\" is outside the workspace");
-					
+				
+					/**
 					fIndexMgr = null;
 					Tuple<ISVDBIndex, SVDBIndexCollection> result = 
 							SVDBIndexUtil.findIndexFile(fSVDBFilePath, null, true);
@@ -460,6 +461,8 @@ public class SVEditor extends TextEditor
 					fSVDBIndex = new SVDBFileOverrideIndex(fSVDBFile, fSVDBFilePP, 
 							result.first(), fIndexMgr, fMarkers);
 					fLog.debug(LEVEL_MIN, "File will be managed by index \"" + fSVDBIndex.getBaseLocation() + "\"");
+					 */
+//					projectSettingsChanged(null);
 				}
 			}
 		} else {

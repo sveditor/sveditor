@@ -17,6 +17,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.templates.TemplateCategory;
 import net.sf.sveditor.core.templates.TemplateInfo;
 import net.sf.sveditor.core.templates.TemplateRegistry;
+import net.sf.sveditor.ui.doc.NDText;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -26,7 +27,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -38,7 +39,7 @@ public class SVTemplateSelectionPage extends WizardPage {
 	private TemplateInfo			fTemplate;
 	private TemplateCategory		fCategory;
 
-	private Browser					fDescription;
+	private NDText					fDescription;
 	
 	
 	public SVTemplateSelectionPage() {
@@ -57,11 +58,13 @@ public class SVTemplateSelectionPage extends WizardPage {
 		
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		final Composite c = new Composite(parent, SWT.NONE);
-		c.setLayout(new GridLayout());
-		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		SashForm sash = new SashForm(parent, SWT.VERTICAL);
+		
+		Composite top = new Composite(sash, SWT.BORDER);
+		top.setLayout(new GridLayout());
+		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Composite src_c = new Composite(c, SWT.NONE);
+		Composite src_c = new Composite(top, SWT.NONE);
 		src_c.setLayout(new GridLayout(3, false));
 		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -92,20 +95,25 @@ public class SVTemplateSelectionPage extends WizardPage {
 		// TODO: move
 		/*
 		 */
+	
+		Composite bottom = new Composite(sash, SWT.BORDER);
+		bottom.setLayout(new GridLayout());
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 3;
+		bottom.setLayoutData(gd);
 		
-		g = new Group(c, SWT.None);
+		g = new Group(bottom, SWT.None);
 		g.setText("Description");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.horizontalSpan = 2;
 		g.setLayout(new GridLayout());
 		g.setLayoutData(gd);
 		
-		fDescription = new Browser(g, SWT.NONE);
+		fDescription = new NDText(g, SWT.READ_ONLY+SWT.WRAP+SWT.V_SCROLL+SWT.H_SCROLL);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fDescription.setLayoutData(gd);
 
 		setPageComplete(false);
-		setControl(c);
+		setControl(sash);
 	}
 	
 	private void templateSelectionChanged(SelectionChangedEvent event) {

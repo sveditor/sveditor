@@ -421,6 +421,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		super.dispose();
 	}
 
+	/*
 	@Override
 	public void fileChanged(String path) {
 		fLog.debug("File changed: " + path);
@@ -434,12 +435,7 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
 		}
 	
-		/*
-		if (path.equals(getResolvedBaseLocation())) {
-			// Invalidate, since this is the root file
-			invalidateIndex(new NullProgressMonitor(), "Argument File Changed: " + path, false);
-		}
-		 */
 		super.fileChanged(path);
 	}
+	 */
 }
