@@ -260,11 +260,13 @@ public class TestParserPerf extends TestCase {
 	}
 	
 	public void testOpenSparc() {
+		/*
 		System.out.println("BEGIN");
 		try {
 			Thread.sleep(15000);
 		} catch (InterruptedException e) {}
 		System.out.println("END");
+		 */
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
@@ -272,7 +274,7 @@ public class TestParserPerf extends TestCase {
 		
 		ISVDBIndex index;
 		
-		boolean use_argfile2 = true;
+		boolean use_argfile2 = false;
 		
 		if (use_argfile2) {
 			index = new SVDBArgFileIndex2("GENERIC", opensparc_design.getAbsolutePath(), 

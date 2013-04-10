@@ -26,7 +26,11 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 	public byte[] getPage(int idx) {
 		return fPages.get(idx);
 	}
-
+	
+	public List<byte[]> getPages() {
+		return fPages;
+	}
+	
 	public void write(int val) throws IOException {
 		writeByte(val);
 	}
@@ -37,8 +41,9 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 
 	public void write(byte[] val, int off, int len) throws IOException {
 		byte data[] = fPages.get(fPages.size()-1);
-		
-		for (int i=0; i<len; i++) {
+	
+		int i=0;
+		while (i < len) {
 			if (fPageIdx >= data.length) {
 				data = new_page();
 			}
@@ -56,6 +61,7 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 		if (fPageIdx >= data.length) {
 			data = new_page();
 		}
+		
 		data[fPageIdx++] = (byte)val;
 	}
 

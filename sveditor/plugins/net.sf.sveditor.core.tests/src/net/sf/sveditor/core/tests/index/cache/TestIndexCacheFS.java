@@ -47,7 +47,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 				out.writeByte(tdata[j]);
 			}
 			
-			int fileid = fs.writeFile(out);
+			int fileid = fs.writeFile("", out);
 			file_ids.add(fileid);
 		}
 		
@@ -59,7 +59,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 			
 			System.out.println("Check " + fileid);
 		
-			SVDBFileSystemDataInput in = fs.readFile(fileid);
+			SVDBFileSystemDataInput in = fs.readFile("", fileid);
 			
 			for (int j=0; j<tdata.length; j++) {
 				int b = in.readByte();
@@ -122,7 +122,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 				out.writeByte(tdata[j]);
 			}
 			
-			int fileid = fs.writeFile(out);
+			int fileid = fs.writeFile("", out);
 			file_ids.add(fileid);
 		}
 		
@@ -133,7 +133,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 			
 			System.out.println("Check " + fileid);
 		
-			SVDBFileSystemDataInput in = fs.readFile(fileid);
+			SVDBFileSystemDataInput in = fs.readFile("", fileid);
 			
 			for (int j=0; j<tdata.length; j++) {
 				int b = in.readByte();
@@ -156,7 +156,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 			
 			System.out.println("Check " + fileid);
 		
-			SVDBFileSystemDataInput in = fs.readFile(fileid);
+			SVDBFileSystemDataInput in = fs.readFile("", fileid);
 			
 			for (int j=0; j<tdata.length; j++) {
 				int b = in.readByte();
@@ -197,7 +197,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 					out.writeByte(tdata[j]);
 				}
 
-				int fileid = fs.writeFile(out);
+				int fileid = fs.writeFile("", out);
 				file_ids.add(fileid);
 			}
 
@@ -209,7 +209,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 
 				System.out.println("Check " + fileid);
 
-				SVDBFileSystemDataInput in = fs.readFile(fileid);
+				SVDBFileSystemDataInput in = fs.readFile("", fileid);
 
 				for (int j=0; j<tdata.length; j++) {
 					int b = in.readByte();
@@ -221,7 +221,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 			}
 
 			for (int i=0; i<ref_data.size(); i++) {
-				fs.deleteFile(file_ids.get(i));
+				fs.deleteFile("", file_ids.get(i));
 			}
 			file_ids.clear();
 		}

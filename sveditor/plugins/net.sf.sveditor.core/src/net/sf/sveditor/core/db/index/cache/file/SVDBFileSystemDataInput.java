@@ -22,11 +22,19 @@ public class SVDBFileSystemDataInput implements DataInput {
 	 */
 	public void finalize(int data_length) {
 		// TODO:
-		fPageLimit = fPages.get(fPagesIdx).length;
+//		fPageLimit = fPages.get(fPagesIdx).length;
 	}
 	
 	public List<byte[]> getPages() {
 		return fPages;
+	}
+	
+	public int getPagesIdx() {
+		return fPagesIdx;
+	}
+	
+	public int getPageIdx() {
+		return fPageIdx;
 	}
 	
 	public int getLength() {
@@ -38,10 +46,12 @@ public class SVDBFileSystemDataInput implements DataInput {
 	}
 	
 	public void addPage(byte[] page) {
-		fPageLimit = page.length;
+		if (fPages.size() == 0) {
+			fPageLimit = page.length;
+		}
 		fPages.add(page);
 	}
-
+	
 
 	public byte readByte() throws IOException {
 		byte page[];
@@ -55,15 +65,13 @@ public class SVDBFileSystemDataInput implements DataInput {
 		return page[fPageIdx++];
 	}
 
-
-
 	public void readFully(byte[] b) throws IOException {
 		readFully(b, 0, b.length);
 	}
 
 	public void readFully(byte[] b, int off, int len) throws IOException {
 		byte data[] = fPages.get(fPagesIdx);
-	
+		
 		int i=0;
 		while (i < len) {
 			if (fPageIdx >= fPageLimit) {
@@ -151,6 +159,7 @@ public class SVDBFileSystemDataInput implements DataInput {
 		short ret = 0;
 		int tmp;
 		
+		
 		if (fPageIdx+2 <= fPageLimit) {
 			byte page[] = fPages.get(fPagesIdx);
 			
@@ -175,8 +184,8 @@ public class SVDBFileSystemDataInput implements DataInput {
 	}
 	
 	private byte [] new_page() {
-		byte page[];
-
+		byte page[] = null;
+	
 		fPagesIdx++;
 		page = fPages.get(fPagesIdx);
 		fPageIdx = 0;

@@ -253,18 +253,22 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void removeFile(String path, boolean is_argfile) {
-		// TODO Auto-generated method stub
-
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+		
+		fCacheMgr.removeEntry(entry);
 	}
 
 	public void sync() {
-		// TODO Auto-generated method stub
-
+		// Ensure all entries associated with this cache are
+		// synchronized with the filesystem
+		fCacheMgr.sync(this);
 	}
 
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		// Remove this index from the cache manager
+		fCacheMgr.removeIndexCache(this);
 	}
 
 }

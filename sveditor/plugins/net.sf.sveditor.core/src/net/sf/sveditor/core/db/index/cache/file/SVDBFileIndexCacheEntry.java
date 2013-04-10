@@ -10,6 +10,12 @@ import net.sf.sveditor.core.db.SVDBMarker;
 
 
 public class SVDBFileIndexCacheEntry {
+	
+	public static final int					SVDB_FILE_MASK 			= (1 << 0);
+	public static final int					SVDB_PREPROC_FILE_MASK 	= (1 << 1);
+	public static final int					SVDB_FILETREE_MASK 		= (1 << 2);
+	public static final int					MARKERS_MASK 			= (1 << 3);
+	public static final int					ALL_MASK 				= 0xF;
 
 	private String							fPath;
 	private int								fType;
@@ -18,6 +24,19 @@ public class SVDBFileIndexCacheEntry {
 	private	SVDBFileIndexCacheEntry			fNext;
 	
 	private boolean							fCached;
+
+	/**
+	 * Mask indicating which entries are currently 'loaded' 
+	 * into this entry. 
+	 */
+	private int								fLoadedMask;
+
+	/**
+	 * Mask indicating which loaded entries are currently dirty.
+	 * This means that there is an on-disk image, but it's 
+	 * out of date
+	 */
+	private int								fDirtyMask;
 
 	private SVDBFile						fSVDBFileRef;
 	private Reference<SVDBFile>				fSVDBFile;
@@ -48,6 +67,10 @@ public class SVDBFileIndexCacheEntry {
 		fMarkersId = -1;
 		fCached = false;
 		fType = type;
+	}
+	
+	public int dirtyMask() {
+		return fDirtyMask;
 	}
 	
 	public String getPath() {
