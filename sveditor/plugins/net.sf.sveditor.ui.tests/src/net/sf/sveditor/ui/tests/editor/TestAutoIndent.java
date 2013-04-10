@@ -1242,6 +1242,18 @@ public void testMultiLineStatements() throws BadLocationException {
 			"jane = bob +\n" +
 			"other;\n" +
 			"end\n" +
+			"if (\n" +
+			"(a > b ()) ||\n" +
+			"(b)\n" +
+			")\n" +
+			"thing = 1;\n" +
+			"else if (\n" +
+			"(\n" +
+			"c ||\n" +
+			"d\n" +
+			")\n" +
+			")\n" +
+			"thing2 = 1;\n" +
 			"end\n" +
 			"assign jane = bob +\n" +
 			"other;\n" +
@@ -1262,6 +1274,18 @@ public void testMultiLineStatements() throws BadLocationException {
 			"			jane = bob +\n" +
 			"				other;\n" +
 			"		end\n" +
+			"		if (\n" +
+			"				(a > b ()) ||\n" +
+			"				(b)\n" +
+			"			)\n" +
+			"			thing = 1;\n" +
+			"		else if (\n" +
+			"				(\n" +
+			"				c ||\n" +
+			"				d\n" +
+			"				)\n" +
+			"			)\n" +
+			"			thing2 = 1;\n" +
 			"	end\n" +
 			"	assign jane = bob +\n" +
 			"		other;\n" +
@@ -1269,7 +1293,7 @@ public void testMultiLineStatements() throws BadLocationException {
 			;
 	
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
-	tester.type(input);
+	tester.paste(input);
 	String result = tester.getContent();
 	
 	IndentComparator.compare("testMultiLineStatements", expected, result);
