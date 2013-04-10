@@ -18,6 +18,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBAssignItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBClockingBlock;
 import net.sf.sveditor.core.db.SVDBConstraint;
@@ -689,8 +690,10 @@ public class SVDBElemIterator {
 	
 	protected void assign(SVDBAssign assign) {
 		fStack.push(assign);
-		visit(assign.getLHS());
-		visit(assign.getRHS());
+		for (SVDBAssignItem item : assign.getAssignList()) {
+			visit(item.getLHS());
+			visit(item.getRHS());
+		}
 		fStack.pop();
 	}
 	

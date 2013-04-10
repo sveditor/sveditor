@@ -19,6 +19,8 @@
 - #(251) - Corrected a parse bug involving using 'super' or 'this' 
   as the root element in a delay expression  
 
+- #(252) - Correct a parse bug involving lists of continuous assigns
+
 ------------------------------------------------------------------------------
 -- 1.2.2 Release --
 
