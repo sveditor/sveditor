@@ -54,6 +54,7 @@ public enum SVDBItemType {
 	ModIfcClassParam,
 	Constraint,
 	Assign,
+	AssignItem,
 	Marker,
 	ParamValueAssign,
 	ParamValueAssignList,

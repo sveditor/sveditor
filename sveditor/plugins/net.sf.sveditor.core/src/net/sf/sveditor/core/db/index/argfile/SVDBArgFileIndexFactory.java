@@ -24,7 +24,7 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String	TYPE = "net.sf.sveditor.argFileIndex";
 	
-	public static boolean		fUseArgFile2Index = false;
+	public static boolean		fUseArgFile2Index = true;
 
 	public ISVDBIndex createSVDBIndex(
 			String 					projectName, 

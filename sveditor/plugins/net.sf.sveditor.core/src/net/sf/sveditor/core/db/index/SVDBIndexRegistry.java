@@ -23,7 +23,7 @@ import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
@@ -60,7 +60,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
 	private SVDBIndexCollection								fGlobalIndexMgr;
 	private List<ISVDBIndex>								fIndexList;
-	private ISVDBIndexCacheFactory							fCacheFactory;
+	private ISVDBIndexCacheMgr							fCacheFactory;
 	private boolean											fAutoRebuildEn;
 	private LogHandle										fLog;
 
@@ -113,7 +113,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		return fIndexCollectionMgr;
 	}
 	
-	public void init(ISVDBIndexCacheFactory cache_factory) {
+	public void init(ISVDBIndexCacheMgr cache_factory) {
 		fLog.debug(LEVEL_MIN, "SVDBIndexRegistry.init()");
 		fCacheFactory = cache_factory;
 		fIndexList.clear();
@@ -121,7 +121,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		fGlobalIndexMgr = getGlobalIndexMgr();
 	}
 
-	public void test_init(ISVDBIndexCacheFactory cache_factory) {
+	public void test_init(ISVDBIndexCacheMgr cache_factory) {
 		fLog.debug(LEVEL_MIN, "SVDBIndexRegistry.test_init()");
 		fCacheFactory = cache_factory;
 		fIndexList.clear();

@@ -140,6 +140,7 @@ public class DocTopicManager implements IDocTopicManager {
 	}
 
 	public DocKeywordInfo getTopicType(String keyword) {
+		
 		String kwLower = keyword.toLowerCase() ;
 		if(singularKeywordMap.containsKey(kwLower))
 			return new DocKeywordInfo(kwLower, singularKeywordMap.get(kwLower), false) ;

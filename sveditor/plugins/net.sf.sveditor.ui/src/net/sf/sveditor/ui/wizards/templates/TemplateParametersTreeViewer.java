@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.ICellEditorValidator;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TextCellEditor;
@@ -33,6 +34,7 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 	private TemplateParameterSet				fParameters;
 	private List<ModifyListener>				fModifyListeners;
 	private TextCellEditor						fTextCellEditor;
+	private TextCellEditor						fIntCellEditor;
 	private ComboBoxCellEditor					fComboBoxCellEditor;
 	
 	public TemplateParametersTreeViewer(Composite parent) {
@@ -66,8 +68,18 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 		column.setLabelProvider(valueLabelProvider);
 		
 		fTextCellEditor = new TextCellEditor(getTree());
+		fIntCellEditor = new TextCellEditor(getTree());
+		fIntCellEditor.setValidator(new ICellEditorValidator() {
+			
+			@Override
+			public String isValid(Object value) {
+				// TODO: validate value
+				return null;
+			}
+		});
+		
 		fComboBoxCellEditor = new ComboBoxCellEditor(getTree(),
-				new String[] {});
+				new String[] {}, SWT.READ_ONLY);
 		
 		column.setEditingSupport(new ValueEditingSupport(this));
 	
@@ -189,6 +201,7 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 			if (element instanceof TemplateParameterBase) {
 				switch (((TemplateParameterBase)element).getType()) {
 					case ParameterType_Id: return "Id";
+					case ParameterType_Int: return "Int";
 					case ParameterType_Enum: return "Enum";
 					case ParameterType_Class: return "Class";
 					case ParameterType_Group: return "Group";
@@ -248,7 +261,12 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 						return fTextCellEditor;
 					}
 					
+					case ParameterType_Int: {
+						return fIntCellEditor;
+					}
+					
 					default:
+						System.out.println("No editor supplied for " + p.getType());
 						break;
 				}
 				
@@ -290,13 +308,7 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 					}
 					
 					case ParameterType_Int: {
-						int int_val = -1;
-						
-						try {
-							int_val = Integer.parseInt(p.getValue());
-						} catch (NumberFormatException e) {}
-					
-						return new Integer(int_val);
+						return p.getValue();
 					}
 					
 					default: return null;
@@ -316,15 +328,11 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 						p.setValue(p.getValues().get(val_idx));
 					} break;
 						
+					case ParameterType_Int:
 					case ParameterType_Id:
 						p.setValue((String)value);
 						break;
 						
-					case ParameterType_Int: {
-						int val = (Integer)value;
-						p.setValue("" + val);
-					} break;
-					
 					default:
 						break;
 				}

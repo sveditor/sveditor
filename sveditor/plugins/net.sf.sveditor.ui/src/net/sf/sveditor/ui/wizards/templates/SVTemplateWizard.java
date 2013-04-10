@@ -61,7 +61,6 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 		super.addPages();
 		
 		fTemplateSelectionPage = new SVTemplateSelectionPage();
-//		fParamsPage = new SVTemplateParameterPage();
 		fNameFilesPage = new SVNameFilesPage();
 		fParametersPage = new SVTemplateParametersPage2();
 		
@@ -72,13 +71,11 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 			if (!(r instanceof IContainer)) {
 				r = r.getParent();
 			}
-//			fParamsPage.setSourceFolder(r.getFullPath().toOSString());
 			fNameFilesPage.setSourceFolder(r.getFullPath().toOSString());
 		}
 		addPage(fTemplateSelectionPage);
 		addPage(fNameFilesPage);
 		addPage(fParametersPage);
-//		addPage(fParamsPage);
 	}
 	
 	@Override
@@ -100,11 +97,6 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 			next = super.getNextPage(page);
 		}
 	
-		/*
-		if (next == fParamsPage) {
-			fParamsPage.setTemplate(fBasicsPage.getTemplate());
-		}
-		 */
 		if (next == fNameFilesPage) {
 			fNameFilesPage.setTemplate(fTemplateSelectionPage.getTemplate());
 		}

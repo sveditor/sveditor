@@ -1,24 +1,35 @@
 package net.sf.sveditor.ui.wizards.templates;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.DocTopicManager;
+import net.sf.sveditor.core.docs.html.HTMLFromNDMarkup;
+import net.sf.sveditor.core.docs.model.DocTopic;
 import net.sf.sveditor.core.templates.ITemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateParameterBase;
 import net.sf.sveditor.core.templates.TemplateParameterSet;
+import net.sf.sveditor.ui.doc.HTML2TextReader;
+import net.sf.sveditor.ui.doc.NDText;
 
+import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 
 public class SVTemplateParametersPage2 extends WizardPage {
 	
 	private TemplateParametersTreeViewer		fParametersTree;
-	private Browser								fParameterInfo;
+	private NDText								fParameterInfo;
 	private TemplateParameterSet				fParameterSet;
 	
 	public SVTemplateParametersPage2() {
@@ -40,35 +51,46 @@ public class SVTemplateParametersPage2 extends WizardPage {
 	}
 	
 	public ITemplateParameterProvider getTagProcessor() {
-		return fParameterSet.getParameterProvider();
+		return fParametersTree.getParameters().getParameterProvider();
+	}
+	
+	private void updateDescription(Object sel) {
+		String description = "";
+		if (sel instanceof TemplateParameterBase) {
+			description = ((TemplateParameterBase)sel).getDescription();
+			if (description == null) {
+				description = "";
+			}
+		}
+
+		fParameterInfo.setText(description);
 	}
 	
 	public void createControl(Composite parent) {
+		/*
 		Group c = new Group(parent, SWT.NONE);
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		c.setLayout(new GridLayout());
 		c.setText("Parameters");
+		 */
+		SashForm sash = new SashForm(parent, SWT.VERTICAL);
 
-		fParametersTree = new TemplateParametersTreeViewer(c);
+		fParametersTree = new TemplateParametersTreeViewer(sash);
 		fParametersTree.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		fParameterInfo = new Browser(c, SWT.NONE);
+		fParameterInfo = new NDText(sash, SWT.BORDER+SWT.READ_ONLY+SWT.V_SCROLL+SWT.WRAP);
 		fParameterInfo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		fParameterInfo.setJavascriptEnabled(false);
+//		fParameterInfo.setJavascriptEnabled(false);
 		
 		fParametersTree.addSelectionChangedListener(new ISelectionChangedListener() {
 			
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				
-				String description = "";
-				if (sel.getFirstElement() instanceof TemplateParameterBase) {
-					description = ((TemplateParameterBase)sel.getFirstElement()).getDescription();
-					if (description == null) {
-						description = "";
-					}
-				}
-				fParameterInfo.setText(description);
+			
+				updateDescription(sel.getFirstElement());
+
+
+
 			}
 		});
 
@@ -76,7 +98,7 @@ public class SVTemplateParametersPage2 extends WizardPage {
 			setParameters(fParameterSet);
 		}
 		
-		setControl(c);
+		setControl(sash);
 	}
 
 }
