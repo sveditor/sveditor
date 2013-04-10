@@ -59,7 +59,8 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 			ISVDBIndexCache				cache,
 			SVDBIndexConfig				config) {
 		super(project, root, fs_provider, cache, config);
-		fInWorkspaceOk = (root.startsWith("${workspace_loc}"));
+		fInWorkspaceOk = (   root.startsWith("${workspace_loc}")
+				          || root.startsWith("${project_loc}")   );
 	}
 
 	@Override
