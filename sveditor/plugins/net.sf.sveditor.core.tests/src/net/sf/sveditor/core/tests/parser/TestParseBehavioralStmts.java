@@ -40,6 +40,26 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest("testModulePreBodyImport3", doc, new String[] {
 				"p", "t", "p::*", "p1::*", "p2::*"});
 	}
+	
+	public void testContinueAsVarName() throws SVParseException {
+		String doc =
+			"module t;\n" +
+			"	initial begin\n" +
+			"       bit continue = 1;\n" +
+			"       reg thing = 0 ;\n" +
+			"		while (continue) begin\n" +
+			"			thing++ ;\n" +
+			"           if(thing > 10)\n" +
+			"                continue = 0 ;\n" +
+			"		end\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest("testContinueAsVarName", doc, new String[] { "t" });
+		
+	}
 
 	public void testVarDeclForStmt() throws SVParseException {
 		String doc =
@@ -319,7 +339,7 @@ public class TestParseBehavioralStmts extends TestCase {
 			"class m;\n" +
 			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
 			"		uint temp_q_list[$];\n" +
-			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
+			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ���=���\n" +
 			"		if (temp_q_list.size())\n" +
 			"		begin\n" +
 			"			return (1'b1);\n" +
@@ -342,7 +362,7 @@ public class TestParseBehavioralStmts extends TestCase {
 		String doc = 
 			"	function bit check_for_element(ref uint member_list[$], uint queue_no);\n" +
 			"		uint temp_q_list[$];\n" +
-			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ‘=’\n" +
+			"		temp_q_list = member_list.find(x) with (x == queue_no); // <- expecting an identifier or keyword; found ���=���\n" +
 			"		if (temp_q_list.size())\n" +
 			"		begin\n" +
 			"			return (1'b1);\n" +
@@ -367,7 +387,7 @@ public class TestParseBehavioralStmts extends TestCase {
 			"	bit [4:0] temp_q_list[$];\n" +
 			"\n" +
 			"	function f;\n" +
-			"		temp_q_list = q_number.unique(); // <- expecting one of keyword ‘endfunction’ received ‘unique’.\n" +
+			"		temp_q_list = q_number.unique(); // <- expecting one of keyword ���endfunction��� received ���unique���.\n" +
 			"	endfunction\n" +
 			"endclass\n" 
 			;
