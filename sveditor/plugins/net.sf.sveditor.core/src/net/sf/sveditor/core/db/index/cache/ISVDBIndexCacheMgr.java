@@ -14,8 +14,31 @@ package net.sf.sveditor.core.db.index.cache;
 
 import java.util.List;
 
-public interface ISVDBIndexCacheFactory {
-	
+/**
+ * Interface for implementations of a cache manager. A cache 
+ * manager is responsible for managing the storage and key
+ * operations of a collection of index caches
+ * @author ballance
+ *
+ */
+public interface ISVDBIndexCacheMgr {
+
+	/**
+	 * Finds an existing cache by its project name and root location
+	 * 
+	 * @param project_name
+	 * @param base_location
+	 * @return
+	 */
+	ISVDBIndexCache findIndexCache(String project_name, String base_location);
+
+	/**
+	 * Creates a new index cache
+	 * 
+	 * @param project_name
+	 * @param base_location
+	 * @return
+	 */
 	ISVDBIndexCache createIndexCache(String project_name, String base_location);
 	
 	/**
@@ -28,4 +51,15 @@ public interface ISVDBIndexCacheFactory {
 
 	// TODO: require a mechanism to clean up unneeded cache
 
+	/**
+	 * Shuts down the index cache manager
+	 */
+	void dispose();
+
+	/**
+	 * Ensures the storage of the managed index caches are synchronized
+	 * with the backing mechanism
+	 */
+	void sync();
+	
 }

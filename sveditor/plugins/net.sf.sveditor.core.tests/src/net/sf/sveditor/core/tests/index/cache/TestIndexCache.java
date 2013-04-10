@@ -28,7 +28,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
@@ -94,7 +94,7 @@ public class TestIndexCache extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
-		ISVDBIndexCacheFactory f = new ISVDBIndexCacheFactory() {
+		ISVDBIndexCacheMgr f = new ISVDBIndexCacheMgr() {
 			public ISVDBIndexCache createIndexCache(String project_name,
 					String base_location) {
 				SVDBDirFS fs = new SVDBDirFS(db_dir);
@@ -104,6 +104,24 @@ public class TestIndexCache extends TestCase {
 			}
 
 			public void compactCache(List<ISVDBIndexCache> cache_list) {}
+
+			// TODO: IndexCache
+			public ISVDBIndexCache findIndexCache(String project_name,
+					String base_location) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public void dispose() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void sync() {
+				// TODO Auto-generated method stub
+				
+			}
+			
 		};
 		rgy.init(f);
 		
@@ -171,7 +189,7 @@ public class TestIndexCache extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
-		ISVDBIndexCacheFactory f = new ISVDBIndexCacheFactory() {
+		ISVDBIndexCacheMgr f = new ISVDBIndexCacheMgr() {
 			public ISVDBIndexCache createIndexCache(String project_name,
 					String base_location) {
 				SVDBDirFS fs = new SVDBDirFS(db_dir);
@@ -181,6 +199,25 @@ public class TestIndexCache extends TestCase {
 			}
 
 			public void compactCache(List<ISVDBIndexCache> cache_list) {}
+
+			// TODO: IndexCache
+			public ISVDBIndexCache findIndexCache(String project_name,
+					String base_location) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public void dispose() {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void sync() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			
 		};
 		rgy.init(f);
 		
