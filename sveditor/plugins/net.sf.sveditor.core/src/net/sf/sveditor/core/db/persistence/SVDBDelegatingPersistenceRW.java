@@ -66,7 +66,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		fDelegateList.add(d);
 		
 		d.init(this, fIn, fOut);
-		Set<Class> supported_classes = d.getSupportedObjects();
+		Set<Class<?>> supported_classes = d.getSupportedObjects();
 		
 		if (supported_classes != null) {
 			for (Class cls : supported_classes) {
@@ -74,7 +74,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 			}
 		}
 		
-		Set<Class> supported_enums = d.getSupportedEnumTypes();
+		Set<Class<?>> supported_enums = d.getSupportedEnumTypes();
 		
 		if (supported_enums != null) {
 			for (Class cls : supported_enums) {
@@ -225,7 +225,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		writeEnumType(SVDBItemType.class, type);
 	}
 
-	public void writeEnumType(Class enum_type, Enum value)
+	public void writeEnumType(Class<?> enum_type, Enum<?> value)
 			throws DBWriteException {
 		
 		if (value == null) {

@@ -30,9 +30,9 @@ public interface ISVDBPersistenceRWDelegateParent {
 	
 	void init(DataOutput out);
 
-	void writeObject(Class cls, Object obj) throws DBWriteException;
+	void writeObject(Class<?> cls, Object obj) throws DBWriteException;
 
-	void readObject(ISVDBChildItem parent, Class cls, Object obj) throws DBFormatException;
+	void readObject(ISVDBChildItem parent, Class<?> cls, Object obj) throws DBFormatException;
 
 	SVDBLocation readSVDBLocation() throws DBFormatException;
 
@@ -42,9 +42,9 @@ public interface ISVDBPersistenceRWDelegateParent {
 
 	Map<String, String> readMapStringString() throws DBFormatException;
 
-	Map<String, List> readMapStringList(Class val_c) throws DBFormatException;
+	Map<String, List> readMapStringList(Class<?> val_c) throws DBFormatException;
 	
-	Map<String, Object> readMapStringObject(Class val_c) throws DBFormatException;
+	Map<String, Object> readMapStringObject(Class<?> val_c) throws DBFormatException;
 	
 	List<Long> readLongList() throws DBFormatException;
 
@@ -66,7 +66,7 @@ public interface ISVDBPersistenceRWDelegateParent {
 	
 	List readItemList(ISVDBChildItem parent) throws DBFormatException;
 
-	Enum readEnumType(Class enum_type) throws DBFormatException;
+	Enum readEnumType(Class<?> enum_type) throws DBFormatException;
 
 	int readInt() throws DBFormatException;
 	
@@ -90,7 +90,7 @@ public interface ISVDBPersistenceRWDelegateParent {
 	
 	void writeItemList(List items) throws DBWriteException;
 	
-	void writeObjectList(List items, Class obj_c) throws DBWriteException;
+	void writeObjectList(List items, Class<?> obj_c) throws DBWriteException;
 	
 	void writeLongList(List<Long> items) throws DBWriteException;
 	
@@ -102,7 +102,7 @@ public interface ISVDBPersistenceRWDelegateParent {
 	
 	void writeLong(long val) throws DBWriteException;
 	
-	void writeEnumType(Class enum_type, Enum enum_val) throws DBWriteException;
+	void writeEnumType(Class<?> enum_type, Enum<?> enum_val) throws DBWriteException;
 	
 	void writeItemType(SVDBItemType type) throws DBWriteException;
 	

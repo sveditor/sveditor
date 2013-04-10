@@ -95,7 +95,7 @@ public class TestPersistencePerformance extends TestCase {
 		SVDBDelegatingPersistenceRW dflt1 = new SVDBDelegatingPersistenceRW() {
 
 			@Override
-			public void writeEnumType(Class enum_type, Enum value)
+			public void writeEnumType(Class<?> enum_type, Enum<?> value)
 					throws DBWriteException {
 				// TODO Auto-generated method stub
 				System.out.println("writeEnumType");

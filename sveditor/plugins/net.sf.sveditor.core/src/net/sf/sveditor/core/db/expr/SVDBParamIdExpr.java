@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.core.db.expr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 

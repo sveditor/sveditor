@@ -118,6 +118,7 @@ public abstract class AbstractSVDBIndex implements
 	private String 									fBaseLocation;
 	private String 									fResolvedBaseLocation;
 	private String 									fBaseLocationDir;
+	private String 									fResolvedBaseLocationDir;
 
 	private SVDBBaseIndexCacheData 					fIndexCacheData;
 	private boolean								fCacheDataValid;
@@ -893,7 +894,7 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	public String getResolvedBaseLocationDir() {
-		if (fBaseLocationDir == null) {
+		if (fResolvedBaseLocationDir == null) {
 			String base_location = getResolvedBaseLocation();
 			if (fDebugEn) {
 				fLog.debug("   base_location: " + base_location);
@@ -903,20 +904,20 @@ public abstract class AbstractSVDBIndex implements
 					fLog.debug("       base_location + " + base_location
 							+ " is_dir");
 				}
-				fBaseLocationDir = base_location;
+				fResolvedBaseLocationDir = base_location;
 			} else {
 				if (fDebugEn) {
 					fLog.debug("       base_location + " + base_location
 							+ " not_dir");
 				}
-				fBaseLocationDir = SVFileUtils.getPathParent(base_location);
+				fResolvedBaseLocationDir = SVFileUtils.getPathParent(base_location);
 				if (fDebugEn) {
 					fLog.debug("   getPathParent " + base_location + ": "
-							+ fBaseLocationDir);
+							+ fResolvedBaseLocationDir);
 				}
 			}
 		}
-		return fBaseLocationDir;
+		return fResolvedBaseLocationDir;
 	}
 
 	public void setGlobalDefine(String key, String val) {

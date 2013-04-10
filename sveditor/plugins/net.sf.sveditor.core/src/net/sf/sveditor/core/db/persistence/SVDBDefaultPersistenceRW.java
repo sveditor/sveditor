@@ -52,11 +52,11 @@ public class SVDBDefaultPersistenceRW extends SVDBPersistenceRWDelegateBase {
 		fLog = LogFactory.getLogHandle("SVDBDefaultPersistenceRW");
 	}
 	
-	public Set<Class> getSupportedObjects() {
+	public Set<Class<?>> getSupportedObjects() {
 		return null;
 	}
 
-	public Set<Class> getSupportedEnumTypes() {
+	public Set<Class<?>> getSupportedEnumTypes() {
 		return null;
 	}
 	

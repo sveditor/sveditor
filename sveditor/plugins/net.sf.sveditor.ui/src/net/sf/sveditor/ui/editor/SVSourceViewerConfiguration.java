@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -26,6 +27,7 @@ import net.sf.sveditor.ui.text.SVElementProvider;
 import net.sf.sveditor.ui.text.hover.ISVEditorTextHover;
 import net.sf.sveditor.ui.text.hover.SVDocHover;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.AbstractInformationControlManager;
@@ -45,24 +47,26 @@ import org.eclipse.jface.text.information.InformationPresenter;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.reconciler.IReconciler;
-import org.eclipse.jface.text.reconciler.MonoReconciler;
+import org.eclipse.jface.text.reconciler.Reconciler;
 import org.eclipse.jface.text.rules.BufferedRuleBasedScanner;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
+import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
-public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
+public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 	private SVEditor				fEditor;
 	private ContentAssistant		fContentAssist;
 	
-	public SVSourceViewerConfiguration(SVEditor editor) {
+	public SVSourceViewerConfiguration(SVEditor editor, IPreferenceStore iPreferenceStore) {
+		super(EditorsUI.getPreferenceStore()) ;
 		fEditor = editor;
 	}
 	
@@ -96,7 +100,6 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 					IDocument.DEFAULT_CONTENT_TYPE);
 			fContentAssist.setInformationControlCreator(
 					getContentAssistPresenterControlCreator(sourceViewer));
-//					getInformationControlCreator(sourceViewer));
 			fContentAssist.enableAutoActivation(true);
 			fContentAssist.enableAutoInsert(true);
 			fContentAssist.enablePrefixCompletion(true);
@@ -227,7 +230,20 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 
 	@Override
 	public IReconciler getReconciler(ISourceViewer viewer) {
-		return new MonoReconciler(new SVReconcilingStrategy(fEditor), false);
+		Reconciler r = new Reconciler();
+
+		SVSpellingReconcileStrategy spelling_strategy = 
+				new SVSpellingReconcileStrategy(viewer, EditorsUI.getSpellingService());
+		
+		r.setReconcilingStrategy(spelling_strategy, 
+				SVDocumentPartitions.SV_SINGLELINE_COMMENT);
+		r.setReconcilingStrategy(spelling_strategy, 
+				SVDocumentPartitions.SV_MULTILINE_COMMENT);
+		r.setReconcilingStrategy(new SVReconcilingStrategy(fEditor), 
+				IDocument.DEFAULT_CONTENT_TYPE);
+		r.setDocumentPartitioning(SVDocumentPartitions.SV_PARTITIONING);
+
+		return r;
 	}
 	
 	@Override
@@ -357,4 +373,11 @@ public class SVSourceViewerConfiguration extends SourceViewerConfiguration {
 		return presenter;
 	}	
 	
+    @Override
+    protected Map<String, IAdaptable> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+            Map<String, IAdaptable> targets= super.getHyperlinkDetectorTargets(sourceViewer);
+            targets.put("net.sf.sveditor.ui.svCode", fEditor); //$NON-NLS-1$
+            return targets;
+    }
+
 }

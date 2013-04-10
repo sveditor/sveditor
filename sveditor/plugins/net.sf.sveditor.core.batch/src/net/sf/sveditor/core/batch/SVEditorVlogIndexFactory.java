@@ -12,16 +12,6 @@
 
 package net.sf.sveditor.core.batch;
 
-import java.io.File;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
-
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexUtil;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
-
 public class SVEditorVlogIndexFactory {
 
 	/*

@@ -76,6 +76,9 @@ public abstract class AbstractSVDBFileRefFinder {
 		} else {
 			switch (c.getType()) {
 				// Nothing to do at this level. 
+				case BlockStmt:
+				case BreakStmt:
+				case CaseItem:
 				case ModuleDecl:
 				case InterfaceDecl:
 				case ProgramDecl:
@@ -97,6 +100,10 @@ public abstract class AbstractSVDBFileRefFinder {
 						visitRef(null, SVDBRefType.TypeReference, cls_t.getName());
 					}
 				} break;
+				
+				default: {
+					break;
+				}
 			}
 			if (c instanceof ISVDBChildParent) {
 				visitChildParent((ISVDBChildParent)c);
@@ -304,6 +311,9 @@ public abstract class AbstractSVDBFileRefFinder {
 					SVDBWhileStmt w_stmt = (SVDBWhileStmt)stmt;
 					visitExpr(w_stmt.getExpr());
 					} break;
+				default: {
+					break;
+				}
 		}
 		
 		if (stmt instanceof ISVDBBodyStmt) {
@@ -386,6 +396,9 @@ public abstract class AbstractSVDBFileRefFinder {
 		CoverpointExpr,
 		CoverBinsExpr,
 		 */
+			default: {
+				break;
+			}
 		}
 	}
 	

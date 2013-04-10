@@ -312,7 +312,7 @@ public class SVExprParser extends SVParserBase {
 			ret = new SVDBLiteralExpr(fLexer.eatToken());
 		} else if (fLexer.peekKeyword("1step")) {
 			ret = new SVDBLiteralExpr(fLexer.eatToken());
-		} else if (fLexer.peekId()) {
+		} else if (fLexer.peekId() || fLexer.peekKeyword("this", "super")) {
 			if (fDebugEn) {debug("  isIdExpression");}
 			// expr = hierarchical_identifier(); // idExpr();
 			ret = idExpr();
@@ -1533,7 +1533,12 @@ public class SVExprParser extends SVParserBase {
 
 	public SVDBIdentifierExpr idExpr() throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
-		SVDBIdentifierExpr ret = new SVDBIdentifierExpr(fLexer.readId());
+		SVDBIdentifierExpr ret = null;
+		if (fLexer.peekKeyword("this", "super")) {
+			ret = new SVDBIdentifierExpr(fLexer.eatToken());
+		} else {
+			ret = new SVDBIdentifierExpr(fLexer.readId());
+		}
 		ret.setLocation(start);
 		
 		return ret;

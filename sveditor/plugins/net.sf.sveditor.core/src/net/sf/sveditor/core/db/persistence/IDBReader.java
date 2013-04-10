@@ -29,7 +29,7 @@ public interface IDBReader {
 	
 	long readLong() throws DBFormatException;
 	
-	void readObject(ISVDBChildItem parent, Class cls, Object obj) throws DBFormatException;
+	void readObject(ISVDBChildItem parent, Class<?> cls, Object obj) throws DBFormatException;
 	
 	byte [] readByteArray() throws DBFormatException;
 	

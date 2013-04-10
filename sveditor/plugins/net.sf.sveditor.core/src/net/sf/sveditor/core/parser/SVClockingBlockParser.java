@@ -159,6 +159,7 @@ public class SVClockingBlockParser extends SVParserBase {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private String event_expr() throws SVParseException {
 		String ret = null;
 		

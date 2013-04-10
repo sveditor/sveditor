@@ -285,12 +285,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			// begin often has : <label>  consume this if it is there
 			tok = consume_labeled_block(next_s());
-
-			if (!begin_is_start_line) {
-				enter_scope(tok);
-			} else {
-				enter_scope(tok);
-			}
+			enter_scope(tok);
 			
 			while (tok != null) {
 				if (fDebugEn) {
@@ -311,7 +306,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 		} else {
 			enter_scope(tok);
-			tok = indent_stmt(parent);
+			tok = indent_stmt(parent, true);
 			leave_scope(tok);
 		}
 		
@@ -545,7 +540,6 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		return tok;
 	}
-
 	/**
 	 * indent_ifc_module_class()
 	 * 
@@ -778,6 +772,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 	
+	/**
+	 * 
+	 * @param parent - if parent is begin, will do appropriate things with begin statement
+	 * @param parent_is_block - If this is false, the statements will be indented, else treated as previously indented
+	 * @return
+	 */
 	private SVIndentToken indent_block_or_statement(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current();
 		if (fDebugEn) {
@@ -815,7 +815,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				start_of_scope(tok);
 				enter_scope(tok);
 			}
-			tok = indent_stmt(parent);
+			tok = indent_stmt(parent, !parent_is_block);
 			
 			if (!parent_is_block) {
 				leave_scope(tok);
@@ -836,7 +836,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * @param parent
 	 * @return
 	 */
-	private SVIndentToken indent_stmt(String parent) {
+	private SVIndentToken indent_stmt(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current_s();
 		
 		if (fDebugEn) {
@@ -881,7 +881,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = next_s();
 		}  */
 		else {
-			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.
+			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
+			if (!parent_is_block)  {
+				tok = next_s(); // grab the next token, this was probably the first token of a new statement
+				// add the indent, so that if the statement runs over multi-lines, we get a bit of an indent here
+				start_of_scope (tok);
+				enter_scope (tok);
+			}
 			boolean do_next = true;
 			while (!tok.isOp(";")) {
 				if (parent != null) {
@@ -902,6 +908,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				tok = next_s();
 			}
+			// Un-indent after we indented
+			if (!parent_is_block)  {
+				leave_scope (tok);
+			}
+			
 			if (do_next) {
 				tok = next_s();
 			}
@@ -1277,6 +1288,16 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 	}
 	
+	/**
+	 * Call this function after begin, or end, endmodule etc. The function will check for a : some_label and consume it and move to the next token
+	 * 
+	 * Examples
+	 * begin : some_label
+	 * endmodule : module_name
+	 * 
+	 * @param tok
+	 * @return
+	 */
 	private SVIndentToken consume_labeled_block(SVIndentToken tok) {
 		if (tok.isOp(":")) {
 			tok = next_s();		// consume the label
@@ -1316,34 +1337,38 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		while ((tok = fScanner.next()) != null &&
 				(tok.getType() == SVIndentTokenType.BlankLine ||
 					tok.getType() == SVIndentTokenType.MultiLineComment ||
-					tok.getType() == SVIndentTokenType.SingleLineComment ||
-					(tok.isPreProc() && fPreProcDirectives.contains(tok.getImage())))) {
-			if (tok.getType() == SVIndentTokenType.SingleLineComment) {
+					tok.getType() == SVIndentTokenType.SingleLineComment/* ||
+					(tok.isPreProc() && fPreProcDirectives.contains(tok.getImage()))*/)) {
+			if (tok.getType() == SVIndentTokenType.SingleLineComment)  {
 				set_indent(tok, true);
 				fTokenList.add(tok);
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
 				indent_multi_line_comment(tok);
 				fTokenList.add(tok);
-			} else if (tok.isPreProc() && !tok.getImage().equals("`include")) {
-				// If this is a built-in directive, then place at the
-				// beginning of the line
-				Stack<Tuple<String, Boolean>> stack = fIndentStack;
-				fIndentStack = new Stack<Tuple<String,Boolean>>();
-				push_indent_stack("", false);
-				set_indent(tok, true);
-				while (tok != null && !tok.isEndLine()) {
-					//fTokenList.add(tok);
-					fTokenList.add(tok);
-					tok = fScanner.next();
-					if (fDebugEn) {
-						debug("pre-proc line: " + ((tok != null)?tok.getImage():"null"));
-					}
-				}
-				
-				if (tok != null) {
-					fTokenList.add(tok);
-				}
-				fIndentStack = stack;
+// SGD - Removed this because because we want `include, ifdef etc. to match normal code instead of embedding on line 0
+// See bug #64 Indenter import `include
+//  I have just commented this code out, because I *think* this is where we need to put in `ifdef/`endif indentation
+//  in the future.
+//			} else if (tok.isPreProc() && !tok.isId("`include")) {
+//				// If this is a built-in directive, then place at the
+//				// beginning of the line
+//				Stack<Tuple<String, Boolean>> stack = fIndentStack;
+// 				fIndentStack = new Stack<Tuple<String,Boolean>>();
+//				push_indent_stack("", false);
+//				set_indent(tok, true);
+//				while (tok != null && !tok.isEndLine()) {
+//					//fTokenList.add(tok);
+//					fTokenList.add(tok);
+//					tok = fScanner.next();
+//					if (fDebugEn) {
+//						debug("pre-proc line: " + ((tok != null)?tok.getImage():"null"));
+//					}
+//				}
+//				
+//				if (tok != null) {
+//					fTokenList.add(tok);
+//				}
+//				fIndentStack = stack;
 			} else {
 				fTokenList.add(tok);
 			}

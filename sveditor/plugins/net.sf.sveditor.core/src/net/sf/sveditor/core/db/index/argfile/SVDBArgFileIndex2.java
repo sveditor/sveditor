@@ -978,6 +978,7 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 	
+	@SuppressWarnings("unused")
 	private SVDBFileTree findRootFileTree(String path) {
 		SVDBFileTree ret = null;
 		String paths[] = new String[3];
@@ -1013,6 +1014,7 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 	
+	@SuppressWarnings("unused")
 	private SVDBFileTree findRootFileTree(SVDBFileTree parent, String paths[]) {
 		for (String path : paths) {
 			if (path == null) {
@@ -1742,6 +1744,7 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void cacheFileTreeDeclarations(
 			SVDBFileTree				ft,
 			List<SVDBDeclCacheItem>		file_item_list) {
@@ -1758,6 +1761,157 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 
+<<<<<<< HEAD
+=======
+	@SuppressWarnings("unused")
+	private void cacheDeclarations_old(
+			Set<String> 			processed_files,
+			String 					filename, 
+			List<SVDBDeclCacheItem> decl_list, 
+			String 					pkgname,
+			List<SVDBDeclCacheItem> pkgitem_list, 
+			ISVDBChildParent 		scope,
+			boolean 				is_ft) {
+		if (fDebugEn) {
+			fLog.debug("--> cacheDeclarations(file=" + filename + ", pkg="
+					+ pkgname + ", " + scope);
+		}
+
+		for (ISVDBChildItem item : scope.getChildren()) {
+			if (fDebugEn) {
+				fLog.debug("  item: " + item.getType() + " "
+						+ SVDBItem.getName(item));
+			}
+			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
+				SVDBPackageDecl pkg = (SVDBPackageDecl) item;
+				if (decl_list != null) {
+					decl_list.add(new SVDBDeclCacheItem(this, filename, pkg
+							.getName(), item.getType(), is_ft));
+				}
+				Map<String, List<SVDBDeclCacheItem>> pkg_map = fIndexCacheData
+						.getPackageCacheMap();
+
+				if (pkg_map.containsKey(pkg.getName())) {
+					pkg_map.get(pkg.getName()).clear();
+				} else {
+					pkg_map.put(pkg.getName(),
+							new ArrayList<SVDBDeclCacheItem>());
+				}
+
+				// Search the FileTree to find files included within the package
+				if (!is_ft) {
+					SVDBFileTree ft = fCache.getFileTree(
+							new NullProgressMonitor(), filename, false);
+					if (ft != null) {
+						/** TODO:
+						cachePkgDeclFileTree(ft.getSVDBFile(),
+								pkg_map.get(pkg.getName()), pkg);
+						 */
+					} else {
+						fLog.error("Failed to locate FileTree for \""
+								+ filename + "\"");
+					}
+				}
+
+				// Now, proceed looking for explicitly-included content
+				cacheDeclarations_old(processed_files, filename, decl_list,
+						pkg.getName(), pkg_map.get(pkg.getName()), pkg, false);
+			} else if (item.getType().isElemOf(SVDBItemType.Function,
+					SVDBItemType.Task, SVDBItemType.ClassDecl,
+					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl,
+					SVDBItemType.ProgramDecl)) {
+				fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
+						+ ((ISVDBNamedItem) item).getName() + " to cache");
+				if (decl_list != null) {
+					decl_list.add(new SVDBDeclCacheItem(this, filename,
+							((ISVDBNamedItem) item).getName(), item.getType(),
+							is_ft));
+				}
+
+				// Add the declarations to the package cache as well
+				if (pkgname != null) {
+					if (fDebugEn) {
+						fLog.debug("Adding " + SVDBItem.getName(item)
+								+ " to package cache \"" + pkgname + "\"");
+					}
+					pkgitem_list.add(new SVDBDeclCacheItem(this, filename,
+							((ISVDBNamedItem) item).getName(), item.getType(),
+							is_ft));
+				} else {
+					fLog.debug("pkgname is null");
+				}
+			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
+
+				for (ISVDBChildItem ci : decl.getChildren()) {
+					SVDBVarDeclItem di = (SVDBVarDeclItem) ci;
+					fLog.debug(LEVEL_MID,
+							"Adding var declaration: " + di.getName());
+
+					if (decl_list != null) {
+						decl_list.add(new SVDBDeclCacheItem(this, filename, di
+								.getName(), SVDBItemType.VarDeclItem, is_ft));
+					}
+				}
+			} else if (item.getType() == SVDBItemType.TypedefStmt) {
+				// Add entries for the typedef
+				if (decl_list != null) {
+					decl_list.add(new SVDBDeclCacheItem(this, filename,
+							((ISVDBNamedItem) item).getName(), item.getType(),
+							is_ft));
+				}
+
+				// Add the declarations to the package cache as well
+				if (pkgname != null) {
+					pkgitem_list.add(new SVDBDeclCacheItem(this, filename,
+							((ISVDBNamedItem) item).getName(), item.getType(),
+							is_ft));
+				}
+
+				SVDBTypedefStmt td = (SVDBTypedefStmt) item;
+				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+					// Add entries for all enumerators
+					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum) td.getTypeInfo();
+					fLog.debug("Adding enum " + e.getName() + " to cache");
+					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
+						fLog.debug("Adding enumerator " + en.getName()
+								+ " to cache");
+						if (decl_list != null) {
+							decl_list.add(new SVDBDeclCacheItem(this, filename,
+									((ISVDBNamedItem) en).getName(), en
+											.getType(), is_ft));
+						}
+						// Add the declarations to the package cache as well
+						if (pkgname != null) {
+							pkgitem_list.add(new SVDBDeclCacheItem(this,
+									filename,
+									((ISVDBNamedItem) item).getName(), item
+											.getType(), is_ft));
+						}
+					}
+				}
+			} else if (item.getType() == SVDBItemType.PreProcCond) {
+				cacheDeclarations_old(processed_files, filename, decl_list,
+						pkgname, pkgitem_list, (SVDBPreProcCond) item, is_ft);
+			} else if (item.getType() == SVDBItemType.MacroDef) {
+				if (decl_list != null) {
+					fLog.debug(LEVEL_MID,
+							"Add macro declaration \"" + SVDBItem.getName(item)
+									+ "\"");
+					decl_list.add(new SVDBDeclCacheItem(this, filename,
+							((ISVDBNamedItem) item).getName(), item.getType(),
+							is_ft));
+				}
+			}
+		}
+
+		if (fDebugEn) {
+			fLog.debug("<-- cacheDeclarations(" + filename + ", " + pkgname
+					+ ", " + scope);
+		}
+	}
+
+>>>>>>> refs/remotes/upstream/master
 	/*
 	private void cacheReferences(SVDBFile file) {
 		SVDBFileRefCollector collector = new SVDBFileRefCollector();

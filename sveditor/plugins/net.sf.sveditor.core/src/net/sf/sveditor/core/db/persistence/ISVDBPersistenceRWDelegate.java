@@ -34,21 +34,21 @@ public interface ISVDBPersistenceRWDelegate {
 			DataInput							in,
 			DataOutput							out);
 	
-	Set<Class> getSupportedObjects();
+	Set<Class<?>> getSupportedObjects();
 
-	Set<Class> getSupportedEnumTypes();
+	Set<Class<?>> getSupportedEnumTypes();
 	
 	Set<SVDBItemType> getSupportedItemTypes();
 
-	void writeObject(Class cls, Object obj) throws DBWriteException;
+	void writeObject(Class<?> cls, Object obj) throws DBWriteException;
 	
 	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;
 
-	void writeEnumType(Class cls, Enum value) throws DBWriteException;
+	void writeEnumType(Class<?> cls, Enum<?> value) throws DBWriteException;
 
-	void readObject(ISVDBChildItem parent, Class cls, Object obj) throws DBFormatException;
+	void readObject(ISVDBChildItem parent, Class<?> cls, Object obj) throws DBFormatException;
 	
 	ISVDBItemBase readSVDBItem(SVDBItemType type, ISVDBChildItem parent) throws DBFormatException;
 
-	Enum readEnumType(Class enum_type) throws DBFormatException;
+	Enum<?> readEnumType(Class<?> enum_type) throws DBFormatException;
 }

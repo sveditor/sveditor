@@ -66,8 +66,14 @@ public class TemplateFilesTableViewer extends TableViewer {
 				fParameters.getTag("name").trim().equals("")) {
 			ret = "Must specify name";
 		}
+
+		String s = fSourceFolderStr;
 		
-		IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
+		if (s == null) {
+			s = "";
+		}
+		
+		IContainer c = SVFileUtils.getWorkspaceFolder(s);
 		if (c != null && c.exists()) {
 			// TODO: validate all proposed files to ensure none exist
 			fTemplate.getTemplates();
@@ -79,7 +85,7 @@ public class TemplateFilesTableViewer extends TableViewer {
 				}
 			}
 		} else {
-			ret = "Directory \"" + fSourceFolderStr + "\" does not exist";
+			ret = "Directory \"" + s + "\" does not exist";
 		}
 
 		return ret;

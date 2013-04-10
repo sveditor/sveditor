@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core.diagrams;
 
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 

@@ -10,12 +10,9 @@ import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.docs.DocCommentParser;
-import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLexer;
-import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
@@ -175,6 +172,7 @@ public class SVObfuscator {
 			fScanLocation.setFileName(name);
 		}
 
+		@SuppressWarnings("unused")
 		public void close() {
 			try {
 				if (fInput != null) {
