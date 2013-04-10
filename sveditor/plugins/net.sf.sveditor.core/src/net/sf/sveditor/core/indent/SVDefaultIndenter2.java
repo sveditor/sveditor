@@ -306,7 +306,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 		} else {
 			enter_scope(tok);
-			tok = indent_stmt(parent);
+			tok = indent_stmt(parent, true);
 			leave_scope(tok);
 		}
 		
@@ -772,6 +772,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 	
+	/**
+	 * 
+	 * @param parent - if parent is begin, will do appropriate things with begin statement
+	 * @param parent_is_block - If this is false, the statements will be indented, else treated as previously indented
+	 * @return
+	 */
 	private SVIndentToken indent_block_or_statement(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current();
 		if (fDebugEn) {
@@ -809,7 +815,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				start_of_scope(tok);
 				enter_scope(tok);
 			}
-			tok = indent_stmt(parent);
+			tok = indent_stmt(parent, !parent_is_block);
 			
 			if (!parent_is_block) {
 				leave_scope(tok);
@@ -830,7 +836,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * @param parent
 	 * @return
 	 */
-	private SVIndentToken indent_stmt(String parent) {
+	private SVIndentToken indent_stmt(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current_s();
 		
 		if (fDebugEn) {
@@ -875,7 +881,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = next_s();
 		}  */
 		else {
-			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.
+			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
+			if (!parent_is_block)  {
+				tok = next_s(); // grab the next token, this was probably the first token of a new statement
+				// add the indent, so that if the statement runs over multi-lines, we get a bit of an indent here
+				start_of_scope (tok);
+				enter_scope (tok);
+			}
 			boolean do_next = true;
 			while (!tok.isOp(";")) {
 				if (parent != null) {
@@ -896,6 +908,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				tok = next_s();
 			}
+			// Un-indent after we indented
+			if (!parent_is_block)  {
+				leave_scope (tok);
+			}
+			
 			if (do_next) {
 				tok = next_s();
 			}
