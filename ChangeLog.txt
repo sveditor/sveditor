@@ -15,6 +15,9 @@
 
 - #(enh) - Update template wizard to support NaturalDoc formatting for
   template-element descriptions
+  
+- #(251) - Corrected a parse bug involving using 'super' or 'this' 
+  as the root element in a delay expression  
 
 ------------------------------------------------------------------------------
 -- 1.2.2 Release --
