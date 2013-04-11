@@ -190,12 +190,22 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public SVDBFile getPreProcFile(IProgressMonitor monitor, String path) {
-		// TODO Auto-generated method stub
-		return null;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, FILE_ID, false);
+		SVDBFile file = null;
+		
+		if (entry != null) {
+			fCacheMgr.ensureUpToDate(entry);
+			file = entry.getSVDBPreProcFileRef();
+		}
+		
+		return file;
 	}
 
 	public void setPreProcFile(String path, SVDBFile file) {
+		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, FILE_ID, true);
+		
+		fCacheMgr.ensureUpToDate(entry);
 
 		entry.setPreProcFile(file);
 	}

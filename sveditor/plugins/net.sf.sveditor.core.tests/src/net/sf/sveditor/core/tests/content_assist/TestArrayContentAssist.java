@@ -300,7 +300,7 @@ public class TestArrayContentAssist extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 
 		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());

@@ -34,7 +34,8 @@ public class ProfileIndexLoad {
 		SVDBIndexCollection mgr = new SVDBIndexCollection(pname);
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+//		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.init(TestIndexCacheFactory.instance());
 		
 		String lib_path = ovm_home + "/src/ovm_pkg.sv";
 		

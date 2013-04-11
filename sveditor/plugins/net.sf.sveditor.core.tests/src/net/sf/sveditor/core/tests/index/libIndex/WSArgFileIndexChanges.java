@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -25,8 +24,8 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -34,14 +33,13 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-public class WSArgFileIndexChanges extends TestCase {
+public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 	
-	private File				fTmpDir;
 	private IProject			fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
+		super.setUp();
 		fProject = null;
 	}
 
@@ -54,9 +52,7 @@ public class WSArgFileIndexChanges extends TestCase {
 			TestUtils.deleteProject(fProject);
 		}
 		
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
+		super.tearDown();
 	}
 
 	public void testArgFileChange() {
@@ -72,13 +68,8 @@ public class WSArgFileIndexChanges extends TestCase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
-		File db = new File(tmpdir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(tmpdir));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 

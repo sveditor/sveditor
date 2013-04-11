@@ -43,7 +43,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 @SuppressWarnings({"rawtypes","unchecked"})
-public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
+public class SVDBFileIndexCacheOld implements ISVDBIndexCache, ILogLevelListener {
 	private String							fBaseLocation;
 	private String							fBaseLocationInfo;
 	private Map<String, CacheFileInfo>		fFileCache;
@@ -115,10 +115,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 		}
 	}
 	
-	public SVDBFileIndexCache(ISVDBFS fs) {
+	public SVDBFileIndexCacheOld(ISVDBFS fs) {
 		fSVDBFS = fs;
-		fFileCache = new HashMap<String, SVDBFileIndexCache.CacheFileInfo>();
-		fArgFileCache = new HashMap<String, SVDBFileIndexCache.CacheFileInfo>();
+		fFileCache = new HashMap<String, SVDBFileIndexCacheOld.CacheFileInfo>();
+		fArgFileCache = new HashMap<String, SVDBFileIndexCacheOld.CacheFileInfo>();
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCache");
 		fDebugEn = fLog.isEnabled();
 		fLog.addLogLevelListener(this);
@@ -845,7 +845,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 	private void addElementToTail(CacheFileInfo info) {
-		synchronized (SVDBFileIndexCache.class) {
+		synchronized (SVDBFileIndexCacheOld.class) {
 			// Add references
 			info.fCached = true;
 			info.fSVDBFileRef = info.fSVDBFile.get();
@@ -874,7 +874,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 	private void moveElementToTail(CacheFileInfo info) {
-		synchronized (SVDBFileIndexCache.class) {
+		synchronized (SVDBFileIndexCacheOld.class) {
 			if (fCacheTail != info) {
 				if (info.fPrev == null) {
 					fCacheHead = info.fNext;
@@ -906,7 +906,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache, ILogLevelListener {
 	}
 	
 	private void removeElement(CacheFileInfo info) {
-		synchronized (SVDBFileIndexCache.class) {
+		synchronized (SVDBFileIndexCacheOld.class) {
 			if (info.fPrev == null) {
 				fCacheHead = info.fNext;
 			} else {

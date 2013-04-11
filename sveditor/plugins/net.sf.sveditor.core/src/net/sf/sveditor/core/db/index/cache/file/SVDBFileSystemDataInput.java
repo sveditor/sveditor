@@ -52,6 +52,13 @@ public class SVDBFileSystemDataInput implements DataInput {
 		fPages.add(page);
 	}
 	
+	public String readString() throws IOException {
+		int len = readInt();
+		byte tmp[] = new byte[len];
+		readFully(tmp);
+		
+		return new String(tmp);
+	}
 
 	public byte readByte() throws IOException {
 		byte page[];

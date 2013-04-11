@@ -37,6 +37,7 @@ import net.sf.sveditor.core.docs.model.DocModelFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -47,11 +48,9 @@ import difflib.*;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestModelFactory extends TestCase {
+public class TestModelFactory extends SVCoreTestCaseBase {
 	
 	boolean fDebug 			= false ;
-	private LogHandle 		fLog ;
-	private File			fTmpDir;
 	private IProject		fProject;
 	
 	
@@ -62,13 +61,11 @@ public class TestModelFactory extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
@@ -77,10 +74,8 @@ public class TestModelFactory extends TestCase {
 			TestUtils.deleteProject(fProject);
 			fProject = null;
 		}
-		if (fTmpDir != null && fTmpDir.exists() &&!fDebug) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
+		
+		super.tearDown();
 	}	
 	
 	public void testUVM() throws IOException {
@@ -132,7 +127,7 @@ public class TestModelFactory extends TestCase {
 		}
 
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndex index = 
 				rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",

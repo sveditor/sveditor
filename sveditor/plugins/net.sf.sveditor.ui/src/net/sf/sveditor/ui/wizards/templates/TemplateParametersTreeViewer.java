@@ -71,7 +71,6 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 		fIntCellEditor = new TextCellEditor(getTree());
 		fIntCellEditor.setValidator(new ICellEditorValidator() {
 			
-			@Override
 			public String isValid(Object value) {
 				// TODO: validate value
 				return null;

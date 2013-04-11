@@ -30,7 +30,9 @@ import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCacheOld;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
@@ -75,7 +77,7 @@ public class TestIndexCache extends TestCase {
 		}
 	}
 
-	public void testFileCacheBasics() {
+	public void testFileCacheBasics() throws IOException {
 		String testname = "testFileCacheBasics";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		File test_dir = new File(fTmpDir, "test");
@@ -94,35 +96,10 @@ public class TestIndexCache extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
-		ISVDBIndexCacheMgr f = new ISVDBIndexCacheMgr() {
-			public ISVDBIndexCache createIndexCache(String project_name,
-					String base_location) {
-				SVDBDirFS fs = new SVDBDirFS(db_dir);
-				fs.setEnableAsyncClear(false);
-				ISVDBIndexCache cache = new SVDBFileIndexCache(fs);
-				return cache;
-			}
-
-			public void compactCache(List<ISVDBIndexCache> cache_list) {}
-
-			// TODO: IndexCache
-			public ISVDBIndexCache findIndexCache(String project_name,
-					String base_location) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			public void dispose() {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void sync() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		};
+		SVDBFileIndexCacheMgr f = new SVDBFileIndexCacheMgr();
+		SVDBFileSystem fs = new SVDBFileSystem(db_dir, SVCorePlugin.getVersion());
+		fs.init();
+		f.init(fs);
 		rgy.init(f);
 		
 		long start, end;
@@ -194,7 +171,7 @@ public class TestIndexCache extends TestCase {
 					String base_location) {
 				SVDBDirFS fs = new SVDBDirFS(db_dir);
 				fs.setEnableAsyncClear(false);
-				ISVDBIndexCache cache = new SVDBFileIndexCache(fs);
+				ISVDBIndexCache cache = new SVDBFileIndexCacheOld(fs);
 				return cache;
 			}
 

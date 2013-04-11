@@ -108,7 +108,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	public void dispose() {
 
 	}
-
+	
 	public void sync() {
 		// TODO: save cache and entry data to the filesystem
 

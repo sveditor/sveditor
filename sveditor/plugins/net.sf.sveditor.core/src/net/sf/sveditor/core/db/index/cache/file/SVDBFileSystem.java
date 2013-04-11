@@ -17,6 +17,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
 //	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
 	private static final int			ALLOC_PAGE_INCR = 1024;
+	private String						fVersion;
 	private LogHandle					fLog;
 	private boolean						fDebugEn = false;
 	private File						fDBDir;
@@ -29,12 +30,14 @@ public class SVDBFileSystem implements ILogLevelListener {
 	private List<RandomAccessFile>		fFileRWList;
 	private int							fLastRwBlkLen;
 	
-	public SVDBFileSystem(File db_dir) {
+	public SVDBFileSystem(File db_dir, String version) {
+		fDBDir = db_dir;
+		fVersion = version;
+		
 		fLog = LogFactory.getLogHandle("SVDBFileSystem");
-//		fDebugEn = fLog.isEnabled();
+		fDebugEn = fLog.isEnabled();
 		fLog.addLogLevelListener(this);
 		
-		fDBDir = db_dir;
 		fFileRWList = new ArrayList<RandomAccessFile>();
 	}
 	
@@ -48,7 +51,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	 */
 	public synchronized boolean init() throws IOException {
 		boolean ret = true;
-		
+	
 		// See if the DBDir exists
 		if (!fDBDir.isDirectory()) {
 			if (!fDBDir.mkdirs()) {
@@ -63,20 +66,9 @@ public class SVDBFileSystem implements ILogLevelListener {
 		fLastRwBlkLen = 0;
 		
 		if (!f.isFile()) {
-			// Nothing here yet
-			RandomAccessFile rw = null;
-			try {
-				rw = new RandomAccessFile(f, "rw");
-			} catch (IOException e) {
-				fLog.error("Failed to create first DB file " + 
-						f.getAbsolutePath(), e);
-			}
-			fFileRWList.add(rw);
-			fAllocList = new byte[ALLOC_PAGE_INCR];
-			
-			// Reserve the first block
-			fAllocList[0] = 1; 
-			fAllocListFile = -1;
+			// Initialize the filesystem
+			initialize();
+			ret = false;
 		} else {
 			RandomAccessFile rw = null;
 			
@@ -90,34 +82,91 @@ public class SVDBFileSystem implements ILogLevelListener {
 			
 			SVDBFileSystemDataInput in = new SVDBFileSystemDataInput();
 			in.addPage(tmp);
+
+			/**
+			 * Root block is:
+			 * - Filesystem version-string length
+			 * - Filesystem version (string)
+			 * - Number of storage files in this filesystem
+			 * - Block length of the last file
+			 * - Handle to the alloc list
+			 * - Alloc list length
+			 * - user data length
+			 * - user data
+			 */
+			String version = in.readString();
 			
-			int n_files = in.readInt();
-			fAllocListFile = in.readInt();
-			int ud_len = in.readInt();
-			
-			if (ud_len == -1) {
-				fUserData = null;
+			if (!fVersion.equals(version)) {
+				// Version doesn't match, so re-initialize the filesystem
+				ret = false;
+				cleanup();
+				initialize();
 			} else {
-				fUserData = new byte[ud_len];
-				in.readFully(fUserData);
+				int n_files = in.readInt();
+				fLastRwBlkLen  = in.readInt();
+				fAllocListFile = in.readInt();
+				int alloc_list_len = in.readInt();
+				int ud_len = in.readInt();
+
+				if (ud_len == -1) {
+					fUserData = null;
+				} else {
+					fUserData = new byte[ud_len];
+					in.readFully(fUserData);
+				}
+
+				System.out.println("Sync: n_files=" + n_files);
+
+				for (int i=2; i<=n_files; i++) {
+					f = new File(fDBDir, i + ".db");
+					rw = new RandomAccessFile(f, "rw");
+					fFileRWList.add(rw);
+				}
+
+				// Now we can read in the alloc list and initialize the AllocList
+				SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
+				fAllocList = new byte[alloc_list_len];
+				alloc_in.readFully(fAllocList);
 			}
-			
-			System.out.println("Sync: n_files=" + n_files);
-			
-			for (int i=2; i<=n_files; i++) {
-				f = new File(fDBDir, i + ".db");
-				rw = new RandomAccessFile(f, "rw");
-				fFileRWList.add(rw);
-			}
-			
-			// Now we can read in the alloc list and initialize the AllocList
-			SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
-			int alloc_listlen = alloc_in.getLength();
-			fAllocList = new byte[alloc_listlen];
-			alloc_in.readFully(fAllocList);
 		}
 	
 		return ret;
+	}
+	
+	private void initialize() {
+		File f = new File(fDBDir, "1.db");
+		
+		// Nothing here yet
+		RandomAccessFile rw = null;
+		try {
+			rw = new RandomAccessFile(f, "rw");
+		} catch (IOException e) {
+			fLog.error("Failed to create first DB file " + 
+					f.getAbsolutePath(), e);
+		}
+		fFileRWList.add(rw);
+		fAllocList = new byte[ALLOC_PAGE_INCR];
+		
+		// Reserve the first block
+		fAllocList[0] = 1; 
+		fAllocListFile = -1;
+		fFirstEmptyIdx = 0;
+		fLastRwBlkLen = 0;
+	}
+	
+	private void cleanup() {
+		fFileRWList.clear();
+		
+		File files[] = fDBDir.listFiles();
+		if (files != null) {
+			for (File f : files) {
+				if (f.getName().endsWith(".db")) {
+					if (!f.delete()) {
+						fLog.error("Failed to delete storage for " + f.getAbsolutePath());
+					}
+				}
+			}
+		}
 	}
 	
 	public DataInput getUserData() {
@@ -158,13 +207,22 @@ public class SVDBFileSystem implements ILogLevelListener {
 		
 		/**
 		 * Root block is:
-		 * - Number of files in this filesystem
+		 * - Filesystem version-string length
+		 * - Filesystem version (string)
+		 * - Number of storage files in this filesystem
+		 * - Block length of the last file
 		 * - Handle to the alloc list
+		 * - Alloc list length
 		 * - user data length
 		 * - user data
 		 */
+		out.writeInt(fVersion.length());
+		out.writeBytes(fVersion);
+		
 		out.writeInt(fFileRWList.size());
+		out.writeInt(fLastRwBlkLen);
 		out.writeInt(fAllocListFile);
+		out.writeInt(fAllocList.length);
 		if (fUserData != null) {
 			out.writeInt(fUserData.length);
 			out.write(fUserData);

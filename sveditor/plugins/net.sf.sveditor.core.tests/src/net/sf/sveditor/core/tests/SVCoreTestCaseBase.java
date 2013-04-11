@@ -4,13 +4,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-
+import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
-import junit.framework.TestCase;
+import org.eclipse.core.resources.IProject;
 
 public class SVCoreTestCaseBase extends TestCase {
 	
@@ -18,6 +20,7 @@ public class SVCoreTestCaseBase extends TestCase {
 	protected LogHandle					fLog;
 	protected List<IProject>			fProjectList;
 	protected TestIndexCacheFactory		fCacheFactory;
+	protected SVDBFileSystem			fFileSystem;
 	
 
 	@Override
@@ -30,13 +33,22 @@ public class SVCoreTestCaseBase extends TestCase {
 		
 		fTmpDir = TestUtils.createTempDir();
 		
+		File cache2 = new File(fTmpDir, "cache2");
+		
+		fFileSystem = new SVDBFileSystem(cache2, SVCorePlugin.getVersion());
+		fFileSystem.init();
+		
 		fCacheFactory = new TestIndexCacheFactory(
 				new File(fTmpDir, "db"));
+		fCacheFactory.init(fFileSystem);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		rgy.save_state();
 		
 		for (IProject p : fProjectList) {
 			TestUtils.deleteProject(p);
@@ -47,6 +59,7 @@ public class SVCoreTestCaseBase extends TestCase {
 		}
 		
 		LogFactory.removeLogHandle(fLog);
+		
 	}
 
 	protected void addProject(IProject p) {

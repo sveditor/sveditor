@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -44,9 +45,8 @@ import org.eclipse.core.runtime.Path;
  * @author ballance
  *
  */
-public class TestIndexParse extends TestCase {
+public class TestIndexParse extends SVCoreTestCaseBase {
 	
-	private File					fTmpDir;
 	private IProject				fProject;
 	private BundleUtils				fUtils;
 
@@ -54,16 +54,10 @@ public class TestIndexParse extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		fTmpDir = TestUtils.createTempDir();
 		fUtils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 	}
 	
 	@Override

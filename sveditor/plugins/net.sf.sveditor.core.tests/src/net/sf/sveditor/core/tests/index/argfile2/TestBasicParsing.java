@@ -46,7 +46,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		fCacheMgr = new SVDBFileIndexCacheMgr();
 		File db2 = new File(fTmpDir, "db2");
 		assertTrue(db2.mkdirs());
-		fCacheFS = new SVDBFileSystem(db2);
+		fCacheFS = new SVDBFileSystem(db2, SVCorePlugin.getVersion());
 		fCacheFS.init();
 		fCacheMgr.init(fCacheFS);
 	}
@@ -94,7 +94,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBFile file = cache.getFile(new NullProgressMonitor(), files.iterator().next());
 	
 		File db3 = new File(fTmpDir, "db3");
-		SVDBFileSystem fs = new SVDBFileSystem(db3);
+		SVDBFileSystem fs = new SVDBFileSystem(db3, SVCorePlugin.getVersion());
 		try {
 			fs.init();
 			
@@ -322,7 +322,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBFile file = cache.getFile(new NullProgressMonitor(), files.iterator().next());
 	
 		File db3 = new File(fTmpDir, "db3");
-		SVDBFileSystem fs = new SVDBFileSystem(db3);
+		SVDBFileSystem fs = new SVDBFileSystem(db3, SVCorePlugin.getVersion());
 		try {
 			fs.init();
 			

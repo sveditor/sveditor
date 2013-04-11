@@ -12,11 +12,9 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
@@ -37,6 +35,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -44,19 +43,18 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestContentAssistBuiltins extends TestCase {
+public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 	private ContentAssistIndex			fIndex;
-	private SVDBIndexCollection		fIndexMgr;
-	private File						fTmpDir;
+	private SVDBIndexCollection			fIndexMgr;
 	private SVDBIndexRegistry			fIndexRgy;
 	
 	@Override
-	public void setUp() {
-		fTmpDir = TestUtils.createTempDir();
+	public void setUp() throws Exception {
+		super.setUp();
 		
 		fIndexMgr = new SVDBIndexCollection("TestContentAssistBuiltins");
 		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		fIndexRgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		fIndexRgy.init(fCacheFactory);
 		fIndexMgr.addPluginLibrary(
 				fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 						"TestContentAssistBuiltins", SVCorePlugin.SV_BUILTIN_LIBRARY, 

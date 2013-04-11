@@ -12,11 +12,9 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -30,42 +28,27 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestBuiltinIndex extends TestCase {
-	File					fTmpDir;
+public class TestBuiltinIndex extends SVCoreTestCaseBase {
 	
 	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-	}
-
-	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 		
-		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
-		}
+		super.tearDown();
 	}
 
 	public void testBuiltinIndexNoErrors() {
-		File tmpdir = new File(fTmpDir, "no_errors");
-		
-		if (tmpdir.exists()) {
-			tmpdir.delete();
-		}
-		tmpdir.mkdirs();
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(tmpdir));
+		rgy.init(fCacheFactory);
 	
 		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 		index_mgr.addPluginLibrary(
@@ -73,13 +56,18 @@ public class TestBuiltinIndex extends TestCase {
 						"GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
+		index_mgr.loadIndex(new NullProgressMonitor());
+		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		ISVDBItemBase string_cls=null, process_cls=null, covergrp_cls=null;
 		ISVDBItemBase finish_task=null;
 		
+		string_cls = IndexTestUtils.find(index_mgr, "string");
+		
 		while (index_it.hasNext()) {
 			ISVDBItemBase it = index_it.nextItem();
+			System.out.println("it: " + it.getType() + " " + SVDBItem.getName(it));
 			
 			if (it.getType() != SVDBItemType.File) {
 				assertNotNull("Item " + SVDBItem.getName(it) + " has null location",

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
@@ -33,19 +32,20 @@ import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestParserPerf extends TestCase {
+public class TestParserPerf extends SVCoreTestCaseBase {
 	
-	private File				fTmpDir;
 	private String				fTestPluginPath;
 	
 	@Override
 	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
+		super.setUp();
+
 		SVCorePlugin.testInit();
 		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
@@ -60,18 +60,6 @@ public class TestParserPerf extends TestCase {
 		
 //		SVCorePlugin.testInit(); 
 	}
-
-
-
-	@Override
-	protected void tearDown() throws Exception {
-//		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-//		TestUtils.delete(fTmpDir);
-		// TODO Auto-generated method stub
-		super.tearDown();
-	}
-
-
 
 	public void testXBusExample() {
 		/*
@@ -99,8 +87,7 @@ public class TestParserPerf extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
 		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-//		rgy.test_init(TestIndexCacheFactory.instance(null));
-		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.test_init(fCacheFactory);
 		
 		String compile_questa_sv = xbus + "/examples/compile_questa_sv.f";
 		System.out.println("compile_questa_sv=" + compile_questa_sv);
@@ -159,7 +146,7 @@ public class TestParserPerf extends TestCase {
 
 		TestUtils.unpackZipToFS(uvm_zip, fTmpDir);
 
-		TestIndexCacheFactory factory = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory factory = fCacheFactory;
 	
 		File uvm = new File(fTmpDir, "uvm");
 		File uvm_pkg = new File(uvm, "src/uvm_pkg.sv");
@@ -241,7 +228,7 @@ public class TestParserPerf extends TestCase {
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry(true);
 		SVDBArgFileIndexFactory factory = new SVDBArgFileIndexFactory();
-		rgy.test_init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.test_init(fCacheFactory);
 	
 		File project_incdir = new File(fTmpDir, "ProjectIncdir");
 		File project_incdir_f = new File(project_incdir, "ProjectIncdir.f");
@@ -270,7 +257,7 @@ public class TestParserPerf extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
-		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index;
 		
@@ -300,7 +287,7 @@ public class TestParserPerf extends TestCase {
 	public void testOpenSparc2() {
 		File opensparc_design = new File("/home/ballance.1/Downloads/OpenSPARCT2/design/design.f");
 
-		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
 				opensparc_design.getAbsolutePath(),
@@ -329,7 +316,7 @@ public class TestParserPerf extends TestCase {
 	public void testUVM2() {
 		File opensparc_design = new File("/tools/uvm/uvm-1.1a/uvm.f");
 
-		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
 				opensparc_design.getAbsolutePath(),
@@ -372,7 +359,7 @@ public class TestParserPerf extends TestCase {
 	public void testLargeParam() {
 		File opensparc_design = new File("/home/ballance/Downloads/sz/Project_complicated_include/top_dir/files.f");
 
-		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index = new SVDBArgFileIndex("GENERIC", 
 				opensparc_design.getAbsolutePath(),
@@ -390,7 +377,7 @@ public class TestParserPerf extends TestCase {
 	public void testLargeParam2() {
 		File opensparc_design = new File("/home/ballance/Downloads/sz/Project_complicated_include/top_dir/files.f");
 
-		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
 				opensparc_design.getAbsolutePath(),
@@ -428,7 +415,7 @@ public class TestParserPerf extends TestCase {
 			TestUtils.delete(db);
 		}
 
-		TestIndexCacheFactory cache_f = TestIndexCacheFactory.instance(fTmpDir);
+		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index = null;
 		boolean use_index2 = true;

@@ -30,13 +30,10 @@ import net.sf.sveditor.core.argfile.parser.SVArgFilePathVariableProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
@@ -100,6 +97,8 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVParserConfig					fParserConfig;
 	private SVResourceChangeListener		fResourceChangeListener;
 	private SVDBIndexBuilder				fIndexBuilder;
+	private SVDBFileSystem					fCacheFS;
+	private SVDBFileIndexCacheMgr			fCacheMgr;
 	
 	/**
 	 * The constructor
@@ -107,6 +106,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public SVCorePlugin() {
 		fParserConfig = new SVParserConfig();
 		fIndexBuilder = new SVDBIndexBuilder();
+		fIndexRegistry = new SVDBIndexRegistry();
 	}
 
 	/*
@@ -124,8 +124,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			SVFileUtils.fIsWinPlatform = true;
 		}
 		
-		SVDB.init();
-		
 		fTodoScanner = new SVTodoScanner();
 		
 		File state_location = getStateLocation().toFile();
@@ -136,6 +134,20 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		// Initialize the cache manager and filesystem
+		File cache = new File(state_location, "cache2");
+
+		if (!cache.isDirectory()) {
+			cache.mkdirs();
+		}
+		fCacheFS  = new SVDBFileSystem(cache, getVersion());
+		fCacheFS.init();
+		fCacheMgr = new SVDBFileIndexCacheMgr();
+		fCacheMgr.init(fCacheFS);
+	
+		// Connect the cache manager
+		fIndexRegistry.init(fCacheMgr);
 	
 		// Enable by default
 		fEnableAsyncCacheClear = true;
@@ -234,7 +246,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		if (fIndexRegistry != null) {
 			fIndexRegistry.save_state();
 		}
-		
+	
 		LogFactory.getDefault().removeLogListener(this);
 		
 		if (fLogStream != null) {
@@ -248,7 +260,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			fJobMgr.dispose();
 		}
 		
+		// Shut down the builder
 		fIndexBuilder.dispose();
+		
+		// Flush cache data out to the filesystem
+		fCacheMgr.sync();
+		
+		// Close the index cache
+		fCacheFS.close();
 		
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;
@@ -314,15 +333,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	}
 	
 	public SVDBIndexRegistry getSVDBIndexRegistry() {
-		if (fIndexRegistry == null) {
-			fIndexRegistry = new SVDBIndexRegistry();
-			// TODO: IndexCache
-			fIndexRegistry.init(null);
-		}
-		
 		return fIndexRegistry;
 	}
-	
+
+	/* Old cache
 	public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
 		File file = getStateLocation().toFile();
 		File cache = new File(file, "cache");
@@ -361,6 +375,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			}
 		}
 	}
+	 */
 	
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();

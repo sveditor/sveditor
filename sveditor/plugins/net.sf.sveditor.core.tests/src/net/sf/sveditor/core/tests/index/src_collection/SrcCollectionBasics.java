@@ -472,7 +472,7 @@ public class SrcCollectionBasics extends SVTestCaseBase {
 	}
 
 	public void testFSNewFileAdded() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testFSNewFileAdded");
 		

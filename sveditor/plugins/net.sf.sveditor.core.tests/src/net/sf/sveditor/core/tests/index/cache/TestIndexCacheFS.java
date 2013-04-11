@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
@@ -20,7 +21,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 	}
 
 	public void testFSBasics() throws IOException {
-		SVDBFileSystem fs = new SVDBFileSystem(fTmpDir);
+		SVDBFileSystem fs = new SVDBFileSystem(fTmpDir, SVCorePlugin.getVersion());
 		
 		fs.init();
 		
@@ -96,7 +97,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 	}
 
 	public void testFSReopen() throws IOException {
-		SVDBFileSystem fs = new SVDBFileSystem(fTmpDir);
+		SVDBFileSystem fs = new SVDBFileSystem(fTmpDir, SVCorePlugin.getVersion());
 		
 		fs.init();
 		
@@ -146,7 +147,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 	
 		fs.close();
 		
-		fs = new SVDBFileSystem(fTmpDir);
+		fs = new SVDBFileSystem(fTmpDir, SVCorePlugin.getVersion());
 		fs.init();
 	
 		for (int i=0; i<ref_data.size(); i++) {
@@ -170,7 +171,7 @@ public class TestIndexCacheFS extends SVCoreTestCaseBase {
 	}
 	
 	public void testFSDelete() throws IOException {
-		SVDBFileSystem fs = new SVDBFileSystem(fTmpDir);
+		SVDBFileSystem fs = new SVDBFileSystem(fTmpDir, SVCorePlugin.getVersion());
 		
 		fs.init();
 		

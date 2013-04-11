@@ -1,7 +1,6 @@
 package net.sf.sveditor.core.db.index.argfile;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -39,7 +37,7 @@ public class SVDBArgFileIndexBuildData implements
 	
 	void apply(SVDBArgFileIndexBuildData build_data) {
 		ISVDBIndexCache old_cache = fCache;
-		ISVDBIndexCacheMgr old_cache_mgr = fCacheMgr;
+//		ISVDBIndexCacheMgr old_cache_mgr = fCacheMgr;
 	
 		fFileSystemProvider = build_data.fFileSystemProvider;
 		fIndexCacheData = build_data.fIndexCacheData;
@@ -48,7 +46,7 @@ public class SVDBArgFileIndexBuildData implements
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
 
-		// TODO: I think this implies a sync
+		// Free the entries in the old cache
 		old_cache.dispose();
 	}
 

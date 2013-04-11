@@ -13,17 +13,12 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.File;
-import java.util.List;
 
-import junit.framework.TestCase;
-import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
-import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 
-public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
+public class TestIndexCacheFactory extends SVDBFileIndexCacheMgr {
 	private File				fRoot;
 	
 	public TestIndexCacheFactory(File dir) {
@@ -36,48 +31,11 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 		if (fRoot == null) {
 			return new InMemoryIndexCache();
 		} else {
-			if (!fRoot.isDirectory()) {
-				TestCase.assertTrue(fRoot.mkdirs());
-			}
-			String hash = SVFileUtils.computeMD5(base_location);
-			File target = new File(fRoot, project_name + "_" + hash);
-//			System.out.println("Create index: " + target.getAbsolutePath());
-			if (!target.isDirectory()) {
-				TestCase.assertTrue(target.mkdirs());
-			}
-		
-			SVDBDirFS fs = new SVDBDirFS(target);
-			// Always disable for tests
-			fs.setEnableAsyncClear(false);
-			SVDBFileIndexCache cache = new SVDBFileIndexCache(fs);
-//			SVDBThreadedFileIndexCache cache = new SVDBThreadedFileIndexCache(new SVDBDirFS(target));
-			
-			return cache;
+			return super.createIndexCache(project_name, base_location);
 		}
 	}
 	
-	public void compactCache(List<ISVDBIndexCache> cache_list) { }
-	
-
-	// TODO: IndexCache
-
-	public ISVDBIndexCache findIndexCache(String project_name,
-			String base_location) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public void dispose() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void sync() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public static TestIndexCacheFactory instance(File dir) {
-		return new TestIndexCacheFactory(dir);
+	public static TestIndexCacheFactory instance() {
+		return new TestIndexCacheFactory(null);
 	}
 }
