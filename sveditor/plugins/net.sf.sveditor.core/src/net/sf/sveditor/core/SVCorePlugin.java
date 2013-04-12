@@ -75,7 +75,8 @@ import org.osgi.framework.Version;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVCorePlugin extends Plugin implements ILogListener {
+public class SVCorePlugin extends Plugin 
+	implements ILogListener, ISVDBIndexCacheMgr {
 	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
@@ -317,7 +318,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		if (fIndexRegistry == null) {
 			fIndexRegistry = new SVDBIndexRegistry();
 			// TODO: IndexCache
-			fIndexRegistry.init(null);
+			fIndexRegistry.init(this);
 		}
 		
 		return fIndexRegistry;
@@ -362,6 +363,31 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		}
 	}
 	
+	@Override
+	public ISVDBIndexCache findIndexCache(String project_name,
+			String base_location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Cache factory method
+	 */
+	@Override
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Cache manager method
+	 */
+	@Override
+	public void sync() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
 		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");
