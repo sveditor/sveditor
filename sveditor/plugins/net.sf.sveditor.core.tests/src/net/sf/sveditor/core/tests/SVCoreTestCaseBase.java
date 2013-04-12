@@ -7,7 +7,6 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -20,7 +19,7 @@ public class SVCoreTestCaseBase extends TestCase {
 	protected LogHandle					fLog;
 	protected List<IProject>			fProjectList;
 	protected TestIndexCacheFactory		fCacheFactory;
-	protected SVDBFileSystem			fFileSystem;
+//	protected SVDBFileSystem			fFileSystem;
 	
 
 	@Override
@@ -34,13 +33,14 @@ public class SVCoreTestCaseBase extends TestCase {
 		fTmpDir = TestUtils.createTempDir();
 		
 		File cache2 = new File(fTmpDir, "cache2");
-		
+
+		/*
 		fFileSystem = new SVDBFileSystem(cache2, SVCorePlugin.getVersion());
 		fFileSystem.init();
+		 */
 		
-		fCacheFactory = new TestIndexCacheFactory(
-				new File(fTmpDir, "db"));
-		fCacheFactory.init(fFileSystem);
+		fCacheFactory = new TestIndexCacheFactory(new File(fTmpDir, "db"));
+//		fCacheFactory.init(fFileSystem);
 	}
 
 	@Override

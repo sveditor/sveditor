@@ -38,7 +38,7 @@ public class TestContentAssistClass extends TestCase {
 	 */
 	public void testContentAssistExternTaskClass() {
 		LogHandle log = LogFactory.getLogHandle("testContentAssistExternTaskClass");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc1 =
 			"class foobar;\n" +
 			"	int		AAAA;\n" +

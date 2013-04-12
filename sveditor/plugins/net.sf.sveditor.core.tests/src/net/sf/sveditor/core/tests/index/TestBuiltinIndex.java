@@ -45,7 +45,7 @@ public class TestBuiltinIndex extends SVCoreTestCaseBase {
 	}
 
 	public void testBuiltinIndexNoErrors() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);

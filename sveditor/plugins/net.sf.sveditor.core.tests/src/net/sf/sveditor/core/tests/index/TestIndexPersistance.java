@@ -35,29 +35,18 @@ import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
-	private int			fRebuildCount;
-	private IProject		fProject;
+	private int				fRebuildCount;
 	
 	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.save_state();
 		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
+		super.tearDown();
 	}
 
 	public void index_changed(int reason, SVDBFile file) {}
@@ -74,21 +63,15 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testArgFileIndex");
-		File db_dir = new File(fTmpDir, "db");
 		if (test_dir.exists()) {
 			assertTrue(test_dir.delete());
 		}
 		assertTrue(test_dir.mkdirs());
 		
-		if (db_dir.exists()) {
-			assertTrue(db_dir.delete());
-		}
-		assertTrue(db_dir.mkdirs());
-		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
-		fProject = TestUtils.createProject("xbus", xbus);
+		addProject(TestUtils.createProject("xbus", xbus));
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
@@ -165,7 +148,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File ovm = new File(test_dir, "ovm");
 		
-		fProject = TestUtils.createProject("ovm", ovm);
+		addProject(TestUtils.createProject("ovm", ovm));
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
@@ -219,7 +202,6 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
-		TestUtils.deleteProject(fProject);
 	}
 
 }
