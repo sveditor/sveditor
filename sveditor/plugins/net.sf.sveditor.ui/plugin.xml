@@ -14,14 +14,7 @@
                contentTypeId="net.sf.sveditor.core.systemverilog">
          </contentTypeBinding>
       </editor>
-      <editor
-            class="net.sf.sveditor.ui.svt.editor.SVTEditor"
-            default="false"
-            extensions="svt"
-            icon="icons/eview16/generate_template_class.gif"
-            id="net.sf.sveditor.ui.svtEditor"
-            name="SystemVerilog Template Editor">
-      </editor>
+
       <editor
             class="net.sf.sveditor.ui.argfile.editor.SVArgFileEditor"
             contributorClass="net.sf.sveditor.ui.argfile.editor.SVArgFileActionContributor"

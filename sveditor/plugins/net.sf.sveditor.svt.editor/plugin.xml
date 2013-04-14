@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+		<editor
+            class="net.sf.sveditor.svt.editor.SVTEditor"
+            default="false"
+            extensions="svt"
+            icon="icons/eview16/generate_template_class.gif"
+            id="net.sf.sveditor.ui.svtEditor"
+            name="SystemVerilog Template Editor">
+		</editor>
+   </extension>
+
+</plugin>

@@ -12,16 +12,14 @@
 
 package net.sf.sveditor.ui;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.StringTokenizer;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.XMLTransformUtils;
@@ -31,10 +29,6 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.SVParserConfig;
-import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.runtime.jobs.Job;
@@ -65,7 +59,7 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class SVUiPlugin extends AbstractUIPlugin 
-	implements IPropertyChangeListener, ILogListener, IExternalTemplatePathProvider {
+	implements IPropertyChangeListener, ILogListener {
 	
 	private class LogMessage {
 		ILogHandle				handle;
@@ -86,22 +80,19 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private MessageConsoleStream				fStderrStream;
 	private ContributionContextTypeRegistry		fContextRegistry;
 	private TemplateStore						fTemplateStore;
-	private boolean							fDebugConsole;
-	public static final String				CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
-	public static final String				SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
+	private boolean								fDebugConsole;
+	public static final String					CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
+	public static final String					SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
 	
 	// Preference override for testing. Sets the number of spaces a  
 	// tab is equivalent to
 	private String								fInsertSpaceTestOverride;
 	
-	private boolean							fStartRefreshJob = false;
+	private boolean								fStartRefreshJob = false;
 	private RefreshIndexJob						fRefreshIndexJob;
-	private List<String>						fTemplatePaths;
-	
-	private TemplateParameterProvider			fGlobalPrefsProvider;
 	
 	private List<LogMessage>					fLogMessageQueue;
-	private boolean							fLogMessageScheduled;
+	private boolean								fLogMessageScheduled;
 	
 	/**
 	 * Small change 1
@@ -112,7 +103,6 @@ public class SVUiPlugin extends AbstractUIPlugin
 	 */
 	public SVUiPlugin() {
 		fImageMap = new WeakHashMap<String, Image>();
-		fGlobalPrefsProvider = new TemplateParameterProvider();
 		fLogMessageQueue = new ArrayList<SVUiPlugin.LogMessage>();
 	}
 
@@ -137,13 +127,6 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 			update_parser_prefs();
 		}
-		
-		TemplateRegistry rgy = SVCorePlugin.getDefault().getTemplateRgy();
-		rgy.addPathProvider(this);
-		update_template_paths();
-		
-		update_global_parameters();
-		
 	}
 	
 	public static IWorkbenchPage getActivePage() {
@@ -151,24 +134,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 //		return getDefault().getActivePage() ;
 	}
 	
-	private void update_template_paths() {
-		fTemplatePaths = parse_paths(getPreferenceStore().getString(
-				SVEditorPrefsConstants.P_SV_TEMPLATE_PATHS));
-	}
-	
-	private void update_global_parameters() {
-		Map<String, String> params = null;
-		
-		try {
-			params = XMLTransformUtils.xml2Map(
-				getPreferenceStore().getString(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES),
-				"parameters", "parameter");
-		} catch (Exception e) {}
-		
-		if (params != null) {
-			fGlobalPrefsProvider = new TemplateParameterProvider(params);
-		}
-	}
+
 	
 	private void update_parser_prefs() {
 		try {
@@ -184,24 +150,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 	}
 	
-	public List<String> getExternalTemplatePath() {
-		return fTemplatePaths;
-	}
-	
-	public ITemplateParameterProvider getGlobalTemplateParameters() {
-		return fGlobalPrefsProvider;
-	}
 
-	private static List<String> parse_paths(String stringList) {
-		
-		StringTokenizer st = new StringTokenizer(stringList, File.pathSeparator
-				+ "\n\r");//$NON-NLS-1$
-		ArrayList<String> v = new ArrayList<String>();
-		while (st.hasMoreElements()) {
-			v.add((String)st.nextElement());
-		}
-		return v;
-	}
 
 	
 	private int getDebugLevel(String level_s) {
@@ -272,14 +221,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 			synchronized (fLogMessageQueue) {
 				fDebugConsole = (Boolean)event.getNewValue();
 			}
-		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_TEMPLATE_PATHS)) {
-			// propagate to template registry
-			update_template_paths();
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX)) {
 			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
 					(Boolean)event.getNewValue());
-		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES)) {
-			update_global_parameters();
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS)) {
 			update_parser_prefs();
 		}

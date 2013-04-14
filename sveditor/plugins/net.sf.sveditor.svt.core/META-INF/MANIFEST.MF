@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SVEditor Template Core Plug-in
+Bundle-SymbolicName: net.sf.sveditor.svt.core
+Bundle-Version: 1.2.3
+Bundle-Activator: net.sf.sveditor.svt.core.SvtCorePlugin
+Require-Bundle: org.eclipse.core.runtime,
+ net.sf.sveditor.core,
+ org.eclipse.core.resources
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: net.sf.sveditor.core.templates,
+ net.sf.sveditor.core.text,
+ net.sf.sveditor.svt.core

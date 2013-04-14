@@ -17,8 +17,8 @@ import java.util.Map;
 
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.parser.SVParserConfig;
-import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
 import net.sf.sveditor.ui.SVUiPlugin;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -29,6 +29,14 @@ import org.eclipse.swt.graphics.RGB;
  * Class used to initialize default preference values.
  */
 public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
+	public static final String				FILE_HEADER = "file_header";
+	public static final String				FILE_HEADER_DFLT =
+			"/****************************************************************************\n" +
+			" * ${filename}\n" +
+			" ****************************************************************************/\n";
+
+	public static final String				FILE_FOOTER = "file_footer";
+	public static final String				FILE_FOOTER_DFLT = "";	
 
 	/*
 	 * (non-Javadoc)
@@ -85,9 +93,10 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		 * Initialize template parameters
 		 */
 		{
+			// TODO: this isn't exactly the way we want this partitioned
 			Map<String, String> p = new HashMap<String, String>();
-			p.put("file_header", DefaultTemplateParameterProvider.FILE_HEADER_DFLT);
-			p.put("file_footer", DefaultTemplateParameterProvider.FILE_FOOTER_DFLT);
+			p.put("file_header", FILE_HEADER_DFLT);
+			p.put("file_footer", FILE_FOOTER_DFLT);
 			try {
 				store.setDefault(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES,
 						XMLTransformUtils.map2Xml(p, "parameters", "parameter"));

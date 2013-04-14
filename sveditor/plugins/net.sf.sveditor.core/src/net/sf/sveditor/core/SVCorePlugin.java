@@ -53,7 +53,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.scanner.IDefineProvider;
-import net.sf.sveditor.core.templates.TemplateRegistry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -95,7 +94,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private static IJobMgr					fJobMgr;
 	private int								fNumIndexCacheThreads = 0;
 	private int								fMaxIndexThreads = 0;
-	private TemplateRegistry				fTemplateRgy;
 	private static boolean					fEnableAsyncCacheClear;
 	private static boolean					fTestMode = false;
 	private SVParserConfig					fParserConfig;
@@ -228,12 +226,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fJobMgr;
 	}
 	
-	public TemplateRegistry getTemplateRgy() {
-		if (fTemplateRgy == null) {
-			fTemplateRgy = new TemplateRegistry(true);
-		}
-		return fTemplateRgy;
-	}
+
 
 	/*
 	 * (non-Javadoc)
