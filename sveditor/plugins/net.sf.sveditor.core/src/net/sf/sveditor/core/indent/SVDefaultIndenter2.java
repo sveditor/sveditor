@@ -243,7 +243,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		tok = next_s();
 		
 		if (tok.isOp("(")) {
-			tok = consume_expression();
+			tok = consume_expression(false);
 		} else {
 			//System.out.println("[ERROR] unsure what happened - tok=" + 
 		    // tok.getImage());
@@ -348,7 +348,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (!tok.isId("do") && !tok.isId("forever")) {
 			tok = next_s();
 			if (tok.isOp("(")) {
-				tok = consume_expression();
+				tok = consume_expression(false);
 			} else {
 				return tok;
 			}
@@ -982,7 +982,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_constraint_if(false);
 		} else if (tok.isOp("(")) {
 			// very likely an implication statement
-			tok = consume_expression();
+			tok = consume_expression(false);
 			
 			// (expr) -> [stmt | stmt_block]
 			if (tok.isOp("->") || tok.isOp("->>")) {
@@ -1032,7 +1032,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		tok = next_s();
 		if (tok.isOp("(")) {
-			tok = consume_expression();
+			tok = consume_expression(false);
 		} else {
 			// Doesn't seem right for an if
 			return tok;
@@ -1078,7 +1078,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isOp("@"))  {
 			// swallow the expression (...) or @*
 			tok = next_s();
-			tok=consume_expression();
+			tok=consume_expression(false);
 		}
 		// By this point we should have reached a begin or statement
 		return (indent_block_or_statement(null, false));
@@ -1305,28 +1305,51 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		return tok;
 	}
-	
 	/**
-	 * Loops till number of open braces "(" == number of close braces ")"
-	 *  Can be used to consume (i=0; i<10; i++) etc
+	 * @param prev_op_is_brace - Used for nested, multi-line expressions.  Will add indent if preceded by a brace
+	 * Example:
+	 * if (			
+	 *       (a == 1) || // indent this because opening brace was preceded by brace
+	 *       (b == 0)    // Don't indent, this wasn't preceded by brace
+	 * )
+	 * 
 	 * @return
 	 */
-	private SVIndentToken consume_expression() {
+	private SVIndentToken consume_expression(boolean prev_op_is_brace) {
 		SVIndentToken tok = current();
-		int n_lbrace=0, n_rbrace=0;
-		
+		boolean is_indent = false;
 		do {
+			// If we have an open brace, check if we need to indent, and call this function again to evaluate the expression
 			if (tok.isOp("(")) {
-				n_lbrace++;
-			} else if (tok.isOp(")")) {
-				n_rbrace++;
+				// braces on a new line get indented
+				if (tok.isStartLine() && prev_op_is_brace)  {
+					is_indent = true;
+					start_of_scope(tok);
+					enter_scope(tok);
+				}
+				tok = next_s();
+				// recursively call this function, checking for nested braces
+				tok = consume_expression(true);
+				// If we come back (will be on a brace, and we had just indented, 
+				if (is_indent) {
+					leave_scope(tok);
+				}
 			}
-			tok = next_s();
-		} while (n_lbrace != n_rbrace);
+			// Need this term to skip over the "next_s() below in case we have a function call in the 
+			// expression if (a())  begin end
+			else if (tok.isOp(")")) {
+			}
+			else  {
+				tok = next_s();
+			}
+		} while (!tok.isOp(")") && prev_op_is_brace);
+		if (tok.isOp(")"))
+		tok = next_s();
 		
 		return tok;
 	}
 	
+
 	private boolean isAdaptiveTraining(SVIndentToken tok) {
 		return (fAdaptiveIndentEnd != -1 && tok.getLineno() <= fAdaptiveIndentEnd);
 	}

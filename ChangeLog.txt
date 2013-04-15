@@ -1,3 +1,4 @@
+
 -- 1.2.3 Release --
 
 - #(64) Indenter import `include / import statements not lined up
@@ -22,6 +23,14 @@
 
 - #(nobug) Indenter update.  Modified multi-line statements indent, so that lines  
   after first line are indented.
+  
+- #(nobug) Indenter update.  Modified multi-line statements indent, so that lines  
+  after first line are indented.
+  
+- #(nobug) Indenter update.  Make multi-line if statements indent more like 
+  java (which also has problems).  Still a bit of an issue to sort out here, 
+  typing doesn't behave the same as when you have the indenter re-format your 
+  code.  Need to figure that out.
 
 ------------------------------------------------------------------------------
 -- 1.2.2 Release --
