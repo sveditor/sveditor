@@ -1154,9 +1154,13 @@ public void testIndentConstraint() throws BadLocationException {
 	
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 	tester.type(input);
-	String result = tester.getContent();
+	String result_type = tester.getContent();
 	
-	IndentComparator.compare("testIndentConstraint", expected, result);
+	IndentComparator.compare("testIndentConstraint - type", expected, result_type);
+	tester.paste(input);
+	String result_paste = tester.getContent();
+	
+	IndentComparator.compare("testIndentConstraint - paste", expected, result_paste);
 }
 
 //This test checks assign statements, these can run onto multiple lines
