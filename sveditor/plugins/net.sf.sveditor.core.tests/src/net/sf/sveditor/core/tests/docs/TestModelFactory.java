@@ -129,8 +129,7 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
 
-		ISVDBIndex index = 
-				rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 						listFile.toString(),
 						SVDBArgFileIndexFactory.TYPE, null);
 		

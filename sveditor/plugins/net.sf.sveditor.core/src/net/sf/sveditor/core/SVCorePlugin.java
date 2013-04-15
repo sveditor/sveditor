@@ -442,6 +442,28 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	}
 	 */
 	
+	public ISVDBIndexCache findIndexCache(String project_name,
+			String base_location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Cache factory method
+	 */
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Cache manager method
+	 */
+	public void sync() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
 		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");

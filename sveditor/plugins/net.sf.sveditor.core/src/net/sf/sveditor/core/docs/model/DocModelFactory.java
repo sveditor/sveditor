@@ -78,7 +78,7 @@ public class DocModelFactory {
 			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
-			fLog.error("Document model build failed: " + e.toString()) ;
+			fLog.error("Document model build failed: " + e.toString(), e);
 		}
 		return model ;
 	}
@@ -305,6 +305,10 @@ public class DocModelFactory {
 			SVDBDeclCacheItem classDeclCacheItem) {
 		
 		SVDBClassDecl svdbClassDecl = (SVDBClassDecl)classDeclCacheItem.getSVDBItem() ;
+		if (svdbClassDecl == null) {
+			fLog.error("DocModelFactory Failed to obtain cache handle for " + 
+					classDeclCacheItem.getName());
+		}
 		for(ISVDBChildItem ci: svdbClassDecl.getChildren()) {
 			if(ci.getType() == SVDBItemType.Task) {
 				SVDBTask svdbTask = (SVDBTask)ci ;
