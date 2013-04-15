@@ -1,4 +1,7 @@
 
+-- 1.2.4 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.3 Release --
 
 - #(64) Indenter import `include / import statements not lined up
