@@ -56,12 +56,13 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 	}
 
 	public void testArgFileChange() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		int_testArgFileChange(fTmpDir);
 	}
 	
 	private void int_testArgFileChange(File tmpdir) {
+		System.out.println("Begin int_testArgFileChange");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		fProject = TestUtils.createProject("project");
@@ -81,7 +82,8 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		
 		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
 				"class1", SVDBFindDefaultNameMatcher.getDefault());
-		
+
+		assertEquals("Expected 1 result for find class1", 1, result.size());
 		if (result.size() > 0) {
 			class1_it = result.get(0).getSVDBItem();
 		}

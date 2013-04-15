@@ -133,11 +133,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public long getLastModified(String path) {
-		SVDBFileIndexCacheEntry entry = null;
-		
-		synchronized (fCache) {
-			entry = fCache.get(path);
-		}
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, -1, false);
 		
 		if (entry != null) {
 			return entry.getLastModified();

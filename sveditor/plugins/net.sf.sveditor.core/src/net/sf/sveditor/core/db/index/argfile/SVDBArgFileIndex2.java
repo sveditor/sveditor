@@ -1675,14 +1675,16 @@ public class SVDBArgFileIndex2 implements
 					SVDBItemType.Task, SVDBItemType.ClassDecl,
 					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl,
 					SVDBItemType.ProgramDecl)) {
-				fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
-						+ ((ISVDBNamedItem) item).getName() + " to cache");
 				if (decl_list != null) {
+					fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
+							+ ((ISVDBNamedItem) item).getName() + " to cache");
 					decl_list.add(new SVDBDeclCacheItem(this, curr_filename,
 							((ISVDBNamedItem) item).getName(), item.getType(),
 							false));
 				}
 				if (pkg_decl_list != null) {
+					fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
+							+ ((ISVDBNamedItem) item).getName() + " to pkg_decl cache");
 					pkg_decl_list.add(new SVDBDeclCacheItem(this, curr_filename,
 							((ISVDBNamedItem) item).getName(), item.getType(),
 							false));
@@ -1795,11 +1797,14 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
-			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
+			IProgressMonitor 		monitor, 
+			String 					name, 
+			ISVDBFindNameMatcher 	matcher) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		ensureIndexUpToDate(monitor);
+		
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = 
 				fBuildData.fIndexCacheData.getDeclCacheMap();
-		ensureIndexUpToDate(monitor);
 
 		for (Entry<String, List<SVDBDeclCacheItem>> e : decl_cache.entrySet()) {
 			for (SVDBDeclCacheItem item : e.getValue()) {
@@ -2177,7 +2182,6 @@ public class SVDBArgFileIndex2 implements
 		end = System.currentTimeMillis();
 //		System.out.println("CacheDecl " + path + " " + (end-start));
 		
-	
 		start = System.currentTimeMillis();
 		build_data.fCache.setFile(path, file, false);
 		build_data.fCache.setFileTree(path, ft, false);
