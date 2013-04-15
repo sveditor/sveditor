@@ -363,7 +363,6 @@ public class SVCorePlugin extends Plugin
 		}
 	}
 	
-	@Override
 	public ISVDBIndexCache findIndexCache(String project_name,
 			String base_location) {
 		// TODO Auto-generated method stub
@@ -373,7 +372,6 @@ public class SVCorePlugin extends Plugin
 	/**
 	 * Cache factory method
 	 */
-	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
 		
@@ -382,7 +380,6 @@ public class SVCorePlugin extends Plugin
 	/**
 	 * Cache manager method
 	 */
-	@Override
 	public void sync() {
 		// TODO Auto-generated method stub
 		

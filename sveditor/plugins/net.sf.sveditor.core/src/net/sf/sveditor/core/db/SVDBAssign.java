@@ -43,7 +43,6 @@ public class SVDBAssign extends SVDBStmt implements ISVDBAddChildItem {
 	}
 	 */
 	
-	@Override
 	public void addChildItem(ISVDBChildItem item) {
 		item.setParent(this);
 		fAssignList.add((SVDBAssignItem)item);
