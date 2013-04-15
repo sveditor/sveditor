@@ -236,6 +236,22 @@ public class SVDBIndexUtil {
 			exp_path = exp_path.substring("${workspace_loc}".length());
 		}
 		
+		/*
+		 * Hackish support for project relative paths.
+		 *   There's quite a bit of special processing throughout
+		 *   the plugin for worspace_loc used in paths
+		 *   with no similar processing for project_loc. Rather than
+		 *   further complicating all the worspace_loc processing it
+		 *   was decided to piggyback on it by converting the 
+		 *   project_loc into a workspace_loc.
+		 * 
+		 */
+		boolean project_prefix = path.startsWith("${project_loc}");
+		if (project_prefix) {
+			exp_path = projectname + exp_path.substring("${project_loc}".length());
+			workspace_prefix = true;
+		}
+		
 		IWorkspace workspace = null;
 		try {
 			workspace = ResourcesPlugin.getWorkspace();
@@ -386,7 +402,6 @@ public class SVDBIndexUtil {
 				exp_path = file.getFullPath().toOSString();
 			}
 		}
-		
 		
 		if (workspace_prefix) {
 			exp_path = "${workspace_loc}" + exp_path;

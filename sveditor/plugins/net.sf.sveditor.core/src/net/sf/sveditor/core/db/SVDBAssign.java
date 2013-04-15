@@ -12,19 +12,28 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
-public class SVDBAssign extends SVDBStmt {
+public class SVDBAssign extends SVDBStmt implements ISVDBAddChildItem {
 	
-	public SVDBExpr				fLHS;
-	public SVDBExpr				fDelay;
-	public SVDBExpr				fRHS;
+	public SVDBExpr					fDelay;
+	public List<SVDBAssignItem>		fAssignList;
+
 	
 	public SVDBAssign() {
 		super(SVDBItemType.Assign);
+		fAssignList = new ArrayList<SVDBAssignItem>();
 	}
 	
+	public List<SVDBAssignItem> getAssignList() {
+		return fAssignList;
+	}
+	
+	/*
 	public void setLHS(SVDBExpr lhs) {
 		fLHS = lhs;
 	}
@@ -32,7 +41,13 @@ public class SVDBAssign extends SVDBStmt {
 	public SVDBExpr getLHS() {
 		return fLHS;
 	}
+	 */
 	
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fAssignList.add((SVDBAssignItem)item);
+	}
+
 	public void setDelay(SVDBExpr delay) {
 		fDelay = delay;
 	}
@@ -40,7 +55,8 @@ public class SVDBAssign extends SVDBStmt {
 	public SVDBExpr getDelay() {
 		return fDelay;
 	}
-	
+
+	/*
 	public void setRHS(SVDBExpr rhs) {
 		fRHS = rhs;
 	}
@@ -48,27 +64,9 @@ public class SVDBAssign extends SVDBStmt {
 	public SVDBExpr getRHS() {
 		return fRHS;
 	}
+	 */
 	
 	public SVDBAssign duplicate() {
 		return (SVDBAssign)SVDBItemUtils.duplicate(this);
-	}
-	
-	public void init(SVDBItemBase other) {
-		super.init(other);
-		
-		SVDBAssign o = (SVDBAssign)other;
-		
-		if (o.fDelay == null) {
-			fDelay = null;
-		} else {
-			fDelay = o.fDelay.duplicate();
-		}
-		
-	}
-	
-	public boolean equals(Object other) {
-		boolean ret = super.equals(other);
-		
-		return ret;
 	}
 }

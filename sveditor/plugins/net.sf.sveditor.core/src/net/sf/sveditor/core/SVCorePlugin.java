@@ -34,7 +34,7 @@ import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheFactory;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
@@ -76,7 +76,7 @@ import org.osgi.framework.Version;
  * The activator class controls the plug-in life cycle
  */
 public class SVCorePlugin extends Plugin 
-	implements ILogListener, ISVDBIndexCacheFactory {
+	implements ILogListener, ISVDBIndexCacheMgr {
 	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
@@ -317,6 +317,7 @@ public class SVCorePlugin extends Plugin
 	public SVDBIndexRegistry getSVDBIndexRegistry() {
 		if (fIndexRegistry == null) {
 			fIndexRegistry = new SVDBIndexRegistry();
+			// TODO: IndexCache
 			fIndexRegistry.init(this);
 		}
 		
@@ -362,6 +363,28 @@ public class SVCorePlugin extends Plugin
 		}
 	}
 	
+	public ISVDBIndexCache findIndexCache(String project_name,
+			String base_location) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Cache factory method
+	 */
+	public void dispose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * Cache manager method
+	 */
+	public void sync() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
 		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");

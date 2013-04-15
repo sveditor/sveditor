@@ -270,7 +270,7 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
-	
+
 	public void testAssignSystemTask() {
 		String doc =
 			"module t2;\n" +
@@ -1597,6 +1597,23 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("testAssignStrength", doc, new String[] {"t"});
+	}
+	
+	public void testAssignList() {
+		String doc = 
+			"module t;\n" +
+			"	logic a, b, c, d, e, f;\n" +
+			"	assign a = b,\n" +
+			"	       c = d,\n" +
+			"	       e = f;\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, "testAssignList");
+
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
 	
 	public void testTimeUnitPrecision() {
