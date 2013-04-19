@@ -1,4 +1,7 @@
 
+-- 1.2.5 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.4 Release --
 
 - #(254) - Correct issue with spell-checker when SVEditor is installed in an
