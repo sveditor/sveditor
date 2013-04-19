@@ -17,11 +17,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
-import java.util.Map.Entry;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.XMLTransformUtils;
@@ -37,6 +37,7 @@ import net.sf.sveditor.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -48,6 +49,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -149,6 +151,17 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public static IWorkbenchPage getActivePage() {
 		return null;
 //		return getDefault().getActivePage() ;
+	}
+	
+	public static Shell getActiveWorkbenchShell() {
+		return getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
+	}
+	
+	public static void log(Exception e) {
+		e.printStackTrace();
+	}
+	
+	public static void log(IStatus e) {
 	}
 	
 	private void update_template_paths() {

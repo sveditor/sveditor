@@ -13,12 +13,16 @@
 package net.sf.sveditor.ui.pref;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.text.spelling.PreferenceConstants;
+import net.sf.sveditor.ui.text.spelling.SpellCheckEngine;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -106,6 +110,37 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 				String val = XMLTransformUtils.map2Xml(map, "preferences", "preference");
 				store.setDefault(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS, val);
 			} catch (Exception e) {}
+		}
+		
+		/**
+		 * Initialize spelling preferences
+		 */
+		{
+			store.setDefault(PreferenceConstants.SPELLING_LOCALE, "en_US"); //$NON-NLS-1$
+			String isInitializedKey= "spelling_locale_initialized"; //$NON-NLS-1$
+			if (!store.getBoolean(isInitializedKey)) {
+				store.setValue(isInitializedKey, true);
+				Locale locale= SpellCheckEngine.getDefaultLocale();
+				locale= SpellCheckEngine.findClosestLocale(locale);
+				if (locale != null)
+					store.setValue(PreferenceConstants.SPELLING_LOCALE, locale.toString());
+			}
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_DIGITS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_MIXED, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_SENTENCE, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_UPPER, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_URLS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_SINGLE_LETTERS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_AMPERSAND_IN_PROPERTIES, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_NON_LETTERS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_JAVA_STRINGS, true);
+			store.setDefault(PreferenceConstants.SPELLING_USER_DICTIONARY, ""); //$NON-NLS-1$
+
+			// Note: For backwards compatibility we must use the property and not the workspace default
+			store.setDefault(PreferenceConstants.SPELLING_USER_DICTIONARY_ENCODING, System.getProperty("file.encoding")); //$NON-NLS-1$
+
+			store.setDefault(PreferenceConstants.SPELLING_PROPOSAL_THRESHOLD, 20);
+			store.setDefault(PreferenceConstants.SPELLING_PROBLEMS_THRESHOLD, 100);			
 		}
 	}
 

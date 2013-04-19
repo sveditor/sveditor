@@ -12,23 +12,27 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
+import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
+import org.eclipse.ui.texteditor.spelling.SpellingProblem;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
+	private List<SpellingProblem>			fProblems = new ArrayList<SpellingProblem>();
 	
 	public SVSpellingReconcileStrategy(
 			ISourceViewer 		viewer, 
 			SpellingService 	spelling_service) {
 		super(viewer, spelling_service);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void reconcile(IRegion region) {
-		List<Annotation> ann_list_total = new ArrayList<Annotation>();
-		List<Position> 	 pos_list_total = new ArrayList<Position>();
 		IAnnotationModel model = getAnnotationModel();
+		
+		fProblems.clear();
 		
 		ITypedRegion regions[] = null;
 		
@@ -37,36 +41,63 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 					getDocument(), SVDocumentPartitions.SV_PARTITIONING,
 					region.getOffset(), region.getLength(), false);
 		} catch (BadLocationException e) {}
-		
 	
 		for (ITypedRegion r : regions) {
 			if (SVDocumentPartitions.SV_MULTILINE_COMMENT.equals(r.getType()) ||
 					SVDocumentPartitions.SV_SINGLELINE_COMMENT.equals(r.getType())) {
 				super.reconcile(r);
+				/*
 				Iterator<Annotation> it = model.getAnnotationIterator();
 				while (it.hasNext()) {
 					Annotation ann = (Annotation)it.next();
+					System.out.println("  Add annotation: " + ann);
 					ann_list_total.add(ann);
 					pos_list_total.add(model.getPosition(ann));
 				}
+				 */
 			}
 		}
-		
+	
+		// Remove any annotations inside the regions
 		Iterator<Annotation> it = model.getAnnotationIterator();
 		while (it.hasNext()) {
 			Annotation ann = (Annotation)it.next();
-			int idx = ann_list_total.indexOf(ann);
-			if (idx != -1) {
-				ann_list_total.remove(idx);
-				pos_list_total.remove(idx);
+			Position pos = model.getPosition(ann);
+
+			boolean in_region = false;
+			for (ITypedRegion r : regions) {
+				if (pos.getOffset() >= r.getOffset() &&
+						pos.getOffset() < r.getOffset()+r.getLength()) {
+					in_region = true;
+					break;
+				}
+			}
+			
+			if (in_region) {
+				model.removeAnnotation(ann);
 			}
 		}
-
-		for (int i=0; i<ann_list_total.size(); i++) {
-			Annotation ann = ann_list_total.get(i);
-			Position pos = pos_list_total.get(i);
-			model.addAnnotation(ann, pos);
+		
+		// Now, place the new annotations
+		for (SpellingProblem problem : fProblems) {
+			Annotation ann = new SpellingAnnotation(problem);
+			model.addAnnotation(ann, new Position(problem.getOffset(), problem.getLength()));
 		}
 	}
+	
+	@Override
+	protected ISpellingProblemCollector createSpellingProblemCollector() {
+		return fSpellingProblemCollector;
+	}
 
+	private ISpellingProblemCollector			fSpellingProblemCollector = new ISpellingProblemCollector() {
+		
+		public void endCollecting() { }
+		
+		public void beginCollecting() { }
+		
+		public void accept(SpellingProblem problem) {
+			fProblems.add(problem);
+		}
+	};
 }
