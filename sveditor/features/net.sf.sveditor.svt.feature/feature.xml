@@ -16,4 +16,8 @@
       [Enter License Description here.]
    </license>
 
+   <includes
+         id="net.sf.sveditor.core.feature"
+         version="0.0.0"/>
+
 </feature>
