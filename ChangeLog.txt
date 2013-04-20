@@ -1,6 +1,9 @@
 
 -- 1.2.5 Release --
 
+- #(enh) - Update SV editor to display a decorated icon for files that are
+  part of an index. 
+
 ------------------------------------------------------------------------------
 -- 1.2.4 Release --
 
