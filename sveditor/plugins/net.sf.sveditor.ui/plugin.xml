@@ -1104,5 +1104,14 @@ endclass
             targetId="net.sf.sveditor.ui.svCode">
       </hyperlinkDetector>
    </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.spellingEngine">
+      <engine
+            class="net.sf.sveditor.ui.text.spelling.DefaultSpellingEngine"
+            default="true"
+            id="net.sf.sveditor.ui.svSpellingEngine"
+            label="SystemVerilog Engine">
+      </engine>
+   </extension>
 
 </plugin>

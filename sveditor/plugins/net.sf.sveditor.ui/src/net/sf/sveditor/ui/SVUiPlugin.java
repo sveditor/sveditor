@@ -31,6 +31,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -42,6 +43,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -134,7 +136,16 @@ public class SVUiPlugin extends AbstractUIPlugin
 //		return getDefault().getActivePage() ;
 	}
 	
-
+	public static Shell getActiveWorkbenchShell() {
+		return getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
+	}
+	
+	public static void log(Exception e) {
+		e.printStackTrace();
+	}
+	
+	public static void log(IStatus e) {
+	}
 	
 	private void update_parser_prefs() {
 		try {

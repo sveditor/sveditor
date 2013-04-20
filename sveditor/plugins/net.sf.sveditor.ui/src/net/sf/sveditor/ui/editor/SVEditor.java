@@ -34,7 +34,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
@@ -95,6 +94,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -104,7 +104,6 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AddTaskAction;
@@ -134,8 +133,8 @@ public class SVEditor extends TextEditor
 	private UpdateProjectSettingsJob		fProjectSettingsJob;
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
-	private boolean						fPendingUpdateSVDBFile;
-	private boolean						fOccurrenceHighlightDebounceActive;
+	private boolean							fPendingUpdateSVDBFile;
+	private boolean							fOccurrenceHighlightDebounceActive;
 	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
@@ -354,16 +353,25 @@ public class SVEditor extends TextEditor
 			
 			public void run() {
 				String msg = "";
+				boolean is_indexed = false;
 				if (index != null) {
 					if (index.getTypeID().equals(SVDBShadowIndexFactory.TYPE)) {
 						msg = "Index: None";
 					} else {
 						msg = "Index: " + index.getBaseLocation();
+						is_indexed = true;
 					}
 				} else {
 					msg = "Index: Problem locating";
 				}
 				ac.getActionBars().getStatusLineManager().setMessage(msg);
+				Image icon = null;
+				if (is_indexed) {
+					icon = SVUiPlugin.getImage("/icons/vlog_16_16_indexed.gif");
+				} else {
+					icon = SVUiPlugin.getImage("/icons/vlog_16_16.gif");
+				}
+				setTitleImage(icon);
 			}
 		});
 		
