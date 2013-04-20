@@ -1,6 +1,6 @@
 package net.sf.sveditor.ui.wizards.templates;
 
-import net.sf.sveditor.core.templates.TemplateCategory;
+import net.sf.sveditor.svt.core.templates.TemplateCategory;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;

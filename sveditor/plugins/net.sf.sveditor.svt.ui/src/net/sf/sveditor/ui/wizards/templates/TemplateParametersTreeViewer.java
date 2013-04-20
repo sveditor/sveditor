@@ -3,13 +3,13 @@ package net.sf.sveditor.ui.wizards.templates;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateParameter;
-import net.sf.sveditor.core.templates.TemplateParameterBase;
-import net.sf.sveditor.core.templates.TemplateParameterComposite;
-import net.sf.sveditor.core.templates.TemplateParameterGroup;
-import net.sf.sveditor.core.templates.TemplateParameterSet;
-import net.sf.sveditor.core.templates.TemplateParameterType;
+import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.TemplateParameter;
+import net.sf.sveditor.svt.core.templates.TemplateParameterBase;
+import net.sf.sveditor.svt.core.templates.TemplateParameterComposite;
+import net.sf.sveditor.svt.core.templates.TemplateParameterGroup;
+import net.sf.sveditor.svt.core.templates.TemplateParameterSet;
+import net.sf.sveditor.svt.core.templates.TemplateParameterType;
 import net.sf.sveditor.svt.ui.SvtUiPlugin;
 
 import org.eclipse.jface.viewers.CellEditor;
@@ -70,7 +70,6 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 		fTextCellEditor = new TextCellEditor(getTree());
 		fIntCellEditor = new TextCellEditor(getTree());
 		fIntCellEditor.setValidator(new ICellEditorValidator() {
-			
 			public String isValid(Object value) {
 				// TODO: validate value
 				return null;

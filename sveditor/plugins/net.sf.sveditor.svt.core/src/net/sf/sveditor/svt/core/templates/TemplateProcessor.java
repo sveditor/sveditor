@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,7 +31,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
-import net.sf.sveditor.core.text.TagProcessor;
+import net.sf.sveditor.svt.core.text.TagProcessor;
 
 public class TemplateProcessor {
 	private ITemplateFileCreator			fStreamProvider;

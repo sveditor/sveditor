@@ -19,12 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
-import net.sf.sveditor.core.templates.DynamicTemplateParameterProvider;
-import net.sf.sveditor.core.templates.ITemplateFileCreator;
-import net.sf.sveditor.core.templates.TemplateProcessor;
-import net.sf.sveditor.core.text.TagProcessor;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
+import net.sf.sveditor.svt.core.templates.DefaultTemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.DynamicTemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.ITemplateFileCreator;
+import net.sf.sveditor.svt.core.templates.TemplateProcessor;
+import net.sf.sveditor.svt.core.text.TagProcessor;
 import net.sf.sveditor.svt.ui.SvtUiPlugin;
 import net.sf.sveditor.ui.SVUiPlugin;
 

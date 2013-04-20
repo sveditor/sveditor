@@ -1,6 +1,6 @@
 package net.sf.sveditor.svt.core;
 
-import net.sf.sveditor.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;

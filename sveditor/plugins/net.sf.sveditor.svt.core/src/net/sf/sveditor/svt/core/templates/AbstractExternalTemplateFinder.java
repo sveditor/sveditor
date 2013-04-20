@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import java.io.File;
 import java.io.InputStream;

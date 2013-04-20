@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import java.io.IOException;
 import java.io.InputStream;

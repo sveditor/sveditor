@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;

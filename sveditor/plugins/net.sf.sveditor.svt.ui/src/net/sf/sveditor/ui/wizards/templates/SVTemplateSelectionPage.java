@@ -13,10 +13,10 @@
 package net.sf.sveditor.ui.wizards.templates;
 
 
-import net.sf.sveditor.core.templates.TemplateCategory;
-import net.sf.sveditor.core.templates.TemplateInfo;
-import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
+import net.sf.sveditor.svt.core.templates.TemplateCategory;
+import net.sf.sveditor.svt.core.templates.TemplateInfo;
+import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.doc.NDText;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;

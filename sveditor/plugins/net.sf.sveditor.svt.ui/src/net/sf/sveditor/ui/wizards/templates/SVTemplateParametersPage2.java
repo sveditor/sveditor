@@ -1,8 +1,8 @@
 package net.sf.sveditor.ui.wizards.templates;
 
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateParameterBase;
-import net.sf.sveditor.core.templates.TemplateParameterSet;
+import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.TemplateParameterBase;
+import net.sf.sveditor.svt.core.templates.TemplateParameterSet;
 import net.sf.sveditor.ui.doc.NDText;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;

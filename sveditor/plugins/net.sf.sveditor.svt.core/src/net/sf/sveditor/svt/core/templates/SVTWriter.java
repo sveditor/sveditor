@@ -1,6 +1,7 @@
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -37,15 +38,14 @@ public class SVTWriter {
 		fDocument.appendChild(fRootElem);
 	}
 	
-	public String toString() {
+	public void toStream(OutputStream out) {
 		SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		try {
 			
 			DOMSource ds = new DOMSource(fDocument);
 			StreamResult sr = new StreamResult(out);
-			tf.setAttribute("indent-number", new Integer(2));
+			tf.setAttribute("indent-number", new Integer(4));
 			TransformerHandler th = tf.newTransformerHandler();
 			
 			Properties format = new Properties();
@@ -61,7 +61,13 @@ public class SVTWriter {
 			th.getTransformer().transform(ds, sr);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}		
+	}
+	
+	public String toString() {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		toStream(out);
 		
 		return out.toString();
 	}
@@ -101,6 +107,7 @@ public class SVTWriter {
 		for (TemplateParameterBase p : template.getParameters().getParameters()) {
 			writeParameter(parameters_e, p);
 		}
+		template_e.appendChild(parameters_e);
 		
 		fRootElem.appendChild(template_e);
 	}
@@ -187,6 +194,8 @@ public class SVTWriter {
 				p.getType() == TemplateParameterType.ParameterType_Int) {
 			// Basic parameter
 			TemplateParameter pp = (TemplateParameter)p;
+			setAttrIfNotNull(parameter_e, "default", pp.getDefault());
+			
 			if (pp.getValues().size() > 0) {
 				StringBuilder restrictions = new StringBuilder();
 				for (int i=0; i<pp.getValues().size(); i++) {
@@ -207,6 +216,8 @@ public class SVTWriter {
 				writeParameter(parameter_e, tp);
 			}
 		}
+		
+		parameters_e.appendChild(parameter_e);
 	}
 	
 	private static void setAttrIfNotNull(Element e, String attr, String val) {

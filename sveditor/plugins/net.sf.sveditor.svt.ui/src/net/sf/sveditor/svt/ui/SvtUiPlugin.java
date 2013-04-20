@@ -9,12 +9,14 @@ import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.XMLTransformUtils;
-import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
+import net.sf.sveditor.svt.core.templates.IExternalTemplatePathProvider;
+import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.graphics.Image;
@@ -60,14 +62,16 @@ public class SvtUiPlugin extends AbstractUIPlugin
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		
+		IPreferenceStore pstore = SVUiPlugin.getDefault().getPreferenceStore();
 
 		if (!SVCorePlugin.getTestMode()) {
-			getPreferenceStore().addPropertyChangeListener(this);
+			pstore.addPropertyChangeListener(this);
 		}
 		
 		TemplateRegistry rgy = SvtCorePlugin.getDefault().getTemplateRgy();
-		rgy.addPathProvider(this);
 		update_template_paths();
+		rgy.addPathProvider(this);
 		
 		update_global_parameters();		
 	}
@@ -93,7 +97,8 @@ public class SvtUiPlugin extends AbstractUIPlugin
 	}
 
 	private void update_template_paths() {
-		fTemplatePaths = parse_paths(getPreferenceStore().getString(P_SV_TEMPLATE_PATHS));
+		IPreferenceStore pstore = SVUiPlugin.getDefault().getPreferenceStore();
+		fTemplatePaths = parse_paths(pstore.getString(P_SV_TEMPLATE_PATHS));
 	}
 	
 	private static List<String> parse_paths(String stringList) {
@@ -109,10 +114,10 @@ public class SvtUiPlugin extends AbstractUIPlugin
 	
 	private void update_global_parameters() {
 		Map<String, String> params = null;
+		IPreferenceStore pstore = SVUiPlugin.getDefault().getPreferenceStore();
 		
 		try {
-			params = XMLTransformUtils.xml2Map(
-				getPreferenceStore().getString(P_SV_TEMPLATE_PROPERTIES),
+			params = XMLTransformUtils.xml2Map(pstore.getString(P_SV_TEMPLATE_PROPERTIES),
 				"parameters", "parameter");
 		} catch (Exception e) {}
 		

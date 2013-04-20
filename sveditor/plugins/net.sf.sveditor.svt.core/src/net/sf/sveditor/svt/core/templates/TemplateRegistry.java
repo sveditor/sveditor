@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -124,6 +124,7 @@ public class TemplateRegistry implements ILogLevel {
 		
 		if (fPathProviders.size() > 0) {
 			for (IExternalTemplatePathProvider p : fPathProviders) {
+				System.out.println("PathProvider: " + p);
 				for (String path : p.getExternalTemplatePath()) {
 					fLog.debug(LEVEL_MID, "Processing path \"" + path + "\"");
 					if (path.startsWith("${workspace_loc}")) {

@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

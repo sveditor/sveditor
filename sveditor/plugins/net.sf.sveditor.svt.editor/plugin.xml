@@ -12,5 +12,15 @@
             name="SystemVerilog Template Editor">
 		</editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.svt.editor.wizards.NewSVTDescriptorWizard"
+            icon="icons/eview16/generate_template_class.gif"
+            id="net.sf.sveditor.ui.newSVTWizard"
+            name="SystemVerilog Template Descriptor">
+      </wizard>         
+   </extension>
 
 </plugin>

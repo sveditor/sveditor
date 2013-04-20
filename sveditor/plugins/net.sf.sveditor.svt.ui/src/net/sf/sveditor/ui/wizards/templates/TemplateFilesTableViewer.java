@@ -5,9 +5,9 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.templates.TemplateInfo;
-import net.sf.sveditor.core.templates.TemplateParameterProvider;
-import net.sf.sveditor.core.text.TagProcessor;
+import net.sf.sveditor.svt.core.templates.TemplateInfo;
+import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
+import net.sf.sveditor.svt.core.text.TagProcessor;
 import net.sf.sveditor.svt.ui.SvtUiPlugin;
 
 import org.eclipse.core.resources.IContainer;

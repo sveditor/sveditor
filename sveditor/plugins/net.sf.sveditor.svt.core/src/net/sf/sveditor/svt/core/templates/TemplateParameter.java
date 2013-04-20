@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.templates;
+package net.sf.sveditor.svt.core.templates;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,10 @@ public class TemplateParameter extends TemplateParameterBase {
 	
 	public String getDefault() {
 		return fDefault;
+	}
+	
+	public void setDefault(String dflt) {
+		fDefault = dflt;
 	}
 	
 	public String getValue() {

@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.templates.TemplateCategory;
-import net.sf.sveditor.core.templates.TemplateInfo;
-import net.sf.sveditor.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.TemplateCategory;
+import net.sf.sveditor.svt.core.templates.TemplateInfo;
+import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 
 public class TemplateCategoriesNode {
 	

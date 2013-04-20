@@ -16,9 +16,9 @@ package net.sf.sveditor.ui.wizards.templates;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateInfo;
-import net.sf.sveditor.core.templates.TemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.TemplateInfo;
+import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;

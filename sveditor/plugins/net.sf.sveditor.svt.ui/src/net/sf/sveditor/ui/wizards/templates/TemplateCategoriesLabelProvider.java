@@ -1,7 +1,7 @@
 package net.sf.sveditor.ui.wizards.templates;
 
-import net.sf.sveditor.core.templates.TemplateCategory;
-import net.sf.sveditor.core.templates.TemplateInfo;
+import net.sf.sveditor.svt.core.templates.TemplateCategory;
+import net.sf.sveditor.svt.core.templates.TemplateInfo;
 
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;

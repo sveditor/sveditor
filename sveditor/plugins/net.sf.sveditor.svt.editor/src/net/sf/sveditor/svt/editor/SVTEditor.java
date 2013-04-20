@@ -17,7 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.templates.SVTUtils;
+import net.sf.sveditor.svt.core.templates.SVTUtils;
 import net.sf.sveditor.ui.EditorInputUtils;
 
 import org.eclipse.core.runtime.IProgressMonitor;

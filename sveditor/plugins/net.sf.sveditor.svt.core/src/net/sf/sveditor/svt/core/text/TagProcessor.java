@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.text;
+package net.sf.sveditor.svt.core.text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
 
 public class TagProcessor {
 	private List<ITemplateParameterProvider>		fProviders;
