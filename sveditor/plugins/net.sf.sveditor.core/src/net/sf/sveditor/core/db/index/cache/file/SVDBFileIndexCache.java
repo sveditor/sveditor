@@ -1,21 +1,25 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+
+import com.sun.org.apache.bcel.internal.generic.FMUL;
 
 public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private static final int										FILE_ID    = 0;
@@ -41,6 +45,37 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fProjectName = project_name;
 		fBaseLocation = base_location;
 		fCache = new HashMap<String, SVDBFileIndexCacheEntry>();
+	}
+	
+	public void write(SVDBFileSystemDataOutput dos) throws IOException, DBWriteException {
+		dos.writeInt(fCacheId);
+		dos.writeString(fProjectName);
+		dos.writeString(fBaseLocation);
+	
+		// TODO: Must determine the lifetime of cache data
+		/*
+		SVDBPersistenceRW writer = new SVDBPersistenceRW();
+		writer.init(dos);
+		if (fIndexData != null) {
+			writer.writeObject(fIndexData.getClass(), fIndexData);
+		} else {
+			writer.writeObject(Object.class, null);
+		}
+		 */
+	}
+	
+	public static SVDBFileIndexCache read(
+			SVDBFileIndexCacheMgr			mgr,
+			SVDBFileSystemDataInput 		dis) throws IOException {
+		SVDBFileIndexCache ret = null;
+		
+		int cache_id = dis.readInt();
+		String project = dis.readString();
+		String baseloc = dis.readString();
+		
+		ret = new SVDBFileIndexCache(mgr, cache_id, project, baseloc);
+
+		return ret;
 	}
 	
 	public ISVDBIndexCacheMgr getCacheMgr() {
@@ -70,8 +105,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		synchronized (fCache) {
 			entry = fCache.get(path);
 			
+			if (entry == null) {
+				// Try asking the cache manager for the entry
+				entry = fCacheMgr.findCacheEntry(fCacheId, path);
+			}
+			
 			if (entry == null && add) {
-				entry = new SVDBFileIndexCacheEntry(path, type);
+				entry = new SVDBFileIndexCacheEntry(fCacheId, path, type);
 				fCache.put(path, entry);
 				added = true;
 			}

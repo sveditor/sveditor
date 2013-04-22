@@ -17,6 +17,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
@@ -45,7 +46,7 @@ public class TestParseBehavioralStmts extends TestCase {
 		String doc =
 			"module t;\n" +
 			"	initial begin\n" +
-			"       bit continue = 1;\n" +
+			"       reg continue = 1;\n" + // MSB: change from 'bit' continue
 			"       reg thing = 0 ;\n" +
 			"		while (continue) begin\n" +
 			"			thing++ ;\n" +
@@ -55,9 +56,10 @@ public class TestParseBehavioralStmts extends TestCase {
 			"	end\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
-		runTest("testContinueAsVarName", doc, new String[] { "t" });
+		runTest(SVLanguageLevel.Verilog2005, getName(),
+				doc, new String[] { "t" });
 		
 	}
 
@@ -450,13 +452,21 @@ public class TestParseBehavioralStmts extends TestCase {
 
 		runTest(getName(), doc, new String[] {"top"});
 	}
-	
+
 	private void runTest(
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
+		runTest(SVLanguageLevel.SystemVerilog, testname, doc, exp_items);
+		
+	}
+	private void runTest(
+			SVLanguageLevel	language,
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
+		SVDBFile file = SVDBTestUtils.parse(log, language, doc, testname, false);
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);

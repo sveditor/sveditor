@@ -73,7 +73,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 	protected void tearDown() throws Exception {
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 	
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);

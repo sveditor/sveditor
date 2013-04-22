@@ -70,64 +70,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 			initialize();
 			ret = false;
 		} else {
-			RandomAccessFile rw = null;
-			
-			rw = new RandomAccessFile(f, "rw");
-			
-			fFileRWList.add(rw);
-			
-			// Read the root block
-			byte tmp[] = new byte[BLK_SIZE];
-			readBlock("rootFile", 0, tmp);
-			
-			SVDBFileSystemDataInput in = new SVDBFileSystemDataInput();
-			in.addPage(tmp);
-
-			/**
-			 * Root block is:
-			 * - Filesystem version-string length
-			 * - Filesystem version (string)
-			 * - Number of storage files in this filesystem
-			 * - Block length of the last file
-			 * - Handle to the alloc list
-			 * - Alloc list length
-			 * - user data length
-			 * - user data
-			 */
-			String version = in.readString();
-			
-			if (!fVersion.equals(version)) {
-				// Version doesn't match, so re-initialize the filesystem
-				ret = false;
-				cleanup();
-				initialize();
-			} else {
-				int n_files = in.readInt();
-				fLastRwBlkLen  = in.readInt();
-				fAllocListFile = in.readInt();
-				int alloc_list_len = in.readInt();
-				int ud_len = in.readInt();
-
-				if (ud_len == -1) {
-					fUserData = null;
-				} else {
-					fUserData = new byte[ud_len];
-					in.readFully(fUserData);
-				}
-
-				System.out.println("Sync: n_files=" + n_files);
-
-				for (int i=2; i<=n_files; i++) {
-					f = new File(fDBDir, i + ".db");
-					rw = new RandomAccessFile(f, "rw");
-					fFileRWList.add(rw);
-				}
-
-				// Now we can read in the alloc list and initialize the AllocList
-				SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
-				fAllocList = new byte[alloc_list_len];
-				alloc_in.readFully(fAllocList);
-			}
+			// Filesystem storage exists. See if we can open it
+			ret = open_filesystem(f);
 		}
 	
 		return ret;
@@ -154,6 +98,68 @@ public class SVDBFileSystem implements ILogLevelListener {
 		fLastRwBlkLen = 0;
 	}
 	
+	private boolean open_filesystem(File f) throws IOException {
+		boolean ret = true;
+		RandomAccessFile rw = null;
+		
+		rw = new RandomAccessFile(f, "rw");
+		
+		fFileRWList.add(rw);
+		
+		// Read the root block
+		byte tmp[] = new byte[BLK_SIZE];
+		readBlock("rootFile", 0, tmp);
+		
+		SVDBFileSystemDataInput in = new SVDBFileSystemDataInput();
+		in.addPage(tmp);
+
+		/**
+		 * Root block is:
+		 * - Filesystem version-string length
+		 * - Filesystem version (string)
+		 * - Number of storage files in this filesystem
+		 * - Block length of the last file
+		 * - Handle to the alloc list
+		 * - Alloc list length
+		 * - user data length
+		 * - user data
+		 */
+		String version = in.readString();
+		
+		if (!fVersion.equals(version)) {
+			// Version doesn't match, so re-initialize the filesystem
+			ret = false;
+			cleanup();
+			initialize();
+		} else {
+			int n_files = in.readInt();
+			fLastRwBlkLen  = in.readInt();
+			fAllocListFile = in.readInt();
+			int alloc_list_len = in.readInt();
+			int ud_len = in.readInt();
+			
+			if (ud_len == -1) {
+				fUserData = null;
+			} else {
+				fUserData = new byte[ud_len];
+				in.readFully(fUserData);
+			}
+
+			for (int i=2; i<=n_files; i++) {
+				f = new File(fDBDir, i + ".db");
+				rw = new RandomAccessFile(f, "rw");
+				fFileRWList.add(rw);
+			}
+
+			// Now we can read in the alloc list and initialize the AllocList
+			SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
+			fAllocList = new byte[alloc_list_len];
+			alloc_in.readFully(fAllocList);
+		}
+		
+		return ret;
+	}
+	
 	private void cleanup() {
 		fFileRWList.clear();
 		
@@ -169,8 +175,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	}
 	
-	public DataInput getUserData() {
-		if (fUserData != null) {
+	public SVDBFileSystemDataInput getUserData() {
+		if (fUserData == null) {
 			return null;
 		} else {
 			SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
@@ -183,10 +189,12 @@ public class SVDBFileSystem implements ILogLevelListener {
 		if (data == null) {
 			fUserData = null;
 		} else {
+			int ud_size = (data.getLength() < 2048)?data.getLength():2048;
+//			int ud_size = 2048;
 			byte tdata[] = data.getPage(0);
-			fUserData = new byte[tdata.length];
+			fUserData = new byte[ud_size];
 			// Only the first 2K is available for user data
-			for (int i=0; (i<tdata.length && i<2048); i++) {
+			for (int i=0; (i<ud_size && i < tdata.length); i++) {
 				fUserData[i] = tdata[i];
 			}
 		}
@@ -194,7 +202,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 
 	public synchronized void sync() throws IOException {
 		SVDBFileSystemDataOutput alloc_out = new SVDBFileSystemDataOutput();
-		// TODO: Create and save the root block
+		// Create and save the root block
 		SVDBFileSystemDataOutput out = new SVDBFileSystemDataOutput();
 		
 		// If we already have an alloc file, delete it
@@ -216,8 +224,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		 * - user data length
 		 * - user data
 		 */
-		out.writeInt(fVersion.length());
-		out.writeBytes(fVersion);
+		out.writeString(fVersion);
 		
 		out.writeInt(fFileRWList.size());
 		out.writeInt(fLastRwBlkLen);
@@ -366,6 +373,10 @@ public class SVDBFileSystem implements ILogLevelListener {
 	public void deleteFile(String path, int id) throws IOException {
 		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
 		byte tmp[] = new byte[BLK_SIZE];
+		
+		if (id < 1) {
+			throw new IOException("Cannot delete root block");
+		}
 	
 		// Read root block
 		readBlock(path, id, tmp);

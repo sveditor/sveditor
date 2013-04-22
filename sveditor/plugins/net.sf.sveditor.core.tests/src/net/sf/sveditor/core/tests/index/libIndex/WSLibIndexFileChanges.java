@@ -47,7 +47,7 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
 		SVCorePlugin.getJobMgr().dispose();
 		
 		if (fProject != null) {

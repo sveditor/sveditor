@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
+import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.List;
@@ -17,6 +18,7 @@ public class SVDBFileIndexCacheEntry {
 	public static final int					MARKERS_MASK 			= (1 << 3);
 	public static final int					ALL_MASK 				= 0xF;
 
+	private int								fCacheId;
 	private String							fPath;
 	private int								fType;
 	
@@ -59,7 +61,8 @@ public class SVDBFileIndexCacheEntry {
 	
 	private long							fLastModified;
 
-	public SVDBFileIndexCacheEntry(String path, int type) {
+	public SVDBFileIndexCacheEntry(int cache_id, String path, int type) {
+		fCacheId = cache_id;
 		fPath = path;
 		fSVDBFileId = -1;
 		fSVDBPreProcFileId = -1;
@@ -67,6 +70,43 @@ public class SVDBFileIndexCacheEntry {
 		fMarkersId = -1;
 		fCached = false;
 		fType = type;
+	}
+	
+	public void write(SVDBFileSystemDataOutput dos) throws IOException {
+		// Save just enough information that the entry can be restored
+		dos.writeInt(fCacheId);
+		dos.writeString(fPath);
+		dos.writeInt(fType);
+		dos.writeInt(fSVDBFileId);
+		dos.writeInt(fSVDBPreProcFileId);
+		dos.writeInt(fSVDBFileTreeId);
+		dos.writeInt(fMarkersId);
+		dos.writeLong(fLastModified);
+	}
+	
+	public static SVDBFileIndexCacheEntry read(SVDBFileSystemDataInput dis) throws IOException {
+		SVDBFileIndexCacheEntry ret = null;
+		
+		int cache_id = dis.readInt();
+		String path = dis.readString();
+		int type = dis.readInt();
+		
+		ret = new SVDBFileIndexCacheEntry(cache_id, path, type);
+		ret.setSVDBFileId(dis.readInt());
+		ret.setSVDBPreProcFileId(dis.readInt());
+		ret.setSVDBFileTreeId(dis.readInt());
+		ret.setMarkersId(dis.readInt());
+		ret.setLastModified(dis.readLong());
+		
+		return ret;
+	}
+	
+	public int getCacheId() {
+		return fCacheId;
+	}
+	
+	public void setCacheId(int id) {
+		fCacheId = id;
 	}
 	
 	public int dirtyMask() {

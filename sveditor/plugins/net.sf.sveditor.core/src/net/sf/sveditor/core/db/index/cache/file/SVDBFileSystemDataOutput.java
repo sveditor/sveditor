@@ -64,6 +64,11 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 		
 		data[fPageIdx++] = (byte)val;
 	}
+	
+	public void writeString(String val) throws IOException {
+		writeInt(val.length());
+		writeBytes(val);
+	}
 
 	public void writeBytes(String val) throws IOException {
 		write(val.getBytes());

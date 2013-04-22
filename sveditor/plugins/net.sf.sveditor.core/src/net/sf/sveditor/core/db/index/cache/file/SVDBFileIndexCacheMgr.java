@@ -35,6 +35,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private List<IDBWriter>							fPersistenceWriterSet;
 
 	private List<SVDBFileIndexCache>				fIndexList;
+
+	// File ID for the file containing index data
+	private int										fIndexDataId;
 	
 	private SVDBFileSystem							fFileSystem;
 	private LogHandle								fLog;
@@ -50,14 +53,136 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	
 	public boolean init(SVDBFileSystem fs) {
 		fFileSystem = fs;
+		
+		fCacheHead = null;
+		fCacheTail = null;
+		fCacheSize = 0;
+		
+		fUnCachedHead = null;
+		fUnCachedTail = null;
+		
+		fIndexList.clear();
+		fIndexDataId = -1;
+		
+		// Attempt to load data from the filesystem
+		SVDBFileSystemDataInput user_data = fFileSystem.getUserData();
+		
+		if (user_data != null) {
+			try {
+				fIndexDataId = user_data.readInt();
+				SVDBFileSystemDataInput index_data = fFileSystem.readFile("index data", fIndexDataId);
+			
+				read_state(index_data);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		return false;
 	}
 	
-	public ISVDBIndexCache findIndexCache(
+	private void write_state(SVDBFileSystemDataOutput dat) throws IOException, DBWriteException {
+		if (fIndexDataId != -1) {
+			// Delete the file previously used to store index data
+			fFileSystem.deleteFile("index info", fIndexDataId);
+			fIndexDataId = -1;
+		}
+		
+		// Write back the number of indexes
+		dat.writeInt(fIndexList.size());
+		
+		// Now, write back the project/base location details for each index
+		for (SVDBFileIndexCache cache : fIndexList) {
+			cache.write(dat);
+		}
+		
+		// Now, write back the number of cache entries
+		int n_entries = count_entries(fCacheHead) + count_entries(fUnCachedHead);
+		
+		dat.writeInt(n_entries);
+		SVDBFileIndexCacheEntry entry;
+		
+		entry = fCacheHead;
+		while (entry != null) {
+			// Ensure entry contents are written back
+			writeBackEntry(entry);
+			
+			entry.write(dat);
+			entry = entry.getNext();
+		}
+		
+		entry = fUnCachedHead;
+		while (entry != null) {
+			entry.write(dat);
+			entry = entry.getNext();
+		}
+	
+	}
+	
+	private void read_state(SVDBFileSystemDataInput din) throws IOException {
+		fIndexList.clear();
+		
+		// Read back the number of indexes
+		int index_list_size = din.readInt();
+
+		for (int i=0; i<index_list_size; i++) {
+			SVDBFileIndexCache cache = SVDBFileIndexCache.read(this, din);
+			fIndexList.add(cache);
+		}
+	
+		// Read back the cache entries
+		int n_entries = din.readInt();
+		
+		for (int i=0; i<n_entries; i++) {
+			SVDBFileIndexCacheEntry entry = SVDBFileIndexCacheEntry.read(din);
+			addToUnCachedList(entry);
+		}
+	}
+	
+	private int count_entries(SVDBFileIndexCacheEntry entry) {
+		int count = 0;
+		
+		while (entry != null) {
+			count++;
+			entry = entry.getNext();
+		}
+		
+		return count;
+	}
+
+	public void sync() {
+		
+		// TODO: save cache and entry data to the filesystem
+		// - TODO: Write-back any dirty cache entries (future)
+		// - Construct the filesystem user data:
+		//   - List of index caches
+	
+		SVDBFileSystemDataOutput dat = new SVDBFileSystemDataOutput();
+		SVDBFileSystemDataOutput ud = new SVDBFileSystemDataOutput();
+
+		try {
+			write_state(dat);
+			
+			fIndexDataId = fFileSystem.writeFile("index info", dat);
+			
+			// User data is:
+			// - Handle to index info
+			ud.writeInt(fIndexDataId);
+			fFileSystem.setUserData(ud);
+			
+			// Synchronize the filesystem to ensure everything is up-to-date
+			fFileSystem.sync();		
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (DBWriteException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public SVDBFileIndexCache findIndexCache(
 			String 			project_name,
 			String 			base_location) {
-		ISVDBIndexCache ret = null;
+		SVDBFileIndexCache ret = null;
 		
 		synchronized (fIndexList) {
 			for (SVDBFileIndexCache c : fIndexList) { 
@@ -72,7 +197,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		return ret;
 	}
 
-	public ISVDBIndexCache createIndexCache(
+	public SVDBFileIndexCache createIndexCache(
 			String 			project_name,
 			String 			base_location) {
 		SVDBFileIndexCache ret;
@@ -106,13 +231,19 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	public void dispose() {
+		// Close down the cache 
+		sync();
 
+		try {
+			fFileSystem.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		fIndexDataId = -1;
 	}
 	
-	public void sync() {
-		// TODO: save cache and entry data to the filesystem
 
-	}
 
 	/**
 	 * Synchronize cache entries associated with 'cache' to 
@@ -237,6 +368,37 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 
+	/**
+	 * This method is used by a cache to find an entry that was previously
+	 * saved and restored but not yet associated with the cache
+	 * 
+	 * @param cache_id
+	 * @param path
+	 * @return
+	 */
+	synchronized SVDBFileIndexCacheEntry findCacheEntry(int cache_id, String path) {
+		SVDBFileIndexCacheEntry entry = fCacheHead;
+		
+		while (entry != null) {
+			if (entry.getCacheId() == cache_id && entry.getPath().equals(path)) {
+				return entry;
+			}
+			entry = entry.getNext();
+		}
+		
+		entry = fUnCachedHead;
+		
+		while (entry != null) {
+			if (entry.getCacheId() == cache_id && entry.getPath().equals(path)) {
+				return entry;
+			}
+			entry = entry.getNext();
+		}
+	
+		// Failed to find
+		return null;
+	}
+
 	public synchronized void addToCachedList(SVDBFileIndexCacheEntry entry) {
 		if (fCacheHead == null) {
 			// First entry
@@ -320,7 +482,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	
 	void moveElementToCachedTail(SVDBFileIndexCacheEntry info) {
 		if (!info.isCached()) {
-			System.out.println("moveElementToCachedTail: Error " + info.getPath() + " is not cached");
 			try {
 				throw new Exception();
 			} catch (Exception e) {

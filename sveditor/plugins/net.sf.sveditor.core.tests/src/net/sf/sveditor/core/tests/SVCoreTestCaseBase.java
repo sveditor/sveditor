@@ -16,10 +16,12 @@ import org.eclipse.core.resources.IProject;
 public class SVCoreTestCaseBase extends TestCase {
 	
 	protected File						fTmpDir;
+	protected File						fDbDir;
 	protected LogHandle					fLog;
 	protected List<IProject>			fProjectList;
 	protected TestIndexCacheFactory		fCacheFactory;
 //	protected SVDBFileSystem			fFileSystem;
+	protected SVDBIndexRegistry			fIndexRgy;
 	
 
 	@Override
@@ -38,9 +40,13 @@ public class SVCoreTestCaseBase extends TestCase {
 		fFileSystem = new SVDBFileSystem(cache2, SVCorePlugin.getVersion());
 		fFileSystem.init();
 		 */
-		
-		fCacheFactory = new TestIndexCacheFactory(new File(fTmpDir, "db"));
+	
+		fDbDir = new File(fTmpDir, "db");
+		fCacheFactory = new TestIndexCacheFactory(fDbDir);
 //		fCacheFactory.init(fFileSystem);
+		
+		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		fIndexRgy.init(fCacheFactory);
 	}
 
 	@Override
@@ -48,7 +54,7 @@ public class SVCoreTestCaseBase extends TestCase {
 		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
 		for (IProject p : fProjectList) {
 			TestUtils.deleteProject(p);
@@ -64,6 +70,14 @@ public class SVCoreTestCaseBase extends TestCase {
 
 	protected void addProject(IProject p) {
 		fProjectList.add(p);
+	}
+	
+	protected void reinitializeIndexRegistry() {
+		// Close down registry
+		fIndexRgy.close();
+		
+		fCacheFactory.sync();
+		
 	}
 	
 }

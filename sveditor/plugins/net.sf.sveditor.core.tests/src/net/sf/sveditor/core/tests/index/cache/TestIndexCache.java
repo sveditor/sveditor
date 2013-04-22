@@ -65,7 +65,7 @@ public class TestIndexCache extends TestCase {
 	protected void tearDown() throws Exception {
 		SVCorePlugin.getJobMgr().dispose();
 		
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);

@@ -1,44 +1,21 @@
 package net.sf.sveditor.core.tests.project_settings;
 
-import java.io.File;
-
-import org.eclipse.core.resources.IProject;
-
+import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.eclipse.core.resources.IProject;
 
-public class ProjectSettingsTests extends TestCase {
+public class ProjectSettingsTests extends SVCoreTestCaseBase {
 	
-	private File				fTmpDir;
-	private IProject			fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
-
 	public static TestSuite suite() {
 		TestSuite s = new TestSuite("ProjectSettingsTests");
 		s.addTest(new TestSuite(ProjectSettingsTests.class));
@@ -52,7 +29,7 @@ public class ProjectSettingsTests extends TestCase {
 	 * specified for a project
 	 */
 	public void testSourceCollectionChange() {
-		fProject = TestUtils.createProject("src_collection", fTmpDir);
+		IProject fProject = TestUtils.createProject("src_collection", fTmpDir);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		utils.copyBundleDirToWS("/data/project_settings/src_collection_1", fProject);
@@ -93,7 +70,8 @@ public class ProjectSettingsTests extends TestCase {
 	 */
 	public void testSourceCollectionChangeIncExclExts() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		fProject = TestUtils.createProject("src_collection", fTmpDir);
+		IProject fProject = TestUtils.createProject("src_collection", fTmpDir);
+		addProject(fProject);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		utils.copyBundleDirToWS("/data/project_settings/src_collection_2", fProject);

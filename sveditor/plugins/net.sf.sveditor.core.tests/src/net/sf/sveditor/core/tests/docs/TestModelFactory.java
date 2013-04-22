@@ -23,12 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.core.docs.DocGenConfig;
@@ -39,44 +37,20 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import difflib.*;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import difflib.Delta;
+import difflib.DiffUtils;
+import difflib.Patch;
+
 public class TestModelFactory extends SVCoreTestCaseBase {
 	
 	boolean fDebug 			= false ;
-	private IProject		fProject;
 	
-	
-	public TestModelFactory() {
-		fLog = LogFactory.getLogHandle("TestParser") ;
-	}
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
-	
-		if (fProject != null && !fDebug) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		super.tearDown();
-	}	
 	
 	public void testUVM() throws IOException {
 		
@@ -117,19 +91,12 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		fLog.debug(ILogLevel.LEVEL_OFF, "| listFIle ........ " + listFile.getPath() ) ;
 		fLog.debug(ILogLevel.LEVEL_OFF, "+-----------------------------------------------------------") ;
 		
-		fProject = TestUtils.createProject(testName, projDir) ;
+		IProject project = TestUtils.createProject(testName, projDir) ;
+		addProject(project);
 		utils.unpackBundleZipToFS("/uvm.zip", testDir);		
-		utils.copyBundleDirToWS(testBundleDir, fProject) ;
+		utils.copyBundleDirToWS(testBundleDir, project) ;
 
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 						listFile.toString(),
 						SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -146,7 +113,7 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		Map<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>> pkgMap = 
 				new HashMap<String, Tuple<SVDBDeclCacheItem,ISVDBIndex>>() ;
 	
-		List<ISVDBIndex> projIndexList = rgy.getAllProjectLists() ;
+		List<ISVDBIndex> projIndexList = fIndexRgy.getAllProjectLists() ;
 		for(ISVDBIndex svdbIndex: projIndexList) {
 			List<SVDBDeclCacheItem> foundPkgs = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(),"pkgs",new SVDBFindPackageMatcher()) ;
 			for(SVDBDeclCacheItem pkg: foundPkgs) {

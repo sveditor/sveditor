@@ -30,14 +30,12 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -46,15 +44,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 	private ContentAssistIndex			fIndex;
 	private SVDBIndexCollection			fIndexMgr;
-	private SVDBIndexRegistry			fIndexRgy;
 	
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		
 		fIndexMgr = new SVDBIndexCollection("TestContentAssistBuiltins");
-		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		fIndexRgy.init(fCacheFactory);
 		fIndexMgr.addPluginLibrary(
 				fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 						"TestContentAssistBuiltins", SVCorePlugin.SV_BUILTIN_LIBRARY, 
@@ -69,7 +64,7 @@ public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 
-		fIndexRgy.save_state();
+		fIndexRgy.close();
 		
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);

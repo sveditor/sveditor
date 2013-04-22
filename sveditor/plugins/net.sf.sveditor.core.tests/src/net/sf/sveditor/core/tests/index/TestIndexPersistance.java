@@ -44,7 +44,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 	protected void tearDown() throws Exception {
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
 		super.tearDown();
 	}
@@ -104,7 +104,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		log.debug(ILogLevel.LEVEL_MIN, "<==== PASS 1 ====");
 
 		// Save the database
-		rgy.save_state();
+		rgy.close();
 
 		// Now, tear down everything
 		log.debug(ILogLevel.LEVEL_MIN, ">==== PASS 2 ====");
@@ -182,7 +182,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		log.debug("<==== PASS 1 ====");
 
 		// Save the database
-		rgy.save_state();
+		rgy.close();
 
 		// Now, tear down everything
 		log.debug(">==== PASS 2 ====");

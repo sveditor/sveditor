@@ -52,7 +52,7 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 	protected void tearDown() throws Exception {
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
@@ -98,7 +98,7 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
@@ -182,7 +182,7 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("[NOTE] pre-sleep");
 		try {
@@ -267,7 +267,7 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("** RESET **");
 		// Now, reset the registry
@@ -358,7 +358,7 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("** RESET **");
 		// Now, reset the registry

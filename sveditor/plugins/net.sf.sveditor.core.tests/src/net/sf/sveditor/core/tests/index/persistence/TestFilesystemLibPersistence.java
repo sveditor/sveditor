@@ -47,7 +47,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	protected void tearDown() throws Exception {
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
 		super.tearDown();
 	}
@@ -94,7 +94,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
@@ -195,7 +195,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNotNull("Assert have missing include marker", missing_inc);
 		
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("** RESET **");
 		// Now, reset the registry

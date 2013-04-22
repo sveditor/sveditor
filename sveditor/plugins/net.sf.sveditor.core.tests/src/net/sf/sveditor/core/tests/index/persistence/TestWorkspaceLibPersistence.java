@@ -79,7 +79,7 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
@@ -165,7 +165,7 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);

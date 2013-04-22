@@ -74,7 +74,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 	protected void tearDown() throws Exception {
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
@@ -430,7 +430,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
@@ -502,7 +502,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 
 	public void testWSArgFileTimestampUnchanged() {
 		String testname = "testWSArgFileTimestampUnchanged";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -518,6 +518,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		
+		index.loadIndex(new NullProgressMonitor());
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		SVDBClassDecl target_it = null, target_orig = null;
@@ -551,7 +553,9 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		reinitializeIndexRegistry();
+		
+		rgy.close();
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
@@ -572,6 +576,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		index.loadIndex(new NullProgressMonitor());
+		
 		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
@@ -676,7 +682,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("** RESET **");
 		// Now, reset the registry

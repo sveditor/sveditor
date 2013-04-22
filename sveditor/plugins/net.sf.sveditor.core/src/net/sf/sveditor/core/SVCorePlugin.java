@@ -246,7 +246,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		fResourceChangeListener.dispose();
 		
 		if (fIndexRegistry != null) {
-			fIndexRegistry.save_state();
+			fIndexRegistry.close();
 		}
 	
 		LogFactory.getDefault().removeLogListener(this);

@@ -23,10 +23,11 @@ import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 
-public class IndentTests extends TestCase {
+public class IndentTests extends SVCoreTestCaseBase {
 	
 	public static Test suite() {
 		TestSuite suite = new TestSuite("IndentTests");
@@ -39,6 +40,7 @@ public class IndentTests extends TestCase {
 	}
 	
 	public void testClass() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		
@@ -54,6 +56,11 @@ public class IndentTests extends TestCase {
 		indenter.setTestMode(true);
 		
 		StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
+		
+		fLog.debug("Reference:\n" + ref);
+		
+		fLog.debug("===");
+		fLog.debug("Result:\n" + result.toString());
 		
 		IndentComparator.compare("testClass", ref, result.toString());
 	}

@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 
 public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 	private ISVDBIndexCacheMgr		fCacheImpl;
+	private SVDBFileSystem			fFileSystem;
 	private File					fRoot;
 	
 	public TestIndexCacheFactory(File dir) {
@@ -38,13 +39,13 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 			fCacheImpl = InMemCacheMgr; 
 		} else if (SVCorePlugin.fUseNewCacheMgr) {
 			fCacheImpl = new SVDBFileIndexCacheMgr();
-			SVDBFileSystem fs = new SVDBFileSystem(fRoot, SVCorePlugin.getVersion());
+			fFileSystem = new SVDBFileSystem(fRoot, SVCorePlugin.getVersion());
 			try {
-				fs.init();
+				fFileSystem.init();
 			} catch (IOException e) {
 				TestCase.fail("Failed to initialize filesystem");
 			}
-			((SVDBFileIndexCacheMgr)fCacheImpl).init(fs);
+			((SVDBFileIndexCacheMgr)fCacheImpl).init(fFileSystem);
 		} else {
 			fCacheImpl = OldCacheMgr;
 		}

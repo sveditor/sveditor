@@ -2247,13 +2247,6 @@ public class SVDBArgFileIndex2 implements
 		end_time = System.currentTimeMillis();
 		System.out.println("parseFiles " + paths.size() + " " + (end_time-start_time));
 	
-		// TODO: move this elsewhere (post-application of new data)
-		synchronized (fIndexChangeListeners) {
-			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-				l.index_rebuilt();
-			}
-		}
-
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation()
 					+ ": Parse source files -- " + (end_time - start_time)

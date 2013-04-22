@@ -35,26 +35,6 @@ import org.eclipse.core.runtime.Path;
 
 public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 	
-	private IProject			fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		super.tearDown();
-	}
-
 	public void testArgFileChange() {
 		SVCorePlugin.getDefault().enableDebug(true);
 		
@@ -65,9 +45,10 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		System.out.println("Begin int_testArgFileChange");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		fProject = TestUtils.createProject("project");
+		IProject p = TestUtils.createProject("project");
+		addProject(p);
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", p);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
@@ -108,7 +89,7 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/class1_2.svh")));
+		TestUtils.copy(out, p.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		out = new ByteArrayOutputStream();
 		ps = new PrintStream(out);
@@ -119,7 +100,7 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
+		TestUtils.copy(out, p.getFile(new Path("basic_lib_project/basic_lib.f")));
 	
 		System.out.println("--> Sleep");
 		try {
