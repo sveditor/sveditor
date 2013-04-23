@@ -242,7 +242,55 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		
 		fIndexDataId = -1;
 	}
-	
+
+	/**
+	 * Remove all entries for this cache
+	 * @param cache
+	 */
+	synchronized void clearIndexCache(SVDBFileIndexCache cache) {
+		SVDBFileIndexCacheEntry entry;
+
+		try {
+			entry = fCacheHead;
+			while (entry != null) {
+				if (entry.getCacheId() == cache.getCacheId()) {
+					deleteEntry(entry);
+				}
+				entry = entry.getNext();
+			}
+
+			entry = fUnCachedHead;
+			while (entry != null) {
+				if (entry.getCacheId() == cache.getCacheId()) {
+					deleteEntry(entry);
+				}
+				entry = entry.getNext();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void deleteEntry(SVDBFileIndexCacheEntry entry) throws IOException {
+		if (entry.isCached()) {
+			removeFromCachedList(entry);
+		} else {
+			removeFromUnCachedList(entry);
+		}
+		
+		if (entry.getSVDBFileId() != -1) {
+			fFileSystem.deleteFile(entry.getPath(), entry.getSVDBFileId());
+		}
+		if (entry.getSVDBPreProcFileId() != -1) {
+			fFileSystem.deleteFile(entry.getPath(), entry.getSVDBPreProcFileId());
+		}
+		if (entry.getSVDBFileTreeId() != -1) {
+			fFileSystem.deleteFile(entry.getPath(), entry.getSVDBFileTreeId());
+		}
+		if (entry.getMarkersId() != -1) {
+			fFileSystem.deleteFile(entry.getPath(), entry.getMarkersId());
+		}
+	}
 
 
 	/**
@@ -262,25 +310,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		synchronized (fIndexList) {
 			fIndexList.remove(cache);
 		}
-		Map<String, SVDBFileIndexCacheEntry> c = cache.getCache();
-		
-		// cache should not be in use, so no need to lock
-		for (SVDBFileIndexCacheEntry entry : c.values()) {
-
-			if (entry.isCached()) {
-				// Remove from the cached list
-				removeFromCachedList(entry);
-			} else {
-				removeFromUnCachedList(entry);
-			}
-			
-			// Free any storage associated with this entry
-			try {
-				deleteStorage(entry);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+	
+		// Clear the entries of the cache
+		clearIndexCache(cache);
 	}
 	
 	/**

@@ -24,8 +24,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -58,7 +60,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -76,28 +78,22 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		File path = new File(project_dir, "basic_lib_project/basic_lib_pkg.sv");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
+	
+		List<SVDBDeclCacheItem> result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class1", 
+				SVDBFindDefaultNameMatcher.getDefault());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
+		assertEquals(1, result.size());
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
+		ISVDBItemBase target_it = result.get(0).getSVDBItem();
+		
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
 		rgy.close();
 
 		// Now, reset the registry
-		rgy.init(fCacheFactory);
+		reinitializeIndexRegistry();
 		
 		log.debug("*** SLEEPING");
 		// Sleep to ensure that the timestamp is different
@@ -125,17 +121,14 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		index = rgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class1_1", 
+				SVDBFindDefaultNameMatcher.getDefault());
+		
+		assertEquals(1, result.size());
+		
+		target_it = result.get(0).getSVDBItem();
 		
 		log.debug("target_it=" + target_it);
 		

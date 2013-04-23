@@ -153,8 +153,10 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void clear(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-
+		// Remove all cache entries
+		fCache.clear();
+	
+		fCacheMgr.clearIndexCache(this);
 	}
 
 	public Set<String> getFileList(boolean is_argfile) {

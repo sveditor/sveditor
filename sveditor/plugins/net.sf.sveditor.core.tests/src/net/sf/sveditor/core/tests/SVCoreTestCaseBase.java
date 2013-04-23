@@ -74,9 +74,13 @@ public class SVCoreTestCaseBase extends TestCase {
 	
 	protected void reinitializeIndexRegistry() {
 		// Close down registry
+		// Note: this also disposes the cache factory
 		fIndexRgy.close();
+	
+		// Re-create the cache factory
+		fCacheFactory = new TestIndexCacheFactory(fDbDir);
 		
-		fCacheFactory.sync();
+		fIndexRgy.init(fCacheFactory);
 		
 	}
 	
