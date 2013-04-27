@@ -50,10 +50,9 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", p);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
+		reinitializeIndexRegistry();
 		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		

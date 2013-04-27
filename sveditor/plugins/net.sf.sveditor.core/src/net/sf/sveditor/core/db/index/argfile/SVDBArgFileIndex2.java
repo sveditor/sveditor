@@ -183,6 +183,7 @@ public class SVDBArgFileIndex2 implements
 		if (changes == null || !fIndexValid) {
 			if (!fIndexValid) {
 				// Return a 'build me' plan, since we're not valid
+				System.out.println("IndexValid=false");
 				plan = new SVDBIndexChangePlanRebuild(this);
 			}
 		} else {
@@ -201,7 +202,8 @@ public class SVDBArgFileIndex2 implements
 				}
 			}
 		}
-		
+
+		System.out.println("Return plan=" + plan);
 		return plan;
 	}
 
@@ -284,8 +286,8 @@ public class SVDBArgFileIndex2 implements
 			}
 			invalidateIndex(m, "Cache is invalid", true);
 		}
-		// set the version to check later
-		fBuildData.fIndexCacheData.setVersion(SVCorePlugin.getVersion());
+		// Not Needed: set the version to check later
+//		fBuildData.fIndexCacheData.setVersion(SVCorePlugin.getVersion());
 
 		// Set the global settings anyway
 		if (fConfig != null
@@ -369,6 +371,8 @@ public class SVDBArgFileIndex2 implements
 	@SuppressWarnings("unchecked")
 	private boolean checkCacheValid() {
 		boolean valid = true;
+		
+		/* Filesystem is already versioned
 		String version = SVCorePlugin.getVersion();
 
 		if (fDebugEn) {
@@ -381,6 +385,7 @@ public class SVDBArgFileIndex2 implements
 			valid = false;
 			return valid;
 		}
+		 */
 
 		// Confirm that global defines are the same
 		if (fConfig != null) {
@@ -517,8 +522,11 @@ public class SVDBArgFileIndex2 implements
 		fIndexBuilder = builder;
 
 		fBuildData.fIndexCacheData = new SVDBArgFileIndexCacheData(getBaseLocation());
-		fCacheDataValid = fBuildData.fCache.init(new NullProgressMonitor(), 
-				fBuildData.fIndexCacheData, fBaseLocation);
+		fCacheDataValid = fBuildData.fCache.init(
+				new NullProgressMonitor(), 
+				fBuildData.fIndexCacheData, 
+				fBaseLocation);
+		
 		/** TODO: 
 		 */
 		
@@ -540,7 +548,10 @@ public class SVDBArgFileIndex2 implements
 	 * 
 	 */
 	public void loadIndex(IProgressMonitor monitor) {
+		
+		ensureIndexUpToDate(monitor);
 
+		/*
 		if (!fIndexValid) {
 			if (fIndexBuilder != null) {
 				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
@@ -553,6 +564,7 @@ public class SVDBArgFileIndex2 implements
 			}
 			fIndexValid = true;
 		}
+		 */
 	
 		/*
 		invalidateIndex(monitor, "loadIndex", true);
@@ -786,6 +798,7 @@ public class SVDBArgFileIndex2 implements
 		if (fDebugEn) {
 			fLog.debug("--> findFile: " + path);
 		}
+		
 		ensureIndexUpToDate(monitor);
 
 		// TODO: 
@@ -941,7 +954,16 @@ public class SVDBArgFileIndex2 implements
 					if (!found_file) {
 						extractFileContents(ret, (ISVDBChildParent)c, file_id);
 					} else {
-						break;
+						/*
+						if (fDebugEn) {
+							fLog.debug("  -- stopping because " + SVDBItem.getName(c) + 
+									" is a child parent ; l=" + l + " target_file=" + file_id);
+						}
+						 */
+						// Not safe to stop, since we may have just recursed into a `included
+						// file. TODO: May be able to optimize in the future
+						
+//						break;
 					}
 				}
 			}
@@ -1422,6 +1444,7 @@ public class SVDBArgFileIndex2 implements
 
 	public void dispose() {
 		fLog.debug("dispose() - " + getBaseLocation());
+		
 		if (fBuildData.fCache != null) {
 			fBuildData.fCache.sync();
 		}
@@ -1757,7 +1780,7 @@ public class SVDBArgFileIndex2 implements
 			
 			
 		}
-		
+
 		for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
 			cacheFileTreeDeclarations(ft_s, file_item_list);
 		}
@@ -2037,7 +2060,9 @@ public class SVDBArgFileIndex2 implements
 			parent.addIncludedFile(path);
 		}
 
+		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
 		build_data.fCache.setFile(path, argfile, true);
+		build_data.fCache.setLastModified(path, last_modified, true);
 	
 		build_data.addArgFilePath(path);
 		
@@ -2183,9 +2208,11 @@ public class SVDBArgFileIndex2 implements
 //		System.out.println("CacheDecl " + path + " " + (end-start));
 		
 		start = System.currentTimeMillis();
+		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
 		build_data.fCache.setFile(path, file, false);
 		build_data.fCache.setFileTree(path, ft, false);
 		build_data.fCache.setMarkers(path, markers, false);
+		build_data.fCache.setLastModified(path, last_modified, false);
 
 		end = System.currentTimeMillis();
 //		System.out.println("SetCache " + path + " " + (end-start));

@@ -501,7 +501,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
-		String testname = "testWSArgFileTimestampUnchanged";
+		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -510,11 +510,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
 		fIndexRebuilt = 0;
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
@@ -553,12 +550,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		reinitializeIndexRegistry();
-		
-		rgy.close();
-
 		// Now, reset the registry
-		rgy.init(fCacheFactory);
+		reinitializeIndexRegistry();
 		
 		// Sleep to ensure that the timestamp is different
 		log.debug("[NOTE] pre-sleep");
@@ -572,7 +565,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 
 		fIndexRebuilt = 0;
 		// Now, re-create the index
-		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);

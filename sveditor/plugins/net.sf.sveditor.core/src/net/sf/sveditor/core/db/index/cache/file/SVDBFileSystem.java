@@ -270,6 +270,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 			ret.addPage(tmp);
 			total_blocks++;
 		}
+		int start_idx = ret.getOffset();
+		ret.setStartIdx(start_idx);
 	
 		// Compute the initial page and page offset
 		ret.finalize(length);
@@ -358,13 +360,13 @@ public class SVDBFileSystem implements ILogLevelListener {
 	private static int write32(int idx, byte data[], int val) {
 		byte tmp;
 
-		tmp = (byte)(val >> 0);
-		data[idx++] = tmp;
-		tmp = (byte)(val >> 8);
+		tmp = (byte)(val >> 24);
 		data[idx++] = tmp;
 		tmp = (byte)(val >> 16);
 		data[idx++] = tmp;
-		tmp = (byte)(val >> 24);
+		tmp = (byte)(val >> 8);
+		data[idx++] = tmp;
+		tmp = (byte)(val >> 0);
 		data[idx++] = tmp;
 	
 		return idx;
@@ -429,7 +431,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		int writer_blk_id = (id % FILE_BLK_SIZE);
 		
 		if (writer_id >= fFileRWList.size()) {
-			throw new RuntimeException("writer_id " + writer_id + " out of range");
+			throw new RuntimeException("writer_id " + writer_id + " out of range; id=" + id + " size is " + fFileRWList.size());
 		}
 	
 		RandomAccessFile rw = fFileRWList.get(writer_id);

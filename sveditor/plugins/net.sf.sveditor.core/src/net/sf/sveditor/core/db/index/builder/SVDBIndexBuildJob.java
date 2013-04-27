@@ -55,6 +55,7 @@ public class SVDBIndexBuildJob extends Job {
 			
 			if (ex != null) {
 				// Try a replan
+				System.out.println("plan complete: " + fPlan.getType());
 				if (fPlan.getType() == SVDBIndexChangePlanType.Refresh) {
 					ISVDBIndexChangePlan plan = fPlan.getPlanner().createIndexChangePlan(null);
 					if (plan.getType() != SVDBIndexChangePlanType.Empty) {

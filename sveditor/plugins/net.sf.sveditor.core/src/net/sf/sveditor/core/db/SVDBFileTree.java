@@ -48,12 +48,14 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	public List<String>				fIncludedFiles;
 
 	// Used by the 'new' flow 
+	// TODO: Unsure why
 	public List<SVDBFileTree>		fIncludedFileTrees;
 	
 	// List of files in which this file is included
 	public List<String>				fIncludedByFiles;
 	
 	// TODO: 
+	@SVDBDoNotSaveAttr
 	public Map<String, String>		fReferencedMacros;
 
 	public SVDBFileTree() {

@@ -144,7 +144,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	 * and checking whether the changed file list is detected on reload
 	 */
 	public void testFSLibIndexFilelistChangeDetected() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testFSLibIndexFilelistChangeDetected");
 		
@@ -192,7 +192,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 
 		log.debug("** RESET **");
 		// Now, reset the registry
-		rgy.init(fCacheFactory);
+		reinitializeIndexRegistry();
 		
 		// Sleep to ensure that the timestamp is different
 		try {

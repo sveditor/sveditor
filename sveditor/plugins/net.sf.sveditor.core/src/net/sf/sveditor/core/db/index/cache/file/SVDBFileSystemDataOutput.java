@@ -11,6 +11,7 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 	// List of 4k pages
 	private List<byte[]>					fPages;
 	private int								fPageIdx;
+	public boolean							fDebugWrite = false;
 	
 	public SVDBFileSystemDataOutput() {
 		fPages = new ArrayList<byte[]>();
@@ -21,6 +22,13 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 	
 	public int getLength() {
 		return (PAGE_SIZE * (fPages.size()-1)) + fPageIdx;
+	}
+	
+	public int byteAt(int idx) {
+		int pages_idx = (idx/PAGE_SIZE);
+		int page_idx = (idx % PAGE_SIZE);
+	
+		return fPages.get(pages_idx)[page_idx];
 	}
 	
 	public byte[] getPage(int idx) {
@@ -38,6 +46,14 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 	public void write(byte[] val) throws IOException {
 		write(val, 0, val.length);
 	}
+	
+	public int getOffset() {
+		if (fPages.size() <= 1) {
+			return fPageIdx;
+		} else {
+			return (PAGE_SIZE*(fPages.size()-1)) + fPageIdx;
+		}
+	}
 
 	public void write(byte[] val, int off, int len) throws IOException {
 		byte data[] = fPages.get(fPages.size()-1);
@@ -47,7 +63,7 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 			if (fPageIdx >= data.length) {
 				data = new_page();
 			}
-		
+			
 			while (i<len && fPageIdx < data.length) {
 				data[fPageIdx++] = val[off+i];
 				i++;
@@ -62,6 +78,7 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 			data = new_page();
 		}
 		
+		
 		data[fPageIdx++] = (byte)val;
 	}
 	
@@ -71,24 +88,41 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 	}
 
 	public void writeBytes(String val) throws IOException {
-		write(val.getBytes());
+		byte data[] = fPages.get(fPages.size()-1);
+		
+		if (fPageIdx+val.length() <= data.length) {
+			for (int i=0; i<val.length(); i++) {
+				int v = val.charAt(i);
+				data[fPageIdx++] = (byte)v;
+			}
+		} else {
+			for (int i=0; i<val.length(); i++) {
+				if (fPageIdx >= data.length) {
+					data = new_page();
+				}
+				
+				int v = val.charAt(i);
+				data[fPageIdx++] = (byte)v;
+			}
+		}
 	}
 
 	public void writeInt(int val) throws IOException {
-		if (fPageIdx+4 <= fPages.get(fPages.size()-1).length) {
-			byte data[] = fPages.get(fPages.size()-1);
+		
+		byte data[] = fPages.get(fPages.size()-1);
+		
+		if (fPageIdx+4 <= data.length) {
 			byte tmp;
 			
-			tmp = (byte)(val >> 0);
-			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 8);
+			tmp = (byte)(val >> 24);
 			data[fPageIdx++] = tmp;
 			tmp = (byte)(val >> 16);
 			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 24);
+			tmp = (byte)(val >> 8);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 0);
 			data[fPageIdx++] = tmp;
 		} else {
-			byte data[] = fPages.get(fPages.size()-1);
 			byte tmp;
 			
 			for (int i=0; i<4; i++) {
@@ -96,35 +130,35 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 					// Add a new page
 					data = new_page();
 				}
-				tmp = (byte)(val >> 8*i);
+				tmp = (byte)(val >> 8*(3-i));
 				data[fPageIdx++] = tmp;
 			}
 		}
 	}
 
 	public void writeLong(long val) throws IOException {
-		if (fPageIdx+8 <= fPages.get(fPages.size()-1).length) {
-			byte data[] = fPages.get(fPages.size()-1);
+		byte data[] = fPages.get(fPages.size()-1);
+		
+		if (fPageIdx+8 <= data.length) {
 			byte tmp;
 			
-			tmp = (byte)(val >> 0);
-			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 8);
-			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 16);
-			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 24);
-			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 32);
-			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 40);
+			tmp = (byte)(val >> 56);
 			data[fPageIdx++] = tmp;
 			tmp = (byte)(val >> 48);
 			data[fPageIdx++] = tmp;
-			tmp = (byte)(val >> 56);
+			tmp = (byte)(val >> 40);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 32);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 24);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 16);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 8);
+			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 0);
 			data[fPageIdx++] = tmp;
 		} else {
-			byte data[] = fPages.get(fPages.size()-1);
 			byte tmp;
 			
 			for (int i=0; i<8; i++) {
@@ -132,23 +166,23 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 					// Add a new page
 					data = new_page();
 				}
-				tmp = (byte)(val >> 8*i);
+				tmp = (byte)(val >> 8*(7-i));
 				data[fPageIdx++] = tmp;
 			}
 		}		
 	}
 
 	public void writeShort(int val) throws IOException {
-		if (fPageIdx+2 <= fPages.get(fPages.size()-1).length) {
-			byte data[] = fPages.get(fPages.size()-1);
+		
+		byte data[] = fPages.get(fPages.size()-1);
+		if (fPageIdx+2 <= data.length) {
 			byte tmp;
 			
-			tmp = (byte)(val >> 0);
-			data[fPageIdx++] = tmp;
 			tmp = (byte)(val >> 8);
 			data[fPageIdx++] = tmp;
+			tmp = (byte)(val >> 0);
+			data[fPageIdx++] = tmp;
 		} else {
-			byte data[] = fPages.get(fPages.size()-1);
 			byte tmp;
 			
 			for (int i=0; i<2; i++) {
@@ -156,7 +190,7 @@ public class SVDBFileSystemDataOutput implements DataOutput {
 					// Add a new page
 					data = new_page();
 				}
-				tmp = (byte)(val >> 8*i);
+				tmp = (byte)(val >> 8*(1-i));
 				data[fPageIdx++] = tmp;
 			}
 		}

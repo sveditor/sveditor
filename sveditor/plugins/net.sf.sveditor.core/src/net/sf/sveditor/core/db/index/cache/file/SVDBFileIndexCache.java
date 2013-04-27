@@ -15,11 +15,12 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-
-import com.sun.org.apache.bcel.internal.generic.FMUL;
 
 public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private static final int										FILE_ID    = 0;
@@ -30,10 +31,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private String													fProjectName;
 	private String													fBaseLocation;
 	private Object													fIndexData;
+	private SVDBFileSystemDataInput									fIndexDataIn;
+
 	/**
 	 * Map from the 
 	 */
 	private Map<String, SVDBFileIndexCacheEntry>					fCache;
+	private boolean													fCacheLoaded;
 	
 	public SVDBFileIndexCache(
 			SVDBFileIndexCacheMgr 	mgr, 
@@ -45,23 +49,37 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fProjectName = project_name;
 		fBaseLocation = base_location;
 		fCache = new HashMap<String, SVDBFileIndexCacheEntry>();
+		fCacheLoaded = false;
 	}
 	
 	public void write(SVDBFileSystemDataOutput dos) throws IOException, DBWriteException {
 		dos.writeInt(fCacheId);
 		dos.writeString(fProjectName);
 		dos.writeString(fBaseLocation);
-	
+		
 		// TODO: Must determine the lifetime of cache data
-		/*
-		SVDBPersistenceRW writer = new SVDBPersistenceRW();
-		writer.init(dos);
+
 		if (fIndexData != null) {
+			IDBWriter writer = fCacheMgr.allocWriter();
+			SVDBFileSystemDataOutput ud_dos = new SVDBFileSystemDataOutput();
+			
+			writer.init(ud_dos);
 			writer.writeObject(fIndexData.getClass(), fIndexData);
+			
+			fCacheMgr.freeWriter(writer);
+			
+			int length = 0;
+			for (int i=0; i<ud_dos.getPages().size(); i++) {
+				length += ud_dos.getPage(i).length;
+			}
+			dos.writeInt(length);
+			
+			for (int i=0; i<ud_dos.getPages().size(); i++) {
+				dos.write(ud_dos.getPage(i));
+			}
 		} else {
-			writer.writeObject(Object.class, null);
+			dos.writeInt(-1);
 		}
-		 */
 	}
 	
 	public static SVDBFileIndexCache read(
@@ -74,6 +92,22 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		String baseloc = dis.readString();
 		
 		ret = new SVDBFileIndexCache(mgr, cache_id, project, baseloc);
+		
+		int ud_length = dis.readInt();
+		if (ud_length != -1) {
+			SVDBFileSystemDataInput	in = new SVDBFileSystemDataInput();
+			
+			while (ud_length > 0) {
+				byte tmp[] = new byte[4096];
+				int read_len = (ud_length >= 4096)?4096:ud_length;
+				dis.readFully(tmp, 0, read_len);
+			
+				in.addPage(tmp);
+				ud_length -= 4096;
+			}
+			
+			ret.fIndexDataIn = in;
+		}
 
 		return ret;
 	}
@@ -103,12 +137,12 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		boolean added = false;
 		
 		synchronized (fCache) {
-			entry = fCache.get(path);
-			
-			if (entry == null) {
-				// Try asking the cache manager for the entry
-				entry = fCacheMgr.findCacheEntry(fCacheId, path);
+			if (!fCacheLoaded) {
+				fCacheMgr.loadCache(fCacheId, fCache);
+				fCacheLoaded = true;
 			}
+			
+			entry = fCache.get(path);
 			
 			if (entry == null && add) {
 				entry = new SVDBFileIndexCacheEntry(fCacheId, path, type);
@@ -134,16 +168,33 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void setIndexData(Object data) {
-		fIndexData = data;
+//		fIndexData = data;
 	}
 
 	public Object getIndexData() {
 		return fIndexData;
 	}
 
-	public boolean init(IProgressMonitor monitor, Object index_data,
-			String base_location) {
-		// TODO Auto-generated method stub
+	public boolean init(
+			IProgressMonitor 	monitor, 
+			Object 				index_data,
+			String 				base_location) {
+		fIndexData = index_data;
+
+		if (fIndexData != null && fIndexDataIn != null) {
+			IDBReader reader = fCacheMgr.allocReader();
+			fIndexDataIn.reset();
+			reader.init(fIndexDataIn);
+
+			try {
+				reader.readObject(null, fIndexData.getClass(), fIndexData);
+				return true;
+			} catch (DBFormatException e) {
+				e.printStackTrace();
+			} finally {
+				fCacheMgr.freeReader(reader);
+			}
+		}
 		return false;
 	}
 
@@ -164,6 +215,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		HashSet<String> ret = new HashSet<String>();
 	
 		synchronized (fCache) {
+			if (!fCacheLoaded) {
+				fCacheMgr.loadCache(fCacheId, fCache);
+				fCacheLoaded = true;
+			}
+			
 			for (Entry<String, SVDBFileIndexCacheEntry> e : fCache.entrySet()) {
 				if (e.getValue().getType() == type) {
 					ret.add(e.getKey());

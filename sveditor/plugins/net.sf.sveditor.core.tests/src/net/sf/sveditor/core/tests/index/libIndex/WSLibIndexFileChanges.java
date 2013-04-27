@@ -75,8 +75,7 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", fProject);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
+		SVDBIndexRegistry rgy = fIndexRgy;
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 

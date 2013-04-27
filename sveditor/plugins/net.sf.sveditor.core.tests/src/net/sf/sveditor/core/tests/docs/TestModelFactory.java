@@ -52,13 +52,25 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 	boolean fDebug 			= false ;
 	
 	
+	
+	
+	/*
+	@Override
+	protected void tearDown() throws Exception {
+		// TODO Auto-generated method stub
+//		super.tearDown();
+	}
+	 */
+
 	public void testUVM() throws IOException {
 		
-		fDebug = false ;
+		fDebug = true ;
 		
 		String test_name = "testBasicExamplePkg" ;
 		String bundle_dir_name = "basic_uvm" ;
 		String test_bundle_dir = "/data/doc_gen/" + bundle_dir_name ;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		doTestUVMExample(
 				test_name, 
@@ -132,7 +144,7 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		//
 		//
 		
-		SVCorePlugin.getDefault().enableDebug(fDebug) ;
+//		SVCorePlugin.getDefault().enableDebug(fDebug) ;
 		
 		DocModelFactory factory = new DocModelFactory() ;
 		DocModel model = factory.build(cfg) ;

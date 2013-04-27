@@ -10,9 +10,35 @@ public class SVDBFileSystemDataInput implements DataInput {
 	private int							fPagesIdx;
 	private int							fPageIdx;
 	private int							fPageLimit;
+	private int							fStartIdx = 0;
+	public boolean						fDebugRead = false;
 	
 	public SVDBFileSystemDataInput() {
 		fPages = new ArrayList<byte[]>();
+	}
+	
+	public int byteAt(int idx) {
+		idx += fStartIdx;
+		int pages_idx;
+		int page_idx;
+		
+		if (fPages.size() <= 1) {
+			pages_idx = 0;
+			page_idx = idx;
+		} else {
+			pages_idx = (idx / fPages.get(0).length);
+			page_idx = (idx % fPages.get(0).length);
+		}
+		
+		return fPages.get(pages_idx)[page_idx];
+	}
+	
+	public int getOffset() {
+		return (fPagesIdx*fPages.get(0).length)+fPageIdx;
+	}
+	
+	public void setStartIdx(int idx) {
+		fStartIdx = idx;
 	}
 
 	/**
@@ -23,6 +49,11 @@ public class SVDBFileSystemDataInput implements DataInput {
 	public void finalize(int data_length) {
 		// TODO:
 //		fPageLimit = fPages.get(fPagesIdx).length;
+	}
+	
+	public void reset() {
+		fPagesIdx = 0;
+		fPageIdx = 0;
 	}
 	
 	public List<byte[]> getPages() {
@@ -42,7 +73,7 @@ public class SVDBFileSystemDataInput implements DataInput {
 		for (int i=0; i<fPages.size(); i++) {
 			len += fPages.get(i).length;
 		}
-		return len;
+		return (len-fStartIdx);
 	}
 	
 	public void addPage(byte[] page) {
@@ -56,8 +87,10 @@ public class SVDBFileSystemDataInput implements DataInput {
 		int len = readInt();
 		byte tmp[] = new byte[len];
 		readFully(tmp);
+	
+		String ret = new String(tmp);
 		
-		return new String(tmp);
+		return ret;
 	}
 
 	public byte readByte() throws IOException {
@@ -69,7 +102,9 @@ public class SVDBFileSystemDataInput implements DataInput {
 			page = fPages.get(fPagesIdx);
 		}
 			
-		return page[fPageIdx++];
+		byte ret = page[fPageIdx++];
+		
+		return ret;
 	}
 
 	public void readFully(byte[] b) throws IOException {
@@ -100,13 +135,14 @@ public class SVDBFileSystemDataInput implements DataInput {
 			
 			// Full size available
 			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= tmp;
-			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 8);
+			ret |= (tmp << 24);
 			tmp = (page[fPageIdx++] & 0xFF);
 			ret |= (tmp << 16);
 			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 24);
+			ret |= (tmp << 8);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 0);
+			
 		} else {
 			byte page[] = fPages.get(fPagesIdx);
 			// Crosses a page boundary
@@ -115,38 +151,38 @@ public class SVDBFileSystemDataInput implements DataInput {
 					page = new_page();
 				}
 				tmp = (page[fPageIdx++] & 0xFF);
-				ret |= (tmp << 8*i);
+				ret |= (tmp << 8*(3-i));
 			}
 		}
-
+		
 		return ret;
 	}
 
 
 	public long readLong() throws IOException {
 		long ret = 0;
-		int tmp;
+		long tmp;
 		
 		if (fPageIdx+8 <= fPageLimit) {
 			byte page[] = fPages.get(fPagesIdx);
 			
 			// Full size available
 			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= tmp;
-			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 8);
-			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 16);
-			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 24);
-			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 32);
-			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 40);
+			ret |= (tmp << 56);
 			tmp = (page[fPageIdx++] & 0xFF);
 			ret |= (tmp << 48);
 			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= (tmp << 56);
+			ret |= (tmp << 40);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 32);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 24);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 16);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 8);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 0);
 		} else {
 			byte page[] = fPages.get(fPagesIdx);
 			// Crosses a page boundary
@@ -155,10 +191,10 @@ public class SVDBFileSystemDataInput implements DataInput {
 					page = new_page();
 				}
 				tmp = (page[fPageIdx++] & 0xFF);
-				ret |= (tmp << 8*i);
+				ret |= (tmp << 8*(7-i));
 			}
 		}
-
+		
 		return ret;
 	}
 
@@ -166,15 +202,14 @@ public class SVDBFileSystemDataInput implements DataInput {
 		short ret = 0;
 		int tmp;
 		
-		
 		if (fPageIdx+2 <= fPageLimit) {
 			byte page[] = fPages.get(fPagesIdx);
 			
 			// Full size available
 			tmp = (page[fPageIdx++] & 0xFF);
-			ret |= tmp;
-			tmp = (page[fPageIdx++] & 0xFF);
 			ret |= (tmp << 8);
+			tmp = (page[fPageIdx++] & 0xFF);
+			ret |= (tmp << 0);
 		} else {
 			byte page[] = fPages.get(fPagesIdx);
 			// Crosses a page boundary
@@ -183,10 +218,10 @@ public class SVDBFileSystemDataInput implements DataInput {
 					page = new_page();
 				}
 				tmp = (page[fPageIdx++] & 0xFF);
-				ret |= (tmp << 8*i);
+				ret |= (tmp << 8*(1-i));
 			}
 		}
-
+		
 		return ret;
 	}
 	
