@@ -276,24 +276,22 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	private synchronized void deleteEntry(SVDBFileIndexCacheEntry entry) throws IOException {
+		if (!entry.onList()) {
+			try {
+				throw new Exception("Attempting to remove " + entry.getPath() + " that isn't on list");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return;
+		}
 		if (entry.isCached()) {
 			removeFromCachedList(entry);
 		} else {
 			removeFromUnCachedList(entry);
 		}
+		entry.clrOnList();
 		
-		if (entry.getSVDBFileId() != -1) {
-			fFileSystem.deleteFile(entry.getPath(), entry.getSVDBFileId());
-		}
-		if (entry.getSVDBPreProcFileId() != -1) {
-			fFileSystem.deleteFile(entry.getPath(), entry.getSVDBPreProcFileId());
-		}
-		if (entry.getSVDBFileTreeId() != -1) {
-			fFileSystem.deleteFile(entry.getPath(), entry.getSVDBFileTreeId());
-		}
-		if (entry.getMarkersId() != -1) {
-			fFileSystem.deleteFile(entry.getPath(), entry.getMarkersId());
-		}
+		deleteStorage(entry);
 	}
 
 
@@ -368,18 +366,22 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		if (entry.getMarkersId() != -1) {
 			fFileSystem.deleteFile(
 					entry.getPath(), entry.getMarkersId());
+			entry.setMarkersId(-1);
 		}
 		if (entry.getSVDBFileId() != -1) {
 			fFileSystem.deleteFile(
 					entry.getPath(), entry.getSVDBFileId());
+			entry.setSVDBFileId(-1);
 		}
 		if (entry.getSVDBPreProcFileId() != -1) {
 			fFileSystem.deleteFile(
 					entry.getPath(), entry.getSVDBPreProcFileId());
+			entry.setSVDBPreProcFileId(-1);
 		}
 		if (entry.getSVDBFileTreeId() != -1) {
 			fFileSystem.deleteFile(
 					entry.getPath(), entry.getSVDBFileTreeId());
+			entry.setSVDBFileTreeId(-1);
 		}	
 	}
 
@@ -389,6 +391,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param entry
 	 */
 	private synchronized void addToUnCachedList(SVDBFileIndexCacheEntry entry) {
+		entry.setOnList();
 		if (fUnCachedHead == null) {
 			// First entry
 			fUnCachedHead = entry;
@@ -471,6 +474,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 				e.printStackTrace();
 			}
 		}
+		entry.setOnList();
 		if (fCacheHead == null) {
 			// First entry
 			fCacheHead = entry;

@@ -12,6 +12,7 @@ import net.sf.sveditor.core.log.LogHandle;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -159,15 +160,27 @@ public class SVTParser {
 		
 		if (parameters.getLength() > 0) {
 			Element e = (Element)parameters.item(0);
-			NodeList parameters_list = e.getElementsByTagName("parameter");
+			NodeList children = e.getChildNodes();
 			
-			for (int i=0; i<parameters_list.getLength(); i++) {
-				Element parameter = (Element)parameters_list.item(i);
-			
-				TemplateParameterBase p = parseParameter(t, parameter);
-				
-				if (p != null) {
-					t.addParameter(p);
+			for (int i=0; i<children.getLength(); i++) {
+				Node n = children.item(i);
+				if (n.getNodeName().equals("parameter")) {
+					Element parameter = (Element)n;
+
+					TemplateParameterBase p = parseParameter(t, parameter);
+
+					if (p != null) {
+						t.addParameter(p);
+					}
+				} else if (n.getNodeName().equals("group")) {
+					Element group = (Element)n;
+
+					TemplateParameterGroup g = parseGroup(t, group);
+
+					if (g != null) {
+						t.addParameter(g);
+					}
+
 				}
 			}
 		}
@@ -287,6 +300,39 @@ public class SVTParser {
 		
 		if (ret != null) {
 			ret.setDescription(description);
+		}
+		
+		return ret;
+	}
+	
+	private TemplateParameterGroup parseGroup(TemplateInfo t, Element group) {
+		TemplateParameterGroup ret = null;
+		
+		String name = group.getAttribute("name");
+
+		if (name != null) {
+			ret = new TemplateParameterGroup(name);
+			String description = null;
+
+			NodeList nl = group.getChildNodes();
+			
+			for (int i=0; i<nl.getLength(); i++) {
+				Node n = nl.item(i);
+				
+				if (n.getNodeName().equals("parameter")) {
+					TemplateParameterBase p = parseParameter(t, (Element)n);
+					ret.addParameter(p);
+				} else if (n.getNodeName().equals("group")) {
+					TemplateParameterGroup g = parseGroup(t, (Element)n);
+					ret.addParameter(g);
+				} else if (n.getNodeName().equals("description")) {
+					description = n.getTextContent();
+				}
+			}
+			
+			if (description != null) {
+				ret.setDescription(description);
+			}
 		}
 		
 		return ret;

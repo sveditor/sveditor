@@ -56,7 +56,7 @@ public class TestParseBehavioralStmts extends TestCase {
 			"	end\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest(SVLanguageLevel.Verilog2005, getName(),
 				doc, new String[] { "t" });

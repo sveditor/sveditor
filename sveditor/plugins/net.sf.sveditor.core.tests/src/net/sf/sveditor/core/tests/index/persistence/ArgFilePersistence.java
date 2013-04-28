@@ -502,7 +502,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 
 	public void testWSArgFileTimestampUnchanged() {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		

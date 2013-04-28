@@ -101,7 +101,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
-	public static boolean					fUseNewCacheMgr = true;
+	public static boolean					fUseNewCacheMgr = false;
 	
 	/**
 	 * The constructor
@@ -266,14 +266,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		fIndexBuilder.dispose();
 		
 		// Flush cache data out to the filesystem
-		if (fCacheMgr != null) {
-			fCacheMgr.sync();
-		}
+//		if (fCacheMgr != null) {
+//			fCacheMgr.sync();
+//		}
 		
 		// Close the index cache
-		if (fCacheFS != null) {
-			fCacheFS.close();
-		}
+//		if (fCacheFS != null) {
+//			fCacheFS.close();
+//		}
 		
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;

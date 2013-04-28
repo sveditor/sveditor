@@ -40,7 +40,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 	}
 	
 	public void testClass() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		ByteArrayOutputStream bos;
 		

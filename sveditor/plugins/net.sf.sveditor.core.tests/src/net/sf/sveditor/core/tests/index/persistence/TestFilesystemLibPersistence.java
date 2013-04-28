@@ -60,7 +60,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -144,7 +144,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	 * and checking whether the changed file list is detected on reload
 	 */
 	public void testFSLibIndexFilelistChangeDetected() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testFSLibIndexFilelistChangeDetected");
 		

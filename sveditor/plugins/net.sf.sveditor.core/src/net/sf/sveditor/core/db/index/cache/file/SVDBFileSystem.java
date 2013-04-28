@@ -71,7 +71,19 @@ public class SVDBFileSystem implements ILogLevelListener {
 			ret = false;
 		} else {
 			// Filesystem storage exists. See if we can open it
-			ret = open_filesystem(f);
+			try {
+				ret = open_filesystem(f);
+			} catch (IOException e) {
+				// Failed to open filesystem
+				ret = false;
+				cleanup();
+				initialize();
+			} catch (Exception e) {
+				// Failed to open filesystem
+				ret = false;
+				cleanup();
+				initialize();
+			}
 		}
 	
 		return ret;
@@ -431,7 +443,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		int writer_blk_id = (id % FILE_BLK_SIZE);
 		
 		if (writer_id >= fFileRWList.size()) {
-			throw new RuntimeException("writer_id " + writer_id + " out of range; id=" + id + " size is " + fFileRWList.size());
+			throw new IOException("writer_id " + writer_id + " out of range; id=" + id + " size is " + fFileRWList.size());
 		}
 	
 		RandomAccessFile rw = fFileRWList.get(writer_id);

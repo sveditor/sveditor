@@ -16,8 +16,23 @@
       [Enter License Description here.]
    </license>
 
-   <includes
-         id="net.sf.sveditor.core.feature"
-         version="0.0.0"/>
+   <requires>
+      <import feature="net.sf.sveditor.core.feature" version="1.2.3"/>
+      <import feature="net.sf.sveditor.ui.feature" version="1.2.3"/>
+   </requires>
+
+   <plugin
+         id="net.sf.sveditor.svt.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.sf.sveditor.svt.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

@@ -62,7 +62,7 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 	
 	
 	public void testMissingIncludeAdded() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 	
 		int_testMissingIncludeAdded("testMissingIncludeAdded", fTmpDir);
 	}

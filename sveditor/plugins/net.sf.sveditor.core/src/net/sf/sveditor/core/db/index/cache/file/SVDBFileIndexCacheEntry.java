@@ -24,7 +24,8 @@ public class SVDBFileIndexCacheEntry {
 	
 	private	SVDBFileIndexCacheEntry			fPrev;
 	private	SVDBFileIndexCacheEntry			fNext;
-	
+
+	private boolean							fOnList;
 	private boolean							fCached;
 
 	/**
@@ -70,6 +71,19 @@ public class SVDBFileIndexCacheEntry {
 		fMarkersId = -1;
 		fCached = false;
 		fType = type;
+		fOnList = false;
+	}
+	
+	public void setOnList() {
+		fOnList = true;
+	}
+	
+	public void clrOnList() {
+		fOnList = false;
+	}
+	
+	public boolean onList() {
+		return fOnList;
 	}
 	
 	public void write(SVDBFileSystemDataOutput dos) throws IOException {

@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.Path;
 public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 	
 	public void testArgFileChange() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		int_testArgFileChange(fTmpDir);
 	}

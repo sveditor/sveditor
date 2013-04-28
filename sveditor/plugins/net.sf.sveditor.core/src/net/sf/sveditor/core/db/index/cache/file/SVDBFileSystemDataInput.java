@@ -225,10 +225,13 @@ public class SVDBFileSystemDataInput implements DataInput {
 		return ret;
 	}
 	
-	private byte [] new_page() {
+	private byte [] new_page() throws IOException {
 		byte page[] = null;
 	
 		fPagesIdx++;
+		if (fPagesIdx >= fPages.size()) {
+			throw new IOException("EOF Exception");
+		}
 		page = fPages.get(fPagesIdx);
 		fPageIdx = 0;
 		fPageLimit = page.length;	

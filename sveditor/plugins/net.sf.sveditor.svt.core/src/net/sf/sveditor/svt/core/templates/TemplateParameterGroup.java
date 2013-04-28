@@ -9,6 +9,7 @@ public class TemplateParameterGroup extends TemplateParameterBase {
 	public TemplateParameterGroup(String name) {
 		super(TemplateParameterType.ParameterType_Group);
 		fParameters = new ArrayList<TemplateParameterBase>();
+		setName(name);
 	}
 
 	public TemplateParameterGroup(TemplateParameterGroup other) {
