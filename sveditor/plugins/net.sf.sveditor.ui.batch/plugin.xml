@@ -6,6 +6,7 @@
       <launchConfigurationType
             delegate="net.sf.sveditor.ui.batch.JavaScriptLauncher"
             id="net.sf.sveditor.ui.batch.jsLauncher"
+            modes="run"
             name="SVEditor JavaScript"
             public="true">
       </launchConfigurationType>

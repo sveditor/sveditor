@@ -99,7 +99,23 @@ public class SVTContentProvider implements ITreeContentProvider {
 					
 					if (n instanceof Element) {
 						Element el = (Element)n;
-						if (el.getNodeName().equals("parameter")) {
+						if (el.getNodeName().equals("parameter") || el.getNodeName().equals("group")) {
+							ret.add(el);
+						}
+					}
+				}
+				
+				return ret.toArray();
+			} else if (e.getNodeName().equals("group")) {
+				ArrayList<Element> ret = new ArrayList<Element>();
+				NodeList nl = e.getChildNodes();
+				
+				for (int i=0; i<nl.getLength(); i++) {
+					Node n = nl.item(i);
+					
+					if (n instanceof Element) {
+						Element el = (Element)n;
+						if (el.getNodeName().equals("parameter") || el.getNodeName().equals("group")) {
 							ret.add(el);
 						}
 					}

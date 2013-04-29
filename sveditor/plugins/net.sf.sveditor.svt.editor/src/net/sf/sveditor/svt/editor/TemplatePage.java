@@ -11,15 +11,25 @@ import net.sf.sveditor.ui.EditorInputUtils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,6 +49,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.Section;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class TemplatePage extends FormPage {
@@ -46,6 +57,18 @@ public class TemplatePage extends FormPage {
 	private TreeViewer					fTreeViewer;
 	private Document					fDocument;
 	private Element						fRoot;
+	
+	private StackLayout					fButtonLayout;
+	private Composite					fButtonPaneParent;
+	
+	private Composite					fParameterButtons;
+	private Button						fAddParameterButton;
+	private Button						fAddParameterGroupButton;
+	private Button						fRemoveParameterButton;
+	private Button						fMoveParameterUpButton;
+	private Button						fMoveParameterDownButton;
+	
+	private Composite					fDefaultButtons;
 	private Button						fAddButton;
 	private Button						fRemoveButton;
 	
@@ -54,6 +77,7 @@ public class TemplatePage extends FormPage {
 	private Element						fActiveElement;
 	
 	private Composite					fNoDetailsPane;
+	
 	private Composite					fTemplateDetailsPane;
 	private Text						fTemplateName;
 	private Text						fTemplateId;
@@ -69,6 +93,10 @@ public class TemplatePage extends FormPage {
 	private Button						fParameterExtFromClassBrowse;
 	private Text						fParameterDefault;
 	private Text						fParameterDescription;
+	
+	private Composite					fParameterGroupDetailsPane;
+	private Text						fParameterGroupName;
+	private Text						fParameterGroupDescription;
 	
 	private Composite					fFileDetailsPane;
 	private Text						fFileName;
@@ -133,16 +161,28 @@ public class TemplatePage extends FormPage {
 		fTreeViewer.setLabelProvider(new SVTLabelProvider());
 		fTreeViewer.setInput(fDocument);
 		fTreeViewer.addSelectionChangedListener(selectionChangedListener);
+		int operations = DND.DROP_MOVE;
+		Transfer transfer_types[] = new Transfer[] {TextTransfer.getInstance()};
 		
-		Composite bb = tk.createComposite(left);
-		bb.setLayout(new GridLayout());
-		bb.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
-		fAddButton = tk.createButton(bb, "Add", SWT.PUSH);
-		fAddButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fAddButton.addSelectionListener(selectionListener);
-		fRemoveButton = tk.createButton(bb, "Remove", SWT.PUSH);
-		fRemoveButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fRemoveButton.addSelectionListener(selectionListener);
+		fTreeViewer.addDragSupport(operations, transfer_types, 
+				new TemplateDragSource(fTreeViewer));
+		fTreeViewer.addDropSupport(operations, transfer_types,
+				new TemplateDropAdapter(fTreeViewer));
+		
+		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
+				boolean exp = fTreeViewer.getExpandedState(sel.getFirstElement());
+				fTreeViewer.setExpandedState(sel.getFirstElement(), !exp);
+			}
+		});
+		
+		fButtonPaneParent = tk.createComposite(left);
+		fButtonLayout = new StackLayout();
+		fButtonPaneParent.setLayout(fButtonLayout);
+		fButtonPaneParent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
+		
+		createButtons(tk, fButtonPaneParent);
 		
 		s = tk.createSection(sash, ExpandableComposite.TITLE_BAR);
 		s.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -160,6 +200,8 @@ public class TemplatePage extends FormPage {
 		
 		fParameterDetailsPane = createParameterDetailsPane(tk, fDetailsPaneParent);
 		
+		fParameterGroupDetailsPane = createParameterGroupDetailsPane(tk, fDetailsPaneParent);
+		
 		fFileDetailsPane = createFileDetailsPane(tk, fDetailsPaneParent);
 		
 		fCategoryDetailsPane = createCategoryDetailsPane(tk, fDetailsPaneParent);
@@ -167,11 +209,49 @@ public class TemplatePage extends FormPage {
 		fTreeViewer.setSelection(new StructuredSelection("Templates"));
 		
 		setDetailsPane(fNoDetailsPane);
+		setButtonsPane(fDefaultButtons);
+	}
+	
+	private void createButtons(FormToolkit tk, Composite bb) {
+		// Create the Parameter buttons
+		fParameterButtons = tk.createComposite(bb);
+		fParameterButtons.setLayout(new GridLayout());
+		
+		fAddParameterButton = tk.createButton(fParameterButtons, "Add Parameter", SWT.PUSH);
+		fAddParameterButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fAddParameterButton.addSelectionListener(selectionListener);
+		fAddParameterGroupButton = tk.createButton(fParameterButtons, "Add Group", SWT.PUSH);
+		fAddParameterGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fAddParameterGroupButton.addSelectionListener(selectionListener);
+		fRemoveParameterButton = tk.createButton(fParameterButtons, "Remove", SWT.PUSH);
+		fRemoveParameterButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fRemoveParameterButton.addSelectionListener(selectionListener);
+		fMoveParameterUpButton = tk.createButton(fParameterButtons, "Up", SWT.PUSH);
+		fMoveParameterUpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fMoveParameterUpButton.addSelectionListener(selectionListener);
+		fMoveParameterDownButton = tk.createButton(fParameterButtons, "Down", SWT.PUSH);
+		fMoveParameterDownButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fMoveParameterDownButton.addSelectionListener(selectionListener);
+		
+		// Create the default buttons
+		fDefaultButtons = tk.createComposite(bb);
+		fDefaultButtons.setLayout(new GridLayout());
+		fAddButton = tk.createButton(fDefaultButtons, "Add", SWT.PUSH);
+		fAddButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fAddButton.addSelectionListener(selectionListener);
+		fRemoveButton = tk.createButton(fDefaultButtons, "Remove", SWT.PUSH);
+		fRemoveButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		fRemoveButton.addSelectionListener(selectionListener);
 	}
 	
 	private void setDetailsPane(Composite p) {
 		fStackLayout.topControl = p;
 		fDetailsPaneParent.layout();
+	}
+	
+	private void setButtonsPane(Composite p) {
+		fButtonLayout.topControl = p;
+		fButtonPaneParent.layout();
 	}
 	
 	private Composite createTemplateDetailsPane(
@@ -296,6 +376,38 @@ public class TemplatePage extends FormPage {
 		return c;
 	}
 
+	private Composite createParameterGroupDetailsPane(
+			FormToolkit			tk,
+			Composite 			parent) {
+		GridData gd;
+		Composite c = tk.createComposite(parent);
+		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		c.setLayout(new GridLayout(3, false));
+		
+		tk.createLabel(c, "Name:");
+		fParameterGroupName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
+		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd.horizontalSpan = 2;
+		fParameterGroupName.setLayoutData(gd);
+		fParameterGroupName.addModifyListener(modifyListener);
+		fAttrMap.put(fParameterGroupName, "name");
+		
+		Group g = new Group(c, SWT.NONE);
+		g.setText("Description");
+		tk.adapt(g);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.horizontalSpan = 3;
+		g.setLayoutData(gd);
+		g.setLayout(new GridLayout());
+		fParameterGroupDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterGroupDescription.addModifyListener(modifyListener);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		fParameterGroupDescription.setLayoutData(gd);
+		fElemMap.put(fParameterGroupDescription, "description");		
+		
+		return c;
+	}
+	
 	private Composite createFileDetailsPane(
 			FormToolkit			tk,
 			Composite 			parent) {
@@ -379,6 +491,7 @@ public class TemplatePage extends FormPage {
 		fControlModify = false;
 
 		setDetailsPane(fTemplateDetailsPane);
+		setButtonsPane(fDefaultButtons);
 	}
 	
 	private void setFileContext(Element file) {
@@ -394,6 +507,7 @@ public class TemplatePage extends FormPage {
 
 		fControlModify = false;
 		setDetailsPane(fFileDetailsPane);
+		setButtonsPane(fDefaultButtons);
 	}
 
 	private void setParameterContext(Element file) {
@@ -417,6 +531,26 @@ public class TemplatePage extends FormPage {
 		fControlModify = false;
 
 		setDetailsPane(fParameterDetailsPane);
+		setButtonsPane(fParameterButtons);
+	}
+	
+	private void setParameterGroupContext(Element file) {
+		fAddParameterButton.setEnabled(true);
+		fAddParameterGroupButton.setEnabled(true);
+		fRemoveParameterButton.setEnabled(true);
+		// TODO: Up/Down
+
+		fActiveElement = file;
+		
+		fControlModify = true;
+	
+		fParameterGroupName.setText(getAttribute(fActiveElement, "name"));
+		fParameterGroupDescription.setText(getElementText(fActiveElement, "description"));
+		
+		fControlModify = false;
+
+		setDetailsPane(fParameterGroupDetailsPane);
+		setButtonsPane(fParameterButtons);
 	}
 	
 	private void updateParameterFields() {
@@ -461,6 +595,7 @@ public class TemplatePage extends FormPage {
 		fControlModify = false;
 
 		setDetailsPane(fCategoryDetailsPane);
+		setButtonsPane(fDefaultButtons);
 	}
 
 	public void setRoot(Document doc, Element root) {
@@ -520,6 +655,14 @@ public class TemplatePage extends FormPage {
 		return ret;
 	}
 
+	private Element createParameterGroup() {
+		Element ret = fDocument.createElement("group");
+		
+		ret.setAttribute("name", "");
+		
+		return ret;
+	}
+	
 	private Element createFile() {
 		Element ret = fDocument.createElement("file");
 		
@@ -530,7 +673,6 @@ public class TemplatePage extends FormPage {
 		Element new_elem = null;
 		Element target = null;
 		
-		System.out.println("Active Element: " + fActiveElement.getNodeName());
 		if (fActiveElement.getNodeName().equals("Templates") ||
 				fActiveElement.getNodeName().equals("template")) {
 			// Create a new template
@@ -589,6 +731,115 @@ public class TemplatePage extends FormPage {
 		fIsDirty = true;
 		getEditor().editorDirtyStateChanged();
 	}
+	
+	private void addParameter() {
+		Element new_elem = null;
+		Element target = null;
+		Node next_elem = null;
+		
+		if (fActiveElement.getNodeName().equals("parameters")) {
+			target = fActiveElement;
+		} else {
+			target = (Element)fActiveElement.getParentNode();
+		}
+
+		next_elem = fActiveElement;
+		while ((next_elem = next_elem.getNextSibling()) != null && 
+				!(next_elem instanceof Element)) { }
+		
+		new_elem = createParameter();
+		
+		if (new_elem != null) {
+			target.insertBefore(new_elem, next_elem);
+			fActiveElement = new_elem;
+			fTreeViewer.refresh();
+			fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					fTreeViewer.expandToLevel(fActiveElement, 0);
+					fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+				}
+			});
+			// TODO: notify dirty
+			fIsDirty = true;
+			getEditor().editorDirtyStateChanged();
+		}
+	}
+	
+	private void addParameterGroup() {
+		Element new_elem = null;
+		Element target = null;
+		Element next_elem = null;
+
+		if (fActiveElement.getNodeName().equals("parameters")) {
+			target = fActiveElement;
+		} else {
+			target = (Element)fActiveElement.getParentNode();
+		}
+		
+		next_elem = (Element)fActiveElement.getNextSibling();
+		
+		new_elem = createParameterGroup();
+		
+		if (new_elem != null) {
+			target.insertBefore(new_elem, next_elem);
+			fActiveElement = new_elem;
+			fTreeViewer.refresh();
+			fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+				public void run() {
+					fTreeViewer.expandToLevel(fActiveElement, 0);
+					fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+				}
+			});
+			// TODO: notify dirty
+			fIsDirty = true;
+			getEditor().editorDirtyStateChanged();
+		}		
+	}
+	
+	private void removeParameter() {
+		// TODO: should probably recognize multiple selected parameters
+		
+		// Locate the new element to select
+		Element new_selection = null;
+		
+		Element parent = (Element)fActiveElement.getParentNode();
+		List<Element> el_l = getElements(parent.getChildNodes());
+		
+
+		
+		for (int i=0; i<el_l.size(); i++) {
+			Element n = el_l.get(i);
+
+			if (fActiveElement == n) {
+				if (i == 0 && (i+1) >= el_l.size()) {
+					// Select the parent
+					new_selection = fActiveElement;
+				} else if (i+1 >= el_l.size()) {
+					// End of the non-zero list
+					new_selection = el_l.get(i-1);
+				} else {
+					// New selection is the next element
+					new_selection = el_l.get(i+1);
+				}
+			}
+		}
+
+		fActiveElement.getParentNode().removeChild(fActiveElement);
+		fTreeViewer.refresh();
+		
+		fIsDirty = true;
+		getEditor().editorDirtyStateChanged();
+		
+		fTreeViewer.setSelection(new StructuredSelection(new_selection));
+	}
+	
+	private void moveParameterUp() {
+		
+	}
+	
+	private void moveParameterDown() {
+		
+	}
 
 	private SelectionListener selectionListener = new SelectionListener() {
 		public void widgetDefaultSelected(SelectionEvent e) {}
@@ -598,6 +849,16 @@ public class TemplatePage extends FormPage {
 				addElement();
 			} else if (e.widget == fRemoveButton) {
 				removeElement();
+			} else if (e.widget == fAddParameterButton) {
+				addParameter();
+			} else if (e.widget == fAddParameterGroupButton) {
+				addParameterGroup();
+			} else if (e.widget == fRemoveParameterButton) {
+				removeParameter();
+			} else if (e.widget == fMoveParameterUpButton) {
+				moveParameterUp();
+			} else if (e.widget == fMoveParameterDownButton) {
+				moveParameterDown();
 			} else if (e.widget == fParameterType) {
 				if (!fControlModify) {
 					setAttr(fActiveElement, "type", fParameterType.getText());
@@ -636,23 +897,31 @@ public class TemplatePage extends FormPage {
 				fAddButton.setEnabled(true);
 				fRemoveButton.setEnabled(false);
 				setDetailsPane(fNoDetailsPane);
+				setButtonsPane(fDefaultButtons);
 				
 				fActiveElement = fDocument.createElement(e);
 			} else {
 				Element e = (Element)ss.getFirstElement();
 				fActiveElement = e;
 				if (e.getNodeName().equals("sv_template") ||
-						e.getNodeName().equals("parameters") ||
 						e.getNodeName().equals("files")) {
 					fAddButton.setEnabled(true);
 					fRemoveButton.setEnabled(false);
 					setDetailsPane(fNoDetailsPane);
+					setButtonsPane(fDefaultButtons);
+				} else if (e.getNodeName().equals("parameters")) {
+					fAddButton.setEnabled(true);
+					fRemoveButton.setEnabled(false);
+					setDetailsPane(fNoDetailsPane);
+					setButtonsPane(fParameterButtons);
 				} else if (e.getNodeName().equals("template")) {
 					setTemplateContext(e);
 				} else if (e.getNodeName().equals("file")) {
 					setFileContext(e);
 				} else if (e.getNodeName().equals("parameter")) {
 					setParameterContext(e);
+				} else if (e.getNodeName().equals("group")) {
+					setParameterGroupContext(e);
 				} else if (e.getNodeName().equals("category")) {
 					setCategoryContext(e);
 				} else {
@@ -682,6 +951,60 @@ public class TemplatePage extends FormPage {
 			fTreeViewer.refresh();
 		}
 	};
+	
+	private class TemplateDragSource implements DragSourceListener {
+		private TreeViewer			fViewer;
+		
+		public TemplateDragSource(TreeViewer viewer) {
+			fViewer = viewer;
+		}
+
+		@Override
+		public void dragStart(DragSourceEvent event) {
+			// TODO Auto-generated method stub
+			System.out.println("dragStart");
+			
+		}
+
+		@Override
+		public void dragSetData(DragSourceEvent event) {
+			// TODO Auto-generated method stub
+			
+			System.out.println("dragSetData");
+		}
+
+		@Override
+		public void dragFinished(DragSourceEvent event) {
+			// TODO Auto-generated method stub
+			
+			System.out.println("dragFinished");
+		}
+		
+	}
+	
+	private class TemplateDropAdapter extends ViewerDropAdapter {
+		
+		public TemplateDropAdapter(Viewer viewer) {
+			super(viewer);
+		}
+
+		@Override
+		public boolean performDrop(Object data) {
+			System.out.println("performDrop");
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean validateDrop(
+				Object 			target, 
+				int 			operation,
+				TransferData 	transferType) {
+			System.out.println("validateDrop: " + target + " " + operation + " " + transferType);
+			// TODO Auto-generated method stub
+			return false;
+		}
+	}
 	
 	private void setAttr(Element elem, String attr, String value) {
 		elem.setAttribute(attr, value);
@@ -735,4 +1058,16 @@ public class TemplatePage extends FormPage {
 		return ret;
 	}
 	
+	private List<Element> getElements(NodeList nl) {
+		List<Element> el_l = new ArrayList<Element>();
+		for (int i=0; i<nl.getLength(); i++) {
+			Node n = nl.item(i);
+			if (n instanceof Element) {
+				el_l.add((Element)n);
+			}
+		}
+
+		return el_l;
+	}
+
 }

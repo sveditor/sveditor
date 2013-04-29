@@ -22,6 +22,8 @@ public class SVTLabelProvider extends LabelProvider {
 				return "Parameters";
 			} else if (e.getNodeName().equals("parameter")) {
 				return getAttr(e, "name", "[Unnamed]") + " : " + getAttr(e, "type", "[Untyped]");
+			} else if (e.getNodeName().equals("group")) {
+				return getAttr(e, "name", "[Unnamed]") + " : Group";
 			} else if (e.getNodeName().equals("files")) {
 				return "Files";
 			} else if (e.getNodeName().equals("file")) {
