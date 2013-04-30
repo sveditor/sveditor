@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -37,56 +36,45 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestVmmBasics extends TestCase {
+public class TestVmmBasics extends SVCoreTestCaseBase {
 	
 	private IProject		fProject;
-	private File			fTmpDir;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		SVCorePlugin.setTestMode();
-		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 			fProject = null;
 		}
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
+		
+		super.tearDown();
 	}
 
 	public void testBasicProcessing() {
 		LogHandle log = LogFactory.getLogHandle("testBasicProcessing");
 		SVCorePlugin.getDefault().enableDebug(false);
-		File tmpdir = new File(fTmpDir, "no_errors");
-		
-		if (tmpdir.exists()) {
-			TestUtils.delete(tmpdir);
-		}
-		assertTrue(tmpdir.mkdirs());
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(tmpdir));
+		rgy.init(fCacheFactory);
 	
 		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 		index_mgr.addPluginLibrary(
@@ -138,13 +126,8 @@ public class TestVmmBasics extends TestCase {
 		
 		fProject = TestUtils.createProject("ethernet", ethernet);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", "${workspace_loc}/ethernet/ethernet.f",
@@ -188,13 +171,8 @@ public class TestVmmBasics extends TestCase {
 		
 		fProject = TestUtils.createProject("wishbone", wishbone);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), 
 				"GENERIC", "${workspace_loc}/wishbone/wishbone.f",
@@ -239,13 +217,8 @@ public class TestVmmBasics extends TestCase {
 
 		fProject = TestUtils.createProject("scenarios", scenarios);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",

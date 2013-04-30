@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.core.text.TagProcessor;
+import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.svt.core.text.TagProcessor;
 
 public class TestTemplateProcessor extends TestCase {
 	

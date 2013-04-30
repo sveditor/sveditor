@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -31,8 +30,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -41,30 +40,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestSrcCollectionWSChanges extends TestCase 
+public class TestSrcCollectionWSChanges extends SVCoreTestCaseBase 
 	implements ISVDBIndexChangeListener {
 	
 	private int						fIndexRebuilt;
-	private File					fTmpDir;
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		fTmpDir = TestUtils.createTempDir();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-		
-		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
-	}
 
 	public void testFileAdded() {
 		fIndexRebuilt = 0;
@@ -80,7 +59,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -193,7 +172,7 @@ public class TestSrcCollectionWSChanges extends TestCase
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),

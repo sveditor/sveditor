@@ -60,7 +60,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	private SVDBIndexCollectionMgr							fIndexCollectionMgr;
 	private SVDBIndexCollection								fGlobalIndexMgr;
 	private List<ISVDBIndex>								fIndexList;
-	private ISVDBIndexCacheMgr							fCacheFactory;
+	private ISVDBIndexCacheMgr								fCacheFactory;
 	private boolean											fAutoRebuildEn;
 	private LogHandle										fLog;
 
@@ -259,7 +259,11 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			if (type.equals(SVDBShadowIndexFactory.TYPE)) {
 				cache = new InMemoryIndexCache();
 			} else {
-				cache = fCacheFactory.createIndexCache(project, base_location);
+				cache = fCacheFactory.findIndexCache(project, base_location);
+				
+				if (cache == null) {
+					cache = fCacheFactory.createIndexCache(project, base_location);
+				}
 			}
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
@@ -327,7 +331,11 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		
 		if (ret == null) {
 			fLog.debug("    Index does not exist -- creating");
-			ISVDBIndexCache cache = fCacheFactory.createIndexCache(project, base_location);
+			ISVDBIndexCache cache = fCacheFactory.findIndexCache(project, base_location);
+
+			if (cache == null) {
+				cache = fCacheFactory.createIndexCache(project, base_location);
+			}
 			
 			// See about creating a new index
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
@@ -365,32 +373,40 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	}
 
 	/**
-	 * Saves the state of loaded indexes to the state_location directory
+	 * Saves the state of the indexes and closes down the index registry
 	 */
-	public void save_state() {
-		fLog.debug("save_state()");
-		
-		synchronized (fIndexList) {
-			for (ISVDBIndex i : fIndexList) {
-				i.dispose();
-			}
-		}
-		
-		if (fCacheFactory != null) {
-			List<ISVDBIndexCache> cache_l = new ArrayList<ISVDBIndexCache>();
+	public void close() {
+		fLog.debug("close()");
+	
+		if (SVCorePlugin.fUseNewCacheMgr && fCacheFactory != null) {
+			// Close down the cache factory
+			fCacheFactory.dispose();
+			
+		} else {
+			// Old behavior
 			synchronized (fIndexList) {
 				for (ISVDBIndex i : fIndexList) {
-					if (!cache_l.contains(i.getCache()) && i.getCache() != null) {
-						cache_l.add(i.getCache());
-					}
+					i.dispose();
 				}
 			}
 			
-			// Compact the cache-storage area
-			fCacheFactory.compactCache(cache_l);
+			if (fCacheFactory != null) {
+				List<ISVDBIndexCache> cache_l = new ArrayList<ISVDBIndexCache>();
+				synchronized (fIndexList) {
+					for (ISVDBIndex i : fIndexList) {
+						if (!cache_l.contains(i.getCache()) && i.getCache() != null) {
+							cache_l.add(i.getCache());
+						}
+					}
+				}
+				
+				// Compact the cache-storage area
+				fCacheFactory.compactCache(cache_l);
+			}			
 		}
-		
+
 		fIndexList.clear();
+		fCacheFactory = null;
 	}
 	
 	

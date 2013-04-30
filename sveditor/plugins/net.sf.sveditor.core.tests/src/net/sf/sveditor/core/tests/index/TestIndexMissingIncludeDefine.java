@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SaveMarkersFileSystemProvider;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -37,27 +38,15 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestIndexMissingIncludeDefine extends TestCase {
-	
-	private File					fTmpDir;
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		fTmpDir = TestUtils.createTempDir();
-	}
+public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 	
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
-		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
+		rgy.close();
+		
+		super.tearDown();
 	}
 
 	
@@ -75,7 +64,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
@@ -98,7 +87,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/pkg.f",
@@ -122,7 +111,7 @@ public class TestIndexMissingIncludeDefine extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def",

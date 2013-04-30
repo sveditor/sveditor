@@ -97,20 +97,19 @@ public class SVOpenTypeDialog extends FilteredItemsSelectionDialog {
 			AbstractContentProvider 	content_provider,
 			ItemsFilter 				filter, 
 			IProgressMonitor 			monitor) throws CoreException {
-		int count = 0;
 		ISVDBIndexIterator index_it = fIndexIt;
-		SubProgressMonitor find_monitor = new SubProgressMonitor(monitor, 1);
-		List<SVDBDeclCacheItem> items = 
-				index_it.findGlobalScopeDecl(find_monitor, "", new SVDBAllTypeMatcher());
 		
-		synchronized (items) {
-			for (SVDBDeclCacheItem i : items) {
-				content_provider.add(i, filter);
-				count++;
+		if (index_it != null) {
+			SubProgressMonitor find_monitor = new SubProgressMonitor(monitor, 1);
+			List<SVDBDeclCacheItem> items = 
+					index_it.findGlobalScopeDecl(find_monitor, "", new SVDBAllTypeMatcher());
+
+			synchronized (items) {
+				for (SVDBDeclCacheItem i : items) {
+					content_provider.add(i, filter);
+				}
 			}
 		}
-		
-		System.out.println("Added " + count + " items");
 		
 		monitor.done();
 	}

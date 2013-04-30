@@ -96,6 +96,28 @@ public class DocCommentParser implements IDocCommentParser {
 		
 		return null ;
 	}
+
+	/* (non-Javadoc)
+	 * @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
+	 */
+	public static String extractBody(String comment) {
+		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
+		StringBuilder ret = new StringBuilder();
+		boolean found_topic = false;
+		
+		for(String line: lines) {
+			if (!found_topic) {
+				Matcher matcher = fPatternIsDocComment.matcher(line) ;
+				if(matcher.matches()) {
+					found_topic = true;
+				}
+			} else {
+				ret.append(line + "\n");
+			}
+		}
+		
+		return ret.toString();
+	}
 	
 	public DocTopic createDocItemForKeyword(String keyword, String topicTitle) {
 		DocKeywordInfo kwi = fDocTopics.getTopicType(keyword.toLowerCase()) ;

@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -26,8 +25,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -35,20 +34,20 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-public class WSLibIndexFileChanges extends TestCase {
+public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 	
-	private File				fTmpDir;
 	private IProject			fProject;
 
 	@Override
 	protected void setUp() throws Exception {
+		super.setUp();
 		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
 		SVCorePlugin.getJobMgr().dispose();
 		
 		if (fProject != null) {
@@ -57,11 +56,8 @@ public class WSLibIndexFileChanges extends TestCase {
 		
 		System.out.println("fTmpDir=" + fTmpDir);
 		System.out.println("exists: " + fTmpDir.exists());
-		
-		if (fTmpDir != null && fTmpDir.exists()) {
-			System.out.println("Deleting tmpdir");
-			TestUtils.delete(fTmpDir);
-		}
+	
+		super.tearDown();
 	}
 	
 	
@@ -79,8 +75,7 @@ public class WSLibIndexFileChanges extends TestCase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", fProject);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(tmpdir));
+		SVDBIndexRegistry rgy = fIndexRgy;
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 

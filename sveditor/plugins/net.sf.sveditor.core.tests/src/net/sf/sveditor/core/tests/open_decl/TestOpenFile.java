@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -36,6 +35,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -45,26 +45,21 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestOpenFile extends TestCase {
-	private File			fTmpDir;
+public class TestOpenFile extends SVCoreTestCaseBase {
 	private IProject		fProject;
 	
-	@Override
 	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
+		super.setUp();
 		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 		}
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
+		
+		super.tearDown();
 	}
 
 	public void testRelPathOpenDecl() throws IOException {
@@ -82,7 +77,7 @@ public class TestOpenFile extends TestCase {
 			fProject = TestUtils.createProject("subdir2", subdir2);
 			
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			rgy.init(TestIndexCacheFactory.instance(null));
+			rgy.init(TestIndexCacheFactory.instance());
 			
 			ISVDBIndex target_index = rgy.findCreateIndex(new NullProgressMonitor(),
 					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",

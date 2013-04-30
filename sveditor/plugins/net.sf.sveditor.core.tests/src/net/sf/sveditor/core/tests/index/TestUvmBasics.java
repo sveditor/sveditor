@@ -48,6 +48,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -58,32 +59,28 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestUvmBasics extends TestCase {
+public class TestUvmBasics extends SVCoreTestCaseBase {
 	
-	private File			fTmpDir;
 	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 	
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 			fProject = null;
 		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
+		
+		super.tearDown();
 	}
 	
 	public void testBasicExamplePkg() {
@@ -308,13 +305,8 @@ public class TestUvmBasics extends TestCase {
 		
 		fProject = TestUtils.createProject("uvm", uvm_src);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
@@ -456,13 +448,8 @@ public class TestUvmBasics extends TestCase {
 		
 		SVFileUtils.writeToFile(listFile, listFileContent) ;
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = 
 			rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",

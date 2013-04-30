@@ -15,7 +15,6 @@ package net.sf.sveditor.core.tests.content_assist;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
@@ -36,30 +35,29 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestArrayContentAssist extends TestCase {
+public class TestArrayContentAssist extends SVCoreTestCaseBase {
 	private static ContentAssistIndex			fIndex;
-	private static SVDBIndexCollection		fIndexMgr;
+	private static SVDBIndexCollection			fIndexMgr;
 	
 	@Override
 	protected void setUp() throws Exception {
-		if (fIndexMgr == null) {
-			System.out.println("setUp");
-			fIndex = new ContentAssistIndex();
-			fIndex.init(new NullProgressMonitor());
-			fIndexMgr = new SVDBIndexCollection("GLOBAL");
-			fIndexMgr.addLibraryPath(fIndex);
-			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					SVDBIndexRegistry.GLOBAL_PROJECT, 
-					SVCorePlugin.SV_BUILTIN_LIBRARY, 
-					SVDBPluginLibIndexFactory.TYPE, null);
-			fIndexMgr.addPluginLibrary(index);
-		}
+		super.setUp();
+		fIndex = new ContentAssistIndex();
+		fIndex.init(new NullProgressMonitor());
+		fIndexMgr = new SVDBIndexCollection("GLOBAL");
+		fIndexMgr.addLibraryPath(fIndex);
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+				SVDBIndexRegistry.GLOBAL_PROJECT, 
+				SVCorePlugin.SV_BUILTIN_LIBRARY, 
+				SVDBPluginLibIndexFactory.TYPE, null);
+		fIndexMgr.addPluginLibrary(index);		
 	}
 	
 	public void testMultiple() {

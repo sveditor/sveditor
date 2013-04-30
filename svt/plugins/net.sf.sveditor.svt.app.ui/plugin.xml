@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="net.sf.sveditor.svt.app.ui.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="RCP Perspective"
+            class="net.sf.sveditor.svt.app.ui.Perspective"
+            id="net.sf.sveditor.svt.app.ui.perspective">
+      </perspective>
+   </extension>
+
+</plugin>

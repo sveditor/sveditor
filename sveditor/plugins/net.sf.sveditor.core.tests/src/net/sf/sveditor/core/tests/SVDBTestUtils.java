@@ -44,6 +44,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
@@ -181,26 +182,63 @@ public class SVDBTestUtils {
 		
 		return ret;
 	}
+
+	public static SVDBFile parse(
+			LogHandle 			log, 
+			String 				content, 
+			String 				filename, 
+			boolean 			exp_err) {
+		return parse(log, SVLanguageLevel.SystemVerilog, 
+				content, filename, exp_err);
+	}
 	
-	public static SVDBFile parse(LogHandle log, String content, String filename, boolean exp_err) {
+	public static SVDBFile parse(
+			LogHandle 			log, 
+			SVLanguageLevel		language,
+			String 				content, 
+			String 				filename, 
+			boolean 			exp_err) {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = parse(log, content, filename, markers);
+		SVDBFile file = parse(log, language, content, filename, markers);
 		if (!exp_err) {
 			TestCase.assertEquals("Unexpected errors", 0, markers.size());
 		}
 		return file;
 	}
-	
+
 	public static SVDBFile parse(
 			LogHandle				log,
 			String 					content, 
 			String 					filename,
 			List<SVDBMarker>		markers) {
-		return parse(log, new StringInputStream(content), filename, markers).second();
+		return parse(log, SVLanguageLevel.SystemVerilog,
+				content, filename, markers);
+	}
+	
+	public static SVDBFile parse(
+			LogHandle				log,
+			SVLanguageLevel			language,
+			String 					content, 
+			String 					filename,
+			List<SVDBMarker>		markers) {
+		return parse(log, language,
+				new StringInputStream(content), 
+				filename, 
+				markers).second();
 	}
 	
 	public static Tuple<SVDBFile, SVDBFile> parse(
 			LogHandle				log,
+			InputStream				content_i, 
+			String 					filename,
+			List<SVDBMarker>		markers) {
+		return parse(log, SVLanguageLevel.SystemVerilog,
+				content_i, filename, markers);
+	}
+	
+	public static Tuple<SVDBFile, SVDBFile> parse(
+			LogHandle				log,
+			SVLanguageLevel			language,
 			InputStream				content_i, 
 			String 					filename,
 			List<SVDBMarker>		markers) {
@@ -216,6 +254,7 @@ public class SVDBTestUtils {
 		SVDBFile pp_file = pp.getFileTree().getSVDBFile();
 		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory();
+		parser.setLanguageLevel(language);
 		SVDBFile file = parser.parse(pp_out, filename, markers);
 		
 		for (SVDBMarker m : markers) {

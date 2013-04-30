@@ -13,5 +13,18 @@
          </run>
       </application>
    </extension>
+   <extension
+         id="jscript"
+         name="SVE JavaScript Batch Application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.sf.sveditor.core.batch.jscript.JavaScriptApplication">
+         </run>
+      </application>
+   </extension>
 
 </plugin>

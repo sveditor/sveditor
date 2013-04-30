@@ -58,6 +58,7 @@ public class SVLexer extends SVToken {
 	private boolean 				fInAttr;
 	private LogHandle				fLog;
 	private Context					fContext;
+	private SVLanguageLevel			fLanguageLevel;
 
 	public static final String RelationalOps[] = { "&", "&&", "&&&", "|", "||", "-",
 			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
@@ -93,9 +94,15 @@ public class SVLexer extends SVToken {
 			AllOperators[idx++] = o;
 		}
 	}
+	
+	public SVLexer() {
+		this(SVLanguageLevel.SystemVerilog);
+	}
 
 	@SuppressWarnings("unchecked")
-	public SVLexer() {
+	public SVLexer(SVLanguageLevel level) {
+		fLanguageLevel = level;
+		
 		fLog = LogFactory.getLogHandle("SVLexer");
 		fOperatorSet = new HashSet<String>();
 		fSeqPrefixes = new Set[] {
@@ -128,9 +135,14 @@ public class SVLexer extends SVToken {
 
 		for (String kw : SVKeywords.getKeywords()) {
 			if (kw.endsWith("*")) {
-				kw = kw.substring(0, kw.length() - 1);
+				// Don't add SystemVerilog keywords if the language level is Verilog
+				if (fLanguageLevel == SVLanguageLevel.SystemVerilog) {
+					kw = kw.substring(0, kw.length() - 1);
+					fDefaultKeywordSet.add(kw);
+				}
+			} else {
+				fDefaultKeywordSet.add(kw);
 			}
-			fDefaultKeywordSet.add(kw);
 		}
 		
 		fConstraintKeywordSet.addAll(fDefaultKeywordSet);
