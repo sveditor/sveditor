@@ -110,10 +110,6 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fLanguageLevel = SVLanguageLevel.SystemVerilog;
 	}
 	
-	public void setLanguageLevel(SVLanguageLevel level) {
-		fLanguageLevel = level;
-	}
-	
 	public void setConfig(SVParserConfig config) {
 		fConfig = config;
 	}
@@ -537,7 +533,25 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	public SVDBFile parse(InputStream in, String filename, List<SVDBMarker> markers) {
+	@Deprecated
+	public SVDBFile parse(
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers) {
+		return parse(SVLanguageLevel.SystemVerilog, in, filename, markers);
+	}
+	
+	public SVDBFile parse(
+			SVLanguageLevel		language_level,
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers) {
+		if (language_level == null) {
+			fLanguageLevel = SVLanguageLevel.SystemVerilog;
+		} else {
+			fLanguageLevel = language_level;
+		}
+		
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);
@@ -595,9 +609,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public SVDBFile parse(
+			SVLanguageLevel		language_level,
 			ITextScanner		in,
 			String				filename,
 			List<SVDBMarker>	markers) {
+		if (language_level == null) {
+			fLanguageLevel = SVLanguageLevel.SystemVerilog;
+		} else {
+			fLanguageLevel = language_level;
+		}
+
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);

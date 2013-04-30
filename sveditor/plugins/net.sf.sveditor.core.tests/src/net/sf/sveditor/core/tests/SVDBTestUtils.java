@@ -254,8 +254,7 @@ public class SVDBTestUtils {
 		SVDBFile pp_file = pp.getFileTree().getSVDBFile();
 		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory();
-		parser.setLanguageLevel(language);
-		SVDBFile file = parser.parse(pp_out, filename, markers);
+		SVDBFile file = parser.parse(language, pp_out, filename, markers);
 		
 		for (SVDBMarker m : markers) {
 			if (log != null) {
@@ -317,7 +316,11 @@ public class SVDBTestUtils {
 			pp.init(in, filename);
 
 			StringBuilder sb = new StringBuilder();
-			int ch;
+			int ch;	public SVDBFile parse(
+			SVLanguageLevel		language_level,
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers) {
 			while ((ch = pp.get_ch()) != -1) {
 				sb.append((char)ch);
 			}
@@ -334,7 +337,7 @@ public class SVDBTestUtils {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
 		
 		content = copier.copy();
-		file = factory.parse(content, filename, markers);
+		file = factory.parse(SVLanguageLevel.SystemVerilog, content, filename, markers);
 		
 		for (SVDBMarker m : markers) {
 			if (log != null) {

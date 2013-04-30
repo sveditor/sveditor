@@ -15,10 +15,22 @@ package net.sf.sveditor.core.db;
 import java.io.InputStream;
 import java.util.List;
 
+import net.sf.sveditor.core.parser.SVLanguageLevel;
+
 public interface ISVDBFileFactory {
 	
 	void init(InputStream in, String filename);
+
+	@Deprecated
+	SVDBFile parse(
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers);
 	
-	SVDBFile parse(InputStream in, String filename, List<SVDBMarker> markers);
+	SVDBFile parse(
+			SVLanguageLevel		language_level,
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers);
 
 }
