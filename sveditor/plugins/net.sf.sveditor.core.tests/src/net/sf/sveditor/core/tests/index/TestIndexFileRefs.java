@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.refs.SVDBTypeRefMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -39,32 +40,27 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestIndexFileRefs extends TestCase {
+public class TestIndexFileRefs extends SVCoreTestCaseBase {
 
-	private File			fTmpDir;
 	private IProject		fProject;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 	
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 		}
 		
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
+		super.tearDown();
 	}
 
 	public void testUVMIncludeRefs() {
@@ -89,7 +85,7 @@ public class TestIndexFileRefs extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
@@ -137,7 +133,7 @@ public class TestIndexFileRefs extends TestCase {
 		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);

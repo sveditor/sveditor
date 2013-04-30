@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -38,21 +39,17 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestCrossIndexReferences extends TestCase {
-	private File				fTmpDir;
+public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 	private List<IProject>		fProjects;
 	
 	@Override
 	protected void setUp() throws Exception {
+		super.setUp();
 		fProjects = new ArrayList<IProject>();
-		fTmpDir = TestUtils.createTempDir();
 		CoreReleaseTests.clearErrors();
 		
-		File db = new File(fTmpDir, "db");
-		TestCase.assertTrue(db.mkdirs());
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 	}
 
 	@Override
@@ -60,14 +57,12 @@ public class TestCrossIndexReferences extends TestCase {
 		for (IProject p : fProjects) {
 			TestUtils.deleteProject(p);
 		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
 		StringBuilder sb = new StringBuilder();
 		for (Exception err : CoreReleaseTests.getErrors()){
 			sb.append(err.getMessage() + " ");
 		}
 		assertEquals(sb.toString(), 0, CoreReleaseTests.getErrors().size());
+		super.tearDown();
 	}
 
 	public void testBasicArgFileIndexCrossRef() throws CoreException {

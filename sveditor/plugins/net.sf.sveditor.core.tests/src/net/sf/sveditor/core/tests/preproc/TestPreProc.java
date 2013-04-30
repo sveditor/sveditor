@@ -19,7 +19,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -35,37 +34,16 @@ import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestPreProc extends TestCase {
+public class TestPreProc extends SVCoreTestCaseBase {
 
-	private File					fTmpDir;
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		fTmpDir = TestUtils.createTempDir();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
-
-		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
-	}
-	
 	public void testUnbalancedConditionals_GreaterEndifs() {
 		String content =
 			"\n" +
@@ -516,7 +494,7 @@ public class TestPreProc extends TestCase {
 
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		rgy.init(fCacheFactory);
 	
 		/* ISVDBIndex index = */ rgy.findCreateIndex(new NullProgressMonitor(),
 				"GLOBAL", "org.vmmcentral.vmm", SVDBPluginLibIndexFactory.TYPE, null);
@@ -581,7 +559,7 @@ public class TestPreProc extends TestCase {
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(tmpdir));
+		rgy.init(fCacheFactory);
 	
 		/*ISVDBIndex index = */rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", 
 				"org.vmmcentral.vmm", SVDBPluginLibIndexFactory.TYPE, null);
@@ -697,7 +675,7 @@ public class TestPreProc extends TestCase {
 		ps.close();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 
@@ -745,7 +723,7 @@ public class TestPreProc extends TestCase {
 		ps.close();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 
@@ -910,8 +888,6 @@ public class TestPreProc extends TestCase {
 		}
 		assertTrue(fTmpDir.mkdirs());
 		
-		File db = new File(fTmpDir, "db");
-		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		
 		PrintStream ps;
@@ -943,7 +919,7 @@ public class TestPreProc extends TestCase {
 		ps.close();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 

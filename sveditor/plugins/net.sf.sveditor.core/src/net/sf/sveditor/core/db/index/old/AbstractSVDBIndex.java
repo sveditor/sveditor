@@ -85,6 +85,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
@@ -121,7 +122,7 @@ public abstract class AbstractSVDBIndex implements
 	private String 									fResolvedBaseLocationDir;
 
 	private SVDBBaseIndexCacheData 					fIndexCacheData;
-	private boolean								fCacheDataValid;
+	private boolean									fCacheDataValid;
 	
 	protected Set<String>							fMissingIncludes;
 	
@@ -130,7 +131,7 @@ public abstract class AbstractSVDBIndex implements
 	// Used to track files that have not yet been processed, and whose
 	// content will need to be added to the package content cache
 	// 
-	protected List<Tuple<String, List<String>>>	fDeferredPkgCacheFiles;
+	protected List<Tuple<String, List<String>>>		fDeferredPkgCacheFiles;
 
 	private ISVDBIncludeFileProvider				fIncludeFileProvider;
 
@@ -140,7 +141,7 @@ public abstract class AbstractSVDBIndex implements
 	protected LogHandle 							fLog;
 	private ISVDBFileSystemProvider 				fFileSystemProvider;
 
-	protected boolean 							fLoadUpToDate;
+	protected boolean 								fLoadUpToDate;
 	private ISVDBIndexCache 						fCache;
 	
 	private SVDBIndexConfig	 						fConfig;
@@ -149,7 +150,7 @@ public abstract class AbstractSVDBIndex implements
 	private Set<String>								fFileDirs;
 	
 	// Controls indexing parallelism
-	private int									fMaxIndexThreads = 0;
+	private int										fMaxIndexThreads = 0;
 	protected boolean								fDebugEn;
 
 	protected boolean								fInWorkspaceOk;
@@ -856,7 +857,8 @@ public abstract class AbstractSVDBIndex implements
 			invalidateIndex(new NullProgressMonitor(), "File Removed", false);
 		}
 	}
-
+	 */
+	
 	public void fileAdded(String path) {
 		// TODO: Not sure what to do with this one
 		// Just for safety, invalidate the index when files are added
@@ -870,7 +872,6 @@ public abstract class AbstractSVDBIndex implements
 			invalidateIndex(new NullProgressMonitor(), "File Added", false);
 		}
 	}
-	 */
 
 	public String getBaseLocation() {
 		return fBaseLocation;
@@ -1517,7 +1518,7 @@ public abstract class AbstractSVDBIndex implements
 				}
 
 				file = processPreProcFile(inc_path);
-				addFile(inc_path, true);
+				addFile(inc_path, false);
 				fCache.setPreProcFile(inc_path, file);
 				fCache.setLastModified(inc_path, 
 						fFileSystemProvider.getLastModifiedTime(inc_path), false);
@@ -1545,7 +1546,7 @@ public abstract class AbstractSVDBIndex implements
 				if (fDebugEn) {
 					fLog.debug("findIncludedFile: adding file \"" + path + "\"");
 				}
-				addFile(res_path, true);
+				addFile(res_path, false);
 				return new SVDBSearchResult<SVDBFile>(pp_file, this);
 			}
 		}
@@ -1851,7 +1852,7 @@ public abstract class AbstractSVDBIndex implements
 				// list of discovered files, invalidate the index,
 				// add the file, and try again
 				invalidateIndex(new NullProgressMonitor(), "Failed to find FileTree for " + path, false);
-				addFile(path, true);
+				addFile(path, false);
 				file_tree = findFileTree(path, false);
 				
 				// If auto-rebuild is disabled, then we do 
@@ -1917,8 +1918,9 @@ public abstract class AbstractSVDBIndex implements
 		}
 
 		dp.setMacroProvider(createMacroProvider(file_tree));
-		SVDBFile svdb_f = factory.parse(
-				copier.copy(), file_tree.getFilePath(), markers);
+		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(file_tree.getFilePath());
+		SVDBFile svdb_f = factory.parse(language_level, copier.copy(), 
+				file_tree.getFilePath(), markers);
 		
 		if (svdb_f.getFilePath() == null) {
 			System.out.println("file path: " + path + " is null");
@@ -1972,7 +1974,8 @@ public abstract class AbstractSVDBIndex implements
 			}
 		}
 
-		SVDBFile svdb_f = factory.parse(in, path.getFilePath(), markers);
+		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path.getFilePath());
+		SVDBFile svdb_f = factory.parse(language_level, in, path.getFilePath(), markers);
 
 		// Problem parsing the file..
 		if (svdb_f == null) {
@@ -2155,6 +2158,8 @@ public abstract class AbstractSVDBIndex implements
 					null, 
 					ft.getSVDBFile(),
 					true);
+		} else {
+			fLog.error("Failed to find fileTree for \"" + file.getFilePath() + "\"");
 		}
 	}
 

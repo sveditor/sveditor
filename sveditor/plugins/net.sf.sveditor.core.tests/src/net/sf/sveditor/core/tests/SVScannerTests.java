@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 
 public class SVScannerTests extends TestCase {
 	
@@ -59,7 +60,7 @@ public class SVScannerTests extends TestCase {
 		
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(new StringInputStream(in_data), "testVariableLists", markers);
+		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, new StringInputStream(in_data), "testVariableLists", markers);
 
 		for (SVDBMarker m : markers) {
 			System.out.println("[ERROR] " + m.getMessage());

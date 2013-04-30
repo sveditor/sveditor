@@ -556,4 +556,29 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}
+	
+	public void testMixedSvVlog() throws IOException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		
+		String data_root = "/data/arg_file_mixed_sv_vlog/";
+		utils.copyBundleDirToWS(data_root, project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/arg_file_mixed_sv_vlog/arg_file_mixed_sv_vlog.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		IndexTestUtils.assertFileHasElements(index, "my_cls1", "my_cls2", "bit");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+		LogFactory.removeLogHandle(log);
+	}	
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="net.sf.sveditor.svt.feature"
+      label="SVEditor Template Core Feature"
+      version="1.2.3">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import feature="net.sf.sveditor.core.feature" version="1.2.3"/>
+      <import feature="net.sf.sveditor.ui.feature" version="1.2.3"/>
+   </requires>
+
+   <plugin
+         id="net.sf.sveditor.svt.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.sf.sveditor.svt.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

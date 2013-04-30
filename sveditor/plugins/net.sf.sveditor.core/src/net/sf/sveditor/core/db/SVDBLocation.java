@@ -70,6 +70,6 @@ public class SVDBLocation {
 	}
 	
 	public String toString() {
-		return ":" + fLine;
+		return fFileId + ":" + fLine;
 	}
 }

@@ -105,19 +105,17 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <update label="SVEditor Updates" url="http://sveditor.sourceforge.net/update"/>
    </url>
 
-   <plugin
-         id="net.sf.sveditor.core"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="net.sf.sveditor.core.feature"
+         version="0.0.0"/>
 
-   <plugin
-         id="net.sf.sveditor.ui"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+   <includes
+         id="net.sf.sveditor.ui.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="net.sf.sveditor.svt.feature"
+         version="0.0.0"/>
 
    <plugin
          id="net.sf.sveditor.doc.user"
@@ -141,15 +139,10 @@ This Agreement is governed by the laws of the State of New York and the intellec
          unpack="false"/>
 
    <plugin
-         id="net.sf.sveditor.core.batch"
+         id="net.sf.sveditor.svt.editor"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="net.sf.sveditor.extjar"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

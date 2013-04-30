@@ -83,6 +83,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	private boolean						fDisableErrors;
 	private ISVPreProcFileMapper		fFileMapper;
 	private SVParserConfig				fConfig;
+	/**
+	 * LanguageLevel controls how source is parsed
+	 */
+	private SVLanguageLevel				fLanguageLevel;
 	
 	public ParserSVDBFileFactory() {
 		this(null);
@@ -102,6 +106,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fParseErrorMax = 100;
 		
 		fConfig = new SVParserConfig();
+		
+		fLanguageLevel = SVLanguageLevel.SystemVerilog;
 	}
 	
 	public void setConfig(SVParserConfig config) {
@@ -527,7 +533,25 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 
-	public SVDBFile parse(InputStream in, String filename, List<SVDBMarker> markers) {
+	@Deprecated
+	public SVDBFile parse(
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers) {
+		return parse(SVLanguageLevel.SystemVerilog, in, filename, markers);
+	}
+	
+	public SVDBFile parse(
+			SVLanguageLevel		language_level,
+			InputStream 		in, 
+			String 				filename, 
+			List<SVDBMarker> 	markers) {
+		if (language_level == null) {
+			fLanguageLevel = SVLanguageLevel.SystemVerilog;
+		} else {
+			fLanguageLevel = language_level;
+		}
+		
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);
@@ -552,7 +576,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fLog.debug("File Input: " + filename);
 		fLog.debug(fInput.toString());
 		
-		fLexer = new SVLexer();
+		fLexer = new SVLexer(fLanguageLevel);
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();
 		fSVParsers.init(this);
@@ -585,9 +609,16 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public SVDBFile parse(
+			SVLanguageLevel		language_level,
 			ITextScanner		in,
 			String				filename,
 			List<SVDBMarker>	markers) {
+		if (language_level == null) {
+			fLanguageLevel = SVLanguageLevel.SystemVerilog;
+		} else {
+			fLanguageLevel = language_level;
+		}
+
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);
@@ -601,7 +632,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 
 		fInput = in;
-		fLexer = new SVLexer();
+		fLexer = new SVLexer(fLanguageLevel);
 		fLexer.init(this, in);
 		
 		fSVParsers = new SVParsers();
@@ -643,7 +674,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				in, name, fDefineProvider);
 		fInput = preproc.preprocess();
 		
-		fLexer = new SVLexer();
+		fLexer = new SVLexer(fLanguageLevel);
 		fLexer.init(this, fInput);
 		fSVParsers = new SVParsers();
 		fSVParsers.init(this);

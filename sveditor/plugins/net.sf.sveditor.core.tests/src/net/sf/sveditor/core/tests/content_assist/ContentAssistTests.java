@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -109,7 +110,7 @@ public class ContentAssistTests extends TestCase {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getChildren()) {
@@ -135,7 +136,7 @@ public class ContentAssistTests extends TestCase {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getChildren()) {
@@ -169,7 +170,7 @@ public class ContentAssistTests extends TestCase {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getChildren()) {
@@ -199,7 +200,7 @@ public class ContentAssistTests extends TestCase {
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
+		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getChildren()) {

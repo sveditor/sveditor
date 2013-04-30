@@ -20,7 +20,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -44,9 +43,9 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -54,11 +53,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-public class ArgFilePersistence extends TestCase 
+public class ArgFilePersistence extends SVCoreTestCaseBase 
 	implements ISVDBIndexChangeListener {
 	
-	private File					fTmpDir;
-	private int					fIndexRebuilt;
+	private int						fIndexRebuilt;
 	private IProject				fProject;
 	private SVCorePlugin			fCorePlugin;
 
@@ -68,26 +66,22 @@ public class ArgFilePersistence extends TestCase
 		
 		fCorePlugin = SVCorePlugin.getDefault();
 		
-		fTmpDir = TestUtils.createTempDir();
 		fProject = null;
 		SVCorePlugin.setTestMode();
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 
 		if (fProject != null) {
 			TestUtils.deleteProject(fProject);
 			fProject = null;
 		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
+		
+		super.tearDown();
 	}
 	
 	/*
@@ -187,13 +181,8 @@ public class ArgFilePersistence extends TestCase
 
 		fProject = TestUtils.createProject("xbus", xbus);
 
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndex target_index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
@@ -261,13 +250,8 @@ public class ArgFilePersistence extends TestCase
 		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
 //		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndex target_index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
@@ -360,13 +344,8 @@ public class ArgFilePersistence extends TestCase
 		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
 //		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 
 		ISVDBIndex target_index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
@@ -427,13 +406,8 @@ public class ArgFilePersistence extends TestCase
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
 		SVDBIndexRegistry rgy = fCorePlugin.getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.init(fCacheFactory);
 		
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
@@ -456,10 +430,10 @@ public class ArgFilePersistence extends TestCase
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		rgy.init(fCacheFactory);
 		
 		// Sleep to ensure that the timestamp is different
 		log.debug("[NOTE] pre-sleep");
@@ -527,7 +501,7 @@ public class ArgFilePersistence extends TestCase
 	}
 
 	public void testWSArgFileTimestampUnchanged() {
-		String testname = "testWSArgFileTimestampUnchanged";
+		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -536,19 +510,13 @@ public class ArgFilePersistence extends TestCase
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
-		
 		fIndexRebuilt = 0;
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		
+		index.loadIndex(new NullProgressMonitor());
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		SVDBClassDecl target_it = null, target_orig = null;
@@ -582,10 +550,8 @@ public class ArgFilePersistence extends TestCase
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
-
 		// Now, reset the registry
-		rgy.init(TestIndexCacheFactory.instance(fTmpDir));
+		reinitializeIndexRegistry();
 		
 		// Sleep to ensure that the timestamp is different
 		log.debug("[NOTE] pre-sleep");
@@ -599,10 +565,12 @@ public class ArgFilePersistence extends TestCase
 
 		fIndexRebuilt = 0;
 		// Now, re-create the index
-		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		index.loadIndex(new NullProgressMonitor());
+		
 		it = index.getItemIterator(new NullProgressMonitor());
 		
 		target_it = null;
@@ -682,7 +650,7 @@ public class ArgFilePersistence extends TestCase
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		rgy.init(fCacheFactory);
 		
 		File path = new File(project_dir, "basic_lib_project/basic_lib.f");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
@@ -707,11 +675,11 @@ public class ArgFilePersistence extends TestCase
 		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNull("Ensure don't fine class1_2 yet", class1_2);
 		
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("** RESET **");
 		// Now, reset the registry
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		rgy.init(fCacheFactory);
 		
 		// Sleep to ensure that the timestamp is different
 		try {

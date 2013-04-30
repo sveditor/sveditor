@@ -1,5 +1,19 @@
 
+-- 1.2.5 Release --
+
+- #(enh) - Update SV editor to display a decorated icon for files that are
+  part of an index. 
+
+- #(253) - Change index to detect the language variant used in a file based 
+  on its extension. .v, .vl, and .vlog are considered to be Verilog 2005 files,
+  while the remainder are considered to be SystemVerilog files.
+
+------------------------------------------------------------------------------
 -- 1.2.4 Release --
+
+- #(254) - Correct issue with spell-checker when SVEditor is installed in an
+  Eclipse installation without a built-in spellcheck engine. Added a specific
+  spellcheck engine for SVEditor.
 
 ------------------------------------------------------------------------------
 -- 1.2.3 Release --

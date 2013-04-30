@@ -16,7 +16,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -27,9 +31,15 @@ public class SVBatchPlugin implements BundleActivator {
 	private static SVBatchPlugin	fDefault;
 	private List<File>				fTempDirs;
 	private List<ISVDBIndex>		fLocalIndexes;
+	private SVDBFileSystem			fFileSystem;
+	private SVDBFileIndexCacheMgr	fCacheMgr;
 
 	static BundleContext getContext() {
 		return context;
+	}
+	
+	static SVBatchPlugin getDefault() {
+		return fDefault;
 	}
 
 	/*
@@ -41,6 +51,12 @@ public class SVBatchPlugin implements BundleActivator {
 		fTempDirs = new ArrayList<File>();
 		fLocalIndexes = new ArrayList<ISVDBIndex>();
 		fDefault = this;
+		
+		File db_dir = createTempDir();
+		fFileSystem = new SVDBFileSystem(db_dir, SVCorePlugin.getVersion());
+		fFileSystem.init();
+		fCacheMgr = new SVDBFileIndexCacheMgr();
+		fCacheMgr.init(fFileSystem);
 	}
 
 	/*
@@ -57,6 +73,10 @@ public class SVBatchPlugin implements BundleActivator {
 		
 		SVBatchPlugin.context = null;
 		fDefault = null;
+	}
+	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		return fCacheMgr;
 	}
 	
 	private static void deleteTree(File dir) {

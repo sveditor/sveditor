@@ -143,9 +143,15 @@ public class SVFileUtils {
 	 * @return
 	 */
 	public static IFile findWorkspaceFile(String path) {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFile f = null;
+
+		try {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
-		IFile f = root.getFileForLocation(new Path(path));
+			f = root.getFileForLocation(new Path(path));
+		} catch (IllegalStateException e) {
+			// Happens when the workspace is closed
+		}
 		
 		return f;
 	}
@@ -156,9 +162,14 @@ public class SVFileUtils {
 	 * @return
 	 */
 	public static IContainer findWorkspaceFolder(String path) {
+		IContainer c = null;
+		try {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
-		IContainer c = root.getContainerForLocation(new Path(path));
+		c = root.getContainerForLocation(new Path(path));
+		} catch (IllegalStateException e) {
+			// Happens when the workspace is closed
+		}
 		
 		return c;
 	}

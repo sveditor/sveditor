@@ -49,6 +49,11 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 		fMarkerMap = new HashMap<String, List<SVDBMarker>>();
 	}
 	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public void dispose() { }
 
 	public void removeStoragePath(List<File> db_path_list) {}

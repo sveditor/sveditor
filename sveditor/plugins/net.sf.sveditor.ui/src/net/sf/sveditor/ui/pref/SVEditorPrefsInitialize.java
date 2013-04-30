@@ -13,12 +13,15 @@
 package net.sf.sveditor.ui.pref;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.parser.SVParserConfig;
-import net.sf.sveditor.core.templates.DefaultTemplateParameterProvider;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.text.spelling.PreferenceConstants;
+import net.sf.sveditor.ui.text.spelling.SpellCheckEngine;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -29,6 +32,14 @@ import org.eclipse.swt.graphics.RGB;
  * Class used to initialize default preference values.
  */
 public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
+	public static final String				FILE_HEADER = "file_header";
+	public static final String				FILE_HEADER_DFLT =
+			"/****************************************************************************\n" +
+			" * ${filename}\n" +
+			" ****************************************************************************/\n";
+
+	public static final String				FILE_FOOTER = "file_footer";
+	public static final String				FILE_FOOTER_DFLT = "";	
 
 	/*
 	 * (non-Javadoc)
@@ -85,9 +96,10 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		 * Initialize template parameters
 		 */
 		{
+			// TODO: this isn't exactly the way we want this partitioned
 			Map<String, String> p = new HashMap<String, String>();
-			p.put("file_header", DefaultTemplateParameterProvider.FILE_HEADER_DFLT);
-			p.put("file_footer", DefaultTemplateParameterProvider.FILE_FOOTER_DFLT);
+			p.put("file_header", FILE_HEADER_DFLT);
+			p.put("file_footer", FILE_FOOTER_DFLT);
 			try {
 				store.setDefault(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES,
 						XMLTransformUtils.map2Xml(p, "parameters", "parameter"));
@@ -106,6 +118,37 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 				String val = XMLTransformUtils.map2Xml(map, "preferences", "preference");
 				store.setDefault(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS, val);
 			} catch (Exception e) {}
+		}
+		
+		/**
+		 * Initialize spelling preferences
+		 */
+		{
+			store.setDefault(PreferenceConstants.SPELLING_LOCALE, "en_US"); //$NON-NLS-1$
+			String isInitializedKey= "spelling_locale_initialized"; //$NON-NLS-1$
+			if (!store.getBoolean(isInitializedKey)) {
+				store.setValue(isInitializedKey, true);
+				Locale locale= SpellCheckEngine.getDefaultLocale();
+				locale= SpellCheckEngine.findClosestLocale(locale);
+				if (locale != null)
+					store.setValue(PreferenceConstants.SPELLING_LOCALE, locale.toString());
+			}
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_DIGITS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_MIXED, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_SENTENCE, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_UPPER, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_URLS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_SINGLE_LETTERS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_AMPERSAND_IN_PROPERTIES, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_NON_LETTERS, true);
+			store.setDefault(PreferenceConstants.SPELLING_IGNORE_JAVA_STRINGS, true);
+			store.setDefault(PreferenceConstants.SPELLING_USER_DICTIONARY, ""); //$NON-NLS-1$
+
+			// Note: For backwards compatibility we must use the property and not the workspace default
+			store.setDefault(PreferenceConstants.SPELLING_USER_DICTIONARY_ENCODING, System.getProperty("file.encoding")); //$NON-NLS-1$
+
+			store.setDefault(PreferenceConstants.SPELLING_PROPOSAL_THRESHOLD, 20);
+			store.setDefault(PreferenceConstants.SPELLING_PROBLEMS_THRESHOLD, 100);			
 		}
 	}
 

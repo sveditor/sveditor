@@ -14,14 +14,7 @@
                contentTypeId="net.sf.sveditor.core.systemverilog">
          </contentTypeBinding>
       </editor>
-      <editor
-            class="net.sf.sveditor.ui.svt.editor.SVTEditor"
-            default="false"
-            extensions="svt"
-            icon="icons/eview16/generate_template_class.gif"
-            id="net.sf.sveditor.ui.svtEditor"
-            name="SystemVerilog Template Editor">
-      </editor>
+
       <editor
             class="net.sf.sveditor.ui.argfile.editor.SVArgFileEditor"
             contributorClass="net.sf.sveditor.ui.argfile.editor.SVArgFileActionContributor"
@@ -668,16 +661,11 @@
       </page>
       <page
             category="net.sf.sveditor.ui.page1"
-            class="net.sf.sveditor.ui.pref.SVEditorTemplatePathsPrefsPage"
-            id="net.sf.sveditor.ui.svTemplatePaths"
-            name="SV Template Paths">
-      </page>
-      <page
-            category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
             id="net.sf.sveditor.ui.svTemplateProperties"
             name="SV Template Properties">
-      </page>
+      </page>         
+
       <page
             category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVEditorIndexPrefsPage"
@@ -724,22 +712,7 @@
             name="SystemVerilog Class"
             project="false">
       </wizard>
-      <wizard
-            canFinishEarly="false"
-            category="net.sf.sveditor.ui.svNewWizards"
-            class="net.sf.sveditor.ui.wizards.templates.SVTemplateWizard"
-            icon="icons/eview16/generate_template_class.gif"
-            id="net.sf.sveditor.ui.svMethodologyClassWizard"
-            name="SystemVerilog Template"
-            project="false">
-      </wizard>
-      <wizard
-            category="net.sf.sveditor.ui.svNewWizards"
-            class="net.sf.sveditor.ui.wizards.templates.NewSVTDescriptorWizard"
-            icon="icons/eview16/generate_template_class.gif"
-            id="net.sf.sveditor.ui.newSVTWizard"
-            name="SystemVerilog Template Descriptor">
-      </wizard>
+
       <wizard
             canFinishEarly="false"
             category="net.sf.sveditor.ui.svNewWizards"
@@ -1130,6 +1103,15 @@ endclass
             name="SystemVerilog Elements"
             targetId="net.sf.sveditor.ui.svCode">
       </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.spellingEngine">
+      <engine
+            class="net.sf.sveditor.ui.text.spelling.DefaultSpellingEngine"
+            default="true"
+            id="net.sf.sveditor.ui.svSpellingEngine"
+            label="SystemVerilog Engine">
+      </engine>
    </extension>
 
 </plugin>
