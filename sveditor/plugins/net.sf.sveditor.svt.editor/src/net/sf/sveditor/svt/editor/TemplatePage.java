@@ -805,8 +805,6 @@ public class TemplatePage extends FormPage {
 		Element parent = (Element)fActiveElement.getParentNode();
 		List<Element> el_l = getElements(parent.getChildNodes());
 		
-
-		
 		for (int i=0; i<el_l.size(); i++) {
 			Element n = el_l.get(i);
 
@@ -834,7 +832,14 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void moveParameterUp() {
+		Node parent = fActiveElement.getParentNode();
+		List<Element> el_l = getElements(parent.getChildNodes());
 		
+		
+	
+		fTreeViewer.refresh();
+		fIsDirty = true;
+		getEditor().editorDirtyStateChanged();
 	}
 	
 	private void moveParameterDown() {
