@@ -1,14 +1,11 @@
 package net.sf.sveditor.core.tests.project_settings;
 
-import java.io.File;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -16,50 +13,27 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestProjectSettingChanges extends TestCase {
-	private IProject				fProject;
-	private File					fTmpDir;
-	private BundleUtils				fUtils;
+public class TestProjectSettingChanges extends SVCoreTestCaseBase {
 	private SVDBProjectManager		fProjMgr;
-	private SVDBIndexRegistry		fIndexRgy;
 	
-	@Override
 	protected void setUp() throws Exception {
-		fProject = null;
-		fTmpDir = TestUtils.createTempDir();
-		
-		fUtils = new BundleUtils(SVCorePlugin.getDefault().getBundle());
-		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-	
-		File db = new File(fTmpDir, "db");
-		assertTrue(db.mkdirs());
-		fIndexRgy.init(new TestIndexCacheFactory(db));
+		super.setUp();
 		
 		fProjMgr = SVCorePlugin.getDefault().getProjMgr();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
 	}
 	
 	public void testRemoveErrorIndex() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		List<SVDBMarker> markers;
-		fProject = TestUtils.createProject("error_index");
+		IProject p = TestUtils.createProject("error_index");
+		addProject(p);
 		
 		String error_argfile = 
 				"missing_file1.sv\n" +
@@ -77,15 +51,15 @@ public class TestProjectSettingChanges extends TestCase {
 				;
 		
 		TestUtils.copy(error_argfile, 
-				fProject.getFile("error_argfile.f"));
+				p.getFile("error_argfile.f"));
 		
 		TestUtils.copy(okay_argfile,
-				fProject.getFile("okay_argfile.f"));
+				p.getFile("okay_argfile.f"));
 		
 		TestUtils.copy(file1_sv,
-				fProject.getFile("file1.sv"));
+				p.getFile("file1.sv"));
 	
-		SVDBProjectData pdata = fProjMgr.getProjectData(fProject);
+		SVDBProjectData pdata = fProjMgr.getProjectData(p);
 		SVDBIndexCollection p_index = pdata.getProjectIndexMgr();
 		
 		SVProjectFileWrapper w;
@@ -117,7 +91,7 @@ public class TestProjectSettingChanges extends TestCase {
 //		p_index.rebuildIndex(new NullProgressMonitor());
 		fIndexRgy.rebuildIndex(
 				new NullProgressMonitor(), 
-				fProject.getName());
+				p.getName());
 		p_index.loadIndex(new NullProgressMonitor());
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
@@ -128,7 +102,7 @@ public class TestProjectSettingChanges extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		fProject = TestUtils.createProject("error_index");
+		IProject p = TestUtils.createProject("error_index");
 		
 		String okay_argfile = 
 				"file1.sv\n"
@@ -147,18 +121,18 @@ public class TestProjectSettingChanges extends TestCase {
 				;
 		
 		TestUtils.copy(okay_argfile,
-				fProject.getFile("okay_argfile.f"));
+				p.getFile("okay_argfile.f"));
 		
 		TestUtils.copy(file1_sv,
-				fProject.getFile("file1.sv"));
+				p.getFile("file1.sv"));
 	
-		fProject.getFolder("subdir").create(
+		p.getFolder("subdir").create(
 				true, true, new NullProgressMonitor());
 		
 		TestUtils.copy(file2_sv,
-				fProject.getFile("subdir/file2.sv"));
+				p.getFile("subdir/file2.sv"));
 	
-		SVDBProjectData pdata = fProjMgr.getProjectData(fProject);
+		SVDBProjectData pdata = fProjMgr.getProjectData(p);
 		SVDBIndexCollection p_index = pdata.getProjectIndexMgr();
 		
 		SVProjectFileWrapper w;
@@ -188,7 +162,7 @@ public class TestProjectSettingChanges extends TestCase {
 		
 		fIndexRgy.rebuildIndex(
 				new NullProgressMonitor(), 
-				fProject.getName());
+				p.getName());
 		p_index.loadIndex(new NullProgressMonitor());
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());

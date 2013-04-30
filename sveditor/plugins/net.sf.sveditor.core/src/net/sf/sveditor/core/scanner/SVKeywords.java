@@ -483,6 +483,7 @@ public class SVKeywords {
 	public static final Set<String>					fTypePrefixes;
 	public static final Set<String>					fBuiltinDeclTypes;
 	private static final Map<String, Boolean>			fKeywordMap;
+	private static final Set<String>					fAllKeywords;
 	public static final Set<String>					fBuiltinGates_with_Strength;
 	public static final Set<String>					fBuiltinGates_no_Strength;
 	public static final Set<String>					fBuiltinGates;
@@ -495,8 +496,10 @@ public class SVKeywords {
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
+		fAllKeywords = new HashSet<String>();
 		
 		for (String str : fKeywords) {
+			fAllKeywords.add(str);
 			boolean is_sv = str.endsWith("*");
 			if (is_sv) {
 				str = str.substring(0, str.length()-1);
@@ -638,7 +641,8 @@ public class SVKeywords {
 	}
 	
 	public static Set<String> getKeywords() {
-		return fKeywordMap.keySet();
+		return fAllKeywords;
+//		return fKeywordMap.keySet();
 	}
 
 	public static String[] getSystemCalls() {

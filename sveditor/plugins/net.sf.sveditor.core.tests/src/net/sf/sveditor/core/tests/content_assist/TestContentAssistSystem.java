@@ -16,6 +16,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -23,38 +24,15 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-import junit.framework.TestCase;
-
-public class TestContentAssistSystem extends TestCase {
-	private File				fTmpDir;
-	private IProject			fProject;
+public class TestContentAssistSystem extends SVCoreTestCaseBase {
 	private BundleUtils			fUtils;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
 		fUtils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
-		super.tearDown();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
-	}
-	
 	public void testGlobalFieldRef() {
 		String testname = "testGlobalFieldRef";
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -69,7 +47,8 @@ public class TestContentAssistSystem extends TestCase {
 			;
 		
 		
-		fProject = TestUtils.createProject("project");
+		IProject fProject = TestUtils.createProject("project");
+		addProject(fProject);
 		
 		fUtils.copyBundleDirToWS("/data/content_assist/global_field_ref/", fProject);
 		
@@ -100,7 +79,8 @@ public class TestContentAssistSystem extends TestCase {
 			"endclass\n"
 			;
 
-		fProject = TestUtils.createProject("project");
+		IProject fProject = TestUtils.createProject("project");
+		addProject(fProject);
 		
 		fUtils.copyBundleDirToWS("/data/content_assist/simple_proj/", fProject);
 		
@@ -138,9 +118,10 @@ public class TestContentAssistSystem extends TestCase {
 			"endclass\n"
 			;
 
-		fProject = TestUtils.createProject("project");
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
 		
-		fUtils.copyBundleDirToWS("/data/content_assist/simple_proj/", fProject);
+		fUtils.copyBundleDirToWS("/data/content_assist/simple_proj/", project);
 	
 		File c1 = new File(fTmpDir, "c1.svh");
 		TestUtils.copy(

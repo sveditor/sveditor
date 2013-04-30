@@ -12,11 +12,9 @@
 
 package net.sf.sveditor.core.tests.objects;
 
-import java.io.File;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -28,14 +26,14 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.objects.ObjectsTreeFactory;
 import net.sf.sveditor.core.objects.ObjectsTreeNode;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class ObjectsTests extends TestCase {
+public class ObjectsTests extends SVCoreTestCaseBase {
 	
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Objects");
@@ -43,7 +41,6 @@ public class ObjectsTests extends TestCase {
 		return suite;
 	}
 
-	private File					fTmpDir;
 	private IProject 				fp1, fp2 ;
 	private SVDBProjectData 		fp1_pdata, fp2_pdata ;
 	private SVProjectFileWrapper 	fp1_fwrapper, fp2_fwrapper ;
@@ -53,17 +50,15 @@ public class ObjectsTests extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
+		super.setUp();
+		
 		SVCorePlugin.getDefault().enableDebug(false);
-		fTmpDir = TestUtils.createTempDir();
 		CoreReleaseTests.clearErrors();
 		
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
-		File db = new File(fTmpDir, "db");
-		TestCase.assertTrue(db.mkdirs());
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		
 		// Projec p1
 		
@@ -150,7 +145,7 @@ public class ObjectsTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().save_state();
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
 		SVCorePlugin.getJobMgr().dispose();
 		
 		if (fp1 != null) {
@@ -160,11 +155,9 @@ public class ObjectsTests extends TestCase {
 			TestUtils.deleteProject(fp2);
 		}
 		
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
+		
+		super.tearDown();
 	}
 
 	public void testTopNodeFound() throws CoreException {

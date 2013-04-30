@@ -40,7 +40,7 @@ public class SVTestCaseBase extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		SVCorePlugin.getJobMgr().dispose();
 		
 		for (IProject p : fProjects) {

@@ -10,17 +10,17 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.templates.IExternalTemplatePathProvider;
-import net.sf.sveditor.core.templates.TemplateFSFileCreator;
-import net.sf.sveditor.core.templates.TemplateInfo;
-import net.sf.sveditor.core.templates.TemplateParameterBase;
-import net.sf.sveditor.core.templates.TemplateParameterProvider;
-import net.sf.sveditor.core.templates.TemplateProcessor;
-import net.sf.sveditor.core.templates.TemplateRegistry;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.core.text.TagProcessor;
+import net.sf.sveditor.svt.core.templates.IExternalTemplatePathProvider;
+import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
+import net.sf.sveditor.svt.core.templates.TemplateInfo;
+import net.sf.sveditor.svt.core.templates.TemplateParameterBase;
+import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
+import net.sf.sveditor.svt.core.templates.TemplateProcessor;
+import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.text.TagProcessor;
 
 public class TestExternalTemplates extends TestCase {
 	

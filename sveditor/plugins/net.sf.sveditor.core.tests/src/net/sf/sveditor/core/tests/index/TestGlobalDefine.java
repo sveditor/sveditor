@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -39,35 +40,24 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestGlobalDefine extends TestCase {
-
-	private File					fTmpDir;
+public class TestGlobalDefine extends SVCoreTestCaseBase {
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		fTmpDir = TestUtils.createTempDir();
-		
-		File db = new File(fTmpDir, "db");
-		assertTrue(db.mkdirs());
-		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
+		rgy.init(fCacheFactory);
 		SVCorePlugin.getDefault().getProjMgr().init();
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
-		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
+		super.tearDown();
 	}
 
 	public void testLibIndexGlobalDefine() {

@@ -1,15 +1,24 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.persistence.DBWriteException;
+import net.sf.sveditor.core.db.persistence.IDBReader;
+import net.sf.sveditor.core.db.persistence.IDBWriter;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -22,10 +31,13 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	private String													fProjectName;
 	private String													fBaseLocation;
 	private Object													fIndexData;
+	private SVDBFileSystemDataInput									fIndexDataIn;
+
 	/**
 	 * Map from the 
 	 */
-	private Map<Integer, Map<String, SVDBFileIndexCacheEntry>>		fCache;
+	private Map<String, SVDBFileIndexCacheEntry>					fCache;
+	private boolean													fCacheLoaded;
 	
 	public SVDBFileIndexCache(
 			SVDBFileIndexCacheMgr 	mgr, 
@@ -36,8 +48,74 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		fCacheId = id;
 		fProjectName = project_name;
 		fBaseLocation = base_location;
+		fCache = new HashMap<String, SVDBFileIndexCacheEntry>();
+		fCacheLoaded = false;
 	}
 	
+	public void write(SVDBFileSystemDataOutput dos) throws IOException, DBWriteException {
+		dos.writeInt(fCacheId);
+		dos.writeString(fProjectName);
+		dos.writeString(fBaseLocation);
+		
+		// TODO: Must determine the lifetime of cache data
+
+		if (fIndexData != null) {
+			IDBWriter writer = fCacheMgr.allocWriter();
+			SVDBFileSystemDataOutput ud_dos = new SVDBFileSystemDataOutput();
+			
+			writer.init(ud_dos);
+			writer.writeObject(fIndexData.getClass(), fIndexData);
+			
+			fCacheMgr.freeWriter(writer);
+			
+			int length = 0;
+			for (int i=0; i<ud_dos.getPages().size(); i++) {
+				length += ud_dos.getPage(i).length;
+			}
+			dos.writeInt(length);
+			
+			for (int i=0; i<ud_dos.getPages().size(); i++) {
+				dos.write(ud_dos.getPage(i));
+			}
+		} else {
+			dos.writeInt(-1);
+		}
+	}
+	
+	public static SVDBFileIndexCache read(
+			SVDBFileIndexCacheMgr			mgr,
+			SVDBFileSystemDataInput 		dis) throws IOException {
+		SVDBFileIndexCache ret = null;
+		
+		int cache_id = dis.readInt();
+		String project = dis.readString();
+		String baseloc = dis.readString();
+		
+		ret = new SVDBFileIndexCache(mgr, cache_id, project, baseloc);
+		
+		int ud_length = dis.readInt();
+		if (ud_length != -1) {
+			SVDBFileSystemDataInput	in = new SVDBFileSystemDataInput();
+			
+			while (ud_length > 0) {
+				byte tmp[] = new byte[4096];
+				int read_len = (ud_length >= 4096)?4096:ud_length;
+				dis.readFully(tmp, 0, read_len);
+			
+				in.addPage(tmp);
+				ud_length -= 4096;
+			}
+			
+			ret.fIndexDataIn = in;
+		}
+
+		return ret;
+	}
+	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		return fCacheMgr;
+	}
+
 	public int getCacheId() {
 		return fCacheId;
 	}
@@ -49,37 +127,33 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	public String getBaseLocation() {
 		return fBaseLocation;
 	}
-	
-	Map<Integer, Map<String, SVDBFileIndexCacheEntry>> getCache() {
+
+	Map<String, SVDBFileIndexCacheEntry> getCache() {
 		return fCache;
 	}
 	
-	SVDBFileIndexCacheEntry getCacheEntry(String path, int type, boolean add) {
+	synchronized SVDBFileIndexCacheEntry getCacheEntry(String path, int type, boolean add) {
 		SVDBFileIndexCacheEntry entry = null;
+		boolean added = false;
 		
 		synchronized (fCache) {
-			Map<String, SVDBFileIndexCacheEntry> c;
-			if (!fCache.containsKey(type)) {
-				c = new HashMap<String, SVDBFileIndexCacheEntry>();
-				fCache.put(type, c);
-			} else {
-				c = fCache.get(type);
+			if (!fCacheLoaded) {
+				fCacheMgr.loadCache(fCacheId, fCache);
+				fCacheLoaded = true;
 			}
 			
-			entry = c.get(path);
+			entry = fCache.get(path);
 			
 			if (entry == null && add) {
-				entry = new SVDBFileIndexCacheEntry();
-				c.put(path, entry);
+				entry = new SVDBFileIndexCacheEntry(fCacheId, path, type);
+				fCache.put(path, entry);
+				added = true;
 			}
 		}
 		
-		if (entry != null) {
-			if (entry.isCached()) {
-				fCacheMgr.moveElementToTail(entry);
-			} else {
-				fCacheMgr.addElementToTail(entry);
-			}
+		if (added) {
+			entry.setCached();
+			fCacheMgr.addToCachedList(entry);
 		}
 		
 		return entry;
@@ -94,16 +168,33 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void setIndexData(Object data) {
-		fIndexData = data;
+//		fIndexData = data;
 	}
 
 	public Object getIndexData() {
 		return fIndexData;
 	}
 
-	public boolean init(IProgressMonitor monitor, Object index_data,
-			String base_location) {
-		// TODO Auto-generated method stub
+	public boolean init(
+			IProgressMonitor 	monitor, 
+			Object 				index_data,
+			String 				base_location) {
+		fIndexData = index_data;
+
+		if (fIndexData != null && fIndexDataIn != null) {
+			IDBReader reader = fCacheMgr.allocReader();
+			fIndexDataIn.reset();
+			reader.init(fIndexDataIn);
+
+			try {
+				reader.readObject(null, fIndexData.getClass(), fIndexData);
+				return true;
+			} catch (DBFormatException e) {
+				e.printStackTrace();
+			} finally {
+				fCacheMgr.freeReader(reader);
+			}
+		}
 		return false;
 	}
 
@@ -113,64 +204,128 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 	}
 
 	public void clear(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-
+		// Remove all cache entries
+		fCache.clear();
+	
+		fCacheMgr.clearIndexCache(this);
 	}
 
 	public Set<String> getFileList(boolean is_argfile) {
-		// TODO Auto-generated method stub
-		return null;
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		HashSet<String> ret = new HashSet<String>();
+	
+		synchronized (fCache) {
+			if (!fCacheLoaded) {
+				fCacheMgr.loadCache(fCacheId, fCache);
+				fCacheLoaded = true;
+			}
+			
+			for (Entry<String, SVDBFileIndexCacheEntry> e : fCache.entrySet()) {
+				if (e.getValue().getType() == type) {
+					ret.add(e.getKey());
+				}
+			}
+		}
+
+		return ret;
 	}
 
 	public long getLastModified(String path) {
-		// TODO Auto-generated method stub
-		return 0;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, -1, false);
+		
+		if (entry != null) {
+			return entry.getLastModified();
+		} else {
+			return -1;
+		}
 	}
 
 	public void setLastModified(String path, long timestamp, boolean is_argfile) {
-		// TODO Auto-generated method stub
-
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+	
+		entry.setLastModified(timestamp);
 	}
 
 	public void addFile(String path, boolean is_argfile) {
-		// TODO Auto-generated method stub
-
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		/* SVDBFileIndexCacheEntry entry = */ getCacheEntry(path, type, true);
 	}
 
 	public List<SVDBMarker> getMarkers(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBFileIndexCacheEntry entry = null;
+		
+		synchronized (fCache) {
+			entry = fCache.get(path);
+		}
+	
+		if (entry != null) {
+//			fCacheMgr.ensureUpToDate(entry);
+			List<SVDBMarker> mlist = entry.getMarkersRef();
+			if (mlist != null) {
+				markers.addAll(mlist);
+			}
+		}
+		
+		return markers;
 	}
 
 	public void setMarkers(
 			String 				path, 
 			List<SVDBMarker> 	markers,
 			boolean 		 	is_argfile) {
-		// TODO Auto-generated method stub
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 
+		fCacheMgr.ensureUpToDate(entry);
+		
+		entry.setMarkersRef(markers);
 	}
 
 	public SVDBFile getPreProcFile(IProgressMonitor monitor, String path) {
-		// TODO Auto-generated method stub
-		return null;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, FILE_ID, false);
+		SVDBFile file = null;
+		
+		if (entry != null) {
+			fCacheMgr.ensureUpToDate(entry);
+			file = entry.getSVDBPreProcFileRef();
+		}
+		
+		return file;
 	}
 
 	public void setPreProcFile(String path, SVDBFile file) {
+		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, FILE_ID, true);
+		
+		fCacheMgr.ensureUpToDate(entry);
 
 		entry.setPreProcFile(file);
 	}
 
-	public SVDBFileTree getFileTree(IProgressMonitor monitor, String path,
+	public SVDBFileTree getFileTree(
+			IProgressMonitor monitor, 
+			String path,
 			boolean is_argfile) {
-		// TODO Auto-generated method stub
-		return null;
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, false);
+		SVDBFileTree ft = null;
+		
+		if (entry != null) {
+			fCacheMgr.ensureUpToDate(entry);
+			ft = entry.getSVDBFileTreeRef();
+		}
+		
+		return ft;
 	}
 
 	public void setFileTree(String path, SVDBFileTree file, boolean is_argfile) {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+		
+		fCacheMgr.ensureUpToDate(entry);
 
 		entry.setFileTree(file);
 	}
@@ -186,7 +341,8 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			return null;
 		} else {
 			// Load the file
-			return null;
+			fCacheMgr.ensureUpToDate(entry);
+			return entry.getSVDBFileRef();
 		}
 	}
 
@@ -194,23 +350,29 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+		
+		fCacheMgr.ensureUpToDate(entry);
 
 		entry.setFile(file);
 	}
 
 	public void removeFile(String path, boolean is_argfile) {
-		// TODO Auto-generated method stub
-
+		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
+		
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
+		
+		fCacheMgr.removeEntry(entry);
 	}
 
 	public void sync() {
-		// TODO Auto-generated method stub
-
+		// Ensure all entries associated with this cache are
+		// synchronized with the filesystem
+		fCacheMgr.sync(this);
 	}
 
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		// Remove this index from the cache manager
+		fCacheMgr.removeIndexCache(this);
 	}
 
 }

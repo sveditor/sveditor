@@ -3,6 +3,8 @@ package net.sf.sveditor.core.db.index.builder;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.jobs.Job;
+
 public class SVDBIndexBuilder implements ISVDBIndexBuilder {
 	private List<SVDBIndexBuildJob>			fJobList;
 	
@@ -30,6 +32,7 @@ public class SVDBIndexBuilder implements ISVDBIndexBuilder {
 		}
 	
 		System.out.println("Schedule job for " + plan.getPlanner());
+		job.setPriority(Job.BUILD);
 		job.schedule();
 	
 		return job;

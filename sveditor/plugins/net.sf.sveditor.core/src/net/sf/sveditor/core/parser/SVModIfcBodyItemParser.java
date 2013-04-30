@@ -208,6 +208,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	public void parse_parameter_decl(ISVDBAddChildItem parent) throws SVParseException {
+		SVDBLocation param_start = fLexer.getStartLocation();
 		// local parameter
 		fLexer.readKeyword("parameter", "localparam");
 		
@@ -229,6 +230,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		}
 		
 		SVDBParamPortDecl p = new SVDBParamPortDecl(data_type);
+		p.setLocation(param_start);
 		SVDBVarDeclItem pi;
 		
 		parent.addChildItem(p);

@@ -30,13 +30,14 @@ import net.sf.sveditor.core.argfile.parser.SVArgFilePathVariableProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.SVDB;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCacheOld;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
@@ -52,7 +53,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.scanner.IDefineProvider;
-import net.sf.sveditor.core.templates.TemplateRegistry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -75,8 +75,7 @@ import org.osgi.framework.Version;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVCorePlugin extends Plugin 
-	implements ILogListener, ISVDBIndexCacheMgr {
+public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
@@ -95,12 +94,14 @@ public class SVCorePlugin extends Plugin
 	private static IJobMgr					fJobMgr;
 	private int								fNumIndexCacheThreads = 0;
 	private int								fMaxIndexThreads = 0;
-	private TemplateRegistry				fTemplateRgy;
 	private static boolean					fEnableAsyncCacheClear;
 	private static boolean					fTestMode = false;
 	private SVParserConfig					fParserConfig;
 	private SVResourceChangeListener		fResourceChangeListener;
 	private SVDBIndexBuilder				fIndexBuilder;
+	private SVDBFileSystem					fCacheFS;
+	private SVDBFileIndexCacheMgr			fCacheMgr;
+	public static boolean					fUseNewCacheMgr = false;
 	
 	/**
 	 * The constructor
@@ -108,6 +109,7 @@ public class SVCorePlugin extends Plugin
 	public SVCorePlugin() {
 		fParserConfig = new SVParserConfig();
 		fIndexBuilder = new SVDBIndexBuilder();
+		fIndexRegistry = new SVDBIndexRegistry();
 	}
 
 	/*
@@ -125,8 +127,6 @@ public class SVCorePlugin extends Plugin
 			SVFileUtils.fIsWinPlatform = true;
 		}
 		
-		SVDB.init();
-		
 		fTodoScanner = new SVTodoScanner();
 		
 		File state_location = getStateLocation().toFile();
@@ -136,6 +136,24 @@ public class SVCorePlugin extends Plugin
 			fLogPS = new PrintStream(fLogStream);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+		// Initialize the cache manager and filesystem
+		if (fUseNewCacheMgr) {
+			File cache = new File(state_location, "cache2");
+
+			if (!cache.isDirectory()) {
+				cache.mkdirs();
+			}
+			fCacheFS  = new SVDBFileSystem(cache, getVersion());
+			fCacheFS.init();
+			fCacheMgr = new SVDBFileIndexCacheMgr();
+			fCacheMgr.init(fCacheFS);
+
+			// Connect the cache manager
+			fIndexRegistry.init(fCacheMgr);
+		} else {
+			fIndexRegistry.init(fOldCacheMgr);
 		}
 	
 		// Enable by default
@@ -208,12 +226,7 @@ public class SVCorePlugin extends Plugin
 		return fJobMgr;
 	}
 	
-	public TemplateRegistry getTemplateRgy() {
-		if (fTemplateRgy == null) {
-			fTemplateRgy = new TemplateRegistry(true);
-		}
-		return fTemplateRgy;
-	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -233,9 +246,9 @@ public class SVCorePlugin extends Plugin
 		fResourceChangeListener.dispose();
 		
 		if (fIndexRegistry != null) {
-			fIndexRegistry.save_state();
+			fIndexRegistry.close();
 		}
-		
+	
 		LogFactory.getDefault().removeLogListener(this);
 		
 		if (fLogStream != null) {
@@ -249,7 +262,18 @@ public class SVCorePlugin extends Plugin
 			fJobMgr.dispose();
 		}
 		
+		// Shut down the builder
 		fIndexBuilder.dispose();
+		
+		// Flush cache data out to the filesystem
+//		if (fCacheMgr != null) {
+//			fCacheMgr.sync();
+//		}
+		
+		// Close the index cache
+//		if (fCacheFS != null) {
+//			fCacheFS.close();
+//		}
 		
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;
@@ -315,15 +339,69 @@ public class SVCorePlugin extends Plugin
 	}
 	
 	public SVDBIndexRegistry getSVDBIndexRegistry() {
-		if (fIndexRegistry == null) {
-			fIndexRegistry = new SVDBIndexRegistry();
-			// TODO: IndexCache
-			fIndexRegistry.init(this);
-		}
-		
 		return fIndexRegistry;
 	}
 	
+	private ISVDBIndexCacheMgr fOldCacheMgr = new ISVDBIndexCacheMgr() {
+		
+		public void sync() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public ISVDBIndexCache findIndexCache(String project_name,
+				String base_location) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		public void dispose() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public ISVDBIndexCache createIndexCache(String project_name,
+				String base_location) {
+			File file = getStateLocation().toFile();
+			File cache = new File(file, "cache");
+			File cache_dir = new File(cache, project_name + "_" + SVFileUtils.computeMD5(base_location));
+
+			if (!cache_dir.exists()) {
+				if (!cache_dir.mkdirs()) {
+					System.out.println("Failed to create cache directory");
+				}
+			}
+			
+			SVDBDirFS fs = new SVDBDirFS(cache_dir);
+			fs.setEnableAsyncClear(fEnableAsyncCacheClear);
+			ISVDBIndexCache ret = new SVDBFileIndexCacheOld(fs);
+
+			return ret;			
+		}
+		
+		public void compactCache(List<ISVDBIndexCache> cache_list) {
+			File file = getStateLocation().toFile();
+			File cache = new File(file, "cache");
+			if (cache.isDirectory()) {
+				List<File> file_list = new ArrayList<File>();
+				for (File f : cache.listFiles()) {
+					if (!f.getName().equals(".") && !f.getName().equals("..")) {
+						file_list.add(f);
+					}
+				}
+				for (ISVDBIndexCache index_c : cache_list) {
+					index_c.removeStoragePath(file_list);
+				}
+				
+				for (File f : file_list) {
+					System.out.println("Compacting cache: " + f.getAbsolutePath());
+					SVFileUtils.delete(f);
+				}
+			}			
+		}
+	};
+
+	/* Old cache
 	public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
 		File file = getStateLocation().toFile();
 		File cache = new File(file, "cache");
@@ -362,6 +440,7 @@ public class SVCorePlugin extends Plugin
 			}
 		}
 	}
+	 */
 	
 	public ISVDBIndexCache findIndexCache(String project_name,
 			String base_location) {

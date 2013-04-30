@@ -36,23 +36,6 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 		return fEnumerators;
 	}
 
-	/*
-	public Tuple<List<String>, List<String>> getEnumValues() {
-		return new Tuple<List<String>, List<String>>(fKeyList, fValList);
-	}
-	
-	public void addEnumValue(String key, String val) {
-		if (val == null) {
-			val = "";
-		}
-		if (key == null) {
-			key = "";
-		}
-		fKeyList.add(key);
-		fValList.add(val);
-	}
-	 */
-	
 	public String toString() {
 		return getName();
 	}

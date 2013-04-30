@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -25,8 +24,8 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -34,31 +33,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 
-public class WSArgFileIndexChanges extends TestCase {
+public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 	
-	private File				fTmpDir;
-	private IProject			fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
-
 	public void testArgFileChange() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
@@ -66,21 +42,17 @@ public class WSArgFileIndexChanges extends TestCase {
 	}
 	
 	private void int_testArgFileChange(File tmpdir) {
+		System.out.println("Begin int_testArgFileChange");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		fProject = TestUtils.createProject("project");
+		IProject p = TestUtils.createProject("project");
+		addProject(p);
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", p);
 		
-		File db = new File(tmpdir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
+		reinitializeIndexRegistry();
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(tmpdir));
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -90,7 +62,8 @@ public class WSArgFileIndexChanges extends TestCase {
 		
 		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
 				"class1", SVDBFindDefaultNameMatcher.getDefault());
-		
+
+		assertEquals("Expected 1 result for find class1", 1, result.size());
 		if (result.size() > 0) {
 			class1_it = result.get(0).getSVDBItem();
 		}
@@ -115,7 +88,7 @@ public class WSArgFileIndexChanges extends TestCase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/class1_2.svh")));
+		TestUtils.copy(out, p.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		out = new ByteArrayOutputStream();
 		ps = new PrintStream(out);
@@ -126,7 +99,7 @@ public class WSArgFileIndexChanges extends TestCase {
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
+		TestUtils.copy(out, p.getFile(new Path("basic_lib_project/basic_lib.f")));
 	
 		System.out.println("--> Sleep");
 		try {

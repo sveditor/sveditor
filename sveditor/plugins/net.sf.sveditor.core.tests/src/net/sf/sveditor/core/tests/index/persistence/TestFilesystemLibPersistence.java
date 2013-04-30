@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -25,39 +24,34 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestFilesystemLibPersistence extends TestCase {
+public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	
-	private File					fTmpDir;
-
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		fTmpDir = TestUtils.createTempDir();
 	}
 	
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 		
-		if (fTmpDir != null) {
-			TestUtils.delete(fTmpDir);
-			fTmpDir = null;
-		}
+		super.tearDown();
 	}
 	
 	
@@ -79,33 +73,27 @@ public class TestFilesystemLibPersistence extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		rgy.init(fCacheFactory);
 		
 		File path = new File(project_dir, "basic_lib_project/basic_lib_pkg.sv");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
+	
+		List<SVDBDeclCacheItem> result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class1", 
+				SVDBFindDefaultNameMatcher.getDefault());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
+		assertEquals(1, result.size());
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
+		ISVDBItemBase target_it = result.get(0).getSVDBItem();
+		
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.save_state();
+		rgy.close();
 
 		// Now, reset the registry
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		reinitializeIndexRegistry();
 		
 		log.debug("*** SLEEPING");
 		// Sleep to ensure that the timestamp is different
@@ -133,17 +121,14 @@ public class TestFilesystemLibPersistence extends TestCase {
 		index = rgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "class1_1", 
+				SVDBFindDefaultNameMatcher.getDefault());
+		
+		assertEquals(1, result.size());
+		
+		target_it = result.get(0).getSVDBItem();
 		
 		log.debug("target_it=" + target_it);
 		
@@ -172,7 +157,7 @@ public class TestFilesystemLibPersistence extends TestCase {
 		utils.copyBundleDirToFS("/data/basic_lib_missing_inc/", project_dir);
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		rgy.init(fCacheFactory);
 		
 		File path = new File(project_dir, "basic_lib_missing_inc/basic_lib_pkg.sv");
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
@@ -203,11 +188,11 @@ public class TestFilesystemLibPersistence extends TestCase {
 		assertEquals("class1", SVDBItem.getName(target_it));
 		assertNotNull("Assert have missing include marker", missing_inc);
 		
-		rgy.save_state();
+		rgy.close();
 
 		log.debug("** RESET **");
 		// Now, reset the registry
-		rgy.init(TestIndexCacheFactory.instance(project_dir));
+		reinitializeIndexRegistry();
 		
 		// Sleep to ensure that the timestamp is different
 		try {

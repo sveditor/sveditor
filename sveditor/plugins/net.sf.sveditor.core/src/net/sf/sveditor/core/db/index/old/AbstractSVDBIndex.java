@@ -856,7 +856,8 @@ public abstract class AbstractSVDBIndex implements
 			invalidateIndex(new NullProgressMonitor(), "File Removed", false);
 		}
 	}
-
+	 */
+	
 	public void fileAdded(String path) {
 		// TODO: Not sure what to do with this one
 		// Just for safety, invalidate the index when files are added
@@ -870,7 +871,6 @@ public abstract class AbstractSVDBIndex implements
 			invalidateIndex(new NullProgressMonitor(), "File Added", false);
 		}
 	}
-	 */
 
 	public String getBaseLocation() {
 		return fBaseLocation;
@@ -1517,7 +1517,7 @@ public abstract class AbstractSVDBIndex implements
 				}
 
 				file = processPreProcFile(inc_path);
-				addFile(inc_path, true);
+				addFile(inc_path, false);
 				fCache.setPreProcFile(inc_path, file);
 				fCache.setLastModified(inc_path, 
 						fFileSystemProvider.getLastModifiedTime(inc_path), false);
@@ -1545,7 +1545,7 @@ public abstract class AbstractSVDBIndex implements
 				if (fDebugEn) {
 					fLog.debug("findIncludedFile: adding file \"" + path + "\"");
 				}
-				addFile(res_path, true);
+				addFile(res_path, false);
 				return new SVDBSearchResult<SVDBFile>(pp_file, this);
 			}
 		}
@@ -1851,7 +1851,7 @@ public abstract class AbstractSVDBIndex implements
 				// list of discovered files, invalidate the index,
 				// add the file, and try again
 				invalidateIndex(new NullProgressMonitor(), "Failed to find FileTree for " + path, false);
-				addFile(path, true);
+				addFile(path, false);
 				file_tree = findFileTree(path, false);
 				
 				// If auto-rebuild is disabled, then we do 
@@ -2155,6 +2155,8 @@ public abstract class AbstractSVDBIndex implements
 					null, 
 					ft.getSVDBFile(),
 					true);
+		} else {
+			fLog.error("Failed to find fileTree for \"" + file.getFilePath() + "\"");
 		}
 	}
 

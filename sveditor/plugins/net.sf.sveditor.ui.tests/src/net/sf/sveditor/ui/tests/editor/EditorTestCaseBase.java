@@ -76,7 +76,7 @@ public class EditorTestCaseBase extends TestCase {
 		while (Display.getDefault().readAndDispatch()) {}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.save_state();
+		rgy.close();
 	
 		SVCorePlugin.getJobMgr().dispose();
 		

@@ -13,71 +13,102 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVFileUtils;
+
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
-import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCacheOld;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 
 public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
-	private File				fRoot;
+	private ISVDBIndexCacheMgr		fCacheImpl;
+	private SVDBFileSystem			fFileSystem;
+	private File					fRoot;
 	
 	public TestIndexCacheFactory(File dir) {
 		fRoot = dir;
-	}
-
-	public ISVDBIndexCache createIndexCache(
-			String project_name,
-			String base_location) {
-		if (fRoot == null) {
-			return new InMemoryIndexCache();
-		} else {
-			if (!fRoot.isDirectory()) {
-				TestCase.assertTrue(fRoot.mkdirs());
-			}
-			String hash = SVFileUtils.computeMD5(base_location);
-			File target = new File(fRoot, project_name + "_" + hash);
-//			System.out.println("Create index: " + target.getAbsolutePath());
-			if (!target.isDirectory()) {
-				TestCase.assertTrue(target.mkdirs());
-			}
 		
-			SVDBDirFS fs = new SVDBDirFS(target);
-			// Always disable for tests
-			fs.setEnableAsyncClear(false);
-			SVDBFileIndexCache cache = new SVDBFileIndexCache(fs);
-//			SVDBThreadedFileIndexCache cache = new SVDBThreadedFileIndexCache(new SVDBDirFS(target));
-			
-			return cache;
+		if (fRoot == null) {
+			fCacheImpl = InMemCacheMgr; 
+		} else if (SVCorePlugin.fUseNewCacheMgr) {
+			fCacheImpl = new SVDBFileIndexCacheMgr();
+			fFileSystem = new SVDBFileSystem(fRoot, SVCorePlugin.getVersion());
+			try {
+				fFileSystem.init();
+			} catch (IOException e) {
+				TestCase.fail("Failed to initialize filesystem");
+			}
+			((SVDBFileIndexCacheMgr)fCacheImpl).init(fFileSystem);
+		} else {
+			fCacheImpl = OldCacheMgr;
 		}
 	}
-	
-	public void compactCache(List<ISVDBIndexCache> cache_list) { }
-	
 
-	// TODO: IndexCache
+	public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
+		return fCacheImpl.createIndexCache(project_name, base_location);
+	}
+	
+	public ISVDBIndexCache findIndexCache(String project_name, String base_location) {
+		return fCacheImpl.findIndexCache(project_name, base_location);
+	}
 
-	public ISVDBIndexCache findIndexCache(String project_name,
-			String base_location) {
-		// TODO Auto-generated method stub
-		return null;
+	public void compactCache(List<ISVDBIndexCache> cache_list) {
+		fCacheImpl.compactCache(cache_list);
 	}
 
 	public void dispose() {
-		// TODO Auto-generated method stub
-		
+		fCacheImpl.dispose();
 	}
 
 	public void sync() {
-		// TODO Auto-generated method stub
-		
+		fCacheImpl.sync();
 	}
 
-	public static TestIndexCacheFactory instance(File dir) {
-		return new TestIndexCacheFactory(dir);
+	public static TestIndexCacheFactory instance() {
+		return new TestIndexCacheFactory(null);
 	}
+	
+	private ISVDBIndexCacheMgr		InMemCacheMgr = new ISVDBIndexCacheMgr() {
+		public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
+			return new InMemoryIndexCache();
+		}
+		
+		public void sync() { }
+		
+		public void dispose() { }
+		
+		public void compactCache(List<ISVDBIndexCache> cache_list) { }
+		
+		public ISVDBIndexCache findIndexCache(String project_name, String base_location) {
+			return null;
+		}
+	};
+	
+	private ISVDBIndexCacheMgr		OldCacheMgr = new ISVDBIndexCacheMgr() {
+		
+		public void sync() { }
+		
+		public void dispose() { }
+		
+		public ISVDBIndexCache findIndexCache(String project_name, String base_location) {
+			return null;
+		}
+		
+		public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
+			SVDBDirFS fs = new SVDBDirFS(fRoot);
+			return new SVDBFileIndexCacheOld(fs);
+		}
+		
+		public void compactCache(List<ISVDBIndexCache> cache_list) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 }

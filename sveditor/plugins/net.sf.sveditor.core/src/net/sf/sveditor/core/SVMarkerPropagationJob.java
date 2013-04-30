@@ -12,7 +12,6 @@
 
 package net.sf.sveditor.core;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ui.actions.WorkspaceModifyOperation;
 
 /**
  * The marker propagation job is a singleton that queues up and
@@ -55,12 +53,15 @@ public class SVMarkerPropagationJob extends Job {
 			markers.addAll(fMarkerList);
 			fMarkerList.clear();
 		}
-		
+	
+		/**
 		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 
 			@Override
 			protected void execute(IProgressMonitor monitor) throws CoreException,
 				InvocationTargetException, InterruptedException {
+		 */
+			try {
 				IMarker marker = null;
 				for (MarkerInfo info : markers) {
 					try {
@@ -74,6 +75,10 @@ public class SVMarkerPropagationJob extends Job {
 						}
 					}
 				}
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		/*
 			}
 		};
 
@@ -82,6 +87,7 @@ public class SVMarkerPropagationJob extends Job {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		 */
 		
 		return Status.OK_STATUS;
 	}

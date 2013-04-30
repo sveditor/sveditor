@@ -21,11 +21,15 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.search.ISVDBIndexSearcher;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -125,6 +129,18 @@ public class IndexTestUtils {
 		ISVDBIndexIterator target_index = new FileIndexIterator(file);
 		
 		return target_index;
+	}
+	
+	public static ISVDBItemBase find(ISVDBDeclCache searcher, String name) {
+		List<SVDBDeclCacheItem> result = searcher.findGlobalScopeDecl(
+				new NullProgressMonitor(), name, 
+				SVDBFindDefaultNameMatcher.getDefault());
+		
+		if (result.size() > 0) {
+			return result.get(0).getSVDBItem();
+		} else {
+			return null;
+		}
 	}
 	
 }
