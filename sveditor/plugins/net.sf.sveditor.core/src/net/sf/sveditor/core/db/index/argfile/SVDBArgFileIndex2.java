@@ -87,6 +87,7 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
@@ -1329,7 +1330,8 @@ public class SVDBArgFileIndex2 implements
 		f.setFileMapper(fReadOnlyFileMapper);
 
 		fLog.debug("--> Parse " + r_path);
-		SVDBFile file = f.parse(out, r_path, markers);
+		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(r_path);
+		SVDBFile file = f.parse(language_level, out, r_path, markers);
 		fLog.debug("<-- Parse " + r_path);
 		SVDBFile file_ft = null;
 		
@@ -2193,7 +2195,8 @@ public class SVDBArgFileIndex2 implements
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "--> Parse " + path);
 		}
-		SVDBFile file = f.parse(pp_out, path, markers);
+		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path);
+		SVDBFile file = f.parse(language_level, pp_out, path, markers);
 		end = System.currentTimeMillis();
 		
 		if (fDebugEn) {
