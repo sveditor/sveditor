@@ -20,21 +20,17 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -135,29 +131,11 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 			scanner.seek(ini.second().getPosMap().get("MARK"));
 
 			ISVDBIndexIterator index_it = cp.getIndexIterator();
-			ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 			SVDBIndexValidator v = new SVDBIndexValidator();
 
-			v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
+			v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
 
-			SVDBClassDecl my_class1 = null;
-
-			while (it.hasNext()) {
-				ISVDBItemBase it_t = it.nextItem();
-				log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
-				if (SVDBItem.getName(it_t).equals("my_class1")) {
-					my_class1 = (SVDBClassDecl)it_t;
-				} else if (SVDBItem.getName(it_t).startsWith("__sv_builtin")) {
-					log.debug("Builtin: " + SVDBItem.getName(it_t));
-				}
-			}
-
-			assertNotNull(my_class1);
-
-			log.debug("[my_class1] " + SVDBUtil.getChildrenSize(my_class1) + " items");
-			for (ISVDBItemBase it_t : my_class1.getChildren()) {
-				log.debug("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
-			}
+			IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 
 			cp.computeProposals(scanner, ini.first(), 
 					ini.second().getLineMap().get("MARK"));
@@ -194,29 +172,11 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
 		
-		SVDBClassDecl my_class1 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
-			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBClassDecl)it_t;
-			} else if (SVDBItem.getName(it_t).startsWith("__sv_builtin")) {
-				log.debug("Builtin: " + SVDBItem.getName(it_t));
-			}
-		}
-		
-		assertNotNull(my_class1);
-		
-		log.debug("[my_class1] " + my_class1.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class1.getItems()) {
-			log.debug("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
-		}
+		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
@@ -253,26 +213,11 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
-		
-		SVDBClassDecl my_class1 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBClassDecl)it_t;
-			}
-		}
-		
-		assertNotNull(my_class1);
-
-		log.debug("[my_class1] " + my_class1.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class1.getItems()) {
-			log.debug("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
-		}
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
+	
+		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
@@ -307,28 +252,11 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
 		
-		SVDBClassDecl my_class1 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
-			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBClassDecl)it_t;
-			}
-		}
-		
-		assertNotNull(my_class1);
-		
-		log.debug("[my_class1] " + my_class1.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class1.getItems()) {
-			log.debug("    [my_class1] " + it_t.getType() + " " + 
-					SVDBItem.getName(it_t));
-		}
+		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
@@ -365,28 +293,11 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
 		
-		SVDBClassDecl my_class1 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
-			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBClassDecl)it_t;
-			}
-		}
-		
-		assertNotNull(my_class1);
-		
-		log.debug("[my_class1] " + my_class1.getItems().size() + " items");
-		for (ISVDBItemBase it_t : my_class1.getItems()) {
-			log.debug("    [my_class1] " + it_t.getType() + " " + 
-					SVDBItem.getName(it_t));
-		}
+		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));

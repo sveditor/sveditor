@@ -25,7 +25,7 @@ public class SVArgFileParser {
 	private SVArgFileLexer						fLexer;
 	private String								fFilename;
 	private LogHandle							fLog;
-	private boolean							fDebugEn = true;
+	private boolean								fDebugEn = true;
 	private List<SVDBMarker>					fMarkers;
 	private ISVDBFileSystemProvider				fFSProvider;
 	private String								fResolvedBaseLocation;

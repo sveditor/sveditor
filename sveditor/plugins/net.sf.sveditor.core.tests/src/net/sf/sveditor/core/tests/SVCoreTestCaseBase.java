@@ -26,7 +26,7 @@ public class SVCoreTestCaseBase extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		super.setUp();
+		SVCorePlugin.getDefault().getResourceChangeListener().init();
 		
 		fProjectList = new ArrayList<IProject>();
 		
@@ -47,14 +47,17 @@ public class SVCoreTestCaseBase extends TestCase {
 		
 		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		fIndexRgy.init(fCacheFactory);
+		
+		CoreReleaseTests.clearErrors();
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		super.tearDown();
+		SVCorePlugin.getDefault().getResourceChangeListener().dispose();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.close();
+		SVCorePlugin.getDefault().getProjMgr().dispose();
 		
 		for (IProject p : fProjectList) {
 			TestUtils.deleteProject(p);
@@ -64,8 +67,11 @@ public class SVCoreTestCaseBase extends TestCase {
 			TestUtils.delete(fTmpDir);
 		}
 		
+		SVCorePlugin.getDefault().getIndexBuilder().dispose();
+		
 		LogFactory.removeLogHandle(fLog);
 		
+		CoreReleaseTests.clearErrors();
 	}
 
 	protected void addProject(IProject p) {

@@ -28,8 +28,8 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 
@@ -79,27 +79,11 @@ public class TestParamClassContentAssist extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
-		
-		SVDBClassDecl my_class1 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
-			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBClassDecl)it_t;
-			}
-		}
-		
-		assertNotNull(my_class1);
-		
-		System.out.println("[my_class1] " + SVDBUtil.getChildrenSize(my_class1) + " items");
-		for (ISVDBItemBase it_t : my_class1.getChildren()) {
-			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
-		}
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
+	
+		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
@@ -141,27 +125,11 @@ public class TestParamClassContentAssist extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
-		
-		SVDBClassDecl my_class1 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			//System.out.println("    " + it_t.getType() + " " + it_t.getName());
-			if (SVDBItem.getName(it_t).equals("my_class1")) {
-				my_class1 = (SVDBClassDecl)it_t;
-			}
-		}
-		
-		assertNotNull(my_class1);
-		
-		System.out.println("[my_class1] " + SVDBUtil.getChildrenSize(my_class1) + " items");
-		for (ISVDBItemBase it_t : my_class1.getChildren()) {
-			System.out.println("    [my_class1] " + it_t.getType() + " " + SVDBItem.getName(it_t));
-		}
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
+	
+		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));

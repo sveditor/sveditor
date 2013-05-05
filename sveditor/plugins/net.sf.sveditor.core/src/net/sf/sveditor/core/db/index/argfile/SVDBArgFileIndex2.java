@@ -32,6 +32,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcessor;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -54,6 +55,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -135,6 +137,7 @@ public class SVDBArgFileIndex2 implements
 	private boolean 							fIsDirty;
 	
 	private ISVDBIndexBuilder					fIndexBuilder;
+	private int									fInIndexOp;
 	
 	
 	private SVDBArgFileIndex2(String project) {
@@ -184,19 +187,15 @@ public class SVDBArgFileIndex2 implements
 		if (changes == null || !fIndexValid) {
 			if (!fIndexValid) {
 				// Return a 'build me' plan, since we're not valid
-				System.out.println("IndexValid=false");
 				plan = new SVDBIndexChangePlanRebuild(this);
 			}
 		} else {
 			synchronized (fBuildData) {
 				for (SVDBIndexResourceChangeEvent ev : changes) {
-					System.out.println("Event: " + ev.getPath());
 					if (fBuildData.fIndexCacheData.fSrcFileList.contains(ev.getPath())) {
-						System.out.println("  Create Rebuild plan");
 						plan = new SVDBIndexChangePlanRebuild(this);
 						break;
 					} else if (fBuildData.fIndexCacheData.fArgFilePaths.contains(ev.getPath())) {
-						System.out.println("  Create Rebuild plan");
 						plan = new SVDBIndexChangePlanRebuild(this);
 						break;
 					}
@@ -204,12 +203,10 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 
-		System.out.println("Return plan=" + plan);
 		return plan;
 	}
 
 	public void execIndexChangePlan(IProgressMonitor monitor, ISVDBIndexChangePlan plan) {
-		System.out.println("execIndexChangePlan: " + plan.getType());
 		
 		switch (plan.getType()) {
 			case Refresh: {
@@ -237,15 +234,12 @@ public class SVDBArgFileIndex2 implements
 
 		if (fCacheDataValid) {
 			fCacheDataValid = checkCacheValid();
-		} else {
-			System.out.println("Cache " + getBaseLocation() + " is invalid on entry");
 		}
 
 		if (fCacheDataValid) {
 			if (fDebugEn) {
 				fLog.debug("Cache is valid");
 			}
-			System.out.println("Cache is valid");
 			fIndexValid = true;
 
 			// If we've determined the index data is valid, then we need to
@@ -281,7 +275,6 @@ public class SVDBArgFileIndex2 implements
 				addFileDir(fBuildData, f);
 			}
 		} else {
-			System.out.println("Cache " + getBaseLocation() + " is invalid");
 			if (fDebugEn) {
 				fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			}
@@ -488,7 +481,7 @@ public class SVDBArgFileIndex2 implements
 		}
 
 		if (valid) {
-			synchronized (getCache()) {
+			synchronized (fBuildData) {
 				for (String arg_file : getCache().getFileList(true)) {
 					long ts = getFileSystemProvider().getLastModifiedTime(
 							arg_file);
@@ -530,17 +523,13 @@ public class SVDBArgFileIndex2 implements
 		
 		/** TODO: 
 		 */
-		
 		if (fIndexBuilder != null) {
 			SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
-			System.out.println("Launch refresh: " + getBaseLocation());
 			fIndexBuilder.build(plan);
 		} else {
 			// run the refresh in-line
 			refresh_index(monitor);
 		}
-
-
 
 		monitor.done();
 	}
@@ -580,11 +569,11 @@ public class SVDBArgFileIndex2 implements
 		 */
 	}
 
-	public synchronized boolean isLoaded() {
+	public boolean isLoaded() {
 		return fIndexValid;
 	}
 
-	public synchronized boolean isFileListLoaded() {
+	public boolean isFileListLoaded() {
 		return fIndexValid;
 	}
 
@@ -610,7 +599,6 @@ public class SVDBArgFileIndex2 implements
 				if (!fIndexValid) {
 					// Schedule a job
 					SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-					System.out.println("ensureIndexUpToDate Build: " + getBaseLocation());
 					build_job = fIndexBuilder.build(plan);
 					build_job.waitComplete();
 				}
@@ -667,15 +655,8 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) {
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			System.out.println("rebuildIndex Request:");
-			e.printStackTrace();
-		}
 		if (fIndexBuilder != null) {
 			SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-			System.out.println("rebuildIndex Build: " + getBaseLocation());
 			fIndexBuilder.build(plan);
 		} else {
 			invalidateIndex(monitor, "Rebuild Index Requested", true);
@@ -780,8 +761,8 @@ public class SVDBArgFileIndex2 implements
 	 * getFileList() -- returns a list of all source files
 	 */
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
-		ensureIndexUpToDate(monitor);
-		
+		checkInIndexOp("getFileList");
+
 		List<String> ret = new ArrayList<String>();
 		synchronized (fBuildData) {
 			ret.addAll(fBuildData.fIndexCacheData.fSrcFileList);
@@ -800,8 +781,8 @@ public class SVDBArgFileIndex2 implements
 			fLog.debug("--> findFile: " + path);
 		}
 		
-		ensureIndexUpToDate(monitor);
-
+		checkInIndexOp("findFile");
+		
 		// TODO: 
 		synchronized (fBuildData) {
 			ret = fBuildData.fCache.getFile(new NullProgressMonitor(), r_path);
@@ -1064,8 +1045,8 @@ public class SVDBArgFileIndex2 implements
 		// TODO: Update implementation
 		String r_path = path;
 		SVDBFile file = null;
-
-		ensureIndexUpToDate(monitor);
+		
+		checkInIndexOp("findPreProcFile");
 
 		SVDBFileTree ft = findTargetFileTree(r_path);
 	
@@ -1082,7 +1063,9 @@ public class SVDBArgFileIndex2 implements
 		}
 		
 		// TODO: Update implementation
-		/* SVDBFile file = */findFile(path);
+//		/* SVDBFile file = */findFile(path);
+		
+		checkInIndexOp("getMarkers");
 
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
@@ -1302,11 +1285,10 @@ public class SVDBArgFileIndex2 implements
 			fLog.debug("parse: path " + r_path + " does not exist");
 			return null;
 		}
+		
+		checkInIndexOp("parse");
 
 		// TODO: should we update the index, or keep passive?
-		
-		// First, ensure index is up-to-date
-		ensureIndexUpToDate(monitor);
 		
 		SVDBFileTree ft = findTargetFileTree(r_path);
 	
@@ -1434,12 +1416,17 @@ public class SVDBArgFileIndex2 implements
 		return findPreProcFile(new NullProgressMonitor(), path);
 	}
 
-	public synchronized SVDBFileTree findFileTree(
+	public SVDBFileTree findFileTree(
 			String 		path,
 			boolean 	is_argfile) {
-		ensureIndexUpToDate(new NullProgressMonitor());
-		SVDBFileTree ft = fBuildData.fCache.getFileTree(
-				new NullProgressMonitor(), path, is_argfile);
+		
+		checkInIndexOp("findFileTree");
+
+		SVDBFileTree ft = null;
+		synchronized (fBuildData) {
+			ft = fBuildData.fCache.getFileTree(
+					new NullProgressMonitor(), path, is_argfile);
+		}
 
 		return ft;
 	}
@@ -1714,6 +1701,10 @@ public class SVDBArgFileIndex2 implements
 							((ISVDBNamedItem) item).getName(), item.getType(),
 							false));
 				}
+				if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
+					cacheFileDeclarations(build_data, curr_fileid, 
+						decl_list, null, (ISVDBScopeItem)item, ft);
+				}
 			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
 
@@ -1810,7 +1801,7 @@ public class SVDBArgFileIndex2 implements
 		Map<String, List<SVDBDeclCacheItem>> pkg_cache = 
 				fBuildData.fIndexCacheData.getPackageCacheMap();
 
-		ensureIndexUpToDate(monitor);
+		checkInIndexOp("findPackageDecl");
 
 		List<SVDBDeclCacheItem> pkg_content = pkg_cache.get(pkg_item.getName());
 
@@ -1826,7 +1817,8 @@ public class SVDBArgFileIndex2 implements
 			String 					name, 
 			ISVDBFindNameMatcher 	matcher) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
-		ensureIndexUpToDate(monitor);
+		
+		checkInIndexOp("findGlobalScopeDecl");
 		
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = 
 				fBuildData.fIndexCacheData.getDeclCacheMap();
@@ -1846,7 +1838,7 @@ public class SVDBArgFileIndex2 implements
 			String name, ISVDBRefMatcher matcher) {
 		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
 
-		ensureIndexUpToDate(monitor);
+		checkInIndexOp("findReferences");
 
 		Map<String, SVDBRefCacheEntry> ref_cache = 
 				fBuildData.fIndexCacheData.getReferenceCacheMap();
@@ -1864,7 +1856,7 @@ public class SVDBArgFileIndex2 implements
 	public List<SVDBRefItem> findReferences(
 			IProgressMonitor 		monitor,
 			SVDBRefCacheItem 		item) {
-		ensureIndexUpToDate(monitor);
+		checkInIndexOp("findReferences");
 
 		SVDBRefFinder finder = new SVDBRefFinder(item.getRefType(),
 				item.getRefName());
@@ -1875,7 +1867,8 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		ensureIndexUpToDate(monitor);
+		
+		checkInIndexOp("getDeclFile");
 
 		SVDBFile file = null;
 
@@ -1897,7 +1890,7 @@ public class SVDBArgFileIndex2 implements
 	public SVDBFile getDeclFilePP(
 			IProgressMonitor 		monitor,
 			SVDBDeclCacheItem 		item) {
-		ensureIndexUpToDate(monitor);
+		checkInIndexOp("getDeclFilePP");
 
 		SVDBFile file = null;
 
@@ -2275,7 +2268,6 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 		end_time = System.currentTimeMillis();
-		System.out.println("parseFiles " + paths.size() + " " + (end_time-start_time));
 	
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation()
@@ -2289,7 +2281,7 @@ public class SVDBArgFileIndex2 implements
 	public ISVPreProcessor createPreProcScanner(String path) {
 		SVPreProcessor2 ret = null;
 		
-		ensureIndexUpToDate(new NullProgressMonitor());
+		checkInIndexOp("createPreProcScanner");
 		SVDBFileTree ft = findTargetFileTree(path);
 		
 //		System.out.println("ft=" + ft);
@@ -2331,5 +2323,47 @@ public class SVDBArgFileIndex2 implements
 			return SVDBArgFileIndex2.this.fBuildData.mapFileIdToPath(id);
 		}
 	};
-	
+
+	/**
+	 * Implement of ISVDBIndexOperationRunner
+	 */
+
+	public void execOp(
+			IProgressMonitor 		monitor, 
+			ISVDBIndexOperation 	op,
+			boolean					sync) {
+		monitor.beginTask("", 1000);
+		
+		if (sync) {
+			ensureIndexUpToDate(new SubProgressMonitor(monitor, 500));
+		}
+
+		// Ensure no other 
+		synchronized (fBuildData) {
+			try {
+				fInIndexOp++;
+				op.index_operation(new SubProgressMonitor(monitor, 500), this);
+			} finally {
+				fInIndexOp--;
+			}
+		}
+		monitor.done();
+	}
+
+	private boolean checkInIndexOp(String name) {
+		if (fInIndexOp == 0) {
+			/** Ignore for now
+			Exception ex = null;
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				ex = e;
+			}
+			fLog.error(name + " called from outside index operation", ex);
+			 */
+			return false;
+		} else {
+			return true;
+		}
+	}
 }

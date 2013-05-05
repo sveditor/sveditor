@@ -53,6 +53,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -118,7 +119,6 @@ public abstract class AbstractSVDBIndex implements
 	private IProject								fProject;
 	private String 									fBaseLocation;
 	private String 									fResolvedBaseLocation;
-	private String 									fBaseLocationDir;
 	private String 									fResolvedBaseLocationDir;
 
 	private SVDBBaseIndexCacheData 					fIndexCacheData;
@@ -222,6 +222,13 @@ public abstract class AbstractSVDBIndex implements
 
 	public ISVDBIndexChangePlan createIndexChangePlan(List<SVDBIndexResourceChangeEvent> changes) {
 		SVDBIndexChangePlan plan = new SVDBIndexChangePlan(this, SVDBIndexChangePlanType.Empty);
+		
+		if (fDebugEn) {
+			fLog.debug("--> createIndexChangePlan");
+			for (SVDBIndexResourceChangeEvent ev : changes) {
+				fLog.debug("  " + ev.getPath());
+			}
+		}
 	
 		/*
 		if (changes == null || (fIndexState == IndexState_AllInvalid)) {
@@ -951,7 +958,8 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected void addIncludePath(String path) {
-		fIndexCacheData.addIncludePath(path);
+		String r_path = SVFileUtils.resolvePath(path, getResolvedBaseLocation(), fFileSystemProvider, true);
+		fIndexCacheData.addIncludePath(r_path);
 	}
 
 	/**
@@ -1832,6 +1840,7 @@ public abstract class AbstractSVDBIndex implements
 			InputStream 		in,
 			String 				path, 
 			List<SVDBMarker>	markers) {
+		ensureIndexState(new NullProgressMonitor(), IndexState_AllFilesParsed);
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		monitor.beginTask("parse" , 1);
@@ -2551,5 +2560,9 @@ public abstract class AbstractSVDBIndex implements
 	public String getFileFromId(int fileid) {
 		return null;
 	}
-	
+
+	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
+		op.index_operation(monitor, this);
+	}
+
 }

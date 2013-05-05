@@ -56,7 +56,7 @@ public interface ISVDBDeclCache {
 	 * @return
 	 */
 	SVDBFile findPreProcFile(IProgressMonitor monitor, String filename);
-	
+
 	/**
 	 * Returns a list of declarations from within the specified package scope
 	 * 

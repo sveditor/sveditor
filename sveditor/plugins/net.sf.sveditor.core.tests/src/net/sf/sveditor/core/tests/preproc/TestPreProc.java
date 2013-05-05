@@ -681,6 +681,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
 		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
@@ -729,6 +730,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		File target = new File(fTmpDir, "uvm_tlm2_generic_payload_fields.svh");
 		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
@@ -925,6 +927,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		File target = new File(fTmpDir, "uvm_fields.svh");
 		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);

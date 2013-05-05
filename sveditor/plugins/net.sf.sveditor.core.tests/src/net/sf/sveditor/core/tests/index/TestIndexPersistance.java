@@ -31,6 +31,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -89,7 +90,8 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		
 		in = index.getFileSystemProvider().openStream(path);
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		file = index.parse(new NullProgressMonitor(), in, path, errors).second();
+		
+		file = IndexTestUtils.parse(index, in, path, errors).second();
 		
 		assertNotNull(file);
 		assertEquals(1, fRebuildCount);
