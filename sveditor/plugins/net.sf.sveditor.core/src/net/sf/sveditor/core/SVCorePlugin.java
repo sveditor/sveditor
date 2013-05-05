@@ -98,7 +98,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
-	public static boolean					fUseNewCacheMgr = true;
+	public static boolean					fUseNewCacheMgr = false;
 	
 	// Obsolete Fields
 	private int								fNumIndexCacheThreads = 0;
