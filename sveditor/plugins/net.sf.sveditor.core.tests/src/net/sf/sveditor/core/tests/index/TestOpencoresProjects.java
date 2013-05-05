@@ -143,12 +143,13 @@ public class TestOpencoresProjects extends SVTestCaseBase {
 		assertNoErrors(log, project_index);
 		
 		// force index loading
-		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
-		while (it.hasNext()) {
-			it.nextItem();
-		}
+		project_index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertNoErrWarn(log, project_index);
+		
+		for (Exception e : CoreReleaseTests.getErrors()) {
+			System.out.println("TEST: " + getName() + " " + e.getMessage());
+		}
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		project_index.dispose();

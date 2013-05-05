@@ -44,7 +44,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = handle.isEnabled();
 	}
-
+	
 	/**
 	 * 
 	 * @return
@@ -185,6 +185,22 @@ public class SVDBFileSystem implements ILogLevelListener {
 				}
 			}
 		}
+	}
+	
+	public int blockSize() {
+		int size = 0;
+		
+		for (int i=0; i<fAllocList.length; i++) {
+			byte mask = fAllocList[i];
+			
+			for (int j=0; j<8; j++) {
+				if ((mask & (1 << j)) != 0) {
+					size++;
+				}
+			}
+		}
+		
+		return size;
 	}
 	
 	public SVDBFileSystemDataInput getUserData() {

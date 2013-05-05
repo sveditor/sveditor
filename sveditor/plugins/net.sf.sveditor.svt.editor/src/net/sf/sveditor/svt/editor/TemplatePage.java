@@ -964,21 +964,18 @@ public class TemplatePage extends FormPage {
 			fViewer = viewer;
 		}
 
-		@Override
 		public void dragStart(DragSourceEvent event) {
 			// TODO Auto-generated method stub
 			System.out.println("dragStart");
 			
 		}
 
-		@Override
 		public void dragSetData(DragSourceEvent event) {
 			// TODO Auto-generated method stub
 			
 			System.out.println("dragSetData");
 		}
 
-		@Override
 		public void dragFinished(DragSourceEvent event) {
 			// TODO Auto-generated method stub
 			

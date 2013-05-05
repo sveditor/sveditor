@@ -19,19 +19,29 @@ import org.eclipse.core.runtime.CoreException;
 
 public class SVResourceChangeListener implements IResourceChangeListener {
 	private SVDBProjectManager				fProjectMgr;
+	private boolean							fResourceListenerActive;
 	
 	
 	public SVResourceChangeListener(SVDBProjectManager pmgr) {
 		fProjectMgr = pmgr;
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		init();
+	}
+
+	public synchronized void dispose() {
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+		fResourceListenerActive = false;
 	}
 	
-	public void dispose() {
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+	public synchronized void init() {
+		if (!fResourceListenerActive) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+			fResourceListenerActive = true;
+		}
 	}
 
 	public void resourceChanged(IResourceChangeEvent event) {
 		final List<SVDBIndexResourceChangeEvent> changes = new ArrayList<SVDBIndexResourceChangeEvent>();
+		final SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 	
 		debug("--> resourceChanged");
 		String type = "UNKNOWN";
@@ -78,10 +88,25 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 						break;
 				}
 				
-				if (delta.getResource() instanceof IProject &&
-						(delta.getFlags() & IResourceDelta.OPEN) != 0) {
-					debug("delta: Project open/close -- " + delta.getFlags());
-					return false;
+				if (delta.getResource() instanceof IProject) {
+					IProject p = (IProject)delta.getResource();
+//					System.out.println("Project Delta: " + delta.getKind() + " " + delta.getFlags());
+					if ((delta.getFlags() & IResourceDelta.OPEN) != 0) {
+						debug("delta: Project open/close -- " + delta.getFlags());
+						if (p.isOpen()) {
+							// Project opening or added
+//							System.out.println("Project Opening");
+							pmgr.projectOpened(p);
+						} else {
+							// Project closing
+							pmgr.projectClosed(p);
+						}
+						return false;
+					} else if (delta.getKind() == IResourceDelta.REMOVED) {
+//						System.out.println("Project Removed");
+						pmgr.projectRemoved(p);
+						return false;
+					}
 				} else if (delta.getResource() instanceof IFile) {
 					if (type != null) {
 						debug("Delta " + kind + " " + 
@@ -110,6 +135,6 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 	}
 
 	private void debug(String msg) {
-		// System.out.println(msg);
+//		System.out.println(msg);
 	}
 }

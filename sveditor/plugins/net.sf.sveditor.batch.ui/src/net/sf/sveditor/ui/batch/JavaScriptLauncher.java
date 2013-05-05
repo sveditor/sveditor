@@ -8,7 +8,6 @@ import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 
 public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 
-	@Override
 	public void launch(
 			ILaunchConfiguration 	configuration, 
 			String 					mode,

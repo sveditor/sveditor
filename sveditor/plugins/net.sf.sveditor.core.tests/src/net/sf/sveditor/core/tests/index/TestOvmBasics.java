@@ -18,7 +18,6 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -259,36 +258,14 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
-		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		
-		SVDBClassDecl my_driver = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getMarkerType() == MarkerType.Error) {
-					errors.add(m);
-				}
-			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
-					SVDBItem.getName(tmp_it).equals("my_driver")) {
-				my_driver = (SVDBClassDecl)tmp_it;
-			}
-		}
-		
-		for (SVDBMarker m : errors) {
-			log.debug("[ERROR] " + m.getMessage());
-		}
-		assertEquals("No errors", 0, errors.size());
-		
-		assertNotNull(my_driver);
+
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "my_driver");
 		LogFactory.removeLogHandle(log);
 	}
 
 	public void testSequenceSimpleExample() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testSequenceSimpleExample");
 		
@@ -310,31 +287,9 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 				"${workspace_loc}/simple/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		
-		SVDBClassDecl simple_driver = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getMarkerType() == MarkerType.Error) {
-					errors.add(m);
-				}
-			} else if (tmp_it.getType() == SVDBItemType.ClassDecl &&
-					SVDBItem.getName(tmp_it).equals("simple_driver")) {
-				simple_driver = (SVDBClassDecl)tmp_it;
-			}
-		}
-		
-		for (SVDBMarker m : errors) {
-			log.debug("[ERROR] " + m.getMessage());
-		}
-		assertEquals("No errors", 0, errors.size());
-		
-		assertNotNull(simple_driver);
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "simple_driver");
+
 		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}

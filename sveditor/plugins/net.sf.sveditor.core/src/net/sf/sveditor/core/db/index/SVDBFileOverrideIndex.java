@@ -331,4 +331,8 @@ public class SVDBFileOverrideIndex
 		return fIndex.getConfig();
 	}
 
+	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
+		fIndex.execOp(monitor, op, sync);
+	}
+	
 }

@@ -17,37 +17,46 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperationRunner;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class SVDBFindByName {
-	private ISVDBIndexIterator			fIndexIterator;
+public class SVDBFindByName implements ISVDBIndexOperation {
+	private ISVDBIndexOperationRunner	fIndexIterator;
 	private ISVDBFindNameMatcher		fMatcher;
 	private LogHandle					fLog;
+	private String						fName;
+	private SVDBItemType				fTypes[];
+	List<ISVDBItemBase> 				fRet;
 	
-	public SVDBFindByName(ISVDBIndexIterator index_it) {
+	public SVDBFindByName(ISVDBIndexOperationRunner index_it) {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
 	
-	public SVDBFindByName(ISVDBIndexIterator index_it, ISVDBFindNameMatcher matcher) {
+	public SVDBFindByName(ISVDBIndexOperationRunner index_it, ISVDBFindNameMatcher matcher) {
 		fIndexIterator = index_it;
 		fMatcher = matcher;
 		fLog = LogFactory.getLogHandle("SVDBFindByName");
 	}
 	
-	public List<ISVDBItemBase> find(String name, SVDBItemType ... types) {
-		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
-		List<SVDBDeclCacheItem> found = fIndexIterator.findGlobalScopeDecl(
-				new NullProgressMonitor(), name, fMatcher);
+	public void index_operation(IProgressMonitor monitor, ISVDBIndex index) {
+		// TODO Auto-generated method stub
+
+		List<SVDBDeclCacheItem> found = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), fName, fMatcher);
 		
 		for (SVDBDeclCacheItem item : found) {
-			if (item.getType().isElemOf(types)) {
+			if (item.getType().isElemOf(fTypes)) {
 				if (item.getSVDBItem() != null) {
-					ret.add(item.getSVDBItem());
+					fRet.add(item.getSVDBItem());
 				} else {
 					try {
 						throw new Exception();
@@ -57,8 +66,25 @@ public class SVDBFindByName {
 				}
 			}
 		}
-		
-		return ret;
+	}
+	
+	public List<ISVDBItemBase> find(
+			String 				name, 
+			SVDBItemType ... 	types) {
+		return find(name, false, types);
+	}
+
+	public List<ISVDBItemBase> find(
+			String 				name, 
+			boolean				sync,
+			SVDBItemType ... 	types) {
+		fRet 	= new ArrayList<ISVDBItemBase>();
+		fName 	= name;
+		fTypes 	= types;
+
+		fIndexIterator.execOp(new NullProgressMonitor(), this, sync);
+
+		return fRet;
 	}
 
 }

@@ -116,8 +116,9 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
-		SVDBFile file = result.second().parse(
-				new NullProgressMonitor(), in, target_file, markers).second();
+		SVDBFile file = IndexTestUtils.parse(result.second(), in, target_file, markers).second();
+//		result.second().parse(
+//				new NullProgressMonitor(), in, target_file, markers).second();
 		
 		assertNotNull(file);
 		assertEquals(0, markers.size());

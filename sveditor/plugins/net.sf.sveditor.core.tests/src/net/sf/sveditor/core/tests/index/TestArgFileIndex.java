@@ -19,10 +19,8 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
@@ -62,24 +60,9 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				"${workspace_loc}/project/arg_file_multi_include/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1_dir1 = null, class1_dir2 = null;
+		IndexTestUtils.assertFileHasElements(index, "class1_dir1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_dir2");
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1_dir1")) {
-				class1_dir1 = tmp_it;
-			} else if (name.equals("class1_dir2")) {
-				class1_dir2 = tmp_it;
-			}
-		}
-		
-		assertNull("Incorrectly found class1_dir2", class1_dir2);
-		assertNotNull("Failed to find class1_dir1", class1_dir1);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -101,42 +84,9 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				"${workspace_loc}/project/arg_file_multi_include_multi_root/arg_file_multi_include_multi_root.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-//		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1_dir2 = null, class3_dir2 = null;
-		List<SVDBDeclCacheItem> f = index.findGlobalScopeDecl(
-				new NullProgressMonitor(), "class1_dir2", 
-				new SVDBFindDefaultNameMatcher());
+		IndexTestUtils.assertDoesNotContain(index, "class1_dir2");
+		IndexTestUtils.assertFileHasElements(fLog, index, "class3");
 
-		
-		if (f.size() > 0) {
-			class1_dir2 = f.get(0).getSVDBItem();
-		}
-		
-		f = index.findGlobalScopeDecl(
-				new NullProgressMonitor(), "class3", 
-				new SVDBFindDefaultNameMatcher());
-		
-		if (f.size() > 0) {
-			class3_dir2 = f.get(0).getSVDBItem();
-		}
-
-		/*
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1_dir2")) {
-				class1_dir2 = tmp_it;
-			} else if (name.equals("class3")) {
-				class3_dir2 = tmp_it;
-			}
-		}
-		 */
-		
-		assertNull("Incorrectly found class1_dir2", class1_dir2);
-		assertNotNull("Failed to find class1_dir1", class3_dir2);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -159,14 +109,9 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		String names[] = {"a","b","arg_file_libpath_1","arg_file_libpath_2"};
-	
-		for (String n : names) {
-			List<SVDBDeclCacheItem> res = index.findGlobalScopeDecl(
-					new NullProgressMonitor(), n, 
-					SVDBFindDefaultNameMatcher.getDefault());
-			assertEquals("Find of \"" + n + "\" failed: ", 1, res.size());
-		}
 		
+		IndexTestUtils.assertFileHasElements(fLog, index, names);
+
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -365,29 +310,9 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				"${workspace_loc}/testArgFileIncludePath_project/arg_file_include_path/arg_file_include_path.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		SVCorePlugin.setenv("TEST_ENVVAR", fTmpDir.getAbsolutePath() + "/testArgFileIncludePath_project");
-		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1 = null, class2 = null;
-		ISVDBItemBase arg_file_multi_include = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1_dir1")) {
-				class1 = tmp_it;
-			} else if (name.equals("class2")) {
-				class2 = tmp_it;
-			} else if (name.equals("arg_file_multi_include")) {
-				arg_file_multi_include = tmp_it;
-			} 
-		}
+	
+		IndexTestUtils.assertFileHasElements(index, "class1_dir1", "class2", "arg_file_multi_include");
 
-		assertNotNull(class1);
-		assertNotNull(class2);
-		assertNotNull(arg_file_multi_include);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}
@@ -428,32 +353,9 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		ps.println("    endclass");
 		ps.println("endpackage");
 		ps.close();
-
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1 = null, class2 = null;
-		ISVDBItemBase ext_pkg_1 = null, ext_pkg_2 = null;
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1")) {
-				class1 = tmp_it;
-			} else if (name.equals("class2")) {
-				class2 = tmp_it;
-			} else if (name.equals("ext_pkg_1")) {
-				ext_pkg_1 = tmp_it;
-			} else if (name.equals("ext_pkg_2")) {
-				ext_pkg_2 = tmp_it;
-			}
-		}
+		IndexTestUtils.assertFileHasElements(index, "class1", "class2", "ext_pkg_1", "ext_pkg_2");
 
-		assertNotNull(class1);
-		assertNotNull(class2);
-		assertNotNull(ext_pkg_1);
-		assertNotNull(ext_pkg_2);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}

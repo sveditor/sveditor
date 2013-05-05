@@ -55,10 +55,11 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		}
 
 
+		int fileid = readInt();
 		int line = readInt();
 		int pos  = readInt();
 
-		return new SVDBLocation(line, pos);
+		return new SVDBLocation(fileid, line, pos);
 	}
 
 	public String readString() throws DBFormatException {
@@ -457,6 +458,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 			writeRawType(TYPE_NULL);
 		} else {
 			writeRawType(TYPE_SVDB_LOCATION);
+			writeInt(loc.getFileId());
 			writeInt(loc.getLine());
 			writeInt(loc.getPos());
 		}

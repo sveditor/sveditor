@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndex extends 
 	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache,
-	ISVDBIndexChangePlanner {
+	ISVDBIndexChangePlanner, ISVDBIndexOperationRunner {
 	
 	ISVDBFileSystemProvider getFileSystemProvider();
 	
@@ -144,5 +144,5 @@ public interface ISVDBIndex extends
 	boolean isFileListLoaded();
 	
 	SVDBIndexConfig getConfig();
-	
+
 }
