@@ -83,7 +83,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		if (id.equals("function") || id.equals("task")) {
 			parsers().taskFuncParser().parse(parent, start, modifiers);
-		} else if (fLexer.peekKeyword("assert","assume","cover","restrict")) {
+		} else if (fLexer.peekKeyword("assert","assume","cover","restrict", "expect")) {
 			parsers().assertionParser().parse(parent);
 		} else if (id.equals("property")) {
 			fParsers.propertyParser().property(parent);

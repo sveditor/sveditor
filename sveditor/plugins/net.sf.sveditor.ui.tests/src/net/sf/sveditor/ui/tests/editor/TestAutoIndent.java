@@ -1154,9 +1154,13 @@ public void testIndentConstraint() throws BadLocationException {
 	
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 	tester.type(input);
-	String result = tester.getContent();
+	String result_type = tester.getContent();
 	
-	IndentComparator.compare("testIndentConstraint", expected, result);
+	IndentComparator.compare("testIndentConstraint - type", expected, result_type);
+	tester.paste(input);
+	String result_paste = tester.getContent();
+	
+	IndentComparator.compare("testIndentConstraint - paste", expected, result_paste);
 }
 
 //This test checks assign statements, these can run onto multiple lines
@@ -1269,7 +1273,7 @@ public void testMultiLineStatements() throws BadLocationException {
 			"		jane = thing + thong;\n" +
 			"		asdf = 1 + 2;\n" +
 			"		if ((a ||b) &&\n" +
-			"			c)\n" +
+			"				c)\n" +
 			"		begin\n" +
 			"			jane = bob +\n" +
 			"				other;\n" +
@@ -1281,8 +1285,8 @@ public void testMultiLineStatements() throws BadLocationException {
 			"			thing = 1;\n" +
 			"		else if (\n" +
 			"				(\n" +
-			"				c ||\n" +
-			"				d\n" +
+			"					c ||\n" +
+			"					d\n" +
 			"				)\n" +
 			"			)\n" +
 			"			thing2 = 1;\n" +

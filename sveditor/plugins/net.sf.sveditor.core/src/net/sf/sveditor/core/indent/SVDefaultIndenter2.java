@@ -243,7 +243,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		tok = next_s();
 		
 		if (tok.isOp("(")) {
-			tok = consume_expression(false);
+			tok = consume_expression();
 		} else {
 			//System.out.println("[ERROR] unsure what happened - tok=" + 
 		    // tok.getImage());
@@ -348,7 +348,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (!tok.isId("do") && !tok.isId("forever")) {
 			tok = next_s();
 			if (tok.isOp("(")) {
-				tok = consume_expression(false);
+				tok = consume_expression();
 			} else {
 				return tok;
 			}
@@ -601,6 +601,30 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok.isOp("@"));
 	}
 
+	/**
+	 * This function will check to see if the given token is an open brace
+	 * Currently checks for ({[
+	 * 
+	 * @param tok - token to be evaluated
+	 * @return
+	 */
+	private static boolean is_open_brace (SVIndentToken tok) {
+		return (tok.isOp("(") || tok.isOp("{") ||
+				tok.isOp("["));
+	}
+	
+	/**
+	 * This function will check to see if the given token is an open brace
+	 * Currently checks for ({[
+	 * 
+	 * @param tok - token to be evaluated
+	 * @return
+	 */
+	private static boolean is_close_brace (SVIndentToken tok) {
+		return (tok.isOp(")") || tok.isOp("}") ||
+				tok.isOp("]"));
+	}
+	
 	/**
 	 * Checks to see if id is one of the "normal" case statements:
 	 *  - case
@@ -982,7 +1006,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_constraint_if(false);
 		} else if (tok.isOp("(")) {
 			// very likely an implication statement
-			tok = consume_expression(false);
+			tok = consume_expression();
 			
 			// (expr) -> [stmt | stmt_block]
 			if (tok.isOp("->") || tok.isOp("->>")) {
@@ -996,17 +1020,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// check if we have a distribution here
 			if (tok.isId("dist"))  {
 				tok = next_s();			// move onto '{'
-				start_of_scope(tok);
-				tok = next_s();
-				enter_scope(tok);
-				
-				while (!tok.isOp("}")) {
-					tok = next_s();
-				}
-				leave_scope(tok);
-				tok = next_s();			// move onto ';'
-				tok = next_s();
-				
+				tok = consume_expression();
+				tok = next_s();			// consume trailing ;
 			}
 			// Expression
 			else  {
@@ -1032,7 +1047,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		tok = next_s();
 		if (tok.isOp("(")) {
-			tok = consume_expression(false);
+			tok = consume_expression();
 		} else {
 			// Doesn't seem right for an if
 			return tok;
@@ -1078,7 +1093,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isOp("@"))  {
 			// swallow the expression (...) or @*
 			tok = next_s();
-			tok=consume_expression(false);
+			tok=consume_expression();
 		}
 		// By this point we should have reached a begin or statement
 		return (indent_block_or_statement(null, false));
@@ -1306,46 +1321,55 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 	/**
-	 * @param prev_op_is_brace - Used for nested, multi-line expressions.  Will add indent if preceded by a brace
-	 * Example:
-	 * if (			
-	 *       (a == 1) || // indent this because opening brace was preceded by brace
-	 *       (b == 0)    // Don't indent, this wasn't preceded by brace
-	 * )
+	 * consume_expression
 	 * 
-	 * @return
+	 * This function will parse through an expression such as (a | b)
+	 * If a start of line is encountered, subsequent code is indented
+	 * The function will return if the end of expression is reached, typically
+	 * a matching closing brace is reached.
+	 * 
+	 * Call this on the following tokens
+	 * always @*
+	 *         ^ Call on the token after an @
+	 * if (...
+	 *    ^ Call on the token after an if
+	 * 
+	 * @return Next Token
 	 */
-	private SVIndentToken consume_expression(boolean prev_op_is_brace) {
+	private SVIndentToken consume_expression() {
 		SVIndentToken tok = current();
 		boolean is_indent = false;
+		boolean search_for_close_brace = false;
+		// Get next token
+		if (is_open_brace(tok)) {
+			tok = next_s();
+			search_for_close_brace = true;
+		}
 		do {
+			// braces on a new line get indented
+			if (tok.isStartLine() && (is_indent == false))  {
+				is_indent = true;
+				start_of_scope(tok);
+				enter_scope(tok);
+			}
 			// If we have an open brace, check if we need to indent, and call this function again to evaluate the expression
-			if (tok.isOp("(")) {
-				// braces on a new line get indented
-				if (tok.isStartLine() && prev_op_is_brace)  {
-					is_indent = true;
-					start_of_scope(tok);
-					enter_scope(tok);
-				}
-				tok = next_s();
+			if (is_open_brace(tok)) {
 				// recursively call this function, checking for nested braces
-				tok = consume_expression(true);
+				tok = consume_expression();
 				// If we come back (will be on a brace, and we had just indented, 
-				if (is_indent) {
-					leave_scope(tok);
-				}
 			}
-			// Need this term to skip over the "next_s() below in case we have a function call in the 
-			// expression if (a())  begin end
-			else if (tok.isOp(")")) {
-			}
+			// Allow for ()
+			else if (is_close_brace(tok)) {}
 			else  {
 				tok = next_s();
 			}
-		} while (!tok.isOp(")") && prev_op_is_brace);
-		if (tok.isOp(")"))
-		tok = next_s();
-		
+		} while (!is_close_brace(tok) && search_for_close_brace);
+		// If we come back (will be on a brace, and we had just indented, 
+		if (is_indent) {
+			leave_scope(tok);
+		}
+		if (is_close_brace(tok))
+			tok = next_s();
 		return tok;
 	}
 	
@@ -1465,6 +1489,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		while (tok.isOp("."))  {
 			tok = next_s();					// identifier
 			tok = next_s();					// possible hierarchy delimiter '.'
+			// Check for bus values []
+			if (tok.isOp("["))  {
+				tok = consume_expression();
+			}
 		}
 		return (tok);				// return the last token in hierarchy
 	}

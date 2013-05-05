@@ -28,9 +28,9 @@ public class SVAssertionParser extends SVParserBase {
 	public SVDBAssertStmt parse(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBLocation start = fLexer.getStartLocation();
 		
-		String assert_type = fLexer.readKeyword("assert", "assume", "cover");
+		String assert_type = fLexer.readKeyword("assert", "assume", "cover", "expect");
 		SVDBAssertStmt assert_stmt;
-		if (assert_type.equals("assert")) {
+		if (assert_type.equals("assert") || (assert_type.equals ("expect"))) {
 			assert_stmt = new SVDBAssertStmt();
 		} else if (assert_type.equals("assume")) {
 			assert_stmt = new SVDBAssumeStmt();
@@ -40,8 +40,13 @@ public class SVAssertionParser extends SVParserBase {
 		assert_stmt.setLocation(start);
 		if (fDebugEn) {debug("assertion_stmt - " + fLexer.peek());}
 
-		if (fLexer.peekKeyword("property")) {
-			fLexer.eatToken();
+		// Cover the following
+		//   expect <some_property>
+		//   assert property <some_property>
+		if (fLexer.peekKeyword("property") || (assert_type.equals("expect"))) {
+			
+			if (fLexer.peekKeyword("property"))
+				fLexer.eatToken();
 			fLexer.readOperator("(");
 			assert_stmt.setExpr(fParsers.propertyExprParser().property_spec());
 			fLexer.readOperator(")");
