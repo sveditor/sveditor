@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -24,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -43,6 +45,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestVmmBasics extends SVCoreTestCaseBase {
@@ -225,10 +228,20 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBIndexInt af_index = (ISVDBIndexInt)index;
+		final ISVDBIndexInt af_index = (ISVDBIndexInt)index;
 		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
-		ISVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		final Tuple<ISVPreProcessor, ISVPreProcessor> result = new Tuple<ISVPreProcessor, ISVPreProcessor>(null, null);
 		
+		ISVDBIndexOperation op = new ISVDBIndexOperation() {
+			
+			public void index_operation(IProgressMonitor monitor, ISVDBIndex index) {
+				ISVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+				result.setFirst(pp);
+			}
+		};
+		af_index.execOp(new NullProgressMonitor(), op, true);
+		
+		ISVPreProcessor pp = result.first();
 		assertNotNull(pp);
 	
 		SVPreProcOutput pp_out = pp.preprocess();

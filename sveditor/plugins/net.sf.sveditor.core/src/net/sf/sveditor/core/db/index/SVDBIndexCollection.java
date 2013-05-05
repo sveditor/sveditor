@@ -42,7 +42,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator,
-		ILogLevel {
+		ISVDBIndexOperationRunner, ILogLevel {
 	private SVDBIndexCollectionMgr					fMgr;
 	private String									fProject;
 	private List<ISVDBIndex>						fSourceCollectionList;
@@ -302,7 +302,8 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		
 		return ret;
 	}
-	
+
+	@Deprecated
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		List<String> referenced_projects = new ArrayList<String>();
 		List<ISVDBIndexIterator> iterator_list = new ArrayList<ISVDBIndexIterator>();
@@ -873,7 +874,39 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		}
 		return null;
 	}
+	
+	public void execOp(
+			IProgressMonitor 		monitor, 
+			ISVDBIndexOperation 	op,
+			boolean 				sync) {
+		Set<ISVDBIndexOperationRunner> already_searched = new HashSet<ISVDBIndexOperationRunner>();
+	
+		execOp(monitor, already_searched, op, sync);
+	}
 
+	private void execOp(
+			IProgressMonitor 				monitor, 
+			Set<ISVDBIndexOperationRunner>	already_searched,
+			ISVDBIndexOperation 			op,
+			boolean 						sync) {
+		synchronized (this) {
+			already_searched.add(this);
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					index.execOp(monitor, op, sync);
+				}
+			}
+			if (fProjectRefProvider != null) {
+				for (String ref : fProjectRefs) {
+					SVDBIndexCollection mgr_t = fProjectRefProvider.resolveProjectRef(ref);
+					if (mgr_t != null && !already_searched.contains(mgr_t)) {
+						mgr_t.execOp(monitor, already_searched, op, sync);
+					}
+				}
+			}			
+		}
+	}
+	
 	private class IncludeProvider implements ISVDBIncludeFileProviderObsolete {
 		ISVDBIndex					fIndex;
 		List<List<ISVDBIndex>>		fSearchPath;

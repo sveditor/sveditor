@@ -92,9 +92,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	private static IJobMgr					fJobMgr;
-	private int								fNumIndexCacheThreads = 0;
-	private int								fMaxIndexThreads = 0;
-	private static boolean					fEnableAsyncCacheClear;
 	private static boolean					fTestMode = false;
 	private SVParserConfig					fParserConfig;
 	private SVResourceChangeListener		fResourceChangeListener;
@@ -102,6 +99,11 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
 	public static boolean					fUseNewCacheMgr = false;
+	
+	// Obsolete Fields
+	private int								fNumIndexCacheThreads = 0;
+	private int								fMaxIndexThreads = 0;
+	private static boolean					fEnableAsyncCacheClear;
 	
 	/**
 	 * The constructor
@@ -160,6 +162,8 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		fEnableAsyncCacheClear = true;
 		
 		LogFactory.getDefault().addLogListener(this);
+		
+		fProjManager.init();
 	}
 	
 	public static void setTestMode() {

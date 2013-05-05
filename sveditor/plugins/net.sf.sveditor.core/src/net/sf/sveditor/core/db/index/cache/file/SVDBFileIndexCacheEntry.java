@@ -72,6 +72,10 @@ public class SVDBFileIndexCacheEntry {
 		fCached = false;
 		fType = type;
 		fOnList = false;
+	
+		// Initially, consider all entries 
+		fDirtyMask = 0;
+		fLoadedMask = ALL_MASK;
 	}
 	
 	public void setOnList() {
@@ -127,6 +131,18 @@ public class SVDBFileIndexCacheEntry {
 		return fDirtyMask;
 	}
 	
+	public void setDirtyMask(int mask) {
+		fDirtyMask = mask;
+	}
+	
+	public int loadedMask() {
+		return fLoadedMask;
+	}
+	
+	public void setLoadedMask(int mask) {
+		fLoadedMask = mask;
+	}
+	
 	public String getPath() {
 		return fPath;
 	}
@@ -162,20 +178,37 @@ public class SVDBFileIndexCacheEntry {
 		fSVDBFileRef = null;
 		fSVDBFileTreeRef = null;
 		fSVDBPreProcFileRef = null;
+		// Assume nothing loaded until entry is brought back into the cache
+		fLoadedMask = 0;
 		fCached = false;
 	}
-	
-	void setCached() {
+
+	/**
+	 * 
+	 * @return
+	 */
+	int setCached() {
 		fCached = true;
 		if (fSVDBFile != null) {
 			fSVDBFileRef = fSVDBFile.get();
+			if (fSVDBFileRef != null) {
+				fLoadedMask |= SVDB_FILE_MASK;
+			}
 		}
 		if (fSVDBFileTree != null) {
 			fSVDBFileTreeRef = fSVDBFileTree.get();
+			if (fSVDBFileTreeRef != null) {
+				fLoadedMask |= SVDB_FILETREE_MASK;
+			}
 		}
 		if (fSVDBPreProcFile != null) {
 			fSVDBPreProcFileRef = fSVDBPreProcFile.get();
+			if (fSVDBPreProcFileRef != null) {
+				fLoadedMask |= SVDB_PREPROC_FILE_MASK;
+			}
 		}
+		
+		return fLoadedMask;
 	}
 	
 	SVDBFile getSVDBFileRef() {
@@ -190,6 +223,7 @@ public class SVDBFileIndexCacheEntry {
 	void setSVDBFileRef(SVDBFile file) {
 		fSVDBFileRef = file;
 		fSVDBFile = (Reference<SVDBFile>)createRef(file);
+		fDirtyMask |= SVDB_FILE_MASK;
 	}
 	
 	int getSVDBFileId() {
@@ -212,6 +246,7 @@ public class SVDBFileIndexCacheEntry {
 	void setSVDBPreProcFileRef(SVDBFile file) {
 		fSVDBPreProcFileRef = file;
 		fSVDBPreProcFile = (Reference<SVDBFile>)createRef(file);
+		fDirtyMask |= SVDB_PREPROC_FILE_MASK;
 	}
 	
 	int getSVDBPreProcFileId() {
@@ -234,6 +269,7 @@ public class SVDBFileIndexCacheEntry {
 	void setSVDBFileTreeRef(SVDBFileTree ft) {
 		fSVDBFileTreeRef = ft;
 		fSVDBFileTree = (Reference<SVDBFileTree>)createRef(ft);
+		fDirtyMask |= SVDB_FILETREE_MASK;
 	}
 	
 	int getSVDBFileTreeId() {
@@ -264,6 +300,7 @@ public class SVDBFileIndexCacheEntry {
 	public void setMarkersRef(List<SVDBMarker> markers) {
 		fMarkersRef = markers;
 		fMarkers = (Reference<List<SVDBMarker>>)createRef(markers);
+		fDirtyMask |= MARKERS_MASK;
 	}
 
 	@SuppressWarnings("unchecked")

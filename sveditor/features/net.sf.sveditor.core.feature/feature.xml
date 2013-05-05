@@ -24,15 +24,16 @@
          unpack="false"/>
 
    <plugin
-         id="net.sf.sveditor.core.batch"
+         id="net.sf.sveditor.extjar"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="net.sf.sveditor.extjar"
+         id="net.sf.sveditor.batch.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

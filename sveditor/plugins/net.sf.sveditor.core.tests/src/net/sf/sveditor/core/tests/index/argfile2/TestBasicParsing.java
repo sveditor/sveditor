@@ -16,12 +16,14 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
 import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
+import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -49,11 +51,12 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		fCacheFS = new SVDBFileSystem(db2, SVCorePlugin.getVersion());
 		fCacheFS.init();
 		fCacheMgr.init(fCacheFS);
+	
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().init(fCacheMgr);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		// TODO Auto-generated method stub
 //		super.tearDown();
 	}
 
@@ -201,6 +204,96 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		print("", uvm_pkg_sv);
 		 */
 
+	}
+
+	public void testFileSystemConstSize() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().setTestDebugLevel(0);
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		
+		TestUtils.copy(
+				"+incdir+uvm/src\n" +
+				"uvm/src/uvm_pkg.sv",
+				new File(fTmpDir, "uvm.f"));
+		
+		String base_location = new File(fTmpDir, "uvm.f").getAbsolutePath();
+		
+		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+				getName(), base_location,
+				new SVDBWSFileSystemProvider(),
+				fCacheMgr.createIndexCache(getName(), base_location),
+				null);
+		
+		long start, end;
+		
+		start = System.currentTimeMillis();
+		index.init(new NullProgressMonitor(), null);
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+		end = System.currentTimeMillis();
+		System.out.println("Parse UVM in " + (end-start) + "ms");
+
+		// For some unknown (yet) reason, the size after the first
+		// build is too large
+		fCacheMgr.sync();
+
+		int last_rebuild_sz = -1;
+		for (int i=0; i<4; i++) {
+			index.execIndexChangePlan(new NullProgressMonitor(), 
+					new SVDBIndexChangePlanRebuild(index));
+			fCacheMgr.sync();
+			int sz = fCacheFS.blockSize();
+			if (last_rebuild_sz != -1) {
+				assertEquals("Check size for " + i, last_rebuild_sz, sz);
+			}
+			last_rebuild_sz = sz;
+		}
+
+	}
+
+	public void testFileSystemConstSizeLibIndex() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().setTestDebugLevel(0);
+		
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		
+		TestUtils.copy(
+				"+incdir+uvm/src\n" +
+				"uvm/src/uvm_pkg.sv",
+				new File(fTmpDir, "uvm.f"));
+		
+		String base_location = new File(fTmpDir, "uvm/src/uvm_pkg.sv").getAbsolutePath();
+		
+		SVDBLibIndex index = new SVDBLibIndex(
+				getName(), base_location,
+				new SVDBWSFileSystemProvider(),
+				fCacheMgr.createIndexCache(getName(), base_location),
+				null);
+		
+		long start, end;
+		
+		start = System.currentTimeMillis();
+		index.init(new NullProgressMonitor(), null);
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+		end = System.currentTimeMillis();
+		System.out.println("Parse UVM in " + (end-start) + "ms");
+	
+		fCacheMgr.sync();
+		int first_rebuild_sz = fCacheFS.blockSize();
+
+		for (int i=0; i<4; i++) {
+			System.out.println("--> Build " + i);
+			index.execIndexChangePlan(new NullProgressMonitor(), 
+					new SVDBIndexChangePlanRebuild(index));
+			fCacheMgr.sync();
+			System.out.println("<-- Build " + i);
+		}
+
+		int second_rebuild_sz = fCacheFS.blockSize();
+		
+		assertEquals(first_rebuild_sz, second_rebuild_sz);
 	}
 	
 	private void print(String ind, ISVDBChildParent parent) {

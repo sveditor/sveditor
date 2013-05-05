@@ -53,6 +53,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -2551,5 +2552,9 @@ public abstract class AbstractSVDBIndex implements
 	public String getFileFromId(int fileid) {
 		return null;
 	}
-	
+
+	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
+		op.index_operation(monitor, this);
+	}
+
 }

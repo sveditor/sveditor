@@ -10,7 +10,6 @@ public class JavaScriptLauncherTabGroup extends
 		// TODO Auto-generated constructor stub
 	}
 
-	@Override
 	public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
 		System.out.println("CreateTabs");
 		// TODO Auto-generated method stub

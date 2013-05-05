@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.index;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 
-public interface ISVDBIndexIterator extends ISVDBDeclCache {
+public interface ISVDBIndexIterator extends ISVDBDeclCache, ISVDBIndexOperationRunner {
 
 	/**
 	 * This method is deprecated. The 'findGlobal' methods should be
