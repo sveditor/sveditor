@@ -114,7 +114,6 @@ public class IndexTestUtils {
 					List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(
 							new NullProgressMonitor(), 
 							exp.get(i), SVDBFindDefaultNameMatcher.getDefault());
-					System.out.println("index_operation: " + index.getBaseLocation() + " " + result.size());
 					
 					if (result.size() > 0) {
 						exp.remove(i);

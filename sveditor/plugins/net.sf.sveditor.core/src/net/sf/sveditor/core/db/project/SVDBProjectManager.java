@@ -381,6 +381,6 @@ public class SVDBProjectManager implements
 	}
 	
 	public void dispose() {
-//		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+		fProjectMap.clear();
 	}
 }

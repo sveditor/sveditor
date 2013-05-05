@@ -41,7 +41,6 @@ public class SVDBInitProjectsJob extends Job {
 			for (IProject p : sv_projects) {
 				monitor.subTask("Initializing " + p.getName());
 				try {
-					System.out.println("Initializing " + p.getName());
 					SVDBProjectData pdata = pmgr.getProjectData(p);
 				} catch (Exception e) {
 					// TODO: Log

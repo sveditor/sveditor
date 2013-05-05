@@ -19,15 +19,24 @@ import org.eclipse.core.runtime.CoreException;
 
 public class SVResourceChangeListener implements IResourceChangeListener {
 	private SVDBProjectManager				fProjectMgr;
+	private boolean							fResourceListenerActive;
 	
 	
 	public SVResourceChangeListener(SVDBProjectManager pmgr) {
 		fProjectMgr = pmgr;
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		init();
+	}
+
+	public synchronized void dispose() {
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+		fResourceListenerActive = false;
 	}
 	
-	public void dispose() {
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+	public synchronized void init() {
+		if (!fResourceListenerActive) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+			fResourceListenerActive = true;
+		}
 	}
 
 	public void resourceChanged(IResourceChangeEvent event) {
@@ -92,11 +101,12 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 							// Project closing
 							pmgr.projectClosed(p);
 						}
+						return false;
 					} else if (delta.getKind() == IResourceDelta.REMOVED) {
 //						System.out.println("Project Removed");
 						pmgr.projectRemoved(p);
+						return false;
 					}
-					return false;
 				} else if (delta.getResource() instanceof IFile) {
 					if (type != null) {
 						debug("Delta " + kind + " " + 
@@ -125,6 +135,6 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 	}
 
 	private void debug(String msg) {
-		// System.out.println(msg);
+//		System.out.println(msg);
 	}
 }

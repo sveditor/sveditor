@@ -153,7 +153,6 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		if (added) {
 			entry.setCached();
-			System.out.println("Add New Entry: " + entry.getPath());
 			fCacheMgr.addToCachedList(entry);
 		}
 		

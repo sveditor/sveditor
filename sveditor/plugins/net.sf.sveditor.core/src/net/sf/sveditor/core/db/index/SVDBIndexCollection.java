@@ -27,6 +27,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
@@ -256,9 +257,17 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void rebuildIndex(IProgressMonitor monitor) {
+		/*
 		for (ISVDBIndex i : getIndexList()) {
 			i.rebuildIndex(monitor);
 		}
+		 */
+		monitor.beginTask("Rebuild Indexes", 1000*getIndexList().size());
+		for (ISVDBIndex i : getIndexList()) {
+			i.execIndexChangePlan(new SubProgressMonitor(monitor, 1000),
+					new SVDBIndexChangePlanRebuild(i));
+		}
+		monitor.done();
 		
 		clearStaleShadowIndexes();
 		for (int i=0; i<fShadowIndexList.size(); i++) {

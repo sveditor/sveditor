@@ -187,19 +187,15 @@ public class SVDBArgFileIndex2 implements
 		if (changes == null || !fIndexValid) {
 			if (!fIndexValid) {
 				// Return a 'build me' plan, since we're not valid
-				System.out.println("IndexValid=false");
 				plan = new SVDBIndexChangePlanRebuild(this);
 			}
 		} else {
 			synchronized (fBuildData) {
 				for (SVDBIndexResourceChangeEvent ev : changes) {
-					System.out.println("Event: " + ev.getPath());
 					if (fBuildData.fIndexCacheData.fSrcFileList.contains(ev.getPath())) {
-						System.out.println("  Create Rebuild plan");
 						plan = new SVDBIndexChangePlanRebuild(this);
 						break;
 					} else if (fBuildData.fIndexCacheData.fArgFilePaths.contains(ev.getPath())) {
-						System.out.println("  Create Rebuild plan");
 						plan = new SVDBIndexChangePlanRebuild(this);
 						break;
 					}
@@ -207,12 +203,10 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 
-		System.out.println("Return plan=" + plan);
 		return plan;
 	}
 
 	public void execIndexChangePlan(IProgressMonitor monitor, ISVDBIndexChangePlan plan) {
-		System.out.println("execIndexChangePlan: " + plan.getType());
 		
 		switch (plan.getType()) {
 			case Refresh: {
@@ -240,15 +234,12 @@ public class SVDBArgFileIndex2 implements
 
 		if (fCacheDataValid) {
 			fCacheDataValid = checkCacheValid();
-		} else {
-			System.out.println("Cache " + getBaseLocation() + " is invalid on entry");
 		}
 
 		if (fCacheDataValid) {
 			if (fDebugEn) {
 				fLog.debug("Cache is valid");
 			}
-			System.out.println("Cache is valid");
 			fIndexValid = true;
 
 			// If we've determined the index data is valid, then we need to
@@ -284,7 +275,6 @@ public class SVDBArgFileIndex2 implements
 				addFileDir(fBuildData, f);
 			}
 		} else {
-			System.out.println("Cache " + getBaseLocation() + " is invalid");
 			if (fDebugEn) {
 				fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			}
@@ -535,7 +525,6 @@ public class SVDBArgFileIndex2 implements
 		 */
 		if (fIndexBuilder != null) {
 			SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
-			System.out.println("Launch refresh: " + getBaseLocation());
 			fIndexBuilder.build(plan);
 		} else {
 			// run the refresh in-line
@@ -610,7 +599,6 @@ public class SVDBArgFileIndex2 implements
 				if (!fIndexValid) {
 					// Schedule a job
 					SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-					System.out.println("ensureIndexUpToDate Build: " + getBaseLocation());
 					build_job = fIndexBuilder.build(plan);
 					build_job.waitComplete();
 				}
@@ -667,15 +655,8 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) {
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			System.out.println("rebuildIndex Request:");
-			e.printStackTrace();
-		}
 		if (fIndexBuilder != null) {
 			SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-			System.out.println("rebuildIndex Build: " + getBaseLocation());
 			fIndexBuilder.build(plan);
 		} else {
 			invalidateIndex(monitor, "Rebuild Index Requested", true);
@@ -2287,7 +2268,6 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 		end_time = System.currentTimeMillis();
-		System.out.println("parseFiles " + paths.size() + " " + (end_time-start_time));
 	
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation()

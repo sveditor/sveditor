@@ -257,11 +257,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		SVDBFileIndexCacheEntry entry;
 
 		try {
-			System.out.println("--> clearIndexCache");
 			entry = fCacheHead;
 			while (entry != null) {
 				if (entry.getCacheId() == cache.getCacheId()) {
-					System.out.println("Delete Cached Entry: " + entry.getPath());
 					SVDBFileIndexCacheEntry next = entry.getNext();
 					deleteEntry(entry);
 					entry = next;
@@ -273,7 +271,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			entry = fUnCachedHead;
 			while (entry != null) {
 				if (entry.getCacheId() == cache.getCacheId()) {
-					System.out.println("Delete UnCached Entry: " + entry.getPath());
 					SVDBFileIndexCacheEntry next = entry.getNext();
 					deleteEntry(entry);
 					entry = next;
@@ -281,7 +278,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 					entry = entry.getNext();
 				}
 			}
-			System.out.println("<-- clearIndexCache");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -412,7 +408,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param entry
 	 */
 	private synchronized void addToUnCachedList(SVDBFileIndexCacheEntry entry) {
-//		System.out.println("addToUnCachedList: " + entry.getPath());
 		entry.setOnList();
 		if (fUnCachedHead == null) {
 			// First entry
@@ -489,7 +484,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	public synchronized void addToCachedList(SVDBFileIndexCacheEntry entry) {
-		System.out.println("addToCachedList: " + entry.getPath() + " " + entry.onList());
 		entry.setOnList();
 		if (fCacheHead == null) {
 			// First entry
@@ -511,7 +505,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			if (!fCacheHead.isCached()) {
 				System.out.println("[ERROR] Head is not cached");
 			}
-			System.out.println("uncacheEntry: " + fCacheHead.getPath() + " " + fCacheSize + " " + fMaxCacheSize);
 			uncacheEntry(fCacheHead);
 		}
 	}
@@ -523,7 +516,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param entry
 	 */
 	synchronized void removeFromUnCachedList(SVDBFileIndexCacheEntry entry) {
-//		System.out.println("removeFromUnCachedList: " + entry.getPath());
 		entry.clrOnList();
 
 		if (entry.getPrev() == null) {
@@ -542,7 +534,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	synchronized void removeFromCachedList(SVDBFileIndexCacheEntry entry) {
-//		System.out.println("removeFromCachedList: " + entry.getPath());
 		entry.clrOnList();
 		
 		// Ensure the entry is not marked cached
