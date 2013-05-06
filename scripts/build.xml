@@ -4,6 +4,7 @@
 
     <!-- Import the version info -->
     <property file="${basedir}/../etc/sveditor.info"/>
+    <property file="${basedir}/../etc/sveditor_${version_type}.info"/>
     <property file="${basedir}/build.properties"/>
 
     <property name="gef_zest" location="${env.SVE_ADDINS}/gef_zest"/>
@@ -62,6 +63,18 @@
             </filterset>
         </copy>
 
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.core.feature"/>
+        </antcall>
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.ui.feature"/>
+        </antcall>
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor"/>
+        </antcall>
+    </target>
+
+    <target name="build_feature">
         <eclipse.buildScript
             elements="${type}@${feature.id}"
             buildDirectory="${buildDirectory}"
