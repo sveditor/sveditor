@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -191,6 +192,13 @@ public class SVArgFileParser {
 								}
 								file.addChildItem(stmt);
 							}
+							} break;
+							
+						case MFCU: {
+							SVDBArgFileMfcuStmt stmt = new SVDBArgFileMfcuStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							file.addChildItem(stmt);
 							} break;
 							
 						case SrcLibPath: {

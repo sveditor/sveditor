@@ -30,6 +30,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	// List of all source files (roots + included)
 	public List<String>			fSrcFileList;
 	
+	public boolean				fMFCU;
+	
 	public SVDBArgFileIndexCacheData(String base_location) {
 		super(base_location);
 		fArgFileTimestamps = new ArrayList<Long>();
