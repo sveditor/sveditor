@@ -142,9 +142,8 @@ public class SVArgFileParser {
 										tok.getImage(),
 										fLexer.readPath());
 							} else {
-								def = fOptionProviders.getDefValue(
-										tok.getImage(),
-										tok.getOptionVal());
+								String val = (tok.getOptionVal() != null)?tok.getOptionVal():"";
+								def = fOptionProviders.getDefValue(tok.getImage(), val);
 							}
 							
 							stmt.setKey(def.first());
