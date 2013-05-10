@@ -10,4 +10,8 @@ Eclipse-BuddyPolicy: global
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: jython.jar,
- .
+ .,
+ js.jar
+Export-Package: net.sf.sveditor.core.batch,
+ net.sf.sveditor.core.batch.jscript,
+ net.sf.sveditor.core.batch.python

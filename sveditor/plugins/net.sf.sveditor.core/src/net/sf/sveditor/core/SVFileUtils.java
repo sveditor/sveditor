@@ -132,9 +132,42 @@ public class SVFileUtils {
 		
 		path = normalize(path);
 
-		f = root.getFile(new Path(path));
+		try {
+			f = root.getFile(new Path(path));
+		} catch (IllegalArgumentException e) {
+			// Ignore -- likely we asked for an invalid path
+		}
 		
 		return f;
+	}
+
+	/**
+	 * Resolves the specified path to its filesystem location
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static File getFile(String path) {
+		
+		if (path.startsWith("${workspace_loc}")) {
+			String ws_path = path.substring("${workspace_loc}".length());
+			
+			IFile file = getWorkspaceFile(ws_path);
+			
+			if (file != null && file.exists()) {
+				return file.getLocation().toFile();
+			}
+			
+			IContainer folder = getWorkspaceFolder(ws_path);
+			
+			if (folder != null && folder.exists()) {
+				return folder.getLocation().toFile();
+			}
+			
+			return new File(path);
+		} else {
+			return new File(path);
+		}
 	}
 
 	/**
@@ -164,9 +197,9 @@ public class SVFileUtils {
 	public static IContainer findWorkspaceFolder(String path) {
 		IContainer c = null;
 		try {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
-		c = root.getContainerForLocation(new Path(path));
+			c = root.getContainerForLocation(new Path(path));
 		} catch (IllegalStateException e) {
 			// Happens when the workspace is closed
 		}
