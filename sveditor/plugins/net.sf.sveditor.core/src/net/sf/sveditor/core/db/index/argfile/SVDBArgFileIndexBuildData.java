@@ -62,6 +62,14 @@ public class SVDBArgFileIndexBuildData implements
 		fIndexCacheData.addDefine(key, val);
 	}
 	
+	void setMFCU() {
+		fIndexCacheData.fMFCU = true;
+	}
+	
+	boolean isMFCU() {
+		return fIndexCacheData.fMFCU;
+	}
+	
 	void addArgFilePath(String path) {
 		if (!fIndexCacheData.fArgFilePaths.contains(path)) {
 			fIndexCacheData.fArgFilePaths.add(path);

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
@@ -270,11 +271,33 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			last_file.fInput.close();
 		} catch (IOException e) {}
 		
+		// Finally, save the full pre-processor state to the final file
+		last_file.fFileTree.fDefinedMacros.clear();
+		for (Entry<String, SVDBMacroDef> e : fMacroMap.entrySet()) {
+			if (!e.getKey().equals("__FILE__") && !e.getKey().equals("__LINE__")) {
+				last_file.fFileTree.fDefinedMacros.put(e.getKey(), e.getValue());
+			}
+		}
+		
 		return ret;
 	}
 	
 	public SVDBFileTree getFileTree() {
 		return fInputStack.peek().fFileTree;
+	}
+	
+	public InputData currentRealFile() {
+		int i=fInputStack.size()-1;
+		
+		while (i>=0 && fInputStack.get(i).fFileId == -1) {
+			i--;
+		}
+		
+		if (i >= 0) {
+			return fInputStack.get(0);
+		} else {
+			return null;
+		}
 	}
 	
 	private void beginComment() {
@@ -450,10 +473,12 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			if (ifdef_enabled()) {
 				addMacro(m);
 				
-				InputData in = fInputStack.peek();
+				InputData in = currentRealFile();
+				
 				// Add the macro to the pre-processor version of the file
-				if (in.fFileTree != null && in.fFileTree.getSVDBFile() != null) {
+				if (in != null && in.fFileTree != null && in.fFileTree.getSVDBFile() != null) {
 					in.fFileTree.getSVDBFile().addChildItem(m);
+					in.fFileTree.fDefinedMacros.put(m.getName(), m);
 				}
 			}
 		} else if (type.equals("include")) {
@@ -690,10 +715,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			old_file.fFileTree.getSVDBFile().addChildItem(old_file.fUnprocessedRegion);
 		}
 		
-		if (old_file.fFilename.contains("vmm_log")) {
-			fDump = false;
-		}
-		
 		if (old_file.fInput != null) {
 			try {
 				old_file.fInput.close();
@@ -702,8 +723,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 		fInputStack.pop();
 		
-		// TODO: 
-
 		InputData new_file = fInputStack.peek();
 		
 		int file_idx = fFileList.indexOf(new_file.fFilename);
@@ -1020,7 +1039,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			addMacro(new SVDBMacroDef(key, value));
 		}
 	}
-
+	
 	public ScanLocation getLocation() {
 		InputData in = fInputStack.peek();
 		return new ScanLocation(in.fFileId, in.fLineno, in.fLinepos);

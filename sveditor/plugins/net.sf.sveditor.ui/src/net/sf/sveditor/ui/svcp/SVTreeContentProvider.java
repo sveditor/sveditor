@@ -37,6 +37,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fDoNotRecurseScopes.add(SVDBItemType.Task);
 		fDoNotRecurseScopes.add(SVDBItemType.Coverpoint);
 		fDoNotRecurseScopes.add(SVDBItemType.CoverpointCross);
+		fDoNotRecurseScopes.add(SVDBItemType.Constraint);
 		fDoNotRecurseScopes.add(SVDBItemType.ConfigDecl);
 		
 		fExpandInLineItems = new HashSet<SVDBItemType>();
@@ -66,7 +67,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 					}
 				}
 			} else {
-				System.out.println("elem instanceof " + (elem instanceof ISVDBChildParent));
+//				System.out.println("elem instanceof " + (elem instanceof ISVDBChildParent));
 			}
 			
 			return c.toArray();

@@ -49,6 +49,7 @@ public class SVDBLocation {
 	}
 	
 	public void init(SVDBLocation other) {
+		fFileId = other.fFileId;
 		fLine = other.fLine;
 		fPos  = other.fPos;
 	}

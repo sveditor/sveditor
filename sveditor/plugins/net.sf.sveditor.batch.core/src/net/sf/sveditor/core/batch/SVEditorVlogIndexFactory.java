@@ -79,6 +79,8 @@ public class SVEditorVlogIndexFactory {
 		
 		index.init(new NullProgressMonitor(), null);
 		
+		SVBatchPlugin.addIndex(index);
+		
 		return index;
 	}
 	/*
