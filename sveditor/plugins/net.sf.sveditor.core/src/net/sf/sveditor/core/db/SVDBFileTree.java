@@ -42,21 +42,23 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	public SVDBFile					fSVDBFile;
 	
 	// List of markers for the pre-processor view
-	public List<SVDBMarker>			fMarkers;
+	public List<SVDBMarker>				fMarkers;
 	
 	// List of files included in this file
-	public List<String>				fIncludedFiles;
+	public List<String>					fIncludedFiles;
 
 	// Used by the 'new' flow 
 	// TODO: Unsure why
-	public List<SVDBFileTree>		fIncludedFileTrees;
+	public List<SVDBFileTree>			fIncludedFileTrees;
 	
 	// List of files in which this file is included
-	public List<String>				fIncludedByFiles;
+	public List<String>					fIncludedByFiles;
 	
-	// TODO: 
-	@SVDBDoNotSaveAttr
-	public Map<String, String>		fReferencedMacros;
+	// List of macros (and their defined values) referenced in this file
+	public Map<String, String>			fReferencedMacros;
+
+	// List of macros defined by this file
+	public Map<String, SVDBMacroDef>	fDefinedMacros;
 
 	public SVDBFileTree() {
 		super(SVDBItemType.FileTree);
@@ -66,6 +68,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
+		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
@@ -78,6 +81,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
+		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
@@ -90,6 +94,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
+		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 	

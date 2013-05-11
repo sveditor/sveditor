@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -57,7 +58,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 
 	@Override
 	protected void tearDown() throws Exception {
-//		super.tearDown();
+		super.tearDown();
 	}
 
 	public void testParseUVM() {
@@ -294,6 +295,43 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		int second_rebuild_sz = fCacheFS.blockSize();
 		
 		assertEquals(first_rebuild_sz, second_rebuild_sz);
+	}
+
+	public void testMFCU_1() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		TestUtils.copy(
+				"// File1\n" +
+				"`define FOO(n) class n; endclass\n" +
+				"`FOO(cls1)\n",
+				new File(fTmpDir, "file1.sv"));
+		
+		TestUtils.copy(
+				"// File2\n" +
+				"`FOO(cls2)\n\n\n\n",
+				new File(fTmpDir, "file2.sv"));
+
+		TestUtils.copy(
+				"// mfcu.f\n" +
+				"-mfcu\n" +
+				"file1.sv\n" +
+				"file2.sv\n",
+				new File(fTmpDir, "mfcu.f"));
+		
+		String base_location = new File(fTmpDir, "mfcu.f").getAbsolutePath();
+		
+		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+				getName(), base_location,
+				new SVDBWSFileSystemProvider(),
+				fCacheMgr.createIndexCache(getName(), base_location),
+				null);
+		
+		index.init(new NullProgressMonitor(), null);
+
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+
+		IndexTestUtils.assertFileHasElements(index, "cls1", "cls2");
 	}
 	
 	private void print(String ind, ISVDBChildParent parent) {

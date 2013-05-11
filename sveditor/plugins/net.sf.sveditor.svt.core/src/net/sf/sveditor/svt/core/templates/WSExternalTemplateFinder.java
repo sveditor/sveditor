@@ -107,11 +107,12 @@ public class WSExternalTemplateFinder extends AbstractExternalTemplateFinder {
 					in = file.getContents();
 					break;
 				} catch (CoreException e) {
-					fLog.error("Failed to open file: \"" + path + "\": " + e.getMessage(), e);
 					if (e.getMessage().contains("out of sync")) {
 						try {
 							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 						} catch (CoreException e2) {}
+					} else {
+						fLog.error("Failed to open file: \"" + path + "\": " + e.getMessage(), e);
 					}
 				}
 			}

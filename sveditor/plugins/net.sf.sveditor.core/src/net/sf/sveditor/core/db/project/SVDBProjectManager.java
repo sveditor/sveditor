@@ -197,7 +197,7 @@ public class SVDBProjectManager implements
 			 */
 			
 			ret = new SVDBProjectData(proj);
-			
+
 			fProjectMap.put(proj.getFullPath(), ret);
 		}
 		

@@ -5,9 +5,13 @@ Bundle-SymbolicName: net.sf.sveditor.batch.core;singleton:=true
 Bundle-Version: 1.2.3
 Bundle-Activator: net.sf.sveditor.core.batch.SVBatchPlugin
 Require-Bundle: org.eclipse.core.runtime,
- net.sf.sveditor.core
+ net.sf.sveditor.core,
+ net.sf.sveditor.extjar
 Eclipse-BuddyPolicy: global 
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: jython.jar,
  .
+Export-Package: net.sf.sveditor.core.batch,
+ net.sf.sveditor.core.batch.jscript,
+ net.sf.sveditor.core.batch.python
