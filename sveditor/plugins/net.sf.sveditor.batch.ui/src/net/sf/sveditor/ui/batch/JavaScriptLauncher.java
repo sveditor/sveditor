@@ -10,6 +10,7 @@ import net.sf.sveditor.core.ILineListener;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
+import net.sf.sveditor.core.batch.SVBatchPlugin;
 import net.sf.sveditor.core.batch.jscript.JavaScriptRunner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -78,6 +79,9 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 			runner.run(new Tuple<String, InputStream>(script, in), argv, wd_f);
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			// Clean and reset the state of the batch plugin
+			SVBatchPlugin.getDefault().reset();
 		}
 		
 		// Finally, refresh if needed

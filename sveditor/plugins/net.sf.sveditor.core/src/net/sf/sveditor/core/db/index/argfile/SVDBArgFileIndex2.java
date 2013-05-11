@@ -188,7 +188,7 @@ public class SVDBArgFileIndex2 implements
 		SVDBIndexChangePlan plan = new SVDBIndexChangePlan(this, SVDBIndexChangePlanType.Empty);
 		
 		if (changes == null || !fIndexValid) {
-			System.out.println("changes=" + changes + " fIndexValid=" + fIndexValid);
+//			System.out.println("changes=" + changes + " fIndexValid=" + fIndexValid);
 			if (!fIndexValid) {
 				// Return a 'build me' plan, since we're not valid
 				plan = new SVDBIndexChangePlanRebuild(this);
@@ -199,7 +199,7 @@ public class SVDBArgFileIndex2 implements
 				
 				for (SVDBIndexResourceChangeEvent ev : changes) {
 					String path = SVFileUtils.resolvePath(ev.getPath(), getResolvedBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
-					System.out.println("incremental rebuild: " + path);
+//					System.out.println("incremental rebuild: " + path);
 					if (fBuildData.fIndexCacheData.fSrcFileList.contains(path)) {
 						rebuild_files_plan.addFile(path);
 					} else if (fBuildData.fIndexCacheData.fArgFilePaths.contains(path)) {
