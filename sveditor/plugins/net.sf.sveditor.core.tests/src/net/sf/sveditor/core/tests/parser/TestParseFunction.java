@@ -316,4 +316,31 @@ public class TestParseFunction extends TestCase {
 				func.getParams().get(1).getDir());
 	}
 
+	public void testParamListFunctionWithPkg() throws SVParseException {
+		String content =
+			"function automatic void foobar(\n" +	
+			"        input int foobar,\n" +			
+			"        ref object bar,\n" +			
+			"        int foo);\n" +					
+			"    a_type foo, bar;\n" +				
+			"    b_type foo_q[$];\n" +				
+			"    int i, j, k;\n" +
+			"    uvm_pkg::uvm_resource_db #(my_pkg::my_iface_container, #(virtual my_iface)) " +
+			"        ::set(\"my_ifaces\", $sformatf(\"my_iface_%01d\",0), ifc) ;" +
+			"    for (int i=0; i<5; i++) begin\n" +
+			"        a = 5;\n" +
+			"    end\n" +
+			"endfunction\n";
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		SVDBTask func = parse_tf(content, "testParamListFunction");
+		
+		ISVDBChildItem c = func.getParams().get(1).getChildren().iterator().next();
+				
+		assertEquals("bar", SVDBItem.getName(c));
+		assertEquals(SVDBParamPortDecl.Direction_Ref,
+				func.getParams().get(1).getDir());
+	}
+
 }
