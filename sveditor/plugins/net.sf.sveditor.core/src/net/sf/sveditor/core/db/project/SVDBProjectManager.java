@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
@@ -56,16 +57,29 @@ public class SVDBProjectManager implements
 		fLog = LogFactory.getLogHandle("SVDBProjectManager");
 		fProjectMap = new WeakHashMap<IPath, SVDBProjectData>();
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+//		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 		fChangedProjects = new ArrayList<IProject>();
 		fDeletedProjects = new ArrayList<IProject>();
 		
 		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
 		pvm.addChangeListener(this);
 	}
-	
+
+	/**
+	 * Initialize SV projects in the workspace
+	 */
 	public void init() {
 		fProjectMap.clear();
+		
+		SVDBInitProjectsJob job = new SVDBInitProjectsJob();
+		// Ensure this job is sensitive to the workspace
+		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		
+		job.schedule();
+	}
+	
+	public static boolean isSveProject(IProject p) {
+		return p.getFile(new Path(".svproject")).exists();
 	}
 	
 	public void addProjectSettingsListener(ISVDBProjectSettingsListener l) {
@@ -77,6 +91,27 @@ public class SVDBProjectManager implements
 	public void removeProjectSettingsListener(ISVDBProjectSettingsListener l) {
 		synchronized (fListeners) {
 			fListeners.remove(l);
+		}
+	}
+	
+	public void projectOpened(IProject p) {
+		// Start a job to handle the fact that a project is opening
+		SVDBOpenProjectJob job = new SVDBOpenProjectJob(p);
+		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		job.schedule();
+	}
+	
+	public void projectClosed(IProject p) {
+		if (fProjectMap.containsKey(p)) {
+			// Start a job to clean up after the specified project
+		}
+	}
+	
+	public void projectRemoved(IProject p) {
+		if (fProjectMap.containsKey(p)) {
+			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
+			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+			job.schedule();
 		}
 	}
 	
@@ -113,7 +148,7 @@ public class SVDBProjectManager implements
 	 * @param proj
 	 * @return
 	 */
-	public SVDBProjectData getProjectData(IProject proj) {
+	public synchronized SVDBProjectData getProjectData(IProject proj) {
 		SVDBProjectData ret = null;
 		
 		if (fProjectMap.containsKey(proj.getFullPath())) {
@@ -162,7 +197,7 @@ public class SVDBProjectManager implements
 			 */
 			
 			ret = new SVDBProjectData(proj);
-			
+
 			fProjectMap.put(proj.getFullPath(), ret);
 		}
 		
@@ -346,6 +381,6 @@ public class SVDBProjectManager implements
 	}
 	
 	public void dispose() {
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+		fProjectMap.clear();
 	}
 }

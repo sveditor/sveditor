@@ -60,5 +60,5 @@ Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.scanutils,
  net.sf.sveditor.core.srcgen,
  net.sf.sveditor.core.svf_scanner
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

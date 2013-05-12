@@ -17,6 +17,7 @@ import net.sf.sveditor.ui.wizards.NewSVInterfaceWizard;
 import net.sf.sveditor.ui.wizards.NewSVModuleWizard;
 import net.sf.sveditor.ui.wizards.NewSVPackageWizard;
 
+import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
@@ -77,6 +78,9 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
 
         layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
+        
+        // Add launcher shortcut
+        layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
     }
 
     /**

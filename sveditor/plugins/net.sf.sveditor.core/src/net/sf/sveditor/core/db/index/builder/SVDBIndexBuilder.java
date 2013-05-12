@@ -31,7 +31,6 @@ public class SVDBIndexBuilder implements ISVDBIndexBuilder {
 			}
 		}
 	
-		System.out.println("Schedule job for " + plan.getPlanner());
 		job.setPriority(Job.BUILD);
 		job.schedule();
 	
@@ -56,7 +55,20 @@ public class SVDBIndexBuilder implements ISVDBIndexBuilder {
 
 
 	public void dispose() {
-		
+		while (true) {
+			SVDBIndexBuildJob job = null;
+			synchronized (fJobList) {
+				if (fJobList.size() > 0) {
+					job = fJobList.get(0);
+				}
+			}
+			
+			if (job != null) {
+				job.waitComplete();
+			} else {
+				break;
+			}
+		}
 	}
 	
 	void notify_job_complete(SVDBIndexBuildJob job) {

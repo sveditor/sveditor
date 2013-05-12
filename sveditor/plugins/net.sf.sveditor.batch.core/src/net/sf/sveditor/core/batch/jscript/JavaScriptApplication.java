@@ -1,21 +1,19 @@
 package net.sf.sveditor.core.batch.jscript;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
-import sun.org.mozilla.javascript.NativeArray;
 
 public class JavaScriptApplication implements IApplication {
 	
@@ -53,9 +51,9 @@ public class JavaScriptApplication implements IApplication {
 			print_usage();
 			throw new Exception("script file not specified");
 		}
-		
-		ScriptEngineManager mgr = new ScriptEngineManager();
-		ScriptEngine eng = mgr.getEngineByName("JavaScript");
+	
+		Context cx = Context.enter();
+		Scriptable scope = cx.initStandardObjects();
 
 		// Set the command-line arguments
 		List<String> argv = new ArrayList<String>();
@@ -65,8 +63,7 @@ public class JavaScriptApplication implements IApplication {
 		
 		NativeArray arguments = new NativeArray(argv.toArray());
 		
-		eng.put("argv", argv);
-		eng.put("arguments", arguments);
+		ScriptableObject.putProperty(scope, "arguments", arguments);
 		
 		scripts.add(script);
 		
@@ -83,8 +80,8 @@ public class JavaScriptApplication implements IApplication {
 			}
 
 			try {
-				eng.eval(reader);
-			} catch (ScriptException e) {
+				cx.evaluateReader(scope, reader, scr, 1, null);
+			} catch (IOException e) {
 				throw new Exception("Failure during script \"" + scr + "\" execution\n" + 
 						e.getMessage());
 			}

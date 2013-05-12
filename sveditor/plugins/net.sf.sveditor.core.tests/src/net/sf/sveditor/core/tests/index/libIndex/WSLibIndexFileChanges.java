@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -80,23 +81,9 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
-		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1_it = null, class1_2_it = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			log.debug("tmp_it: " + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				class1_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2_it = tmp_it;
-			}
-		}
-		
-		assertNotNull("Expect to find class1", class1_it);
-		assertNull("Expect to not find class1_2", class1_2_it);
+
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_2");
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(out);
@@ -117,24 +104,8 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 		} catch (InterruptedException e) { }
 		log.debug("<< SLEEP");
 
-		it = index.getItemIterator(new NullProgressMonitor());
-		class1_it = null;
-		class1_2_it = null;
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1", "class1_2");
 
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			log.debug("tmp_it 2: " + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				class1_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2_it = tmp_it;
-			}
-		}
-
-		assertNotNull("Expect to find class1", class1_it);
-		assertNotNull("Expect to find class1_2", class1_2_it);
-//		index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 }

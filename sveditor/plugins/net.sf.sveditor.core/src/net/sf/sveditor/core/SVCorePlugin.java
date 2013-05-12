@@ -31,6 +31,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -92,16 +93,18 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	private static IJobMgr					fJobMgr;
-	private int								fNumIndexCacheThreads = 0;
-	private int								fMaxIndexThreads = 0;
-	private static boolean					fEnableAsyncCacheClear;
 	private static boolean					fTestMode = false;
 	private SVParserConfig					fParserConfig;
 	private SVResourceChangeListener		fResourceChangeListener;
 	private SVDBIndexBuilder				fIndexBuilder;
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
-	public static boolean					fUseNewCacheMgr = false;
+	public static final boolean				fUseNewCacheMgr = SVDBArgFileIndexFactory.fUseArgFile2Index;
+	
+	// Obsolete Fields
+	private int								fNumIndexCacheThreads = 0;
+	private int								fMaxIndexThreads = 0;
+	private static boolean					fEnableAsyncCacheClear;
 	
 	/**
 	 * The constructor
@@ -160,6 +163,12 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		fEnableAsyncCacheClear = true;
 		
 		LogFactory.getDefault().addLogListener(this);
+		
+		fProjManager.init();
+	}
+	
+	public SVResourceChangeListener getResourceChangeListener() {
+		return fResourceChangeListener;
 	}
 	
 	public static void setTestMode() {

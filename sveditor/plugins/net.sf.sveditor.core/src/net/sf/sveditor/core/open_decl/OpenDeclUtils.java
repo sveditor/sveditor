@@ -127,7 +127,9 @@ public class OpenDeclUtils {
 						active_scope, SVDBFindDefaultNameMatcher.getDefault(), index_it);
 				ISVDBItemBase item = v.findItem(expr);
 				
+				
 				if (item != null) {
+					System.out.println("item: " + item.getType());
 					ret.add(new OpenDeclResult(
 							inc_file,
 							null,

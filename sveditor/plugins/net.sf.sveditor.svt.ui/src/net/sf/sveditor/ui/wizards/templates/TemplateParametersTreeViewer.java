@@ -186,7 +186,6 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 		@Override
 		public String getText(Object element) {
 			if (element instanceof TemplateParameterBase) {
-				System.out.println("Name: " + ((TemplateParameterBase)element).getName());
 				return ((TemplateParameterBase)element).getName();
 			} else {
 				return super.getText(element);

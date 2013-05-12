@@ -43,6 +43,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
 import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
@@ -201,35 +202,11 @@ public class TestContentAssistBasics extends TestCase {
 		scanner.seek(ini.second().getPosMap().get("MARK"));
 		
 		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		SVDBIndexValidator v = new SVDBIndexValidator();
 		
-		v.validateIndex(index_it.getItemIterator(new NullProgressMonitor()), SVDBIndexValidator.ExpectErrors);
+		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
 		
-		SVDBClassDecl my_class2 = null;
-		
-		List<SVDBDeclCacheItem> found = index_it.findGlobalScopeDecl(
-				new NullProgressMonitor(), "my_class2", SVDBFindDefaultNameMatcher.getDefault());
-		assertEquals(1, found.size());
-		
-		my_class2 = (SVDBClassDecl)found.get(0).getSVDBItem();
-		assertNotNull(my_class2);
-		
-		/*
-		while (it.hasNext()) {
-			ISVDBItemBase it_t = it.nextItem();
-			log.debug("    " + it_t.getType() + " " + SVDBItem.getName(it_t));
-			if (SVDBItem.getName(it_t).equals("my_class2")) {
-				my_class2 = (SVDBClassDecl)it_t;
-			}
-		}
-		 */
-		
-		
-		log.debug("[my_class2] " + SVDBUtil.getChildrenSize(my_class2) + " items");
-		for (ISVDBItemBase it_t : my_class2.getChildren()) {
-			log.debug("    [my_class2] " + it_t.getType() + " " + SVDBItem.getName(it_t));
-		}
+		IndexTestUtils.assertFileHasElements(index_it, "my_class2");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));

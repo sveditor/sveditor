@@ -261,7 +261,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		}
 	
 		if (entry != null) {
-//			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.MARKERS_MASK);
 			List<SVDBMarker> mlist = entry.getMarkersRef();
 			if (mlist != null) {
 				markers.addAll(mlist);
@@ -278,7 +278,9 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 
-		fCacheMgr.ensureUpToDate(entry);
+		// Ensure entry is on the 'cached' list, but don't bother
+		// reading back the markers. We'll be re-setting anyway
+		fCacheMgr.ensureUpToDate(entry, 0);
 		
 		entry.setMarkersRef(markers);
 	}
@@ -288,7 +290,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		SVDBFile file = null;
 		
 		if (entry != null) {
-			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SVDB_PREPROC_FILE_MASK);
 			file = entry.getSVDBPreProcFileRef();
 		}
 		
@@ -299,7 +301,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, FILE_ID, true);
 		
-		fCacheMgr.ensureUpToDate(entry);
+		fCacheMgr.ensureUpToDate(entry, 0);
 
 		entry.setPreProcFile(file);
 	}
@@ -313,7 +315,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		SVDBFileTree ft = null;
 		
 		if (entry != null) {
-			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SVDB_FILETREE_MASK);
 			ft = entry.getSVDBFileTreeRef();
 		}
 		
@@ -325,7 +327,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 		
-		fCacheMgr.ensureUpToDate(entry);
+		fCacheMgr.ensureUpToDate(entry, 0);
 
 		entry.setFileTree(file);
 	}
@@ -341,7 +343,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			return null;
 		} else {
 			// Load the file
-			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SVDB_FILE_MASK);
 			return entry.getSVDBFileRef();
 		}
 	}
@@ -351,7 +353,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 		
-		fCacheMgr.ensureUpToDate(entry);
+		fCacheMgr.ensureUpToDate(entry, 0);
 
 		entry.setFile(file);
 	}

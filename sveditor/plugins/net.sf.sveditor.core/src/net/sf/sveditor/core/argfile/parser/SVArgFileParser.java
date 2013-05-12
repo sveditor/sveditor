@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -25,7 +26,7 @@ public class SVArgFileParser {
 	private SVArgFileLexer						fLexer;
 	private String								fFilename;
 	private LogHandle							fLog;
-	private boolean							fDebugEn = true;
+	private boolean								fDebugEn = true;
 	private List<SVDBMarker>					fMarkers;
 	private ISVDBFileSystemProvider				fFSProvider;
 	private String								fResolvedBaseLocation;
@@ -141,9 +142,8 @@ public class SVArgFileParser {
 										tok.getImage(),
 										fLexer.readPath());
 							} else {
-								def = fOptionProviders.getDefValue(
-										tok.getImage(),
-										tok.getOptionVal());
+								String val = (tok.getOptionVal() != null)?tok.getOptionVal():"";
+								def = fOptionProviders.getDefValue(tok.getImage(), val);
 							}
 							
 							stmt.setKey(def.first());
@@ -191,6 +191,13 @@ public class SVArgFileParser {
 								}
 								file.addChildItem(stmt);
 							}
+							} break;
+							
+						case MFCU: {
+							SVDBArgFileMfcuStmt stmt = new SVDBArgFileMfcuStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							file.addChildItem(stmt);
 							} break;
 							
 						case SrcLibPath: {

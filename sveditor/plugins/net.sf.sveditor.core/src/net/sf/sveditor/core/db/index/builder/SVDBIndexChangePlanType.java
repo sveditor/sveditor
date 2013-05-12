@@ -15,7 +15,7 @@ public enum SVDBIndexChangePlanType {
 	/**
 	 * Requests rebuild of specific files. 
 	 */
-	RebuildFile,
+	RebuildFiles,
 	
 	/**
 	 * Requests rebuild of the full index

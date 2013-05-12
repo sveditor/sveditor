@@ -7,6 +7,10 @@
 - #(253) - Change index to detect the language variant used in a file based 
   on its extension. .v, .vl, and .vlog are considered to be Verilog 2005 files,
   while the remainder are considered to be SystemVerilog files.
+  
+- #(enh) - Add support for running JavaScript extension scripts from 
+  within SVE. There is now a launch configuration where a script and
+  arguments can be specified.  
 
 ------------------------------------------------------------------------------
 -- 1.2.4 Release --

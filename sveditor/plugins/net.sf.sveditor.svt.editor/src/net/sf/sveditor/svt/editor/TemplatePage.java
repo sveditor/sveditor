@@ -776,10 +776,23 @@ public class TemplatePage extends FormPage {
 			target = (Element)fActiveElement.getParentNode();
 		}
 		
-		next_elem = (Element)fActiveElement.getNextSibling();
+//		next_elem = (Element)fActiveElement.getNextSibling();
 		
 		new_elem = createParameterGroup();
 		
+		insertElement(fActiveElement, "parameters", new_elem);
+		fActiveElement = new_elem;
+		fTreeViewer.refresh();
+		fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				fTreeViewer.expandToLevel(fActiveElement, 0);
+				fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+			}
+		});		
+		fIsDirty = true;
+		getEditor().editorDirtyStateChanged();
+	
+		/*
 		if (new_elem != null) {
 			target.insertBefore(new_elem, next_elem);
 			fActiveElement = new_elem;
@@ -793,7 +806,8 @@ public class TemplatePage extends FormPage {
 			// TODO: notify dirty
 			fIsDirty = true;
 			getEditor().editorDirtyStateChanged();
-		}		
+		}	
+		 */	
 	}
 	
 	private void removeParameter() {
@@ -844,6 +858,26 @@ public class TemplatePage extends FormPage {
 	
 	private void moveParameterDown() {
 		
+	}
+	
+	private void insertElement(Node active, String parent, Node new_elem) {
+		System.out.println("insertElement: " + active.getNodeName());
+		
+		if (active.getNodeName().equals(parent)) {
+			// Insert the new node beneath the parent
+			System.out.println("Insert at head");
+			NodeList children = active.getChildNodes();
+			System.out.println("children.length=" + children.getLength());
+			if (children.getLength() == 0) {
+				Node first = children.item(0);
+				active.insertBefore(new_elem, first);
+			} else {
+				active.appendChild(new_elem);
+			}
+		} else {
+			// Insert
+			System.out.println("Insert after existing element");
+		}
 	}
 
 	private SelectionListener selectionListener = new SelectionListener() {
@@ -964,21 +998,18 @@ public class TemplatePage extends FormPage {
 			fViewer = viewer;
 		}
 
-		@Override
 		public void dragStart(DragSourceEvent event) {
 			// TODO Auto-generated method stub
 			System.out.println("dragStart");
 			
 		}
 
-		@Override
 		public void dragSetData(DragSourceEvent event) {
 			// TODO Auto-generated method stub
 			
 			System.out.println("dragSetData");
 		}
 
-		@Override
 		public void dragFinished(DragSourceEvent event) {
 			// TODO Auto-generated method stub
 			

@@ -45,16 +45,13 @@ public class SVDBArgFileIndexBuildData implements
 	
 		fFileSystemProvider = build_data.fFileSystemProvider;
 		fIndexCacheData = build_data.fIndexCacheData;
-		System.out.println("old_cache=" + fCache + " new_cache=" + build_data.fCache);
 		fCache = build_data.fCache;
 		fCacheMgr = build_data.fCacheMgr;
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
 
 		// Free the entries in the old cache
-		System.out.println("--> disposeCache: " + old_cache);
 		old_cache.dispose();
-		System.out.println("<-- disposeCache: " + old_cache);
 	}
 
 	void addIncludePath(String path) {
@@ -63,6 +60,14 @@ public class SVDBArgFileIndexBuildData implements
 	
 	void addDefine(String key, String val) {
 		fIndexCacheData.addDefine(key, val);
+	}
+	
+	void setMFCU() {
+		fIndexCacheData.fMFCU = true;
+	}
+	
+	boolean isMFCU() {
+		return fIndexCacheData.fMFCU;
 	}
 	
 	void addArgFilePath(String path) {

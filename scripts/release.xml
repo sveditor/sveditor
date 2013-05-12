@@ -4,6 +4,7 @@
 
 	<!-- Import the version info -->
 	<property file="${basedir}/../etc/sveditor.info"/>
+	<property file="${basedir}/../etc/sveditor_${version_type}.info"/>
 	<property file="${basedir}/build.properties"/>
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>

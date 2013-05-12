@@ -136,4 +136,13 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		return null;
 	}
 
+	public void execOp(
+			IProgressMonitor monitor, 
+			ISVDBIndexOperation op,
+			boolean sync) {
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			index_it.execOp(monitor, op, sync);
+		}
+	}
+
 }
