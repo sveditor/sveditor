@@ -12,9 +12,11 @@ import net.sf.sveditor.svt.core.templates.TemplateParameterSet;
 import net.sf.sveditor.svt.core.templates.TemplateParameterType;
 import net.sf.sveditor.svt.ui.SvtUiPlugin;
 
+import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewer;
+import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboBoxCellEditor;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ICellEditorValidator;
@@ -24,6 +26,7 @@ import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -36,36 +39,51 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 	private TextCellEditor						fTextCellEditor;
 	private TextCellEditor						fIntCellEditor;
 	private ComboBoxCellEditor					fComboBoxCellEditor;
+	private Composite							fRealParent;
+	
+	private TemplateParametersTreeViewer(Composite real_parent, int style) {
+		super(real_parent, style);
+		fRealParent = real_parent;
+	}
 	
 	public TemplateParametersTreeViewer(Composite parent) {
-		super(parent, SWT.BORDER+SWT.FULL_SELECTION);
+		this(new Composite(parent, SWT.NONE), SWT.BORDER+SWT.FULL_SELECTION);
 		
 		fModifyListeners = new ArrayList<ModifyListener>();
 	
 		getTree().setLinesVisible(true);
 		getTree().setHeaderVisible(true);
 		
+		addFilter(hiddenItemsFilter);
+		
 		TreeViewerColumn column;
+		TreeColumnLayout layout = new TreeColumnLayout();
 		
 		column = new TreeViewerColumn(this, SWT.NONE);
-		column.getColumn().setWidth(100);
+		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(false);
 		column.getColumn().setText("Name");
 		column.setLabelProvider(nameLabelProvider);
+		layout.setColumnData(column.getColumn(), new ColumnWeightData(30));
 		
 		// TODO: label provider
 
-		column = new TreeViewerColumn(this,  SWT.NONE);
-		column.getColumn().setWidth(100);
+		column = new TreeViewerColumn(this, SWT.NONE);
+		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(false);
 		column.getColumn().setText("Type");
 		column.setLabelProvider(typeLabelProvider);
+		layout.setColumnData(column.getColumn(), new ColumnWeightData(30));
 		
 		column = new TreeViewerColumn(this,  SWT.NONE);
-		column.getColumn().setWidth(100);
+		column.getColumn().setWidth(200);
 		column.getColumn().setMoveable(false);
 		column.getColumn().setText("Value");
 		column.setLabelProvider(valueLabelProvider);
+		layout.setColumnData(column.getColumn(), new ColumnWeightData(30));
+		
+		
+		fRealParent.setLayout(layout);
 		
 		fTextCellEditor = new TextCellEditor(getTree());
 		fIntCellEditor = new TextCellEditor(getTree());
@@ -165,6 +183,22 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 		}
 		
 		public Object[] getElements(Object inputElement) {
+			/*
+			List<TemplateParameterBase> visible_params = new ArrayList<TemplateParameterBase>();
+
+			for (TemplateParameterBase p : fParameters.getParameters()) {
+				if (p.getType() == TemplateParameterType.ParameterType_Group) {
+					TemplateParameterGroup g = (TemplateParameterGroup)p;
+					if (!g.isHidden()) {
+						visible_params.add(g);
+					}
+				} else {
+					visible_params.add(p);
+				}
+			}
+			
+			return visible_params.toArray();
+			 */
 			return fParameters.getParameters().toArray();
 		}
 		
@@ -178,6 +212,19 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 				}
 			}
 			return new Object[0];
+		}
+	};
+
+	ViewerFilter		hiddenItemsFilter = new ViewerFilter() {
+		
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			if (element instanceof TemplateParameterGroup) {
+				TemplateParameterGroup g = (TemplateParameterGroup)element;
+				return !g.isHidden();
+			} else {
+				return true;
+			}
 		}
 	};
 
