@@ -94,7 +94,9 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 		
 		if (next == fParametersPage) {
 			fParametersPage.setParameters(fTemplateSelectionPage.getTemplate().getParameters());
+			fParametersPage.setTemplateName(fTemplateSelectionPage.getTemplate().getName());
 		}
+		
 		
 		return next;
 	}

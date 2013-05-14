@@ -23,11 +23,16 @@ public class SVTemplateParametersPage2 extends WizardPage {
 	public SVTemplateParametersPage2() {
 		super("Parameters");
 		
+		setDescription("Specify parameter template values");
 	}
 	
 	@Override
 	public boolean isPageComplete() {
 		return true;
+	}
+	
+	public void setTemplateName(String name) {
+		setDescription("Specify parameter template values for \"" + name + "\"");
 	}
 
 	public void setParameters(TemplateParameterSet parameters) {

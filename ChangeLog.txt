@@ -11,6 +11,13 @@
 - #(enh) - Add support for running JavaScript extension scripts from 
   within SVE. There is now a launch configuration where a script and
   arguments can be specified.  
+  
+- #(nobug) - Change 'shadow' index such that errors are not propagated
+  to the filesystem. Previously, propagating markers made it appear
+  that SVEditor was managing a file, while in reality it wasn't
+  
+- #(258) - Added an exception to allow parens around a dist statement.
+  This isn't LRM-compliant, but some simulators appear to support it.
 
 ------------------------------------------------------------------------------
 -- 1.2.4 Release --

@@ -163,6 +163,9 @@ public abstract class AbstractSVDBIndex implements
 	protected boolean								fIsDirty;
 	protected ISVDBIndexBuilder						fIndexBuilder;
 
+	// Changed by the shadow index to prevent showing of markers
+	protected boolean								fPropagateMarkers = true;
+
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
 	}
@@ -605,7 +608,7 @@ public abstract class AbstractSVDBIndex implements
 			}
 			buildFileTree(new SubProgressMonitor(monitor, monitor_weight_FileTreeValid));
 			fIndexState = IndexState_FileTreeValid;
-			
+		
 			propagateAllMarkers();
 			notifyIndexRebuilt();
 			fIsDirty = false;
@@ -1113,6 +1116,10 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected void propagateAllMarkers() {
+		if (!fPropagateMarkers) {
+			return;
+		}
+		
 		for (boolean is_argfile : new boolean[] {false, true}) {
 			Set<String> file_list = fCache.getFileList(is_argfile);
 			for (String path : file_list) {
@@ -1124,6 +1131,10 @@ public abstract class AbstractSVDBIndex implements
 	}
 	
 	protected void propagateMarkers(String path) {
+		if (!fPropagateMarkers) {
+			return;
+		}
+		
 		List<SVDBMarker> ml = fCache.getMarkers(path);
 		getFileSystemProvider().clearMarkers(path);
 		
