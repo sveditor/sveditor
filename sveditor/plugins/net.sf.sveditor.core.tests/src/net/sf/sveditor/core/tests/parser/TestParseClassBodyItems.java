@@ -681,6 +681,42 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest(testname, content, new String[] {"my_class"});
 	}
 
+	public void testComplexImplicationConstraint2() {
+		String testname = "testComplexImplicationConstraint2";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+				"class my_class;\n" +
+				"	rand int i;\n" +
+				"	rand int j;\n" +
+				"	rand int k;\n" +
+				"	constraint i_cons {\n" +
+				"		( i == j ) -> ( k dist { 0:=50, 1:=20, 2:=30 } ) ; " +
+				"	}\n" +
+				"endclass\n" +
+				"\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class"});
+	}
+
+	public void testDistConstraint() {
+		String testname = "testDistConstraint";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+				"class my_class;\n" +
+				"	rand int i;\n" +
+				"	rand int j;\n" +
+				"	rand int k;\n" +
+				"	constraint i_cons {\n" +
+				"		 k dist { 0:=50, 1:=20, 2:=30 } ; " +
+				"	}\n" +
+				"endclass\n" +
+				"\n"
+				;
+		
+		runTest(testname, content, new String[] {"my_class"});
+	}
+
 	public void testSoftConstraint() {
 		String testname = "testExternConstraint";
 		String content = 
