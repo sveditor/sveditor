@@ -57,6 +57,7 @@ import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.expr.SVDBTypeExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
+import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 import net.sf.sveditor.core.parser.SVLexer.Context;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -67,7 +68,7 @@ public class SVExprParser extends SVParserBase {
 	private Stack<Boolean>					fEventExpr;
 	private Stack<Boolean>					fAssertionExpr;
 	private Stack<Boolean>					fArglistExpr;
-	private boolean						fEnableNameMappedPrimary = false;
+	private boolean							fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -1065,6 +1066,11 @@ public class SVExprParser extends SVParserBase {
 					fLexer.eatToken();
 					expr = fParsers.exprParser().expression();
 				}
+			} else if (fLexer.peekKeyword("dist") && getConfig().allowDistInsideParens()) {
+				// TODO: 
+				SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
+				fLexer.readKeyword("dist");
+				fParsers.constraintParser().dist_list(dist_stmt);				
 			}
 			
 			fLexer.readOperator(")");
@@ -1469,7 +1475,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	private SVDBTFCallExpr tf_args_call(SVDBExpr target, String id) throws SVParseException {
-		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id, arguments());
+		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id, arguments());	
 		
 		if (fLexer.peekKeyword("with")) {
 			fLexer.eatToken();

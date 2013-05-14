@@ -12,8 +12,13 @@
 
 package net.sf.sveditor.core.tests.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBConstraint;
@@ -21,12 +26,15 @@ import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
+import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
@@ -696,7 +704,10 @@ public class TestParseClassBodyItems extends TestCase {
 				"\n"
 				;
 		
-		runTest(testname, content, new String[] {"my_class"});
+		SVParserConfig config = new SVParserConfig();
+		config.setAllowDistInsideParens(true);
+		
+		runTest(config, testname, content, new String[] {"my_class"});
 	}
 
 	public void testDistConstraint() {
@@ -830,14 +841,29 @@ public class TestParseClassBodyItems extends TestCase {
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
+		runTest(null, testname, doc, exp_items);
+	}
+
+	private void runTest(
+			SVParserConfig	config,
+			String			testname,
+			String			doc,
+			String			exp_items[]) {
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, false);
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		Tuple<SVDBFile, SVDBFile> result = SVDBTestUtils.parse(
+				log, SVLanguageLevel.SystemVerilog, config, 
+				new StringInputStream(doc), testname, markers);
+		
+		SVDBFile file = result.second();
+		
+		assertEquals("Unexpected errors", 0, markers.size());
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, exp_items);
 		LogFactory.removeLogHandle(log);
 	}
-
+	
 	private void runTestExpErr(
 			String			testname,
 			String			doc,
