@@ -13,6 +13,7 @@ public class SVDBShadowIndex extends AbstractSVDBIndex {
 			ISVDBFileSystemProvider fs_provider, ISVDBIndexCache cache,
 			SVDBIndexConfig config) {
 		super(project, base_location, fs_provider, cache, config);
+		fPropagateMarkers = false;
 	}
 
 	public String getTypeID() {

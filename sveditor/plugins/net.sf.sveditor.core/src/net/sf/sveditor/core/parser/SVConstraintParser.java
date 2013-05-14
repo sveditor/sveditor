@@ -129,7 +129,8 @@ public class SVConstraintParser extends SVParserBase {
 		
 		return dist_stmt;
 	}
-	private void dist_list(SVDBConstraintDistListStmt dist_stmt) throws SVParseException {
+	
+	public void dist_list(SVDBConstraintDistListStmt dist_stmt) throws SVParseException {
 		fLexer.readOperator("{");
 		SVDBConstraintDistListItem item = dist_item();
 		dist_stmt.addDistItem(item);

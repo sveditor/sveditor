@@ -129,7 +129,6 @@ public class OpenDeclUtils {
 				
 				
 				if (item != null) {
-					System.out.println("item: " + item.getType());
 					ret.add(new OpenDeclResult(
 							inc_file,
 							null,

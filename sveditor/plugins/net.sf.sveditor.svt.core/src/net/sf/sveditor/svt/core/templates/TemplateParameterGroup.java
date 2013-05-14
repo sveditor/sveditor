@@ -5,6 +5,7 @@ import java.util.List;
 
 public class TemplateParameterGroup extends TemplateParameterBase {
 	private List<TemplateParameterBase>		fParameters;
+	private boolean							fHidden;
 	
 	public TemplateParameterGroup(String name) {
 		super(TemplateParameterType.ParameterType_Group);
@@ -20,6 +21,16 @@ public class TemplateParameterGroup extends TemplateParameterBase {
 		for (TemplateParameterBase p : other.fParameters) {
 			fParameters.add(p.clone());
 		}
+		
+		fHidden = other.fHidden;
+	}
+	
+	public boolean isHidden() {
+		return fHidden;
+	}
+	
+	public void setIsHidden(boolean hidden) {
+		fHidden = hidden;
 	}
 	
 	public List<TemplateParameterBase> getParameters() {

@@ -1,6 +1,9 @@
 package net.sf.sveditor.svt.editor;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -31,23 +34,42 @@ public class FileBrowseDialog extends Dialog {
 	private TreeViewer			fTreeViewer;
 	private IContainer			fContainer;
 	private File				fContainerFile;
-	private String				fSelectedFile;
+	private List<String>		fSelectedFiles;
+	private int					fStyle;
 	
+	private FileBrowseDialog(Shell shell) {
+		super(shell);
+		fSelectedFiles = new ArrayList<String>();
+	}
 	
 	public FileBrowseDialog(Shell shell, IContainer container) {
-		super(shell);
+		this(shell, container, SWT.SINGLE);
+	}
+	
+	public FileBrowseDialog(Shell shell, IContainer container, int style) {
+		this(shell);
 		fContainer = container;
 		fContainerFile = null;
+		fStyle = style;
+	}
+	
+	public FileBrowseDialog(Shell shell, File container) {
+		this(shell, container, SWT.SINGLE);
 	}
 
-	public FileBrowseDialog(Shell shell, File container) {
-		super(shell);
+	public FileBrowseDialog(Shell shell, File container, int style) {
+		this(shell);
 		fContainer = null;
 		fContainerFile = container;
+		fStyle = style;
 	}
 
 	public String getSelectedFile() {
-		return fSelectedFile;
+		return fSelectedFiles.get(0);
+	}
+	
+	public List<String> getSelectedFiles() {
+		return fSelectedFiles;
 	}
 	
 	@Override
@@ -55,7 +77,7 @@ public class FileBrowseDialog extends Dialog {
 		Composite parent = new Composite(p, SWT.NONE);
 		parent.setLayout(new GridLayout(1, true));
 		
-		fTreeViewer = new TreeViewer(parent);
+		fTreeViewer = new TreeViewer(parent, fStyle);
 		
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = 300;
@@ -83,8 +105,11 @@ public class FileBrowseDialog extends Dialog {
 			fTreeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 				public void selectionChanged(SelectionChangedEvent event) {
 					IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
-					if (sel.getFirstElement() != null) {
-						IResource r = (IResource)sel.getFirstElement();
+					Iterator<Object> sel_it = sel.iterator();
+					
+					while (sel_it.hasNext()) {
+						Object next = sel_it.next();
+						IResource r = (IResource)next;
 						StringBuilder sb = new StringBuilder();
 						
 						while (r != null && !fContainer.equals(r)) {
@@ -95,7 +120,11 @@ public class FileBrowseDialog extends Dialog {
 							}
 							r = r.getParent();
 						}
-						fSelectedFile = sb.toString();
+						String path = sb.toString().trim();
+					
+						if (!path.equals("")) {
+							fSelectedFiles.add(sb.toString());
+						}
 					}
 				}
 			});
@@ -106,8 +135,10 @@ public class FileBrowseDialog extends Dialog {
 			fTreeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 				public void selectionChanged(SelectionChangedEvent event) {
 					IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
-					if (sel.getFirstElement() != null) {
-						File r = (File)sel.getFirstElement();
+					Iterator<Object> sel_it = sel.iterator();
+					while (sel_it.hasNext()) {
+						Object next = sel_it.next();
+						File r = (File)next;
 						StringBuilder sb = new StringBuilder();
 						
 						while (r != null && !fContainerFile.equals(r)) {
@@ -118,7 +149,7 @@ public class FileBrowseDialog extends Dialog {
 							}
 							r = r.getParentFile();
 						}
-						fSelectedFile = sb.toString();
+						fSelectedFiles.add(sb.toString());
 					}
 				}
 			});

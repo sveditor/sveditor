@@ -48,22 +48,22 @@ public class SVTParser {
 		
 		fDocument = b.parse(in);
 		
-		NodeList sv_template_list = fDocument.getElementsByTagName("sv_template");
+		List<Element> sv_template_list = getElementsByTagName(fDocument, "sv_template");
 		
-		if (sv_template_list.getLength() == 0) {
+		if (sv_template_list.size() == 0) {
 			return;
 		}
 		
-		Element sv_template = (Element)sv_template_list.item(0);
+		Element sv_template = sv_template_list.get(0);
 		
-		NodeList category_list = sv_template.getElementsByTagName("category");
-		for (int i=0; i<category_list.getLength(); i++) {
-			addCategory((Element)category_list.item(i));
+		List<Element> category_list = getElementsByTagName(sv_template, "category");
+		for (int i=0; i<category_list.size(); i++) {
+			addCategory(category_list.get(i));
 		}
 		
-		NodeList template_list = sv_template.getElementsByTagName("template");
-		for (int i=0; i<template_list.getLength(); i++) {
-			addTemplate((Element)template_list.item(i));
+		List<Element> template_list = getElementsByTagName(sv_template, "template");
+		for (int i=0; i<template_list.size(); i++) {
+			addTemplate(template_list.get(i));
 		}
 
 	}
@@ -87,10 +87,10 @@ public class SVTParser {
 		
 		TemplateCategory c = new TemplateCategory(id, name, parent);
 		
-		NodeList dl = category.getElementsByTagName("description");
+		List<Element> dl = getElementsByTagName(category, "description");
 		
-		if (dl.getLength() > 0) {
-			Element desc = (Element)dl.item(0);
+		if (dl.size() > 0) {
+			Element desc = dl.get(0);
 			c.setDescription(desc.getTextContent());
 		}
 		
@@ -114,35 +114,32 @@ public class SVTParser {
 		}
 		
 		
-		NodeList description = template.getElementsByTagName("description");
+		Element description = getElementByTagName(template, "description");
 		
-		if (description.getLength() > 0) {
-			Element e = (Element)description.item(0);
-			t.setDescription(e.getTextContent());
+		if (description != null) {
+			t.setDescription(description.getTextContent());
 		}
 		
 		// First, parse the composite template types
-		NodeList compositeTypes = template.getElementsByTagName("compositeTypes");
+		Element compositeTypes = getElementByTagName(template, "compositeTypes");
 		
-		if (compositeTypes.getLength() > 0) {
-			Element e = (Element)compositeTypes.item(0);
-			NodeList compositeTypes_list = e.getElementsByTagName("compositeType");
+		if (compositeTypes != null) {
+			List<Element> compositeTypes_list = getElementsByTagName(compositeTypes, "compositeType");
 			
-			for (int i=0; i<compositeTypes_list.getLength(); i++) {
-				Element compositeType = (Element)compositeTypes_list.item(i);
+			for (int i=0; i<compositeTypes_list.size(); i++) {
+				Element compositeType = compositeTypes_list.get(i);
 				TemplateParameterComposite composite = parseCompositeType(t, compositeType);
 				t.addCompositeType(composite);
 			}
 		}
 		
-		NodeList files = template.getElementsByTagName("files");
+		Element files = getElementByTagName(template, "files");
 		
-		if (files.getLength() > 0) {
-			Element e = (Element)files.item(0);
-			NodeList file_list = e.getElementsByTagName("file");
+		if (files != null) {
+			List<Element> file_list = getElementsByTagName(files, "file");
 			
-			for (int i=0; i<file_list.getLength(); i++) {
-				Element file = (Element)file_list.item(i);
+			for (int i=0; i<file_list.size(); i++) {
+				Element file = file_list.get(i);
 				String filename = file.getAttribute("name");
 				String tmpl_path = file.getAttribute("template");
 				String executable = file.getAttribute("executable");
@@ -156,11 +153,10 @@ public class SVTParser {
 			}
 		}
 		
-		NodeList parameters = template.getElementsByTagName("parameters");
+		Element parameters = getElementByTagName(template, "parameters");
 		
-		if (parameters.getLength() > 0) {
-			Element e = (Element)parameters.item(0);
-			NodeList children = e.getChildNodes();
+		if (parameters != null) {
+			NodeList children = parameters.getChildNodes();
 			
 			for (int i=0; i<children.getLength(); i++) {
 				Node n = children.item(i);
@@ -193,11 +189,10 @@ public class SVTParser {
 		String description 	= "";
 		String name 		= null;
 		
-		NodeList description_nl = compositeType.getElementsByTagName("description");
+		Element description_nl = getElementByTagName(compositeType, "description");
 		
-		if (description_nl.getLength() > 0) {
-			Element description_e = (Element)description_nl.item(0);
-			description = description_e.getTextContent();
+		if (description_nl != null) {
+			description = description_nl.getTextContent();
 		}
 		
 		name = compositeType.getAttribute("name");
@@ -206,10 +201,10 @@ public class SVTParser {
 		ret.setName(name);
 		ret.setDescription(description);
 
-		NodeList parameters_nl = compositeType.getElementsByTagName("parameter");
+		List<Element> parameters_nl = getElementsByTagName(compositeType, "parameter");
 		
-		for (int i=0; i<parameters_nl.getLength(); i++) {
-			Element parameter_e = (Element)parameters_nl.item(i);
+		for (int i=0; i<parameters_nl.size(); i++) {
+			Element parameter_e = parameters_nl.get(i);
 			TemplateParameterBase p = parseParameter(t, parameter_e);
 			
 			if (p != null) {
@@ -225,11 +220,11 @@ public class SVTParser {
 		String name = parameter.getAttribute("name");
 		String type = parameter.getAttribute("type");
 		
-		NodeList desc_n = parameter.getElementsByTagName("description");
+		Element desc_n = getElementByTagName(parameter, "description");
 		String description = null;
 		
-		if (desc_n.getLength() > 0) {
-			description = desc_n.item(0).getTextContent();
+		if (desc_n != null) {
+			description = desc_n.getTextContent();
 		}
 		
 		if (type.equals("id") || type.equals("enum")) {
@@ -279,7 +274,7 @@ public class SVTParser {
 //			setCompositeItemNames(p);
 			
 			ret = p;
-		} else if (type.equals("group")) {
+		}/** else if (type.equals("group")) {
 			TemplateParameterGroup p = new TemplateParameterGroup(name);
 			
 			NodeList parameters_nl = parameter.getElementsByTagName("parameter");
@@ -293,7 +288,7 @@ public class SVTParser {
 				}
 			}
 			ret = p;
-		} else {
+		}*/ else {
 			// ERROR:
 			System.out.println("[ERROR] Unknown parameter type \"" + type + "\"");
 		}
@@ -313,6 +308,10 @@ public class SVTParser {
 		if (name != null) {
 			ret = new TemplateParameterGroup(name);
 			String description = null;
+			
+			if (group.hasAttribute("hidden")) {
+				ret.setIsHidden(group.getAttribute("hidden").equals("true"));
+			}
 
 			NodeList nl = group.getChildNodes();
 			
@@ -372,4 +371,29 @@ public class SVTParser {
 		public void warning(SAXParseException arg0) throws SAXException {}
 	};
 
+	private List<Element> getElementsByTagName(Node element, String tag) {
+		List<Element> ret = new ArrayList<Element>();
+
+		NodeList nl = element.getChildNodes();
+		
+		for (int i=0; i<nl.getLength(); i++) {
+			if (nl.item(i) instanceof Element && nl.item(i).getNodeName().equals(tag)) {
+				ret.add((Element)nl.item(i));
+			}
+		}
+		
+		return ret;
+	}
+	
+	private Element getElementByTagName(Node element, String tag) {
+		NodeList nl = element.getChildNodes();
+		
+		for (int i=0; i<nl.getLength(); i++) {
+			if (nl.item(i) instanceof Element && nl.item(i).getNodeName().equals(tag)) {
+				return (Element)nl.item(i);
+			}
+		}
+		
+		return null;
+	}	
 }
