@@ -3,6 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SVEditor External JARs
 Bundle-SymbolicName: net.sf.sveditor.extjar
 Bundle-Version: 1.2.3
+Eclipse-BuddyPolicy: global
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: asm-4.0.jar,
  .,

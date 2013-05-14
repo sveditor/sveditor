@@ -72,6 +72,12 @@ public class TemplatePage extends FormPage {
 	private Button						fRemoveParameterButton;
 	private Button						fMoveParameterUpButton;
 	private Button						fMoveParameterDownButton;
+
+	/*
+	private Composite					fFilesButtons;
+	private Button						fAddFileButton;
+	private Button						fAddFilesButton;
+	 */
 	
 	private Composite					fDefaultButtons;
 	private Button						fAddButton;
@@ -283,7 +289,7 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 2;
 		fTemplateId.setLayoutData(gd);
 		fTemplateId.addModifyListener(modifyListener);
-		fAttrMap.put(fTemplateId, "name");
+		fAttrMap.put(fTemplateId, "id");
 		
 		tk.createLabel(c, "Category:");
 		fTemplateCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
@@ -726,12 +732,50 @@ public class TemplatePage extends FormPage {
 			new_elem = createParameter();
 		} else if (fActiveElement.getNodeName().equals("files") ||
 				fActiveElement.getNodeName().equals("file")) {
+			Tuple<File, IFile> ret = EditorInputUtils.getFileLocation(getEditorInput());
 			if (fActiveElement.getNodeName().equals("files")) {
 				target = fActiveElement;
 			} else {
 				target = (Element)fActiveElement.getParentNode();
 			}
-			new_elem = createFile();
+			
+			FileBrowseDialog dlg;
+			if (ret.first() != null) {
+				dlg = new FileBrowseDialog(fAddButton.getShell(),
+						ret.first().getParentFile(), SWT.MULTI);
+			} else {
+				dlg = new FileBrowseDialog(fAddButton.getShell(),
+						ret.second().getParent(), SWT.MULTI);
+			}
+			
+			if (dlg.open() == Window.OK) {
+				List<String> paths = dlg.getSelectedFiles();
+				Element first_elem = null;
+				
+				for (String path : paths) {
+					Element elem = createFile();
+					setAttr(elem, "template", path);
+					String leaf = new File(path).getName();
+					setAttr(elem, "name", leaf);
+					
+					target.appendChild(elem);
+					
+					if (first_elem == null) {
+						first_elem = elem;
+					}
+				}
+				fActiveElement = first_elem;
+				fTreeViewer.refresh();
+				fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						fTreeViewer.expandToLevel(fActiveElement, 0);
+						fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+					}
+				});
+
+				fIsDirty = true;
+				getEditor().editorDirtyStateChanged();
+			}
 		}
 		
 		if (new_elem != null) {
@@ -898,14 +942,14 @@ public class TemplatePage extends FormPage {
 	private void moveParameterDown() {
 		List<Node> sel_nodes = getSelectedNodes();
 		
-		System.out.println("moveParameterDown: " + sel_nodes.size());
+//		System.out.println("moveParameterDown: " + sel_nodes.size());
 		
 		if (sel_nodes.size() > 0) {
 			// TODO: need to detect when we have a heterogeneous selection
 			Node next_node = getNextSiblingElement(sel_nodes.get(sel_nodes.size()-1));
 			Node parent = sel_nodes.get(0).getParentNode();
 			
-			System.out.println("next_node=" + next_node);
+//			System.out.println("next_node=" + next_node);
 			
 			unlinkNodes(sel_nodes);
 			
@@ -936,10 +980,8 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private Node getNextSiblingElement(Node n) {
-		System.out.println("getNextSiblingElement(" + n + ")");
 		while ((n = n.getNextSibling()) != null &&
 				!(n instanceof Element)) { 
-			System.out.println("getNextSibling: " + n);
 		}
 		
 		return n;
@@ -953,13 +995,9 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void insertElement(Node active, String parent, Node new_elem) {
-		System.out.println("insertElement: " + active.getNodeName());
-		
 		if (active.getNodeName().equals(parent)) {
 			// Insert the new node beneath the parent
-			System.out.println("Insert at head");
 			NodeList children = active.getChildNodes();
-			System.out.println("children.length=" + children.getLength());
 			if (children.getLength() == 0) {
 				active.appendChild(new_elem);
 			} else {
@@ -968,7 +1006,6 @@ public class TemplatePage extends FormPage {
 			}
 		} else {
 			// Insert
-			System.out.println("Insert after existing element");
 			Node p_node = active.getParentNode();
 			Node next = nextElement(active);
 			
@@ -1044,7 +1081,7 @@ public class TemplatePage extends FormPage {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			if (e.keyCode == SWT.DEL) {
-				System.out.println("DELETE");
+//				System.out.println("DELETE");
 			}
 		}
 		
@@ -1142,11 +1179,7 @@ public class TemplatePage extends FormPage {
 			event.data = sel_sb.toString();
 		}
 
-		public void dragFinished(DragSourceEvent event) {
-			// TODO Auto-generated method stub
-			
-			System.out.println("dragFinished");
-		}
+		public void dragFinished(DragSourceEvent event) { }
 	}
 	
 	private String buildPath(Node n) {
@@ -1193,7 +1226,6 @@ public class TemplatePage extends FormPage {
 			Element target = (Element)getCurrentTarget();
 			int location = getCurrentLocation();
 			int op = getCurrentOperation();
-			System.out.println("performDrop: " + " " + target + " " + location + " " + op);
 			List<Node> nodes = getNodesFromPath((String)data);
 
 			if (target.getNodeName().equals("parameter") ||
@@ -1243,7 +1275,7 @@ public class TemplatePage extends FormPage {
 				return false;
 			}
 			
-			System.out.println("validateDrop: " + target + " " + operation + " " + transferType);
+//			System.out.println("validateDrop: " + target + " " + operation + " " + transferType);
 			// TODO Auto-generated method stub
 			return true;
 		}
@@ -1488,13 +1520,6 @@ public class TemplatePage extends FormPage {
 				break;
 			}
 		}
-		/*
-		NodeList nl = elem.getElementsByTagName(c_elem);
-		
-		if (nl.getLength() != 0) {
-			ret = nl.item(0).getTextContent();
-		}
-		 */
 		
 		return ret;
 	}
