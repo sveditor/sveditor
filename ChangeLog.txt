@@ -1,4 +1,7 @@
 
+-- 1.2.6 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.5 Release --
 
 - #(enh) - Update SV editor to display a decorated icon for files that are

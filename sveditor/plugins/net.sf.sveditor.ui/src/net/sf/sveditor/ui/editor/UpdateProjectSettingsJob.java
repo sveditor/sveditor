@@ -40,19 +40,25 @@ public class UpdateProjectSettingsJob extends Job
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		fLog.debug(LEVEL_MIN, "Updating index information for file \"" + 
-				fEditor.getFilePath() + "\"");
-		
-		Tuple<ISVDBIndex, SVDBIndexCollection> result;
-		String file_path = fEditor.getFilePath();
-		
-		result = SVDBIndexUtil.findIndexFile(file_path, fProjectName, true);
-		
-		if (result == null) {
-			fLog.error("Failed to find index for \"" + fEditor.getFilePath() + "\"");
-			fEditor.int_projectSettingsUpdated(null, null);
-		} else {
-			fEditor.int_projectSettingsUpdated(result.first(), result.second());
+		try {
+			fLog.debug(LEVEL_MIN, "Updating index information for file \"" + 
+					fEditor.getFilePath() + "\"");
+
+			Tuple<ISVDBIndex, SVDBIndexCollection> result;
+			String file_path = fEditor.getFilePath();
+
+			result = SVDBIndexUtil.findIndexFile(file_path, fProjectName, true);
+
+			if (result == null) {
+				fLog.error("Failed to find index for \"" + fEditor.getFilePath() + "\"");
+				fEditor.int_projectSettingsUpdated(null, null);
+			} else {
+				fEditor.int_projectSettingsUpdated(result.first(), result.second());
+			}
+		} catch (RuntimeException e) {
+			System.out.println("Exception during UpdateProjectSettings");
+			e.printStackTrace();
+			throw e;
 		}
 		
 		return Status.OK_STATUS;

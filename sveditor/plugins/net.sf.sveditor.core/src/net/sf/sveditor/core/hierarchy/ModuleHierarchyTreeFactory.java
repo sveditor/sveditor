@@ -67,7 +67,7 @@ public class ModuleHierarchyTreeFactory {
 						ret.addChild(n);
 					} else if (it instanceof ISVDBNamedItem) {
 						// ERROR: Unknown module
-						fLog.error("Unknown module type" + SVDBItem.getName(it));
+						fLog.error("Unknown module type " + it.getType() + " " + SVDBItem.getName(it));
 						ret.addChild(new HierarchyTreeNode(ret, ((ISVDBNamedItem)it).getName()));
 					}
 				}
