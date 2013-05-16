@@ -292,6 +292,7 @@ public class SVDataTypeParser extends SVParserBase {
 				// Read in parameter list
 				p_list = parsers().paramValueAssignParser().parse(false);
 			}
+			
 			// Should be a user-defined type
 			if (fLexer.peekOperator("::")) {
 				StringBuilder type_id = new StringBuilder();

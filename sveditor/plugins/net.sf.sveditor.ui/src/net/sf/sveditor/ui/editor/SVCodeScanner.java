@@ -57,6 +57,9 @@ public class SVCodeScanner extends RuleBasedScanner {
 		final IToken ops = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.OPERATORS),
 				null, SVEditorColors.getStyle(SVEditorColors.OPERATORS)));
+		final IToken svt_params = new Token(new TextAttribute(
+				SVEditorColors.getColor(SVEditorColors.SVT_PARAMETERS),
+				null, SVEditorColors.getStyle(SVEditorColors.SVT_PARAMETERS)));
 		
 		IToken default_t = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.DEFAULT),
@@ -70,6 +73,8 @@ public class SVCodeScanner extends RuleBasedScanner {
 	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));
 
 	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
+	    rules.add(new SingleLineRule("${", "}", svt_params));
+	    
 /*
 		rules.add(new IRule() {
 			public IToken evaluate(ICharacterScanner scanner) {

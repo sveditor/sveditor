@@ -23,7 +23,7 @@
 		
 		<copy todir="${output.dir}/help/imgs" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<concat destfile="${output.dir}/help/user_guide.mediawiki">

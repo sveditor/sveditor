@@ -692,6 +692,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fFileMap.add(file_info);
 		
 		in_data.fFileTree = new SVDBFileTree(new SVDBFile(filename));
+		
+		// Record the current state of the pre-processor
+		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
 	
 		if (!fInputStack.empty()) {
 			InputData p_data = fInputStack.peek();
@@ -1030,6 +1033,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			}
 			fMacroMap.put(macro.getName(), macro);
 		}
+	}
+	
+	public void setMacro(SVDBMacroDef macro) {
+		if (fMacroMap.containsKey(macro.getName())) {
+			fMacroMap.remove(macro.getName());
+		}
+		fMacroMap.put(macro.getName(), macro);
 	}
 
 	public void setMacro(String key, String value) {

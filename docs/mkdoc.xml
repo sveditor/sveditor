@@ -31,7 +31,7 @@
 
 		<copy todir="${output.dir}/pdf" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<concat destfile="${output.dir}/pdf/sveditor_user_guide.mediawiki">
@@ -85,13 +85,12 @@
 		
 		<copy todir="${output.dir}/html">
 			<fileset dir="${output.dir}"
-				includes="*.gif,*.jpg"/>
+				includes="*.gif,*.jpg,*.png"/>
 		</copy>
 		
-		<copy todir="${output.dir}/html">
-			<fileset dir="${output.dir}"
-				includes="sveditor_user_guide.mediawiki"/>
-		</copy>
+		<concat destfile="${output.dir}/html/sveditor_user_guide.mediawiki">
+			<filelist refid="userguide_files"/>
+		</concat>
 
 		<wikitext-to-docbook markupLanguage="MediaWiki"
 		    bookTitle="SVEditor User Guide"
@@ -111,7 +110,7 @@
 		<!-- Copy image files -->
 		<copy todir="${output.dir}" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<!-- Now, build the doc -->

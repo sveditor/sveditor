@@ -7,7 +7,6 @@ import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -54,7 +53,7 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 	@Override
 	public void createControl(Composite parent) {
 		GridData gd;
-		System.out.println("createControl");
+		
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout());
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

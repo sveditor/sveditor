@@ -1,6 +1,12 @@
 package net.sf.sveditor.core.db.index.old;
 
+import java.io.InputStream;
+import java.util.List;
+
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -23,6 +29,13 @@ public class SVDBShadowIndex extends AbstractSVDBIndex {
 	@Override
 	protected String getLogName() {
 		return "SVDBShadowIndex";
+	}
+	
+
+	@Override
+	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor,
+			InputStream in, String path, List<SVDBMarker> markers) {
+		return super.parse(monitor, in, path, markers);
 	}
 
 	@Override

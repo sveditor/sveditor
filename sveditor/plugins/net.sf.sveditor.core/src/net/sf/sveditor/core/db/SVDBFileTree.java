@@ -59,6 +59,9 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 
 	// List of macros defined by this file
 	public Map<String, SVDBMacroDef>	fDefinedMacros;
+	
+	// Macro entry state for this file
+	public Map<String, SVDBMacroDef>	fMacroEntryState;
 
 	public SVDBFileTree() {
 		super(SVDBItemType.FileTree);
@@ -69,6 +72,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
 		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
+		fMacroEntryState = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
@@ -82,6 +86,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
 		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
+		fMacroEntryState = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
@@ -95,6 +100,7 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
 		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
+		fMacroEntryState = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 	

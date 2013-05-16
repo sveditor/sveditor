@@ -325,14 +325,14 @@ public class TestParseFunction extends TestCase {
 			"    a_type foo, bar;\n" +				
 			"    b_type foo_q[$];\n" +				
 			"    int i, j, k;\n" +
-			"    uvm_pkg::uvm_resource_db #(my_pkg::my_iface_container, #(virtual my_iface)) " +
+			"    uvm_pkg::uvm_resource_db #(my_pkg::my_iface_container #(virtual my_iface)) " +
 			"        ::set(\"my_ifaces\", $sformatf(\"my_iface_%01d\",0), ifc) ;" +
 			"    for (int i=0; i<5; i++) begin\n" +
 			"        a = 5;\n" +
 			"    end\n" +
 			"endfunction\n";
 		
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVDBTask func = parse_tf(content, "testParamListFunction");
 		
