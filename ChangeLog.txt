@@ -1,4 +1,7 @@
 
+-- 1.2.7 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.6 Release --
 
 - #(nobug) - A few required patch-ups due to the plug-in reorganization. 
