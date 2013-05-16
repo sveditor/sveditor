@@ -795,7 +795,15 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void removeElement() {
-		fActiveElement.getParentNode().removeChild(fActiveElement);
+		List<Node> elems = getSelectedNodes();
+		
+		for (Node n : elems) {
+			Node p = n.getParentNode();
+			p.removeChild(n);
+		}
+	
+		// TODO: must set new selection
+		
 		fTreeViewer.refresh();
 		
 		fIsDirty = true;
@@ -974,6 +982,25 @@ public class TemplatePage extends FormPage {
 		
 		while (sel_it.hasNext()) {
 			ret.add((Node)sel_it.next());
+		}
+
+		// Filter out category nodes
+		while (ret.size() > 0 &&
+				ret.get(0).getNodeName().equals("parameters") ||
+				ret.get(0).getNodeName().equals("files")) {
+			ret.remove(0);
+		}
+	
+		// Filter out any nodes that don't match the root
+		if (ret.size() > 0) {
+			String root = ret.get(0).getNodeName();
+			
+			for (int i=1; i<ret.size(); i++) {
+				if (!ret.get(i).getNodeName().equals(root)) {
+					ret.remove(i);
+					i--;
+				}
+			}
 		}
 		
 		return ret;

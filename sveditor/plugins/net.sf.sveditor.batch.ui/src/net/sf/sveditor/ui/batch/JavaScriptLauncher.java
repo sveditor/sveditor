@@ -59,8 +59,12 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 		});
 	
 		InputStream in = null;
+		SVFileUtils utils = new SVFileUtils();
+		
 
 		File wd_f = SVFileUtils.getFile(wd);
+		
+		System.out.println("wd_f=" + wd_f + " " + wd);
 		
 		try {
 			if (script.startsWith("${workspace_loc}")) {
