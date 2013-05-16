@@ -1329,8 +1329,14 @@ public class SVDBArgFileIndex2 implements
 
 			// TODO: add macros from FT
 			if (ft != null) {
-				fLog.debug("parse: failed to find target filetree for " + r_path);
-				//			return null;
+				List<SVDBMacroDef> incoming_macros = 
+						calculateIncomingMacros(fBuildData, ft);
+				
+				for (SVDBMacroDef m : incoming_macros) {
+					preproc.setMacro(m);
+				}
+			} else {
+				System.out.println("Failed to find target FileTree");
 			}
 
 			fLog.debug("--> PreProcess " + r_path);
@@ -1430,6 +1436,74 @@ public class SVDBArgFileIndex2 implements
 		return new Tuple<SVDBFile, SVDBFile>(svdb_pp, svdb_f);
 		 */
 		return new Tuple<SVDBFile, SVDBFile>(file_ft, file);
+	}
+
+	/**
+	 * Traverse through the FileTree structure to calculate the
+	 * macros defined prior to parse of a specific file
+	 * 
+	 * @param ft
+	 * @return
+	 */
+	private List<SVDBMacroDef> calculateIncomingMacros(
+			SVDBArgFileIndexBuildData	build_data,
+			SVDBFileTree 				ft) {
+		Map<String, SVDBMacroDef> all_defs = new HashMap<String, SVDBMacroDef>();
+		List<SVDBMacroDef> defs = new ArrayList<SVDBMacroDef>();
+
+		/*
+		// First, get the parent and find the index where this
+		// FileTree exists within the parent
+		SVDBFileTree parent;
+		while (ft != null && (parent = ft.getParent()) != null) {
+			int ft_idx = -1;
+			
+			for (int i=0; i<parent.fIncludedFileTrees.size(); i++) {
+				if (parent.fIncludedFileTrees.get(i) == ft) {
+					ft_idx = i;
+					break;
+				}
+			}
+			
+			if (ft_idx == -1) {
+				System.out.println("Failed to find " + ft.getFilePath() + " in parent");
+				break;
+			}
+
+			// First, aggregate the macros from this level of the FileTree
+			for (int i=(ft_idx-1); i>=0; i--) {
+				SVDBFileTree ft_i = parent.fIncludedFileTrees.get(i);
+				System.out.println("Process: " + ft_i.getFilePath());
+				for (Entry<String, SVDBMacroDef> def : ft_i.fDefinedMacros.entrySet()) {
+					System.out.println("Checking " + def.getKey() + " from " + ft_i.getFilePath());
+					if (!all_defs.containsKey(def.getKey())) {
+						all_defs.put(def.getKey(), def.getValue());
+					}
+				}
+			}
+
+			ft = parent;
+		}
+		 */
+		all_defs = ft.fMacroEntryState;
+		
+		// Now, see if any global defines need to be considered
+		for (Entry<String, String> e : build_data.getDefines().entrySet()) {
+			if (!all_defs.containsKey(e.getKey())) {
+				all_defs.put(e.getKey(), new SVDBMacroDef(e.getKey(), e.getValue()));
+			}
+		}
+		for (Entry<String, String> e : build_data.getGlobalDefines().entrySet()) {
+			if (!all_defs.containsKey(e.getKey())) {
+				all_defs.put(e.getKey(), new SVDBMacroDef(e.getKey(), e.getValue()));
+			}
+		}
+		
+		for (Entry<String, SVDBMacroDef> e : all_defs.entrySet()) {
+			defs.add(e.getValue());
+		}
+		
+		return defs;
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
@@ -2194,9 +2268,8 @@ public class SVDBArgFileIndex2 implements
 
 		// Pass in defines
 		for (Entry<String, SVDBMacroDef> def : defines.entrySet()) {
-			pp.addMacro(def.getValue());
+			pp.setMacro(def.getValue());
 		}
-		
 
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "--> PreProcess " + path);
@@ -2286,7 +2359,7 @@ public class SVDBArgFileIndex2 implements
 		for (Entry<String, String> e : build_data.getGlobalDefines().entrySet()) {
 			String key = e.getKey();
 			String val = (e.getValue() != null)?e.getValue():"";
-			if (!defines.containsKey(key)) {
+			if (defines.containsKey(key)) {
 				defines.remove(key);
 			}
 			defines.put(key, new SVDBMacroDef(key, val));
@@ -2295,7 +2368,7 @@ public class SVDBArgFileIndex2 implements
 		for (Entry<String, String> e : build_data.getDefines().entrySet()) {
 			String key = e.getKey();
 			String val = (e.getValue() != null)?e.getValue():"";
-			if (!defines.containsKey(key)) {
+			if (defines.containsKey(key)) {
 				defines.remove(key);
 			}
 			defines.put(key, new SVDBMacroDef(key, val));

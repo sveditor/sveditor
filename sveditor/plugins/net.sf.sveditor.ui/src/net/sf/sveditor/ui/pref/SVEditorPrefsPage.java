@@ -35,6 +35,8 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_NUMBERS_C, "N&umber color:", SVEditorPrefsConstants.P_NUMBERS_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_BRACE_C  , "B&racket color:", SVEditorPrefsConstants.P_BRACE_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_OPERATORS_C, "O&perator color:", SVEditorPrefsConstants.P_OPERATORS_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_SVT_PARAMETERS_S, "SVT Template Parameter color:", 
+				SVEditorPrefsConstants.P_SVT_PARAMETERS_S, getFieldEditorParent()));
 		
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-&Indent:", getFieldEditorParent()));
 

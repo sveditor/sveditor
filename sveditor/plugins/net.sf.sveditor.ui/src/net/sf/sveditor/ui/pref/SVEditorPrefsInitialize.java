@@ -71,6 +71,8 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_BRACE_S  , SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_NUMBERS_S, SWT.NORMAL);
 		store.setDefault(SVEditorPrefsConstants.P_OPERATORS_S, SWT.NORMAL);
+		PreferenceConverter.setDefault(store,  SVEditorPrefsConstants.P_SVT_PARAMETERS_S, 
+				new RGB(225, 20, 225));
 		
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_LEVEL_S, "LEVEL_OFF");
 		store.setDefault(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S, false);

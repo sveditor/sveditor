@@ -90,8 +90,6 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 			f.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
 		}
 		
-		System.out.println("launch: " + configuration + " " + mode);
-
 		monitor.done();
 	}
 

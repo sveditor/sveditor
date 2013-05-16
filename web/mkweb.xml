@@ -43,12 +43,12 @@
 		
 		<copy todir="${output.dir}/html/imgs" flatten="true">
 			<fileset dir="${web.dir}/pages"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<copy todir="${output.dir}/html2/imgs" flatten="true">
 			<fileset dir="${output.dir}/html"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 
 		<wikitext-to-html markupLanguage="MediaWiki"
@@ -128,7 +128,7 @@
 		
 		<copy todir="${output.dir}" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<!-- Now, build the doc -->

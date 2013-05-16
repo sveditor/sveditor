@@ -41,6 +41,9 @@ public class SVArgFileCodeScanner extends RuleBasedScanner {
 		final IToken str = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.STRING),
 				null, SVEditorColors.getStyle(SVEditorColors.STRING)));
+		final IToken svt_param = new Token(new TextAttribute(
+				SVEditorColors.getColor(SVEditorColors.SVT_PARAMETERS),
+				null, SVEditorColors.getStyle(SVEditorColors.SVT_PARAMETERS)));
 		final IToken slc = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.SINGLE_LINE_COMMENT),
 				null, SVEditorColors.getStyle(SVEditorColors.SINGLE_LINE_COMMENT)));
@@ -60,6 +63,7 @@ public class SVArgFileCodeScanner extends RuleBasedScanner {
 	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));
 
 	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
+	    rules.add(new SingleLineRule("${", "}", svt_param));
 
 		WordRule wordRule = new WordRule(new SVArgFileWordDetector(), default_t);
 		

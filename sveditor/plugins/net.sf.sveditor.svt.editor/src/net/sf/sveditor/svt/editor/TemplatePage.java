@@ -311,7 +311,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fTemplateDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fTemplateDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fTemplateDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fTemplateDescription.setLayoutData(gd);
@@ -382,7 +383,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fParameterDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fParameterDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fParameterDescription.setLayoutData(gd);
@@ -422,7 +424,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fParameterGroupDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterGroupDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fParameterGroupDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fParameterGroupDescription.setLayoutData(gd);
@@ -487,7 +490,8 @@ public class TemplatePage extends FormPage {
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
 		g.setText("Description");
-		fCategoryDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fCategoryDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fCategoryDescription.addModifyListener(modifyListener);
 		fElemMap.put(fCategoryDescription, "description");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -795,7 +799,15 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void removeElement() {
-		fActiveElement.getParentNode().removeChild(fActiveElement);
+		List<Node> elems = getSelectedNodes();
+		
+		for (Node n : elems) {
+			Node p = n.getParentNode();
+			p.removeChild(n);
+		}
+	
+		// TODO: must set new selection
+		
 		fTreeViewer.refresh();
 		
 		fIsDirty = true;
@@ -974,6 +986,25 @@ public class TemplatePage extends FormPage {
 		
 		while (sel_it.hasNext()) {
 			ret.add((Node)sel_it.next());
+		}
+
+		// Filter out category nodes
+		while (ret.size() > 0 &&
+				ret.get(0).getNodeName().equals("parameters") ||
+				ret.get(0).getNodeName().equals("files")) {
+			ret.remove(0);
+		}
+	
+		// Filter out any nodes that don't match the root
+		if (ret.size() > 0) {
+			String root = ret.get(0).getNodeName();
+			
+			for (int i=1; i<ret.size(); i++) {
+				if (!ret.get(i).getNodeName().equals(root)) {
+					ret.remove(i);
+					i--;
+				}
+			}
 		}
 		
 		return ret;

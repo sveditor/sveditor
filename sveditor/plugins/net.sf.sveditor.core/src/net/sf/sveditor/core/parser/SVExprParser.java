@@ -1406,6 +1406,7 @@ public class SVExprParser extends SVParserBase {
 					
 						SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
 						rhs.setTypeInfo(info);
+						
 						if (fDebugEn) {
 							debug("  rhs=" + rhs);
 							debug("<-- selector() - DataType");
