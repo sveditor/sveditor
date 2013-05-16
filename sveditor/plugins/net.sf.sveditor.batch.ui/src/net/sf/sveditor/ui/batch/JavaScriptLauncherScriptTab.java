@@ -53,7 +53,7 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 	@Override
 	public void createControl(Composite parent) {
 		GridData gd;
-		System.out.println("createControl");
+		
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout());
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

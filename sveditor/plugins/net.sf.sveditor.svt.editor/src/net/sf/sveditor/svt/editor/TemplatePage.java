@@ -311,7 +311,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fTemplateDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fTemplateDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fTemplateDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fTemplateDescription.setLayoutData(gd);
@@ -382,7 +383,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fParameterDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fParameterDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fParameterDescription.setLayoutData(gd);
@@ -422,7 +424,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fParameterGroupDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterGroupDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fParameterGroupDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fParameterGroupDescription.setLayoutData(gd);
@@ -487,7 +490,8 @@ public class TemplatePage extends FormPage {
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
 		g.setText("Description");
-		fCategoryDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fCategoryDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fCategoryDescription.addModifyListener(modifyListener);
 		fElemMap.put(fCategoryDescription, "description");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
