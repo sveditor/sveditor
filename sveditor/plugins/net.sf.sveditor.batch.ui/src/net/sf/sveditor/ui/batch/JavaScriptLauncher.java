@@ -59,12 +59,8 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 		});
 	
 		InputStream in = null;
-		SVFileUtils utils = new SVFileUtils();
-		
 
 		File wd_f = SVFileUtils.getFile(wd);
-		
-		System.out.println("wd_f=" + wd_f + " " + wd);
 		
 		try {
 			if (script.startsWith("${workspace_loc}")) {
@@ -94,8 +90,6 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 			f.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
 		}
 		
-		System.out.println("launch: " + configuration + " " + mode);
-
 		monitor.done();
 	}
 
