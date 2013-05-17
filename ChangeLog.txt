@@ -3,6 +3,8 @@
 
 - #(127) - Correct a parse bug involving a package-qualified 
   parameterized-class type reference (uvm_pkg::uvm_resource_db #(type)::set)
+  
+- #(259) - Spurious parser error with inout in clocking block
    
 ------------------------------------------------------------------------------
 -- 1.2.6 Release --

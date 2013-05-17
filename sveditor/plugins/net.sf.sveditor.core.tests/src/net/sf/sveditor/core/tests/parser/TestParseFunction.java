@@ -332,7 +332,7 @@ public class TestParseFunction extends TestCase {
 			"    end\n" +
 			"endfunction\n";
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVDBTask func = parse_tf(content, "testParamListFunction");
 		
