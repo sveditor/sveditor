@@ -1031,6 +1031,23 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "control_if");
 	}
 	
+	public void testClockingBlockInout() {
+		String testname = "testClockingSameLine_DR";
+		String doc = 
+			"module clk_blk_out;\n" +
+			"	clocking mst_cb @(posedge clk);\n" +
+			"		inout      confused;\n" +
+			"	endclocking : mst_cb\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "clk_blk_out");
+	}	
+
 	public void testClockingBlockOutput() {
 		String testname = "testClockingSameLine_DR";
 		String doc = 
