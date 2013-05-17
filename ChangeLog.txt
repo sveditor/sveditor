@@ -1,6 +1,9 @@
 
 -- 1.2.7 Release --
 
+- #(127) - Correct a parse bug involving a package-qualified 
+  parameterized-class type reference (uvm_pkg::uvm_resource_db #(type)::set)
+   
 ------------------------------------------------------------------------------
 -- 1.2.6 Release --
 

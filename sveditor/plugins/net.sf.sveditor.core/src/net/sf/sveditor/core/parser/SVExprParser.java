@@ -1409,9 +1409,15 @@ public class SVExprParser extends SVParserBase {
 						
 						if (fDebugEn) {
 							debug("  rhs=" + rhs);
-							debug("<-- selector() - DataType");
+							debug("<-- selector() - DataType (" + fLexer.peek() + ")");
 						}
-						return new SVDBFieldAccessExpr(expr, true, rhs);
+						expr = new SVDBFieldAccessExpr(expr, true, rhs);
+						
+						if (fLexer.peekOperator("::")) {
+							return selector(expr);
+						} else {
+							return expr;
+						}
 					} else {
 						if (fDebugEn) {debug("<-- selector() - IdentifierExpr(2)");}
 						return new SVDBFieldAccessExpr(expr, (q.equals("::")), 
