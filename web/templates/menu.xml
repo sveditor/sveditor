@@ -17,7 +17,10 @@
 	<hr/>
 	<table>
 	<tr><td>
-		<a href="sveditor_user_guide.html">User Guide</a>
+		<a href="user_guide/sveditor_user_guide.html">User Guide</a>
+	</td></tr>
+	<tr><td>
+		<a href="dev_guide/sveditor_dev_guide.html">Developer Guide</a>
 	</td></tr>
 	</table>
 	<hr/>

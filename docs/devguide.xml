@@ -1,0 +1,8 @@
+
+<project name="devguide">
+	<filelist id="devguide_files" dir="${devguide.dir}">
+		<file name="dev_guide_intro/dev_guide_intro.mediawiki"/>
+  		<file name="git_guide/git_guide.mediawiki"/>
+	</filelist>
+</project>
+

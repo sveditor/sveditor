@@ -1,4 +1,7 @@
 <project name="customCallbacks" default="post.compile">
+	
+	<property name="docs.dir" value="${basedir}/../../../docs"/>
+	
 	<target name="post.compile">
 		<antcall target="docs"/>
 	</target>
@@ -10,6 +13,7 @@
 	</target>
 
 	<target name="docs">
+		<!--
 		<taskdef name="assemble_toc" 
 			classname="net.sf.sveditor.doc.dev.AssembleTocTask">
 			<classpath path="${basedir}/bin"/>
@@ -20,6 +24,7 @@
 			<classpath path="${basedir}/bin"/>
 			<classpath path="${basedir}/@dot"/>
 		</taskdef>
+		
 		<javadoc
 			destdir="api_docs">
 			<packageset dir="${basedir}/../net.sf.sveditor.core/src">
@@ -38,6 +43,7 @@
 		<assemble_toc files="${basedir}/api_toc.xml"
 			label="SVEditor Internals Guide"
 			output="${basedir}/toc.xml"/>
+		  -->
 		<!--
 		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
 					multipleOutputFiles="true"
@@ -57,6 +63,10 @@
 			output="${basedir}/toc.xml" label="SVEditor User Guide">
 		</assemble_toc>
 		-->
+		<ant antfile="${docs.dir}/mkhelp.xml" 
+			target="mk_dev_guide_help">
+			<property name="srcdir" value="${docs.dir}"/>
+		</ant>		
 	</target>
 
 	<target name="clean_docs">

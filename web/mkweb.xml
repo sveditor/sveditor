@@ -116,18 +116,30 @@
 		<delete dir="${output.dir}/html"/>
 		<mkdir dir="${output.dir}/html"/>
 		<mkdir dir="${output.dir}/html/imgs"/>
+		<mkdir dir="${output.dir}/html/user_guide"/>
+		<mkdir dir="${output.dir}/html/dev_guide"/>
 
 		<antcall target="mk_web_index"/>
 		<antcall target="mk_web_user_guide"/>
+		<antcall target="mk_web_dev_guide"/>
 		
 		<copy todir="${output.dir}/html">
 			<fileset dir="${output.dir}/index_html" 
 				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<copy todir="${output.dir}/html/user_guide">
 			<fileset dir="${output.dir}/user_guide_html" 
 				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
+		<copy todir="${output.dir}/html/dev_guide">
+			<fileset dir="${output.dir}/dev_guide_html" 
+				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+	
 		<delete dir="${output.dir}/user_guide_html"/>
+		<delete dir="${output.dir}/dev_guide_html"/>
 		<delete dir="${output.dir}/index_html"/>
 
 	</target>
@@ -177,6 +189,30 @@
 			style="${srcdir}/templates/style.xml"
 			layout="${srcdir}/templates/layout.xml"
 			output.dir="${output.dir}/user_guide_html"/>
+	</target>
+
+	<target name="mk_web_dev_guide">
+		<mkdir dir="${output.dir}/dev_guide_html"/>
+		<mkdir dir="${output.dir}/dev_guide_html/imgs"/>
+		
+		<ant antfile="${srcdir}/../docs/mkdoc.xml"
+			target="collect_devguide_files">
+			<property name="srcdir" value="${srcdir}/../docs"/>
+			<property name="output.dir" value="${output.dir}/dev_guide_html"/>
+		</ant>
+	
+		<!-- Move the image files to a subdir -->
+		<move todir="${output.dir}/dev_guide_html/imgs">
+			<fileset dir="${output.dir}/dev_guide_html"
+				includes="*.gif,*.jpg,*.png"/>
+		</move>
+
+		<mkhtml doctitle="SVEditor Developer Guide"
+			docfile="sveditor_dev_guide.mediawiki"
+			menu="${srcdir}/templates/dev_guide_menu.xml"
+			style="${srcdir}/templates/style.xml"
+			layout="${srcdir}/templates/layout.xml"
+			output.dir="${output.dir}/dev_guide_html"/>
 	</target>
 	
 	<target name="collect_files">
