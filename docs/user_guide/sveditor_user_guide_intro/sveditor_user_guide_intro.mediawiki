@@ -1,0 +1,6 @@
+= SVEditor User Guide =
+
+SVEditor provides a variety of features to make developing designs and testbench
+environments in SystemVerilog simpler and more efficient. This user guide
+documents the features provided by the SVEditor environment.
+
