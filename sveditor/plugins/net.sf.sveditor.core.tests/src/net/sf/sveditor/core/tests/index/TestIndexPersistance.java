@@ -59,7 +59,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 
 	public void testWSArgFileIndex() {
 //		SVCorePlugin.getDefault().enableDebug(false);
-		SVCorePlugin.getDefault().setDebugLevel(1);
+		SVCorePlugin.getDefault().setDebugLevel(0);
 		LogHandle log = LogFactory.getLogHandle("testWSArgFileIndex");
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
