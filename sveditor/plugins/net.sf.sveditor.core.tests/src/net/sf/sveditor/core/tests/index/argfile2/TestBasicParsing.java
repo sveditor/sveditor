@@ -298,7 +298,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 	}
 
 	public void testMFCU_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		TestUtils.copy(
 				"// File1\n" +

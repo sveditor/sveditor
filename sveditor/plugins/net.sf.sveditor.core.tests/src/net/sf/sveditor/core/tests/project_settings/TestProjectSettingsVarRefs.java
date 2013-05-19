@@ -74,6 +74,46 @@ public class TestProjectSettingsVarRefs extends SVTestCaseBase {
 		assertEquals(0, markers.size());
 	}
 
+	public void testArgFileProjectRelRef() throws CoreException {
+		LogHandle log = LogFactory.getLogHandle(getName());
+		SVCorePlugin.getDefault().enableDebug(false);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		utils.copyBundleDirToFS(
+				"/data/argfile_projvar_reference/project_rel_argfile_ref",
+				fTmpDir);
+		
+		IProject project = TestUtils.importProject(new File(fTmpDir, "project_rel_argfile_ref"));
+		addProject(project);
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
+		
+		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
+		
+		index_collection.loadIndex(new NullProgressMonitor());
+		
+		InputStream in = null;
+
+		IFile parameters_sv = root.getFile(new Path("/" + project.getName() + "/top_dir/parameters.sv"));
+		in = parameters_sv.getContents();
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		
+		List<SVDBSearchResult<SVDBFile>> result = index_collection.findFile(
+				"${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv");
+		
+		IndexTestUtils.assertNoErrWarn(log, index_collection);
+		
+		// Ensure we can locate the file
+		assertEquals(1, result.size());
+		
+		SVDBFile file = index_collection.parse(new NullProgressMonitor(), in, 
+				"${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv", markers).second();
+		
+		assertNotNull(file);
+		assertEquals(0, markers.size());
+	}
+	
 	public void testResourceVarProjVarRef() throws CoreException {
 		System.out.println("BEGIN testResourceVarProjVarRef");
 		String testname = "testResourceVarProjVarRef";

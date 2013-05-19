@@ -1,6 +1,14 @@
 
 -- 1.2.7 Release --
 
+- #(127) - Correct a parse bug involving a package-qualified 
+  parameterized-class type reference (uvm_pkg::uvm_resource_db #(type)::set)
+  
+- #(259) - Spurious parser error with inout in clocking block
+
+- #(nobug) - Correct issues with specifying argument files relative to
+  ${project_loc}.
+   
 ------------------------------------------------------------------------------
 -- 1.2.6 Release --
 

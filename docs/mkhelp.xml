@@ -39,5 +39,28 @@
 			prependImagePrefix="imgs"/>
 	</target>
 
+	<target name="mk_dev_guide_help">
+		<delete dir="${output.dir}/help"/>
+		<mkdir dir="${output.dir}/help"/>
+		<mkdir dir="${output.dir}/help/imgs"/>
+		
+		<copy todir="${output.dir}/help/imgs" flatten="true">
+			<fileset dir="${devguide.dir}"
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<concat destfile="${output.dir}/help/dev_guide.mediawiki">
+			<filelist refid="devguide_files"/>
+		</concat>
+		
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki"
+			title="SVEditor Developer Guide"
+			multipleOutputFiles="true"
+			helpPrefix="help"
+			file="${output.dir}/help/dev_guide.mediawiki"
+			formatOutput="true"
+			prependImagePrefix="imgs"/>
+	</target>
+
 </project>
 

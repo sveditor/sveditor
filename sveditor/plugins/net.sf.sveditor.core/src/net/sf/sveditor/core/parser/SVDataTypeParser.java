@@ -301,8 +301,17 @@ public class SVDataTypeParser extends SVParserBase {
 				// scoped type
 				// [class_scope | package_scope] type_identifier { packed_dimension }
 				while (fLexer.peekOperator("::")) {
-					type_id.append(fLexer.eatToken()); // ::
-					type_id.append(fLexer.readId());
+					SVToken colon_tok = fLexer.consumeToken();
+					SVToken id_tok = fLexer.consumeToken();
+					if (fLexer.peekOperator("(")) {
+						// This sure looks like a function call
+						fLexer.ungetToken(id_tok);
+						fLexer.ungetToken(colon_tok);
+						break;
+					} else {
+						type_id.append(colon_tok.getImage());
+						type_id.append(id_tok.getImage());
+					}
 				}
 				
 				type = new SVDBTypeInfoUserDef(type_id.toString());

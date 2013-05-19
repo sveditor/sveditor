@@ -1,0 +1,5 @@
+= SVEditor Developer Guide =
+
+The SVEditor Developer Guide provides information about the internals of
+SVEditor, and documents development procedures.
+
