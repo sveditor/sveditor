@@ -322,7 +322,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getLibraryPaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, path.getPath(), 
+					fProjectName, expandPath(path.getPath()),
 					SVDBLibPathIndexFactory.TYPE, args);
 			
 			if (index != null) {
@@ -339,7 +339,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getArgFilePaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, path.getPath(),
+					fProjectName, expandPath(path.getPath()),
 					SVDBArgFileIndexFactory.TYPE, args);
 			
 			if (index != null) {
@@ -365,7 +365,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			params.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 			
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, srcc.getBaseLocation(),
+					fProjectName, expandPath(srcc.getBaseLocation()),
 					SVDBSourceCollectionIndexFactory.TYPE, params);
 			
 			if (index != null) {
@@ -407,6 +407,22 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		if (refresh) {
 			SVCorePlugin.getDefault().getProjMgr().projectSettingsChanged(this);
 		}
+	}
+	
+	private String expandPath(String path) {
+		int idx;
+		
+		while ((idx = path.indexOf("${project_loc}")) != -1) {
+			if (idx == 0) {
+				path = "${workspace_loc}/" + fProjectName + 
+						path.substring(idx+"${project_loc}".length());
+			} else {
+				path = path.substring(0, idx) + "${workspace_loc}/" + fProjectName + 
+						path.substring(idx+"${project_loc}".length());
+			}
+		}
+		
+		return path;
 	}
 	
 	public boolean equals(Object other) {
