@@ -20,6 +20,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -70,12 +71,16 @@ public class SVDBProjectManager implements
 	 */
 	public void init() {
 		fProjectMap.clear();
-		
-		SVDBInitProjectsJob job = new SVDBInitProjectsJob();
-		// Ensure this job is sensitive to the workspace
-		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
-		
-		job.schedule();
+
+		// Only use the index-refresh job when using
+		// the new indexer
+		if (SVDBArgFileIndexFactory.fUseArgFile2Index) {
+			SVDBInitProjectsJob job = new SVDBInitProjectsJob();
+			// Ensure this job is sensitive to the workspace
+			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+
+			job.schedule();
+		}
 	}
 	
 	public static boolean isSveProject(IProject p) {

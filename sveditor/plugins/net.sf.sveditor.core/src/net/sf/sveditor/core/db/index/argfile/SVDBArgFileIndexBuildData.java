@@ -54,6 +54,19 @@ public class SVDBArgFileIndexBuildData implements
 		old_cache.dispose();
 	}
 
+	/**
+	 * Initializes the file list, so the file mapper returns 
+	 * correct IDs during an incremental build
+	 * 
+	 * @param other
+	 */
+	void initFileMapperState(SVDBArgFileIndexBuildData other) {
+		fIndexCacheData.fSrcFileList.clear();
+		fIndexCacheData.fSrcFileList.addAll(other.fIndexCacheData.fSrcFileList);
+		fIndexCacheData.fIncludePathList.clear();
+		fIndexCacheData.fIncludePathList.addAll(other.fIndexCacheData.fIncludePathList);
+	}
+
 	void addIncludePath(String path) {
 		fIndexCacheData.addIncludePath(path);
 	}

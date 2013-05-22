@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
-import java.io.DataInput;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -29,6 +28,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 	
 	private List<RandomAccessFile>		fFileRWList;
 	private int							fLastRwBlkLen;
+	private List<Integer>				fFileList;
+	private boolean						fTrackFiles = false;
 	
 	public SVDBFileSystem(File db_dir, String version) {
 		fDBDir = db_dir;
@@ -39,6 +40,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		fLog.addLogLevelListener(this);
 		
 		fFileRWList = new ArrayList<RandomAccessFile>();
+		fFileList = new ArrayList<Integer>();
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
@@ -148,6 +150,20 @@ public class SVDBFileSystem implements ILogLevelListener {
 			fLastRwBlkLen  = in.readInt();
 			fAllocListFile = in.readInt();
 			int alloc_list_len = in.readInt();
+			
+			// Read back the file list;
+			if (fTrackFiles) {
+				fFileList.clear();
+				int file_list_size = in.readInt();
+				for (int i=0; i<file_list_size; i++) {
+					fFileList.add(in.readInt());
+				}
+
+				for (int i=0; i<fFileList.size(); i++) {
+					System.out.println("READ: file[" + i + "] " + fFileList.get(i));
+				}
+			}
+			
 			int ud_len = in.readInt();
 			
 			if (ud_len == -1) {
@@ -187,7 +203,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	}
 	
-	public int blockSize() {
+	public synchronized int blockSize() {
 		int size = 0;
 		
 		for (int i=0; i<fAllocList.length; i++) {
@@ -203,7 +219,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		return size;
 	}
 	
-	public SVDBFileSystemDataInput getUserData() {
+	public synchronized SVDBFileSystemDataInput getUserData() {
 		if (fUserData == null) {
 			return null;
 		} else {
@@ -213,7 +229,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	}
 	
-	public void setUserData(SVDBFileSystemDataOutput data) {
+	public synchronized void setUserData(SVDBFileSystemDataOutput data) {
 		if (data == null) {
 			fUserData = null;
 		} else {
@@ -258,6 +274,19 @@ public class SVDBFileSystem implements ILogLevelListener {
 		out.writeInt(fLastRwBlkLen);
 		out.writeInt(fAllocListFile);
 		out.writeInt(fAllocList.length);
+		
+		// Write back the list of files
+		if (fTrackFiles) {
+			out.writeInt(fFileList.size());
+			for (int i=0; i<fFileList.size(); i++) {
+				out.writeInt(fFileList.get(i));
+			}
+
+			for (int i=0; i<fFileList.size(); i++) {
+				System.out.println("WRITE: file[" + i + "] " + fFileList.get(i));
+			}
+		}
+		
 		if (fUserData != null) {
 			out.writeInt(fUserData.length);
 			out.write(fUserData);
@@ -277,15 +306,13 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	}
 	
-	public SVDBFileSystemDataInput readFile(String path, int id) throws IOException {
+	public synchronized SVDBFileSystemDataInput readFile(String path, int id) throws IOException {
 		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
 		byte tmp[] = new byte[BLK_SIZE];
-		int total_blocks=0;
 		
 		// Read root block
 		readBlock(path, id, tmp);
 		ret.addPage(tmp);
-		total_blocks++;
 		
 		int length  = ret.readInt(); // Total length of the file
 		int nblocks = ret.readInt(); // Number of non-root blocks
@@ -296,7 +323,6 @@ public class SVDBFileSystem implements ILogLevelListener {
 			tmp = new byte[BLK_SIZE];
 			readBlock(path, block_id, tmp);
 			ret.addPage(tmp);
-			total_blocks++;
 		}
 		int start_idx = ret.getOffset();
 		ret.setStartIdx(start_idx);
@@ -307,7 +333,22 @@ public class SVDBFileSystem implements ILogLevelListener {
 		return ret;
 	}
 	
-	public int writeFile(String path, SVDBFileSystemDataOutput data) throws IOException {
+	public synchronized int writeFile(String path, SVDBFileSystemDataOutput data) throws IOException {
+		
+		// First, compress data
+		/*
+		ByteArrayOutputStream data_zip = new ByteArrayOutputStream();
+		GZIPOutputStream zip_out = new GZIPOutputStream(data_zip);
+		
+		for (int i=0; i<data.getPages().size(); i++) {
+			byte page[] = data.getPage(i);
+			zip_out.write(page);
+		}
+		zip_out.close();
+	
+		byte data_z[] = data_zip.toByteArray();
+		int length = data_z.length;
+		 */
 		int length = data.getLength();
 		
 		// Determine how many total blocks we need
@@ -321,14 +362,12 @@ public class SVDBFileSystem implements ILogLevelListener {
 				;
 		int reqd_blocks = 1;
 		int remaining_size = length;
-		int last_rootblk_idx = 0;
 
 		while (remaining_size > avail_rootblock_bytes) {
 			reqd_blocks++;
 			avail_rootblock_bytes -= 4;
 			if (avail_rootblock_bytes <= 0) {
 				avail_rootblock_bytes = BLK_SIZE;
-				last_rootblk_idx++;
 				// Need an additional root block
 				reqd_blocks++;
 			}
@@ -359,7 +398,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 				idx = 0;
 			}
 		}
-		
+	
 		int page_idx = 0, tmp_idx = 0;
 		byte tmp[] = data.getPage(page_idx);
 		for (int i=0; i<length; i++) {
@@ -381,7 +420,24 @@ public class SVDBFileSystem implements ILogLevelListener {
 				blocks_idx++;
 			}
 		}
-
+		/**
+		for (int i=0; i<length; i++) {
+			block[idx] = data_z[i];
+			idx++;
+			
+			if (idx >= BLK_SIZE || i+1 >= length) {
+				// reset the block
+				writeBlock(path, blocks[blocks_idx], block);
+				idx = 0;
+				blocks_idx++;
+			}
+		}
+		 */
+	
+		if (fTrackFiles) {
+			fFileList.add(blocks[0]);
+		}
+		
 		return blocks[0];
 	}
 	
@@ -400,12 +456,22 @@ public class SVDBFileSystem implements ILogLevelListener {
 		return idx;
 	}
 
-	public void deleteFile(String path, int id) throws IOException {
+	public synchronized void deleteFile(String path, int id) throws IOException {
 		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
 		byte tmp[] = new byte[BLK_SIZE];
 		
 		if (id < 1) {
 			throw new IOException("Cannot delete root block");
+		}
+	
+		if (fTrackFiles) {
+			int file_list_idx = fFileList.indexOf(id);
+
+			if (file_list_idx < 0) {
+				throw new IOException("deleteFile: " + path + " " + id + " is not in the file list");
+			}
+			
+			fFileList.remove(file_list_idx);
 		}
 	
 		// Read root block
@@ -414,6 +480,9 @@ public class SVDBFileSystem implements ILogLevelListener {
 		
 		/* int length  = */ ret.readInt(); // Total length of the file
 		int nblocks = ret.readInt(); // Number of non-root blocks
+		if (nblocks < 0) {
+			
+		}
 		int blocks[] = new int[nblocks+1];
 		blocks[0] = id;
 		int blocks_to_read = computeRootBlockCount(nblocks);

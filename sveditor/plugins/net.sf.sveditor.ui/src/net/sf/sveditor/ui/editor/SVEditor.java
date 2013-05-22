@@ -92,6 +92,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -929,7 +930,16 @@ public class SVEditor extends TextEditor
 	}
 
 	private void updateWordSelectionHighlight() {
-		ITextSelection sel = (ITextSelection)getSourceViewer().getSelectionProvider().getSelection();
+		if (getSourceViewer() == null) {
+			return;
+		}
+		ISelectionProvider sel_p = getSourceViewer().getSelectionProvider();
+		
+		if (sel_p == null) {
+			return;
+		}
+		
+		ITextSelection sel = (ITextSelection)sel_p.getSelection();
 		
 		clearOccurrenceHighlight();
 		

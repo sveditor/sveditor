@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +27,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private SVDBFileIndexCacheEntry					fUnCachedHead;
 	private SVDBFileIndexCacheEntry					fUnCachedTail;
 	
+//	private int										fMaxCacheSize = 100;
 	private int										fMaxCacheSize = 100;
+//	private int										fMaxCacheSize = 1;
 	
 	private boolean									fUseSoftRef = true;
 	
@@ -90,6 +90,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 	
 	private void write_state(SVDBFileSystemDataOutput dat) throws IOException, DBWriteException {
+//		System.out.println("--> write_state");
 
 		
 		// Write back the number of indexes
@@ -102,6 +103,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		
 		// Now, write back the number of cache entries
 		int n_entries = count_entries(fCacheHead) + count_entries(fUnCachedHead);
+		int n_cached=0, n_uncached=0;
 		
 		dat.writeInt(n_entries);
 		SVDBFileIndexCacheEntry entry;
@@ -109,18 +111,23 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		entry = fCacheHead;
 		while (entry != null) {
 			// Ensure entry contents are written back
+//			System.out.println("writeBackEntry: " + entry.getPath());
 			writeBackEntry(entry);
 			
 			entry.write(dat);
 			entry = entry.getNext();
+			n_cached++;
 		}
 		
 		entry = fUnCachedHead;
 		while (entry != null) {
 			entry.write(dat);
 			entry = entry.getNext();
+			n_uncached++;
 		}
 	
+//		System.out.println("<-- write_state n_cached=" + n_cached + " n_uncached=" + n_uncached + " " + 
+//				(n_cached+n_uncached));
 	}
 	
 	private void read_state(SVDBFileSystemDataInput din) throws IOException {
@@ -576,7 +583,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			
 			// Release references
 			info.clearCached();
-			fCacheSize--;
 		}
 	}
 	
@@ -687,6 +693,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private synchronized void readBackEntry(SVDBFileIndexCacheEntry entry, int mask) {
 		// TODO:
 		mask = SVDBFileIndexCacheEntry.ALL_MASK;
+		long start = System.currentTimeMillis();
 		
 		if (entry.getSVDBFileId() != -1 && (mask & SVDBFileIndexCacheEntry.SVDB_FILE_MASK) != 0) {
 			if (entry.getSVDBFileRef() != null) {
@@ -721,6 +728,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 				readBackMarkers(entry);
 			}
 		}
+		
+		long end = System.currentTimeMillis();
 	}
 
 	private synchronized void writeBackSVDBFile(SVDBFileIndexCacheEntry entry) {
@@ -734,12 +743,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			SVDBFileSystemDataOutput data_out = new SVDBFileSystemDataOutput();
 			writer.init(data_out);
 			writer.writeObject(SVDBFile.class, file);
-		
-			ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
-			DataOutputStream data_out2 = new DataOutputStream(bos2);
-			writer.init(data_out2);
-			writer.writeObject(SVDBFile.class, file);
 			
+//			System.out.println("writeSVDBFile: " + entry.getPath() + " " + data_out.getLength());
+		
 			int file_id = fFileSystem.writeFile(entry.getPath(), data_out);
 			
 			entry.setSVDBFileId(file_id);
@@ -825,6 +831,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			SVDBFileSystemDataOutput data_out = new SVDBFileSystemDataOutput();
 			writer.init(data_out);
 			writer.writeObject(SVDBFileTree.class, file);
+			
+//			System.out.println("writeSVDBFileTree: " + entry.getPath() + " " + data_out.getLength());
 			
 			int file_id = fFileSystem.writeFile(entry.getPath() + ":fileTree", data_out);
 			

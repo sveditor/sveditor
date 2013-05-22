@@ -347,7 +347,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 
 		// TODO: should fix
 		ScanLocation loc = fScanner.getLocation();
-		fStartLocation = new SVDBLocation(loc.getLineNo(), loc.getLinePos());
+		fStartLocation = new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos());
 
 		if (ch == -1) {
 			fEOF = true;

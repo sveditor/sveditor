@@ -146,7 +146,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.UndefinedMacro, msg);
-			marker.setLocation(new SVDBLocation(lineno, 0));
+			marker.setLocation(new SVDBLocation(fFileMapper.mapFilePathToId(filename, false), lineno, 0));
 			fMarkers.add(marker);
 		}
 	}
@@ -528,7 +528,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.ParseError, msg);
-			marker.setLocation(new SVDBLocation(lineno, linepos));
+			marker.setLocation(new SVDBLocation(fFileMapper.mapFilePathToId(filename, false), lineno, linepos));
 			fMarkers.add(marker);
 		}
 	}
@@ -737,12 +737,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	private void setLocation(ISVDBItemBase item) {
 		ScanLocation loc = getStmtLocation();
-		item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
 	}
 
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = getStmtLocation();
-		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
+		item.setEndLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
 	}
 
 	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {
