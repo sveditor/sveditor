@@ -5,13 +5,10 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVProjectNature;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -53,7 +50,7 @@ public class SVDBInitProjectsJob extends Job {
 					SVDBProjectData pdata = pmgr.getProjectData(p);
 					// Getting the index collection causes the indexes 
 					// to be initialized
-					SVDBIndexCollection index_mgr = pdata.getProjectIndexMgr();
+					/* SVDBIndexCollection index_mgr = */ pdata.getProjectIndexMgr();
 				} catch (Exception e) {
 					// TODO: Log
 					e.printStackTrace();

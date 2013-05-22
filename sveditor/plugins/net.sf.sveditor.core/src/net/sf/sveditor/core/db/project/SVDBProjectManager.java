@@ -20,7 +20,9 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -42,6 +44,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
@@ -74,13 +77,13 @@ public class SVDBProjectManager implements
 
 		// Only use the index-refresh job when using
 		// the new indexer
-		if (SVDBArgFileIndexFactory.fUseArgFile2Index) {
+//		if (SVDBArgFileIndexFactory.fUseArgFile2Index) {
 			SVDBInitProjectsJob job = new SVDBInitProjectsJob();
 			// Ensure this job is sensitive to the workspace
 			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 
 			job.schedule();
-		}
+//		}
 	}
 	
 	public static boolean isSveProject(IProject p) {
@@ -125,6 +128,45 @@ public class SVDBProjectManager implements
 			for (int i=0; i<fListeners.size(); i++) {
 				fListeners.get(i).projectSettingsChanged(data);
 			}
+		}
+	}
+	
+	public void rebuildProject(IProgressMonitor monitor, IProject p) {
+		SVDBProjectData pd = getProjectData(p);
+		if (pd != null) {
+			SVDBIndexCollection index = pd.getProjectIndexMgr();
+			List<ISVDBIndex> index_l = index.getIndexList();
+			monitor.beginTask("Build " + p.getName(), 1000*index_l.size());
+
+			for (ISVDBIndex i : index_l) {
+				monitor.subTask("Build " + i.getBaseLocation());
+				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(i);
+				
+				i.execIndexChangePlan(new SubProgressMonitor(monitor, 1000), plan);
+			}
+
+			monitor.done();
+		}
+	}
+
+	public void rebuildProject(
+			IProgressMonitor 					monitor, 
+			IProject 							p,
+			List<SVDBIndexResourceChangeEvent> 	changes) {
+		SVDBProjectData pd = getProjectData(p);
+		if (pd != null) {
+			SVDBIndexCollection index = pd.getProjectIndexMgr();
+			List<ISVDBIndex> index_l = index.getIndexList();
+			monitor.beginTask("Build " + p.getName(), 1000*index_l.size());
+			
+			for (ISVDBIndex i : index_l) {
+				monitor.subTask("Build " + i.getBaseLocation());
+				ISVDBIndexChangePlan plan = i.createIndexChangePlan(changes);
+				
+				i.execIndexChangePlan(new SubProgressMonitor(monitor, 1000), plan);
+			}
+			
+			monitor.done();
 		}
 	}
 	

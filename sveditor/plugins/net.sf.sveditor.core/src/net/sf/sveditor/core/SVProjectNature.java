@@ -47,7 +47,7 @@ public class SVProjectNature implements IProjectNature {
 	 * @param p
 	 */
 	public static void ensureHasSvProjectNature(IProject p) {
-		
+
 		try {
 			IProjectDescription d = p.getDescription();
 			String natures[] = d.getNatureIds();

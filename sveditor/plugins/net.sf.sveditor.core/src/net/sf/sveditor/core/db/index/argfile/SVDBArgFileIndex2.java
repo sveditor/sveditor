@@ -237,7 +237,7 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public void execIndexChangePlan(IProgressMonitor monitor, ISVDBIndexChangePlan plan) {
-		
+	
 		switch (plan.getType()) {
 			case Refresh: {
 				refresh_index(monitor);

@@ -1113,5 +1113,13 @@ endclass
             label="SystemVerilog Engine">
       </engine>
    </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/vlog_16_16.gif"
+            id="net.sf.sveditor.ui.SVProjectNatureImage"
+            natureId="net.sf.sveditor.core.SVNature">
+      </image>
+   </extension>
 
 </plugin>

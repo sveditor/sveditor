@@ -146,7 +146,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.UndefinedMacro, msg);
-			marker.setLocation(new SVDBLocation(fFileMapper.mapFilePathToId(filename, false), lineno, 0));
+			int file_id = -1;
+			if (fFileMapper != null) {
+				file_id = fFileMapper.mapFilePathToId(filename, false);
+			}
+			
+			marker.setLocation(new SVDBLocation(file_id, lineno, 0));
 			fMarkers.add(marker);
 		}
 	}
@@ -528,7 +533,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.ParseError, msg);
-			marker.setLocation(new SVDBLocation(fFileMapper.mapFilePathToId(filename, false), lineno, linepos));
+			int file_id = -1;
+			if (fFileMapper != null) {
+				file_id = fFileMapper.mapFilePathToId(filename, false);
+			}
+			marker.setLocation(new SVDBLocation(file_id, lineno, linepos));
 			fMarkers.add(marker);
 		}
 	}
@@ -574,7 +583,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		fInput = preproc.preprocess();
 		
 		fLog.debug("File Input: " + filename);
-		fLog.debug(fInput.toString());
+//		fLog.debug(fInput.toString());
 		
 		fLexer = new SVLexer(fLanguageLevel);
 		fLexer.init(this, fInput);
