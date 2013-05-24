@@ -121,6 +121,28 @@ public class TestIncrementalIndex extends SVCoreTestCaseBase {
 		index.execIndexChangePlan(new NullProgressMonitor(), plan);
 	}
 	
+	public void testTearDownRebuild() {
+		String project_path = "${workspace_loc}/" + getName() + "/simple_project1";
+		
+		ISVDBIndex index = setupProject(
+				"/data/index_file_change/simple_project1",
+				project_path + "/simple_project1.f");
+		
+		// Now, tell the index that pkg1.sv changed, and check the plan
+		List<SVDBIndexResourceChangeEvent> changes = new ArrayList<SVDBIndexResourceChangeEvent>();
+		changes.add(new SVDBIndexResourceChangeEvent(Type.CHANGE, project_path + "/pkg1.sv"));
+		
+		ISVDBIndexChangePlan plan;
+		
+		plan = index.createIndexChangePlan(null);
+		System.out.println("plan=" + plan);
+		
+		plan = index.createIndexChangePlan(changes);
+		System.out.println("plan=" + plan);
+		
+		index.execIndexChangePlan(new NullProgressMonitor(), plan);
+	}	
+	
 	private ISVDBIndex setupProject(
 			String			data_dir,
 			String			argfile) {
@@ -146,4 +168,5 @@ public class TestIncrementalIndex extends SVCoreTestCaseBase {
 		
 		return index;
 	}
+	
 }

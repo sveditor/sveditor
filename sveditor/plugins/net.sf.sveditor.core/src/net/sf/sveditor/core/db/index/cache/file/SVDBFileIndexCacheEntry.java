@@ -178,6 +178,8 @@ public class SVDBFileIndexCacheEntry {
 		fSVDBFileRef = null;
 		fSVDBFileTreeRef = null;
 		fSVDBPreProcFileRef = null;
+		fMarkersRef = null;
+		
 		// Assume nothing loaded until entry is brought back into the cache
 		fLoadedMask = 0;
 		fCached = false;
@@ -205,6 +207,12 @@ public class SVDBFileIndexCacheEntry {
 			fSVDBPreProcFileRef = fSVDBPreProcFile.get();
 			if (fSVDBPreProcFileRef != null) {
 				fLoadedMask |= SVDB_PREPROC_FILE_MASK;
+			}
+		}
+		if (fMarkers != null) {
+			fMarkersRef = fMarkers.get();
+			if (fMarkersRef != null) {
+				fLoadedMask |= MARKERS_MASK;
 			}
 		}
 		
@@ -298,9 +306,9 @@ public class SVDBFileIndexCacheEntry {
 	
 	@SuppressWarnings("unchecked")
 	public void setMarkersRef(List<SVDBMarker> markers) {
-		fMarkersRef = markers;
-		fMarkers = (Reference<List<SVDBMarker>>)createRef(markers);
 		fDirtyMask |= MARKERS_MASK;
+		fMarkers = (Reference<List<SVDBMarker>>)createRef(markers);
+		fMarkersRef = markers;
 	}
 
 	@SuppressWarnings("unchecked")

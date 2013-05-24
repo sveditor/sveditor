@@ -347,19 +347,23 @@ public class SVDBArgFileIndex2 implements
 		// Rebuild the index
 		buildIndex(new SubProgressMonitor(monitor, 9750), build_data);
 		
-		// Apply the newly-built result
-		synchronized (fBuildData) {
-			fBuildData.apply(build_data);
-		}
-		
-		// Notify clients that the index has new data
-		synchronized (fIndexChangeListeners) {
-			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-				l.index_rebuilt();
+		if (!monitor.isCanceled()) {
+			// Apply the newly-built result
+			synchronized (fBuildData) {
+				fBuildData.apply(build_data);
 			}
+			
+			// Notify clients that the index has new data
+			synchronized (fIndexChangeListeners) {
+				for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
+					l.index_rebuilt();
+				}
+			}
+			
+			fIndexValid = true;
+		} else {
+			build_data.dispose();
 		}
-		
-		fIndexValid = true;
 	
 		monitor.done();
 	}
@@ -2468,31 +2472,39 @@ public class SVDBArgFileIndex2 implements
 	private void buildIndex(
 			IProgressMonitor 				monitor,
 			SVDBArgFileIndexBuildData		build_data) {
-		long start_time, end_time;
+		long start_time=-1, end_time=-1;
 		int total_work = 10000;
 		int per_file_work = 0;
 		
 		monitor.beginTask("Build Index", total_work);
 
 		// First, parse the argument files
-		start_time = System.currentTimeMillis();
-//		System.out.println("--> discoverRootFiles");
+		if (fDebugEn) {
+			start_time = System.currentTimeMillis();
+		}
 		discoverRootFiles(new SubProgressMonitor(monitor, 100), build_data);
-		end_time = System.currentTimeMillis();
-//		System.out.println("<-- discoverRootFiles " + (end_time-start_time));
+		if (fDebugEn) {
+			end_time = System.currentTimeMillis();
+		}
 
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation()
 					+ ": Parse argument files -- " + (end_time - start_time)
 					+ "ms");
 		}
+		
+		if (monitor.isCanceled()) {
+			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation() + " cancelled");
+			return;
+		}
 
 		// Next, parse each of the discovered file paths
 		List<String> paths = build_data.fIndexCacheData.fRootFileList;
 		Map<String, SVDBMacroDef> defines = new HashMap<String, SVDBMacroDef>();
 
-//		System.out.println("--> parseFiles");
-		start_time = System.currentTimeMillis();
+		if (fDebugEn) {
+			start_time = System.currentTimeMillis();
+		}
 	
 		if (paths.size() > 0) {
 			per_file_work = (total_work / paths.size());
@@ -2524,15 +2536,18 @@ public class SVDBArgFileIndex2 implements
 			String path = paths.get(i);
 			
 			if (fDebugEn) {
-				fLog.debug("Path: " + path);
+				fLog.debug(LEVEL_MID, "Path: " + path);
 			}
-			
-			long start_time_1 = System.currentTimeMillis();
 			
 			if (fFileSystemProvider.fileExists(path)) {
 				monitor.subTask("Parse " + path);
 				
 				Map<String, SVDBMacroDef> new_defines = parseFile(path, build_data, defines);
+				
+				if (monitor.isCanceled()) {
+					fLog.debug(LEVEL_MIN, "Index " + getBaseLocation() + " cancelled");
+					return;
+				}
 				
 				if (build_data.isMFCU()) {
 					// Accumulate the new defines
@@ -2540,11 +2555,12 @@ public class SVDBArgFileIndex2 implements
 				}
 
 				monitor.worked(per_file_work);
-				long end_time_1 = System.currentTimeMillis();
-//				System.out.println("Full Parse: " + path + " " + (end_time_1-start_time_1));
 			}
 		}
-		end_time = System.currentTimeMillis();
+		
+		if (fDebugEn) {
+			end_time = System.currentTimeMillis();
+		}
 	
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation()

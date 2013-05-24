@@ -37,6 +37,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private List<IDBWriter>							fPersistenceWriterSet;
 
 	private List<SVDBFileIndexCache>				fIndexList;
+	private int										fIndexId;
 
 	// File ID for the file containing index data
 	private int										fIndexDataId;
@@ -90,9 +91,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 	
 	private void write_state(SVDBFileSystemDataOutput dat) throws IOException, DBWriteException {
-//		System.out.println("--> write_state");
-
-		
 		// Write back the number of indexes
 		dat.writeInt(fIndexList.size());
 		
@@ -125,7 +123,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			entry = entry.getNext();
 			n_uncached++;
 		}
-	
+		
 //		System.out.println("<-- write_state n_cached=" + n_cached + " n_uncached=" + n_uncached + " " + 
 //				(n_cached+n_uncached));
 	}
@@ -216,25 +214,28 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			String 			project_name,
 			String 			base_location) {
 		SVDBFileIndexCache ret;
+		boolean found_id = false;
 
-		int id = -1;
-		for (int i=0; i<fIndexList.size(); i++) {
-			if (fIndexList.get(i) == null) {
-				id = i;
-				break;
+		int id = ((fIndexId+1) & 0xFFFFFF);
+		
+		while (!found_id) {
+			found_id = true;
+			
+			for (int i=0; i<fIndexList.size(); i++) {
+				if (fIndexList.get(i).getCacheId() == id) {
+					found_id = false;
+					break;
+				}
+			}
+			
+			if (!found_id) {
+				id = ((id+1) & 0xFFFFFF);
 			}
 		}
 
-		if (id == -1) {
-			ret = new SVDBFileIndexCache(this, 
-					fIndexList.size(), project_name, base_location);
-			fIndexList.add(ret);
-		} else {
-			ret = new SVDBFileIndexCache(this, id,
-					project_name, base_location);
-			fIndexList.set(id, ret);
-		}
-
+		ret = new SVDBFileIndexCache(this, id, project_name, base_location);
+		fIndexList.add(ret);
+		
 		return ret;
 	}
 

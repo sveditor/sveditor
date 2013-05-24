@@ -28,8 +28,15 @@ public class SVDBFileSystem implements ILogLevelListener {
 	
 	private List<RandomAccessFile>		fFileRWList;
 	private int							fLastRwBlkLen;
-	private List<Integer>				fFileList;
+	
+	private class FileInfo {
+		public int					fFileId;
+		public List<Integer>		fBlockIdList = new ArrayList<Integer>();
+	}
+
+	private List<FileInfo>				fFileList;
 	private boolean						fTrackFiles = false;
+	private int							fFileInfoHndl;
 	
 	public SVDBFileSystem(File db_dir, String version) {
 		fDBDir = db_dir;
@@ -40,7 +47,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		fLog.addLogLevelListener(this);
 		
 		fFileRWList = new ArrayList<RandomAccessFile>();
-		fFileList = new ArrayList<Integer>();
+		fFileList = new ArrayList<SVDBFileSystem.FileInfo>();
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
@@ -110,6 +117,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		fAllocListFile = -1;
 		fFirstEmptyIdx = 0;
 		fLastRwBlkLen = 0;
+		fFileInfoHndl = -1;
 	}
 	
 	private boolean open_filesystem(File f) throws IOException {
@@ -135,6 +143,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 		 * - Block length of the last file
 		 * - Handle to the alloc list
 		 * - Alloc list length
+		 * - Handle to the file-info list
+		 * - File-info list length
 		 * - user data length
 		 * - user data
 		 */
@@ -150,18 +160,27 @@ public class SVDBFileSystem implements ILogLevelListener {
 			fLastRwBlkLen  = in.readInt();
 			fAllocListFile = in.readInt();
 			int alloc_list_len = in.readInt();
-			
-			// Read back the file list;
-			if (fTrackFiles) {
-				fFileList.clear();
-				int file_list_size = in.readInt();
-				for (int i=0; i<file_list_size; i++) {
-					fFileList.add(in.readInt());
-				}
 
-				for (int i=0; i<fFileList.size(); i++) {
-					System.out.println("READ: file[" + i + "] " + fFileList.get(i));
+			// Read back the file list;
+			fFileInfoHndl = in.readInt();
+			int file_list_size = in.readInt();
+
+			if (fTrackFiles) {
+				fTrackFiles = false;
+				SVDBFileSystemDataInput file_info_in = readFile("fileInfo", fFileInfoHndl);
+				fTrackFiles = true;
+				
+				fFileList.clear();
+				for (int i=0; i<file_list_size; i++) {
+					FileInfo info = new FileInfo();
+					info.fFileId = file_info_in.readInt();
+					int n_blocks = file_info_in.readInt();
+					for (int j=0; j<n_blocks; j++) {
+						info.fBlockIdList.add(file_info_in.readInt());
+					}
+					fFileList.add(info);
 				}
+			
 			}
 			
 			int ud_len = in.readInt();
@@ -178,11 +197,31 @@ public class SVDBFileSystem implements ILogLevelListener {
 				rw = new RandomAccessFile(f, "rw");
 				fFileRWList.add(rw);
 			}
-
+			
 			// Now we can read in the alloc list and initialize the AllocList
+			boolean track_files = fTrackFiles;
+			fTrackFiles = false;
 			SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
+			fTrackFiles = track_files;
 			fAllocList = new byte[alloc_list_len];
 			alloc_in.readFully(fAllocList);
+			
+			if (fTrackFiles) {
+				for (int i=0; i<fAllocList.length; i++) {
+					if ((i % 16) == 0) {
+						if (i != 0) {
+							System.out.println();
+						}
+						System.out.print("" + i + ": ");
+					}
+					System.out.print(Integer.toHexString(fAllocList[i]) + " ");
+				}
+				System.out.println();
+				
+				System.out.println("--> Validate Initial Load alloc_list_len=" + alloc_list_len);
+				removeFileInfo(null);
+				System.out.println("<-- Validate Initial Load");
+			}
 		}
 		
 		return ret;
@@ -245,17 +284,31 @@ public class SVDBFileSystem implements ILogLevelListener {
 	}
 
 	public synchronized void sync() throws IOException {
-		SVDBFileSystemDataOutput alloc_out = new SVDBFileSystemDataOutput();
 		// Create and save the root block
 		SVDBFileSystemDataOutput out = new SVDBFileSystemDataOutput();
-		
-		// If we already have an alloc file, delete it
-		if (fAllocListFile != -1) {
-			deleteFile("allocList", fAllocListFile);
+
+		if (fTrackFiles && fFileInfoHndl != -1) {
+			fTrackFiles = false;
+			deleteFile("fileInfo",  fFileInfoHndl);
+			fTrackFiles = true;
 		}
+
+		// Write back the list of files
+		if (fTrackFiles) {
+			SVDBFileSystemDataOutput file_info_out = new SVDBFileSystemDataOutput();
+			for (FileInfo info : fFileList) {
+				file_info_out.writeInt(info.fFileId);
+				file_info_out.writeInt(info.fBlockIdList.size());
+				for (int j=0; j<info.fBlockIdList.size(); j++) {
+					file_info_out.writeInt(info.fBlockIdList.get(j));
+				}
+			}
 		
-		alloc_out.write(fAllocList);
-		fAllocListFile = writeFile("allocList", alloc_out);
+			// Need to ensure this doesn't end up in the info list
+			fTrackFiles = false;
+			fFileInfoHndl = writeFile("fileInfo", file_info_out);
+			fTrackFiles = true;
+		}
 		
 		/**
 		 * Root block is:
@@ -265,6 +318,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 		 * - Block length of the last file
 		 * - Handle to the alloc list
 		 * - Alloc list length
+		 * - Handle to the file info file
+		 * - Length of the file info list
 		 * - user data length
 		 * - user data
 		 */
@@ -272,19 +327,19 @@ public class SVDBFileSystem implements ILogLevelListener {
 		
 		out.writeInt(fFileRWList.size());
 		out.writeInt(fLastRwBlkLen);
+		
+		// Write back the allocation table
+		writeAllocList();
 		out.writeInt(fAllocListFile);
 		out.writeInt(fAllocList.length);
 		
-		// Write back the list of files
 		if (fTrackFiles) {
+			out.writeInt(fFileInfoHndl);
 			out.writeInt(fFileList.size());
-			for (int i=0; i<fFileList.size(); i++) {
-				out.writeInt(fFileList.get(i));
-			}
-
-			for (int i=0; i<fFileList.size(); i++) {
-				System.out.println("WRITE: file[" + i + "] " + fFileList.get(i));
-			}
+		} else {
+			// Not tracking files
+			out.writeInt(-1);
+			out.writeInt(0);
 		}
 		
 		if (fUserData != null) {
@@ -293,6 +348,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		} else {
 			out.writeInt(-1);
 		}
+	
 
 		// Write back the root block
 		writeBlock("rootFile", 0, out.getPage(0));
@@ -309,6 +365,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	public synchronized SVDBFileSystemDataInput readFile(String path, int id) throws IOException {
 		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
 		byte tmp[] = new byte[BLK_SIZE];
+		FileInfo info = null;
 		
 		// Read root block
 		readBlock(path, id, tmp);
@@ -317,9 +374,34 @@ public class SVDBFileSystem implements ILogLevelListener {
 		int length  = ret.readInt(); // Total length of the file
 		int nblocks = ret.readInt(); // Number of non-root blocks
 		
+		if (fTrackFiles) {
+			info = findFileInfo(id);
+			
+			if (info == null) {
+				System.out.println("readFile: failed to find id=" + id + " " + path);
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if (info != null && nblocks != info.fBlockIdList.size()) {
+				System.out.println("readFile: block count wrong for " + id + " " + path + 
+						" nblocks=" + nblocks + " actual=" + info.fBlockIdList.size());
+			}
+		}
+		
 		// Read in the remaining root and storage blocks
 		for (int i=0; i<nblocks; i++) {
 			int block_id = ret.readInt();
+			
+			if (fTrackFiles && info != null) {
+				if (block_id != info.fBlockIdList.get(i)) {
+					System.out.println("readFile: block id " + i + " wrong for " + id + " " + path + 
+							" block_id=" + block_id + " actual=" + info.fBlockIdList.get(i));
+				}
+			}
 			tmp = new byte[BLK_SIZE];
 			readBlock(path, block_id, tmp);
 			ret.addPage(tmp);
@@ -334,21 +416,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	}
 	
 	public synchronized int writeFile(String path, SVDBFileSystemDataOutput data) throws IOException {
-		
-		// First, compress data
-		/*
-		ByteArrayOutputStream data_zip = new ByteArrayOutputStream();
-		GZIPOutputStream zip_out = new GZIPOutputStream(data_zip);
-		
-		for (int i=0; i<data.getPages().size(); i++) {
-			byte page[] = data.getPage(i);
-			zip_out.write(page);
-		}
-		zip_out.close();
-	
-		byte data_z[] = data_zip.toByteArray();
-		int length = data_z.length;
-		 */
+		FileInfo info = null;
 		int length = data.getLength();
 		
 		// Determine how many total blocks we need
@@ -372,6 +440,10 @@ public class SVDBFileSystem implements ILogLevelListener {
 				reqd_blocks++;
 			}
 			remaining_size -= BLK_SIZE;
+		}
+		
+		if (fTrackFiles) {
+			info = new FileInfo();
 		}
 		
 		int blocks[] = new int[reqd_blocks];
@@ -420,22 +492,21 @@ public class SVDBFileSystem implements ILogLevelListener {
 				blocks_idx++;
 			}
 		}
-		/**
-		for (int i=0; i<length; i++) {
-			block[idx] = data_z[i];
-			idx++;
-			
-			if (idx >= BLK_SIZE || i+1 >= length) {
-				// reset the block
-				writeBlock(path, blocks[blocks_idx], block);
-				idx = 0;
-				blocks_idx++;
-			}
-		}
-		 */
 	
 		if (fTrackFiles) {
-			fFileList.add(blocks[0]);
+			for (int i=0; i<blocks.length; i++) {
+				if (fTrackFiles) {
+					if (i==0) {
+						info.fFileId = blocks[i];
+					} else {
+						info.fBlockIdList.add(blocks[i]);
+					}
+				}
+			}
+			
+			validateBlocksUnique(info);
+			
+			fFileList.add(info);
 		}
 		
 		return blocks[0];
@@ -457,6 +528,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	}
 
 	public synchronized void deleteFile(String path, int id) throws IOException {
+		FileInfo info = null;
 		SVDBFileSystemDataInput ret = new SVDBFileSystemDataInput();
 		byte tmp[] = new byte[BLK_SIZE];
 		
@@ -465,13 +537,13 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	
 		if (fTrackFiles) {
-			int file_list_idx = fFileList.indexOf(id);
-
-			if (file_list_idx < 0) {
-				throw new IOException("deleteFile: " + path + " " + id + " is not in the file list");
-			}
+			info = findFileInfo(id);
 			
-			fFileList.remove(file_list_idx);
+			if (info == null) {
+				System.out.println("deleteFile: failed to find " + id + " " + path);
+			}
+		
+			removeFileInfo(info);
 		}
 	
 		// Read root block
@@ -483,13 +555,28 @@ public class SVDBFileSystem implements ILogLevelListener {
 		if (nblocks < 0) {
 			
 		}
-		int blocks[] = new int[nblocks+1];
-		blocks[0] = id;
 		int blocks_to_read = computeRootBlockCount(nblocks);
+		
+		if (fTrackFiles && info != null) {
+			if (nblocks != info.fBlockIdList.size()) {
+				System.out.println("deleteFile: mismatch in blocks for " + id + 
+						" " + path + " nblocks=" + nblocks + " actual=" +
+						info.fBlockIdList.size());
+			}
+		}
 		
 		// Read in the remaining block ids and free them
 		for (int i=0; i<nblocks; i++) {
 			int block_id = ret.readInt();
+			
+			if (fTrackFiles && info != null) {
+				if (block_id != info.fBlockIdList.get(i)) {
+					System.out.println("deleteFile: block " + i + " mismatch " +
+							"block_id=" + block_id + " actual=" +
+							info.fBlockIdList.get(i));
+				}
+			}
+			
 			if (i < blocks_to_read) {
 				tmp = new byte[BLK_SIZE];
 				readBlock(path, block_id, tmp);
@@ -499,6 +586,165 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}		
 		
 		freeBlock(id);
+	}
+
+	/**
+	 * writeAllocList
+	 * 
+	 * Writing the allocation table back is a bit tricky, since it 
+	 * involves simultaneously allocating new blocks and writing
+	 * the allocation table
+	 */
+	private int writeAllocList() throws IOException {
+		// If we already have an alloc file, delete it
+		if (fAllocListFile != -1) {
+			boolean track_files = fTrackFiles;
+			fTrackFiles = false;
+			deleteFile("allocList", fAllocListFile);
+			fTrackFiles = track_files;
+		}
+		
+		// Ask for enough space such that we could fully 
+		// allocate the full new space
+		int length = fAllocList.length+(fAllocList.length/8)+2;
+		
+		// Determine how many total blocks we need
+		int avail_rootblock_bytes = 
+				BLK_SIZE - 
+				(
+						4 + // file length
+						4 + // additional-storage blocks
+						0
+				)
+				;
+		int reqd_blocks = 1;
+		int remaining_size = length;
+
+		while (remaining_size > avail_rootblock_bytes) {
+			reqd_blocks++;
+			avail_rootblock_bytes -= 4;
+			if (avail_rootblock_bytes <= 0) {
+				avail_rootblock_bytes = BLK_SIZE;
+				// Need an additional root block
+				reqd_blocks++;
+			}
+			remaining_size -= BLK_SIZE;
+		}
+		
+		int blocks[] = new int[reqd_blocks+1];
+		
+		for (int i=0; i<blocks.length; i++) {
+			blocks[i] = allocBlock();
+		}
+		
+		if (fTrackFiles) {
+			for (int i=0; i<fAllocList.length; i++) {
+				if ((i % 16) == 0) {
+					if (i != 0) {
+						System.out.println();
+					}
+					System.out.print("" + i + ": ");
+				}
+				System.out.print(Integer.toHexString(fAllocList[i]) + " ");
+			}
+			System.out.println();
+		}
+	
+		int blocks_idx = 0;
+		byte block[] = new byte[BLK_SIZE];
+		int idx = 0;
+		
+		idx = write32(idx, block, fAllocList.length);
+		idx = write32(idx, block, (reqd_blocks));
+
+		for (int i=1; i<blocks.length; i++) {
+			idx = write32(idx, block, blocks[i]);
+			
+			if (idx >= BLK_SIZE) {
+				// write back the block and move on to the next
+				writeBlock("alloc file", blocks[blocks_idx], block);
+				blocks_idx++;
+				idx = 0;
+			}
+		}
+		
+//		System.out.println("writeAllocList: fAllocList.length=" + fAllocList.length + " blocks.length=" + blocks.length + " idx=" + idx);
+		
+		for (int i=0; i<fAllocList.length; i++) {
+			block[idx] = fAllocList[i];
+			idx++;
+		
+			if (idx >= BLK_SIZE || i+1 >= fAllocList.length) {
+				if (blocks_idx >= blocks.length) {
+					System.out.println("blocks_idx=" + blocks_idx + " blocks.length=" + blocks.length + " i=" + i + " length=" + fAllocList.length);
+				}
+				writeBlock("alloc file", blocks[blocks_idx], block);
+				idx = 0;
+				// Zero out the block
+				for (int j=0; j<BLK_SIZE; j++) {
+					block[j] = 0;
+				}
+				blocks_idx++;
+			}
+		}
+		
+		fAllocListFile = blocks[0];
+
+		return fAllocList.length;
+	}
+	
+	private FileInfo findFileInfo(int id) {
+		for (FileInfo info : fFileList) {
+			if (info.fFileId == id) {
+				return info;
+			}
+		}
+		return null;
+	}
+	
+	private void validateBlocksUnique(FileInfo info) {
+		boolean err = false;
+		for (FileInfo i : fFileList) {
+			if (info.fFileId == i.fFileId ||
+					i.fBlockIdList.contains(info.fFileId)) {
+				System.out.println("validateBlocksUnique: id=" + info.fFileId + " already in use");
+				err = true;
+			}
+			
+			for (int block_id : info.fBlockIdList) {
+				if (block_id == i.fFileId ||
+						i.fBlockIdList.contains(block_id)) {
+					System.out.println("validateBlocksUnique: id=" + info.fFileId + " already in use");
+					err = true;
+				}
+			}
+		}
+		
+		if (err) {
+			try {
+				throw new Exception();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void removeFileInfo(FileInfo info) {
+		for (FileInfo i : fFileList) {
+			if (!blockAllocated(i.fFileId)) {
+				System.out.println("removeFileInfo: block " + i.fFileId + " marked as free");
+			}
+			
+			for (int block_id : i.fBlockIdList) {
+				if (!blockAllocated(block_id)) {
+					System.out.println("removeFileInfo: block " + block_id + " marked as free");
+				}
+			}
+		}
+		
+		if (info != null) {
+			fFileList.remove(info);
+		}
 	}
 	
 	/**
@@ -585,6 +831,9 @@ public class SVDBFileSystem implements ILogLevelListener {
 				int mask = (int)fAllocList[i];
 				for (int j=0; j<8; j++) {
 					if ((mask & (1 << j)) == 0) {
+						if (blockAllocated(blk_id)) {
+							System.out.println("allocBlock(1): blk_id " + blk_id + " already allocated");
+						}
 						fAllocList[i] |= (1 << j);
 						break;
 					}
@@ -604,8 +853,16 @@ public class SVDBFileSystem implements ILogLevelListener {
 				fAllocList[i] = tmp[i];
 			}
 			
-			fAllocList[fFirstEmptyIdx] |= 1;
 			blk_id = 8*fFirstEmptyIdx;
+			if (blockAllocated(blk_id)) {
+				System.out.println("allocBlock(2): blk_id " + blk_id + " already allocated");
+			}
+			
+			fAllocList[fFirstEmptyIdx] |= 1;
+		}
+		
+		if (!blockAllocated(blk_id)) {
+			System.out.println("allocBlock: blk_id " + blk_id + " not actually allocated");
 		}
 		
 		return blk_id;
@@ -622,6 +879,12 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 		int mask = ~(1 << (id & 7));
 		fAllocList[alloc_idx] &= mask;
+	}
+	
+	private synchronized boolean blockAllocated(int id) {
+		int alloc_idx = (id/8);
+		int mask = (1 << (id & 7));
+		return ((fAllocList[alloc_idx] & mask) != 0);
 	}
 
 }

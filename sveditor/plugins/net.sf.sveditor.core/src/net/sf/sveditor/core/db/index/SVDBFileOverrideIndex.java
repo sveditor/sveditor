@@ -102,6 +102,7 @@ public class SVDBFileOverrideIndex
 
 		// First, remove any results from this file
 		for (int i=0; i<ret.size(); i++) {
+			/*
 			if (ret.get(i) == null) {
 				System.out.println("Element " + i + " is null");
 			}
@@ -118,7 +119,8 @@ public class SVDBFileOverrideIndex
 			if (fFile.getFilePath() == null) {
 				System.out.println("getFilePath == null");
 			}
-			String filepath = ret.get(i).getFile().getFilePath();
+			 */
+			String filepath = ret.get(i).getFilename();
 			String filepath_f = fFile.getFilePath();
 			if (filepath != null && filepath.equals(filepath_f)) {
 				fLog.debug(LEVEL_MID, "Remove item \"" + ret.get(i).getName() + "\" because from active file");

@@ -49,9 +49,21 @@ public class SVDBArgFileIndexBuildData implements
 		fCacheMgr = build_data.fCacheMgr;
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
+	
+		// We've transferred the cache to this build data
+		build_data.fCache = null;
 
 		// Free the entries in the old cache
 		old_cache.dispose();
+	}
+
+	/**
+	 * Clean up after this data. This is typically 
+	 */
+	void dispose() {
+		if (fCache != null) {
+			fCache.dispose();
+		}
 	}
 
 	/**
