@@ -58,7 +58,7 @@ public class ObjectsTests extends SVCoreTestCaseBase {
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
+//		rgy.init(fCacheFactory);
 		
 		// Projec p1
 		
