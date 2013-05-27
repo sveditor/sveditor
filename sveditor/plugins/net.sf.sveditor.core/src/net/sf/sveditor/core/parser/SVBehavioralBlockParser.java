@@ -531,7 +531,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 
 		// If an assignment
-		if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
+		if (fLexer.peekOperator(SVOperators.fAssignmentOps)) {
 			String op = fLexer.eatToken();
 			SVDBAssignStmt assign_stmt = new SVDBAssignStmt();
 			assign_stmt.setLocation(start);

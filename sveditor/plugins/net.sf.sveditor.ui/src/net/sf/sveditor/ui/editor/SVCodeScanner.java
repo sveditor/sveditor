@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.parser.SVOperators;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -184,11 +185,8 @@ public class SVCodeScanner extends RuleBasedScanner {
 		}, default_t);
 
 		// Operators
-		for (String kw :SVKeywords.fAssignmentOps) {
-			wordRule_ops.addWord(kw, ops);
-		}
-		for (String kw :SVKeywords.fBinaryOps) {
-			wordRule_ops.addWord(kw, ops);
+		for (String op :SVOperators.AllOperators) {
+			wordRule_ops.addWord(op, ops);
 		}
 
 		rules.add (wordRule_ops);

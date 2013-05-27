@@ -1,6 +1,10 @@
 
 -- 1.2.8 Release --
 
+- #(260) - Correct an issue that caused certain operators to not be correctly
+  colored in the editor. Due to history, operator lists were stored in different
+  places in the code. Now, all operators are listed in the SVOperators class.
+  
 ------------------------------------------------------------------------------
 -- 1.2.7 Release --
 

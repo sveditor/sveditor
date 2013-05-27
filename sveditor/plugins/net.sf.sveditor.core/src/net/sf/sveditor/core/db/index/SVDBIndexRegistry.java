@@ -184,7 +184,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		index.dispose();
 	
 		// Clear out data from the cache
-		cache.clear(new NullProgressMonitor());
+		cache.dispose();
 	}
 	
 	public SVDBIndexCollection getGlobalIndexMgr() {

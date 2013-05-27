@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLexer;
+import net.sf.sveditor.core.parser.SVOperators;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
@@ -55,7 +56,7 @@ public class SVObfuscator {
 			new HashSet<String>()
 		};
 
-		for (String op : SVLexer.AllOperators) {
+		for (String op : SVOperators.AllOperators) {
 			if (op.length() == 3) {
 				fSeqPrefixes[1].add(op.substring(0,2));
 				fSeqPrefixes[2].add(op.substring(0,3));

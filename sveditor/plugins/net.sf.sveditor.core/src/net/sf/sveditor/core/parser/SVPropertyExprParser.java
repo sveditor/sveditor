@@ -62,7 +62,7 @@ public class SVPropertyExprParser extends SVParserBase {
 		BinaryOp.add("|=>");
 		BinaryOp.add("#-#");
 		BinaryOp.add("#-#");
-		for (String op : SVLexer.RelationalOps) {
+		for (String op : SVOperators.RelationalOps) {
 			BinaryOp.add(op);
 		}
 	}

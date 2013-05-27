@@ -655,7 +655,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> assignmentExpression()");}
 		SVDBExpr a = conditionalExpression();
 		
-		if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
+		if (fLexer.peekOperator(SVOperators.fAssignmentOps)) {
 			String op = fLexer.readOperator();
 			SVDBExpr rhs = assignmentExpression();
 			a = new SVDBAssignExpr(a, op, rhs);
@@ -672,7 +672,7 @@ public class SVExprParser extends SVParserBase {
 			
 			a = inside;
 			
-			if (fLexer.peekOperator(SVKeywords.fBinaryOps)) {
+			if (fLexer.peekOperator(SVOperators.fBinaryOps)) {
 				a = new SVDBBinaryExpr(a, fLexer.eatToken(), expression());
 			}
 		}
