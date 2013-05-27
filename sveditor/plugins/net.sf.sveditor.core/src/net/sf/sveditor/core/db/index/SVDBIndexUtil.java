@@ -80,14 +80,14 @@ public class SVDBIndexUtil {
 				continue;
 			}
 			SVDBProjectData pdata = p_mgr.getProjectData(p);
-			List<SVDBSearchResult<SVDBFile>> result = pdata.getProjectIndexMgr().findPreProcFile(path, false);
+			List<ISVDBIndex> result = pdata.getProjectIndexMgr().findManagingIndex(path);
 			if (result.size() > 0) {
-				index = result.get(0).getIndex();
+				index = result.get(0);
 				fLog.debug("File \"" + path + "\" is in index " + 
 						index.getBaseLocation() + " in project " + pdata.getName());
 				index_mgr = pdata.getProjectIndexMgr();
 				break;
-			} else if (path.startsWith("${workspace_loc}")) {
+			} /* else if (path.startsWith("${workspace_loc}")) {
 				// Try searching with the filesystem path in case the user
 				// has specified the index in terms of the filesystem
 				String ws_path = path.substring("${workspace_loc}".length());
@@ -104,7 +104,7 @@ public class SVDBIndexUtil {
 						break;
 					}
 				}
-			}
+			} */
 		}
 		
 		if (index == null) {

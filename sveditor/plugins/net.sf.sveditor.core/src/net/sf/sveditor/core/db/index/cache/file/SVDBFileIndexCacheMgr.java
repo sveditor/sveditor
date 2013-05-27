@@ -694,14 +694,16 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private synchronized void readBackEntry(SVDBFileIndexCacheEntry entry, int mask) {
 		// TODO:
 		mask = SVDBFileIndexCacheEntry.ALL_MASK;
-		long start = System.currentTimeMillis();
 		
 		if (entry.getSVDBFileId() != -1 && (mask & SVDBFileIndexCacheEntry.SVDB_FILE_MASK) != 0) {
 			if (entry.getSVDBFileRef() != null) {
 				// Just reset the reference
 				entry.setSVDBFileRef(entry.getSVDBFileRef());
 			} else {
+//				long start = System.currentTimeMillis();
 				readBackSVDBFile(entry);
+//				long end = System.currentTimeMillis();
+//				System.out.println("readBackSVDBFile: " + entry.getPath() + " " + (end-start) + "ms");
 			}
 		}
 	
@@ -710,7 +712,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 				// Just reset the reference
 				entry.setSVDBPreProcFileRef(entry.getSVDBPreProcFileRef());
 			} else {
+//				long start = System.currentTimeMillis();
 				readBackSVDBPreProcFile(entry);
+//				long end = System.currentTimeMillis();
+//				System.out.println("readBackSVDBPreProcFile: " + entry.getPath() + " " + (end-start) + "ms");
 			}
 		}
 		
@@ -718,7 +723,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			if (entry.getSVDBFileTreeRef() != null) {
 				entry.setSVDBFileTreeRef(entry.getSVDBFileTreeRef());
 			} else {
+//				long start = System.currentTimeMillis();
 				readBackSVDBFileTree(entry);
+//				long end = System.currentTimeMillis();
+//				System.out.println("readBackSVDBFileTree: " + entry.getPath() + " " + (end-start) + "ms");
 			}
 		}
 		
@@ -830,10 +838,48 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			IDBWriter writer = allocWriter();
 			SVDBFileTree file = entry.getSVDBFileTreeRef();
 			SVDBFileSystemDataOutput data_out = new SVDBFileSystemDataOutput();
+			/*
+			ByteArrayOutputStream byte_out = new ByteArrayOutputStream();
+			GZIPOutputStream zip_out = new GZIPOutputStream(byte_out);
+			writer.init(new DataOutputStream(zip_out));
+			 */
 			writer.init(data_out);
 			writer.writeObject(SVDBFileTree.class, file);
+	
+			/*
+			zip_out.flush();
+			data_out.write(byte_out.toByteArray());
+			 */
 			
-//			System.out.println("writeSVDBFileTree: " + entry.getPath() + " " + data_out.getLength());
+			/*
+			System.out.println("writeSVDBFileTree: " + entry.getPath() + " " + data_out.getLength());
+			{
+				ByteArrayOutputStream bos;
+				
+				bos = new ByteArrayOutputStream();
+				writer.init(new DataOutputStream(bos));
+				if (file.fSVDBFile != null) {
+					writer.writeObject(SVDBFile.class, file.fSVDBFile);
+				}
+				System.out.println("  fSVDBFile: " + bos.toByteArray().length);
+				
+				if (file.fSVDBFile != null) {
+					for (ISVDBChildItem it : file.fSVDBFile.getChildren()) {
+						System.out.println("    it: " + SVDBItem.getName(it));
+					}
+				}
+
+				bos = new ByteArrayOutputStream();
+				writer.init(new DataOutputStream(bos));
+				writer.writeItemList(file.fIncludedFileTrees);
+				System.out.println("  fIncludedFileTrees: " + bos.toByteArray().length);
+				
+				bos = new ByteArrayOutputStream();
+				writer.init(new DataOutputStream(bos));
+				writer.writeObject(file.fReferencedMacros.getClass(), file.fReferencedMacros);
+				System.out.println("  fReferencedMacros: " + bos.toByteArray().length);
+			}
+			 */
 			
 			int file_id = fFileSystem.writeFile(entry.getPath() + ":fileTree", data_out);
 			

@@ -463,6 +463,23 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		}
 	}
 	
+	public List<ISVDBIndex> findManagingIndex(String path) {
+		List<ISVDBIndex> ret = new ArrayList<ISVDBIndex>();
+		
+		synchronized (fFileSearchOrder) {
+			// Search the indexes in order
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					if (index.doesIndexManagePath(path)) {
+						ret.add(index);
+					}
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
 	public List<SVDBSearchResult<SVDBFile>> findPreProcFile(String path, boolean search_shadow) {
 		List<SVDBSearchResult<SVDBFile>> ret = new ArrayList<SVDBSearchResult<SVDBFile>>();
 		SVDBFile result;
@@ -566,20 +583,23 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		Tuple<SVDBFile, SVDBFile> ret = null;
 		
 		path = SVFileUtils.normalize(path);
-		
-		List<SVDBSearchResult<SVDBFile>> result = findPreProcFile(path, true);
-		
+
+		List<ISVDBIndex> result = findManagingIndex(path);
+//		List<SVDBSearchResult<SVDBFile>> result = findPreProcFile(path, true);
+
+		/*
 		fLog.debug("parse(" + path + ") - results of findPreProcFile:");
 		for (SVDBSearchResult<SVDBFile> r : result) {
 			fLog.debug("    " + r.getIndex().getBaseLocation() + 
 					" : " + r.getItem().getFilePath());
 		}
+		 */
 		
 		if (result.size() > 0) {
 			// Use the parser from the associated index
 			// Specify the file path in the same way that the index sees it
-			SVDBFile file = result.get(0).getItem();
-			ret = result.get(0).getIndex().parse(monitor, in, file.getFilePath(), markers);
+//			SVDBFile file = result.get(0).getItem();
+			ret = result.get(0).parse(monitor, in, path, markers);
 		} else {
 			// Create a shadow index using the current directory
 //			String dir = SVFileUtils.getPathParent(path);

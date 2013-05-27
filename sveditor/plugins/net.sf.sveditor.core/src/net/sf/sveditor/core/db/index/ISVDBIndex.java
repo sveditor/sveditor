@@ -112,6 +112,12 @@ public interface ISVDBIndex extends
 	 * @return
 	 */
 	SVDBFile findPreProcFile(String path);
+	
+	/**
+	 * Returns whether the specified path is managed by this
+	 * index
+	 */
+	boolean doesIndexManagePath(String path);
 
 	/**
 	 * Forces a rebuild of the index

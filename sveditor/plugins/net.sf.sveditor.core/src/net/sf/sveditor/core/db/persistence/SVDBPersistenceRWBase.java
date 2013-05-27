@@ -130,6 +130,27 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		
 		return ret;
 	}
+
+	public Map<String, List> readMapStringStringList() throws DBFormatException {
+		Map<String, List> ret = new HashMap<String, List>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			ret.put(key, readStringList());
+		}
+		
+		return ret;
+	}
 	
 	public List<Long> readLongList() throws DBFormatException {
 		int type = readRawType();
@@ -400,7 +421,21 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
  		}
 	}
 
-
+	public void writeMapStringStringList(Map<String, List> map) 
+			throws DBWriteException, DBFormatException {
+		if (map == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_MAP);
+			
+			writeInt(map.size());
+			for (Entry<String, List> e : map.entrySet()) {
+				writeString(e.getKey());
+				writeStringList(e.getValue());
+			}
+		}
+	}
+	
 	public void writeStringList(List<String> items) throws DBWriteException {
 		if (items == null) {
 			writeRawType(TYPE_NULL);

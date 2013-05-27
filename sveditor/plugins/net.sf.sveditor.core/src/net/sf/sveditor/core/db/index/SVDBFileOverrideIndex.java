@@ -277,6 +277,10 @@ public class SVDBFileOverrideIndex
 		return findPreProcFile(path);
 	}
 	
+	public boolean doesIndexManagePath(String path) {
+		return (fFileTree.getFilePath().equals(path));
+	}
+
 	public List<SVDBMarker> getMarkers(String path) {
 		if (fFile.getFilePath().equals(path)) {
 			return fMarkers;

@@ -1075,8 +1075,15 @@ public abstract class AbstractSVDBIndex implements
 		
 		return file;		
 	}
-			
 	
+	
+	public boolean doesIndexManagePath(String path) {
+		// Dumb implementation for now
+		SVDBFile file = findPreProcFile(path);
+		
+		return (file != null);
+	}
+
 	public synchronized List<SVDBMarker> getMarkers(String path) {
 		/*SVDBFile file = */findFile(path);
 

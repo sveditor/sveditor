@@ -694,7 +694,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		in_data.fFileTree = new SVDBFileTree(new SVDBFile(filename));
 		
 		// Record the current state of the pre-processor
-		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
+//		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
 	
 		if (!fInputStack.empty()) {
 			InputData p_data = fInputStack.peek();
