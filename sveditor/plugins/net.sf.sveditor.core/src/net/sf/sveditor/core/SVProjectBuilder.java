@@ -30,7 +30,7 @@ public class SVProjectBuilder extends IncrementalProjectBuilder {
 			Map<String, String> 	args,
 			IProgressMonitor 		monitor) throws CoreException {
 		IProject p = getProject();
-		System.out.println("build kind: " + kind);
+//		System.out.println("build kind: " + kind);
 		
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		

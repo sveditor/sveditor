@@ -5,6 +5,12 @@
   colored in the editor. Due to history, operator lists were stored in different
   places in the code. Now, all operators are listed in the SVOperators class.
   
+- #(nobug) - Correct an off-by-one line numbering issue with the Argument File
+  editor. This issue caused errors to be annotated one line off from where
+  they should have been positioned.
+  
+- #(enh) - Enhance argument-file editor to react to resource-variable changes.
+
 ------------------------------------------------------------------------------
 -- 1.2.7 Release --
 
