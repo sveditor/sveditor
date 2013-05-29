@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -96,10 +96,14 @@ public class SVProjectProps extends PropertyPage implements
 		for (ISVProjectPropsPage page : fPropertyPages) {
 			page.perfomOk();
 		}
+
+		// Ensure this project is tagged as an SVE project
+		SVProjectNature.ensureHasSvProjectNature(getProject());
 		
 		fProjectData.setProjectFileWrapper(fProjectFileWrapper);
-		
-		fProjectData.getProjectIndexMgr().rebuildIndex(new NullProgressMonitor());
+	
+		// Don't need to do this
+//		fProjectData.getProjectIndexMgr().rebuildIndex(new NullProgressMonitor());
 		
 		return true;
 	}

@@ -22,6 +22,7 @@ public class PreProcTests extends TestCase {
 		TestSuite suite = new TestSuite("PreProcTests");
 		suite.addTest(new TestSuite(TestPreProc.class));
 		suite.addTest(new TestSuite(TestPreProc2.class));
+		suite.addTest(new TestSuite(TestPreProcLexer2.class));
 		return suite;
 	}
 

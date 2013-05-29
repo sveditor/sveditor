@@ -218,7 +218,9 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
 		ParserSVDBFileFactory f = new ParserSVDBFileFactory(dp);
-		f.setConfig(getDefault().getParserConfig());
+		if (getDefault() != null) {
+			f.setConfig(getDefault().getParserConfig());
+		}
 		
 		return f;
 	}

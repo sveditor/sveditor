@@ -42,7 +42,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private boolean									fInComment;
 	private IDocCommentParser   					fDocCommentParser;
 	private ScanLocation							fCommentStart;							
-	private List<Integer>							fLineMap;
+//	private List<Integer>							fLineMap;
 
 	// List of offset,file-id pairs
 	private List<SVPreProcOutput.FileChangeInfo>	fFileMap;
@@ -57,7 +57,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 	private Stack<InputData>						fInputStack;
 	private ISVPreProcFileMapper					fFileMapper;
-	private boolean									fDump = false;
 	
 	private static class InputData {
 		InputStream				fInput;
@@ -137,7 +136,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fTmpBuffer = new StringBuilder();
 		fParamList = new ArrayList<Tuple<String,String>>();
 		fPreProcEn = new Stack<Integer>();
-		fLineMap = new ArrayList<Integer>();
+//		fLineMap = new ArrayList<Integer>();
 		fFileMap = new ArrayList<SVPreProcOutput.FileChangeInfo>();
 		fFileList = new ArrayList<String>();
 
@@ -262,7 +261,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 		
 		SVPreProcOutput ret = new SVPreProcOutput(
-				fOutput, fLineMap, fFileMap, fFileList);
+				fOutput, null, fFileMap, fFileList);
 		ret.setFileTree(fInputStack.peek().fFileTree);
 	
 		// Leave final file
@@ -681,15 +680,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			file_id = fFileMapper.mapFilePathToId(filename, true);
 		}
 		
-		if (filename.contains("vmm_log.sv")) {
-			fDump = true;
-		}
-		
 		InputData in_data = new InputData(in, filename, file_id);
-		SVPreProcOutput.FileChangeInfo file_info = 
-				new SVPreProcOutput.FileChangeInfo(
-						fOutput.length(), file_id, in_data.fLineno);
-		fFileMap.add(file_info);
+		add_file_change_info(fOutput.length(), file_id, in_data.fLineno);
+
 		
 		in_data.fFileTree = new SVDBFileTree(new SVDBFile(filename));
 		
@@ -960,8 +953,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					ch = in.fInBuffer[in.fInBufferIdx++];
 					if (in.fLastCh == '\n') {
 						// Save a marker for the line in the line-map
-						fLineMap.add(fOutput.length()-1);
+						int offset = fOutput.length();
 						in.fLineno++;
+						add_file_change_info(offset, in.fFileId, in.fLineno);
 						fLineno = in.fLineno;
 					}
 					in.fLastCh = ch;
@@ -1060,5 +1054,23 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	 */
 	public long getPos() {
 		return -1;
+	}
+	
+	private void add_file_change_info(int pos, int file_id, int lineno) {
+		int ex_file_id = -1;
+		int ex_lineno = -1;
+		int ex_pos = -1;
+		
+		if (fFileMap.size() > 0) {
+			ex_file_id = fFileMap.get(fFileMap.size()-1).fFileId;
+			ex_lineno  = fFileMap.get(fFileMap.size()-1).fLineno;
+			ex_pos     = fFileMap.get(fFileMap.size()-1).fStartIdx;
+		}
+		
+		if (pos != ex_pos || file_id != ex_file_id || lineno != ex_lineno) {
+			SVPreProcOutput.FileChangeInfo file_info = new SVPreProcOutput.FileChangeInfo(
+					pos, file_id, lineno);
+			fFileMap.add(file_info);		
+		}
 	}
 }
