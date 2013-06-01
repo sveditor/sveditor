@@ -1227,7 +1227,23 @@ public class SVDBArgFileIndex2 implements
 		
 		return ret;
 	}
-	
+
+	private SVDBFileTree findTargetFileTree(SVDBFileTree ft, String path) {
+		SVDBFileTree ret = null;
+				
+		if (ft.getFilePath().equals(path)) {
+			ret = ft;
+		} else {
+			for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
+				if ((ret = findTargetFileTree(ft_s, path)) != null) {
+					break;
+				}
+			}
+		}
+		
+		return ret;
+	}
+
 	private SVDBFileTree findRootFileTree(SVDBArgFileIndexBuildData build_data, String path) {
 		SVDBFileTree ret = null;
 		String paths[] = new String[3];
@@ -1378,7 +1394,18 @@ public class SVDBArgFileIndex2 implements
 		}
 		
 		synchronized (fBuildData) {
+			String root_file = findRootFilePath(fBuildData, r_path);
+			
+			if (root_file != null) {
+				SVDBFileTree ft = fBuildData.fCache.getFileTree(
+						new NullProgressMonitor(), root_file, false);
+				target_ft = findTargetFileTree(ft, r_path);
+				file_id = fBuildData.mapFilePathToId(root_file, false);
+				root_markers = fBuildData.fCache.getMarkers(root_file);
+			}
+			
 			// Search the file tree of each root file
+			/*
 			for (String root_path : fBuildData.fCache.getFileList(false)) {
 				SVDBFileTree ft = fBuildData.fCache.getFileTree(
 						new NullProgressMonitor(), root_path, false);
@@ -1388,6 +1415,7 @@ public class SVDBArgFileIndex2 implements
 					break;
 				}
 			}
+			 */
 			
 			if (root_markers != null) {
 				for (SVDBMarker m : root_markers) {
@@ -1403,6 +1431,23 @@ public class SVDBArgFileIndex2 implements
 				}
 			}
 		}
+	}
+	
+	private String findRootFilePath(SVDBArgFileIndexBuildData build_data, String path) {
+		String ret = null;
+		
+		synchronized (build_data) {
+			Map<String, List<String>> root_map = build_data.fIndexCacheData.fRootIncludeMap;
+			
+			for (Entry<String, List<String>> e : root_map.entrySet()) {
+				if (e.getValue().contains(path)) {
+					ret = e.getKey();
+					break;
+				}
+			}
+		}
+		
+		return ret;
 	}
 
 	private void addFile(
@@ -1427,48 +1472,6 @@ public class SVDBArgFileIndex2 implements
 
 		if (p != null && !build_data.fFileDirs.contains(p.getPath())) {
 			build_data.fFileDirs.add(p.getPath());
-		}
-	}
-
-	/** Obsolete?
-	private void clearFilesList() {
-		fLog.debug("clearFilesList");
-		synchronized (fCache) {
-			fCache.clear(new NullProgressMonitor());
-		}
-		synchronized (this) {
-			fFileDirs.clear();
-		}
-		
-		synchronized (fIndexCacheData) {
-			fIndexCacheData.fSrcFileList.clear();
-			fIndexCacheData.fRootFileList.clear();
-		}
-	}
-	 */
-
-	// TODO: This should probably be handled externally
-	private void propagateMarkers(String path) {
-		List<SVDBMarker> ml = fBuildData.fCache.getMarkers(path);
-		getFileSystemProvider().clearMarkers(path);
-
-		if (ml != null) {
-			for (SVDBMarker m : ml) {
-				String type = null;
-				switch (m.getMarkerType()) {
-				case Info:
-					type = ISVDBFileSystemProvider.MARKER_TYPE_INFO;
-					break;
-				case Warning:
-					type = ISVDBFileSystemProvider.MARKER_TYPE_WARNING;
-					break;
-				case Error:
-					type = ISVDBFileSystemProvider.MARKER_TYPE_ERROR;
-					break;
-				}
-				getFileSystemProvider().addMarker(path, type,
-						m.getLocation().getLine(), m.getMessage());
-			}
 		}
 	}
 

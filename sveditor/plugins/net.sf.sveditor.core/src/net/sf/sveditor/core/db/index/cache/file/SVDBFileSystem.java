@@ -12,6 +12,9 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBFileSystem implements ILogLevelListener {
+	private static final int			VALID_MAGIC_NUMBER = 0xA5A5EAEA;
+	
+	
 	private static final int			BLK_SIZE = 4096;
 	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
 //	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
@@ -85,11 +88,12 @@ public class SVDBFileSystem implements ILogLevelListener {
 			} catch (IOException e) {
 				// Failed to open filesystem
 				ret = false;
-				cleanup();
-				initialize();
 			} catch (Exception e) {
 				// Failed to open filesystem
 				ret = false;
+			}
+			
+			if (!ret) {
 				cleanup();
 				initialize();
 			}
@@ -137,6 +141,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 
 		/**
 		 * Root block is:
+		 * - Magic number
 		 * - Filesystem version-string length
 		 * - Filesystem version (string)
 		 * - Number of storage files in this filesystem
@@ -148,80 +153,93 @@ public class SVDBFileSystem implements ILogLevelListener {
 		 * - user data length
 		 * - user data
 		 */
-		String version = in.readString();
+		int magic_number = in.readInt();
 		
-		if (!fVersion.equals(version)) {
-			// Version doesn't match, so re-initialize the filesystem
+		if (magic_number != VALID_MAGIC_NUMBER) {
 			ret = false;
-			cleanup();
-			initialize();
 		} else {
-			int n_files = in.readInt();
-			fLastRwBlkLen  = in.readInt();
-			fAllocListFile = in.readInt();
-			int alloc_list_len = in.readInt();
+			String version = in.readString();
 
-			// Read back the file list;
-			fFileInfoHndl = in.readInt();
-			int file_list_size = in.readInt();
-
-			if (fTrackFiles) {
-				fTrackFiles = false;
-				SVDBFileSystemDataInput file_info_in = readFile("fileInfo", fFileInfoHndl);
-				fTrackFiles = true;
-				
-				fFileList.clear();
-				for (int i=0; i<file_list_size; i++) {
-					FileInfo info = new FileInfo();
-					info.fFileId = file_info_in.readInt();
-					int n_blocks = file_info_in.readInt();
-					for (int j=0; j<n_blocks; j++) {
-						info.fBlockIdList.add(file_info_in.readInt());
-					}
-					fFileList.add(info);
-				}
-			
-			}
-			
-			int ud_len = in.readInt();
-			
-			if (ud_len == -1) {
-				fUserData = null;
+			if (!fVersion.equals(version)) {
+				// Version doesn't match, so re-initialize the filesystem
+				ret = false;
+				cleanup();
+				initialize();
 			} else {
-				fUserData = new byte[ud_len];
-				in.readFully(fUserData);
-			}
+				int n_files = in.readInt();
+				fLastRwBlkLen  = in.readInt();
+				fAllocListFile = in.readInt();
+				int alloc_list_len = in.readInt();
 
-			for (int i=2; i<=n_files; i++) {
-				f = new File(fDBDir, i + ".db");
-				rw = new RandomAccessFile(f, "rw");
-				fFileRWList.add(rw);
-			}
-			
-			// Now we can read in the alloc list and initialize the AllocList
-			boolean track_files = fTrackFiles;
-			fTrackFiles = false;
-			SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
-			fTrackFiles = track_files;
-			fAllocList = new byte[alloc_list_len];
-			alloc_in.readFully(fAllocList);
-			
-			if (fTrackFiles) {
-				for (int i=0; i<fAllocList.length; i++) {
-					if ((i % 16) == 0) {
-						if (i != 0) {
-							System.out.println();
+				// Read back the file list;
+				fFileInfoHndl = in.readInt();
+				int file_list_size = in.readInt();
+
+				if (fTrackFiles) {
+					fTrackFiles = false;
+					SVDBFileSystemDataInput file_info_in = readFile("fileInfo", fFileInfoHndl);
+					fTrackFiles = true;
+
+					fFileList.clear();
+					for (int i=0; i<file_list_size; i++) {
+						FileInfo info = new FileInfo();
+						info.fFileId = file_info_in.readInt();
+						int n_blocks = file_info_in.readInt();
+						for (int j=0; j<n_blocks; j++) {
+							info.fBlockIdList.add(file_info_in.readInt());
 						}
-						System.out.print("" + i + ": ");
+						fFileList.add(info);
 					}
-					System.out.print(Integer.toHexString(fAllocList[i]) + " ");
+
 				}
-				System.out.println();
-				
-				System.out.println("--> Validate Initial Load alloc_list_len=" + alloc_list_len);
-				removeFileInfo(null);
-				System.out.println("<-- Validate Initial Load");
+
+				int ud_len = in.readInt();
+
+				if (ud_len == -1) {
+					fUserData = null;
+				} else {
+					fUserData = new byte[ud_len];
+					in.readFully(fUserData);
+				}
+
+				for (int i=2; i<=n_files; i++) {
+					f = new File(fDBDir, i + ".db");
+					rw = new RandomAccessFile(f, "rw");
+					fFileRWList.add(rw);
+				}
+
+				// Now we can read in the alloc list and initialize the AllocList
+				boolean track_files = fTrackFiles;
+				fTrackFiles = false;
+				SVDBFileSystemDataInput alloc_in = readFile("allocList", fAllocListFile);
+				fTrackFiles = track_files;
+				fAllocList = new byte[alloc_list_len];
+				alloc_in.readFully(fAllocList);
+
+				if (fTrackFiles) {
+					for (int i=0; i<fAllocList.length; i++) {
+						if ((i % 16) == 0) {
+							if (i != 0) {
+								System.out.println();
+							}
+							System.out.print("" + i + ": ");
+						}
+						System.out.print(Integer.toHexString(fAllocList[i]) + " ");
+					}
+					System.out.println();
+
+					System.out.println("--> Validate Initial Load alloc_list_len=" + alloc_list_len);
+					removeFileInfo(null);
+					System.out.println("<-- Validate Initial Load");
+				}
 			}
+		}
+		
+		if (ret) {
+			// Mark the filesystem as open and invalid. This enables us to 
+			// detect filesystem invalidity due to improper close
+			write32(0, tmp, ~VALID_MAGIC_NUMBER);
+			writeBlock("rootBlock", 0, tmp);
 		}
 		
 		return ret;
@@ -312,6 +330,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		
 		/**
 		 * Root block is:
+		 * - Magic number
 		 * - Filesystem version-string length
 		 * - Filesystem version (string)
 		 * - Number of storage files in this filesystem
@@ -323,6 +342,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		 * - user data length
 		 * - user data
 		 */
+		out.writeInt(VALID_MAGIC_NUMBER);
 		out.writeString(fVersion);
 		
 		out.writeInt(fFileRWList.size());

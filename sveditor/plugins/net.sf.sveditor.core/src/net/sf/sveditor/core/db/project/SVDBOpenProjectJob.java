@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.project;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -27,6 +28,9 @@ public class SVDBOpenProjectJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		if (SVDBProjectManager.isSveProject(fProject)) {
+			// Ensure the project nature is associated
+			SVProjectNature.ensureHasSvProjectNature(fProject);
+			
 			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 			monitor.beginTask("Opening SV Project " + fProject.getName(), 1000);
 			SVDBProjectData pdata = pmgr.getProjectData(fProject);
