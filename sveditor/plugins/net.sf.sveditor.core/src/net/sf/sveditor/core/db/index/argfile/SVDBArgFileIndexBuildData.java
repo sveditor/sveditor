@@ -105,6 +105,10 @@ public class SVDBArgFileIndexBuildData implements
 		fIndexCacheData.fArgFiles.add(argfile);
 	}
 	
+	List<String> getRootFileList() {
+		return fIndexCacheData.fRootFileList;
+	}
+	
 	Map<String, String> getGlobalDefines() {
 		return fIndexCacheData.fGlobalDefines;
 	}

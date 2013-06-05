@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
@@ -59,21 +58,21 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private ISVPreProcFileMapper					fFileMapper;
 	
 	private static class InputData {
-		InputStream				fInput;
-		String					fFilename;
-		int						fFileId;
-		int						fLineno;
-		int						fLinepos;
-		byte					fInBuffer[];
-		int						fInBufferIdx;
-		int						fInBufferMax;
-		int						fLastCh;
-		int						fUngetCh[] = {-1,-1};
-		boolean					fEof;
+		InputStream						fInput;
+		String							fFilename;
+		int								fFileId;
+		int								fLineno;
+		int								fLinepos;
+		byte							fInBuffer[];
+		int								fInBufferIdx;
+		int								fInBufferMax;
+		int								fLastCh;
+		int								fUngetCh[] = {-1,-1};
+		boolean							fEof;
 		// Macros referenced by this file
-		Map<String, String>		fRefMacros;
-		SVDBFileTree			fFileTree;
-		SVDBUnprocessedRegion	fUnprocessedRegion;
+		Map<String, String>				fRefMacros;
+		SVDBFileTree					fFileTree;
+		SVDBUnprocessedRegion			fUnprocessedRegion;
 		
 		InputData(InputStream in, String filename, int file_id) {
 			fLineno = 1;
@@ -259,7 +258,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 		fInPreProcess = false;
 		
-		
 		SVPreProcOutput ret = new SVPreProcOutput(
 				fOutput, null, fFileMap, fFileList);
 		ret.setFileTree(fInputStack.peek().fFileTree);
@@ -271,12 +269,14 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		} catch (IOException e) {}
 		
 		// Finally, save the full pre-processor state to the final file
+		/*
 		last_file.fFileTree.fDefinedMacros.clear();
 		for (Entry<String, SVDBMacroDef> e : fMacroMap.entrySet()) {
 			if (!e.getKey().equals("__FILE__") && !e.getKey().equals("__LINE__")) {
 				last_file.fFileTree.fDefinedMacros.put(e.getKey(), e.getValue());
 			}
 		}
+		 */
 		
 		return ret;
 	}
@@ -477,7 +477,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				// Add the macro to the pre-processor version of the file
 				if (in != null && in.fFileTree != null && in.fFileTree.getSVDBFile() != null) {
 					in.fFileTree.getSVDBFile().addChildItem(m);
-					in.fFileTree.fDefinedMacros.put(m.getName(), m);
+					in.fFileTree.addToMacroSet(m);
 				}
 			}
 		} else if (type.equals("include")) {
@@ -692,7 +692,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		if (!fInputStack.empty()) {
 			InputData p_data = fInputStack.peek();
 			in_data.fFileTree.setParent(p_data.fFileTree);
-			p_data.fFileTree.fIncludedFileTrees.add(in_data.fFileTree);
+			p_data.fFileTree.addIncludedFileTree(in_data.fFileTree);
 		}
 
 		fInputStack.push(in_data);

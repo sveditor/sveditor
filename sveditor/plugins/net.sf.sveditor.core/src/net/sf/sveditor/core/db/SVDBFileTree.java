@@ -46,9 +46,21 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	
 	// List of files included in this file
 	public List<String>					fIncludedFiles;
+	
+	/**
+	 * List of incoming macros to this root file when
+	 * in MFCU mode. This field is not used in SFCU mode.
+	 */
+	public List<SVDBMacroDef>			fMFCUIncomingMacros;
+	
+	// List of macro sets defined by this file prior to
+	// each included file. Element '0' contains the 
+	// macros defined in this file prior to the inclusion
+	// of IncludedFileTrees[0]
+	public List<SVDBFileTreeMacroList>	fMacroSetList;
 
-	// Used by the 'new' flow 
-	// TODO: Unsure why
+	// List of file trees corresponding to files included by
+	// this one. Used by the 'new' index flow 
 	public List<SVDBFileTree>			fIncludedFileTrees;
 	
 	// List of files in which this file is included
@@ -57,22 +69,16 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	// List of macros (and their defined values) referenced in this file
 	public Map<String, String>			fReferencedMacros;
 
-	// List of macros defined by this file
-	public Map<String, SVDBMacroDef>	fDefinedMacros;
-	
-	// Macro entry state for this file
-//	public Map<String, SVDBMacroDef>	fMacroEntryState;
-
 	public SVDBFileTree() {
 		super(SVDBItemType.FileTree);
 		fFilePath = null;
 		fSVDBFile = null;
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
+		fMacroSetList = new ArrayList<SVDBFileTreeMacroList>();
+		fMacroSetList.add(new SVDBFileTreeMacroList());
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
-		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
-//		fMacroEntryState = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
@@ -83,10 +89,10 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 
 		fIncludedFiles = new ArrayList<String>();
 		fIncludedByFiles = new ArrayList<String>();
+		fMacroSetList = new ArrayList<SVDBFileTreeMacroList>();
+		fMacroSetList.add(new SVDBFileTreeMacroList());
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
-		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
-//		fMacroEntryState = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 
@@ -96,11 +102,11 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		
 		fSVDBFile = file;
 		fIncludedFiles = new ArrayList<String>();
+		fMacroSetList = new ArrayList<SVDBFileTreeMacroList>();
+		fMacroSetList.add(new SVDBFileTreeMacroList());
 		fIncludedByFiles = new ArrayList<String>();
 		fIncludedFileTrees = new ArrayList<SVDBFileTree>();
 		fReferencedMacros = new HashMap<String, String>();
-		fDefinedMacros = new HashMap<String, SVDBMacroDef>();
-//		fMacroEntryState = new HashMap<String, SVDBMacroDef>();
 		fMarkers = new ArrayList<SVDBMarker>();
 	}
 	
@@ -156,6 +162,20 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		if (!fIncludedFiles.contains(path)) {
 			fIncludedFiles.add(path);
 		}
+	}
+	
+	public void addIncludedFileTree(SVDBFileTree ft) {
+		fIncludedFileTrees.add(ft);
+		fMacroSetList.add(new SVDBFileTreeMacroList());
+	}
+	
+	public List<SVDBFileTree> getIncludedFileTreeList() {
+		return fIncludedFileTrees;
+	}
+	
+	public void addToMacroSet(SVDBMacroDef m) {
+		SVDBFileTreeMacroList ml = fMacroSetList.get(fMacroSetList.size()-1);
+		ml.addMacro(m);
 	}
 	
 	public List<String> getIncludedByFiles() {
