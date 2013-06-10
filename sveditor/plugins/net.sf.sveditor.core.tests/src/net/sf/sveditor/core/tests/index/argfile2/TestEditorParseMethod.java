@@ -47,16 +47,69 @@ public class TestEditorParseMethod extends SVCoreTestCaseBase {
 				"pkg1_cls2");
 		
 		List<SVDBMarker> markers;
-	
+		Tuple<SVDBFile, SVDBFile> result;
+
+		// First, test that macros propagate from package down to included files
 		markers = new ArrayList<SVDBMarker>();
-		Tuple<SVDBFile, SVDBFile> result = IndexTestUtils.parse(index, 
+		result = IndexTestUtils.parse(index, 
 				"${workspace_loc}/sfcu_cross_file_macros/pkg1_cls1.svh", markers);
 		assertEquals(0, markers.size());
 		
 		SVDBTestUtils.assertFileHasElements(result.second(),
 				"pkg1_cls1");
+		
+		// Next, test that macros propagate across included files
+		markers = new ArrayList<SVDBMarker>();
+		result = IndexTestUtils.parse(index, 
+				"${workspace_loc}/sfcu_cross_file_macros/pkg2_cls2.svh", markers);
+		assertEquals(0, markers.size());
+		
+		SVDBTestUtils.assertFileHasElements(result.second(),
+				"pkg2_cls2");
 	}
 
+	public void testMFCUIncomingMacros() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		utils.copyBundleDirToFS("/data/index/mfcu_cross_file_macros", fTmpDir);
+		
+		File mfcu_cross_file_macros = new File(fTmpDir, "mfcu_cross_file_macros");
+		TestUtils.createProject("mfcu_cross_file_macros", mfcu_cross_file_macros);
+
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(),
+				"mfcu_cross_file_macros",
+				"${workspace_loc}/mfcu_cross_file_macros/mfcu_cross_file_macros.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		
+		IndexTestUtils.assertFileHasElements(fLog, index, 
+				"pkg1_cls1",
+				"pkg1_cls2");
+		
+		List<SVDBMarker> markers;
+		Tuple<SVDBFile, SVDBFile> result;
+
+		// First, test that macros propagate from package down to included files
+		markers = new ArrayList<SVDBMarker>();
+		result = IndexTestUtils.parse(index, 
+				"${workspace_loc}/mfcu_cross_file_macros/pkg1_cls1.svh", markers);
+		assertEquals(0, markers.size());
+		
+		SVDBTestUtils.assertFileHasElements(result.second(),
+				"pkg1_cls1");
+		
+		// Next, test that macros propagate across included files
+		markers = new ArrayList<SVDBMarker>();
+		result = IndexTestUtils.parse(index, 
+				"${workspace_loc}/mfcu_cross_file_macros/pkg2_cls2.svh", markers);
+		assertEquals(0, markers.size());
+		
+		SVDBTestUtils.assertFileHasElements(result.second(),
+				"pkg2_cls2");
+	}
 }
 
 

@@ -13,14 +13,11 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.Tuple;
@@ -28,7 +25,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -43,14 +39,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator,
-		ISVDBIndexOperationRunner, ILogLevel {
+		ISVDBIndexOperationRunner, ISVDBIndexParse, ILogLevel {
 	private SVDBIndexCollectionMgr					fMgr;
 	private String									fProject;
 	private List<ISVDBIndex>						fSourceCollectionList;
 	private List<ISVDBIndex>						fIncludePathList;
 	private List<ISVDBIndex>						fLibraryPathList;
 	private List<ISVDBIndex>						fPluginLibraryList;
-	private List<Reference<ISVDBIndex>>				fShadowIndexList;
 	private List<List<ISVDBIndex>>					fFileSearchOrder;
 	private Set<String>								fProjectRefs;
 	private ISVDBProjectRefProvider					fProjectRefProvider;
@@ -69,7 +64,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		fIncludePathList 		= new ArrayList<ISVDBIndex>();
 		fLibraryPathList 		= new ArrayList<ISVDBIndex>();
 		fPluginLibraryList 		= new ArrayList<ISVDBIndex>();
-		fShadowIndexList		= new ArrayList<Reference<ISVDBIndex>>();
 		fProjectRefs			= new HashSet<String>();
 
 		fFileSearchOrder		= new ArrayList<List<ISVDBIndex>>();
@@ -94,8 +88,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				fSourceCollectionList.size() + 
 				fIncludePathList.size() + 
 				fLibraryPathList.size() + 
-				fPluginLibraryList.size() + 
-				fShadowIndexList.size());
+				fPluginLibraryList.size());
 		
 		synchronized (fSourceCollectionList) {
 			for (ISVDBIndex index : fSourceCollectionList) {
@@ -121,14 +114,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 		
-		synchronized (fShadowIndexList) {
-			for (Reference<ISVDBIndex> iref : fShadowIndexList) {
-				if (iref.get() != null) {
-					iref.get().loadIndex(new SubProgressMonitor(sm, 1));
-				}
-			}
-		}
-	
 		sm.done();
 	}
 	
@@ -201,15 +186,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		
 	}
 	
-	/**
-	 * Convenience method that returns whether or not to create a shadow index 
-	 * 
-	 * @return
-	 */
-	public boolean getCreateShadowIndex() {
-		return (fMgr != null)?fMgr.getCreateShadowIndexes():true;
-	}
-	
 	public void addIndexChangeListener(ISVDBIndexChangeListener l) {
 		if (!fIndexChangeListeners.contains(l)) {
 			fIndexChangeListeners.add(l);
@@ -220,13 +196,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 				index.addChangeListener(l);
 			}
 		}
-		clearStaleShadowIndexes();
-		for (int i=0; i<fShadowIndexList.size(); i++) {
-			ISVDBIndex index = fShadowIndexList.get(i).get();
-			if (index != null) {
-				index.addChangeListener(l);
-			}
-		}
 	}
 	
 	public void removeIndexChangeListener(ISVDBIndexChangeListener l) {
@@ -234,13 +203,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
 			for (ISVDBIndex index : index_l) {
-				index.removeChangeListener(l);
-			}
-		}
-		clearStaleShadowIndexes();
-		for (int i=0; i<fShadowIndexList.size(); i++) {
-			ISVDBIndex index = fShadowIndexList.get(i).get();
-			if (index != null) {
 				index.removeChangeListener(l);
 			}
 		}
@@ -268,14 +230,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 					new SVDBIndexChangePlanRebuild(i));
 		}
 		monitor.done();
-		
-		clearStaleShadowIndexes();
-		for (int i=0; i<fShadowIndexList.size(); i++) {
-			ISVDBIndex index = fShadowIndexList.get(i).get();
-			if (index != null) {
-				index.rebuildIndex(monitor);
-			}
-		}
 	}
 	
 	public void clear() {
@@ -336,15 +290,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 		
-		// Finally, add the shadow indexes
-		clearStaleShadowIndexes();
-		for (int i=0; i<fShadowIndexList.size(); i++) {
-			ISVDBIndex index = fShadowIndexList.get(i).get();
-			if (index != null) {
-				iterator_list.add(index);
-			}
-		}
-
 		if (fProjectRefProvider != null) {
 			for (String proj : fProjectRefs) {
 				if (!referenced_projects.contains(proj)) {
@@ -391,28 +336,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	
 	public List<ISVDBIndex> getSourceCollectionList() {
 		return fSourceCollectionList;
-	}
-	
-	public void addShadowIndex(String dir, ISVDBIndex index) {
-		if (index == null) {
-			fLog.error("Attempt to add null shadow index for dir \"" + dir + "\"");
-			return;
-		}
-		
-		fLog.debug("addShadowIndex: " + dir + "(" + index.getBaseLocation() + ")");
-		
-		IncludeProvider p = new IncludeProvider(index);
-		p.addSearchPath(fSourceCollectionList);
-		p.addSearchPath(fIncludePathList);
-		p.addSearchPath(fLibraryPathList);
-		p.addSearchPath(fPluginLibraryList);
-		index.setIncludeFileProvider(p);
-		
-		fShadowIndexList.add(new WeakReference<ISVDBIndex>(index));
-		
-		for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-			index.addChangeListener(l);
-		}
 	}
 	
 	public void addIncludePath(ISVDBIndex index) {
@@ -495,20 +418,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 
-		if (ret.size() == 0 && search_shadow) {
-			clearStaleShadowIndexes();
-			synchronized (fShadowIndexList) {
-				for (int i=0; i<fShadowIndexList.size(); i++) {
-					ISVDBIndex index = fShadowIndexList.get(i).get();
-					if (index != null) {
-						if ((result = index.findPreProcFile(path)) != null) {
-							ret.add(new SVDBSearchResult<SVDBFile>(result, index));
-						}
-					}
-				}
-			}
-		}
-		
 		return ret;
 	}
 	
@@ -559,18 +468,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 		
-		if (ret.size() == 0 && search_shadow) {
-			clearStaleShadowIndexes();
-			for (int i=0; i<fShadowIndexList.size(); i++) {
-				ISVDBIndex index = fShadowIndexList.get(i).get();
-				if (index != null) {
-					if ((result = index.findFile(path)) != null) {
-						ret.add(new SVDBSearchResult<SVDBFile>(result, index));
-					}
-				}
-			}
-		}
-		
 		return ret;
 	}
 	
@@ -601,50 +498,13 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 //			SVDBFile file = result.get(0).getItem();
 			ret = result.get(0).parse(monitor, in, path, markers);
 		} else {
-			// Create a shadow index using the current directory
-//			String dir = SVFileUtils.getPathParent(path);
-			ISVDBIndex index = null;
-			clearStaleShadowIndexes();
-			for (int i=0; i<fShadowIndexList.size(); i++) {
-				index = fShadowIndexList.get(i).get();
-				if (index != null && index.getBaseLocation().equals(path)) {
-					break;
-				}
+			Exception e = null;
+			try {
+				throw new Exception();
+			} catch (Exception ex) {
+				e = ex;
 			}
-			
-			if (index == null) {
-				
-				fLog.debug(LEVEL_MID, "Creating shadow index for file \"" + path + "\"");
-				if (fProject != null) {
-					SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-					
-					// See if the index exists
-					synchronized (fShadowIndexList) {
-						for (Reference<ISVDBIndex> r : fShadowIndexList) {
-							if (r.get() != null) {
-								if (r.get().getBaseLocation().equals(path)) {
-									index = r.get();
-									break;
-								}
-							}
-						}
-					}
-					
-					if (index != null) {
-						index = SVDBShadowIndexFactory.create(fProject, path);
-					} else {
-						index = rgy.findCreateIndex(new NullProgressMonitor(),
-								fProject, path, SVDBShadowIndexFactory.TYPE, null);
-					}
-				} else {
-					System.out.println("[TODO] create shadow index for " +
-							"non-project file");
-				}
-				
-				addShadowIndex(path, index);
-			}
-			
-			ret = index.parse(monitor, in, path, markers);
+			fLog.error("Attempting to parse \"" + path + "\" not managed by an index", e);
 		}
 		
 		return ret;
@@ -733,20 +593,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 	
-		if (ret == null) {
-			clearStaleShadowIndexes();
-			synchronized (fShadowIndexList) {
-				for (int i=0; i<fShadowIndexList.size(); i++) {
-					ISVDBIndex index = fShadowIndexList.get(i).get();
-					if (index != null) {
-						if ((ret = index.findFile(monitor, path)) != null) {
-							break;
-						}
-					}
-				}
-			}
-		}
-		
 		return ret;
 	}
 	
@@ -765,20 +611,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 	
-		if (ret == null) {
-			clearStaleShadowIndexes();
-			synchronized (fShadowIndexList) {
-				for (int i=0; i<fShadowIndexList.size(); i++) {
-					ISVDBIndex index = fShadowIndexList.get(i).get();
-					if (index != null) {
-						if ((ret = index.findPreProcFile(monitor, path)) != null) {
-							break;
-						}
-					}
-				}
-			}
-		}
-		
 		return ret;		
 	}
 	
@@ -813,18 +645,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		}
 	}
 	
-	private void clearStaleShadowIndexes() {
-		synchronized (fShadowIndexList) {
-			for (int i=0; i<fShadowIndexList.size(); i++) {
-				if (fShadowIndexList.get(i).get() == null) {
-					System.out.println("removing stale shadow index " + i);
-					fShadowIndexList.remove(i);
-					i--;
-				}
-			}
-		}
-	}
-
 	private void getFileList(
 			StringIterableIterator 			ret, 
 			Set<SVDBIndexCollection> 		already_searched,
@@ -864,14 +684,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
 			for (ISVDBIndex index : index_l) {
-				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
-				ret.addAll(tmp);
-			}
-		}
-		clearStaleShadowIndexes();
-		for (int i=0; i<fShadowIndexList.size(); i++) {
-			ISVDBIndex index = fShadowIndexList.get(i).get();
-			if (index != null) {
 				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
 				ret.addAll(tmp);
 			}

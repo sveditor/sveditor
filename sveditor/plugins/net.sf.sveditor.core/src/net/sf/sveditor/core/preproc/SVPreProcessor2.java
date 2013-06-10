@@ -31,16 +31,14 @@ import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVPreProcessor2 extends AbstractTextScanner 
-		implements IPreProcMacroProvider, ISVPreProcessor {
-	private Map<String, SVDBMacroDef>				fMacroMap;
+public class SVPreProcessor2 extends AbstractTextScanner implements ISVPreProcessor {
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private String									fFileName;
 	private StringBuilder							fOutput;
 	private StringBuilder							fCommentBuffer;
 	private boolean									fInComment;
 	private IDocCommentParser   					fDocCommentParser;
-	private ScanLocation							fCommentStart;							
+	private ScanLocation							fCommentStart;
 //	private List<Integer>							fLineMap;
 
 	// List of offset,file-id pairs
@@ -49,6 +47,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private StringBuilder							fTmpBuffer;
 	private List<Tuple<String, String>>				fParamList;
 	private Stack<Integer>							fPreProcEn;
+	private IPreProcMacroProvider					fMacroProvider;
 	private SVPreProcDefineProvider					fDefineProvider;
 	private boolean									fInPreProcess;
 	private LogHandle								fLog;
@@ -127,7 +126,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			InputStream	 					input, 
 			ISVPreProcIncFileProvider		inc_provider,
 			ISVPreProcFileMapper			file_mapper) {
-		fMacroMap = new HashMap<String, SVDBMacroDef>();
 		fInputStack = new Stack<SVPreProcessor2.InputData>();
 		fOutput = new StringBuilder();
 		fCommentBuffer = new StringBuilder();
@@ -135,20 +133,29 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fTmpBuffer = new StringBuilder();
 		fParamList = new ArrayList<Tuple<String,String>>();
 		fPreProcEn = new Stack<Integer>();
-//		fLineMap = new ArrayList<Integer>();
 		fFileMap = new ArrayList<SVPreProcOutput.FileChangeInfo>();
 		fFileList = new ArrayList<String>();
 
 		fFileName = filename;
 		fIncFileProvider 	= inc_provider;
 		fFileMapper			= file_mapper;
-		
-		fDefineProvider = new SVPreProcDefineProvider(this);
+	
+		fMacroProvider  = defaultMacroProvider;
+		fDefineProvider = new SVPreProcDefineProvider(fMacroProvider);
 		
 		fLog = LogFactory.getLogHandle("SVPreProcessor2");
 	
 		// Add the first file
 		enter_file(filename, input);
+	}
+	
+	public void setMacroProvider(IPreProcMacroProvider mp) {
+		fMacroProvider = mp;
+		fDefineProvider.setMacroProvider(mp);
+	}
+	
+	public IPreProcMacroProvider getMacroProvider() {
+		return fMacroProvider;
 	}
 	
 	public SVPreProcOutput preprocess() {
@@ -742,7 +749,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private void add_macro_reference(String macro) {
 		InputData in = fInputStack.peek();
 		in.fFileTree.fReferencedMacros.remove(macro);
-		SVDBMacroDef def = fMacroMap.get(macro);
+		SVDBMacroDef def = fMacroProvider.findMacro(macro, -1);
 		
 		if (def == null) {
 			in.fFileTree.fReferencedMacros.put(macro, null);
@@ -1006,42 +1013,21 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	 */
 	
 	public SVDBMacroDef findMacro(String name, int lineno) {
-		SVDBMacroDef m = fMacroMap.get(name);
-		InputData in = fInputStack.peek();
-		
-		// TODO: Add macro reference to current file data
-		in.fRefMacros.remove(name);
-		if (m == null) {
-			in.fRefMacros.put(name, null);
-		} else {
-			in.fRefMacros.put(name, m.getDef());
-		}
-		
-		return m;
+		return fMacroProvider.findMacro(name, lineno);
 	}
 	
 	public void addMacro(SVDBMacroDef macro) {
 		if (ifdef_enabled()) {
-			if (fMacroMap.containsKey(macro.getName())) {
-				fMacroMap.remove(macro.getName());
-			}
-			fMacroMap.put(macro.getName(), macro);
+			fMacroProvider.addMacro(macro);
 		}
 	}
 	
 	public void setMacro(SVDBMacroDef macro) {
-		if (fMacroMap.containsKey(macro.getName())) {
-			fMacroMap.remove(macro.getName());
-		}
-		fMacroMap.put(macro.getName(), macro);
+		fMacroProvider.addMacro(macro);
 	}
 
 	public void setMacro(String key, String value) {
-		if (value == null) {
-			fMacroMap.remove(value);
-		} else {
-			addMacro(new SVDBMacroDef(key, value));
-		}
+		fMacroProvider.setMacro(key, value);
 	}
 	
 	public ScanLocation getLocation() {
@@ -1073,4 +1059,38 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fFileMap.add(file_info);		
 		}
 	}
+	
+	private IPreProcMacroProvider defaultMacroProvider = new IPreProcMacroProvider() {
+		private Map<String, SVDBMacroDef>		fMacroMap = new HashMap<String, SVDBMacroDef>();
+		
+		public void setMacro(String key, String value) {
+			if (value == null) {
+				fMacroMap.remove(value);
+			} else {
+				addMacro(new SVDBMacroDef(key, value));
+			}
+		}
+		
+		public SVDBMacroDef findMacro(String name, int lineno) {
+			SVDBMacroDef m = fMacroMap.get(name);
+			InputData in = fInputStack.peek();
+			
+			// TODO: Add macro reference to current file data
+			in.fRefMacros.remove(name);
+			if (m == null) {
+				in.fRefMacros.put(name, null);
+			} else {
+				in.fRefMacros.put(name, m.getDef());
+			}
+			
+			return m;			
+		}
+		
+		public void addMacro(SVDBMacroDef macro) {
+			if (fMacroMap.containsKey(macro.getName())) {
+				fMacroMap.remove(macro.getName());
+			}
+			fMacroMap.put(macro.getName(), macro);
+		}
+	};
 }

@@ -1086,6 +1086,12 @@ endclass
             id="net.sf.sveditor.ui.compilationArgWizard"
             name="Compilation Arguments">
       </wizard>
+      <wizard
+            category="net.sf.sveditor.ui.importWizardCategory"
+            class="net.sf.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportDumpFileWizard"
+            id="net.sf.sveditor.ui.compilationArgDumpFileWizard"
+            name="Compilation Arguments Dumpfile">
+      </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">

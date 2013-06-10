@@ -18,14 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
-import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -137,31 +134,6 @@ public class SVDBIndexUtil {
 			}
 		}
 
-		if (index == null && create_shadow) {
-			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			
-			fLog.debug("Create a shadow index for \"" + path + "\"");
-			if (project != null) {
-				SVDBProjectData   pdata = p_mgr.getProjectData(projects.get(0));
-			
-				index_mgr = pdata.getProjectIndexMgr();
-			} else {
-				index_mgr = rgy.getGlobalIndexMgr();
-				project = SVDBIndexRegistry.GLOBAL_PROJECT;
-			}
-			
-			SVFileSet fs = new SVFileSet(SVFileUtils.getPathParent(path));
-			// Just add the file...
-			fs.getIncludes().add(SVFileUtils.getPathLeaf(path));
-
-			/*
-			index = rgy.findCreateIndex(new NullProgressMonitor(), project,
-					path, SVDBShadowIndexFactory.TYPE, null);
-			 */
-			index = SVDBShadowIndexFactory.create(project, path);
-			index_mgr.addShadowIndex(index.getBaseLocation(), index);
-		}
-		
 		if (index != null) {
 			return new Tuple<ISVDBIndex, SVDBIndexCollection>(index, index_mgr);
 		} else {

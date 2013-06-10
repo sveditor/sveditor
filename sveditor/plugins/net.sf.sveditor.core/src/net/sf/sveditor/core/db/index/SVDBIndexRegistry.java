@@ -256,14 +256,10 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			ISVDBIndexFactory factory = findFactory(type);
 			ISVDBIndexCache cache = null;
 			
-			if (type.equals(SVDBShadowIndexFactory.TYPE)) {
-				cache = new InMemoryIndexCache();
-			} else {
-				cache = fCacheFactory.findIndexCache(project, base_location);
-				
-				if (cache == null) {
-					cache = fCacheFactory.createIndexCache(project, base_location);
-				}
+			cache = fCacheFactory.findIndexCache(project, base_location);
+			
+			if (cache == null) {
+				cache = fCacheFactory.createIndexCache(project, base_location);
 			}
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);

@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -31,12 +32,12 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBIndexParse;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -63,12 +64,12 @@ import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
@@ -123,12 +124,27 @@ public class SVEditor extends TextEditor
 	private SVCodeScanner					fCodeScanner;
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
+	
+	// Holds the current parsed AST view of the file
 	private SVDBFile						fSVDBFile;
+	
+	// Holds the current parsed AST pre-processor view of the file
 	private SVDBFile						fSVDBFilePP;
-	private SVDBFileOverrideIndex			fSVDBIndex;
+	
+	// Holds the current list of markers from the file
 	private List<SVDBMarker>				fMarkers;
+	
 	private String							fFile;
-	private SVDBIndexCollection				fIndexMgr;
+	
+	// The FileIndexParser is responsible for parsing file content
+	// in a way consistent with the containing scope
+	private ISVDBIndexParse					fFileIndexParser;
+
+	// The SVDBIndex is responsible for providing a merged view 
+	// of this and the containing index to clients, including
+	// content assist
+	private SVDBFileOverrideIndex			fSVDBIndex;
+	
 	private LogHandle						fLog;
 	private String							fSVDBFilePath;
 	private UpdateProjectSettingsJob		fProjectSettingsJob;
@@ -211,7 +227,7 @@ public class SVEditor extends TextEditor
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 			fLog.debug("--> re-parse file");
-			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
+			Tuple<SVDBFile, SVDBFile> new_in = fFileIndexParser.parse(
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			fLog.debug("<-- re-parse file");
@@ -344,7 +360,9 @@ public class SVEditor extends TextEditor
 		}
 	}
 
-	public void int_projectSettingsUpdated(final ISVDBIndex index, final SVDBIndexCollection index_mgr) {
+	public void int_projectSettingsUpdated(
+			final ISVDBIndex 		index, 
+			SVDBIndexCollection 	index_mgr) {
 		fLog.debug(LEVEL_MIN, "projectSettingsUpdated " + fSVDBFilePath + " - index=" + 
 				((index != null)?(index.getTypeID() + "::" + index.getBaseLocation()):"null") + 
 				" ; index_mgr=" + 
@@ -352,19 +370,14 @@ public class SVEditor extends TextEditor
 		
 		final SVActionContributor ac = (SVActionContributor)getEditorSite().getActionBarContributor();
 		getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
-			
 			public void run() {
 				String msg = "";
 				boolean is_indexed = false;
 				if (index != null) {
-					if (index.getTypeID().equals(SVDBShadowIndexFactory.TYPE)) {
-						msg = "Index: None";
-					} else {
-						msg = "Index: " + index.getBaseLocation();
-						is_indexed = true;
-					}
+					msg = "Index: " + index.getBaseLocation();
+					is_indexed = true;
 				} else {
-					msg = "Index: Problem locating";
+					msg = "Index: None";
 				}
 				ac.getActionBars().getStatusLineManager().setMessage(msg);
 				Image icon = null;
@@ -379,9 +392,34 @@ public class SVEditor extends TextEditor
 		
 		synchronized (this) {
 			fProjectSettingsJob = null;
-			fIndexMgr = index_mgr;
-			fSVDBIndex = new SVDBFileOverrideIndex(
-					fSVDBFile, fSVDBFilePP, index, fIndexMgr, fMarkers);
+			
+			if (index == null) {
+				// Create a shadow index
+				
+				// See if this file is part of a project with a
+				// configured index
+				IFile file = SVFileUtils.findWorkspaceFile(fSVDBFilePath);
+				
+				if (file != null) {
+					if (SVDBProjectManager.isSveProject(file.getProject())) {
+						SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+						SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
+					
+						if (pdata != null) {
+							index_mgr = pdata.getProjectIndexMgr();
+						}
+					}
+				}
+			
+				fFileIndexParser = new SVDBShadowIndexParse(index_mgr);
+				fSVDBIndex = new SVDBFileOverrideIndex(
+						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
+			} else {
+				// An index was specified, so proceed normally
+				fFileIndexParser = index_mgr;
+				fSVDBIndex = new SVDBFileOverrideIndex(
+						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
+			}
 		}
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
@@ -426,8 +464,11 @@ public class SVEditor extends TextEditor
 					}
 				}
 				
-				fIndexMgr = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), plugin);
+				fFileIndexParser = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), plugin);
 
+				// TODO: This argues that we should have an index collection
+				// for each plugin index 
+				/*
 				if (target != null) {
 					fLog.debug(LEVEL_MIN, "Found a target plugin library");
 					fIndexMgr.addPluginLibrary(rgy.findCreateIndex(
@@ -437,6 +478,7 @@ public class SVEditor extends TextEditor
 				} else {
 					fLog.debug(LEVEL_MIN, "Did not find the target plugin library");
 				}
+				 */
 			} else { // regular workspace or filesystem path
 				if (ed_in instanceof FileEditorInput) {
 					// Regular in-workspace file
@@ -471,9 +513,9 @@ public class SVEditor extends TextEditor
 	}
 
 	void updateSVDBFile(IDocument doc) {
-		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fIndexMgr);
+		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fFileIndexParser);
 		
-		if (fIndexMgr != null) {
+		if (fFileIndexParser != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {
 					fPendingUpdateSVDBFile = false;
@@ -725,7 +767,7 @@ public class SVEditor extends TextEditor
 		
 		// Remove handles to shadow index
 		fSVDBIndex = null;
-		fIndexMgr  = null;
+		fFileIndexParser  = null;
 
 		// Remove the resource listener
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
