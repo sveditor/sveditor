@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
@@ -955,7 +956,7 @@ public class SVEditor extends TextEditor
 					IRegion region = null;
 					
 					try {
-						region = finder.find(start, sel.getText(), true, true, true, false);
+						region = finder.find(start, Pattern.quote(sel.getText()), true, true, true, false);
 					} catch (BadLocationException e) {}
 					
 					if (region != null) {
