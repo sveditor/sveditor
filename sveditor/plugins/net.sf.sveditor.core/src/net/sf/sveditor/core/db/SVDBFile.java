@@ -34,7 +34,7 @@ public class SVDBFile extends SVDBScopeItem {
 			}
 		}
 		fFile               = file;
-		setLocation(new SVDBLocation(-1, -1));
+		setLocation(new SVDBLocation(-1, -1, -1));
 	}
 
 	public String getFilePath() {

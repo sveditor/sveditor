@@ -203,4 +203,12 @@ public class IndexTestUtils {
 		return result;
 	}
 	
+	public static Tuple<SVDBFile, SVDBFile> parse(
+			ISVDBIndex				index,
+			String					path,
+			List<SVDBMarker>		markers) {
+		InputStream in = index.getFileSystemProvider().openStream(path);
+		return parse(index, in, path, markers);
+	}
+	
 }

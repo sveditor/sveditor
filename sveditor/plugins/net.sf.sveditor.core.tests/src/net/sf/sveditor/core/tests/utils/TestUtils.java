@@ -240,6 +240,17 @@ public class TestUtils {
 		}
 	}
 	
+	public static void copy_ws(String in, String ws_path) {
+		TestCase.assertTrue(ws_path.startsWith("${workspace_loc}"));
+		
+		ws_path = ws_path.substring("${workspace_loc}".length());
+		
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFile file = root.getFile(new Path(ws_path));
+		
+		copy(in, file);
+	}
+	
 	public static void copy(String in, IFile out) {
 		try {
 			InputStream  in_s = new StringInputStream(in);

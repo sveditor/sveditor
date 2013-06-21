@@ -1,6 +1,31 @@
 
 -- 1.2.8 Release --
 
+- #(260) - Correct an issue that caused certain operators to not be correctly
+  colored in the editor. Due to history, operator lists were stored in different
+  places in the code. Now, all operators are listed in the SVOperators class.
+  
+- #(nobug) - Correct an off-by-one line numbering issue with the Argument File
+  editor. This issue caused errors to be annotated one line off from where
+  they should have been positioned.
+  
+- #(enh) - Enhance argument-file editor to react to resource-variable changes.
+
+- #(nobug) - Correct a build issue with 1.2.7 that caused the 
+  template-instantiation wizard to not load.
+  
+- #(enh) - Enhance support for editing files that are not part of an index,
+  but are inside a project where indexed files are configured. This often 
+  happens, for example, when a new file is added to a project. With the
+  enhancements, macro definitions are pulled from the project's index.
+  
+- #(264) - Correct a bug involving selected-word highlighting for words
+  containing regular-expression characters
+
+- #(261) - Correct a bug involving first_match in an assertion
+
+- #(262) - Correct a bug involving 'within' used within an assertion
+
 ------------------------------------------------------------------------------
 -- 1.2.7 Release --
 

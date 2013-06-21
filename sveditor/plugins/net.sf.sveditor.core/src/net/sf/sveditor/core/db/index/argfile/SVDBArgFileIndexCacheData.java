@@ -13,7 +13,9 @@
 package net.sf.sveditor.core.db.index.argfile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
@@ -29,6 +31,9 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	
 	// List of all source files (roots + included)
 	public List<String>			fSrcFileList;
+
+	// Map from root file to included files
+	public Map<String, List<String>>		fRootIncludeMap;
 	
 	public boolean				fMFCU;
 	
@@ -39,6 +44,7 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		fArgFiles = new ArrayList<SVDBFile>();
 		fRootFileList = new ArrayList<String>();
 		fSrcFileList = new ArrayList<String>();
+		fRootIncludeMap = new HashMap<String, List<String>>();
 	}
 
 	/*

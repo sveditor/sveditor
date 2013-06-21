@@ -191,7 +191,15 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					}
 
 					if (item == null) {
-						fLog.debug(LEVEL_MID, "Failed to traverse the content-assist expression");
+						fLog.debug(LEVEL_MID, "Failed to traverse the content-assist expression (" +
+								fCompletionProposalMap.size() + ")");
+						/*
+						if (fCompletionProposals.size() > 0) {
+							System.out.println("" + fCompletionProposals.get(0) + ";" + 
+									fCompletionProposals.get(0).getReplacement() + ";" +
+									fCompletionProposals.get(0).getItem());
+						}
+						 */
 						return;
 					}
 					fLog.debug(LEVEL_MID, "Item: " + item.getType() + " " + SVDBItem.getName(item));

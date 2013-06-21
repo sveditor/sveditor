@@ -1086,6 +1086,12 @@ endclass
             id="net.sf.sveditor.ui.compilationArgWizard"
             name="Compilation Arguments">
       </wizard>
+      <wizard
+            category="net.sf.sveditor.ui.importWizardCategory"
+            class="net.sf.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportDumpFileWizard"
+            id="net.sf.sveditor.ui.compilationArgDumpFileWizard"
+            name="Compilation Arguments Dumpfile">
+      </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
@@ -1112,6 +1118,16 @@ endclass
             id="net.sf.sveditor.ui.svSpellingEngine"
             label="SystemVerilog Engine">
       </engine>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+         <!--
+      <image
+            icon="icons/vlog_16_16.gif"
+            id="net.sf.sveditor.ui.SVProjectNatureImage"
+            natureId="net.sf.sveditor.core.SVNature">
+      </image>
+          -->
    </extension>
 
 </plugin>

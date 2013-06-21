@@ -19,6 +19,7 @@ import java.util.Map;
 public enum SVDBItemType {
 	File,
 	FileTree,
+	FileTreeMacroList,
 	ModuleDecl,
 	ClassDecl,
 	ConfigDecl,

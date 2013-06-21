@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -19,6 +20,7 @@ public class SVCoreTestCaseBase extends TestCase {
 	protected File						fDbDir;
 	protected LogHandle					fLog;
 	protected List<IProject>			fProjectList;
+	protected List<ISVDBIndex>			fStandaloneIndexList;
 	protected TestIndexCacheFactory		fCacheFactory;
 //	protected SVDBFileSystem			fFileSystem;
 	protected SVDBIndexRegistry			fIndexRgy;
@@ -29,6 +31,7 @@ public class SVCoreTestCaseBase extends TestCase {
 		SVCorePlugin.getDefault().getResourceChangeListener().init();
 		
 		fProjectList = new ArrayList<IProject>();
+		fStandaloneIndexList = new ArrayList<ISVDBIndex>();
 		
 		fLog = LogFactory.getLogHandle(getName());
 		
@@ -76,6 +79,10 @@ public class SVCoreTestCaseBase extends TestCase {
 
 	protected void addProject(IProject p) {
 		fProjectList.add(p);
+	}
+	
+	protected void addStandaloneIndex(ISVDBIndex index) {
+		fStandaloneIndexList.add(index);
 	}
 	
 	protected void reinitializeIndexRegistry() {

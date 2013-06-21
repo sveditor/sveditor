@@ -218,7 +218,9 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
 		ParserSVDBFileFactory f = new ParserSVDBFileFactory(dp);
-		f.setConfig(getDefault().getParserConfig());
+		if (getDefault() != null) {
+			f.setConfig(getDefault().getParserConfig());
+		}
 		
 		return f;
 	}
@@ -235,8 +237,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fJobMgr;
 	}
 	
-
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
@@ -252,12 +252,12 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			fProjManager.dispose();
 		}
 		
-		fResourceChangeListener.dispose();
-		
 		if (fIndexRegistry != null) {
 			fIndexRegistry.close();
 		}
-	
+		
+		fResourceChangeListener.dispose();
+
 		LogFactory.getDefault().removeLogListener(this);
 		
 		if (fLogStream != null) {
@@ -273,16 +273,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		
 		// Shut down the builder
 		fIndexBuilder.dispose();
-		
-		// Flush cache data out to the filesystem
-//		if (fCacheMgr != null) {
-//			fCacheMgr.sync();
-//		}
-		
-		// Close the index cache
-//		if (fCacheFS != null) {
-//			fCacheFS.close();
-//		}
 		
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;

@@ -38,6 +38,9 @@
                class="net.sf.sveditor.core.SVProjectNature">
          </run>
       </runtime>
+      <builder
+            id="net.sf.sveditor.core.SVProjectBuilder">
+      </builder>
    </extension>
    <extension
          point="net.sf.sveditor.core.SVLibraries">
@@ -92,6 +95,20 @@
                type="net.sf.sveditor.core.db.project.SVDBProjectData">
          </adapter>
       </factory>
+   </extension>
+   <extension
+         id="SVProjectBuilder"
+         name="SVEditor Project Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="true"
+            hasNature="true"
+            isConfigurable="false"
+            supportsConfigurations="false">
+         <run
+               class="net.sf.sveditor.core.SVProjectBuilder">
+         </run>
+      </builder>
    </extension>
 
 </plugin>

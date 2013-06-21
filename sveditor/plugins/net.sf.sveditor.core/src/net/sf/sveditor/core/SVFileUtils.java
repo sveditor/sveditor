@@ -177,14 +177,24 @@ public class SVFileUtils {
 	 */
 	public static IFile findWorkspaceFile(String path) {
 		IFile f = null;
-
-		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
-			f = root.getFileForLocation(new Path(path));
-		} catch (IllegalStateException e) {
-			// Happens when the workspace is closed
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			try {
+				f = root.getFile(new Path(path));
+			} catch (IllegalStateException e) {
+				// Happens when the workspace is closed
+			}
+		} else {
+			try {
+
+				f = root.getFileForLocation(new Path(path));
+			} catch (IllegalStateException e) {
+				// Happens when the workspace is closed
+			}
 		}
+
 		
 		return f;
 	}

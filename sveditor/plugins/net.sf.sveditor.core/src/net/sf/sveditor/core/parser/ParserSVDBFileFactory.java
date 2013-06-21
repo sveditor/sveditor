@@ -42,6 +42,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
@@ -146,7 +147,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.UndefinedMacro, msg);
-			marker.setLocation(new SVDBLocation(lineno, 0));
+			int file_id = -1;
+			if (fFileMapper != null) {
+				file_id = fFileMapper.mapFilePathToId(filename, false);
+			}
+			
+			marker.setLocation(new SVDBLocation(file_id, lineno, 0));
 			fMarkers.add(marker);
 		}
 	}
@@ -528,7 +534,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (fMarkers != null && !fDisableErrors) {
 			SVDBMarker marker = new SVDBMarker(
 					MarkerType.Error, MarkerKind.ParseError, msg);
-			marker.setLocation(new SVDBLocation(lineno, linepos));
+			int file_id = -1;
+			if (fFileMapper != null) {
+				file_id = fFileMapper.mapFilePathToId(filename, false);
+			}
+			marker.setLocation(new SVDBLocation(file_id, lineno, linepos));
 			fMarkers.add(marker);
 		}
 	}
@@ -568,13 +578,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fDefineProvider.addErrorListener(this);
 		}
 
-	
 		SVPreProcessor preproc = new SVPreProcessor(
 				in, filename, fDefineProvider);
 		fInput = preproc.preprocess();
 		
 		fLog.debug("File Input: " + filename);
-		fLog.debug(fInput.toString());
+//		fLog.debug(fInput.toString());
 		
 		fLexer = new SVLexer(fLanguageLevel);
 		fLexer.init(this, fInput);
@@ -737,12 +746,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	private void setLocation(ISVDBItemBase item) {
 		ScanLocation loc = getStmtLocation();
-		item.setLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
 	}
 
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = getStmtLocation();
-		item.setEndLocation(new SVDBLocation(loc.getLineNo(), loc.getLinePos()));
+		item.setEndLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
 	}
 
 	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {

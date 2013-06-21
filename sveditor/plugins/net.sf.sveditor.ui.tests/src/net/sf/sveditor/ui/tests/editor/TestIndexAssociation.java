@@ -20,7 +20,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndex;
+import net.sf.sveditor.core.db.index.SVDBShadowIndex;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.utils.TestUtils;

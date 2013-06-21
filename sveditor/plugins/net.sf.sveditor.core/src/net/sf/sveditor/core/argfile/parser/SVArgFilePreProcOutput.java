@@ -20,8 +20,9 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 		fIdx = 0;
 		fLineIdx = 0;
 		fLineMap = line_map;
-		if (line_map.size() > 1) {
-			fNextLinePos = line_map.get(1);
+		
+		if (line_map.size() > 0) {
+			fNextLinePos = line_map.get(0);
 		} else {
 			fNextLinePos = Integer.MAX_VALUE;
 		}

@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.preproc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFileTree;
@@ -43,10 +44,11 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		
 		fLineIdx = 0;
 		fLineMap = line_map;
-		if (line_map.size() > 1) {
+		if (line_map != null && line_map.size() > 1) {
 			fNextLinePos = line_map.get(1);
 		} else {
 			fNextLinePos = Integer.MAX_VALUE;
+			fLineMap = new ArrayList<Integer>();
 		}
 		fLineno = 1;
 		
@@ -71,6 +73,14 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		}
 		fUngetCh1 = -1;
 		fUngetCh2 = -1;
+	}
+	
+	public SVPreProcOutput duplicate() {
+		return new SVPreProcOutput(
+				fText, 
+				fLineMap,
+				fFileMap,
+				fFileList);
 	}
 	
 	public void setFileTree(SVDBFileTree ft) {
@@ -129,7 +139,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 			} else {
 				fNextLinePos = fLineMap.get(fLineIdx);
 			}
-		}
+		} 
 		
 		if (fIdx >= fNextFilePos && fFileMap.size() > 0) {
 			// Move forward to find the next file ID
@@ -163,5 +173,29 @@ public class SVPreProcOutput extends AbstractTextScanner {
 
 	public String toString() {
 		return fText.toString();
+	}
+	
+	public String dump() {
+		StringBuilder ret = new StringBuilder();
+		SVPreProcOutput out = duplicate();
+		ScanLocation loc = null;
+		
+		while (true) {
+			int ch = out.get_ch();
+			if (ch == -1) {
+				break;
+			}
+			
+			ScanLocation tmp = out.getLocation();
+			if (loc == null || 
+					loc.getFileId() != tmp.getFileId() || 
+					loc.getLineNo() != tmp.getLineNo()) {
+				loc = tmp;
+				System.out.print("\n" + loc.getFileId() + ":" + loc.getLineNo() + " ");
+			}
+			System.out.print((char)ch);
+		}
+	
+		return ret.toString();
 	}
 }
