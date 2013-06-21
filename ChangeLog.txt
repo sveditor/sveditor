@@ -18,6 +18,13 @@
   but are inside a project where indexed files are configured. This often 
   happens, for example, when a new file is added to a project. With the
   enhancements, macro definitions are pulled from the project's index.
+  
+- #(264) - Correct a bug involving selected-word highlighting for words
+  containing regular-expression characters
+
+- #(261) - Correct a bug involving first_match in an assertion
+
+- #(262) - Correct a bug involving 'within' used within an assertion
 
 ------------------------------------------------------------------------------
 -- 1.2.7 Release --

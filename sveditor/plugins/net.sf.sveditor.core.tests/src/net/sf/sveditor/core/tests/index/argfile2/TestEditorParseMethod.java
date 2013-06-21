@@ -26,7 +26,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestEditorParseMethod extends SVCoreTestCaseBase {
 	
 	public void testSFCUIncomingMacros() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
 		utils.copyBundleDirToFS("/data/index/sfcu_cross_file_macros", fTmpDir);
@@ -69,7 +69,7 @@ public class TestEditorParseMethod extends SVCoreTestCaseBase {
 	}
 
 	public void testMFCUIncomingMacros() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
 		utils.copyBundleDirToFS("/data/index/mfcu_cross_file_macros", fTmpDir);
