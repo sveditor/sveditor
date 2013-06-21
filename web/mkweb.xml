@@ -43,7 +43,7 @@
 				prependImagePrefix="imgs"
 				xhtmlStrict="false"
 				emitDoctype="false"
-				internalLinkPattern="{0}.hthttp://www.salon.com/2013/05/18/temple_grandin_on_dsm_5_sounds_like_diagnosis_by_committee/ml">
+				internalLinkPattern="{0}.html">
 				<markuplanguageconfiguration escapingHtmlAndXml="false"/>
 			</wikitext-to-html>
 

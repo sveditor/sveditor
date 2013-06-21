@@ -112,8 +112,10 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 						debug("Delta " + kind + " " + 
 								Integer.toHexString(delta.getFlags()) + " " +
 								delta.getResource().getFullPath());
+						/*
 						changes.add(new SVDBIndexResourceChangeEvent(
 								type, "${workspace_loc}" + delta.getResource().getFullPath()));
+						 */
 					}
 				} else {
 					debug("delta: " + kind + " " + delta.getResource() + " " + 

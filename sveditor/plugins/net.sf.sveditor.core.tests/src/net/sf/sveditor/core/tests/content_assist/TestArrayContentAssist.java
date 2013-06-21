@@ -53,6 +53,7 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 				SVDBIndexRegistry.GLOBAL_PROJECT, 
 				SVCorePlugin.SV_BUILTIN_LIBRARY, 
 				SVDBPluginLibIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		fIndexMgr.addPluginLibrary(index);		
 	}
 	

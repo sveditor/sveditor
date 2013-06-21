@@ -27,7 +27,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndex extends 
 	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache,
-	ISVDBIndexChangePlanner, ISVDBIndexOperationRunner {
+	ISVDBIndexChangePlanner, ISVDBIndexOperationRunner,
+	ISVDBIndexParse {
 	
 	ISVDBFileSystemProvider getFileSystemProvider();
 	
@@ -35,11 +36,6 @@ public interface ISVDBIndex extends
 	
 	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder);
 
-	Tuple<SVDBFile, SVDBFile> parse(
-			IProgressMonitor monitor,
-			InputStream in, 
-			String path, 
-			List<SVDBMarker> markers);
 	
 	/**
 	 * setEnableAutoRebuild()
@@ -112,6 +108,12 @@ public interface ISVDBIndex extends
 	 * @return
 	 */
 	SVDBFile findPreProcFile(String path);
+	
+	/**
+	 * Returns whether the specified path is managed by this
+	 * index
+	 */
+	boolean doesIndexManagePath(String path);
 
 	/**
 	 * Forces a rebuild of the index

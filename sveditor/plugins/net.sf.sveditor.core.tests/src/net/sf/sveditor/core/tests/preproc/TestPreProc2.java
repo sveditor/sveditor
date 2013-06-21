@@ -48,7 +48,6 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"This is file2.svh\n" +
 				"\n" +
 				"post-file2.svh\n");
-
 	}
 	
 	public void testBasicDefine() {

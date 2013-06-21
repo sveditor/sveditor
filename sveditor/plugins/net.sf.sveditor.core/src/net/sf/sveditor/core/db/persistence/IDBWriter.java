@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.persistence;
 
 import java.io.DataOutput;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -42,6 +43,10 @@ public interface IDBWriter {
 	void writeEnumType(Class<?> enum_type, Enum<?> value) throws DBWriteException;
 	
 	void writeItemList(List items) throws DBWriteException;
+	
+	void writeMapStringList(Map<String, List> map, Class list_c) throws DBWriteException, DBFormatException;
+	
+	void writeMapStringObject(Map<String, Object> map, Class list_c) throws DBWriteException, DBFormatException;
 	
 	void writeSVDBItem(ISVDBItemBase item) throws DBWriteException;
 	

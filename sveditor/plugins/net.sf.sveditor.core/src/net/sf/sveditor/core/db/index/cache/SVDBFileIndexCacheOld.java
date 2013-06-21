@@ -131,7 +131,9 @@ public class SVDBFileIndexCacheOld implements ISVDBIndexCache, ILogLevelListener
 		return null;
 	}
 
-	public void dispose() { }
+	public void dispose() { 
+		clear(new NullProgressMonitor());
+	}
 
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = handle.isEnabled();

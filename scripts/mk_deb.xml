@@ -58,8 +58,6 @@
 			<arg value="${deb_tmp}"/>
 			<arg value="${sve_deb}"/>
 		</exec>
-<!--
 		<delete dir="${deb_tmp}"/>
-  -->
 	</target>
 </project>

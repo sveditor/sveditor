@@ -20,6 +20,13 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
+import net.sf.sveditor.core.db.index.ops.SVDBGetFileListOp;
+import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -39,8 +46,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
@@ -70,12 +79,16 @@ public class SVDBProjectManager implements
 	 */
 	public void init() {
 		fProjectMap.clear();
-		
-		SVDBInitProjectsJob job = new SVDBInitProjectsJob();
-		// Ensure this job is sensitive to the workspace
-		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
-		
-		job.schedule();
+
+		// Only use the index-refresh job when using
+		// the new indexer
+//		if (SVDBArgFileIndexFactory.fUseArgFile2Index) {
+			SVDBInitProjectsJob job = new SVDBInitProjectsJob();
+			// Ensure this job is sensitive to the workspace
+			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+
+			job.schedule();
+//		}
 	}
 	
 	public static boolean isSveProject(IProject p) {
@@ -120,6 +133,80 @@ public class SVDBProjectManager implements
 			for (int i=0; i<fListeners.size(); i++) {
 				fListeners.get(i).projectSettingsChanged(data);
 			}
+		}
+	}
+	
+	public void rebuildProject(IProgressMonitor monitor, IProject p) {
+		SVDBProjectData pd = getProjectData(p);
+		if (pd != null) {
+			SVDBIndexCollection index = pd.getProjectIndexMgr();
+			List<ISVDBIndex> index_l = index.getIndexList();
+			monitor.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
+
+			for (ISVDBIndex i : index_l) {
+				monitor.subTask("Build " + i.getBaseLocation());
+				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(i);
+				
+				i.execOp(new SubProgressMonitor(monitor, 1000), 
+						new SVDBClearMarkersOp(), true);
+				if (monitor.isCanceled()) {
+					break;
+				}
+				
+				i.execIndexChangePlan(new SubProgressMonitor(monitor, 10000), plan);
+				if (monitor.isCanceled()) {
+					break;
+				}
+
+				i.execOp(new SubProgressMonitor(monitor, 1000),
+						new SVDBPropagateMarkersOp(), false);
+				if (monitor.isCanceled()) {
+					break;
+				}
+			}
+			
+			// Finally, update the markers
+
+		}
+		monitor.done();
+	}
+
+	public void rebuildProject(
+			IProgressMonitor 					monitor, 
+			IProject 							p,
+			List<SVDBIndexResourceChangeEvent> 	changes) {
+		SVDBProjectData pd = getProjectData(p);
+		if (pd != null) {
+			SVDBIndexCollection index = pd.getProjectIndexMgr();
+			List<ISVDBIndex> index_l = index.getIndexList();
+			monitor.beginTask("Build " + p.getName(), 12000*index_l.size());
+			
+			for (ISVDBIndex i : index_l) {
+				monitor.subTask("Build " + i.getBaseLocation());
+				ISVDBIndexChangePlan plan = i.createIndexChangePlan(changes);
+				
+				if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
+					i.execOp(new SubProgressMonitor(monitor, 1000), 
+							new SVDBClearMarkersOp(), true);
+					if (monitor.isCanceled()) {
+						break;
+					}
+					i.execIndexChangePlan(new SubProgressMonitor(monitor, 10000), plan);
+					if (monitor.isCanceled()) {
+						break;
+					}
+					i.execOp(new SubProgressMonitor(monitor, 1000),
+							new SVDBPropagateMarkersOp(), false);
+					if (monitor.isCanceled()) {
+						break;
+					}
+				} else {
+					monitor.worked(20000); // Nothing to do for this index
+				}
+				
+			}
+			
+			monitor.done();
 		}
 	}
 	

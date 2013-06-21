@@ -49,9 +49,34 @@ public class SVDBArgFileIndexBuildData implements
 		fCacheMgr = build_data.fCacheMgr;
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
+	
+		// We've transferred the cache to this build data
+		build_data.fCache = null;
 
 		// Free the entries in the old cache
 		old_cache.dispose();
+	}
+
+	/**
+	 * Clean up after this data. This is typically 
+	 */
+	void dispose() {
+		if (fCache != null) {
+			fCache.dispose();
+		}
+	}
+
+	/**
+	 * Initializes the file list, so the file mapper returns 
+	 * correct IDs during an incremental build
+	 * 
+	 * @param other
+	 */
+	void initFileMapperState(SVDBArgFileIndexBuildData other) {
+		fIndexCacheData.fSrcFileList.clear();
+		fIndexCacheData.fSrcFileList.addAll(other.fIndexCacheData.fSrcFileList);
+		fIndexCacheData.fIncludePathList.clear();
+		fIndexCacheData.fIncludePathList.addAll(other.fIndexCacheData.fIncludePathList);
 	}
 
 	void addIncludePath(String path) {
@@ -78,6 +103,10 @@ public class SVDBArgFileIndexBuildData implements
 	
 	void addArgFile(SVDBFile argfile) {
 		fIndexCacheData.fArgFiles.add(argfile);
+	}
+	
+	List<String> getRootFileList() {
+		return fIndexCacheData.fRootFileList;
 	}
 	
 	Map<String, String> getGlobalDefines() {

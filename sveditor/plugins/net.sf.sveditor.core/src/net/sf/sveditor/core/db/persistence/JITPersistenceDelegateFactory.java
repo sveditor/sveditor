@@ -829,19 +829,27 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 								writeMethod = "writeMapStringString";
 								readMethod  = "readMapStringString";
 							} else if (key_c == String.class && val_c.isAssignableFrom(List.class)) {
+								// See what the list is parameterized with
 								elem_c = (Class)((ParameterizedType)args[1]).getActualTypeArguments()[0];
 								if (fDebugEn) {
 									debug("  " + fLevel + " Field " + f.getName() + " is Map<String,List>");
 								}
-								local_access = false;
-								writeMethod = "writeMapStringList";
-								writeSig = "(L" + getClassName(Map.class) + ";" +
-									        "L" + getClassName(Class.class) + ";)V";
-								writeSig = "(L" + getClassName(Map.class) + ";" +
-								        "L" + getClassName(Class.class) + ";)V";
-								readMethod  = "readMapStringList";
-								readSig = "(L" + getClassName(Class.class) + ";)" + 
-										"L" + getClassName(Map.class) + ";";
+								
+								if (elem_c == String.class) {
+									elem_c = null; // Prevent the byte-code generation from trying to load the type
+									writeMethod = "writeMapStringStringList";
+									readMethod  = "readMapStringStringList";
+									writeSig = "(L" + getClassName(Map.class) + ";)V";
+									readSig = "()L" + getClassName(Map.class) + ";";
+								} else {
+									local_access = false;
+									writeMethod = "writeMapStringList";
+									readMethod  = "readMapStringList";
+									writeSig = "(L" + getClassName(Map.class) + ";" +
+											"L" + getClassName(Class.class) + ";)V";
+									readSig = "(L" + getClassName(Class.class) + ";)" + 
+											"L" + getClassName(Map.class) + ";";
+								}
 							} else if (key_c == String.class) {
 								// Assume a map of string and an object we support
 								elem_c = val_c; // Type of element object

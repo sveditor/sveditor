@@ -52,7 +52,7 @@ public class SVDBIndexBuildJob extends Job {
 				fSyncObj.notifyAll();
 			} 
 			
-			if (ex != null) {
+			if (ex == null) {
 				// Try a replan
 				if (fPlan.getType() == SVDBIndexChangePlanType.Refresh) {
 					ISVDBIndexChangePlan plan = fPlan.getPlanner().createIndexChangePlan(null);

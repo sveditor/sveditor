@@ -126,12 +126,6 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			IResource target = null;
 			path = path.substring("${workspace_loc}".length());
 		
-			/*
-			if (path.startsWith("/")) {
-				path = path.substring(1);
-			}
-			 */
-			
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			
 			try {
@@ -168,9 +162,19 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			} else {
 				severity = IMarker.SEVERITY_INFO;
 			}
-		
+
+			/*
 			if (target != null) {
 				SVCorePlugin.getDefault().propagateMarker(target, severity, lineno, msg);
+			}
+			 */
+			try {
+				IMarker marker = target.createMarker(IMarker.PROBLEM);
+				marker.setAttribute(IMarker.SEVERITY, severity);
+				marker.setAttribute(IMarker.LINE_NUMBER, lineno);
+				marker.setAttribute(IMarker.MESSAGE, msg);
+			} catch (CoreException e) {
+				e.printStackTrace();
 			}
 		}
 	}

@@ -50,14 +50,13 @@ public class UpdateProjectSettingsJob extends Job
 			result = SVDBIndexUtil.findIndexFile(file_path, fProjectName, true);
 
 			if (result == null) {
-				fLog.error("Failed to find index for \"" + fEditor.getFilePath() + "\"");
+				// Editor should react by creating a shadow index
 				fEditor.int_projectSettingsUpdated(null, null);
 			} else {
 				fEditor.int_projectSettingsUpdated(result.first(), result.second());
 			}
 		} catch (RuntimeException e) {
-			System.out.println("Exception during UpdateProjectSettings");
-			e.printStackTrace();
+			fLog.error("Exception during UpdateProjectSettings", e);
 			throw e;
 		}
 		
