@@ -167,7 +167,7 @@ public class BrowseClasses extends SelectionStatusDialog
 		if (fClassNameStr == null) {
 			fClassNameStr = "";
 		}
-		proposals = finder.find(fClassNameStr, SVDBItemType.ClassDecl);
+		proposals = finder.findItems(fClassNameStr, SVDBItemType.ClassDecl);
 		for (ISVDBItemBase p : proposals) {
 			fProposals.add((SVDBItem)p);
 		}

@@ -40,7 +40,7 @@ public class SVDBFindSuperClass {
 			SVDBFindNamedClass finder = new SVDBFindNamedClass(fIndexIterator, fMatcher);
 			SVDBTypeInfoClassType cls_type = cls.getSuperClass();
 			
-			List<SVDBClassDecl> ret = finder.find(cls_type.getName());
+			List<SVDBClassDecl> ret = finder.findItem(cls_type.getName());
 			
 			return (ret.size() > 0)?ret.get(0):null;
 		} else {

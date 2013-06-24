@@ -44,7 +44,7 @@ public class TestFindDocComments extends SVCoreTestCaseBase {
 		FileIndexIterator index_it = new FileIndexIterator(file);
 		
 		SVDBFindNamedClass finder = new SVDBFindNamedClass(index_it);
-		List<SVDBClassDecl> result = finder.find("uvm_report_object");
+		List<SVDBClassDecl> result = finder.findItem("uvm_report_object");
 		
 		assertTrue(result.size() == 1);
 		
