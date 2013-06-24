@@ -57,7 +57,7 @@ public class ModuleHierarchyTreeFactory {
 				if (inst.getTypeInfo() == null) {
 					fLog.error("module instance \"" + inst.getName() + "\" has null type");
 				}
-				List<ISVDBItemBase> it_l = fFinder.find(inst.getTypeInfo().getName(), 
+				List<ISVDBItemBase> it_l = fFinder.findItems(inst.getTypeInfo().getName(), 
 						SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl);
 			
 				for (SVDBModIfcInstItem inst_i : inst.getInstList()) {

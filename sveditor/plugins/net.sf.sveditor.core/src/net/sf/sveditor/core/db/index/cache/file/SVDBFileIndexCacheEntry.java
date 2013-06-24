@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
@@ -16,7 +17,10 @@ public class SVDBFileIndexCacheEntry {
 	public static final int					SVDB_PREPROC_FILE_MASK 	= (1 << 1);
 	public static final int					SVDB_FILETREE_MASK 		= (1 << 2);
 	public static final int					MARKERS_MASK 			= (1 << 3);
-	public static final int					ALL_MASK 				= 0xF;
+	public static final int					SUBFILES_MASK 			= (1 << 4);
+	// Mask indicating things that are backed up in the filesystem
+	public static final int					BACKED_MASK 			= 0x1F;
+	public static final int					ALL_MASK 				= 0x1F;
 
 	private int								fCacheId;
 	private String							fPath;
@@ -59,6 +63,15 @@ public class SVDBFileIndexCacheEntry {
 	private List<SVDBMarker>				fMarkersRef;
 	private Reference<List<SVDBMarker>>		fMarkers;
 	private int								fMarkersId;
+
+	/**
+	 * Extracted files corresponding to the entries within the root file
+	 * 
+	 * This is computed as needed, and not persisted
+	 */
+	private Map<Integer, SVDBFile>				fSubFileMapRef;
+	private Reference<Map<Integer, SVDBFile>>	fSubFileMap;
+	
 	
 	private long							fLastModified;
 
@@ -179,6 +192,7 @@ public class SVDBFileIndexCacheEntry {
 		fSVDBFileTreeRef = null;
 		fSVDBPreProcFileRef = null;
 		fMarkersRef = null;
+		fSubFileMapRef = null;
 		
 		// Assume nothing loaded until entry is brought back into the cache
 		fLoadedMask = 0;
@@ -213,6 +227,12 @@ public class SVDBFileIndexCacheEntry {
 			fMarkersRef = fMarkers.get();
 			if (fMarkersRef != null) {
 				fLoadedMask |= MARKERS_MASK;
+			}
+		}
+		if (fSubFileMap != null) {
+			fSubFileMapRef = fSubFileMap.get();
+			if (fSubFileMapRef != null) {
+				fLoadedMask |= SUBFILES_MASK;
 			}
 		}
 		
@@ -310,6 +330,14 @@ public class SVDBFileIndexCacheEntry {
 		fMarkers = (Reference<List<SVDBMarker>>)createRef(markers);
 		fMarkersRef = markers;
 	}
+	
+	void setSubFileMapRef(Map<Integer, SVDBFile> map) {
+		fSubFileMapRef = map;
+	}
+	
+	Map<Integer, SVDBFile> getSubFileMapRef() {
+		return fSubFileMapRef;
+	}
 
 	@SuppressWarnings("unchecked")
 	void setFileTree(SVDBFileTree ft) {
@@ -327,6 +355,10 @@ public class SVDBFileIndexCacheEntry {
 	void setFile(SVDBFile file) {
 		fSVDBFile    = (Reference<SVDBFile>)createRef(file);
 		fSVDBFileRef = file;
+	
+		// Clear the handle to SubFiles, since we just invalidated
+		fSubFileMap = null;
+		fSubFileMapRef = null;
 	}
 	
 	long getLastModified() {

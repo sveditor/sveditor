@@ -606,6 +606,15 @@ public class SVDBFileIndexCacheOld implements ISVDBIndexCache, ILogLevelListener
 		fSVDBFS.delete(null, target_dir);
 	}
 	
+	public Map<Integer, SVDBFile> getSubFileMap(String path) {
+		// Unsupported
+		return null;
+	}
+
+	public void setSubFileMap(String path, Map<Integer, SVDBFile> map) {
+		// Unsupported
+	}
+	
 	private String computePathDir(String path) {
 		return SVFileUtils.computeMD5(path);
 	}
@@ -928,5 +937,10 @@ public class SVDBFileIndexCacheOld implements ISVDBIndexCache, ILogLevelListener
 			info.fCached = false;
 			fCacheSize--;
 		}
+	}
+	
+	// Not supported...
+	public FileType getFileType(String path) {
+		return FileType.Invalid;
 	}
 }

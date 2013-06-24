@@ -170,19 +170,31 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 			e.printStackTrace();
 		}
 
-	
-		
-		
-		
 		List<SVDBDeclCacheItem> result = index.findGlobalScopeDecl(
 				new NullProgressMonitor(), 
-				"uvm_component", SVDBFindDefaultNameMatcher.getDefault());
+				"uvm_component", 
+				SVDBFindDefaultNameMatcher.getDefault());
 
 		System.out.println("Result: " + result.size());
 		for (SVDBDeclCacheItem item : result) {
 			System.out.println("Item: " + item.getName() + 
 					" " + item.getType() + " " + item.getFilename());
+			assertNotNull(item.getSVDBItem());
 		}
+		
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), 
+				"uvm_pkg", 
+				SVDBFindDefaultNameMatcher.getDefault());
+
+		System.out.println("Result: " + result.size());
+		assertEquals(1, result.size());
+		for (SVDBDeclCacheItem item : result) {
+			System.out.println("Item: " + item.getName() + 
+					" " + item.getType() + " " + item.getFilename());
+			assertNotNull(item.getSVDBItem());
+		}
+		
 		
 
 		/**

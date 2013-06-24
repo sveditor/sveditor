@@ -86,7 +86,7 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 				SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(
 						((SVEditor)getTextEditor()).getIndexIterator());
 				
-				List<ISVDBChildItem> result = finder_c.find(expr_ctxt.fLeaf); 
+				List<ISVDBChildItem> result = finder_c.findItems(expr_ctxt.fLeaf); 
 				ISVDBItemBase cls = (result != null && result.size() > 0)?result.get(0):null; 
 
 				monitor.worked(1);

@@ -111,7 +111,7 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 				// connected to
 				if(childVarDecl.getTypeInfo().getType() == SVDBItemType.TypeInfoUserDef) {
 					SVDBFindNamedClass finder = new SVDBFindNamedClass(fIndex, SVDBFindClassDefaultNameMatcher.getDefault()) ;
-					List<SVDBClassDecl> classDecls = finder.find(childVarDecl.getTypeName()) ;
+					List<SVDBClassDecl> classDecls = finder.findItem(childVarDecl.getTypeName()) ;
 					if(classDecls.size() != 0) {
 						DiagNode kidNode = createNodeForClass(model, (SVDBClassDecl)classDecls.toArray()[0]) ;
 						DiagConnection con = new DiagConnection("bla", DiagConnectionType.Contains, node, kidNode) ;
@@ -136,7 +136,7 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 				// Check for members of user defined type (class?) as
 				// connected to
 				SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndex);
-				List<ISVDBChildItem> result = finder.find(modInst.getTypeName());
+				List<ISVDBChildItem> result = finder.findItems(modInst.getTypeName());
 			
 				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ModuleDecl) {
 					DiagNode kidNode = createNodeForModule(model, (SVDBModuleDecl)result.get(0));

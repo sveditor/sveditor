@@ -17,9 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperationRunner;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -35,7 +33,7 @@ public class SVDBFindByName implements ISVDBIndexOperation {
 	private LogHandle					fLog;
 	private String						fName;
 	private SVDBItemType				fTypes[];
-	List<ISVDBItemBase> 				fRet;
+	List<SVDBDeclCacheItem>				fRet;
 	
 	public SVDBFindByName(ISVDBIndexOperationRunner index_it) {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
@@ -56,7 +54,7 @@ public class SVDBFindByName implements ISVDBIndexOperation {
 		for (SVDBDeclCacheItem item : found) {
 			if (item.getType().isElemOf(fTypes)) {
 				if (item.getSVDBItem() != null) {
-					fRet.add(item.getSVDBItem());
+					fRet.add(item);
 				} else {
 					try {
 						throw new Exception();
@@ -67,18 +65,37 @@ public class SVDBFindByName implements ISVDBIndexOperation {
 			}
 		}
 	}
+	public List<ISVDBItemBase> findItems(
+			String 				name,
+			SVDBItemType ... 	types) {
+		return findItems(name, false, types);
+	}
 	
-	public List<ISVDBItemBase> find(
+	public List<ISVDBItemBase> findItems(
+			String 				name,
+			boolean				sync,
+			SVDBItemType ... 	types) {
+		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+		List<SVDBDeclCacheItem> cache_items = find(name, sync, types);
+		
+		for (SVDBDeclCacheItem it : cache_items) {
+			ret.add(it.getSVDBItem());
+		}
+		
+		return ret;
+	}
+	
+	public List<SVDBDeclCacheItem> findCacheItems(
 			String 				name, 
 			SVDBItemType ... 	types) {
 		return find(name, false, types);
 	}
 
-	public List<ISVDBItemBase> find(
+	public List<SVDBDeclCacheItem> find(
 			String 				name, 
 			boolean				sync,
 			SVDBItemType ... 	types) {
-		fRet 	= new ArrayList<ISVDBItemBase>();
+		fRet 	= new ArrayList<SVDBDeclCacheItem>();
 		fName 	= name;
 		fTypes 	= types;
 
