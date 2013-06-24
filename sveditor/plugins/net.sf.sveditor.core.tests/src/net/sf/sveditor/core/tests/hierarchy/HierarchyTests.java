@@ -54,7 +54,7 @@ public class HierarchyTests extends TestCase {
 		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
-		List<SVDBClassDecl> cls_l = cls_finder.find("c2_2");
+		List<SVDBClassDecl> cls_l = cls_finder.findItem("c2_2");
 		assertEquals(1, cls_l.size());
 	
 		// root, target
@@ -86,7 +86,7 @@ public class HierarchyTests extends TestCase {
 		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
-		List<SVDBClassDecl> cls_l = cls_finder.find("c2_1");
+		List<SVDBClassDecl> cls_l = cls_finder.findItem("c2_1");
 		assertEquals(1, cls_l.size());
 	
 		// root, target
@@ -120,7 +120,7 @@ public class HierarchyTests extends TestCase {
 		ModuleHierarchyTreeFactory tf = new ModuleHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedModIfcClassIfc mod_finder = new SVDBFindNamedModIfcClassIfc(index_it);
-		List<ISVDBChildItem> mod_l = mod_finder.find(top);
+		List<ISVDBChildItem> mod_l = mod_finder.findItems(top);
 		assertEquals(1, mod_l.size());
 	
 		// root, target

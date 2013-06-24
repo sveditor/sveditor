@@ -76,6 +76,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
@@ -940,15 +941,43 @@ public class SVDBArgFileIndex2 implements
 		
 		checkInIndexOp("findFile");
 		
-		// TODO: 
-		synchronized (fBuildData) {
-			ret = fBuildData.fCache.getFile(new NullProgressMonitor(), r_path);
-		}
+		ISVDBIndexCache.FileType ft = fBuildData.fCache.getFileType(r_path);
 		
-		if (ret == null) {
-			ret = findFileInt(r_path);
+		if (ft == FileType.ArgFile) {
+			// Just return the file
+			synchronized (fBuildData) {
+				ret = fBuildData.fCache.getFile(new NullProgressMonitor(), r_path);
+			}
+		} else {
+			// We assume the file is SystemVerilog
+			int id = fBuildData.mapFilePathToId(r_path, false);
+			
+			// See if we can find the root file
+			String root_path = findRootFilePath(fBuildData, r_path);
+			
+			if (root_path != null) {
+				// Get the FileMap
+				Map<Integer, SVDBFile> map = fBuildData.fCache.getSubFileMap(root_path);
+				
+				if (map == null) {
+					System.out.println("Recreate map for " + root_path);
+					// re-create the map
+					SVDBFile file = fBuildData.fCache.getFile(new NullProgressMonitor(), root_path);
+					map = new HashMap<Integer, SVDBFile>();
+				
+					SVDBFile f = new SVDBFile(root_path);
+					map.put(id, f);
+					long start = System.currentTimeMillis();
+					createSubFileMap(fBuildData, map, file, id, f);
+					long end = System.currentTimeMillis();
+					System.out.println("createSubFileMap: " + (end-start) + "ms");
+					fBuildData.fCache.setSubFileMap(root_path, map);
+				}
+				
+				ret = map.get(id);
+			}
 		}
-		
+
 		monitor.done();
 
 		if (fDebugEn) {
@@ -956,6 +985,36 @@ public class SVDBArgFileIndex2 implements
 		}
 
 		return ret;
+	}
+	
+	private void createSubFileMap(
+			SVDBArgFileIndexBuildData 		build_data,
+			Map<Integer, SVDBFile>			map,
+			ISVDBChildParent				scope,
+			int								curr_id,
+			SVDBFile						file) {
+		
+		for (ISVDBChildItem it : scope.getChildren()) {
+			SVDBLocation l = it.getLocation();
+			
+			if (l != null && l.getFileId() != curr_id) {
+				int new_id = l.getFileId();
+				SVDBFile f = map.get(new_id);
+				
+				if (f == null) {
+					f = new SVDBFile();
+					map.put(new_id, f);
+				}
+		
+				f.addChildItem(it);
+				if (it instanceof ISVDBScopeItem) {
+					createSubFileMap(build_data, map, (ISVDBChildParent)it, new_id, f);
+				}
+			} else {
+				file.addChildItem(it);
+			}
+		}
+		
 	}
 
 	/**
@@ -1987,6 +2046,13 @@ public class SVDBArgFileIndex2 implements
 				file = ft.getSVDBFile();
 			}
 		} else {
+			/*
+			try {
+				throw new Exception("getDeclFile");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			 */
 			file = findFile(item.getFilename());
 		}
 

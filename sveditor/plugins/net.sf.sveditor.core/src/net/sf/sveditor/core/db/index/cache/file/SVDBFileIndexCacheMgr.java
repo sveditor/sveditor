@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -357,11 +358,11 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		
 		mask ^= loaded_mask;
 		
-		if (mask != 0) {
+		if ((mask & SVDBFileIndexCacheEntry.BACKED_MASK) != 0) {
 			readBackEntry(entry, mask);
 		}
 	}
-
+	
 	/**
 	 * Removes the specified entry from the index cache mgr
 	 * 

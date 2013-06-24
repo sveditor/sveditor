@@ -78,7 +78,7 @@ public class NewClassGenerator {
 		
 			if (index_it != null) {
 				SVDBFindByName finder = new SVDBFindByName(index_it);
-				List<ISVDBItemBase> result = finder.find(superclass, SVDBItemType.ClassDecl);
+				List<ISVDBItemBase> result = finder.findItems(superclass, SVDBItemType.ClassDecl);
 				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ClassDecl) {
 					superclass_decl = (SVDBClassDecl)result.get(0);
 				}

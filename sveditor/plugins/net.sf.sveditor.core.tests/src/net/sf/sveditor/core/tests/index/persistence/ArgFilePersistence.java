@@ -340,7 +340,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		IndexTestUtils.assertNoErrWarn(log, index);
 
 		SVDBFindByName finder = new SVDBFindByName(index);
-		List<ISVDBItemBase> items_1 = finder.find("class1", true);
+		List<ISVDBItemBase> items_1 = finder.findItems("class1", true);
 	
 		assertEquals(1, items_1.size());
 		assertEquals("class1", SVDBItem.getName(items_1.get(0)));
@@ -393,7 +393,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		
 		finder = new SVDBFindByName(index);
 		
-		List<ISVDBItemBase> items = finder.find("class1_2", true);
+		List<ISVDBItemBase> items = finder.findItems("class1_2", true);
 	
 		assertEquals(1, items.size());
 		assertEquals("class1_2", SVDBItem.getName(items.get(0)));

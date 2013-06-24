@@ -217,6 +217,20 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 			fFileTreeMap.remove(path);			
 		}
 	}
+	
+	public Map<Integer, SVDBFile> getSubFileMap(String path) {
+		// Unsupported
+		return null;
+	}
+
+	public void setSubFileMap(String path, Map<Integer, SVDBFile> map) {
+		// Unsupported
+	}
+
+	// Not supported...
+	public FileType getFileType(String path) {
+		return FileType.Invalid;
+	}
 
 	public void sync() {
 		// TODO Auto-generated method stub

@@ -122,7 +122,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				if ((idx = name.indexOf("::")) != -1) {
 					String class_name = name.substring(0, idx);
 					fLog.debug("class_name: " + class_name);
-					List<SVDBClassDecl> result = fFindNamedClass.find(class_name);
+					List<SVDBClassDecl> result = fFindNamedClass.findItem(class_name);
 					
 					if (result.size() > 0) {
 						fClassScope = result.get(0);
@@ -240,7 +240,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		
 		fLog.debug("FindByNameInScopes: " + 
 				((fScope != null)?(fScope.getType() + " " + SVDBItem.getName(fScope)):"NONE"));
-		List<ISVDBItemBase> items = finder.find(fScope, name, false);
+		List<ISVDBItemBase> items = finder.findItems(fScope, name, false);
 		
 		// Filter out the forward typedefs
 		filterFwdDecls(items);
@@ -258,7 +258,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			// Find the built-in class
 			fLog.debug("Search for covergroup class");
 			
-			List<SVDBClassDecl> l = fFindNamedClass.find("__sv_builtin_covergroup");
+			List<SVDBClassDecl> l = fFindNamedClass.findItem("__sv_builtin_covergroup");
 			if (l.size() > 0) {
 				root = l.get(0);
 			} else {
@@ -511,7 +511,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		ISVDBItemBase ret = null;
 		SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 
-		List<ISVDBItemBase> item_l = finder_n.find(name);
+		List<ISVDBItemBase> item_l = finder_n.findItems(name);
 
 		// Filter out the forward typedefs
 		filterFwdDecls(item_l);
@@ -654,14 +654,14 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		}
 		
 		// Perform global search
-		List<SVDBClassDecl> cls_l = fFindNamedClass.find(id);
+		List<SVDBClassDecl> cls_l = fFindNamedClass.findItem(id);
 		
 		if (cls_l.size() > 0) {
 			return cls_l.get(0);
 		}
 		
 		SVDBFindByName name_finder = new SVDBFindByName(fIndexIt);
-		List<ISVDBItemBase> item_l = name_finder.find(id);
+		List<ISVDBItemBase> item_l = name_finder.findItems(id);
 		
 		// Filter out the forward typedefs
 		filterFwdDecls(item_l);

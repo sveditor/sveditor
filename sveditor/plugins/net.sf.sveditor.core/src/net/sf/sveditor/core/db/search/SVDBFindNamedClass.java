@@ -37,7 +37,7 @@ public class SVDBFindNamedClass {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
 
-	public List<SVDBClassDecl> find(String type_name) {
+	public List<SVDBClassDecl> findItem(String type_name) {
 		List<SVDBClassDecl> ret = new ArrayList<SVDBClassDecl>();
 		
 		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
@@ -52,4 +52,18 @@ public class SVDBFindNamedClass {
 		return ret;
 	}
 
+	public List<SVDBDeclCacheItem> findCacheItem(String type_name) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		
+		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
+				new NullProgressMonitor(), type_name, fMatcher);
+		
+		for (SVDBDeclCacheItem ci : found) {
+			if (ci.getType() == SVDBItemType.ClassDecl) {
+				ret.add(ci);
+			}
+		}
+		
+		return ret;
+	}
 }

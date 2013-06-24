@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SVDBFindNamedModIfcClassIfc {
 	private ISVDBIndexIterator			fIndexIt;
 	private ISVDBFindNameMatcher		fMatcher;
-	private List<ISVDBChildItem>		fRet;
+	private List<SVDBDeclCacheItem>		fRet;
 	
 	public SVDBFindNamedModIfcClassIfc(
 			ISVDBIndexIterator 		index_it,
@@ -37,20 +37,33 @@ public class SVDBFindNamedModIfcClassIfc {
 	public SVDBFindNamedModIfcClassIfc(ISVDBIndexIterator index_it) {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
-
-	public synchronized List<ISVDBChildItem> find(String type_name) {
-		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+	
+	public synchronized List<SVDBDeclCacheItem> findCacheItems(String type_name) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
 		
 		fRet = ret;
-
+		
 		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
 				new NullProgressMonitor(), type_name, fMatcher);
 		
 		for (SVDBDeclCacheItem ci : found) {
 			if (ci.getType().isElemOf(SVDBItemType.ClassDecl, 
 					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl)) {
-				ret.add((ISVDBChildItem)ci.getSVDBItem());
+				ret.add(ci);
 			}
+		}
+		
+		return ret;
+	}
+
+	public synchronized List<ISVDBChildItem> findItems(String type_name) {
+		List<SVDBDeclCacheItem> found = findCacheItems(type_name);
+		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+	
+		
+		
+		for (SVDBDeclCacheItem ci : found) {
+			ret.add((ISVDBChildItem)ci.getSVDBItem());
 		}
 
 		return ret;
