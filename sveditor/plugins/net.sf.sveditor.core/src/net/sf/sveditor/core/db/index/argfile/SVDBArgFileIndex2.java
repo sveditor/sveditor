@@ -960,7 +960,6 @@ public class SVDBArgFileIndex2 implements
 				Map<Integer, SVDBFile> map = fBuildData.fCache.getSubFileMap(root_path);
 				
 				if (map == null) {
-					System.out.println("Recreate map for " + root_path);
 					// re-create the map
 					SVDBFile file = fBuildData.fCache.getFile(new NullProgressMonitor(), root_path);
 					map = new HashMap<Integer, SVDBFile>();
@@ -970,7 +969,6 @@ public class SVDBArgFileIndex2 implements
 					long start = System.currentTimeMillis();
 					createSubFileMap(fBuildData, map, file, id, f);
 					long end = System.currentTimeMillis();
-					System.out.println("createSubFileMap: " + (end-start) + "ms");
 					fBuildData.fCache.setSubFileMap(root_path, map);
 				}
 				
@@ -1445,10 +1443,14 @@ public class SVDBArgFileIndex2 implements
 		synchronized (build_data) {
 			Map<String, List<String>> root_map = build_data.fIndexCacheData.fRootIncludeMap;
 			
-			for (Entry<String, List<String>> e : root_map.entrySet()) {
-				if (e.getValue().contains(path)) {
-					ret = e.getKey();
-					break;
+			if (root_map.containsKey(path)) {
+				ret = path;
+			} else {
+				for (Entry<String, List<String>> e : root_map.entrySet()) {
+					if (e.getValue().contains(path)) {
+						ret = e.getKey();
+						break;
+					}
 				}
 			}
 		}
