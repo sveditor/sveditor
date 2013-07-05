@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
@@ -32,6 +33,7 @@ import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -56,6 +58,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -131,6 +134,27 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
+	/**
+	 * Get the Eclipse platform version.
+	 * @return
+	 */
+	public static Version getPlatformVersion() {
+		return Platform.getBundle("org.eclipse.platform").getVersion();
+	}
+
+	/**
+	 * Determines whether calls to org.eclipse.jface.text.FindReplaceDocumentAdapter.find should escape any
+	 * regular expression characters in the search string when performing a word search. The behaviour has
+	 * changed with Eclipse 4.3.0 such that the search string is now correctly escaped in the find method
+	 * (Eclipse bug #386751; commit: a68f0663)
+	 *
+	 * @return true if the string should be escaped with Pattern.quote().
+	 */
+	public static boolean shouldEscapeFindWordPattern() {
+		return (getPlatformVersion().compareTo(new Version(4,3,0)) < 0);
+	}
+
+
 	public static IWorkbenchPage getActivePage() {
 		return null;
 //		return getDefault().getActivePage() ;
