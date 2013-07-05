@@ -10,37 +10,41 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package net.sf.sveditor.ui.editor.outline;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
-import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -53,6 +57,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
@@ -61,10 +66,10 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 public class SVOutlinePage extends ContentOutlinePage 
 	implements IShowInTarget, IAdaptable, 
 			Runnable, ISVDBChangeListener, ILogLevelListener {
-	private SVDBFile					fSVDBFile;
-	private SVTreeContentProvider		fContentProvider;
+	private SVOutlineContent			fContent;
+	private SVOutlineContentProvider	fContentProvider;
 	private SVEditor					fEditor;
-	private boolean					fIgnoreSelectionChange = false;
+	private boolean						fIgnoreSelectionChange = false;
 	private ISVDBItemBase				fLastSelection;
 	private Action                     ToggleAssign;
 	private Action                     ToggleAlways;
@@ -87,9 +92,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
-		fContentProvider = new SVTreeContentProvider();
+		fContentProvider = new SVOutlineContentProvider();
 		
-		fSVDBFile = new SVDBFile("");
+		fContent = new SVOutlineContent(new SVDBFile(""), null);
 		
 		fLog = LogFactory.getLogHandle("SVOutlinePage");
 		fDebugEn = fLog.isEnabled();
@@ -116,7 +121,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	public void createControl(Composite parent) {
 		super.createControl(parent);
 
-		fContentProvider = new SVTreeContentProvider();
+		fContentProvider = new SVOutlineContentProvider();
 		DefaultContentFilter = new SVDBDefaultContentFilter();
 		ViewerComapartor     = new ViewerComparator();
 
@@ -145,8 +150,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		else  {
 			getTreeViewer().setComparator(null);
 		}
-		getTreeViewer().setLabelProvider(
-				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
+		getTreeViewer().setLabelProvider(new SVOutlineLabelProvider());
 		getTreeViewer().setComparer(new IElementComparer() {
 			public int hashCode(Object element) {
 				return element.hashCode();
@@ -158,9 +162,10 @@ public class SVOutlinePage extends ContentOutlinePage
 			}
 		});
 		
-		getTreeViewer().setInput(fSVDBFile);
+		getTreeViewer().setInput(fContent);
 		
 		getTreeViewer().addSelectionChangedListener(fSelectionListener);
+		getTreeViewer().addDoubleClickListener(fDoubleClickListener);
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 		
 		// Get initial contents
@@ -198,13 +203,20 @@ public class SVOutlinePage extends ContentOutlinePage
 			if (fDebugEn) {
 				fLog.debug("run: refresh content");
 			}
-			fSVDBFile = fEditor.getSVDBFile();
+			SVDBFilePath file_path = null;
+			List<SVDBFilePath> curr_path = fEditor.getSVDBFilePath();
+			
+			if (curr_path != null && curr_path.size() > 0) {
+				file_path = curr_path.get(0);
+			}
+
+			fContent = new SVOutlineContent(fEditor.getSVDBFile(), file_path);
 			
 			List<ISVDBItemBase> exp_path_list = getExpansionPaths();
 			
 			ISelection sel = getTreeViewer().getSelection();
 			
-			getTreeViewer().setInput(fSVDBFile);
+			getTreeViewer().setInput(fContent);
 			
 			// Apply selection and expansions previously saved
 			setExpansionPaths(exp_path_list);
@@ -243,7 +255,7 @@ public class SVOutlinePage extends ContentOutlinePage
 			buildFullPath(path, item);
 			
 			// Find the corresponding path
-			lookupPath(fSVDBFile, path.iterator(), target_path);
+			lookupPath(fContent.getFile(), path.iterator(), target_path);
 			
 			if (target_path.size() > 0) {
 				exp_tree_paths.add(new TreePath(target_path.toArray()));
@@ -291,7 +303,7 @@ public class SVOutlinePage extends ContentOutlinePage
 						target_path.clear();
 						buildFullPath(path, (ISVDBItemBase)sel_it);
 
-						if (lookupPath(fSVDBFile, path.iterator(), target_path)) {
+						if (lookupPath(fContent.getFile(), path.iterator(), target_path)) {
 							ISVDBItemBase sel_t = target_path.get(target_path.size()-1);
 							new_sel_l.add(sel_t);
 						}
@@ -385,6 +397,27 @@ public class SVOutlinePage extends ContentOutlinePage
 		// TODO Auto-generated method stub
 		return true;
 	}
+	
+	private IDoubleClickListener fDoubleClickListener =
+			new IDoubleClickListener() {
+				
+				@SuppressWarnings("unchecked")
+				public void doubleClick(DoubleClickEvent event) {
+					IStructuredSelection sel = (IStructuredSelection)getSelection();
+					
+					if (sel.getFirstElement() != null && sel.getFirstElement() instanceof Tuple) {
+						Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)sel.getFirstElement();
+						
+						if (t.second() != null) { // Don't mess with 'this' file
+							try {
+								SVEditorUtil.openEditor(t.second());
+							} catch (PartInitException e) {
+								fLog.error("Failed to open editor", e);
+							}
+						}
+					}
+				}
+			};
 	
 	private ISelectionChangedListener fSelectionListener = 
 		new ISelectionChangedListener() {

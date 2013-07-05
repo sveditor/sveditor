@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -35,6 +34,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBIndexParse;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
@@ -64,6 +64,7 @@ import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
+import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -103,7 +104,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
@@ -118,7 +121,8 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
-			ISVDBIndexChangeListener, IResourceChangeListener {
+			ISVDBIndexChangeListener, IResourceChangeListener,
+			IPartListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -152,6 +156,7 @@ public class SVEditor extends TextEditor
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean							fPendingUpdateSVDBFile;
+	private boolean							fNeedUpdate;
 	private boolean							fOccurrenceHighlightDebounceActive;
 	
 	IInformationPresenter fQuickObjectsPresenter;
@@ -250,6 +255,7 @@ public class SVEditor extends TextEditor
 			
 			synchronized (SVEditor.this) {
 				fUpdateSVDBFileJob = null;
+				fNeedUpdate = false;
 				if (fPendingUpdateSVDBFile) {
 					updateSVDBFile(fDocument);
 				}
@@ -280,6 +286,8 @@ public class SVEditor extends TextEditor
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.init(site, input);
+		
+		site.getPage().addPartListener(this);
 		
 		if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
@@ -326,6 +334,8 @@ public class SVEditor extends TextEditor
 		// Hook into the SVDB management structure
 		initSVDBMgr();
 	}
+	
+	
 	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
@@ -417,6 +427,19 @@ public class SVEditor extends TextEditor
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
 			} else {
 				// An index was specified, so proceed normally
+				
+				// Unhook the index listener from the old index
+				ISVDBIndex old_index = null;
+				if (fSVDBIndex != null) {
+					old_index = fSVDBIndex.getBaseIndex();
+				}
+				if (old_index != null) {
+					old_index.removeChangeListener(this);
+				}
+			
+				// Add a change listener to the new index
+				index.addChangeListener(this);
+				
 				fFileIndexParser = index_mgr;
 				fSVDBIndex = new SVDBFileOverrideIndex(
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
@@ -749,6 +772,8 @@ public class SVEditor extends TextEditor
 	public void dispose() {
 		super.dispose();
 		
+		getSite().getPage().removePartListener(this);
+		
 		if (fOutline != null) {
 			fOutline.dispose();
 			fOutline = null;
@@ -822,6 +847,14 @@ public class SVEditor extends TextEditor
 		return fSVDBFile;
 	}
 	
+	public List<SVDBFilePath> getSVDBFilePath() {
+		if (fSVDBIndex != null) {
+			return fSVDBIndex.getFilePath(fSVDBFilePath);
+		} else {
+			return null;
+		}
+	}
+	
 	public String getFilePath() {
 		/*
 		IEditorInput ed_in = getEditorInput();
@@ -889,13 +922,30 @@ public class SVEditor extends TextEditor
 	
 	public void index_changed(int reason, SVDBFile file) {
 		// TODO Auto-generated method stub
-		
+//		System.out.println("index_changed");
 	}
 
 	public void index_rebuilt() {
 		// Force a rebuild to pick up latest errors
-		updateSVDBFile(getDocument());
+		if (getSite() != null && getSite().getPage().isPartVisible(this)) {
+			updateSVDBFile(getDocument());
+		} else {
+			// Store the knowledge that we need an update for later
+			fNeedUpdate = true;
+		}
 	}
+
+	// IPartListener methods
+	public void partActivated(IWorkbenchPart part) {
+		if (fNeedUpdate) {
+			updateSVDBFile(getDocument());
+		}
+	}
+
+	public void partBroughtToTop(IWorkbenchPart part) { }
+	public void partClosed(IWorkbenchPart part) { }
+	public void partDeactivated(IWorkbenchPart part) { }
+	public void partOpened(IWorkbenchPart part) { }
 
 	/**
 	 * Clears error annotations

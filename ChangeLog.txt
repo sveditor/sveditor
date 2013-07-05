@@ -1,6 +1,26 @@
 
 -- 1.2.9 Release --
 
+- #(nobug) - Enable non-ANSI portlist declarations to end with ','. For example:
+  module (a, b,);
+  endmodule
+  
+- #(enh) - Add .flist as a recognized extension for an argument file
+
+- #(enh) - Enable argument-file editor to open verilog source-library files.
+  For example: -v <file>
+
+- #(nobug) - Correct an issue with the new indexer and verilog source-library files
+
+- #(nobug) - Correct an issue with a SV keyword (context) being incorrectly
+  recognized as a variable modifier when used in a Verilog context.
+  
+- #(enh) - Update the editor to react to rebuilds of its index by re-parsing. This
+  ensures that markers are updated, etc
+ 
+- #(enh) - Add 'Include Hierarchy' element to outline view (.testing release ONLY).
+  This allows the user to trace how the active file is included in compilation
+
 ------------------------------------------------------------------------------
 -- 1.2.8 Release --
 

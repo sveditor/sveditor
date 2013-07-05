@@ -32,11 +32,13 @@ import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcessor;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
+import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -51,6 +53,7 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
@@ -62,6 +65,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -101,7 +105,6 @@ import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
-import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -328,6 +331,7 @@ public class SVDBArgFileIndex2 implements
 	}
 	
 	private void rebuild_index(IProgressMonitor	monitor) {
+		long start = System.currentTimeMillis();
 		ISVDBIndexCache new_cache = 
 				fBuildData.fCacheMgr.createIndexCache(getProject(), getBaseLocation());
 		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(
@@ -361,6 +365,26 @@ public class SVDBArgFileIndex2 implements
 		} else {
 			build_data.dispose();
 		}
+		
+		long end = System.currentTimeMillis();
+	
+		/*
+		try {
+			PrintStream ps = new PrintStream("/home/ballance/build.txt");
+			ps.println("Parse: " + 
+					fBuildData.fIndexCacheData.fSrcFileList.size() + " files in " + (end-start));
+			for (String inc : fBuildData.fIndexCacheData.fIncludePathList) {
+				File full_path = SVFileUtils.getLocation(inc);
+				ps.println("+incdir+" + full_path.getAbsolutePath());
+			}
+			
+			for (String file : fBuildData.fIndexCacheData.fSrcFileList) {
+				File full_path = SVFileUtils.getLocation(file);
+				ps.println(full_path.getAbsolutePath());
+			}
+			ps.close();
+		} catch (Exception e) {}
+		 */
 	
 		monitor.done();
 	}
@@ -1120,7 +1144,11 @@ public class SVDBArgFileIndex2 implements
 			if (root != null) {
 				SVDBFileTree ft = build_data.fCache.getFileTree(
 						new NullProgressMonitor(), root, false);
-				ret = findTargetFileTree(ft, paths);
+				if (ft != null) {
+					ret = findTargetFileTree(ft, paths);
+				} else {
+					fLog.error("Failed to obtain FileTree " + root + " from cache");
+				}
 			}
 		
 			/*
@@ -1428,7 +1456,7 @@ public class SVDBArgFileIndex2 implements
 					}
 				}
 			}
-		
+	
 			if (target_ft != null && target_ft.fMarkers != null) {
 				for (SVDBMarker m : target_ft.fMarkers) {
 					markers.add(m);
@@ -1593,6 +1621,13 @@ public class SVDBArgFileIndex2 implements
 
 			ParserSVDBFileFactory f = new ParserSVDBFileFactory();
 			f.setFileMapper(fReadOnlyFileMapper);
+			
+			SVDBFileTree ft = out.getFileTree();
+			if (ft != null && ft.fMarkers != null) {
+				for (SVDBMarker m : ft.fMarkers) {
+					markers.add(m);
+				}
+			}
 
 			fLog.debug("--> Parse " + r_path);
 			SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(r_path);
@@ -1640,6 +1675,11 @@ public class SVDBArgFileIndex2 implements
 			for (int i=root_idx-1; i>=0; i--) {
 				String root_file_path = root_files.get(i);
 				root_ft = findRootFileTree(build_data, root_file_path);
+				
+				if (root_ft == null) {
+					fLog.error("Failed to find FileTree for root_path: " + root_file_path);
+					continue;
+				}
 				for (int j=root_ft.getIncludedFileTreeList().size(); j>=0; j--) {
 					SVDBFileTreeMacroList ml = root_ft.fMacroSetList.get(j);
 					
@@ -1684,6 +1724,131 @@ public class SVDBArgFileIndex2 implements
 				getFileList(new NullProgressMonitor()), this);
 	}
 
+	/**
+	 * Compute the include/list path to the specified file
+	 */
+	public List<SVDBFilePath> getFilePath(String path) {
+		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
+		
+		SVDBFileTree ft = findTargetFileTree(fBuildData, path);
+	
+		System.out.println("findTargetFileTree: " + path + " " + ft);
+		SVDBFilePath fp = new SVDBFilePath();
+		if (ft != null) {
+			String top_file_path = ft.getFilePath();
+			fp.addPath(ft, null);
+		
+			System.out.println("  targetFileTree.parent=" + ft.getParent());
+
+			// First, fill in the SV file structure
+			while (ft.getParent() != null) {
+				String child_path = ft.getFilePath();
+				ft = ft.getParent();
+				System.out.println("  child_path=" + child_path + " ft=" + ft.getFilePath());
+				
+				// Now, locate the statement used in include the file
+				ISVDBItemBase inc_stmt = findIncStmt(ft.getSVDBFile(), child_path);
+				fp.addPath(ft, inc_stmt);
+				
+				top_file_path = ft.getFilePath();
+			}
+			
+			// Now, move through the argument-file hierarchy
+			Tuple<SVDBFileTree, ISVDBItemBase> af_it = findContainingArgFile(fBuildData, top_file_path, false);
+			
+			while (af_it != null) {
+				fp.addPath(af_it.first(), af_it.second());
+				
+				af_it = findContainingArgFile(fBuildData, af_it.first().getFilePath(), true);
+			}
+		}
+
+		// Reverse the path, such that the target file is at the end
+		for (int i=0; i<(fp.getPath().size()/2); i++) {
+			Tuple<SVDBFileTree, ISVDBItemBase> i1, i2;
+			i1 = fp.getPath().get(i);
+			i2 = fp.getPath().get(fp.getPath().size()-i-1);
+			
+			fp.getPath().set(i, i2);
+			fp.getPath().set(fp.getPath().size()-i-1, i1);
+		}
+		
+		ret.add(fp);
+		
+		return ret;
+	}
+	
+	private ISVDBItemBase findIncStmt(ISVDBChildParent parent, String path) {
+		ISVDBItemBase ret = null;
+		String leaf = SVFileUtils.getPathLeaf(path);
+		
+		for (ISVDBChildItem it : parent.getChildren()) {
+			if (it.getType() == SVDBItemType.Include) {
+				SVDBInclude inc = (SVDBInclude)it;
+				String inc_leaf = SVFileUtils.getPathLeaf(inc.getName());
+				
+				if (inc_leaf.equals(leaf)) {
+					ret = it;
+					break;
+				}
+			} else if (it instanceof ISVDBChildParent) {
+				// Search down
+				if ((ret = findIncStmt((ISVDBChildParent)it, path)) != null) {
+					break;
+				}
+			}
+		}
+		
+		return ret;
+	}
+
+	/**
+	 * Locate the argument file that includes the specified path
+	 * 
+	 * TODO: just brute forcing it for now
+	 * 
+	 * @param build_data
+	 * @param path
+	 * @return
+	 */
+	private Tuple<SVDBFileTree, ISVDBItemBase> findContainingArgFile(
+			SVDBArgFileIndexBuildData	build_data, 
+			String						path,
+			boolean						is_argfile) {
+		Tuple<SVDBFileTree, ISVDBItemBase> ret = null;
+		
+		for (String af_path  : build_data.fIndexCacheData.fArgFilePaths) {
+			SVDBFileTree af_ft = build_data.fCache.getFileTree(new NullProgressMonitor(), af_path, true);
+			SVDBFile af_f = build_data.fCache.getFile(new NullProgressMonitor(), af_path);
+			
+			for (ISVDBChildItem ci : af_f.getChildren()) {
+				if (is_argfile) {
+					if (ci.getType() == SVDBItemType.ArgFileIncFileStmt) {
+						SVDBArgFileIncFileStmt stmt = (SVDBArgFileIncFileStmt)ci;
+						if (stmt.getPath().equals(path)) {
+							ret = new Tuple<SVDBFileTree, ISVDBItemBase>(af_ft, ci);
+							break;
+						}
+					}					
+				} else {
+					if (ci.getType() == SVDBItemType.ArgFilePathStmt) {
+						SVDBArgFilePathStmt stmt = (SVDBArgFilePathStmt)ci;
+						if (stmt.getPath().equals(path)) {
+							ret = new Tuple<SVDBFileTree, ISVDBItemBase>(af_ft, ci);
+							break;
+						}
+					}					
+				}
+			}
+			
+			if (ret != null) {
+				break;
+			}
+		}
+	
+		return ret;
+	}
+	
 	public SVDBFile findFile(String path) {
 		return findFile(new NullProgressMonitor(), path);
 	}
@@ -2277,7 +2442,8 @@ public class SVDBArgFileIndex2 implements
 					build_data.setMFCU();
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
-					
+
+					/* TODO: need a better strategy for SrcLibPath
 					if (getFileSystemProvider().isDir(stmt.getSrcLibPath())) {
 						List<String> paths = getFileSystemProvider().getFiles(stmt.getSrcLibPath());
 						Set<String> exts = SVFScanner.getSrcExts();
@@ -2296,6 +2462,12 @@ public class SVDBArgFileIndex2 implements
 						m.setLocation(stmt.getLocation());
 						markers.add(m);
 					}
+					 */
+				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibFileStmt) {
+					SVDBArgFileSrcLibFileStmt stmt = (SVDBArgFileSrcLibFileStmt)ci;
+					
+//					addFile(build_data, stmt.getSrcLibFile(), false);
+					
 				}
 			}
 
@@ -2339,8 +2511,6 @@ public class SVDBArgFileIndex2 implements
 		}
 		SVPreProcOutput pp_out = pp.preprocess();
 		end = System.currentTimeMillis();
-		
-//		System.out.println("Pre-process " + path + " " + (end-start));
 		
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "<-- PreProcess " + path + ": " +

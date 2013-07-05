@@ -46,6 +46,16 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		return new SVDBIndexItemItIterator(fIndexIteratorList.iterator(), monitor);
 	}
 
+	public List<SVDBFilePath> getFilePath(String path) {
+		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
+		
+		for (ISVDBIndexIterator it : fIndexIteratorList) {
+			ret.addAll(it.getFilePath(path));
+		}
+		
+		return ret;
+	}
+
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
 			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();

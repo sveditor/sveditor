@@ -57,6 +57,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
@@ -1967,6 +1968,11 @@ public abstract class AbstractSVDBIndex implements
 
 		return new SVDBIndexItemIterator(
 				getFileList(new NullProgressMonitor()), this);
+	}
+	
+	public List<SVDBFilePath> getFilePath(String path) {
+		// Disabled for now
+		return new ArrayList<SVDBFilePath>();
 	}
 
 	public SVDBFile findFile(String path) {

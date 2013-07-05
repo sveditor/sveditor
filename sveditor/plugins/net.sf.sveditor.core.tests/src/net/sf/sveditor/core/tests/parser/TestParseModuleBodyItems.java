@@ -33,6 +33,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
@@ -1794,6 +1795,36 @@ public class TestParseModuleBodyItems extends TestCase {
 			"endmodule"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"top"});
+	}
+
+	/**
+	 * Non-ANSI port lists are allowed to end with a trailing ','
+	 * @throws SVParseException
+	 */
+	public void testParseNonAnsiPortlist() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module my_module(a, b,);\n" +
+				"	input a;\n" +
+				"	output b;\n" +
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"my_module", "a", "b"});
+	}
+
+	public void testParseWireContext() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc = 
+				"module my_module(a, b,);\n" +
+				"	input a;\n" +
+				"	input b;\n" +
+				"	wire context;\n" +
+				"	wire p_context_0;\n" +
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, SVLanguageLevel.Verilog2005, new String[] {"my_module", "a", "b"});
 	}
 	
 	private void runTest(

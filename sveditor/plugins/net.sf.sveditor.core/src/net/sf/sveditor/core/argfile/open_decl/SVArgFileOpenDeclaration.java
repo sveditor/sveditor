@@ -22,7 +22,9 @@ public class SVArgFileOpenDeclaration {
 	
 		if (ctxt.fRoot != null) {
 			OptionType type = option_provider.getOptionType(ctxt.fRoot);
-			if (type == OptionType.ArgFileInc) {
+			if (type == OptionType.ArgFileInc || 
+					type == OptionType.ArgFileRootInc ||
+					type == OptionType.SrcLibFile) {
 				ret = ctxt.fLeaf;
 			}
 		} else {

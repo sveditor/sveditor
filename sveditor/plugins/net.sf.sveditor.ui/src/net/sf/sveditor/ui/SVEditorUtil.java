@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.filesystem.EFS;
@@ -77,8 +78,12 @@ public class SVEditorUtil {
 		// It only makes sense to set the location if the 
 		// target item is not a file
 		IEditorPart ed = openEditor(file);
-		if (ed instanceof SVEditor && it.getType() != SVDBItemType.File) {
-			((SVEditor)ed).setSelection(it, true);
+		if (it.getType() != SVDBItemType.File) {
+			if (ed instanceof SVEditor) {
+				((SVEditor)ed).setSelection(it, true);
+			} else if (ed instanceof SVArgFileEditor) {
+				((SVArgFileEditor)ed).setSelection(it, true);
+			}
 		}
 		
 		return ed;

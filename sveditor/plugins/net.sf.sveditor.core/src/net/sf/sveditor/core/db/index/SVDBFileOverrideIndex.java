@@ -94,6 +94,15 @@ public class SVDBFileOverrideIndex
 		}		
 	}
 	
+	public List<SVDBFilePath> getFilePath(String path) {
+		if (fSuperIterator != null) {
+			return fSuperIterator.getFilePath(path);
+		} else {
+			return new ArrayList<SVDBFilePath>();
+		}
+	}
+
+
 	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
 		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
 		public boolean hasNext(SVDBItemType... type_list) { return false; }
