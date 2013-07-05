@@ -212,7 +212,7 @@ public class SVOutlinePage extends ContentOutlinePage
 
 			fContent = new SVOutlineContent(fEditor.getSVDBFile(), file_path);
 			
-			List<ISVDBItemBase> exp_path_list = getExpansionPaths();
+			List<Object> exp_path_list = getExpansionPaths();
 			
 			ISelection sel = getTreeViewer().getSelection();
 			
@@ -229,33 +229,54 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 	
-	private List<ISVDBItemBase> getExpansionPaths() {
-		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+	private List<Object> getExpansionPaths() {
+		List<Object> ret = new ArrayList<Object>();
 		for (TreePath p : getTreeViewer().getExpandedTreePaths()) {
 			Object last_seg_o = p.getLastSegment();
 			
-			if (last_seg_o instanceof ISVDBItemBase) {
-				ret.add((ISVDBItemBase)last_seg_o);
+			if (last_seg_o instanceof ISVDBItemBase ||
+					last_seg_o instanceof Tuple || 
+					last_seg_o instanceof SVDBFilePath) {
+				ret.add(last_seg_o);
 			}
 		}
 
 		return ret;
 	}
 	
-	private void setExpansionPaths(List<ISVDBItemBase> exp_paths) {
-		List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
-		List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+	@SuppressWarnings("unchecked")
+	private void setExpansionPaths(List<Object> exp_paths) {
+		List<Object> path = new ArrayList<Object>();
+		List<Object> target_path = new ArrayList<Object>();
 		List<TreePath>		exp_tree_paths = new ArrayList<TreePath>();
 		
-		for (ISVDBItemBase item : exp_paths) {
+		for (Object item : exp_paths) {
 			path.clear();
 			target_path.clear();
 			
-			// Build the path
-			buildFullPath(path, item);
-			
-			// Find the corresponding path
-			lookupPath(fContent.getFile(), path.iterator(), target_path);
+			if (item instanceof Tuple) {
+				// Build the path
+				Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)item;
+				target_path.add(fContent.getFilePath());
+				for (Tuple<SVDBFileTree, ISVDBItemBase> i : fContent.getFilePath().getPath()) {
+					if (i.first().getFilePath().equals(t.first().getFilePath())) {
+						target_path.add(i);
+						break;
+					}
+				}
+				
+				if (target_path.size() < 2) {
+					target_path.clear();
+				}
+			} else if (item instanceof SVDBFilePath) {
+				target_path.add(fContent.getFilePath());
+			} else if (item instanceof ISVDBItemBase) {
+				// Build the path
+				buildFullPath(path, (ISVDBItemBase)item);
+				
+				// Find the corresponding path
+				lookupPath(fContent.getFile(), path.iterator(), target_path);
+			}
 			
 			if (target_path.size() > 0) {
 				exp_tree_paths.add(new TreePath(target_path.toArray()));
@@ -268,7 +289,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 	
-	private void buildFullPath(List<ISVDBItemBase> path, ISVDBItemBase leaf) {
+	private void buildFullPath(List<Object> path, ISVDBItemBase leaf) {
 		ISVDBItemBase item_tmp = leaf;
 		while (item_tmp != null && item_tmp.getType() != SVDBItemType.File) {
 			// Don't record the container, since there isn't an
@@ -285,6 +306,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void setSavedSelection(ISelection sel) {
 		if (fDebugEn) {
 			fLog.debug("--> setSavedSelection: set fIgnoreSelectionChange=true");
@@ -292,10 +314,10 @@ public class SVOutlinePage extends ContentOutlinePage
 		fIgnoreSelectionChange = true;
 		try {
 			if (!sel.isEmpty() && sel instanceof IStructuredSelection) {
-				List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
+				List<Object> path = new ArrayList<Object>();
 				IStructuredSelection ss = (IStructuredSelection)sel;
-				List<ISVDBItemBase> new_sel_l = new ArrayList<ISVDBItemBase>();
-				List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+				List<Object> new_sel_l = new ArrayList<Object>();
+				List<Object> target_path = new ArrayList<Object>();
 
 				for (Object sel_it : ss.toList()) {
 					if (sel_it instanceof ISVDBItemBase) {
@@ -304,8 +326,20 @@ public class SVOutlinePage extends ContentOutlinePage
 						buildFullPath(path, (ISVDBItemBase)sel_it);
 
 						if (lookupPath(fContent.getFile(), path.iterator(), target_path)) {
-							ISVDBItemBase sel_t = target_path.get(target_path.size()-1);
+							Object sel_t = target_path.get(target_path.size()-1);
 							new_sel_l.add(sel_t);
+						}
+					} else if (sel_it instanceof SVDBFilePath) {
+						new_sel_l.add(fContent.getFilePath());
+					} else if (sel_it instanceof Tuple) {
+						Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)sel_it;
+						
+						// See if we can find the old selection
+						for (Tuple<SVDBFileTree, ISVDBItemBase> i : fContent.getFilePath().getPath()) {
+							if (i.first().getFilePath().equals(t.first().getFilePath())) {
+								new_sel_l.add(i);
+								break;
+							}
 						}
 					}
 				}
@@ -323,9 +357,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	private boolean lookupPath(
 			ISVDBChildParent			scope,
-			Iterator<ISVDBItemBase>		path_it,
-			List<ISVDBItemBase>			target_path) {
-		ISVDBItemBase path_item = path_it.next();
+			Iterator<Object>			path_it,
+			List<Object>				target_path) {
+		ISVDBItemBase path_item = (ISVDBItemBase)path_it.next();
 		ISVDBItemBase target_item = null;
 		boolean ret = false;
 		

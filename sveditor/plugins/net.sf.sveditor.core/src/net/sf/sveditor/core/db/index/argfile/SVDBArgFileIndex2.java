@@ -1732,19 +1732,15 @@ public class SVDBArgFileIndex2 implements
 		
 		SVDBFileTree ft = findTargetFileTree(fBuildData, path);
 	
-		System.out.println("findTargetFileTree: " + path + " " + ft);
 		SVDBFilePath fp = new SVDBFilePath();
 		if (ft != null) {
 			String top_file_path = ft.getFilePath();
 			fp.addPath(ft, null);
 		
-			System.out.println("  targetFileTree.parent=" + ft.getParent());
-
 			// First, fill in the SV file structure
 			while (ft.getParent() != null) {
 				String child_path = ft.getFilePath();
 				ft = ft.getParent();
-				System.out.println("  child_path=" + child_path + " ft=" + ft.getFilePath());
 				
 				// Now, locate the statement used in include the file
 				ISVDBItemBase inc_stmt = findIncStmt(ft.getSVDBFile(), child_path);
@@ -1786,7 +1782,7 @@ public class SVDBArgFileIndex2 implements
 			if (it.getType() == SVDBItemType.Include) {
 				SVDBInclude inc = (SVDBInclude)it;
 				String inc_leaf = SVFileUtils.getPathLeaf(inc.getName());
-				
+			
 				if (inc_leaf.equals(leaf)) {
 					ret = it;
 					break;

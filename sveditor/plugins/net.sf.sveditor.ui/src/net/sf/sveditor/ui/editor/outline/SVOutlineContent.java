@@ -20,4 +20,20 @@ public class SVOutlineContent {
 	public SVDBFilePath getFilePath() {
 		return fFilePath;
 	}
+
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		
+		if (fFile != null) {
+			hash += fFile.hashCode();
+		}
+		
+		if (fFilePath != null) {
+			hash += fFilePath.hashCode();
+		}
+		
+		return hash;
+	}
+	
 }
