@@ -20,6 +20,9 @@
  
 - #(enh) - Add 'Include Hierarchy' element to outline view (.testing release ONLY).
   This allows the user to trace how the active file is included in compilation
+  
+- #(enh) - More reliable support for detecting project import/open and 
+  kicking off an index operation for the newly-available project
 
 ------------------------------------------------------------------------------
 -- 1.2.8 Release --

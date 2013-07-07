@@ -28,7 +28,9 @@ public class SVCoreTestCaseBase extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		SVCorePlugin.getDefault().getResourceChangeListener().init();
+		if (SVCorePlugin.getDefault() != null) {
+			SVCorePlugin.getDefault().getResourceChangeListener().init();
+		}
 		
 		fProjectList = new ArrayList<IProject>();
 		fStandaloneIndexList = new ArrayList<ISVDBIndex>();
@@ -47,30 +49,42 @@ public class SVCoreTestCaseBase extends TestCase {
 		fDbDir = new File(fTmpDir, "db");
 		fCacheFactory = new TestIndexCacheFactory(fDbDir);
 //		fCacheFactory.init(fFileSystem);
-		
-		fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		fIndexRgy.init(fCacheFactory);
+
+		if (SVCorePlugin.getDefault() != null) {
+			fIndexRgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+			fIndexRgy.init(fCacheFactory);
+		}
 		
 		CoreReleaseTests.clearErrors();
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		SVCorePlugin.getDefault().getResourceChangeListener().dispose();
+		if (SVCorePlugin.getDefault() != null) {
+			if (SVCorePlugin.getDefault().getResourceChangeListener() != null) {
+				SVCorePlugin.getDefault().getResourceChangeListener().dispose();
+			}
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		SVCorePlugin.getDefault().getProjMgr().dispose();
-		
-		for (IProject p : fProjectList) {
-			TestUtils.deleteProject(p);
+			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+			rgy.close();
+			
+			if (SVCorePlugin.getDefault().getProjMgr() != null) {
+				SVCorePlugin.getDefault().getProjMgr().dispose();
+			}
+			
+			for (IProject p : fProjectList) {
+				TestUtils.deleteProject(p);
+			}
 		}
+		
 		
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
-		
-		SVCorePlugin.getDefault().getIndexBuilder().dispose();
+	
+		if (SVCorePlugin.getDefault() != null) {
+			SVCorePlugin.getDefault().getIndexBuilder().dispose();
+		}
 		
 		LogFactory.removeLogHandle(fLog);
 		

@@ -23,6 +23,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.SVMarkers;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -169,7 +170,7 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			}
 			 */
 			try {
-				IMarker marker = target.createMarker(IMarker.PROBLEM);
+				IMarker marker = target.createMarker(SVMarkers.TYPE_PROBLEM);
 				marker.setAttribute(IMarker.SEVERITY, severity);
 				marker.setAttribute(IMarker.LINE_NUMBER, lineno);
 				marker.setAttribute(IMarker.MESSAGE, msg);

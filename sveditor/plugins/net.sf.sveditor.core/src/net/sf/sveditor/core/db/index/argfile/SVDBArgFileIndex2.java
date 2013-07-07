@@ -142,6 +142,7 @@ public class SVDBArgFileIndex2 implements
 	/**
 	 * True if the root file list is valid.
 	 */
+	private boolean								fIndexRefreshed;
 	private boolean								fIndexValid;
 	private boolean 							fAutoRebuildEn;
 	private boolean 							fIsDirty;
@@ -328,10 +329,17 @@ public class SVDBArgFileIndex2 implements
 				fBuildData.fIndexCacheData.setGlobalDefine(key, define_map.get(key));
 			}
 		}		
+		
+		fIndexRefreshed = true;
 	}
 	
 	private void rebuild_index(IProgressMonitor	monitor) {
 		long start = System.currentTimeMillis();
+		
+//		if (!fIndexRefreshed) {
+//			refresh_index(new NullProgressMonitor());
+//		}
+		
 		ISVDBIndexCache new_cache = 
 				fBuildData.fCacheMgr.createIndexCache(getProject(), getBaseLocation());
 		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(
@@ -740,7 +748,6 @@ public class SVDBArgFileIndex2 implements
 				fBaseLocation);
 		
 		/** TODO: 
-		 */
 		if (fIndexBuilder != null) {
 			SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
 			fIndexBuilder.build(plan);
@@ -748,6 +755,7 @@ public class SVDBArgFileIndex2 implements
 			// run the refresh in-line
 			refresh_index(monitor);
 		}
+		 */
 
 		monitor.done();
 	}
@@ -760,6 +768,9 @@ public class SVDBArgFileIndex2 implements
 		if (fIndexBuilder != null) {
 			ensureIndexUpToDate(monitor);
 		} else {
+			if (!fIndexRefreshed) {
+				refresh_index(new NullProgressMonitor());
+			}
 			if (!fIndexValid) {
 				rebuild_index(new NullProgressMonitor());
 			}
@@ -781,8 +792,9 @@ public class SVDBArgFileIndex2 implements
 	private void ensureIndexUpToDate(IProgressMonitor super_monitor) {
 		SubProgressMonitor monitor = new SubProgressMonitor(super_monitor, 1);
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
+	
 
-		if (!fIndexValid) {
+		if (!fIndexValid || !fIndexRefreshed) {
 			SVDBIndexBuildJob build_job = null;
 			
 			if (fIndexBuilder != null) {
@@ -790,6 +802,12 @@ public class SVDBArgFileIndex2 implements
 				build_job = fIndexBuilder.findJob(this);
 				
 				if (build_job != null) {
+					build_job.waitComplete();
+				}
+				
+				if (!fIndexRefreshed) {
+					SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
+					build_job = fIndexBuilder.build(plan);
 					build_job.waitComplete();
 				}
 				

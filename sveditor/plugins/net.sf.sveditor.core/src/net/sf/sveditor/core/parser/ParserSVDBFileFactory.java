@@ -216,8 +216,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		String id;
 		while ((id = fLexer.peek()) != null && 
-				fLexer.isKeyword() && 
-				qmap.containsKey(id)) {
+				qmap.containsKey(id) &&
+				(fLexer.isKeyword() || id.equals("__sv_builtin"))) {
 			if (fDebugEn) {
 				debug("item modified by \"" + id + "\"");
 			}

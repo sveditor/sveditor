@@ -1815,7 +1815,7 @@ public class TestParseModuleBodyItems extends TestCase {
 
 	public void testParseWireContext() throws SVParseException {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 				"module my_module(a, b,);\n" +
 				"	input a;\n" +

@@ -857,9 +857,7 @@ public class SVLexer extends SVToken {
 			}
 			fTokenConsumed = false;
 			if (fDebugEn) {
-				debug("next_token(): \"" + fImage + "\"");
-			}
-			if (fDebugEn) {
+				fLog.debug("next_token(): \"" + fImage + "\"");
 				fLog.debug("<-- next_token_int()");
 			}
 			return true;
@@ -868,6 +866,7 @@ public class SVLexer extends SVToken {
 	
 	private void append_ch(int ch) {
 		fStringBuffer.append((char)ch);
+		/*
 		if (fDebugEn) {
 			debug("append_ch: " + (char)ch + " => " + fStringBuffer.toString());
 			if (ch == -1 || ch == 0xFFFF) {
@@ -878,6 +877,7 @@ public class SVLexer extends SVToken {
 				}
 			}
 		}
+		 */
 	}
 
 	private void operator() throws SVParseException {
