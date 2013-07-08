@@ -58,7 +58,7 @@ public class SVOperators {
 		fAssignmentOps.add("<<<=");
 		fAssignmentOps.add(">>>=");
 		fAssignmentOps.add("<=");
-		fAssignmentOps.add("->");				// force an event		
+//		fAssignmentOps.add("->");				// force an event		
 	}
 	
 	public static final Set<String>					fBinaryOps;

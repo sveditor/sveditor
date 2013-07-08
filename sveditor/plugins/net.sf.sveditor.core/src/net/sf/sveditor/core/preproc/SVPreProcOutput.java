@@ -22,6 +22,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	}
 	
 	private StringBuilder					fText;
+	private int								fTextLength;
 	private SVDBFileTree					fFileTree;
 	private List<Integer>					fLineMap;
 	private int								fLineIdx;
@@ -71,6 +72,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 				fText.setCharAt(i, '\n');
 			}
 		}
+		fTextLength = fText.length();
 		fUngetCh1 = -1;
 		fUngetCh2 = -1;
 	}
@@ -111,7 +113,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 			ch = fUngetCh1;
 			fUngetCh1 = fUngetCh2;
 			fUngetCh2 = -1;
-		} else if (fIdx < fText.length()) {
+		} else if (fIdx < fTextLength) {
 			ch = fText.charAt(fIdx++);
 		}
 		return ch;

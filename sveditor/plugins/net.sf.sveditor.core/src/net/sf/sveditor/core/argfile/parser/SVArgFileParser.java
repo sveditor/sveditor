@@ -15,6 +15,7 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
@@ -213,6 +214,22 @@ public class SVArgFileParser {
 											"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 							}
 							stmt.setSrcLibPath(path);
+							file.addChildItem(stmt);
+							} break;
+							
+						case SrcLibFile: {
+							SVDBArgFileSrcLibFileStmt stmt = new SVDBArgFileSrcLibFileStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							String path = fLexer.readPath();
+							path = SVFileUtils.resolvePath(path, fResolvedBaseLocation, 
+									fFSProvider, true);
+							if (!fFSProvider.fileExists(path)) {
+								error(tok.getStartLocation(),
+										"Source library file \"" + path + "\" does not exist; " + 
+											"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+							}
+							stmt.setSrcLibFile(path);
 							file.addChildItem(stmt);
 							} break;
 							

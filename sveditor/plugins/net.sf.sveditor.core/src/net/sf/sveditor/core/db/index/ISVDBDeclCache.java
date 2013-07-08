@@ -25,6 +25,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBDeclCache {
 	
+	int							FILE_ATTR_HAS_MARKERS	= (1 << 0);
+	int							FILE_ATTR_SRC_FILE		= (1 << 1);
+	int							FILE_ATTR_ARG_FILE		= (1 << 2);
+	int							FILE_ATTR_ROOT_FILE		= (1 << 3);
+	
 	/**
 	 * Returns a list of declarations from the global scope (class, module, interface, program, package, function, task)  
 	 * @return
@@ -38,6 +43,11 @@ public interface ISVDBDeclCache {
 	 * @return
 	 */
 	Iterable<String> getFileList(IProgressMonitor monitor);
+	
+	/**
+	 * Returns an iterator over files with the specified attributes
+	 */
+	Iterable<String> getFileList(IProgressMonitor monitor, int flags);
 
 	/**
 	 * Finds the AST for the specified path

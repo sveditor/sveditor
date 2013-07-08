@@ -14,6 +14,7 @@ public interface ISVArgFileOptionProvider {
 		ArgFileInc,    		// -f path
 		ArgFileRootInc, 	// -F path
 		SrcLibPath, 		// -y <path>
+		SrcLibFile,			// -v <file>
 		SrcLibExt,			// +libext+.sv+.svh+.vlog
 		MFCU,				// -mfcu
 		SFCU,				// -sfcu

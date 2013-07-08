@@ -48,8 +48,12 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.Bundle;
 
 public class TestUtils {
@@ -410,30 +414,48 @@ public class TestUtils {
 		return lines;
 	}	
 	
-	public static IProject importProject(File project) {
-		IProjectDescription pd = null;
-		IWorkspace ws = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot root = ws.getRoot();
-	
-		try {
-			pd = ws.loadProjectDescription(
-					new Path(new File(project, ".project").getAbsolutePath()));
-		} catch (CoreException e) {
-			TestCase.fail("Failed to load project description: " + 
-					project.getAbsolutePath() + ": " + e.getMessage());
-		}
-	
-		IProject p = root.getProject(pd.getName());
+	public static IProject importProject(final File project) {
+		final IWorkspace ws = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot root = ws.getRoot();
+		final List<IProject> result = new ArrayList<IProject>();
 		
-		try {
-			p.create(pd, null);
-			p.open(null);
-		} catch (CoreException e) {
-			TestCase.fail("Failed to open project: " + 
-					project.getAbsolutePath() + ": " + e.getMessage());
-		}
+		Job import_job = new Job("Import " + project.getName()) {
+			
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				IProjectDescription pd = null;
+				
+				try {
+					pd = ws.loadProjectDescription(
+							new Path(new File(project, ".project").getAbsolutePath()));
+				} catch (CoreException e) {
+					TestCase.fail("Failed to load project description: " + 
+							project.getAbsolutePath() + ": " + e.getMessage());
+				}
+			
+				IProject p = root.getProject(pd.getName());
+				
+				try {
+					p.create(pd, null);
+					p.open(null);
+				} catch (CoreException e) {
+					TestCase.fail("Failed to open project: " + 
+							project.getAbsolutePath() + ": " + e.getMessage());
+				}
+				
+				result.add(p);
+				
+				return Status.OK_STATUS;
+			}
+		};
 		
-		return p;
+		import_job.setRule(root);
+		import_job.schedule();
+		try {
+			import_job.join();
+		} catch (InterruptedException e) {}
+		
+		return result.get(0);
 	}
 
 	public static List<String> grep(

@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -74,7 +75,11 @@ public class SVDBArgFileIndexBuildData implements
 	 */
 	void initFileMapperState(SVDBArgFileIndexBuildData other) {
 		fIndexCacheData.fSrcFileList.clear();
-		fIndexCacheData.fSrcFileList.addAll(other.fIndexCacheData.fSrcFileList);
+		fIndexCacheData.fSrcFileAttr.clear();
+		for (int i=0; i<other.fIndexCacheData.fSrcFileList.size(); i++) {
+			fIndexCacheData.fSrcFileList.add(other.fIndexCacheData.fSrcFileList.get(i));
+			fIndexCacheData.fSrcFileAttr.add(other.fIndexCacheData.fSrcFileAttr.get(i));
+		}
 		fIndexCacheData.fIncludePathList.clear();
 		fIndexCacheData.fIncludePathList.addAll(other.fIndexCacheData.fIncludePathList);
 	}
@@ -96,9 +101,7 @@ public class SVDBArgFileIndexBuildData implements
 	}
 	
 	void addArgFilePath(String path) {
-		if (!fIndexCacheData.fArgFilePaths.contains(path)) {
-			fIndexCacheData.fArgFilePaths.add(path);
-		}
+		fIndexCacheData.addFile(path, ISVDBDeclCache.FILE_ATTR_ARG_FILE);
 	}
 	
 	void addArgFile(SVDBFile argfile) {
@@ -128,7 +131,7 @@ public class SVDBArgFileIndexBuildData implements
 		if (idx < 1 && add) {
 			idx = (fIndexCacheData.fSrcFileList.size()+1);
 //			fLog.debug("Register file \"" + path + "\" as file id " + idx);
-			fIndexCacheData.fSrcFileList.add(path);
+			fIndexCacheData.addFile(path, ISVDBDeclCache.FILE_ATTR_SRC_FILE);
 		}
 		
 		return idx;		
