@@ -40,6 +40,26 @@ public class SVProjectNature implements IProjectNature {
 		fProject = project;
 	}
 
+	public static boolean hasSvProjectNature(IProject p) {
+		boolean has = false;
+		try {
+			IProjectDescription d = p.getDescription();
+			String natures[] = d.getNatureIds();
+			
+			if (natures != null) {
+				for (String n : natures) {
+					if (n.equals(SVProjectNature.NATURE_ID)) {
+						has = true;
+						break;
+					}
+				}
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
+		return has;
+	}
 	
 	/**
 	 * Check the specified project and add the SV project

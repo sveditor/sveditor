@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -89,9 +90,17 @@ public class ParserTests extends TestSuite {
 			String			testname,
 			String			doc,
 			String			exp_items[]) {
+		runTestStrDoc(testname, doc, SVLanguageLevel.SystemVerilog, exp_items);
+	}
+	
+	public static void runTestStrDoc(
+			String			testname,
+			String			doc,
+			SVLanguageLevel	language_level,
+			String			exp_items[]) {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		LogHandle log = LogFactory.getLogHandle(testname);
-		SVDBFile file = SVDBTestUtils.parse(log, doc, testname, markers);
+		SVDBFile file = SVDBTestUtils.parse(log, language_level, doc, testname, markers);
 
 		for (SVDBMarker m : markers) {
 			log.debug("[MARKER] " + m.getMessage());

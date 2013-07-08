@@ -215,7 +215,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				: fFieldQualifers;
 
 		String id;
-		while ((id = fLexer.peek()) != null && qmap.containsKey(id)) {
+		while ((id = fLexer.peek()) != null && 
+				qmap.containsKey(id) &&
+				(fLexer.isKeyword() || id.equals("__sv_builtin"))) {
 			if (fDebugEn) {
 				debug("item modified by \"" + id + "\"");
 			}
