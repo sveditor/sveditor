@@ -83,6 +83,8 @@ public class SVConstraintParser extends SVParserBase {
 	private SVDBStmt constraint_set_item() throws SVParseException {
 		SVDBStmt ret = null;
 		
+		if (fDebugEn) { debug("--> constraint_set_item " + fLexer.peek()); }
+		
 		if (fLexer.peekKeyword("solve")) {
 			ret = solve_expression();
 		} else if (fLexer.peekKeyword("if")) {
@@ -110,6 +112,7 @@ public class SVConstraintParser extends SVParserBase {
 				fLexer.eatToken();
 				ret = new SVDBExprStmt(expr);
 			} else if (fLexer.peekOperator("->")) {
+				if (fDebugEn) { debug("  implication"); }
 				fLexer.eatToken();
 				
 				ret = new SVDBConstraintImplStmt(expr, constraint_set(false));
@@ -117,6 +120,8 @@ public class SVConstraintParser extends SVParserBase {
 				error("Unknown suffix for expression: " + fLexer.getImage());
 			}
 		}
+		
+		if (fDebugEn) { debug("<-- constraint_set_item " + fLexer.peek()); }
 		
 		return ret;
 	}

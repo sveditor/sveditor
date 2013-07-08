@@ -975,6 +975,12 @@ public abstract class AbstractSVDBIndex implements
 		return fCache.getFileList(false);
 	}
 
+	// TODO: just return full list for now
+	public synchronized Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
+		ensureIndexState(monitor, IndexState_FileTreeValid);
+		return fCache.getFileList(false);
+	}
+
 	/**
 	 * Implementation of ISVDBIndexIterator findFile()
 	 */

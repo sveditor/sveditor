@@ -87,6 +87,16 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		
 		return ret;
 	}
+
+	public Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
+		StringIterableIterator ret = new StringIterableIterator();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			ret.addIterable(index_it.getFileList(new NullProgressMonitor(), flags));
+		}
+		
+		return ret;
+	}
 	
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;

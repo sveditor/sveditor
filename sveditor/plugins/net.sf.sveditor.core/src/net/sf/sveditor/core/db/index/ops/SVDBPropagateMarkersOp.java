@@ -1,9 +1,9 @@
 package net.sf.sveditor.core.db.index.ops;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
@@ -24,7 +24,10 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 
 	@Override
 	public void index_operation(IProgressMonitor monitor, ISVDBIndex index) {
-		Iterable<String> paths = index.getFileList(new NullProgressMonitor());
+		Iterable<String> paths = index.getFileList(new NullProgressMonitor(), 
+				ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+				ISVDBDeclCache.FILE_ATTR_ARG_FILE+
+				ISVDBDeclCache.FILE_ATTR_HAS_MARKERS);
 		ISVDBFileSystemProvider fs_provider = index.getFileSystemProvider();
 		
 		monitor.beginTask("Propagate markers for " + index.getBaseLocation(), 10000);
@@ -39,6 +42,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 			}
 			
 			List<SVDBMarker> m_l = index.getMarkers(path);
+			
 //			List<SVDBMarker> m_l = new ArrayList<SVDBMarker>();
 			fs_provider.clearMarkers(path);
 			
