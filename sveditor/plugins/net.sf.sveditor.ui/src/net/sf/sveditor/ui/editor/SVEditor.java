@@ -1058,7 +1058,9 @@ public class SVEditor extends TextEditor
 					IRegion region = null;
 					
 					try {
-						region = finder.find(start, Pattern.quote(sel.getText()), true, true, true, false);
+						String selected_text = SVUiPlugin.shouldEscapeFindWordPattern() ? 
+								Pattern.quote(sel.getText()) : sel.getText();
+						region = finder.find(start, selected_text, true, true, true, false);
 					} catch (BadLocationException e) {}
 					
 					if (region != null) {
