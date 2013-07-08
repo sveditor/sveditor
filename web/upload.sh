@@ -1,5 +1,4 @@
 #!/bin/sh
 
-scp -C -r html/*.html html/imgs \
-  mballance,sveditor@web.sourceforge.net:htdocs
+scp -C -r html/* mballance,sveditor@web.sourceforge.net:htdocs
 
