@@ -157,7 +157,8 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 		fs_provider_m.getMarkers().clear();
 		// String path = "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv"; 
 		InputStream in = fs_provider_m.openStream(path);
-		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null).second();
+		List<SVDBMarker> markers_1 = new ArrayList<SVDBMarker>();
+		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, markers_1).second();
 		
 		assertNotNull("Failed to parse target file", file);
 		LogFactory.removeLogHandle(log);

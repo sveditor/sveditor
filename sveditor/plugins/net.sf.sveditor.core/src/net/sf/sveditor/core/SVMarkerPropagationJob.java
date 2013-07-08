@@ -65,7 +65,7 @@ public class SVMarkerPropagationJob extends Job {
 				IMarker marker = null;
 				for (MarkerInfo info : markers) {
 					try {
-						marker = info.fFile.createMarker(IMarker.PROBLEM);
+						marker = info.fFile.createMarker(SVMarkers.TYPE_PROBLEM);
 						marker.setAttribute(IMarker.SEVERITY, info.fSeverity);
 						marker.setAttribute(IMarker.LINE_NUMBER, info.fLineno);
 						marker.setAttribute(IMarker.MESSAGE, info.fMsg);

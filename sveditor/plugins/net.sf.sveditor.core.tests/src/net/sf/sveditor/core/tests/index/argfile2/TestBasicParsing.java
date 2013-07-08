@@ -345,6 +345,42 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 
 		IndexTestUtils.assertFileHasElements(index, "cls1", "cls2");
 	}
+
+	public void testMFCU_2() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		TestUtils.copy(
+				"// File1\n" +
+				"`define FOO(n) class n; endclass\n",
+				new File(fTmpDir, "file1.h"));
+		
+		TestUtils.copy(
+				"// File2\n" +
+				"`FOO(cls2)\n\n\n\n",
+				new File(fTmpDir, "file2.sv"));
+
+		TestUtils.copy(
+				"// mfcu.f\n" +
+				"-mfcu\n" +
+				"file1.h\n" +
+				"file2.sv\n",
+				new File(fTmpDir, "mfcu.f"));
+		
+		String base_location = new File(fTmpDir, "mfcu.f").getAbsolutePath();
+		
+		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+				getName(), base_location,
+				new SVDBWSFileSystemProvider(),
+				fCacheMgr.createIndexCache(getName(), base_location),
+				null);
+		
+		index.init(new NullProgressMonitor(), null);
+
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+
+		IndexTestUtils.assertFileHasElements(index, "cls2");
+	}
 	
 	private void print(String ind, ISVDBChildParent parent) {
 		System.out.println(ind + parent.getType() + " " + SVDBItem.getName(parent));

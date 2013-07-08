@@ -205,6 +205,7 @@ public enum SVDBItemType {
 	ArgFileIncFileStmt,
 	ArgFileMfcuStmt,	
 	ArgFileSrcLibPathStmt,
+	ArgFileSrcLibFileStmt,
 	ArgFileLibExtStmt	
 	;
 	

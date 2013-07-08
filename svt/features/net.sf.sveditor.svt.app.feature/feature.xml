@@ -20,4 +20,18 @@
          id="net.sf.sveditor.svt.feature"
          version="0.0.0"/>
 
+   <plugin
+         id="net.sf.sveditor.svt.app.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.sf.sveditor.svt.app.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>

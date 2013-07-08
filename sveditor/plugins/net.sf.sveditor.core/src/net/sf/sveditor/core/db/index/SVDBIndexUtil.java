@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -317,10 +318,11 @@ public class SVDBIndexUtil {
 					
 					// Eclipse Project Variables
 					if (val == null && pvm != null) {
-						IPath p = pvm.getValue(key);
-						// URI p = pvm.getURIValue(key);
+//						IPath p = pvm.getValue(key);
+						URI p = pvm.getURIValue(key);
 						if (p != null) {
-							val = p.toString();
+//							val = p.toString();
+							val = p.getPath();
 						}
 					}
 					// Environment variables

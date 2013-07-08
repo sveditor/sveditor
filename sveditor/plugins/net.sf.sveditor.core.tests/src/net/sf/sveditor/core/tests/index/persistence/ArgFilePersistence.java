@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -119,8 +120,9 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
 
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		log.debug("--> Parse 1");
-		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null).second();
+		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, markers).second();
 		log.debug("<-- Parse 1");
 		
 		SVPreProcOutput pp_out = pp.preprocess();

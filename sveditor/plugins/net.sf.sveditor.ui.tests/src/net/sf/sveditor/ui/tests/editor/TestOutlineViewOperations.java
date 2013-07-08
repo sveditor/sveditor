@@ -20,7 +20,7 @@ import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.SVOutlinePage;
+import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;

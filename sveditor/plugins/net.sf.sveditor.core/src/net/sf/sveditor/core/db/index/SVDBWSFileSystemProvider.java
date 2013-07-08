@@ -21,8 +21,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.SVMarkers;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -169,7 +169,7 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			}
 			 */
 			try {
-				IMarker marker = target.createMarker(IMarker.PROBLEM);
+				IMarker marker = target.createMarker(SVMarkers.TYPE_PROBLEM);
 				marker.setAttribute(IMarker.SEVERITY, severity);
 				marker.setAttribute(IMarker.LINE_NUMBER, lineno);
 				marker.setAttribute(IMarker.MESSAGE, msg);
@@ -189,12 +189,8 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			
 			if (file.exists()) {
 				try {
-					IMarker markers[] = file.findMarkers(
-							IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-
-					for (IMarker m : markers) {
-						m.delete();
-					}
+					file.deleteMarkers(SVMarkers.TYPE_PROBLEM, true, IResource.DEPTH_INFINITE);
+					file.deleteMarkers(SVMarkers.TYPE_TASK, true, IResource.DEPTH_INFINITE);
 				} catch (CoreException e) {
 					// e.printStackTrace();
 				}

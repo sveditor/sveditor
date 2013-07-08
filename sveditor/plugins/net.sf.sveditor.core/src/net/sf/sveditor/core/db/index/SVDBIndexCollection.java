@@ -276,6 +276,20 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return new SVDBIndexItemItIterator(iterator_list.iterator(), monitor);
 	}
 	
+	@Override
+	public List<SVDBFilePath> getFilePath(String path) {
+		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
+		
+		for (List<ISVDBIndex> i_l : fFileSearchOrder) {
+			for (ISVDBIndex index : i_l) {
+				List<SVDBFilePath> p = index.getFilePath(path);
+				ret.addAll(p);
+			}
+		}
+		
+		return ret;
+	}
+
 	private void getItemIterators(
 			List<String>				referenced_projects,
 			List<ISVDBIndexIterator>	iterator_list) {
@@ -565,16 +579,21 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		Set<SVDBIndexCollection>	already_searched = new HashSet<SVDBIndexCollection>();
 		getFileList(ret, already_searched, false);
 	
-		/* Shadow indexes should not be part of the file list by default
-		clearStaleShadowIndexes();
-		for (int i=0; i<fShadowIndexList.size(); i++) {
-			ISVDBIndex index = fShadowIndexList.get(i).get();
-			if (index != null) {
-				ret.addIterable(index.getFileList(new NullProgressMonitor()));
+		return ret;
+	}
+
+	public Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
+		StringIterableIterator ret = new StringIterableIterator();
+
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				ret.addIterable(index.getFileList(new NullProgressMonitor(), flags));
 			}
 		}
-		 */
 
+		Set<SVDBIndexCollection>	already_searched = new HashSet<SVDBIndexCollection>();
+		getFileList(ret, already_searched, false, flags);
+	
 		return ret;
 	}
 	
@@ -678,7 +697,42 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			}
 		}
 	}
-			
+
+	private void getFileList(
+			StringIterableIterator 			ret, 
+			Set<SVDBIndexCollection> 		already_searched,
+			boolean							search_local,
+			int								flags) {
+		if (!already_searched.contains(this)) {
+			already_searched.add(this);
+		} else {
+			return;
+		}
+		
+		if (search_local) {
+			// Search for matches in the local indexes
+			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+				for (ISVDBIndex index : index_l) {
+					ret.addIterable(index.getFileList(new NullProgressMonitor(), flags));
+				}
+			}
+		}
+		
+		if (fProjectRefProvider != null) {
+			for (String ref : fProjectRefs) {
+				SVDBIndexCollection mgr_t = fProjectRefProvider.resolveProjectRef(ref);
+				if (!already_searched.contains(mgr_t)) {
+					already_searched.add(mgr_t);
+				} else {
+					continue;
+				}
+				if (mgr_t != null && !already_searched.contains(mgr_t)) {
+					mgr_t.getFileList(ret, already_searched, search_local, flags);
+				}
+			}
+		}
+	}
+	
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();

@@ -29,8 +29,6 @@ import net.sf.sveditor.core.log.LogHandle;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-import com.sun.org.apache.xpath.internal.FoundIndex;
-
 public class SVDBFileOverrideIndex 
 	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel,
 		ISVDBIncludeFileProviderObsolete {
@@ -94,6 +92,15 @@ public class SVDBFileOverrideIndex
 		}		
 	}
 	
+	public List<SVDBFilePath> getFilePath(String path) {
+		if (fSuperIterator != null) {
+			return fSuperIterator.getFilePath(path);
+		} else {
+			return new ArrayList<SVDBFilePath>();
+		}
+	}
+
+
 	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
 		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
 		public boolean hasNext(SVDBItemType... type_list) { return false; }
@@ -262,6 +269,17 @@ public class SVDBFileOverrideIndex
 		if (fIndex != null) {
 			return fIndex.getFileList(monitor);
 		} else {
+			List<String> ret = new ArrayList<String>();
+			ret.add(fFile.getFilePath());
+			return ret;
+		}
+	}
+	
+	public Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
+		if (fIndex != null) {
+			return fIndex.getFileList(monitor, flags);
+		} else {
+			// TODO: Not exactly right...
 			List<String> ret = new ArrayList<String>();
 			ret.add(fFile.getFilePath());
 			return ret;

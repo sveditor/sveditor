@@ -13,10 +13,14 @@
 package net.sf.sveditor.core.db.project;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
+import net.sf.sveditor.core.ISVProjectDelayedOp;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -25,7 +29,6 @@ import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
-import net.sf.sveditor.core.db.index.ops.SVDBGetFileListOp;
 import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.log.LogFactory;
@@ -46,7 +49,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -54,6 +56,8 @@ import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
 		IResourceChangeListener, IPathVariableChangeListener {
+	private static final int						BUILD_DELAY = 2000;
+	private static final int						INIT_DELAY = 1000;
 	private LogHandle								fLog;
 	private WeakHashMap<IPath, SVDBProjectData>		fProjectMap;
 	private List<ISVDBProjectSettingsListener>		fListeners;
@@ -61,14 +65,18 @@ public class SVDBProjectManager implements
 	private Job										fDeleteProjectJob;
 	private List<IProject>							fChangedProjects;
 	private List<IProject>							fDeletedProjects;
+	private Set<IProject>							fBuildActiveProjects;
+	private Set<ISVProjectDelayedOp>				fDelayedOpList;
 	
 	public SVDBProjectManager() {
 		fLog = LogFactory.getLogHandle("SVDBProjectManager");
 		fProjectMap = new WeakHashMap<IPath, SVDBProjectData>();
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
-//		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 		fChangedProjects = new ArrayList<IProject>();
 		fDeletedProjects = new ArrayList<IProject>();
+		
+		fBuildActiveProjects = new HashSet<IProject>();
+		fDelayedOpList = new HashSet<ISVProjectDelayedOp>();
 		
 		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
 		pvm.addChangeListener(this);
@@ -80,15 +88,13 @@ public class SVDBProjectManager implements
 	public void init() {
 		fProjectMap.clear();
 
-		// Only use the index-refresh job when using
-		// the new indexer
-//		if (SVDBArgFileIndexFactory.fUseArgFile2Index) {
-			SVDBInitProjectsJob job = new SVDBInitProjectsJob();
-			// Ensure this job is sensitive to the workspace
-			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		SVDBInitProjectsJob job = new SVDBInitProjectsJob(this);
+		// Ensure this job is sensitive to the workspace
+		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+		
+		launchDelayedBuild(job);
 
-			job.schedule();
-//		}
+		job.schedule(INIT_DELAY);
 	}
 	
 	public static boolean isSveProject(IProject p) {
@@ -109,14 +115,29 @@ public class SVDBProjectManager implements
 	
 	public void projectOpened(IProject p) {
 		// Start a job to handle the fact that a project is opening
-		SVDBOpenProjectJob job = new SVDBOpenProjectJob(p);
-		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
-		job.schedule();
+
+		if (SVDBProjectManager.isSveProject(p)) {
+			// Ensure the project nature is associated
+//			SVProjectNature.ensureHasSvProjectNature(p);
+		
+			SVDBOpenProjectJob job = new SVDBOpenProjectJob(this, p);
+			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+			job.schedule(BUILD_DELAY);
+			
+			synchronized (fDelayedOpList) {
+				fDelayedOpList.add(job);
+			}
+		}
 	}
 	
 	public void projectClosed(IProject p) {
 		if (fProjectMap.containsKey(p)) {
 			// Start a job to clean up after the specified project
+			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
+			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+			job.schedule();
+			
+			fProjectMap.remove(p);
 		}
 	}
 	
@@ -125,6 +146,19 @@ public class SVDBProjectManager implements
 			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
 			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 			job.schedule();
+			fProjectMap.remove(p);
+		}
+	}
+	
+	void startDelayedBuild(ISVProjectDelayedOp op) {
+		synchronized (fDelayedOpList) {
+			fDelayedOpList.remove(op);
+		}
+	}
+	
+	void launchDelayedBuild(ISVProjectDelayedOp op) {
+		synchronized (fDelayedOpList) {
+			fDelayedOpList.add(op);
 		}
 	}
 	
@@ -137,12 +171,28 @@ public class SVDBProjectManager implements
 	}
 	
 	public void rebuildProject(IProgressMonitor monitor, IProject p) {
+		
+		if (!isSveProject(p)) {
+			// This is likely an auto-build occurring in the middle of import
+			return;
+		}
+		
+		synchronized (fDelayedOpList) {
+			for (ISVProjectDelayedOp op : fDelayedOpList) {
+				op.projectBuildStarted(p);
+			}
+		}
+		
+		synchronized (fBuildActiveProjects) {
+			fBuildActiveProjects.add(p);
+		}
+		
 		SVDBProjectData pd = getProjectData(p);
 		if (pd != null) {
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
 			List<ISVDBIndex> index_l = index.getIndexList();
 			monitor.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
-
+			
 			for (ISVDBIndex i : index_l) {
 				monitor.subTask("Build " + i.getBaseLocation());
 				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(i);
@@ -167,14 +217,34 @@ public class SVDBProjectManager implements
 			
 			// Finally, update the markers
 
+		} else {
+			System.out.println("ProjectData null");
 		}
 		monitor.done();
+		
+		synchronized (fBuildActiveProjects) {
+			fBuildActiveProjects.remove(p);
+		}
 	}
 
 	public void rebuildProject(
 			IProgressMonitor 					monitor, 
 			IProject 							p,
 			List<SVDBIndexResourceChangeEvent> 	changes) {
+		
+		if (!isSveProject(p)) {
+			// Likely an auto-build mid-import
+			return;
+		}
+
+		
+		synchronized (fDelayedOpList) {
+			// A delayed op supercedes an incremental build
+			if (fDelayedOpList.contains(p)) {
+				return;
+			}
+		}
+		
 		SVDBProjectData pd = getProjectData(p);
 		if (pd != null) {
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
@@ -241,6 +311,7 @@ public class SVDBProjectManager implements
 		if (fProjectMap.containsKey(proj.getFullPath())) {
 			ret = fProjectMap.get(proj.getFullPath());
 		} else if (proj.exists()) {
+			
 			/*
 			IFile svproject;
 			SVProjectFileWrapper f_wrapper = null;

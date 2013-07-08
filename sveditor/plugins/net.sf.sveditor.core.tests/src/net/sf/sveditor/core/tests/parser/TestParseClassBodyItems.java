@@ -710,6 +710,27 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest(config, testname, content, new String[] {"my_class"});
 	}
 
+	public void testComplexImplicationConstraint3() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content = 
+				"class my_class;\n" +
+				"	rand int i;\n" +
+				"	rand int j;\n" +
+				"	rand int k[];\n" +
+				"	constraint i_cons {\n" +
+				"		( i == j ) -> foreach(k[idx]) k[idx] == 5;\n" +
+				"	}\n" +
+				"endclass\n" +
+				"\n"
+				;
+		
+		SVParserConfig config = new SVParserConfig();
+		config.setAllowDistInsideParens(true);
+		
+		runTest(config, testname, content, new String[] {"my_class"});
+	}
+	
 	public void testDistConstraint() {
 		String testname = "testDistConstraint";
 		SVCorePlugin.getDefault().enableDebug(false);

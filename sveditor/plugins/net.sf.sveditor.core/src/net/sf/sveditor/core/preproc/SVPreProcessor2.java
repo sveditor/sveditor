@@ -15,6 +15,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
@@ -501,12 +502,20 @@ public class SVPreProcessor2 extends AbstractTextScanner implements ISVPreProces
 						Tuple<String, InputStream> in = fIncFileProvider.findIncFile(inc);
 						
 						if (in != null && in.second() != null) {
+							InputData curr_in = fInputStack.peek();
 							if (fDebugEn) {
-								InputData curr_in = fInputStack.peek();
 								fLog.debug("Switching from file " + 
 										curr_in.fFilename + " to " + in.first());
 							}
 							// TODO: Add tracking data for new file
+							
+							SVDBInclude svdb_inc = new SVDBInclude(inc);
+							svdb_inc.setLocation(new SVDBLocation(
+									scan_loc.getFileId(), 
+									scan_loc.getLineNo(),
+									scan_loc.getLinePos()));
+							
+							curr_in.fFileTree.getSVDBFile().addChildItem(svdb_inc);
 							
 							enter_file(in.first(), in.second());
 						} else {

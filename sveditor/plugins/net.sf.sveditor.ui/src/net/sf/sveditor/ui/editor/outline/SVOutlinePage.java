@@ -10,37 +10,41 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package net.sf.sveditor.ui.editor.outline;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
-import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -53,6 +57,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInTarget;
 import org.eclipse.ui.part.ShowInContext;
@@ -61,10 +66,10 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 public class SVOutlinePage extends ContentOutlinePage 
 	implements IShowInTarget, IAdaptable, 
 			Runnable, ISVDBChangeListener, ILogLevelListener {
-	private SVDBFile					fSVDBFile;
-	private SVTreeContentProvider		fContentProvider;
+	private SVOutlineContent			fContent;
+	private SVOutlineContentProvider	fContentProvider;
 	private SVEditor					fEditor;
-	private boolean					fIgnoreSelectionChange = false;
+	private boolean						fIgnoreSelectionChange = false;
 	private ISVDBItemBase				fLastSelection;
 	private Action                     ToggleAssign;
 	private Action                     ToggleAlways;
@@ -87,9 +92,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
-		fContentProvider = new SVTreeContentProvider();
+		fContentProvider = new SVOutlineContentProvider();
 		
-		fSVDBFile = new SVDBFile("");
+		fContent = new SVOutlineContent(new SVDBFile(""), null);
 		
 		fLog = LogFactory.getLogHandle("SVOutlinePage");
 		fDebugEn = fLog.isEnabled();
@@ -116,7 +121,7 @@ public class SVOutlinePage extends ContentOutlinePage
 	public void createControl(Composite parent) {
 		super.createControl(parent);
 
-		fContentProvider = new SVTreeContentProvider();
+		fContentProvider = new SVOutlineContentProvider();
 		DefaultContentFilter = new SVDBDefaultContentFilter();
 		ViewerComapartor     = new ViewerComparator();
 
@@ -145,8 +150,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		else  {
 			getTreeViewer().setComparator(null);
 		}
-		getTreeViewer().setLabelProvider(
-				new SVDBDecoratingLabelProvider(new SVTreeLabelProvider()));
+		getTreeViewer().setLabelProvider(new SVOutlineLabelProvider());
 		getTreeViewer().setComparer(new IElementComparer() {
 			public int hashCode(Object element) {
 				return element.hashCode();
@@ -158,9 +162,10 @@ public class SVOutlinePage extends ContentOutlinePage
 			}
 		});
 		
-		getTreeViewer().setInput(fSVDBFile);
+		getTreeViewer().setInput(fContent);
 		
 		getTreeViewer().addSelectionChangedListener(fSelectionListener);
+		getTreeViewer().addDoubleClickListener(fDoubleClickListener);
 		getTreeViewer().setAutoExpandLevel(TreeViewer.ALL_LEVELS);
 		
 		// Get initial contents
@@ -198,13 +203,20 @@ public class SVOutlinePage extends ContentOutlinePage
 			if (fDebugEn) {
 				fLog.debug("run: refresh content");
 			}
-			fSVDBFile = fEditor.getSVDBFile();
+			SVDBFilePath file_path = null;
+			List<SVDBFilePath> curr_path = fEditor.getSVDBFilePath();
 			
-			List<ISVDBItemBase> exp_path_list = getExpansionPaths();
+			if (curr_path != null && curr_path.size() > 0) {
+				file_path = curr_path.get(0);
+			}
+
+			fContent = new SVOutlineContent(fEditor.getSVDBFile(), file_path);
+			
+			List<Object> exp_path_list = getExpansionPaths();
 			
 			ISelection sel = getTreeViewer().getSelection();
 			
-			getTreeViewer().setInput(fSVDBFile);
+			getTreeViewer().setInput(fContent);
 			
 			// Apply selection and expansions previously saved
 			setExpansionPaths(exp_path_list);
@@ -217,33 +229,54 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 	
-	private List<ISVDBItemBase> getExpansionPaths() {
-		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+	private List<Object> getExpansionPaths() {
+		List<Object> ret = new ArrayList<Object>();
 		for (TreePath p : getTreeViewer().getExpandedTreePaths()) {
 			Object last_seg_o = p.getLastSegment();
 			
-			if (last_seg_o instanceof ISVDBItemBase) {
-				ret.add((ISVDBItemBase)last_seg_o);
+			if (last_seg_o instanceof ISVDBItemBase ||
+					last_seg_o instanceof Tuple || 
+					last_seg_o instanceof SVDBFilePath) {
+				ret.add(last_seg_o);
 			}
 		}
 
 		return ret;
 	}
 	
-	private void setExpansionPaths(List<ISVDBItemBase> exp_paths) {
-		List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
-		List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+	@SuppressWarnings("unchecked")
+	private void setExpansionPaths(List<Object> exp_paths) {
+		List<Object> path = new ArrayList<Object>();
+		List<Object> target_path = new ArrayList<Object>();
 		List<TreePath>		exp_tree_paths = new ArrayList<TreePath>();
 		
-		for (ISVDBItemBase item : exp_paths) {
+		for (Object item : exp_paths) {
 			path.clear();
 			target_path.clear();
 			
-			// Build the path
-			buildFullPath(path, item);
-			
-			// Find the corresponding path
-			lookupPath(fSVDBFile, path.iterator(), target_path);
+			if (item instanceof Tuple) {
+				// Build the path
+				Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)item;
+				target_path.add(fContent.getFilePath());
+				for (Tuple<SVDBFileTree, ISVDBItemBase> i : fContent.getFilePath().getPath()) {
+					if (i.first().getFilePath().equals(t.first().getFilePath())) {
+						target_path.add(i);
+						break;
+					}
+				}
+				
+				if (target_path.size() < 2) {
+					target_path.clear();
+				}
+			} else if (item instanceof SVDBFilePath) {
+				target_path.add(fContent.getFilePath());
+			} else if (item instanceof ISVDBItemBase) {
+				// Build the path
+				buildFullPath(path, (ISVDBItemBase)item);
+				
+				// Find the corresponding path
+				lookupPath(fContent.getFile(), path.iterator(), target_path);
+			}
 			
 			if (target_path.size() > 0) {
 				exp_tree_paths.add(new TreePath(target_path.toArray()));
@@ -256,7 +289,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 	
-	private void buildFullPath(List<ISVDBItemBase> path, ISVDBItemBase leaf) {
+	private void buildFullPath(List<Object> path, ISVDBItemBase leaf) {
 		ISVDBItemBase item_tmp = leaf;
 		while (item_tmp != null && item_tmp.getType() != SVDBItemType.File) {
 			// Don't record the container, since there isn't an
@@ -273,6 +306,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void setSavedSelection(ISelection sel) {
 		if (fDebugEn) {
 			fLog.debug("--> setSavedSelection: set fIgnoreSelectionChange=true");
@@ -280,10 +314,10 @@ public class SVOutlinePage extends ContentOutlinePage
 		fIgnoreSelectionChange = true;
 		try {
 			if (!sel.isEmpty() && sel instanceof IStructuredSelection) {
-				List<ISVDBItemBase> path = new ArrayList<ISVDBItemBase>();
+				List<Object> path = new ArrayList<Object>();
 				IStructuredSelection ss = (IStructuredSelection)sel;
-				List<ISVDBItemBase> new_sel_l = new ArrayList<ISVDBItemBase>();
-				List<ISVDBItemBase> target_path = new ArrayList<ISVDBItemBase>();
+				List<Object> new_sel_l = new ArrayList<Object>();
+				List<Object> target_path = new ArrayList<Object>();
 
 				for (Object sel_it : ss.toList()) {
 					if (sel_it instanceof ISVDBItemBase) {
@@ -291,9 +325,21 @@ public class SVOutlinePage extends ContentOutlinePage
 						target_path.clear();
 						buildFullPath(path, (ISVDBItemBase)sel_it);
 
-						if (lookupPath(fSVDBFile, path.iterator(), target_path)) {
-							ISVDBItemBase sel_t = target_path.get(target_path.size()-1);
+						if (lookupPath(fContent.getFile(), path.iterator(), target_path)) {
+							Object sel_t = target_path.get(target_path.size()-1);
 							new_sel_l.add(sel_t);
+						}
+					} else if (sel_it instanceof SVDBFilePath) {
+						new_sel_l.add(fContent.getFilePath());
+					} else if (sel_it instanceof Tuple) {
+						Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)sel_it;
+						
+						// See if we can find the old selection
+						for (Tuple<SVDBFileTree, ISVDBItemBase> i : fContent.getFilePath().getPath()) {
+							if (i.first().getFilePath().equals(t.first().getFilePath())) {
+								new_sel_l.add(i);
+								break;
+							}
 						}
 					}
 				}
@@ -311,9 +357,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	
 	private boolean lookupPath(
 			ISVDBChildParent			scope,
-			Iterator<ISVDBItemBase>		path_it,
-			List<ISVDBItemBase>			target_path) {
-		ISVDBItemBase path_item = path_it.next();
+			Iterator<Object>			path_it,
+			List<Object>				target_path) {
+		ISVDBItemBase path_item = (ISVDBItemBase)path_it.next();
 		ISVDBItemBase target_item = null;
 		boolean ret = false;
 		
@@ -385,6 +431,27 @@ public class SVOutlinePage extends ContentOutlinePage
 		// TODO Auto-generated method stub
 		return true;
 	}
+	
+	private IDoubleClickListener fDoubleClickListener =
+			new IDoubleClickListener() {
+				
+				@SuppressWarnings("unchecked")
+				public void doubleClick(DoubleClickEvent event) {
+					IStructuredSelection sel = (IStructuredSelection)getSelection();
+					
+					if (sel.getFirstElement() != null && sel.getFirstElement() instanceof Tuple) {
+						Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)sel.getFirstElement();
+						
+						if (t.second() != null) { // Don't mess with 'this' file
+							try {
+								SVEditorUtil.openEditor(t.second());
+							} catch (PartInitException e) {
+								fLog.error("Failed to open editor", e);
+							}
+						}
+					}
+				}
+			};
 	
 	private ISelectionChangedListener fSelectionListener = 
 		new ISelectionChangedListener() {
