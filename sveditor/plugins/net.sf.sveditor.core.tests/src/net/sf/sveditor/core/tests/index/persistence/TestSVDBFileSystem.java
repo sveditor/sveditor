@@ -50,6 +50,8 @@ public class TestSVDBFileSystem extends SVTestCaseBase {
 		
 		String str = in.readString();
 		assertEquals("Hello World", str);
+		
+		fs.close();
 	}
 
 	/**
@@ -81,5 +83,7 @@ public class TestSVDBFileSystem extends SVTestCaseBase {
 		is_valid = fs.init();
 		
 		assertFalse(is_valid);
+		
+		fs.close();
 	}
 }

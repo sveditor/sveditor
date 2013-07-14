@@ -45,29 +45,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOpencoresProjects extends SVTestCaseBase {
 	
-	private File			fTmpDir;
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
-	
 	public void testEthernetMac() throws CoreException {
 		SVCorePlugin.getDefault().enableDebug(false);
 
@@ -109,25 +86,17 @@ public class TestOpencoresProjects extends SVTestCaseBase {
 
 		// Create a new project for the 
 		File test_dir = new File(fTmpDir, testname);
-		File db_dir = new File(fTmpDir, "db");
-		if (test_dir.exists()) {
-			assertTrue(test_dir.delete());
-		}
 		assertTrue(test_dir.mkdirs());
-		
-		if (db_dir.exists()) {
-			assertTrue(db_dir.delete());
-		}
-		assertTrue(db_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS(zipfile_path, test_dir);
 		File project_path = new File(test_dir, proj_path);
 		
-		fProject = TestUtils.createProject(project_path.getName(), project_path);
+		IProject project = TestUtils.createProject(project_path.getName(), project_path);
+		addProject(project);
 		
 		// Setup appropriate project settings
 		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(fProject);
+		SVDBProjectData p_data = p_mgr.getProjectData(project);
 		
 		// Add an argument-file paths
 		SVProjectFileWrapper p_wrapper = p_data.getProjectFileWrapper().duplicate();
@@ -152,7 +121,6 @@ public class TestOpencoresProjects extends SVTestCaseBase {
 		}
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
-		project_index.dispose();
 		LogFactory.removeLogHandle(log);
 	}
 

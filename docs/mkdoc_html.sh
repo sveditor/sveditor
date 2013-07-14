@@ -5,5 +5,5 @@ $ECLIPSE_HOME/eclipse \
     --launcher.suppressErrors \
     -buildfile mkdoc.xml      \
     -verbose \
-    -Dos=linux -Dws=gtk -Darch=x86_64 $extra_defs mk_user_guide_pdf
+    -Dos=linux -Dws=gtk -Darch=x86_64 $extra_defs mk_user_guide_html
 

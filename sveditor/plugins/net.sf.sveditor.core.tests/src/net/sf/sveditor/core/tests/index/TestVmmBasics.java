@@ -210,20 +210,14 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testScenariosExample");
-		if (test_dir.exists()) {
-			TestUtils.delete(test_dir);
-		}
-		test_dir.mkdirs();
+		assertTrue(test_dir.mkdirs());
 		
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
 
 		fProject = TestUtils.createProject("scenarios", scenarios);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
@@ -285,5 +279,4 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		assertEquals("No errors", 0, errors.size());
 		LogFactory.removeLogHandle(log);
 	}
-
 }

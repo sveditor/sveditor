@@ -40,6 +40,8 @@ public class TestSVDBFileIndexCacheMgr extends SVTestCaseBase {
 		ISVDBIndexCache cache = mgr.findIndexCache("MY_PROJECT", "BASE_LOCATION");
 		
 		assertNotNull(cache);
+		
+		mgr.dispose();
 	}
 
 	public void testIndexEntriesSavedRestored() throws IOException {
@@ -75,5 +77,6 @@ public class TestSVDBFileIndexCacheMgr extends SVTestCaseBase {
 		SVDBFile file2 = cache.getFile(new NullProgressMonitor(), "/mypath");
 		assertNotNull(file2);
 		
+		mgr.dispose();
 	}
 }

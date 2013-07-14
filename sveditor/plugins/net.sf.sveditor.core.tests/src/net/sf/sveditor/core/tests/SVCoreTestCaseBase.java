@@ -39,9 +39,8 @@ public class SVCoreTestCaseBase extends TestCase {
 		
 		fTmpDir = TestUtils.createTempDir();
 		
-		File cache2 = new File(fTmpDir, "cache2");
-
 		/*
+		File cache2 = new File(fTmpDir, "cache2");
 		fFileSystem = new SVDBFileSystem(cache2, SVCorePlugin.getVersion());
 		fFileSystem.init();
 		 */
@@ -60,6 +59,11 @@ public class SVCoreTestCaseBase extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		// Stop any active jobs first
+		if (SVCorePlugin.getDefault() != null) {
+			SVCorePlugin.getDefault().getIndexBuilder().dispose();
+		}
+		
 		if (SVCorePlugin.getDefault() != null) {
 			if (SVCorePlugin.getDefault().getResourceChangeListener() != null) {
 				SVCorePlugin.getDefault().getResourceChangeListener().dispose();
@@ -77,14 +81,10 @@ public class SVCoreTestCaseBase extends TestCase {
 			}
 		}
 		
-		
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);
 		}
 	
-		if (SVCorePlugin.getDefault() != null) {
-			SVCorePlugin.getDefault().getIndexBuilder().dispose();
-		}
 		
 		LogFactory.removeLogHandle(fLog);
 		

@@ -131,9 +131,6 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testXbusExample");
-		if (test_dir.exists()) {
-			test_dir.delete();
-		}
 		test_dir.mkdirs();
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
@@ -177,20 +174,12 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testTrivialExample");
-		if (test_dir.exists()) {
-			test_dir.delete();
-		}
 		test_dir.mkdirs();
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File trivial = new File(test_dir, "ovm/examples/trivial");
 		
 		fProject = TestUtils.createProject("trivial", trivial);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
