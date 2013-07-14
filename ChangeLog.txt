@@ -1,4 +1,7 @@
 
+-- 1.3.0 Release --
+
+------------------------------------------------------------------------------
 -- 1.2.9 Release --
 
 - #(nobug) - Enable non-ANSI portlist declarations to end with ','. For example:
