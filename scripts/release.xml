@@ -9,8 +9,16 @@
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
 	<property name="sf_web_url" value="${env.SF_USERNAME},sveditor@web.sourceforge.net"/>
-	<property name="sf_update_url" 
-         value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
+
+	<condition property="sf_update_dir"
+		value="update"
+		else="update_testing">
+		<equals arg1="${version_type}" arg2="release"/>
+	</condition>
+
+	<property 
+		name="sf_update_url" 
+		value="${sf_web_url}:htdocs/${sf_update_dir}"/>
 
 	<property name="rlsdir" value="${basedir}/../release"/>
 	<property name="srcdir" value="${basedir}/../sveditor"/>
@@ -87,11 +95,19 @@
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>
 
+		<!-- Create the update-site directory, if it doesn't exist -->
+		<exec executable="sftp" 
+			inputstring="-mkdir ${sf_update_dir}">
+			<arg value="-b"/>
+			<arg value="/dev/stdin"/>
+			<arg value="${sf_web_url}:htdocs"/>
+		</exec>
+
 		<!-- Finally, update the SVEditor Update Site -->
 		<exec executable="scp" dir="${rlsdir}">
 			<arg value="content.jar"/>
 			<arg value="artifacts.jar"/>
-			<arg value="${sf_web_url}:htdocs/update"/>
+			<arg value="${sf_update_url}"/>
 		</exec>
 	</target>
 
