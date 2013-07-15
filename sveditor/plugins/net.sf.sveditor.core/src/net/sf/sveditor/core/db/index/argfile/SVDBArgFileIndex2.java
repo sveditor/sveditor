@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -420,6 +419,9 @@ public class SVDBArgFileIndex2 implements
 				
 				SVPreProcessor2 preproc = new SVPreProcessor2(
 						path, in, build_data, build_data);
+
+				fFileSystemProvider.closeStream(in);
+				
 				
 				synchronized (fBuildData) {
 					if (fBuildData.isMFCU()) {
@@ -1133,10 +1135,15 @@ public class SVDBArgFileIndex2 implements
 		}
 		
 		synchronized (build_data) {
+			boolean is_root = false;
 			Map<String, List<String>> inc_map = build_data.fIndexCacheData.fRootIncludeMap;
 			String root = null;
 			for (Entry<String, List<String>> e : inc_map.entrySet()) {
-				if (e.getKey().equals(path) || e.getValue().contains(path)) {
+				if (e.getKey().equals(path)) {
+					root = e.getKey();
+					is_root = true;
+					break;
+				} else if (e.getValue().contains(path)) {
 					root = e.getKey();
 					break;
 				}
@@ -1146,7 +1153,11 @@ public class SVDBArgFileIndex2 implements
 				SVDBFileTree ft = build_data.fCache.getFileTree(
 						new NullProgressMonitor(), root, false);
 				if (ft != null) {
-					ret = findTargetFileTree(ft, paths);
+					if (is_root) {
+						ret = ft;
+					} else {
+						ret = findTargetFileTree(ft, paths);
+					}
 				} else {
 					fLog.error("Failed to obtain FileTree " + root + " from cache");
 				}
@@ -1575,6 +1586,10 @@ public class SVDBArgFileIndex2 implements
 			String 				path, 
 			List<SVDBMarker> 	markers) {
 		SVDBFile file=null, file_ft=null;
+		
+		if (markers == null) {
+			markers = new ArrayList<SVDBMarker>();
+		}
 		
 		synchronized (fBuildData) {
 			String r_path = SVFileUtils.resolvePath(
@@ -2807,10 +2822,10 @@ public class SVDBArgFileIndex2 implements
 	public ISVPreProcessor createPreProcScanner(String path) {
 		SVPreProcessor2 ret = null;
 		
+		path = SVFileUtils.resolvePath(path, getBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
+		
 		checkInIndexOp("createPreProcScanner");
 		SVDBFileTree ft = findTargetFileTree(fBuildData, path);
-		
-//		System.out.println("ft=" + ft);
 		
 		if (ft != null) {
 			List<SVDBFileTree> ft_l = new ArrayList<SVDBFileTree>();

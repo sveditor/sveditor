@@ -42,15 +42,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
 	private int				fRebuildCount;
 	
-	@Override
-	protected void tearDown() throws Exception {
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		
-		super.tearDown();
-	}
-
 	public void index_changed(int reason, SVDBFile file) {}
 
 	public void index_rebuilt() {
@@ -138,16 +129,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testLibIndex");
-		File db_dir = new File(fTmpDir, "db");
-		if (test_dir.exists()) {
-			TestUtils.delete(test_dir);
-		}
 		assertTrue(test_dir.mkdirs());
-		
-		if (db_dir.exists()) {
-			TestUtils.delete(db_dir);
-		}
-		assertTrue(db_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File ovm = new File(test_dir, "ovm");

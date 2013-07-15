@@ -311,11 +311,6 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 	
-		/*
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestIndexCacheFactory(new File(fTmpDir, "db")));
-		 */
-		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		
 		PrintStream ps;

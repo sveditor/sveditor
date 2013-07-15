@@ -28,6 +28,8 @@ public class SVCoreTestCaseBase extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
+		SVCorePlugin.setTestMode();
+		
 		if (SVCorePlugin.getDefault() != null) {
 			SVCorePlugin.getDefault().getResourceChangeListener().init();
 		}

@@ -7,9 +7,9 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
-import net.sf.sveditor.core.tests.SVTestCaseBase;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestSVDBFileSystem extends SVTestCaseBase {
+public class TestSVDBFileSystem extends SVCoreTestCaseBase {
 
 	/**
 	 * Tests that we can:

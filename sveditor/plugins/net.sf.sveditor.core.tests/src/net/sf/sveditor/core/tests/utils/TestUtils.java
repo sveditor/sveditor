@@ -44,6 +44,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -359,15 +360,45 @@ public class TestUtils {
 		return project;
 	}
 
-	public static void deleteProject(IProject project_dir) {
+	public static void deleteProject(final IProject project_dir) {
 		if (project_dir != null && project_dir.exists()) {
+			Job delete_job = new Job("Delete Project " + project_dir.getName()) {
+				
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						project_dir.close(new NullProgressMonitor());
+						project_dir.delete(true, true, new NullProgressMonitor());
+					} catch (CoreException e) {
+						System.out.println("Failed to delete project: " + project_dir.getName());
+						e.printStackTrace();
+						TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
+								e.getMessage());
+					}
+
+					return Status.OK_STATUS;
+				}
+			};
+		
+			delete_job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+			delete_job.schedule();
 			try {
-				project_dir.close(new NullProgressMonitor());
-				project_dir.delete(true, true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
-						e.getMessage());
-				e.printStackTrace();
+				delete_job.join();
+			} catch (InterruptedException e) {
+				
+			}
+		}
+	}
+	
+	private static void delete(IContainer parent) throws CoreException {
+		for (IResource r : parent.members()) {
+			if (r instanceof IContainer) {
+				delete((IContainer)r);
+			}
+		}
+		for (IResource r : parent.members()) {
+			if (!(r instanceof IContainer)) {
+				r.delete(true, new NullProgressMonitor());
 			}
 		}
 	}

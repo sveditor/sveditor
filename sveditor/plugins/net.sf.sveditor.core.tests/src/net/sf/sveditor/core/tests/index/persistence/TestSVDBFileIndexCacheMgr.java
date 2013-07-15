@@ -3,8 +3,6 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -12,9 +10,11 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import net.sf.sveditor.core.tests.SVTestCaseBase;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestSVDBFileIndexCacheMgr extends SVTestCaseBase {
+import org.eclipse.core.runtime.NullProgressMonitor;
+
+public class TestSVDBFileIndexCacheMgr extends SVCoreTestCaseBase {
 	
 	public void testIndexSavedRestored() throws IOException {
 		File fs_dir = new File(fTmpDir, "fs_dir");

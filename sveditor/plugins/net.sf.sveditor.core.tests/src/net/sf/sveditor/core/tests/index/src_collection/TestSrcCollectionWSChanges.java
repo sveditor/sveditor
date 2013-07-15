@@ -53,16 +53,9 @@ public class TestSrcCollectionWSChanges extends SVCoreTestCaseBase
 
 		utils.copyBundleDirToWS("/project_dir_src_collection_pkg/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 				"project", "${workspace_loc}/project/project_dir_src_collection_pkg",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
@@ -149,11 +142,6 @@ public class TestSrcCollectionWSChanges extends SVCoreTestCaseBase
 
 		utils.copyBundleDirToWS("/project_dir_src_collection_pkg/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-
 		// Create a new class file
 		String class_str = 
 			"class class_1_2;\n" +
@@ -171,11 +159,9 @@ public class TestSrcCollectionWSChanges extends SVCoreTestCaseBase
 			fail("Exception while creating class: " + e.getMessage());
 		}
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 				"project", "${workspace_loc}/project/project_dir_src_collection_pkg",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
