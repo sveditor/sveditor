@@ -246,6 +246,12 @@ public class SVDBFileSystem implements ILogLevelListener {
 	}
 	
 	private void cleanup() {
+		// Close any open files we have sitting around...
+		for (RandomAccessFile rw : fFileRWList) {
+			try {
+				rw.close();
+			} catch (IOException e) {}
+		}
 		fFileRWList.clear();
 		
 		File files[] = fDBDir.listFiles();

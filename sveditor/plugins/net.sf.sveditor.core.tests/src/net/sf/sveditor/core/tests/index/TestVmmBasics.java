@@ -50,28 +50,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestVmmBasics extends SVCoreTestCaseBase {
 	
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		SVCorePlugin.setTestMode();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		super.tearDown();
-	}
-
 	public void testBasicProcessing() {
 		LogHandle log = LogFactory.getLogHandle("testBasicProcessing");
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -127,12 +105,10 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File ethernet = new File(test_dir, "vmm/sv/examples/std_lib/ethernet");
 		
-		fProject = TestUtils.createProject("ethernet", ethernet);
+		IProject project = TestUtils.createProject("ethernet", ethernet);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", "${workspace_loc}/ethernet/ethernet.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -172,12 +148,10 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File wishbone = new File(test_dir, "vmm/sv/examples/std_lib/wishbone");
 		
-		fProject = TestUtils.createProject("wishbone", wishbone);
+		IProject project = TestUtils.createProject("wishbone", wishbone);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
 				"GENERIC", "${workspace_loc}/wishbone/wishbone.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -210,20 +184,15 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testScenariosExample");
-		if (test_dir.exists()) {
-			TestUtils.delete(test_dir);
-		}
-		test_dir.mkdirs();
+		assertTrue(test_dir.mkdirs());
 		
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
 
-		fProject = TestUtils.createProject("scenarios", scenarios);
+		IProject project = TestUtils.createProject("scenarios", scenarios);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
@@ -285,5 +254,4 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		assertEquals("No errors", 0, errors.size());
 		LogFactory.removeLogHandle(log);
 	}
-
 }

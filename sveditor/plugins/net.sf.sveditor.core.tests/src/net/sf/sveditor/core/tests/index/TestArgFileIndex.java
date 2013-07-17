@@ -15,22 +15,18 @@ package net.sf.sveditor.core.tests.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -40,7 +36,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestArgFileIndex extends SVTestCaseBase {
+public class TestArgFileIndex extends SVCoreTestCaseBase {
 	
 	public void testIncludePathPriority() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -441,14 +437,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		String data_root = "/data/arg_file_multi_include_single_root/";
 		utils.copyBundleDirToWS(data_root, project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "/arg_file_multi_include_single_root/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		

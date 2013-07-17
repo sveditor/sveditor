@@ -7,9 +7,9 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
-import net.sf.sveditor.core.tests.SVTestCaseBase;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestSVDBFileSystem extends SVTestCaseBase {
+public class TestSVDBFileSystem extends SVCoreTestCaseBase {
 
 	/**
 	 * Tests that we can:
@@ -50,6 +50,8 @@ public class TestSVDBFileSystem extends SVTestCaseBase {
 		
 		String str = in.readString();
 		assertEquals("Hello World", str);
+		
+		fs.close();
 	}
 
 	/**
@@ -81,5 +83,7 @@ public class TestSVDBFileSystem extends SVTestCaseBase {
 		is_valid = fs.init();
 		
 		assertFalse(is_valid);
+		
+		fs.close();
 	}
 }

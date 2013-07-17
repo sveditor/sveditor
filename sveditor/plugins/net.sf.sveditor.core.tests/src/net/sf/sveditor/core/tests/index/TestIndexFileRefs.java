@@ -15,7 +15,6 @@ package net.sf.sveditor.core.tests.index;
 import java.io.File;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -33,7 +32,6 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -41,27 +39,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexFileRefs extends SVCoreTestCaseBase {
-
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-	
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		super.tearDown();
-	}
 
 	public void testUVMIncludeRefs() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -77,17 +54,10 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
 		
-		fProject = TestUtils.createProject("uvm", uvm_src);
+		IProject project = TestUtils.createProject("uvm", uvm_src);
+		addProject(project);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
 		index.setGlobalDefine("QUESTA", "");
 		
@@ -125,17 +95,10 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
 		
-		fProject = TestUtils.createProject("uvm", uvm_src);
+		IProject project = TestUtils.createProject("uvm", uvm_src);
+		addProject(project);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
 		index.setGlobalDefine("QUESTA", "");
 		

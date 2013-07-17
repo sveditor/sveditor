@@ -69,7 +69,7 @@ public class SVPropertyExprParser extends SVParserBase {
 	}
 	
 	public SVDBExpr property_statement() throws SVParseException {
-		if (fDebugEn) { debug("--> property_expr() " + fLexer.peek()); }
+		if (fDebugEn) { debug("--> property_statement() " + fLexer.peek()); }
 		SVDBExpr ret;
 		if (fLexer.peekKeyword("if")) {
 			ret = property_statement_if();
@@ -81,7 +81,7 @@ public class SVPropertyExprParser extends SVParserBase {
 			ret = stmt;
 		}
 		
-		if (fDebugEn) { debug("<-- property_expr() " + fLexer.peek()); }
+		if (fDebugEn) { debug("<-- property_statement() " + fLexer.peek()); }
 		return ret;
 	}
 	
@@ -147,8 +147,9 @@ public class SVPropertyExprParser extends SVParserBase {
 			ret = property_statement();
 		} else {
 			// TODO: property_statement, property_instance, clocking_event
+			if (fDebugEn) { debug("  property_expr --> sequence_expr() " + fLexer.peek()); }
 			ret = sequence_expr();
-			
+			if (fDebugEn) { debug("  property_expr <-- sequence_expr() " + fLexer.peek()); }
 		}
 		
 		// Now, parse binary operators
@@ -347,9 +348,11 @@ public class SVPropertyExprParser extends SVParserBase {
 				expr = delay_expr;
 			}
 		} else if (fLexer.peekKeyword("and","intersect","or","within","throughout") ||
-				fLexer.peekOperator(BinaryOp)) {
+				fLexer.peekOperator(SVOperators.RelationalOps)) {
 			SVDBLocation start = fLexer.getStartLocation();
+			if (fDebugEn) {debug(" --> -- binary sequence_expr" + fLexer.peek());}
 			expr = new SVDBBinaryExpr(expr, fLexer.eatToken(), sequence_expr());
+			if (fDebugEn) {debug(" <-- -- binary sequence_expr" + fLexer.peek());}
 			expr.setLocation(start);
 		}
 		
@@ -409,7 +412,9 @@ public class SVPropertyExprParser extends SVParserBase {
 	}
 
 	private SVDBExpr expression_or_dist() throws SVParseException {
+		if (fDebugEn) { debug("--> expression_or_dist " + fLexer.peek()); }
 		SVDBExpr expr = fParsers.exprParser().assert_expression();
+		if (fDebugEn) { debug("  post assert_expression " + fLexer.peek()); }
 		if (fLexer.peekKeyword("dist")) {
 			SVDBSequenceDistExpr dist = new SVDBSequenceDistExpr();
 			dist.setLocation(fLexer.getStartLocation());
@@ -418,6 +423,7 @@ public class SVPropertyExprParser extends SVParserBase {
 			expr = dist;
 		}
 		
+		if (fDebugEn) { debug("<-- expression_or_dist " + fLexer.peek()); }
 		return expr;
 	}
 	

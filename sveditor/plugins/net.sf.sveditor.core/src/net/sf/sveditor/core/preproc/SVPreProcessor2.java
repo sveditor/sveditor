@@ -25,6 +25,8 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.IDocCommentParser;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
@@ -32,7 +34,8 @@ import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVPreProcessor2 extends AbstractTextScanner implements ISVPreProcessor {
+public class SVPreProcessor2 extends AbstractTextScanner 
+		implements ISVPreProcessor, ILogLevelListener {
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private String									fFileName;
 	private StringBuilder							fOutput;
@@ -145,11 +148,17 @@ public class SVPreProcessor2 extends AbstractTextScanner implements ISVPreProces
 		fDefineProvider = new SVPreProcDefineProvider(fMacroProvider);
 		
 		fLog = LogFactory.getLogHandle("SVPreProcessor2");
+		fLog.addLogLevelListener(this);
+		fDebugEn = fLog.isEnabled();
 	
 		// Add the first file
 		enter_file(filename, input);
 	}
 	
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = handle.isEnabled();
+	}
+
 	public void setMacroProvider(IPreProcMacroProvider mp) {
 		fMacroProvider = mp;
 		fDefineProvider.setMacroProvider(mp);

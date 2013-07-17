@@ -33,16 +33,16 @@ import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.SVTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class SrcCollectionBasics extends SVTestCaseBase {
+public class SrcCollectionBasics extends SVCoreTestCaseBase {
 	
 	public void testFindSourceRecursePkg() {
 		SVCorePlugin.getDefault().enableDebug(false);
