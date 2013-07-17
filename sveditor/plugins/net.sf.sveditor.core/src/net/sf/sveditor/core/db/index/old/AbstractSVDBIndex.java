@@ -38,6 +38,7 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -974,7 +975,7 @@ public abstract class AbstractSVDBIndex implements
 		ensureIndexState(monitor, IndexState_FileTreeValid);
 		return fCache.getFileList(false);
 	}
-
+	
 	// TODO: just return full list for now
 	public synchronized Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
 		ensureIndexState(monitor, IndexState_FileTreeValid);

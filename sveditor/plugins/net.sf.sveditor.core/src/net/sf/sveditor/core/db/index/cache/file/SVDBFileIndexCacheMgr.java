@@ -46,6 +46,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private SVDBFileSystem							fFileSystem;
 	private LogHandle								fLog;
 	private boolean									fDebugEn;
+	
+	private boolean									fIsDisposed;
 
 	
 	public SVDBFileIndexCacheMgr() {
@@ -256,6 +258,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 		
 		fIndexDataId = -1;
+		fIsDisposed = true;
 	}
 
 	/**
@@ -326,6 +329,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param cache
 	 */
 	synchronized void removeIndexCache(SVDBFileIndexCache cache) {
+		if (fIsDisposed) {
+			return;
+		}
+		
 		fIndexList.remove(cache);
 	
 		// Clear the entries of the cache
