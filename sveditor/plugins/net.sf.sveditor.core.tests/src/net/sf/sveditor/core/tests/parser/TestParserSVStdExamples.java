@@ -346,7 +346,7 @@ public class TestParserSVStdExamples extends TestCase {
 	}
 
 	public void test_16_11_0_sequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest("test_16_11_0_sequence_1", 
 				"/data/parser/16.11.0_sequence_1.svh", 
 				new String[] {"m"});

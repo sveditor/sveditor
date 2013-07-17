@@ -712,7 +712,7 @@ public class TestParseClassBodyItems extends TestCase {
 
 	public void testComplexImplicationConstraint3() {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 				"class my_class;\n" +
 				"	rand int i;\n" +

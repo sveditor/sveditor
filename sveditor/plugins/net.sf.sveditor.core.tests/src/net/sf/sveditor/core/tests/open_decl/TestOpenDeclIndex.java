@@ -91,7 +91,7 @@ public class TestOpenDeclIndex extends SVCoreTestCaseBase {
 //		assertNotNull(parse_r.first());
 		assertNotNull(parse_r.second());
 		
-//		SVCorePlugin.getDefault().enableDebug(true);
+//		SVCorePlugin.getDefault().enableDebug(false);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(in_data);
 		
 		int idx = in_data.indexOf("uvm_component extends uvm_report_object");

@@ -67,7 +67,7 @@ public class TestParseAssertions extends TestCase {
 
 	public void testPropertyIfStmt() throws SVParseException {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"	module AssertionErrors (\n" +
 			"		input wire clk,\n" +
