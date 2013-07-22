@@ -888,6 +888,8 @@ public class SVDBArgFileIndex2 implements
 		if (fResolvedBaseLocation == null) {
 			fResolvedBaseLocation = SVDBIndexUtil.expandVars(fBaseLocation,
 					fProjectName, fInWorkspaceOk);
+			fResolvedBaseLocation = SVFileUtils.resolvePath(fResolvedBaseLocation, 
+					getBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
 		}
 
 		return fResolvedBaseLocation;
@@ -1024,9 +1026,6 @@ public class SVDBArgFileIndex2 implements
 			if (l != null && l.getFileId() != curr_id) {
 				int new_id = l.getFileId();
 				
-				if (new_id == -1) {
-					System.out.println("Item: " + SVDBItem.getName(it) + " " + it.getType() + " FileId=-1");
-				}
 				SVDBFile f = map.get(new_id);
 				
 				if (f == null) {
@@ -1044,8 +1043,6 @@ public class SVDBArgFileIndex2 implements
 				file.addChildItem(it);
 			}
 		}
-		System.out.println("<-- createSubFileMap: scope=" + SVDBItem.getName(scope) + " type=" + scope.getType() + 
-				" curr_id=" + curr_id + " file=" + file.getFilePath());
 	}
 
 	private SVDBFileTree findTargetFileTree(SVDBArgFileIndexBuildData build_data, String path) {
@@ -1065,31 +1062,36 @@ public class SVDBArgFileIndex2 implements
 		}
 		
 		synchronized (build_data) {
-			boolean is_root = false;
-			Map<String, List<String>> inc_map = build_data.fIndexCacheData.fRootIncludeMap;
-			String root = null;
-			for (Entry<String, List<String>> e : inc_map.entrySet()) {
-				if (e.getKey().equals(path)) {
-					root = e.getKey();
-					is_root = true;
-					break;
-				} else if (e.getValue().contains(path)) {
-					root = e.getKey();
-					break;
-				}
-			}
-			
-			if (root != null) {
-				SVDBFileTree ft = build_data.fCache.getFileTree(
-						new NullProgressMonitor(), root, false);
-				if (ft != null) {
-					if (is_root) {
-						ret = ft;
-					} else {
-						ret = findTargetFileTree(ft, paths);
+			if (build_data.fIndexCacheData.fArgFilePaths.contains(path)) {
+				// This is an argfile path
+				ret = build_data.fCache.getFileTree(new NullProgressMonitor(), path, true);
+			} else {
+				boolean is_root = false;
+				Map<String, List<String>> inc_map = build_data.fIndexCacheData.fRootIncludeMap;
+				String root = null;
+				for (Entry<String, List<String>> e : inc_map.entrySet()) {
+					if (e.getKey().equals(path)) {
+						root = e.getKey();
+						is_root = true;
+						break;
+					} else if (e.getValue().contains(path)) {
+						root = e.getKey();
+						break;
 					}
-				} else {
-					fLog.error("Failed to obtain FileTree " + root + " from cache");
+				}
+
+				if (root != null) {
+					SVDBFileTree ft = build_data.fCache.getFileTree(
+							new NullProgressMonitor(), root, false);
+					if (ft != null) {
+						if (is_root) {
+							ret = ft;
+						} else {
+							ret = findTargetFileTree(ft, paths);
+						}
+					} else {
+						fLog.error("Failed to obtain FileTree " + root + " from cache");
+					}
 				}
 			}
 		
@@ -1676,27 +1678,33 @@ public class SVDBArgFileIndex2 implements
 	public List<SVDBFilePath> getFilePath(String path) {
 		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
 		
+		path = SVFileUtils.resolvePath(path, getBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
+		
+		boolean is_argfile = fBuildData.fIndexCacheData.fArgFilePaths.contains(path);
 		SVDBFileTree ft = findTargetFileTree(fBuildData, path);
-	
+		
 		SVDBFilePath fp = new SVDBFilePath();
 		if (ft != null) {
 			String top_file_path = ft.getFilePath();
 			fp.addPath(ft, null);
-		
-			// First, fill in the SV file structure
-			while (ft.getParent() != null) {
-				String child_path = ft.getFilePath();
-				ft = ft.getParent();
-				
-				// Now, locate the statement used in include the file
-				ISVDBItemBase inc_stmt = findIncStmt(ft.getSVDBFile(), child_path);
-				fp.addPath(ft, inc_stmt);
-				
-				top_file_path = ft.getFilePath();
+
+			if (!is_argfile) {
+				// First, fill in the SV file structure
+				while (ft.getParent() != null) {
+					String child_path = ft.getFilePath();
+					ft = ft.getParent();
+
+					// Now, locate the statement used in include the file
+					ISVDBItemBase inc_stmt = findIncStmt(ft.getSVDBFile(), child_path);
+					fp.addPath(ft, inc_stmt);
+
+					top_file_path = ft.getFilePath();
+				}
 			}
 			
 			// Now, move through the argument-file hierarchy
-			Tuple<SVDBFileTree, ISVDBItemBase> af_it = findContainingArgFile(fBuildData, top_file_path, false);
+			Tuple<SVDBFileTree, ISVDBItemBase> af_it = findContainingArgFile(
+					fBuildData, top_file_path, is_argfile);
 			
 			while (af_it != null) {
 				fp.addPath(af_it.first(), af_it.second());
@@ -2147,8 +2155,6 @@ public class SVDBArgFileIndex2 implements
 
 		SVDBFile file = null;
 		
-		System.out.println("getDeclFile: " + item.getType() + " " + item.getName() + " " + item.getFilename());
-
 		// If this is a pre-processor item, then return the FileTree view of the
 		// file
 		if (item.isFileTreeItem()) {
@@ -2165,7 +2171,6 @@ public class SVDBArgFileIndex2 implements
 			}
 			 */
 			file = findFile(item.getFilename());
-			System.out.println("file: " + file.getFilePath());
 		}
 
 		return file;
@@ -2309,7 +2314,7 @@ public class SVDBArgFileIndex2 implements
 			String							base_location_dir,
 			String 							path,
 			boolean							is_root) {
-		path = SVFileUtils.normalize(path);
+		path = SVFileUtils.resolvePath(path, getBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
 
 		if (processed_paths == null) {
 			processed_paths = new HashSet<String>();

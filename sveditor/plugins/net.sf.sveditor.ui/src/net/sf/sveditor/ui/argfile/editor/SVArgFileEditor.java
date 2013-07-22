@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
@@ -35,6 +36,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlinePage;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -144,6 +146,18 @@ public class SVArgFileEditor extends TextEditor
 
 	public SVDBFile getSVDBFile() {
 		return fSVDBFile;
+	}
+	
+	public List<SVDBFilePath> getSVDBFilePath() {
+		String project = getProject();
+		Tuple<ISVDBIndex, SVDBIndexCollection> result = 
+				SVDBIndexUtil.findArgFileIndex(fFile, project);
+		
+		if (result != null && result.first() != null) {
+			return result.first().getFilePath(fFile);
+		} else {
+			return null;
+		}
 	}
 	
 	public void setSelection(ISVDBItemBase it, boolean set_cursor) {
@@ -539,14 +553,8 @@ public class SVArgFileEditor extends TextEditor
 		return ret.reverse().toString();
 	}
 	
-	/**
-	 * 
-	 * @return <resolved_base_location, variable_provider>
-	 */
-	public Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
-		// Search for the index to which this file belongs
+	private String getProject() {
 		String project = null;
-		String root_file = null;
 		
 		if (fFile.startsWith("${workspace_loc}")) {
 			String fullpath = fFile.substring("${workspace_loc}".length());
@@ -558,6 +566,19 @@ public class SVArgFileEditor extends TextEditor
 				project = file.getProject().getName();
 			}
 		}
+		
+		return project;
+	}
+	
+	/**
+	 * 
+	 * @return <resolved_base_location, variable_provider>
+	 */
+	public Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
+		// Search for the index to which this file belongs
+		String root_file = null;
+		String project = getProject();
+		
 		
 		Tuple<ISVDBIndex, SVDBIndexCollection> result = 
 				SVDBIndexUtil.findArgFileIndex(fFile, project);
