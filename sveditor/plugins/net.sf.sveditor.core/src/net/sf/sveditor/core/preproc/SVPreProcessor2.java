@@ -72,12 +72,18 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		int								fLastCh;
 		int								fUngetCh[] = {-1,-1};
 		boolean							fEof;
+		boolean							fIncPos;
+		
 		// Macros referenced by this file
 		Map<String, String>				fRefMacros;
 		SVDBFileTree					fFileTree;
 		SVDBUnprocessedRegion			fUnprocessedRegion;
 		
 		InputData(InputStream in, String filename, int file_id) {
+			this(in, filename, file_id, true);
+		}
+		
+		InputData(InputStream in, String filename, int file_id, boolean inc_pos) {
 			fLineno = 1;
 			fInput = in;
 			fFilename = filename;
@@ -87,6 +93,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fInBufferMax = 0;
 			fLastCh = -1;
 			fEof = false;
+			fIncPos = inc_pos;
 			fRefMacros = new HashMap<String, String>();
 		}
 	}
@@ -666,7 +673,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 								fLog.debug("Expansion of \"" + 
 										fTmpBuffer.toString() + "\" == " + exp);
 							}
-							InputData in = new InputData(new StringInputStream(exp), "ANONYMOUS", -1);
+							InputData curr_in = fInputStack.peek();
+							
+							InputData in = new InputData(new StringInputStream(exp), 
+									"ANONYMOUS", curr_in.fFileId, false);
 							fInputStack.push(in);
 						} catch (Exception e) {
 							/*
@@ -976,7 +986,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 				if (in.fInBufferIdx < in.fInBufferMax) {
 					ch = in.fInBuffer[in.fInBufferIdx++];
-					if (in.fLastCh == '\n') {
+					if (in.fIncPos && in.fLastCh == '\n') {
 						// Save a marker for the line in the line-map
 						int offset = fOutput.length();
 						in.fLineno++;

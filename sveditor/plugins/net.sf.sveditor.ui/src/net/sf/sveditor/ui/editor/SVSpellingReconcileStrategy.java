@@ -64,16 +64,23 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 			Annotation ann = (Annotation)it.next();
 			Position pos = model.getPosition(ann);
 
-			boolean in_region = false;
-			for (ITypedRegion r : regions) {
-				if (pos.getOffset() >= r.getOffset() &&
-						pos.getOffset() < r.getOffset()+r.getLength()) {
-					in_region = true;
-					break;
+			if (pos != null) {
+				boolean in_region = false;
+				for (ITypedRegion r : regions) {
+					if (r == null) {
+						continue;
+					}
+					if (pos.getOffset() >= r.getOffset() &&
+							pos.getOffset() < r.getOffset()+r.getLength()) {
+						in_region = true;
+						break;
+					}
 				}
-			}
-			
-			if (in_region) {
+
+				if (in_region) {
+					model.removeAnnotation(ann);
+				}
+			} else if (ann != null) {
 				model.removeAnnotation(ann);
 			}
 		}

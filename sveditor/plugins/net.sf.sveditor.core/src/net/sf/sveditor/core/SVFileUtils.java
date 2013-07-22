@@ -350,6 +350,7 @@ public class SVFileUtils {
 		}
 		
 		norm_path = (norm_path != null) ? norm_path : path_orig;
+		norm_path = normalizePath(norm_path);
 		
 		if (fDebugEn) {
 			fLog.debug("<-- resolvePath: " + path_orig + " " + norm_path);
