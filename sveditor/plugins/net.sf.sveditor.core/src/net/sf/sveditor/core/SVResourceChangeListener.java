@@ -99,11 +99,16 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 		}
 		
 		public void end() {
-			if (fOpenedProjects.size() > 0) {
+			debug("SVResourceChange end() fOpenedProjects.size=" + fOpenedProjects.size() +
+					" fAffectedProjects.size=" + fAffectedProjects.size());
+			
+//			if (fOpenedProjects.size() > 0) {
+
 				// Eclipse appears to import a project in two steps. The first
 				// step is to just import the project and .project file. The
 				// second step populates the project with files
 				if (!fNonProjectDeltasSeen) {
+					debug("No no-project deltas seen");
 					for (IProject p : fOpenedProjects) {
 						synchronized (fPendingOpenProjects) {
 							if (!fPendingOpenProjects.contains(p)) {
@@ -112,23 +117,35 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 						}
 					}
 				} else {
-					for (IProject p : fOpenedProjects) {
-						fProjectMgr.projectOpened(p);
+					debug("Non-project deltas seen");
+					for (IProject p : fAffectedProjects) {
+						debug("  Affected project: " + p.getName());
+						if (fPendingOpenProjects.contains(p)) {
+							debug("  Project opened: " + p.getName());
+							fProjectMgr.projectOpened(p);
+							fPendingOpenProjects.remove(p);
+						}
 					}
 				}
-			}
+//			}
+			
 			for (IProject p : fClosedProject) {
 				fProjectMgr.projectClosed(p);
 			}
-			
+
+			/*
 			for (IProject p : fAffectedProjects) {
+				debug("AffectedProject: " + p.getName());
+				
 				synchronized (fPendingOpenProjects) {
 					if (fPendingOpenProjects.contains(p)) {
 						fPendingOpenProjects.remove(p);
+						debug("  Project opened: " + p.getName());
 						fProjectMgr.projectOpened(p);
 					}
 				}
 			}
+			 */
 		}
 
 		public boolean visit(IResourceDelta delta) throws CoreException {
@@ -175,6 +192,10 @@ public class SVResourceChangeListener implements IResourceChangeListener {
 				}
 			} else {
 				String name = delta.getResource().getName();
+				IProject p = delta.getResource().getProject();
+				if (p != null && !fAffectedProjects.contains(p)) {
+					fAffectedProjects.add(p);
+				}
 				if (!name.trim().equals("") && !name.equals(".project")) {
 					fNonProjectDeltasSeen = true;
 				}

@@ -48,6 +48,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private IProject								fProject;
 	private SVProjectFileWrapper 					fFileWrapper;
+	private boolean									fHaveDotSvProject;
 	private SVDBIndexCollection						fIndexCollection;
 	private String									fProjectName;
 	private LogHandle								fLog;
@@ -60,22 +61,39 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project.getName();
 		
-//		fIndexCollection = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
-	
-		IFile svproject = project.getFile(".svproject");
-		
-		SVProjectFileWrapper wrapper;
-		
 		fLog.debug("Create SVDBProjectData for \"" + project.getName() + "\"");
+		
+		init();
+	}
+	
+	public synchronized void refresh() {
+		IFile svproject = fProject.getFile(".svproject");
+		
+		if (!fHaveDotSvProject && svproject.exists()) {
+			init();
+		}
+	}
+	
+	public synchronized void init() {
+		IFile svproject = fProject.getFile(".svproject");
+		SVProjectFileWrapper wrapper;
 		
 		if (svproject.exists()) {
 			fLog.debug(".svproject exists");
 			wrapper = readProjectFile(svproject);
+			fHaveDotSvProject = true;
 		} else {
 			// Create defaults
-			fLog.debug(".svproject does not exist");
+			Exception e = null;
+			try {
+				throw new Exception();
+			} catch (Exception ex) {
+				e = ex;
+			}
+			fLog.debug(".svproject does not exist", e);
 			wrapper = new SVProjectFileWrapper();
 			SVDBProjectManager.setupDefaultProjectFile(wrapper);
+			fHaveDotSvProject = false;
 		}
 
 		// Initialize to null, so initial setup is performed
@@ -85,6 +103,10 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	
 	public IProject getProject() {
 		return fProject;
+	}
+	
+	public boolean haveDotSvProject() {
+		return fHaveDotSvProject;
 	}
 	
 	public SVDBIndexCollection resolveProjectRef(String path) {
