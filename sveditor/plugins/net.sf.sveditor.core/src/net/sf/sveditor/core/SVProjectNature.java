@@ -12,6 +12,10 @@
 
 package net.sf.sveditor.core;
 
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -19,7 +23,7 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class SVProjectNature implements IProjectNature {
+public class SVProjectNature implements IProjectNature, ILogLevel {
 	public static final String		NATURE_ID = "net.sf.sveditor.core.SVNature";
 	
 	private IProject				fProject;
@@ -67,6 +71,7 @@ public class SVProjectNature implements IProjectNature {
 	 * @param p
 	 */
 	public static void ensureHasSvProjectNature(IProject p) {
+		LogHandle log = LogFactory.getLogHandle("SVProjectNature");
 
 		try {
 			IProjectDescription d = p.getDescription();
@@ -81,14 +86,18 @@ public class SVProjectNature implements IProjectNature {
 					}
 				}
 				if (!has) {
+					log.debug(LEVEL_MIN, "Adding project nature to " + p.getName());
 					String natures_t[] = new String[natures.length+1];
 					for (int i=0; i<natures.length; i++) {
 						natures_t[i] = natures[i];
 					}
 					natures_t[natures.length] = NATURE_ID;
 					natures = natures_t;
+				} else {
+					log.debug(LEVEL_MIN, "Project " + p.getName() + " already has SVE nature");
 				}
 			} else {
+				log.debug(LEVEL_MIN, "Adding project nature to " + p.getName());
 				natures = new String[1];
 				natures[0] = NATURE_ID;
 			}

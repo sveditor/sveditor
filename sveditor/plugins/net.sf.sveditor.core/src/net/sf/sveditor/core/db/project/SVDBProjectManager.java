@@ -20,7 +20,6 @@ import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.ISVProjectDelayedOp;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -31,6 +30,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
 import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -55,7 +55,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
-		IResourceChangeListener, IPathVariableChangeListener {
+		IResourceChangeListener, IPathVariableChangeListener,
+		ILogLevel {
 	private static final int						BUILD_DELAY = 2000;
 	private static final int						INIT_DELAY = 1000;
 	private LogHandle								fLog;
@@ -115,10 +116,15 @@ public class SVDBProjectManager implements
 	
 	public void projectOpened(IProject p) {
 		// Start a job to handle the fact that a project is opening
+		boolean is_sve_project = SVDBProjectManager.isSveProject(p);
+		
+		fLog.debug(LEVEL_MIN, "projectOpened: " + p.getName() + " is_sve_project=" + is_sve_project);
+		
 
-		if (SVDBProjectManager.isSveProject(p)) {
+		if (is_sve_project) {
 			// Ensure the project nature is associated
 //			SVProjectNature.ensureHasSvProjectNature(p);
+			fLog.debug(LEVEL_MIN, "  -- is SVE project");
 		
 			SVDBOpenProjectJob job = new SVDBOpenProjectJob(this, p);
 			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
@@ -127,6 +133,8 @@ public class SVDBProjectManager implements
 			synchronized (fDelayedOpList) {
 				fDelayedOpList.add(job);
 			}
+		} else {
+			fLog.debug(LEVEL_MIN, "  -- not SVE project");
 		}
 	}
 	
@@ -174,6 +182,7 @@ public class SVDBProjectManager implements
 		
 		if (!isSveProject(p)) {
 			// This is likely an auto-build occurring in the middle of import
+			fLog.debug("rebuildProject: cancel due to !isSveProject");
 			return;
 		}
 		
@@ -189,6 +198,9 @@ public class SVDBProjectManager implements
 		
 		SVDBProjectData pd = getProjectData(p);
 		if (pd != null) {
+			// Ensure we're up-to-date
+			pd.refresh();
+			
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
 			List<ISVDBIndex> index_l = index.getIndexList();
 			monitor.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
@@ -196,6 +208,8 @@ public class SVDBProjectManager implements
 			for (ISVDBIndex i : index_l) {
 				monitor.subTask("Build " + i.getBaseLocation());
 				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(i);
+				
+				fLog.debug(LEVEL_MID, "Rebuild index " + i.getBaseLocation());
 				
 				i.execOp(new SubProgressMonitor(monitor, 1000), 
 						new SVDBClearMarkersOp(), true);
