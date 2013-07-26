@@ -44,7 +44,7 @@
     </taskdef>
         
     <target name="build" depends="compile, mkarchive">
-	<delete dir="${buildDirectory}"/>
+		<delete dir="${buildDirectory}"/>
     </target>
 
     <target name="compile"> 
@@ -72,9 +72,15 @@
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor.core.feature"/>
         </antcall>
+    	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor.ui.feature"/>
         </antcall>
+    	
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.svt.feature"/>
+        </antcall>
+    	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor"/>
         </antcall>
