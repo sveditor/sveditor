@@ -168,6 +168,7 @@
 			basedir="${buildResult}">
 			<include name="sveditor-src-${feature.version}/**"/>
 		</zip>
+		<delete dir="${buildResult}/sveditor-src-${feature.version}"/>
 	</target>
 
 </project>
