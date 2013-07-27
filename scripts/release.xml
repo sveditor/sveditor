@@ -9,6 +9,13 @@
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
 	<property name="sf_web_url" value="${env.SF_USERNAME},sveditor@web.sourceforge.net"/>
+	
+	<condition property="sf_update_url"
+		value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update_testing"
+		else="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update">
+		<equals arg1="${version_type}" arg2="testing"/>
+	</condition>
+	
 	<property name="sf_update_url" 
          value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
 
@@ -90,7 +97,7 @@
 		<echo file="${sftp_cmds}">
 			put sveditor-src-${feature.version}.zip
 		</echo>
-		<exec executable="sftp" dir="${basedir}/..">
+		<exec executable="sftp" dir="${basedir}/../buildResult">
 			<arg value="-b"/>
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
@@ -109,7 +116,7 @@
 		<exec executable="scp" dir="${rlsdir}">
 			<arg value="content.jar"/>
 			<arg value="artifacts.jar"/>
-			<arg value="${sf_web_url}:htdocs/update"/>
+			<arg value="${sf_update_url}"/>
 		</exec>
 	</target>
 
@@ -161,6 +168,7 @@
 			basedir="${buildResult}">
 			<include name="sveditor-src-${feature.version}/**"/>
 		</zip>
+		<delete dir="${buildResult}/sveditor-src-${feature.version}"/>
 	</target>
 
 </project>

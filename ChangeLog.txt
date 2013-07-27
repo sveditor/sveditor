@@ -1,4 +1,18 @@
 
+-- 1.3.3 Release --
+
+- #(nobug) - Correct a windows-specific hang that could occur during file
+  pre-processing when Java throws an exception rather than returning a
+  'no data available' return code from the read() method
+  
+
+------------------------------------------------------------------------------
+-- 1.3.2 Release --
+
+- #(nobug) - Correct a bug in the build procedure that could cause the
+  template-engine plugins to be deployed without any .class files. 
+
+------------------------------------------------------------------------------
 -- 1.3.1 Release --
 
 - #(267) - Add logic to the spelling reconciler to check for null handles

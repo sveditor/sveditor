@@ -6,6 +6,7 @@ if test "$is_mingw" = "1"; then
   os=win32
   ws=win32
   arch=x86_64
+  eclipse=eclipsec
 else
   os=linux
   ws=gtk
@@ -14,9 +15,10 @@ else
   else
     arch=x86
   fi
+  eclipse=eclipse
 fi
 
-$ECLIPSE_HOME/eclipse \
+$ECLIPSE_HOME/${eclipse} \
     -nosplash -application org.eclipse.ant.core.antRunner \
     --launcher.suppressErrors   \
     -buildfile release.xml      \

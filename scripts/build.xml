@@ -44,7 +44,7 @@
     </taskdef>
         
     <target name="build" depends="compile, mkarchive">
-	<delete dir="${buildDirectory}"/>
+		<delete dir="${buildDirectory}"/>
     </target>
 
     <target name="compile"> 
@@ -72,15 +72,22 @@
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor.core.feature"/>
         </antcall>
+    	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor.ui.feature"/>
         </antcall>
+    
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.svt.feature"/>
+        </antcall>
+    	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor"/>
         </antcall>
     </target>
 
     <target name="build_feature">
+    	<echo message="==> buildScript type=${type} id=${feature.id}"/>
         <eclipse.buildScript
             elements="${type}@${feature.id}"
             buildDirectory="${buildDirectory}"
@@ -88,6 +95,7 @@
             configInfo="${os},${ws},${arch}"
             forceContextQualifier="${forceContextQualifier}"
             generateFeatureVersionSuffix="true"/>
+    	<echo message="&lt;== buildScript type=${type} id=${feature.id}"/>
 
         <ant antfile="${buildDirectory}/features/${feature.id}/build.xml"
             dir="${buildDirectory}/features/${feature.id}"
