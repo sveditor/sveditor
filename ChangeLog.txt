@@ -1,4 +1,7 @@
 
+-- 1.3.4 Release --
+
+------------------------------------------------------------------------------
 -- 1.3.3 Release --
 
 - #(nobug) - Correct a windows-specific hang that could occur during file
