@@ -965,11 +965,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					break;
 				}
 			} else {
-				if (in.fInBufferIdx >= in.fInBufferMax) {
+				if (in.fInBufferIdx >= in.fInBufferMax && in.fInBufferMax != -1) {
 					
-					if (in.fInput == null) {
-						System.out.println("Buffer NULL: " + in.fFilename);
-					}
 					// Time to read more data
 					try {
 						in.fInBufferMax = in.fInput.read(
@@ -982,7 +979,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							}
 							in.fEof = true;
 						}
-					} catch (IOException e) {}
+					} catch (IOException e) {
+						// Exception causes end-of-file too
+						in.fEof = true;
+					}
 				}
 				if (in.fInBufferIdx < in.fInBufferMax) {
 					ch = in.fInBuffer[in.fInBufferIdx++];
@@ -997,7 +997,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					break;
 				} else {
 					// Reached end of the file...
-					// fInputStack.pop();
+//					fInputStack.pop();
 				}
 			}
 		}	
