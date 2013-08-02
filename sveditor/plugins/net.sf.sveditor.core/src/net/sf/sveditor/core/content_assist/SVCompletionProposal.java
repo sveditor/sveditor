@@ -32,6 +32,8 @@ public class SVCompletionProposal {
 	private String						fReplacement;
 	private int							fReplacementOffset;
 	private int							fReplacementLength;
+	private String						fDisplayString;
+	private String						fAdditionalInfo;
 	private SVCompletionProposalType	fType;
 	private int							fPriorityCategory;
 	private int							fPriority;
@@ -89,6 +91,22 @@ public class SVCompletionProposal {
 	
 	public void setReplacement(String replacement) {
 		fReplacement = replacement;
+	}
+	
+	public String getDisplayString() {
+		return fDisplayString;
+	}
+	
+	public void setDisplayString(String str) {
+		fDisplayString = str;
+	}
+	
+	public String getAdditionalInfo() {
+		return fAdditionalInfo;
+	}
+	
+	public void setAdditionalInfo(String str) {
+		fAdditionalInfo = str;
 	}
 	
 	public SVCompletionProposal(

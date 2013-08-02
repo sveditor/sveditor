@@ -926,13 +926,23 @@ public class SVEditor extends TextEditor
 	}
 
 	public void index_rebuilt() {
-		// Force a rebuild to pick up latest errors
-		if (getSite() != null && getSite().getPage().isPartVisible(this)) {
-			updateSVDBFile(getDocument());
-		} else {
-			// Store the knowledge that we need an update for later
+		if (Display.getDefault() == null) {
 			fNeedUpdate = true;
+			return;
 		}
+		
+		// Force a rebuild to pick up latest errors
+		// Note: isPartVisible() is a display-thread protected method
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				if (getSite() != null && getSite().getPage().isPartVisible(SVEditor.this)) {
+					updateSVDBFile(getDocument());
+				} else {
+					// Store the knowledge that we need an update for later
+					fNeedUpdate = true;
+				}
+			}
+		});
 	}
 
 	// IPartListener methods

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import net.sf.sveditor.core.SVFileBuffer;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBDocComment;
@@ -22,6 +23,7 @@ import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.IDocCommentParser;
@@ -36,6 +38,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcessor2 extends AbstractTextScanner 
 		implements ISVPreProcessor, ILogLevelListener {
+	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private String									fFileName;
 	private StringBuilder							fOutput;
@@ -66,9 +69,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		int								fFileId;
 		int								fLineno;
 		int								fLinepos;
+		// Total lines processed, including macro expansion
+		int								fLineCount;
+		/*
 		byte							fInBuffer[];
 		int								fInBufferIdx;
 		int								fInBufferMax;
+		 */
 		int								fLastCh;
 		int								fUngetCh[] = {-1,-1};
 		boolean							fEof;
@@ -88,9 +95,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fInput = in;
 			fFilename = filename;
 			fFileId   = file_id;
+			/*
 			fInBuffer = new byte[4*1024];
 			fInBufferIdx = 0;
 			fInBufferMax = 0;
+			 */
 			fLastCh = -1;
 			fEof = false;
 			fIncPos = inc_pos;
@@ -162,6 +171,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		enter_file(filename, input);
 	}
 	
+	public void setIndexStats(SVDBIndexStats stats) {
+		fIndexStats = stats;
+	}
+	
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = handle.isEnabled();
 	}
@@ -178,11 +191,14 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	public SVPreProcOutput preprocess() {
 		int ch, last_ch = -1;
 		int end_comment[] = {-1, -1};
+		long start, end;
 		boolean in_string = false;
 		boolean ifdef_enabled = true;
 		boolean found_single_line_comment = false;
 		
 		fInPreProcess = true;
+		
+		start = System.currentTimeMillis();
 
 		while ((ch = get_ch()) != -1) {
 			found_single_line_comment = false;
@@ -301,6 +317,17 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			}
 		}
 		 */
+		
+		end = System.currentTimeMillis();
+		
+		if (fIndexStats != null) {
+			if (last_file.fInput instanceof SVFileBuffer) {
+				fIndexStats.incLastIndexFileReadTime(
+						((SVFileBuffer)last_file.fInput).getReadTime());
+			}
+			fIndexStats.incNumLines(last_file.fLineCount);
+			fIndexStats.incLastIndexPreProcessTime(end-start);
+		}
 		
 		return ret;
 	}
@@ -694,6 +721,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	}
 	
 	private void enter_file(String filename, InputStream in) {
+		/*
 		String old_file = "";
 		int old_lineno = -1;
 		
@@ -701,11 +729,16 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			old_file = fInputStack.peek().fFilename;
 			old_lineno = fInputStack.peek().fLineno;
 		}
+		 */
 		
 		if (!fFileList.contains(filename)) {
 			fFileList.add(filename);
 		} else {
 //			System.out.println("File: " + filename + " already included");
+		}
+		
+		if (fIndexStats != null) {
+			fIndexStats.incNumProcessedFiles();
 		}
 		
 		// Add a marker noting that we're switching to a new file
@@ -715,7 +748,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			file_id = fFileMapper.mapFilePathToId(filename, true);
 		}
 		
-		InputData in_data = new InputData(in, filename, file_id);
+		SVFileBuffer in_b = new SVFileBuffer(in);
+		InputData in_data = new InputData(in_b, filename, file_id);
 		add_file_change_info(fOutput.length(), file_id, in_data.fLineno);
 
 		
@@ -750,6 +784,15 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			try {
 				old_file.fInput.close();
 			} catch (IOException e) {}
+		}
+	
+		if (fIndexStats != null) {
+			// Update stats
+			if (old_file.fInput instanceof SVFileBuffer) {
+				fIndexStats.incLastIndexFileReadTime(
+						((SVFileBuffer)old_file.fInput).getReadTime());
+			}
+			fIndexStats.incNumLines(old_file.fLineCount);
 		}
 		
 		fInputStack.pop();
@@ -965,6 +1008,28 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					break;
 				}
 			} else {
+				try {
+					ch = in.fInput.read();
+				} catch (IOException e) {}
+				
+				if (ch == -1) {
+					in.fEof = true;
+				} else {
+					if (in.fLastCh == '\n') {
+						if (in.fIncPos) {
+							// Save a marker for the line in the line-map
+							int offset = fOutput.length();
+							in.fLineno++;
+							add_file_change_info(offset, in.fFileId, in.fLineno);
+							fLineno = in.fLineno;
+						}
+						in.fLineCount++;
+					}
+					in.fLastCh = ch;
+					break;
+				}
+				
+				/*
 				if (in.fInBufferIdx >= in.fInBufferMax && in.fInBufferMax != -1) {
 					
 					// Time to read more data
@@ -999,6 +1064,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					// Reached end of the file...
 //					fInputStack.pop();
 				}
+				 */
 			}
 		}	
 

@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
@@ -28,6 +29,7 @@ public class SVDBArgFileIndexBuildData implements
 	ISVDBIndexCacheMgr							fCacheMgr;
 	Set<String>									fFileDirs;
 	Set<String>									fMissingIncludes;
+	SVDBIndexStats								fIndexStats;
 	
 	public SVDBArgFileIndexBuildData(ISVDBIndexCache cache, String base_location) {
 		fCache = cache;
@@ -38,6 +40,7 @@ public class SVDBArgFileIndexBuildData implements
 		fIndexCacheData = new SVDBArgFileIndexCacheData(base_location);
 		
 		fCache.init(new NullProgressMonitor(), fIndexCacheData, base_location);
+		fIndexStats = new SVDBIndexStats();
 	}
 	
 	void apply(SVDBArgFileIndexBuildData build_data) {
@@ -50,6 +53,7 @@ public class SVDBArgFileIndexBuildData implements
 		fCacheMgr = build_data.fCacheMgr;
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
+		fIndexStats = build_data.fIndexStats;
 	
 		// We've transferred the cache to this build data
 		build_data.fCache = null;

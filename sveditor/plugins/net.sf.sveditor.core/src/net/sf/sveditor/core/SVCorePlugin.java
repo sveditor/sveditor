@@ -475,6 +475,19 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		
 		return ret;
 	}
+	
+	public List<String> getDefaultArgFileExts() {
+		IContentTypeManager mgr = Platform.getContentTypeManager();
+		IContentType type = mgr.getContentType(PLUGIN_ID + ".argfile");
+		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+
+		List<String> ret = new ArrayList<String>();
+		for (String e : exts) {
+			ret.add(e);
+		}
+		
+		return ret;
+	}
 
 	public String getDefaultSourceCollectionIncludes() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();

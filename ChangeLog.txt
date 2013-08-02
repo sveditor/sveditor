@@ -1,6 +1,19 @@
 
 -- 1.3.4 Release --
 
+- #(268) - Correct a thread-access issue involving the editor and Eclipse's
+  isPartVisible() method. 
+  
+- #(ehh) - Enhance the argument-file outline view with double-click navigation
+  to file paths specified in the argument file.
+  
+- #(nobug) - Correct a new-indexer bug involving over-aggressive caching of
+  non-root objects.
+  
+- #(269) - Correct an specification error in the definition of the annotation
+  marker that caused the Annotations preference page to not display. Turns 
+  out that the 'label' property really is required (despite not being labeled as such)
+
 ------------------------------------------------------------------------------
 -- 1.3.3 Release --
 

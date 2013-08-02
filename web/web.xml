@@ -2,6 +2,8 @@
 <project name="web">
 	<filelist id="web_files" dir="${web.dir}">
 		<file name="pages/main.mediawiki"/>
+		<file name="pages/news.mediawiki"/>
+		<file name="pages/news_20130727_new_indexer.mediawiki"/>
 		<file name="pages/contributing_to_sveditor.mediawiki"/>
 		<file name="${output.dir}/html/sveditor_user_guide.mediawiki"/>
 		<file name="pages/multimedia.mediawiki"/>

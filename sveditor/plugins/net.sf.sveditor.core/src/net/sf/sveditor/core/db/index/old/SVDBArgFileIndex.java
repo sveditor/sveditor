@@ -39,6 +39,8 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
+import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
@@ -421,6 +423,18 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 		super.dispose();
 	}
 
+	@Override
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		SVDBArgFileIndexCacheData cdata = (SVDBArgFileIndexCacheData)getCacheData();
+		
+		return SVDBFindIncFileUtils.findIncludeFiles(
+				this,
+				getFileSystemProvider(),
+				cdata.fIncludePathList,
+				root, flags);		
+	}
+	
+	
 	/*
 	@Override
 	public void fileChanged(String path) {
