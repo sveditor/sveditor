@@ -564,7 +564,7 @@ public abstract class AbstractSVDBIndex implements
 	
 		if (fIndexState < state) {
 			if (fDebugEn) {
-				fLog.debug(LEVEL_MIN, "ensureIndexState " + getBaseLocation() + 
+				fLog.debug(LEVEL_MID, "ensureIndexState " + getBaseLocation() + 
 						" " + fIndexState + " => " + state);
 			}
 		}
@@ -678,7 +678,7 @@ public abstract class AbstractSVDBIndex implements
 		final List<String> paths = new ArrayList<String>();
 //		final List<IJob> jobs = new ArrayList<IJob>();
 		
-		fLog.debug(LEVEL_MIN, "parseFiles " + getBaseLocation());
+		fLog.debug(LEVEL_MID, "parseFiles " + getBaseLocation());
 		
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList(false));
@@ -1201,7 +1201,7 @@ public abstract class AbstractSVDBIndex implements
 	protected void preProcessFiles(final IProgressMonitor monitor) {
 		final List<String> paths = new ArrayList<String>();
 		
-		fLog.debug(LEVEL_MIN, "preProcessFiles " + getBaseLocation());
+		fLog.debug(LEVEL_MID, "preProcessFiles " + getBaseLocation());
 		
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList(false));
