@@ -26,6 +26,8 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -409,14 +411,33 @@ public class SVArgFileOutlinePage extends ContentOutlinePage
 				public void doubleClick(DoubleClickEvent event) {
 					IStructuredSelection sel = (IStructuredSelection)getSelection();
 					
-					if (sel.getFirstElement() != null && sel.getFirstElement() instanceof Tuple) {
-						Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)sel.getFirstElement();
-						
-						if (t.second() != null) { // Don't mess with 'this' file
-							try {
-								SVEditorUtil.openEditor(t.second());
-							} catch (PartInitException e) {
-								fLog.error("Failed to open editor", e);
+					if (sel.getFirstElement() != null) {
+						if (sel.getFirstElement() instanceof Tuple) {
+							Tuple<SVDBFileTree, ISVDBItemBase> t = (Tuple<SVDBFileTree, ISVDBItemBase>)sel.getFirstElement();
+
+							if (t.second() != null) { // Don't mess with 'this' file
+								try {
+									SVEditorUtil.openEditor(t.second());
+								} catch (PartInitException e) {
+									fLog.error("Failed to open editor", e);
+								}
+							}
+						} else if (sel.getFirstElement() instanceof ISVDBItemBase) {
+							ISVDBItemBase item = (ISVDBItemBase)sel.getFirstElement();
+							String path = null;
+							
+							if (item.getType() == SVDBItemType.ArgFileIncFileStmt) {
+								path = ((SVDBArgFileIncFileStmt)item).getPath();
+							} else if (item.getType() == SVDBItemType.ArgFilePathStmt) {
+								path = ((SVDBArgFilePathStmt)item).getPath();
+							}
+							
+							if (path != null) {
+								try {
+									SVEditorUtil.openEditor(path);
+								} catch (PartInitException e) {
+									fLog.error("Failed to open editor for \"" + path + "\"", e);
+								}
 							}
 						}
 					}

@@ -597,6 +597,24 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return ret;
 	}
 	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		List<SVDBIncFileInfo> ret = new ArrayList<SVDBIncFileInfo>();
+
+		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			for (ISVDBIndex index : index_l) {
+				List<SVDBIncFileInfo> result = index.findIncludeFiles(root, flags);
+				
+				for (SVDBIncFileInfo r : result) {
+					if (!ret.contains(r)) {
+						ret.add(r);
+					}
+				}
+			}
+		}
+		
+		return ret;
+	}
+
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
 		

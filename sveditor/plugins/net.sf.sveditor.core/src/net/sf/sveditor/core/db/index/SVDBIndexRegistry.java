@@ -24,8 +24,6 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;

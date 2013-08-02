@@ -98,6 +98,22 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		return ret;
 	}
 	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		List<SVDBIncFileInfo> ret = new ArrayList<SVDBIncFileInfo>();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			List<SVDBIncFileInfo> result = index_it.findIncludeFiles(root, flags);
+			
+			for (SVDBIncFileInfo r : result) {
+				if (!ret.contains(r)) {
+					ret.add(r);
+				}
+			}
+		}
+		
+		return ret;
+	}
+
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
 		

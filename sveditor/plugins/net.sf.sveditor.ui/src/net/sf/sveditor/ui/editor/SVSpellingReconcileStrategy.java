@@ -32,6 +32,10 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	public void reconcile(IRegion region) {
 		IAnnotationModel model = getAnnotationModel();
 		
+		if (model == null) {
+			return;
+		}
+		
 		fProblems.clear();
 		
 		ITypedRegion regions[] = null;

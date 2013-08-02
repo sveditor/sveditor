@@ -65,6 +65,8 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
+import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -352,6 +354,12 @@ public class SVDBArgFileIndex2 implements
 
 		// Rebuild the index
 		buildIndex(new SubProgressMonitor(monitor, 9750), build_data);
+		
+		if (fDebugEn) {
+			// Show the index stats
+			fLog.debug(LEVEL_MIN, "Index Stats:\n" + 
+					build_data.fIndexStats.toString());
+		}
 		
 		if (!monitor.isCanceled()) {
 			// Apply the newly-built result
@@ -1977,10 +1985,12 @@ public class SVDBArgFileIndex2 implements
 							((ISVDBNamedItem) item).getName(), item.getType(),
 							false));
 				}
+				/* Why??
 				if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
 					cacheFileDeclarations(build_data, curr_fileid, 
 						decl_list, null, (ISVDBScopeItem)item, ft);
 				}
+				 */
 			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
 
@@ -2450,6 +2460,7 @@ public class SVDBArgFileIndex2 implements
 		
 		// Propagate defines to the pre-processor
 		SVPreProcessor2 pp = new SVPreProcessor2(path, in, build_data, build_data);
+		pp.setIndexStats(build_data.fIndexStats);
 
 		// Pass in defines
 		for (Entry<String, SVDBMacroDef> def : defines.entrySet()) {
@@ -2475,18 +2486,20 @@ public class SVDBArgFileIndex2 implements
 		build_data.fIndexCacheData.fRootIncludeMap.remove(path);
 		build_data.fIndexCacheData.fRootIncludeMap.put(path, included_files);
 
-		start = System.currentTimeMillis();
+		long parse_start = System.currentTimeMillis();
 		
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "--> Parse " + path);
 		}
 		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path);
 		SVDBFile file = f.parse(language_level, pp_out, path, markers);
-		end = System.currentTimeMillis();
+		long parse_end = System.currentTimeMillis();
+		
+		build_data.fIndexStats.incLastIndexParseTime(parse_end-parse_start);
 		
 		if (fDebugEn) {
-			fLog.debug(LEVEL_MIN, "<-- Parse " + path + ": " +
-					(end-start) + "ms");
+			fLog.debug(LEVEL_MID, "<-- Parse " + path + ": " +
+					(parse_end-parse_start) + "ms");
 		}
 //		System.out.println("Parse " + path + " " + (end-start));
 
@@ -2667,9 +2680,8 @@ public class SVDBArgFileIndex2 implements
 		monitor.beginTask("Build Index", total_work);
 
 		// First, parse the argument files
-		if (fDebugEn) {
-			start_time = System.currentTimeMillis();
-		}
+		start_time = System.currentTimeMillis();
+		
 		discoverRootFiles(new SubProgressMonitor(monitor, 100), build_data);
 		if (fDebugEn) {
 			end_time = System.currentTimeMillis();
@@ -2689,11 +2701,9 @@ public class SVDBArgFileIndex2 implements
 		// Next, parse each of the discovered file paths
 		List<String> paths = build_data.fIndexCacheData.fRootFileList;
 		Map<String, SVDBMacroDef> defines = new HashMap<String, SVDBMacroDef>();
+		
+		build_data.fIndexStats.setNumRootFiles(paths.size());
 
-		if (fDebugEn) {
-			start_time = System.currentTimeMillis();
-		}
-	
 		if (paths.size() > 0) {
 			per_file_work = (total_work / paths.size());
 		}
@@ -2751,9 +2761,9 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 		
-		if (fDebugEn) {
-			end_time = System.currentTimeMillis();
-		}
+		end_time = System.currentTimeMillis();
+		
+		build_data.fIndexStats.incLastIndexTotalTime(end_time-start_time);
 	
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "Index " + getBaseLocation()
@@ -2798,6 +2808,18 @@ public class SVDBArgFileIndex2 implements
 	public String getFileFromId(int fileid) {
 		return fBuildData.mapFileIdToPath(fileid);
 	}
+	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		checkInIndexOp("findIncludeFiles");
+		
+		return SVDBFindIncFileUtils.findIncludeFiles(
+				this,
+				fFileSystemProvider,
+				fBuildData.fIndexCacheData.fIncludePathList,
+				root, flags);
+	}
+
+
 
 	private ISVPreProcFileMapper fReadOnlyFileMapper = new ISVPreProcFileMapper() {
 		

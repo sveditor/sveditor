@@ -16,6 +16,7 @@ public enum SVCompletionProposalType {
 	
 	SVObject,
 	Keyword,
+	Include,
 	Unknown
 
 }
