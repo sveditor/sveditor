@@ -392,6 +392,14 @@ public class SVDBFileOverrideIndex
 			return null;
 		}
 	}
+	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		if (fIndex != null) {
+			return fIndex.findIncludeFiles(root, flags);
+		} else {
+			return new ArrayList<SVDBIncFileInfo>();
+		}
+	}
 
 	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
 		if (fIndex != null) {

@@ -47,6 +47,34 @@ public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 					"${workspace_loc}/" + getName() + "/dir1/file2.sv"});
 	}
 
+	public void testFilePathWorkspaceRelativeNoLeaf() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"${workspace_loc}/" + getName() + "/dir1/<<MARK>>\n" 
+			;
+		
+		IProject p = TestUtils.createProject(
+				getName(), new File(fTmpDir, getName()));
+		addProject(p);
+
+		p.getFolder("dir1").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir2").create(true, true, new NullProgressMonitor());
+		p.getFolder("dir3").create(true, true, new NullProgressMonitor());
+
+		TestUtils.copy("", p.getFile("dir1/file1.sv"));
+		TestUtils.copy("", p.getFile("dir1/file2.sv"));
+		TestUtils.copy("", p.getFile("dir1/1_file.sv"));
+		TestUtils.copy("", p.getFile("dir1/2_file.sv"));
+
+		runTest(doc, "${workspace_loc}/" + getName(), p, null,
+				new String[] {
+					"${workspace_loc}/" + getName() + "/dir1/file1.sv",
+					"${workspace_loc}/" + getName() + "/dir1/file2.sv",
+					"${workspace_loc}/" + getName() + "/dir1/1_file.sv",
+					"${workspace_loc}/" + getName() + "/dir1/2_file.sv"
+					});
+	}
+	
 	public void testFilePathProjectRelative() throws CoreException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =

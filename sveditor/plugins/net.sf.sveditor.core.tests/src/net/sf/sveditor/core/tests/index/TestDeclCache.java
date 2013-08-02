@@ -7,11 +7,14 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -19,35 +22,14 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-import junit.framework.TestCase;
-
-public class TestDeclCache extends TestCase {
-	private IProject			fProject;
-	private File				fTmpDir;
+public class TestDeclCache extends SVCoreTestCaseBase {
 	
-	
-	@Override
-	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
-
 	public void testPackageCacheNonInclude() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		fProject = TestUtils.createProject("package_cache_non_include", fTmpDir);
+		IProject p = TestUtils.createProject("package_cache_non_include", fTmpDir);
+		addProject(p);
 
-		utils.copyBundleDirToWS("/data/index/package_cache_non_include", fProject);
+		utils.copyBundleDirToWS("/data/index/package_cache_non_include", p);
 	
 		ISVDBIndex index = new SVDBArgFileIndex("project", 
 				"${workspace_loc}/package_cache_non_include/package_cache_non_include/package_cache_non_include.f",
@@ -87,9 +69,10 @@ public class TestDeclCache extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		fProject = TestUtils.createProject("package_cache_include", fTmpDir);
+		IProject p = TestUtils.createProject("package_cache_include", fTmpDir);
+		addProject(p);
 
-		utils.copyBundleDirToWS("/data/index/package_cache_include", fProject);
+		utils.copyBundleDirToWS("/data/index/package_cache_include", p);
 	
 		ISVDBIndex index = new SVDBArgFileIndex("project", 
 				"${workspace_loc}/package_cache_include/package_cache_include/package_cache_include.f",
@@ -127,5 +110,31 @@ public class TestDeclCache extends TestCase {
 		
 		LogFactory.removeLogHandle(log);
 	}
+
+	public void testModuleMembersNotCached() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		utils.copyBundleDirToFS("/data/index/module_members_not_cached", fTmpDir);
+		IProject p = TestUtils.createProject("module_members_not_cached", 
+				new File(fTmpDir, "module_members_not_cached"));
+		addProject(p);
+
 	
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(),
+				"project",
+				"${workspace_loc}/module_members_not_cached/module_members_not_cached.f",
+				SVDBArgFileIndexFactory.TYPE,
+				null);
+	
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertFileHasElements(fLog, index, 
+				"m1", "m2");
+		
+		IndexTestUtils.assertDoesNotContain(index, 
+				"m1_r1", "m1_r2", "m1_r3",
+				"m2_r1", "m2_r2", "m2_r3");
+	}
 }

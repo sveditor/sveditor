@@ -38,7 +38,6 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -60,6 +59,7 @@ import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -230,8 +230,10 @@ public abstract class AbstractSVDBIndex implements
 		
 		if (fDebugEn) {
 			fLog.debug("--> createIndexChangePlan");
-			for (SVDBIndexResourceChangeEvent ev : changes) {
-				fLog.debug("  " + ev.getPath());
+			if (changes != null) {
+				for (SVDBIndexResourceChangeEvent ev : changes) {
+					fLog.debug("  " + ev.getPath());
+				}
 			}
 		}
 	
@@ -555,11 +557,16 @@ public abstract class AbstractSVDBIndex implements
 		final int monitor_weight_FileTreeValid       = 80;
 		final int monitor_weight_AllFilesParsed      = 10;
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 100); // discover_root_files+preprocessFiles+buildFileTree+initLoad
-		fLog.debug(LEVEL_MID, "ensureIndexState0 Starting Ensure Index State");
+		
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MID, "ensureIndexState0 Starting Ensure Index State");
+		}
 	
 		if (fIndexState < state) {
-			fLog.debug(LEVEL_MIN, "ensureIndexState " + getBaseLocation() + 
-					" " + fIndexState + " => " + state);
+			if (fDebugEn) {
+				fLog.debug(LEVEL_MIN, "ensureIndexState " + getBaseLocation() + 
+						" " + fIndexState + " => " + state);
+			}
 		}
 		
 		if (fIndexState < IndexState_RootFilesDiscovered
@@ -2590,6 +2597,10 @@ public abstract class AbstractSVDBIndex implements
 
 	public String getFileFromId(int fileid) {
 		return null;
+	}
+	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		return new ArrayList<SVDBIncFileInfo>();
 	}
 
 	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {

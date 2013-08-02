@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.expr_utils;
 
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -456,7 +457,7 @@ public class SVExprScanner {
 
 	private void debug(String msg) {
 		if (fDebugEn) {
-			fLog.debug(msg);
+			fLog.debug(ILogLevel.LEVEL_MID, msg);
 		}
 	}
 }

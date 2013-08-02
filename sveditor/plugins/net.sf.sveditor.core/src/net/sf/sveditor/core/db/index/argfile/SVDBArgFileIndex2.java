@@ -65,6 +65,8 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
+import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -1977,10 +1979,12 @@ public class SVDBArgFileIndex2 implements
 							((ISVDBNamedItem) item).getName(), item.getType(),
 							false));
 				}
+				/* Why??
 				if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
 					cacheFileDeclarations(build_data, curr_fileid, 
 						decl_list, null, (ISVDBScopeItem)item, ft);
 				}
+				 */
 			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
 
@@ -2798,6 +2802,18 @@ public class SVDBArgFileIndex2 implements
 	public String getFileFromId(int fileid) {
 		return fBuildData.mapFileIdToPath(fileid);
 	}
+	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		checkInIndexOp("findIncludeFiles");
+		
+		return SVDBFindIncFileUtils.findIncludeFiles(
+				this,
+				fFileSystemProvider,
+				fBuildData.fIndexCacheData.fIncludePathList,
+				root, flags);
+	}
+
+
 
 	private ISVPreProcFileMapper fReadOnlyFileMapper = new ISVPreProcFileMapper() {
 		

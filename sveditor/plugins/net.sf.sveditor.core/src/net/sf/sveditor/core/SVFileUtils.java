@@ -543,7 +543,7 @@ public class SVFileUtils {
 		}
 	}
 	
-	public static void mkdir(IContainer c, String dir) {
+	public static IFolder mkdir(IContainer c, String dir) {
 		IFolder f = c.getFolder(new Path(dir));
 		
 		try {
@@ -551,6 +551,8 @@ public class SVFileUtils {
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
+		
+		return f;
 	}
 
 	public static String readInput(InputStream in) {

@@ -44,13 +44,13 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInClassHierarchy;
 import net.sf.sveditor.core.db.search.SVDBFindByNameInScopes;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBFindIncludedFile;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
@@ -112,7 +112,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					fCompletionProposalMap.put(p.getPriorityCategory(), 
 							new ArrayList<SVCompletionProposal>());
 				}
-				fLog.debug("addProposal \"" + p.getReplacement() + "\": category=" + 
+				fLog.debug(LEVEL_MID, "addProposal \"" + p.getReplacement() + "\": category=" + 
 						p.getPriorityCategory() + " priority=" + p.getPriority());
 				fCompletionProposalMap.get(p.getPriorityCategory()).add(p);
 			}
@@ -825,17 +825,19 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	private void findMacroItems(
 			SVExprContext 			ctxt,
 			ISVDBIndexIterator		index_it) {
-		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+//		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 		
 		if (ctxt.fRoot != null && ctxt.fRoot.equals("include")) {
-			SVDBFindIncludedFile finder = new SVDBFindIncludedFile(
-					index_it, matcher);
-			List<SVDBFile> it_l = finder.find(ctxt.fLeaf);
-
-			if (it_l.size() > 0) {
-				addProposal(it_l.get(0), ctxt.fLeaf, 0,
-						SVCompletionProposal.PRIORITY_PREPROC_SCOPE,
-						true, ctxt.fStart, ctxt.fLeaf.length());
+			List<SVDBIncFileInfo> inc_proposals = index_it.findIncludeFiles(
+					ctxt.fLeaf, ISVDBIndexIterator.FIND_INC_SV_FILES);
+			
+			for (SVDBIncFileInfo inc_p : inc_proposals) {
+				SVCompletionProposal p = new SVCompletionProposal(
+						inc_p.getIncFile(), ctxt.fStart, ctxt.fLeaf.length(), 
+						SVCompletionProposalType.Include);
+				p.setDisplayString(inc_p.getIncFile() + " (" + inc_p.getIncPath() + ")");
+				p.setPriority(SVCompletionProposal.PRIORITY_PREPROC_SCOPE);
+				addProposal(p);
 			}
 		} else {
 			// most likely a macro call

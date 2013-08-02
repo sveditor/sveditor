@@ -1035,26 +1035,27 @@ endclass
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
             annotationType="net.sf.sveditor.ui.occurrences"
-            textPreferenceKey="occurrenceIndication"
-            textPreferenceValue="false"
-            highlightPreferenceKey="occurrenceHighlighting"
-            highlightPreferenceValue="true"
-            contributesToHeader="false"
-            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
-            overviewRulerPreferenceValue="true"
-            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
-            verticalRulerPreferenceValue="false"
             colorPreferenceKey="occurrenceIndicationColor"
             colorPreferenceValue="212,212,212"
-            presentationLayer="4"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
-            showInNextPrevDropdownToolbarAction="true"
-            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget"
+            contributesToHeader="false"
+            highlightPreferenceKey="occurrenceHighlighting"
+            highlightPreferenceValue="true"
             isGoToNextNavigationTarget="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget"
             isGoToPreviousNavigationTarget="false"
+            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            label="SV Mark Occurences Annotation"
+            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            presentationLayer="4"
+            showInNextPrevDropdownToolbarAction="true"
+            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
+            textPreferenceKey="occurrenceIndication"
+            textPreferenceValue="false"
             textStylePreferenceKey="occurrenceTextStyle"
-            textStylePreferenceValue="NONE">
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false">
       </specification>
    </extension>
    <extension
