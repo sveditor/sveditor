@@ -8,13 +8,14 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 
-public class SVCoreTestCaseBase extends TestCase {
+public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 	
 	protected File						fTmpDir;
 	protected File						fDbDir;
@@ -74,6 +75,8 @@ public class SVCoreTestCaseBase extends TestCase {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			rgy.close();
 			
+			fCacheFactory.dispose();
+			
 			if (SVCorePlugin.getDefault().getProjMgr() != null) {
 				SVCorePlugin.getDefault().getProjMgr().dispose();
 			}
@@ -87,7 +90,6 @@ public class SVCoreTestCaseBase extends TestCase {
 			TestUtils.delete(fTmpDir);
 		}
 	
-		
 		LogFactory.removeLogHandle(fLog);
 		
 		CoreReleaseTests.clearErrors();

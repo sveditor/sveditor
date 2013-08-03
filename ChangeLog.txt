@@ -14,6 +14,9 @@
   marker that caused the Annotations preference page to not display. Turns 
   out that the 'label' property really is required (despite not being labeled as such)
 
+- #(nobug) - Correct a bug with the 'new' arugment file parser that could lead
+  to include directories incorrectly being marked as 'missing'
+
 ------------------------------------------------------------------------------
 -- 1.3.3 Release --
 

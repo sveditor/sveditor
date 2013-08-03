@@ -143,7 +143,26 @@ public class SVDBIndexStats {
 		sb.append("* PreProcessTime: " + fLastIndexPreProcessTimeMS + "\n");
 		sb.append("* ParseTime: " + fLastIndexParseTimeMS + "\n");
 		sb.append("* TotalIndexTime: " + fLastIndexTotalTimeMS + "\n");
+		sb.append("*\n");
+		
+		sb.append("* PreProcess Lines/s: " + calcNPerS(fNumLines, fLastIndexPreProcessTimeMS) + "\n");
+		sb.append("* Parse Lines/s: " + calcNPerS(fNumLines, fLastIndexParseTimeMS) + "\n");
+		sb.append("* Index Lines/s: " + calcNPerS(fNumLines, fLastIndexTotalTimeMS) + "\n");
 	
 		return sb.toString();
+	}
+	
+	private static long calcNPerS(int n, long ms) {
+		long n_tmp = n;
+		long t_tmp = ms;
+		
+		if (t_tmp <= 0) {
+			return -1;
+		}
+		
+		n_tmp *= 1000;
+		n_tmp /= t_tmp;
+		
+		return n_tmp;
 	}
 }

@@ -77,6 +77,27 @@ public class SVFileUtils {
 		
 		return leaf;
 	}
+	
+	public static String getPathFirstElem(String path) {
+		String first = path;
+		int idx;
+		
+		if ((idx = path.indexOf('/', 1)) != -1) { // avoid leading '/'
+			if (path.length() > 0 && path.charAt(0) == '/') {
+				first = path.substring(1, idx);
+			} else {
+				first = path.substring(0, idx);
+			}
+		} else if ((idx = path.indexOf('\\', 1)) != -1) {
+			if (path.length() > 0 && path.charAt(0) == '\\') {
+				first = path.substring(1, idx);
+			} else {
+				first = path.substring(0, idx);
+			}
+		}
+		
+		return first;
+	}
 
 	public static String normalize(String path) {
 		if (path.indexOf('\\') != -1) {
