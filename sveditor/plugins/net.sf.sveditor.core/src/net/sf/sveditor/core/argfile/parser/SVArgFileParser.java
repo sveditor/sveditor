@@ -118,7 +118,7 @@ public class SVArgFileParser {
 									path = SVFileUtils.resolvePath(path, 
 											fResolvedBaseLocation, fFSProvider, true);
 
-									if (!fFSProvider.fileExists(path)) {
+									if (!fFSProvider.isDir(path)) {
 										error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
 												"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 									}

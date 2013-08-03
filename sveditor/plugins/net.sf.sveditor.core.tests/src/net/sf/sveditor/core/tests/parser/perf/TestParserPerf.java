@@ -13,7 +13,9 @@
 package net.sf.sveditor.core.tests.parser.perf;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
 
@@ -26,12 +28,17 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
+import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -210,6 +217,58 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		 */
 	}	
 
+	public void testUVMPreProcPerf() throws IOException, InterruptedException {
+		/*
+		LogFactory.getDefault().addLogListener(new ILogListener() {
+			
+			public void message(ILogHandle handle, int type, int level, String message) {
+				System.out.println("[MSG] " + message);
+			}
+		});
+		 */
+//		LogFactory.getDefault().setLogLevel(null, 10);
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
+		System.out.println("plugin_class: " + plugin_class.toExternalForm());
+		String path = plugin_class.toExternalForm();
+		path = path.substring("file:".length());
+		path = path.substring(0, path.length()-(cls_path.length()+"/class/".length()));
+		
+		File uvm_zip = new File(new File(path), "/uvm.zip");
+
+//		SVCorePlugin.getDefault().enableDebug(false);
+//		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		TestUtils.unpackZipToFS(uvm_zip, fTmpDir);
+
+		TestIndexCacheFactory factory = fCacheFactory;
+	
+		File uvm = new File(fTmpDir, "uvm");
+		File uvm_pkg = new File(uvm, "src/uvm_pkg.sv");
+		InputStream in = new FileInputStream(uvm_pkg);
+		
+		System.out.println("uvm_pkg: " + uvm_pkg.getAbsolutePath());
+		
+		Thread.sleep(4000);
+
+		SVPathPreProcIncFileProvider inc_provider = new SVPathPreProcIncFileProvider(
+				new SVDBFSFileSystemProvider());
+		inc_provider.addIncdir(new File(uvm, "src").getAbsolutePath());
+		SVPreProcessor2 pp = new SVPreProcessor2(uvm_pkg.getAbsolutePath(), 
+				in, inc_provider, null);
+		
+		in.close();
+	
+		SVDBIndexStats stats = new SVDBIndexStats();
+		pp.setIndexStats(stats);
+		
+		pp.preprocess();
+
+		System.out.println("Index Stats:\n" + stats.toString());
+	}	
+	
 	public void testManyIfdefs() {
 	
 		SVCorePlugin.testInit();

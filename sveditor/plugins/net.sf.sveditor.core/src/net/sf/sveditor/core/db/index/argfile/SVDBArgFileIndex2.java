@@ -71,6 +71,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
@@ -357,7 +358,7 @@ public class SVDBArgFileIndex2 implements
 		
 		if (fDebugEn) {
 			// Show the index stats
-			fLog.debug(LEVEL_MIN, "Index Stats:\n" + 
+			fLog.debug(LEVEL_MIN, "Index Stats " + getBaseLocation() + ":\n" + 
 					build_data.fIndexStats.toString());
 		}
 		
@@ -2856,6 +2857,10 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 		monitor.done();
+	}
+	
+	public SVDBIndexStats getIndexStats() {
+		return fBuildData.fIndexStats;
 	}
 
 	private boolean checkInIndexOp(String name) {
