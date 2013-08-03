@@ -51,7 +51,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testBasicDefine() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
