@@ -84,6 +84,8 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			for (IProject p : fProjectList) {
 				TestUtils.deleteProject(p);
 			}
+		} else {
+			fCacheFactory.dispose();
 		}
 		
 		if (fTmpDir != null && fTmpDir.exists()) {

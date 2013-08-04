@@ -88,7 +88,6 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		end = System.currentTimeMillis();
 		System.out.println("Parse UVM in " + (end-start) + "ms");
 		
-		SVDBFileIndexCacheMgr mgr = (SVDBFileIndexCacheMgr)fCacheMgr;
 		SVDBFileIndexCache cache = (SVDBFileIndexCache)index.getCache();
 		
 		IDBWriter writer = new SVDBPersistenceRW();

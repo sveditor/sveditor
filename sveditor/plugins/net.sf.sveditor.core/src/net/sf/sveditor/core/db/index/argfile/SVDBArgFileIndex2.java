@@ -1003,13 +1003,18 @@ public class SVDBArgFileIndex2 implements
 				
 					SVDBFile f = new SVDBFile(root_path);
 					map.put(root_id, f);
-					long start = System.currentTimeMillis();
-					createSubFileMap(fBuildData, map, file, id, f);
-					long end = System.currentTimeMillis();
+//					long start = System.currentTimeMillis();
+					createSubFileMap(fBuildData, map, file, root_id, f);
+//					long end = System.currentTimeMillis();
 					fBuildData.fCache.setSubFileMap(root_path, map);
 				}
 				
+				
 				ret = map.get(id);
+				
+//				if (ret == null) {
+//					System.out.println("id=" + id + " => null containsKey=" + map.containsKey(id));
+//				}
 			}
 		}
 
@@ -1050,6 +1055,10 @@ public class SVDBArgFileIndex2 implements
 				}
 			} else {
 				file.addChildItem(it);
+				
+				if (it instanceof ISVDBScopeItem) {
+					createSubFileMap(build_data, map, (ISVDBChildParent)it, curr_id, file);
+				}
 			}
 		}
 	}
@@ -1920,6 +1929,7 @@ public class SVDBArgFileIndex2 implements
 			SVDBFileTree					ft) {
 		int curr_fileid = fileid;
 		String curr_filename = build_data.mapFileIdToPath(curr_fileid);
+		boolean is_root_scope = (scope == null || scope.getType() == SVDBItemType.PackageDecl);
 		
 		if (fDebugEn) {
 			fLog.debug("--> cacheFileDeclarations(file=" + curr_filename + ", " + scope);
@@ -1972,12 +1982,16 @@ public class SVDBArgFileIndex2 implements
 					SVDBItemType.Task, SVDBItemType.ClassDecl,
 					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl,
 					SVDBItemType.ProgramDecl)) {
-				if (decl_list != null) {
-					fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
-							+ ((ISVDBNamedItem) item).getName() + " to cache");
-					decl_list.add(new SVDBDeclCacheItem(this, curr_filename,
-							((ISVDBNamedItem) item).getName(), item.getType(),
-							false));
+
+				// Only save tasks/functions if we're in a root scope
+				if (is_root_scope || !item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task)) {
+					if (decl_list != null) {
+						fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
+								+ ((ISVDBNamedItem) item).getName() + " to cache");
+						decl_list.add(new SVDBDeclCacheItem(this, curr_filename,
+								((ISVDBNamedItem) item).getName(), item.getType(),
+								false));
+					}
 				}
 				if (pkg_decl_list != null) {
 					fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
@@ -1986,13 +2000,14 @@ public class SVDBArgFileIndex2 implements
 							((ISVDBNamedItem) item).getName(), item.getType(),
 							false));
 				}
-				/* Why??
+				
+				// 'Global' declarations, such as classes, can be declared within Modules/Interfaces/Programs 
+				// as well as packages. Scan through the top level of these elements
 				if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
 					cacheFileDeclarations(build_data, curr_fileid, 
 						decl_list, null, (ISVDBScopeItem)item, ft);
 				}
-				 */
-			} else if (item.getType() == SVDBItemType.VarDeclStmt) {
+			} else if (item.getType() == SVDBItemType.VarDeclStmt && is_root_scope) {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
 
 				for (ISVDBChildItem ci : decl.getChildren()) {
@@ -2009,7 +2024,7 @@ public class SVDBArgFileIndex2 implements
 								di.getName(), SVDBItemType.VarDeclItem, false));
 					}
 				}
-			} else if (item.getType() == SVDBItemType.TypedefStmt) {
+			} else if (item.getType() == SVDBItemType.TypedefStmt && is_root_scope) {
 				// Add entries for the typedef
 				if (decl_list != null) {
 					decl_list.add(new SVDBDeclCacheItem(this, curr_filename,
@@ -2269,7 +2284,7 @@ public class SVDBArgFileIndex2 implements
 		if (processed_paths.contains(resolved_path)) {
 			ret = null;
 			markers.add(new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
-					"Recursive inclusion of file \"" + path + "\" (" + resolved_path + ")"));
+					"Multiple inclusion of file \"" + resolved_path + "\" (from " + path + ")"));
 		} else if ((in = getFileSystemProvider().openStream(resolved_path)) != null) {
 			long last_modified = getFileSystemProvider().getLastModifiedTime(resolved_path);
 			processed_paths.add(resolved_path);
@@ -2373,7 +2388,7 @@ public class SVDBArgFileIndex2 implements
 									sub_path, stmt.isRootInclude());
 						} else {
 							SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
-									"Recursive inclusion of file \"" + path + "\" (" + sub_path + ")");
+									"Multiple inclusion of file \"" + sub_path + "\" (from " + path + ")");
 							m.setLocation(stmt.getLocation());
 							markers.add(m);
 						}
@@ -2816,7 +2831,7 @@ public class SVDBArgFileIndex2 implements
 		return SVDBFindIncFileUtils.findIncludeFiles(
 				this,
 				fFileSystemProvider,
-				fBuildData.fIndexCacheData.fIncludePathList,
+				fBuildData.getIncludePathList(),
 				root, flags);
 	}
 
