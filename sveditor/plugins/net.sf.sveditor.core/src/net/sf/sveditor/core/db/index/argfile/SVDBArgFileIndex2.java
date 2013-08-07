@@ -759,7 +759,22 @@ public class SVDBArgFileIndex2 implements
 	public void loadIndex(IProgressMonitor monitor) {
 		
 		if (fIndexBuilder != null) {
+			SVDBIndexBuildJob build_job = null;
 			ensureIndexUpToDate(monitor);
+			
+			if (!fIndexRefreshed) {
+				SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
+				build_job = fIndexBuilder.build(plan);
+				build_job.waitComplete();
+			}
+
+			if (!fIndexValid) {
+				// Schedule a job
+				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
+				build_job = fIndexBuilder.build(plan);
+				build_job.waitComplete();
+			}
+			fIndexValid = true;
 		} else {
 			if (!fIndexRefreshed) {
 				refresh_index(new NullProgressMonitor());
@@ -786,7 +801,6 @@ public class SVDBArgFileIndex2 implements
 		SubProgressMonitor monitor = new SubProgressMonitor(super_monitor, 1);
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 	
-
 		if (!fIndexValid || !fIndexRefreshed) {
 			SVDBIndexBuildJob build_job = null;
 			
@@ -797,20 +811,6 @@ public class SVDBArgFileIndex2 implements
 				if (build_job != null) {
 					build_job.waitComplete();
 				}
-				
-				if (!fIndexRefreshed) {
-					SVDBIndexChangePlanRefresh plan = new SVDBIndexChangePlanRefresh(this);
-					build_job = fIndexBuilder.build(plan);
-					build_job.waitComplete();
-				}
-				
-				if (!fIndexValid) {
-					// Schedule a job
-					SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-					build_job = fIndexBuilder.build(plan);
-					build_job.waitComplete();
-				}
-				fIndexValid = true;
 			} else {
 //				System.out.println("[ERROR] no builder and invalid");
 			}
@@ -2827,6 +2827,9 @@ public class SVDBArgFileIndex2 implements
 	
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
 		checkInIndexOp("findIncludeFiles");
+		
+		List<String> inc_paths = fBuildData.getIncludePathList();
+		System.out.println("inc_paths=" + inc_paths.size());
 		
 		return SVDBFindIncFileUtils.findIncludeFiles(
 				this,

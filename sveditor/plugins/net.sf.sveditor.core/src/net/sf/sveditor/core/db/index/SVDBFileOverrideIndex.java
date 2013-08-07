@@ -65,6 +65,10 @@ public class SVDBFileOverrideIndex
 	public ISVDBIndex getBaseIndex() {
 		return fIndex;
 	}
+	
+	public void setBaseIndex(ISVDBIndex index) {
+		fIndex = index;
+	}
 
 	public void setIndexBuilder(ISVDBIndexBuilder builder) { }
 

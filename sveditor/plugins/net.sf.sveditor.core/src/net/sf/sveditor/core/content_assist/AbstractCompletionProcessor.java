@@ -828,12 +828,30 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 //		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 		
 		if (ctxt.fRoot != null && ctxt.fRoot.equals("include")) {
+			String search = ctxt.fLeaf;
+			boolean str_prefix = false;
+		
+			// Ensure we don't include the '"' in searches
+			if (search.length() > 0 && search.charAt(0) == '"') {
+				search = search.substring(1);
+				str_prefix = true;
+			}
+			
 			List<SVDBIncFileInfo> inc_proposals = index_it.findIncludeFiles(
-					ctxt.fLeaf, ISVDBIndexIterator.FIND_INC_SV_FILES);
+					search, ISVDBIndexIterator.FIND_INC_SV_FILES);
+			
+			System.out.println("inc_proposals=" + inc_proposals.size());
 			
 			for (SVDBIncFileInfo inc_p : inc_proposals) {
+				String proposal = inc_p.getIncFile();
+				
+				if (ctxt.fType != ContextType.String) {
+					proposal = "\"" + proposal;
+				}
+				proposal = proposal + "\"";
+				
 				SVCompletionProposal p = new SVCompletionProposal(
-						inc_p.getIncFile(), ctxt.fStart, ctxt.fLeaf.length(), 
+						proposal, ctxt.fStart, ctxt.fLeaf.length(), 
 						SVCompletionProposalType.Include);
 				p.setDisplayString(inc_p.getIncFile() + " (" + inc_p.getIncPath() + ")");
 				p.setPriority(SVCompletionProposal.PRIORITY_PREPROC_SCOPE);
