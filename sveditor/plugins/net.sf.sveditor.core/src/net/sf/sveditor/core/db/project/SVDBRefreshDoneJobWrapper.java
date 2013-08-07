@@ -28,8 +28,9 @@ public class SVDBRefreshDoneJobWrapper extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 
 		if (isRefreshRunning()) {
-			SVDBRefreshDoneJobWrapper jw = new SVDBRefreshDoneJobWrapper(fJob, fScheduleDelay);
-			jw.schedule(fRetryInterval);
+			if (!monitor.isCanceled()) {
+				schedule(fRetryInterval);
+			}
 		} else {
 			fJob.schedule(fScheduleDelay);
 		}
