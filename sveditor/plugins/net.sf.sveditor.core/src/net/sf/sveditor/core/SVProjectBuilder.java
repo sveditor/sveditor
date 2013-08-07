@@ -45,13 +45,13 @@ public class SVProjectBuilder extends IncrementalProjectBuilder {
 			case CLEAN_BUILD:
 			case FULL_BUILD:
 				// Rebuild the target project
-//				System.out.println("Clean/Full Build: " + kind);
+				System.out.println("Clean/Full Build: " + kind);
 				pmgr.rebuildProject(monitor, p);
 				break;
 				
 			case AUTO_BUILD:
 			case INCREMENTAL_BUILD: {
-//				System.out.println("Auto/Incr Build: " + kind);
+				System.out.println("Auto/Incr Build: " + kind);
 				final List<SVDBIndexResourceChangeEvent> changes = new ArrayList<SVDBIndexResourceChangeEvent>();
 				IResourceDelta delta = getDelta(p);
 				
