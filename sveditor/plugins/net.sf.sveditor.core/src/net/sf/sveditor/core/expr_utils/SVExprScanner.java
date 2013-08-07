@@ -82,10 +82,17 @@ public class SVExprScanner {
 			scanner.seek(pos-1);
 			int prev_ch = scanner.get_ch();
 			
+			debug("      prev_ch=" + (char)prev_ch);
+			
 			if (Character.isWhitespace(prev_ch) || prev_ch == '"' || 
 					(SVCharacter.isSVIdentifierPart(c) && 
 							!SVCharacter.isSVIdentifierPart(prev_ch))) {
-				scanner.seek(pos);
+				// Consider 
+				if (prev_ch == '"' && (c == '\n' || c == '\r')) {
+					scanner.seek(pos-1);
+				} else {
+					scanner.seek(pos);
+				}
 			} else {
 				scanner.seek(pos-1);
 			}
@@ -215,6 +222,31 @@ public class SVExprScanner {
 						ret.fLeaf = "";
 					}
 					ret.fRoot = readExpression(scanner);
+				} else {
+					// Back up to see if there's an include previously
+					scanner.seek(ret.fStart);
+					c = scanner.skipWhite(c);
+					
+					int ch2 = scanner.get_ch();
+					int ch3 = scanner.get_ch();
+					
+					debug("notInTriggered: c=\"" + (char)c + "\" ch2=" + (char)ch2 + " ch3=" + (char)ch3);
+					debug("notInTriggered: scanFwd=" + scanner.getScanFwd());
+					
+					scanner.unget_ch(c);
+					
+					String id = readIdentifier(scanner, false);
+					
+					debug("notInTriggered: id=\"" + id + "\"");
+					
+					if (id != null && id.equals("include")) {
+						if (ret.fStart > 0) {
+							ret.fStart--;
+						}
+						ret.fTrigger = "`";
+						ret.fRoot = id;
+						ret.fLeaf = "";
+					}
 				}
 			}
 		}
@@ -433,8 +465,13 @@ public class SVExprScanner {
 		
 		// First, scan back to the string beginning
 		scanner.setScanFwd(false);
-		while ((ch = scanner.get_ch()) != -1 &&
-				SVCharacter.isSVIdentifierPart(ch)) { }
+		while ((ch = scanner.get_ch()) != -1) {
+			System.out.println("ch=" + (char)ch);
+			if (!SVCharacter.isSVIdentifierPart(ch)) { 
+				break;
+			}
+		}
+				
 		
 		start_pos = scanner.getPos() + 2;
 		seek = scanner.getPos() + 1;

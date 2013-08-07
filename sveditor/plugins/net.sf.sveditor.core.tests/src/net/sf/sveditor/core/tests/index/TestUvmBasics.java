@@ -23,6 +23,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -34,9 +35,11 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 import net.sf.sveditor.core.db.refs.SVDBRefType;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -425,6 +428,17 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 				listFile.toString(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.loadIndex(new NullProgressMonitor());
+		
+		List<SVDBDeclCacheItem> items = SVDBFindDeclOp.op(index, "", 
+				new ISVDBFindNameMatcher() {
+					public boolean match(ISVDBNamedItem it, String name) {
+						return true;
+					}
+				}, true);
+		
+		for (SVDBDeclCacheItem it : items) {
+			assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+		}
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();

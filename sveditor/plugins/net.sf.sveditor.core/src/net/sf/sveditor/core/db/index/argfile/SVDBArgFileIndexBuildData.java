@@ -1,6 +1,8 @@
 package net.sf.sveditor.core.db.index.argfile;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,14 @@ public class SVDBArgFileIndexBuildData implements
 	Set<String>									fMissingIncludes;
 	SVDBIndexStats								fIndexStats;
 	
+	// Map of leaf file to resolved include directory
+	private Map<String, String>			fIncludeMap;
+	private List<String>				fResolvedIncDirs;
+	private List<Set<String>>			fIncDirFiles;
+	private List<Set<String>>			fIncDirDirs;
+	private Set<String>					fFailedSearches;
+	private boolean						fIncludeCacheValid = false;	
+	
 	public SVDBArgFileIndexBuildData(ISVDBIndexCache cache, String base_location) {
 		fCache = cache;
 		fCacheMgr = cache.getCacheMgr();
@@ -41,6 +51,12 @@ public class SVDBArgFileIndexBuildData implements
 		
 		fCache.init(new NullProgressMonitor(), fIndexCacheData, base_location);
 		fIndexStats = new SVDBIndexStats();
+		
+		fIncludeMap = new HashMap<String, String>();
+		fResolvedIncDirs = new ArrayList<String>();
+		fIncDirFiles = new ArrayList<Set<String>>();
+		fIncDirDirs = new ArrayList<Set<String>>();
+		fFailedSearches = new HashSet<String>();		
 	}
 	
 	void apply(SVDBArgFileIndexBuildData build_data) {
@@ -90,6 +106,11 @@ public class SVDBArgFileIndexBuildData implements
 
 	void addIncludePath(String path) {
 		fIndexCacheData.addIncludePath(path);
+		fIncludeCacheValid = false;
+	}
+	
+	List<String> getIncludePathList() {
+		return fIndexCacheData.getIncludePaths();
 	}
 	
 	void addDefine(String key, String val) {
@@ -151,15 +172,95 @@ public class SVDBArgFileIndexBuildData implements
 
 	// PreProcIncludeFileProvider API
 	public Tuple<String, InputStream> findIncFile(String incfile) {
+		Tuple<String, InputStream> ret = null;
+		
+		if (!fIncludeCacheValid) {
+			buildIncludeCache();
+		}
+		
+		if (fIncludeMap.containsKey(incfile)) {
+			// Already have a candidate
+			String path = fIncludeMap.get(incfile) + "/" + incfile;
+			InputStream in = fFileSystemProvider.openStream(path);
+			ret = new Tuple<String, InputStream>(path, in);
+		} else if (!fFailedSearches.contains(incfile)) {
+			// Need to look a bit harder, then. Could be a include-relative path
+			String first_elem = SVFileUtils.getPathFirstElem(incfile);
+		
+			// Search through all the leaf directories
+			for (int i=0; i<fResolvedIncDirs.size(); i++) {
+				if (fIncDirDirs.get(i).contains(first_elem)) {
+					String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+					InputStream in = fFileSystemProvider.openStream(try_path);
+					
+					if (in != null) {
+						ret = new Tuple<String, InputStream>(try_path, in);
+						fIncludeMap.put(incfile, fResolvedIncDirs.get(i));
+						break;
+					}
+				}
+			}
+	
+			if (ret == null) {
+				fFailedSearches.add(incfile);
+			}
+		}
+		
+		/*
 		for (String path : fIndexCacheData.fIncludePathList) {
 			String fullpath = SVFileUtils.resolvePath(incfile, path, fFileSystemProvider, true);
 			if (fFileSystemProvider.fileExists(fullpath)) {
 				InputStream in = fFileSystemProvider.openStream(fullpath);
 				return new Tuple<String, InputStream>(fullpath, in);
 			}
-		}		
+		}	
+		 */	
 
-		return null;
+		return ret;
+	}
+
+	private void buildIncludeCache() {
+		fIncludeMap.clear();
+		fResolvedIncDirs.clear();
+		fIncDirFiles.clear();
+		fIncDirDirs.clear();
+		fFailedSearches.clear();
+	
+		for (String inc_dir : fIndexCacheData.fIncludePathList) {
+			addIncDir(inc_dir);
+		}
+		
+		fIncludeCacheValid = true;
+	}
+	
+	private void addIncDir(String inc_dir) {
+		String resolved_inc_dir = SVFileUtils.resolvePath(
+				inc_dir, inc_dir, fFileSystemProvider, true);
+		
+		Set<String> inc_dir_files = new HashSet<String>();
+		Set<String> inc_dir_dirs = new HashSet<String>();
+		
+		// List all elements in the directory
+		if (fFileSystemProvider.isDir(resolved_inc_dir)) {
+			List<String> fd_l = fFileSystemProvider.getFiles(resolved_inc_dir);
+			
+			for (String fd : fd_l) {
+				if (fFileSystemProvider.isDir(fd)) {
+					inc_dir_dirs.add(SVFileUtils.getPathLeaf(fd));
+				} else {
+					String leaf = SVFileUtils.getPathLeaf(fd);
+					inc_dir_files.add(leaf);
+					
+					if (!fIncludeMap.containsKey(leaf)) {
+						fIncludeMap.put(leaf, resolved_inc_dir);
+					}
+				}
+			}
+		}
+
+		fResolvedIncDirs.add(resolved_inc_dir);
+		fIncDirFiles.add(inc_dir_files);
+		fIncDirDirs.add(inc_dir_dirs);		
 	}
 	
 }

@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILogLevel {
@@ -48,8 +49,12 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 	@Override
 	public IStatus run(IProgressMonitor monitor) {
 		SVDBProjectData pdata = null;
+	
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		if (SVDBProjectManager.isSveProject(fProjectSav)) {
+			// Ensure the project nature is associated
+			SVProjectNature.ensureHasSvProjectNature(fProjectSav);
+			
 			pdata = pmgr.getProjectData(fProjectSav);
 			pdata.init();
 		}
@@ -61,12 +66,9 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 		
 		fLog.debug(LEVEL_MIN, "--> OpenProjectJob " + fProject.getName());
 		
-
 		fProjectMgr.startDelayedBuild(this);
 		
 		if (SVDBProjectManager.isSveProject(fProject)) {
-			// Ensure the project nature is associated
-			SVProjectNature.ensureHasSvProjectNature(fProject);
 			
 			monitor.beginTask("Opening SV Project " + fProject.getName(), 1000);
 			

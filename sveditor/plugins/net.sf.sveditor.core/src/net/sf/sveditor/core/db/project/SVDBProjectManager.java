@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
 import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -52,6 +53,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
@@ -91,7 +94,7 @@ public class SVDBProjectManager implements
 
 		SVDBInitProjectsJob job = new SVDBInitProjectsJob(this);
 		// Ensure this job is sensitive to the workspace
-		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//		job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 		
 		launchDelayedBuild(job);
 
@@ -125,10 +128,16 @@ public class SVDBProjectManager implements
 			// Ensure the project nature is associated
 //			SVProjectNature.ensureHasSvProjectNature(p);
 			fLog.debug(LEVEL_MIN, "  -- is SVE project");
+			
 		
 			SVDBOpenProjectJob job = new SVDBOpenProjectJob(this, p);
-			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
-			job.schedule(BUILD_DELAY);
+//			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//			job.schedule(BUILD_DELAY);
+//			job.schedule();
+			
+			SVDBRefreshDoneJobWrapper jw = new SVDBRefreshDoneJobWrapper(
+					job, BUILD_DELAY);
+			jw.schedule();
 			
 			synchronized (fDelayedOpList) {
 				fDelayedOpList.add(job);
@@ -142,7 +151,7 @@ public class SVDBProjectManager implements
 		if (fProjectMap.containsKey(p)) {
 			// Start a job to clean up after the specified project
 			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
-			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 			job.schedule();
 			
 			fProjectMap.remove(p);
@@ -152,7 +161,7 @@ public class SVDBProjectManager implements
 	public void projectRemoved(IProject p) {
 		if (fProjectMap.containsKey(p)) {
 			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
-			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 			job.schedule();
 			fProjectMap.remove(p);
 		}
@@ -186,6 +195,11 @@ public class SVDBProjectManager implements
 			return;
 		}
 		
+		if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
+			fLog.debug("rebuildProject: cancel due to RefreshJob running");
+			return;
+		}
+		
 		synchronized (fDelayedOpList) {
 			for (ISVProjectDelayedOp op : fDelayedOpList) {
 				op.projectBuildStarted(p);
@@ -212,7 +226,7 @@ public class SVDBProjectManager implements
 				fLog.debug(LEVEL_MID, "Rebuild index " + i.getBaseLocation());
 				
 				i.execOp(new SubProgressMonitor(monitor, 1000), 
-						new SVDBClearMarkersOp(), true);
+						new SVDBClearMarkersOp(), false);
 				if (monitor.isCanceled()) {
 					break;
 				}
@@ -445,7 +459,7 @@ public class SVDBProjectManager implements
 				// Launch a new job
 				fRefreshJob = new RefreshJob();
 				// Cannot run this job until the workspace is free
-				fRefreshJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//				fRefreshJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
 				fRefreshJob.schedule(100);
 			}
 		}
@@ -453,7 +467,7 @@ public class SVDBProjectManager implements
 		synchronized (fDeletedProjects) {
 			if (fDeletedProjects.size() > 0 && fDeleteProjectJob == null) {
 				fDeleteProjectJob = new DeleteProjectJob();
-				fDeleteProjectJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
+//				fDeleteProjectJob.setRule(ResourcesPlugin.getWorkspace().getRoot());
 				fDeleteProjectJob.schedule(100);
 			}
 		}

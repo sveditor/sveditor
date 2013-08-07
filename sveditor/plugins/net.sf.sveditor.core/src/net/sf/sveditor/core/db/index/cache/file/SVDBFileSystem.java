@@ -386,6 +386,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 		for (RandomAccessFile rw : fFileRWList) {
 			rw.close();
 		}
+		fFileRWList.clear();
 	}
 	
 	public synchronized SVDBFileSystemDataInput readFile(String path, int id) throws IOException {
