@@ -30,7 +30,6 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
 import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
-import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -53,14 +52,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
 		IResourceChangeListener, IPathVariableChangeListener,
 		ILogLevel {
-	private static final int						BUILD_DELAY = 2000;
+	private static final int						BUILD_DELAY = 5000;
 	private static final int						INIT_DELAY = 1000;
 	private LogHandle								fLog;
 	private WeakHashMap<IPath, SVDBProjectData>		fProjectMap;
@@ -100,7 +97,7 @@ public class SVDBProjectManager implements
 
 		job.schedule(INIT_DELAY);
 	}
-	
+
 	public static boolean isSveProject(IProject p) {
 		return p.getFile(new Path(".svproject")).exists();
 	}
@@ -248,6 +245,15 @@ public class SVDBProjectManager implements
 		} else {
 			System.out.println("ProjectData null");
 		}
+
+		// Fire one more time to catch requests that 
+		// might have accumulated
+		synchronized (fDelayedOpList) {
+			for (ISVProjectDelayedOp op : fDelayedOpList) {
+				op.projectBuildStarted(p);
+			}
+		}
+		
 		monitor.done();
 		
 		synchronized (fBuildActiveProjects) {
@@ -259,6 +265,20 @@ public class SVDBProjectManager implements
 			IProgressMonitor 					monitor, 
 			IProject 							p,
 			List<SVDBIndexResourceChangeEvent> 	changes) {
+		boolean full_build = false;
+		boolean rebuild_workspace = false;
+		
+		for (Job j : Job.getJobManager().find(null)) {
+			if (j.getName().startsWith("Building work")) {
+				rebuild_workspace = true;
+				break;
+			}
+		}
+		
+		if (rebuild_workspace) {
+			System.out.println("Skip due to rebuild workspace");
+			return;
+		}
 		
 		if (!isSveProject(p)) {
 			// Likely an auto-build mid-import
@@ -284,6 +304,7 @@ public class SVDBProjectManager implements
 				ISVDBIndexChangePlan plan = i.createIndexChangePlan(changes);
 				
 				if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
+					full_build = (plan.getType() == SVDBIndexChangePlanType.RebuildIndex);
 					i.execOp(new SubProgressMonitor(monitor, 1000), 
 							new SVDBClearMarkersOp(), true);
 					if (monitor.isCanceled()) {
@@ -302,6 +323,16 @@ public class SVDBProjectManager implements
 					monitor.worked(20000); // Nothing to do for this index
 				}
 				
+			}
+			
+			if (full_build) {
+				// Fire one more time to catch requests that 
+				// might have accumulated
+				synchronized (fDelayedOpList) {
+					for (ISVProjectDelayedOp op : fDelayedOpList) {
+						op.projectBuildStarted(p);
+					}
+				}
 			}
 			
 			monitor.done();
