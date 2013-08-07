@@ -22,7 +22,7 @@ public class SVFileBuffer extends InputStream {
 	}
 	
 	public long init(InputStream in) {
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		byte page[] = new byte[fPageSize];
 		int len = -1;
 		
@@ -41,7 +41,7 @@ public class SVFileBuffer extends InputStream {
 			fLastPageLength = len;
 		}
 		
-		long end = System.currentTimeMillis();
+		long end = System.nanoTime();
 		fReadTime = (end-start);
 	
 		if (fPageList.size() > 0) {

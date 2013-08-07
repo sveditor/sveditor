@@ -128,6 +128,56 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				" 5\n");
 	}
 	
+	public void testIfdef_1() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				"`define SPI_MAX_CHAR_128\n" +
+				"\n" +
+				"`ifdef SPI_MAX_CHAR_128\n" +
+				"`define SPI_MAX_CHAR 128\n" +
+				"`define SPI_CHAR_LEN_BITS 7\n" +
+				"`endif\n" +
+				"`ifdef SPI_MAX_CHAR_64\n" +
+				"`define SPI_MAX_CHAR 64\n" +
+				"`define SPI_CHAR_LEN_BITS 6\n" +
+				"`endif\n" +
+				"`ifdef SPI_MAX_CHAR_32\n" +
+				"`define SPI_MAX_CHAR 32\n" +
+				"`define SPI_CHAR_LEN_BITS 5\n" +
+				"`endif\n" +
+				"`SPI_CHAR_LEN_BITS\n",
+				inc_provider,
+				"\n" +
+				"\n" +
+				"\n" +
+				"\n" +
+				"\n" +
+				"\n" +
+				"   \n" +
+				"   \n" +
+				" 7\n"
+				);
+	}
+
+	public void testBitRangeMacroExpansion() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				"`define SPI_CHAR_LEN_BITS     7\n" +
+				"wire    [`SPI_CHAR_LEN_BITS:0] tx_bit_pos;\n",
+				inc_provider,
+				"\n" +
+				"wire    [     7:0] tx_bit_pos;\n"
+				);
+	}
+
 	private void runTest(
 			String							doc,
 			ISVPreProcIncFileProvider		inc_provider,
