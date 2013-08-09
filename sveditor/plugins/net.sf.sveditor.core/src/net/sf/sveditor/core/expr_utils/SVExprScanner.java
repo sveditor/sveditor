@@ -466,7 +466,7 @@ public class SVExprScanner {
 		// First, scan back to the string beginning
 		scanner.setScanFwd(false);
 		while ((ch = scanner.get_ch()) != -1) {
-			System.out.println("ch=" + (char)ch);
+//MSB			System.out.println("ch=" + (char)ch);
 			if (!SVCharacter.isSVIdentifierPart(ch)) { 
 				break;
 			}

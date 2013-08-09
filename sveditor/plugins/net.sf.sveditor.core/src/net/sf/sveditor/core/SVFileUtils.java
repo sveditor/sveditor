@@ -526,7 +526,7 @@ public class SVFileUtils {
 		}
 	}
 
-	public static void copy(ByteArrayOutputStream in, IFile out) {
+	public static IFile copy(ByteArrayOutputStream in, IFile out) {
 		try {
 			InputStream  in_s = new ByteArrayInputStream(in.toByteArray());
 
@@ -538,9 +538,10 @@ public class SVFileUtils {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to write file \"" + out + "\"");
 		}
+		return out;
 	}
 	
-	public static void copy(String in, IFile out) {
+	public static IFile copy(String in, IFile out) {
 		try {
 			InputStream  in_s = new StringInputStream(in);
 
@@ -552,6 +553,8 @@ public class SVFileUtils {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to write file \"" + out + "\"");
 		}
+		
+		return out;
 	}
 
 	public static void copy(String in, File out) {
