@@ -840,8 +840,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			List<SVDBIncFileInfo> inc_proposals = index_it.findIncludeFiles(
 					search, ISVDBIndexIterator.FIND_INC_SV_FILES);
 			
-			System.out.println("inc_proposals=" + inc_proposals.size());
-			
 			for (SVDBIncFileInfo inc_p : inc_proposals) {
 				String proposal = inc_p.getIncFile();
 				

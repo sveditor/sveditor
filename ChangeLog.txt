@@ -25,6 +25,19 @@
   output is displayed at 'Minimum' debug level after a full rebuild and
   gives some statistics on how many source files and lines were processed,
   and how long each operation phase took.
+  
+- #(enh) - More changes to better-integrate with the Eclipse builder 
+  to filter out redundant build requests and wait until post-import
+  refresh is complete before kicking off index builds.
+  
+- #(nobug) - Correct an issue with the 'new' indexer that caused some items
+  declared by `included files to be shown in the Outline view of the 
+  active file. Items declared in `included files are now filtered out of the
+  outline view.
+  
+- #(271) - Correct a longstanding bug in the bracket-matching code related
+  to bracket characters in comments. The bracket-matching code now uses
+  the same comment-region-aware scanner used by the content-assist utilities
 
 ------------------------------------------------------------------------------
 -- 1.3.3 Release --
