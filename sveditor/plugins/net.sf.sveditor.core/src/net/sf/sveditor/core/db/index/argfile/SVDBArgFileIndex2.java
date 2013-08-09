@@ -1002,6 +1002,7 @@ public class SVDBArgFileIndex2 implements
 					map = new HashMap<Integer, SVDBFile>();
 				
 					SVDBFile f = new SVDBFile(root_path);
+					f.setLocation(new SVDBLocation(root_id, -1, -1));
 					map.put(root_id, f);
 //					long start = System.currentTimeMillis();
 					createSubFileMap(fBuildData, map, file, root_id, f);
@@ -1044,9 +1045,10 @@ public class SVDBArgFileIndex2 implements
 				
 				if (f == null) {
 					f = new SVDBFile(build_data.mapFileIdToPath(new_id));
+					f.setLocation(new SVDBLocation(new_id, -1, -1));
 					map.put(new_id, f);
 				}
-		
+				
 				f.addChildItem(it);
 				it.setParent(f);
 
@@ -1057,7 +1059,7 @@ public class SVDBArgFileIndex2 implements
 				file.addChildItem(it);
 				
 				if (it instanceof ISVDBScopeItem) {
-					createSubFileMap(build_data, map, (ISVDBChildParent)it, curr_id, file);
+					createSubFileMap(build_data, map, (ISVDBScopeItem)it, curr_id, file);
 				}
 			}
 		}
@@ -1599,6 +1601,10 @@ public class SVDBArgFileIndex2 implements
 			SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(r_path);
 			start = System.currentTimeMillis();
 			file = f.parse(language_level, out, r_path, markers);
+			int file_id = fBuildData.mapFilePathToId(r_path, false);
+			file.setLocation(new SVDBLocation(file_id, 1, 0));
+			
+//			cleanExtFileElements(file_id, file);
 			end = System.currentTimeMillis();
 			fLog.debug("<-- Parse " + r_path + " " + (end-start) + "ms");
 			file_ft = null;
@@ -1606,7 +1612,7 @@ public class SVDBArgFileIndex2 implements
 		
 		return new Tuple<SVDBFile, SVDBFile>(file_ft, file);
 	}
-
+	
 	/**
 	 * Traverse through the FileTree structure to calculate the
 	 * macros defined prior to parse of a specific file. This
@@ -2828,9 +2834,8 @@ public class SVDBArgFileIndex2 implements
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
 		checkInIndexOp("findIncludeFiles");
 		
-		List<String> inc_paths = fBuildData.getIncludePathList();
-		System.out.println("inc_paths=" + inc_paths.size());
-		
+//		List<String> inc_paths = fBuildData.getIncludePathList();
+
 		return SVDBFindIncFileUtils.findIncludeFiles(
 				this,
 				fFileSystemProvider,

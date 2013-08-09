@@ -2,13 +2,17 @@ package net.sf.sveditor.core.tests.index.argfile2;
 
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.BundleUtils;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -110,6 +114,65 @@ public class TestEditorParseMethod extends SVCoreTestCaseBase {
 		SVDBTestUtils.assertFileHasElements(result.second(),
 				"pkg2_cls2");
 	}
+	
+	public void testIncludedDeclarationsNotIncluded() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		
+		utils.copyBundleDirToFS("/data/index/mfcu_cross_file_macros", fTmpDir);
+		
+		IProject p = TestUtils.createProject("included_decl", 
+				new File(fTmpDir, "included_decl"));
+		addProject(p);
+		
+		SVFileUtils.copy(
+				"top.sv",
+				p.getFile("included_decl.f"));
+		
+		SVFileUtils.copy(
+				"function void my_func();\n" +
+				"endfunction\n",
+				p.getFile("params.svh"));
+		
+		SVFileUtils.copy(
+				"module top;\n" +
+				"`include \"params.svh\"\n" +
+				"\n" +
+				"function in_top;\n" +
+				"endfunction\n" +
+				"endmodule\n",
+				p.getFile("top.sv"));
+		
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(),
+				"included_decl",
+				"${workspace_loc}/included_decl/included_decl.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		index.loadIndex(new NullProgressMonitor());
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+	
+		SVDBFile file = index.findFile("${workspace_loc}/included_decl/top.sv");
+		SVDBTestUtils.assertFileHasElements(file, "top", "in_top");
+		SVDBTestUtils.assertFileDoesNotHaveElements(file, "my_func");
+	
+		// Now, check the return of the index parse method
+		InputStream in = index.getFileSystemProvider().openStream(
+				"${workspace_loc}/included_decl/top.sv");
+	
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		Tuple<SVDBFile, SVDBFile> parse_r = index.parse(new NullProgressMonitor(), in, 
+				"${workspace_loc}/included_decl/top.sv",
+				markers);
+		
+		SVDBTestUtils.assertFileHasElements(parse_r.second(), "top", "in_top");
+		SVDBTestUtils.assertFileDoesNotHaveElements(parse_r.second(), "my_func");
+		
+		index.getFileSystemProvider().closeStream(in);
+	}
+
 }
 
 
