@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
 import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -147,7 +148,9 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		if (newInput instanceof SVOutlineContent) {
 			fRoot = ((SVOutlineContent)newInput).getFile();
-		} else {
+		} else if (newInput instanceof SVArgFileOutlineContent) {
+			fRoot = ((SVArgFileOutlineContent)newInput).getFile();
+		} else if (newInput instanceof ISVDBChildParent) {
 			fRoot = (ISVDBChildParent)newInput;
 		}
 	}
