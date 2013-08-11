@@ -12,27 +12,19 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
@@ -96,6 +88,7 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 	
 		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p2_index.loadIndex(new NullProgressMonitor());
 	
 		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c");
 	}
@@ -134,6 +127,7 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 	
 		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p2_index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c");
 	}
@@ -172,6 +166,7 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 	
 		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p2_index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c", "p2_c");
 	}

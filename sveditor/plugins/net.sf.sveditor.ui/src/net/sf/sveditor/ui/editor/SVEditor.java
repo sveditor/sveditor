@@ -15,20 +15,29 @@ package net.sf.sveditor.ui.editor;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBEndLocation;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -89,8 +98,13 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
+import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.eclipse.jface.text.source.projection.ProjectionSupport;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
@@ -162,6 +176,9 @@ public class SVEditor extends TextEditor
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
 	IInformationPresenter fQuickHierarchyPresenter;
+	
+	private ProjectionSupport				fProjectionSupport;
+	private Annotation						fOldFoldingRegions[];
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -247,6 +264,8 @@ public class SVEditor extends TextEditor
 				}
 
 				addErrorMarkers(markers);
+				applyUnprocessedRegions(fSVDBFilePP);
+				applyFolding(fSVDBFile);
 			}
 
 			if (fOutline != null) {
@@ -815,6 +834,14 @@ public class SVEditor extends TextEditor
 		
 		super.createPartControl(parent);
 		
+	    ProjectionViewer viewer = (ProjectionViewer)getSourceViewer();
+
+	    fProjectionSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
+	    fProjectionSupport.install();
+	    
+	    //turn projection mode on
+	    viewer.doOperation(ProjectionViewer.TOGGLE);
+	    
 		if (fHighlightManager == null) {
 			fHighlightManager = new SVHighlightingManager();
 			fHighlightManager.install(
@@ -843,6 +870,20 @@ public class SVEditor extends TextEditor
 		 * Add semantic highlighting
 		 */
 		
+	}
+	
+	@Override
+	protected ISourceViewer createSourceViewer(
+			Composite 			parent,
+			IVerticalRuler 		ruler, 
+			int 				styles) {
+		ISourceViewer viewer = new ProjectionViewer(parent, ruler,
+				getOverviewRuler(), isOverviewRulerVisible(), styles);
+
+		// ensure decoration support has been created and configured.
+		getSourceViewerDecorationSupport(viewer);
+
+		return viewer;		
 	}
 
 	public SVDBFile getSVDBFile() {
@@ -1000,6 +1041,8 @@ public class SVEditor extends TextEditor
 		}
 		clearErrors();
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+
+		
 		
 		for (SVDBMarker marker : markers) {
 			Annotation ann = null;
@@ -1020,6 +1063,141 @@ public class SVEditor extends TextEditor
 				} catch (BadLocationException e) {
 					e.printStackTrace();
 				}
+			}
+		}
+	}
+	
+	private void applyUnprocessedRegions(SVDBFile file_pp) {
+		List<SVDBUnprocessedRegion> unprocessed_regions = new ArrayList<SVDBUnprocessedRegion>();
+		IDocument doc = getDocument();
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		clearUnprocessedRegionAnnotations();
+		collectUnprocessedRegions(unprocessed_regions, file_pp);
+		
+		for (SVDBUnprocessedRegion r : unprocessed_regions) {
+			SVDBLocation start = r.getLocation();
+			SVDBLocation end = r.getEndLocation();
+
+			if (start == null || end == null) {
+				continue;
+			}
+			
+			Annotation ann_1 = new Annotation("net.sf.sveditor.ui.disabledRegion", false, "");
+			try {
+				int line1 = doc.getLineOffset((start.getLine()>0)?start.getLine()-1:0);
+				int line2 = doc.getLineOffset(end.getLine());
+				ann_model.addAnnotation(ann_1, new Position(line1, (line2-line1)));
+			} catch (BadLocationException e) {}
+		}
+	}
+	
+	private void collectUnprocessedRegions(List<SVDBUnprocessedRegion> unprocessed_regions, ISVDBChildParent scope) {
+		for (ISVDBChildItem ci : scope.getChildren()) {
+			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
+				unprocessed_regions.add((SVDBUnprocessedRegion)ci);
+			}
+		}
+	}
+	
+	private void applyFolding(SVDBFile file) {
+	    ProjectionViewer viewer =(ProjectionViewer)getSourceViewer();
+	    if (viewer == null) {
+	    	return;
+	    }
+	    ProjectionAnnotationModel ann_model = viewer.getProjectionAnnotationModel();
+	    
+	    if (ann_model == null) {
+	    	return;
+	    }
+	    
+		List<Position> positions = new ArrayList<Position>();
+		HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<ProjectionAnnotation, Position>();
+		
+		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
+	
+		Annotation annotations[] = new Annotation[positions.size()];
+		
+		for (int i=0; i<positions.size(); i++) {
+			ProjectionAnnotation ann = new ProjectionAnnotation();
+			newAnnotations.put(ann, positions.get(i));
+			annotations[i] = ann;
+		}
+
+		ann_model.modifyAnnotations(fOldFoldingRegions, newAnnotations, annotations);
+	}
+	
+	private static final Set<SVDBItemType>				fFoldingRegions;
+	private static final Set<SVDBItemType>				fRecurseFoldingRegions;
+	
+	static {
+		fFoldingRegions = new HashSet<SVDBItemType>();
+		fRecurseFoldingRegions = new HashSet<SVDBItemType>();
+		fFoldingRegions.add(SVDBItemType.ModuleDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.ModuleDecl);
+		fFoldingRegions.add(SVDBItemType.InterfaceDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.InterfaceDecl);
+		fFoldingRegions.add(SVDBItemType.ClassDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.ClassDecl);
+		fFoldingRegions.add(SVDBItemType.PackageDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.PackageDecl);
+		fFoldingRegions.add(SVDBItemType.ProgramDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.ProgramDecl);
+		
+		fFoldingRegions.add(SVDBItemType.Task);
+		fFoldingRegions.add(SVDBItemType.Function);
+		fFoldingRegions.add(SVDBItemType.Constraint);
+	}
+	
+	private void collectFoldingRegions(int file_id, ISVDBChildParent scope, List<Position> positions) {
+		IDocument doc = getDocument();
+		for (ISVDBChildItem ci : scope.getChildren()) {
+			if (fFoldingRegions.contains(ci.getType())) {
+				ISVDBEndLocation el = (ISVDBEndLocation)ci;
+				SVDBLocation start = ci.getLocation();
+				SVDBLocation end = el.getEndLocation();
+			
+				if (start != null && end != null) {
+					int it_file_id = start.getFileId();
+					
+					if (file_id == -1 || it_file_id == file_id) {
+						try {
+							int start_l = start.getLine();
+							int end_l = end.getLine();
+							if (start_l != end_l) {
+//								System.out.println("fold: " + start_l + " .. " + end_l);
+								if (start_l > 0) {
+									start_l--;
+								}
+
+								int start_o = doc.getLineOffset(start_l);
+								int end_o = doc.getLineOffset(end_l);
+
+								positions.add(new Position(start_o, (end_o-start_o)));
+							}
+						} catch (BadLocationException e) {}
+						
+						if (fRecurseFoldingRegions.contains(ci.getType())) {
+							// Must recurse
+							collectFoldingRegions(file_id, (ISVDBChildParent)ci, positions);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void clearUnprocessedRegionAnnotations() {
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		// Clear annotations
+		@SuppressWarnings("unchecked")
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			
+			if (ann.getType().equals("net.sf.sveditor.ui.disabledRegion")) {
+				ann_model.removeAnnotation(ann);
 			}
 		}
 	}

@@ -1607,7 +1607,7 @@ public class SVDBArgFileIndex2 implements
 //			cleanExtFileElements(file_id, file);
 			end = System.currentTimeMillis();
 			fLog.debug("<-- Parse " + r_path + " " + (end-start) + "ms");
-			file_ft = null;
+			file_ft = ft.getSVDBFile();
 		}
 		
 		return new Tuple<SVDBFile, SVDBFile>(file_ft, file);
