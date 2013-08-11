@@ -28,6 +28,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -239,6 +240,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 
 		IndexTestUtils.assertNoErrWarn(fLog, index);
 		IndexTestUtils.assertFileHasElements(fLog, index, "my_driver");
@@ -267,6 +269,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/simple/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertNoErrWarn(fLog, index);
 		IndexTestUtils.assertFileHasElements(fLog, index, "simple_driver");

@@ -99,7 +99,14 @@ public class StringBIDITextScanner
 	}
 
 	public String get_str(long start, int length) {
-		return fData.substring((int)start, (int)start+length);
+		if (start >= fData.length()) {
+			return "";
+		} else {
+			if (start+length > fData.length()) {
+				length = (fData.length()-(int)start-1);
+			}
+			return fData.substring((int)start, (int)start+length);
+		}
 	}
 
 	public long getPos() {

@@ -46,6 +46,10 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 	public IRegion match(IDocument document, int offset) {
 		IBIDITextScanner scanner = new SVDocumentTextScanner(document, "", offset, true, true);
 		
+		if ((document == null) || (offset < 0)) {
+			
+		}
+		
 		if (offset < 0) {
 			return null;
 		}
@@ -61,32 +65,45 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 		int i;
 		int pairIndex1 = fPairs.length;
 		int pairIndex2 = fPairs.length;
-		
+	
+		long pos = scanner.getPos();
+		int curr_char = scanner.get_ch();
+		scanner.seek(pos);
 		scanner.setScanFwd(false);
 
 		fStartPos = -1;
 		fEndPos = -1;
 		// get the char preceding the start position
-		int prevChar = scanner.get_ch(); // fDocument.getgetChar(Math.max(fOffset - 1, 0));
-
+		scanner.get_ch();
+		int prev_char = scanner.get_ch(); // fDocument.getgetChar(Math.max(fOffset - 1, 0));
+		
 		// search for opening peer character next to the activation point
 		for (i = 0; i < fPairs.length; i = i + 2) {
-			if (prevChar == fPairs[i]) {
-				fStartPos = (int)(scanner.getPos()+1); // fOffset - 1;
+			if (prev_char == fPairs[i]) {
+				fStartPos = (int)(pos-1);
+				pairIndex1 = i;
+			} else if (curr_char == fPairs[i]) {
+				fStartPos = (int)pos;
 				pairIndex1 = i;
 			}
 		}
+		
 		// search for closing peer character next to the activation point
 		for (i = 1; i < fPairs.length; i = i + 2) {
-			if (prevChar == fPairs[i]) {
-				fEndPos = (int)(scanner.getPos()+1); // fOffset - 1;
+			if (curr_char == fPairs[i]) {
+				fEndPos = (int)(pos);
+				pairIndex2 = i;
+			} else if (prev_char == fPairs[i]) {
+				fEndPos = (int)(pos-1);
 				pairIndex2 = i;
 			}
 		}
 
 		if (fEndPos > -1) {
 			fAnchor = RIGHT;
-			fStartPos = searchForOpeningPeer(scanner, fEndPos, fPairs[pairIndex2 - 1],
+			scanner.setScanFwd(false);
+			scanner.seek(fEndPos);
+			fStartPos = searchForOpeningPeer(scanner, fPairs[pairIndex2 - 1],
 					fPairs[pairIndex2]);
 			if (fStartPos > -1) {
 				return true;
@@ -95,7 +112,9 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 			}
 		} else if (fStartPos > -1) {
 			fAnchor = LEFT;
-			fEndPos = searchForClosingPeer(scanner, fStartPos, fPairs[pairIndex1],
+			scanner.setScanFwd(true);
+			scanner.seek(fStartPos);
+			fEndPos = searchForClosingPeer(scanner, fPairs[pairIndex1],
 					fPairs[pairIndex1 + 1]);
 			if (fEndPos > -1) {
 				return true;
@@ -110,11 +129,8 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 	/**
 	 * Basic search for ClosingPeer
 	 */
-	private int searchForClosingPeer(IBIDITextScanner scanner, int start, char opening, char closing) {
-		scanner.setScanFwd(true);
-		scanner.seek(fStartPos+1);
-
-		int depth = 1;
+	private int searchForClosingPeer(IBIDITextScanner scanner, char opening, char closing) {
+		int depth = 0;
 
 		int ch = 0;
 		while (true) {
@@ -148,9 +164,8 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 	/**
 	 * Basic search for OpeningPeer
 	 */
-	private int searchForOpeningPeer(IBIDITextScanner scanner, int start, char opening, char closing) {
-		scanner.setScanFwd(false);
-		int depth = 1;
+	private int searchForOpeningPeer(IBIDITextScanner scanner, char opening, char closing) {
+		int depth = 0;
 		int ch = 0;
 		while (true) {
 			while ((ch = scanner.get_ch()) != -1) {

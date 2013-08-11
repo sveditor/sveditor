@@ -50,15 +50,6 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 			if (SVDocumentPartitions.SV_MULTILINE_COMMENT.equals(r.getType()) ||
 					SVDocumentPartitions.SV_SINGLELINE_COMMENT.equals(r.getType())) {
 				super.reconcile(r);
-				/*
-				Iterator<Annotation> it = model.getAnnotationIterator();
-				while (it.hasNext()) {
-					Annotation ann = (Annotation)it.next();
-					System.out.println("  Add annotation: " + ann);
-					ann_list_total.add(ann);
-					pos_list_total.add(model.getPosition(ann));
-				}
-				 */
 			}
 		}
 	
@@ -66,6 +57,11 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 		Iterator<Annotation> it = model.getAnnotationIterator();
 		while (it.hasNext()) {
 			Annotation ann = (Annotation)it.next();
+			
+			if (ann == null || !ann.getType().equals(SpellingAnnotation.TYPE)) {
+				continue;
+			}
+			
 			Position pos = model.getPosition(ann);
 
 			if (pos != null) {

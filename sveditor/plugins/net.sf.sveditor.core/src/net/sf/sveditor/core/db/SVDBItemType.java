@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("rawtypes")
 public enum SVDBItemType {
@@ -227,6 +228,10 @@ public enum SVDBItemType {
 		}
 				
 		return false;
+	}
+	
+	public boolean isElemOf(Set<SVDBItemType> types) {
+		return types.contains(this);
 	}
 	
 	public static final Map<SVDBItemType, Class>		fObjectMap;

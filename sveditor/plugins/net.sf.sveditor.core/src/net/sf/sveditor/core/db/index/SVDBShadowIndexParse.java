@@ -19,7 +19,6 @@ import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * This class is responsible for parsing file content when the 

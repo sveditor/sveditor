@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
@@ -55,6 +56,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_multi_include/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, "class1_dir1");
 		IndexTestUtils.assertDoesNotContain(index, "class1_dir2");
@@ -79,6 +81,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_multi_include_multi_root/arg_file_multi_include_multi_root.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertDoesNotContain(index, "class1_dir2");
 		IndexTestUtils.assertFileHasElements(fLog, index, "class3");
@@ -103,6 +106,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_libpath/arg_file_libpath.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		String names[] = {"a","b","arg_file_libpath_1","arg_file_libpath_2"};
 		
@@ -306,6 +310,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 				"${workspace_loc}/testArgFileIncludePath_project/arg_file_include_path/arg_file_include_path.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		SVCorePlugin.setenv("TEST_ENVVAR", fTmpDir.getAbsolutePath() + "/testArgFileIncludePath_project");
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 	
 		IndexTestUtils.assertFileHasElements(index, "class1_dir1", "class2", "arg_file_multi_include");
 
@@ -350,6 +355,8 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		ps.println("endpackage");
 		ps.close();
 		
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+		
 		IndexTestUtils.assertFileHasElements(index, "class1", "class2", "ext_pkg_1", "ext_pkg_2");
 
 		assertEquals(0, CoreReleaseTests.getErrors().size());
@@ -374,6 +381,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "_project/multi_arg_file/multi_arg_file.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, 
 				"top_package", "sub_package", "sub_sub_package");
@@ -411,6 +419,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "_project/multi_arg_file_env_var/multi_arg_file.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, 
 				"top_package", "sub_package", "sub_sub_package");
@@ -440,6 +449,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "/arg_file_multi_include_single_root/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertDoesNotContain(index, "class1_dir1", "class2_dir2");
 		IndexTestUtils.assertFileHasElements(index, "class1_root", "class2_root");
@@ -466,6 +476,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "/arg_file_mixed_sv_vlog/arg_file_mixed_sv_vlog.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, "my_cls1", "my_cls2", "bit");
 		
