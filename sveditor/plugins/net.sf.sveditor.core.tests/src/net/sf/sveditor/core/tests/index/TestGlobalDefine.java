@@ -149,6 +149,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		assertEquals("Check that define not forgotten", 1, p_wrap.getGlobalDefines().size());
 		
 		SVDBIndexCollection index_mgr = project_data.getProjectIndexMgr();
+		index_mgr.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, index_mgr, "class1");
 		

@@ -15,14 +15,11 @@ package net.sf.sveditor.core.tests.index.libIndex;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -55,6 +52,7 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 		IndexTestUtils.assertDoesNotContain(index, "class1_2");
