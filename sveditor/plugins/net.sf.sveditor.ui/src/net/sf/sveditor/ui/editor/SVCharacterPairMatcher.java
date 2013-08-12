@@ -136,7 +136,13 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 		while (true) {
 			while ((ch = scanner.get_ch()) != -1) {
 				if (ch =='"') {
-					while ((ch = scanner.get_ch()) !='"') { }
+					int last_ch = ch;
+					while ((ch = scanner.get_ch()) != -1) {
+						if (ch == '"' && last_ch != '\\') {
+							break;
+						}
+						last_ch = ch;
+					}
 				}
 
 				if (ch == opening || ch == closing) {
@@ -170,7 +176,16 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 		while (true) {
 			while ((ch = scanner.get_ch()) != -1) {
 				if (ch =='"') {
-					while ((ch = scanner.get_ch()) != '"') { }
+					while ((ch = scanner.get_ch()) != -1) {
+						if (ch == '"') { 
+							int prev_ch = scanner.get_ch();
+							if (prev_ch != '\\') {
+								// not escaped quote, done
+								scanner.unget_ch(prev_ch);
+								break;
+							}
+						}
+					}
 				}
 				if (ch == opening || ch == closing) {
 					break;
