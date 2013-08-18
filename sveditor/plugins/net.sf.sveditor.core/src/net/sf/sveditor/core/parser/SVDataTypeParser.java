@@ -33,6 +33,8 @@ import net.sf.sveditor.core.db.SVDBTypeInfoStruct;
 import net.sf.sveditor.core.db.SVDBTypeInfoUnion;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
+import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
 import net.sf.sveditor.core.db.expr.SVDBRangeExpr;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -537,14 +539,54 @@ public class SVDataTypeParser extends SVParserBase {
 			SVDBVarDimItem dim = new SVDBVarDimItem();
 			dim.setDimType(DimType.Sized);
 
-			debug("--> expression");
-			SVDBExpr expr = parsers().exprParser().expression();
-			debug("<-- expression - " + fLexer.peek());
+			if (fDebugEn) {
+				debug("--> expression");
+			}
+			
+			SVToken t1 = fLexer.consumeToken();
+			SVToken t2 = fLexer.consumeToken();
+			
+			SVDBExpr expr;
+			if ((t1 != null && t2 != null) && 
+					(t1.isNumber() || t1.isIdentifier()) &&
+					t2.isOperator(":", "]")) {
+				fLexer.ungetToken(t2);
+				if (t1.isNumber()) {
+					expr = new SVDBLiteralExpr(t1.getImage());
+				} else {
+					expr = new SVDBIdentifierExpr(t1.getImage());
+				}
+			} else {
+				fLexer.ungetToken(t2);
+				fLexer.ungetToken(t1);
+				expr = fParsers.exprParser().expression();
+			}
+			if (fDebugEn) {
+				debug("<-- expression - " + fLexer.peek());
+			}
 
 			if (fLexer.peekOperator(":")) {
 				// range
 				fLexer.eatToken();
-				dim.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
+				t1 = fLexer.consumeToken();
+				t2 = fLexer.consumeToken();
+				
+				if ((t1 != null && t2 != null) && 
+						(t1.isNumber() || t1.isIdentifier()) &&
+						t2.isOperator("]")) {
+					SVDBExpr rhs;
+					fLexer.ungetToken(t2);
+					if (t1.isNumber()) {
+						rhs = new SVDBLiteralExpr(t1.getImage());
+					} else {
+						rhs = new SVDBIdentifierExpr(t1.getImage());
+					}
+					dim.setExpr(new SVDBRangeExpr(expr, rhs));
+				} else {
+					fLexer.ungetToken(t2);
+					fLexer.ungetToken(t1);
+					dim.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
+				}
 			} else {
 				// single value
 				dim.setExpr(expr);
