@@ -53,6 +53,17 @@ public class SVToken {
 		return fIsOperator;
 	}
 	
+	public boolean isOperator(String ... ops) {
+		if (fIsOperator) {
+			for (String op : ops) {
+				if (op.equals(fImage)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public boolean isPath() {
 		return fIsPath;
 	}

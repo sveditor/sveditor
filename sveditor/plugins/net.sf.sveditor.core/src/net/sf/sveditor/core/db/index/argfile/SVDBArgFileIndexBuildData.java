@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -21,6 +21,8 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBArgFileIndexBuildData implements 
 	ISVPreProcFileMapper, ISVPreProcIncFileProvider {
@@ -32,6 +34,7 @@ public class SVDBArgFileIndexBuildData implements
 	Set<String>									fFileDirs;
 	Set<String>									fMissingIncludes;
 	SVDBIndexStats								fIndexStats;
+	private static boolean						fEnableIncludeCache = true;
 	
 	// Map of leaf file to resolved include directory
 	private Map<String, String>			fIncludeMap;
@@ -40,6 +43,7 @@ public class SVDBArgFileIndexBuildData implements
 	private List<Set<String>>			fIncDirDirs;
 	private Set<String>					fFailedSearches;
 	private boolean						fIncludeCacheValid = false;	
+	private List<Tuple<String, String>>	fIncludeFileList = new ArrayList<Tuple<String,String>>();
 	
 	public SVDBArgFileIndexBuildData(ISVDBIndexCache cache, String base_location) {
 		fCache = cache;
@@ -169,6 +173,81 @@ public class SVDBArgFileIndexBuildData implements
 		
 		return null;		
 	}
+	
+	public Tuple<String, List<SVDBFileTreeMacroList>> findCachedIncFile(String incfile) {
+		Tuple<String, List<SVDBFileTreeMacroList>> ret = null;
+		
+		if (!fEnableIncludeCache) {
+			return ret;
+		}
+		
+		SVDBFileTree ft_root = null;
+		String incfile_fullpath = null;
+		for (Tuple<String, String> e : fIncludeFileList) {
+			if (e.first().endsWith(incfile)) {
+				ft_root = fCache.getFileTree(new NullProgressMonitor(), e.second(), false);
+				incfile_fullpath = e.first();
+				break;
+			}
+		}
+		
+		if (ft_root != null) {
+			List<SVDBFileTreeMacroList> macroset = new ArrayList<SVDBFileTreeMacroList>();
+			// Locate the include file and collect the contributed macros
+			if (collectMacroSet(macroset, ft_root, incfile_fullpath)) {
+				ret = new Tuple<String, List<SVDBFileTreeMacroList>>(incfile_fullpath, macroset);
+			}
+		}
+		
+		return ret;
+	}
+	
+	private boolean collectMacroSet(
+			List<SVDBFileTreeMacroList> macroset,
+			SVDBFileTree				ft,
+			String						incfile_fullpath) {
+		boolean ret = false;
+
+		for (SVDBFileTree ft_i : ft.getIncludedFileTreeList()) {
+			if (ft_i.getFilePath().equals(incfile_fullpath)) {
+				ret = true;
+				
+				// collect the macros from this inclusion
+				collectMacroSet(macroset, ft);
+				break;
+			} else if ((ret = collectMacroSet(macroset, ft_i, incfile_fullpath))) {
+				break;
+			}
+		}
+			
+		return ret;
+	}
+	
+	private void collectMacroSet(
+			List<SVDBFileTreeMacroList> macroset,
+			SVDBFileTree				ft) {
+		macroset.addAll(ft.fMacroSetList);
+		
+		for (SVDBFileTree ft_i : ft.getIncludedFileTreeList()) {
+			collectMacroSet(macroset, ft_i);
+		}
+	}
+	
+	public void addCachedIncFile(String incfile, String rootfile) {
+		if (fEnableIncludeCache) {
+			boolean have = false;
+			for (Tuple<String, String> e : fIncludeFileList) {
+				if (e.first().equals(incfile)) {
+					have = true;
+					break;
+				}
+			}
+
+			if (!have) {
+				fIncludeFileList.add(new Tuple<String, String>(incfile, rootfile));
+			}
+		}
+	}
 
 	// PreProcIncludeFileProvider API
 	public Tuple<String, InputStream> findIncFile(String incfile) {
@@ -214,7 +293,7 @@ public class SVDBArgFileIndexBuildData implements
 				return new Tuple<String, InputStream>(fullpath, in);
 			}
 		}	
-		 */	
+		 */
 
 		return ret;
 	}
