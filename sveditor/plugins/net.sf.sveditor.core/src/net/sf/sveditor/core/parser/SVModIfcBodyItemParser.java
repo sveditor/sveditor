@@ -73,7 +73,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		// Save the start location before qualifiers
 		SVDBLocation start = fLexer.getStartLocation();
-		modifiers = parsers().SVParser().scan_qualifiers(false);
+		modifiers = fParsers.SVParser().scan_qualifiers(false);
 
 		id = fLexer.peek();
 

@@ -15,6 +15,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -489,15 +490,31 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					
 					// Process include and switch to new file
 					if (fIncFileProvider != null) {
-						Tuple<String, InputStream> in = fIncFileProvider.findIncFile(inc);
+						Tuple<String, List<SVDBFileTreeMacroList>> defs;
+						Tuple<String, InputStream> in;
+					
+						// TODO: for now, assuming accumulated pre-processor state 
+						// doesn't change file content. This isn't precisely correct.
+						defs = fIncFileProvider.findCachedIncFile(inc);
 						
-						if (in != null && in.second() != null) {
+						if (defs != null) {
+							// Add in the macros from the included file
+							for (SVDBFileTreeMacroList l : defs.second()) {
+								for (SVDBMacroDef m : l.getMacroList()) {
+									addMacro(m);
+								}
+							}
+						} else if ((in = fIncFileProvider.findIncFile(inc)) != null && in.second() != null) {
 							SVPreProc2InputData curr_in = fInputCurr;
 							if (fDebugEn) {
 								fLog.debug("Switching from file " + 
 										curr_in.getFileName() + " to " + in.first());
 							}
 							// TODO: Add tracking data for new file
+							
+							// Find the root file path
+							String rootfile = fInputStack.get(0).getFileName();
+							fIncFileProvider.addCachedIncFile(in.first(), rootfile);
 							
 							SVDBInclude svdb_inc = new SVDBInclude(inc);
 							svdb_inc.setLocation(new SVDBLocation(

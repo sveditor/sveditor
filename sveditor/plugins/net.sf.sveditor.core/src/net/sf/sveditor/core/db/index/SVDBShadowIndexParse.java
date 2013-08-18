@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ops.SVDBFindMacroOp;
@@ -62,7 +63,18 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 
 	private ISVPreProcIncFileProvider	includeFileProvider = new ISVPreProcIncFileProvider() {
 		
+		public Tuple<String, List<SVDBFileTreeMacroList>> findCachedIncFile(String incfile) {
+			return null;
+		}
+		
 		@Override
+		public void addCachedIncFile(String incfile, String rootfile) {
+			// TODO Auto-generated method stub
+			
+		}
+
+
+
 		public Tuple<String, InputStream> findIncFile(String incfile) {
 			// TODO Auto-generated method stub
 			return null;
