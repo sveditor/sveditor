@@ -3,6 +3,16 @@
 
 - #(274) - Correct an issue with brace matching in the presence of escaped
   double quotes within strings (eg "this is a \" string")
+  
+- #(nobug) - Correct an issue with the content assist provider that caused
+  non-class proposals to be given for class 'extends'
+
+- #(enh) - Add initial macro-caching scheme to the 'new' indexer to prevent
+  include files from being repeatedly processed. In the new scheme,
+  after initial processing of an include file, subsequent inclusions of 
+  that file simply bring in the macros previously defined.
+  
+  
 
 ------------------------------------------------------------------------------
 -- 1.3.6 Release --

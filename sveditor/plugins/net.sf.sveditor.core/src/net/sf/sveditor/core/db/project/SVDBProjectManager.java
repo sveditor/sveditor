@@ -20,6 +20,7 @@ import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.ISVProjectDelayedOp;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVMarkers;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -302,6 +303,10 @@ public class SVDBProjectManager implements
 			for (ISVDBIndex i : index_l) {
 				monitor.subTask("Build " + i.getBaseLocation());
 				ISVDBIndexChangePlan plan = i.createIndexChangePlan(changes);
+			
+				try {
+					p.deleteMarkers(SVMarkers.TYPE_PROBLEM, true, IResource.DEPTH_ZERO);
+				} catch (CoreException e) {}
 				
 				if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
 					full_build = (plan.getType() == SVDBIndexChangePlanType.RebuildIndex);

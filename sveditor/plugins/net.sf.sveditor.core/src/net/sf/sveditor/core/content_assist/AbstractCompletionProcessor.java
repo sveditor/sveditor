@@ -706,7 +706,14 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			ISVDBChildItem			src_scope) {
 		fLog.debug("Looking for un-ctxt.fTriggered identifier \"" + ctxt.fLeaf + "\"");
 		List<ISVDBItemBase> result = null;
-		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		SVDBFindContentAssistNameMatcher matcher;
+		
+		if (ctxt.fType == ContextType.Extends) {
+			// for class extension, only a class is appropriate
+			matcher = new SVDBFindContentAssistNameMatcher(SVDBItemType.ClassDecl);
+		} else {
+			matcher = new SVDBFindContentAssistNameMatcher();
+		}
 		
 		UntriggeredFindByNameInScopes finder_s = new UntriggeredFindByNameInScopes(
 				ctxt, src_scope, getIndexIterator(), matcher);
