@@ -291,7 +291,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 		
 		if (i >= 0) {
-			return fInputStack.get(0);
+			return fInputStack.get(i);
 		} else {
 			return null;
 		}
@@ -736,7 +736,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fIndexStats.incNumProcessedFiles();
 		}
 		
-		fInputStack.pop();
+		SVPreProc2InputData curr_in = fInputStack.pop();
 		
 		SVPreProc2InputData new_file = fInputStack.peek();
 		fInputCurr = new_file;

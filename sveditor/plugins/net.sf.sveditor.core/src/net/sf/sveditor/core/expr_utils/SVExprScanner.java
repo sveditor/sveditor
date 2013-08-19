@@ -227,10 +227,10 @@ public class SVExprScanner {
 					scanner.seek(ret.fStart);
 					c = scanner.skipWhite(c);
 					
-					int ch2 = scanner.get_ch();
-					int ch3 = scanner.get_ch();
+//					int ch2 = scanner.get_ch();
+//					int ch3 = scanner.get_ch();
 					
-					debug("notInTriggered: c=\"" + (char)c + "\" ch2=" + (char)ch2 + " ch3=" + (char)ch3);
+//					debug("notInTriggered: c=\"" + (char)c + "\" ch2=" + (char)ch2 + " ch3=" + (char)ch3);
 					debug("notInTriggered: scanFwd=" + scanner.getScanFwd());
 					
 					scanner.unget_ch(c);
@@ -239,11 +239,18 @@ public class SVExprScanner {
 					
 					debug("notInTriggered: id=\"" + id + "\"");
 					
-					if (id != null && id.equals("include")) {
+					if (id != null && 
+							(id.equals("include") ||
+							 id.equals("extends") ||
+							 id.equals("import")
+							)) {
 						if (ret.fStart > 0) {
 							ret.fStart--;
 						}
-						ret.fTrigger = "`";
+						
+						if (id.equals("include")) {
+							ret.fTrigger = "`";
+						}
 						ret.fRoot = id;
 						ret.fLeaf = "";
 					}
@@ -252,8 +259,12 @@ public class SVExprScanner {
 		}
 		
 		if (ret.fType != ContextType.String) {
-			if (ret.fRoot != null && ret.fRoot.equals("import")) {
-				ret.fType = ContextType.Import;
+			if (ret.fRoot != null) {
+				if (ret.fRoot.equals("import")) {
+					ret.fType = ContextType.Import;
+				} else if (ret.fRoot.equals("extends")) {
+					ret.fType = ContextType.Extends;
+				}
 			} else {
 				// Read preceeding token. It's possible we need to change this type
 				c = scanner.skipWhite(scanner.get_ch());

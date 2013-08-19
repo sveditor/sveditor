@@ -26,7 +26,6 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
@@ -46,39 +45,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOvmBasics extends SVCoreTestCaseBase {
 	
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-	
-		super.tearDown();
-	}
-
 	public void testBasicProcessing() {
 		File tmpdir = new File(fTmpDir, "no_errors");
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testBasicProcessing");
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-	
 		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 		index_mgr.addPluginLibrary(
-				rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", "org.ovmworld.ovm", 
+				fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", "org.ovmworld.ovm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
 		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
@@ -137,12 +111,10 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 		
-		fProject = TestUtils.createProject("xbus", xbus);
+		IProject p = TestUtils.createProject("xbus", xbus);
+		addProject(p);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -166,7 +138,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		assertEquals("No errors", 0, errors.size());
 		
 		index.dispose();
-		TestUtils.deleteProject(fProject);
+		TestUtils.deleteProject(p);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -180,13 +152,11 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File trivial = new File(test_dir, "ovm/examples/trivial");
 		
-		fProject = TestUtils.createProject("trivial", trivial);
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
+		IProject p = TestUtils.createProject("trivial", trivial);
+		addProject(p);
 		
 		System.out.println("--> findCreateIndex");
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/trivial/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		System.out.println("<-- findCreateIndex");
@@ -224,18 +194,16 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 	
 	public void testSequenceBasicReadWriteExample() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testSequenceBasicReadWriteExample");
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File test_dir = new File(fTmpDir, "testSequenceBasicReadWriteExample");
-		if (test_dir.exists()) {
-			test_dir.delete();
-		}
-		test_dir.mkdirs();
+		assertTrue(test_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File basic_read_write_sequence = new File(test_dir, "ovm/examples/sequence/basic_read_write_sequence");
 		
-		fProject = TestUtils.createProject("basic_read_write_sequence", basic_read_write_sequence);
+		IProject p = TestUtils.createProject("basic_read_write_sequence", basic_read_write_sequence);
+		addProject(p);
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/basic_read_write_sequence/compile_questa_sv.f",
@@ -244,7 +212,6 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 
 		IndexTestUtils.assertNoErrWarn(fLog, index);
 		IndexTestUtils.assertFileHasElements(fLog, index, "my_driver");
-		LogFactory.removeLogHandle(log);
 	}
 
 	public void testSequenceSimpleExample() {
@@ -261,12 +228,10 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File simple = new File(test_dir, "ovm/examples/sequence/simple");
 		
-		fProject = TestUtils.createProject("simple", simple);
+		IProject p = TestUtils.createProject("simple", simple);
+		addProject(p);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/simple/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
