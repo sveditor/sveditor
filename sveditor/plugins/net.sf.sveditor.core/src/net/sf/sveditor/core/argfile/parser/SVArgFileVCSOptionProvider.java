@@ -28,6 +28,8 @@ public class SVArgFileVCSOptionProvider implements ISVArgFileOptionProvider {
 			return OptionType.SrcLibPath;
 		} else if (name.equals("-v")) {
 			return OptionType.SrcLibFile;
+		} else if (name.equals("-sverilog")) {
+			return OptionType.SV;
 		} else if (fOptions.containsKey(name)) {
 			return OptionType.Ignored;
 		} else {

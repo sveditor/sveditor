@@ -149,6 +149,8 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 			return OptionType.SrcLibFile;
 		} else if (name.equals("-mfcu")) {
 			return OptionType.MFCU;
+		} else if (name.equals("-sv")) {
+			return OptionType.SV;
 		} else if (fOptions.containsKey(name)) {
 			return OptionType.Ignored;
 		} else {

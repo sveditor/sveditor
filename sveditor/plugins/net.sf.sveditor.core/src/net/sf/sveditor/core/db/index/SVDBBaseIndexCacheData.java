@@ -30,6 +30,7 @@ public class SVDBBaseIndexCacheData {
 	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fPackageCacheMap;
 	public Map<String, SVDBRefCacheEntry>			fReferenceCacheMap;
+	public boolean									fForceSV;
 
 	public SVDBBaseIndexCacheData(String base) {
 		fBaseLocation = base;

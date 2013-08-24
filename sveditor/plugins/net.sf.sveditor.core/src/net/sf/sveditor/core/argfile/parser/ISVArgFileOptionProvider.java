@@ -18,6 +18,7 @@ public interface ISVArgFileOptionProvider {
 		SrcLibExt,			// +libext+.sv+.svh+.vlog
 		MFCU,				// -mfcu
 		SFCU,				// -sfcu
+		SV,					// -sv or -sverilog
 	}
 	
 	OptionType getOptionType(String name);

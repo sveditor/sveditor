@@ -1960,7 +1960,13 @@ public abstract class AbstractSVDBIndex implements
 		}
 
 		dp.setMacroProvider(createMacroProvider(file_tree));
-		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(file_tree.getFilePath());
+		SVLanguageLevel language_level;
+		
+		if (fIndexCacheData.fForceSV) {
+			language_level = SVLanguageLevel.SystemVerilog;
+		} else {
+			language_level = SVLanguageLevel.computeLanguageLevel(file_tree.getFilePath());
+		}
 		SVDBFile svdb_f = factory.parse(language_level, copier.copy(), 
 				file_tree.getFilePath(), markers);
 		
@@ -2021,7 +2027,13 @@ public abstract class AbstractSVDBIndex implements
 			}
 		}
 
-		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path.getFilePath());
+		SVLanguageLevel language_level;
+		
+		if (fIndexCacheData.fForceSV) {
+			language_level = SVLanguageLevel.SystemVerilog;
+		} else {
+			language_level = SVLanguageLevel.computeLanguageLevel(path.getFilePath());
+		}
 		SVDBFile svdb_f = factory.parse(language_level, in, path.getFilePath(), markers);
 
 		// Problem parsing the file..
