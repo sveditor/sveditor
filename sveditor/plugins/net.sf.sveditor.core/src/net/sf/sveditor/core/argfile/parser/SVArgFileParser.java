@@ -11,6 +11,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileForceSvStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
@@ -232,6 +233,13 @@ public class SVArgFileParser {
 							stmt.setSrcLibFile(path);
 							file.addChildItem(stmt);
 							} break;
+							
+						case SV: {
+							SVDBArgFileForceSvStmt stmt = new SVDBArgFileForceSvStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							file.addChildItem(stmt);
+						} break;
 							
 						default:
 							error(tok.getStartLocation(), "Unrecognized option type " + type);

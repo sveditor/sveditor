@@ -149,6 +149,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 	
 		List<SVCompletionProposal> temp_p = new ArrayList<SVCompletionProposal>();
+		if (fCompletionProposals == null) {
+			fCompletionProposals = new ArrayList<SVCompletionProposal>();
+		}
 		synchronized (fCompletionProposals) {
 			temp_p.addAll(fCompletionProposals);
 		}

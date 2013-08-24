@@ -483,4 +483,29 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}	
+	
+	public void testMixedSvVlogOverride() throws IOException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		
+		String data_root = "/data/index/change_src_levels/";
+		utils.copyBundleDirToWS(data_root, project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/change_src_levels/change_src_levels.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "file1_pkg", "file2_pkg");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
 }

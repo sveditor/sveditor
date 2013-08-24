@@ -164,6 +164,10 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		}
 	}
 	
+	public List<SVDBMarker> getMarkers() {
+		return fMarkers;
+	}
+	
 	public void addIncludedFileTree(SVDBFileTree ft) {
 		fIncludedFileTrees.add(ft);
 		fMacroSetList.add(new SVDBFileTreeMacroList());

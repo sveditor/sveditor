@@ -12,7 +12,11 @@
   after initial processing of an include file, subsequent inclusions of 
   that file simply bring in the macros previously defined.
   
+- #(nobug) - Correct a line-number issue with the 'new' index. `ifdef/`ifndef
+  directives caused the line number to incorrectly be incremented  
   
+- #(275) - Add support for the '-sv' and '-sverilog' switches to force all 
+  files in the argument-file tree to be processed as SystemVerilog files.
 
 ------------------------------------------------------------------------------
 -- 1.3.6 Release --
