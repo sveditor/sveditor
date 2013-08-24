@@ -454,7 +454,13 @@ public class SVDBArgFileIndex2 implements
 				ParserSVDBFileFactory f = new ParserSVDBFileFactory();
 				f.setFileMapper(build_data);
 				
-				SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path);
+				SVLanguageLevel language_level;
+				
+				if (build_data.getForceSV()) {
+					language_level = SVLanguageLevel.SystemVerilog;
+				} else {
+					language_level = SVLanguageLevel.computeLanguageLevel(path);
+				}
 				List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 				SVDBFile file = f.parse(language_level, out, path, markers);
 				
@@ -1598,7 +1604,13 @@ public class SVDBArgFileIndex2 implements
 			}
 
 			fLog.debug("--> Parse " + r_path);
-			SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(r_path);
+			SVLanguageLevel language_level;
+			
+			if (fBuildData.getForceSV()) {
+				language_level = SVLanguageLevel.SystemVerilog;
+			} else {
+				language_level = SVLanguageLevel.computeLanguageLevel(r_path);
+			}
 			start = System.currentTimeMillis();
 			file = f.parse(language_level, out, r_path, markers);
 			int file_id = fBuildData.mapFilePathToId(r_path, false);
@@ -2422,6 +2434,9 @@ public class SVDBArgFileIndex2 implements
 					}
 				} else if (ci.getType() == SVDBItemType.ArgFileMfcuStmt) {
 					build_data.setMFCU();
+				} else if (ci.getType() == SVDBItemType.ArgFileForceSvStmt) {
+					System.out.println("ForceSvStmt");
+					build_data.setForceSV(true);
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
 
@@ -2513,7 +2528,14 @@ public class SVDBArgFileIndex2 implements
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "--> Parse " + path);
 		}
-		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path);
+		SVLanguageLevel language_level;
+		
+		if (build_data.getForceSV()) {
+			language_level = SVLanguageLevel.SystemVerilog;
+		} else {
+			language_level = SVLanguageLevel.computeLanguageLevel(path);
+		}
+		
 		SVDBFile file = f.parse(language_level, pp_out, path, markers);
 		long parse_end = System.currentTimeMillis();
 		

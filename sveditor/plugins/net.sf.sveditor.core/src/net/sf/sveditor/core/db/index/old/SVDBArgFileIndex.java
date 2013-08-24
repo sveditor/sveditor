@@ -301,6 +301,8 @@ public class SVDBArgFileIndex extends AbstractSVDBIndex {
 						m.setLocation(stmt.getLocation());
 						markers.add(m);
 					}
+				} else if (ci.getType() == SVDBItemType.ArgFileForceSvStmt) {
+					getCacheData().fForceSV = true;
 				}
 			}
 

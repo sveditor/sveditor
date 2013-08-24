@@ -86,14 +86,16 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p1_index.loadIndex(new NullProgressMonitor());
 		p2_index.loadIndex(new NullProgressMonitor());
 	
 		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c");
 	}
 	
 	public void testCircularArgFileIndexCrossRef() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(true);
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		IProject p1 = TestUtils.setupIndexWSProject(
@@ -125,8 +127,9 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p1_index.loadIndex(new NullProgressMonitor());
 		p2_index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c");
@@ -164,8 +167,9 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p1_index.loadIndex(new NullProgressMonitor());
 		p2_index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c", "p2_c");

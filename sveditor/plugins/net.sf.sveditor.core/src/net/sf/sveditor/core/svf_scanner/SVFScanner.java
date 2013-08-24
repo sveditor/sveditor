@@ -39,6 +39,7 @@ public class SVFScanner {
 	private List<String>						fLibPaths;
 	private static Set<String>					fSrcExtensions;
 	private List<String>						fIncludedArgFiles;
+	private boolean								fForceSV;
 	public static final Map<String, Integer>	fIgnoredSwitches;
 	public static final Set<String>			fSupportedSwitches;
 	public static final Set<String>			fRecognizedSwitches;
@@ -135,7 +136,7 @@ public class SVFScanner {
 		fIgnoredSwitches.put("-skipprotected", 0);
 		fIgnoredSwitches.put("-skipprotectedmodule", 0);
 		fIgnoredSwitches.put("-source", 0);
-		fIgnoredSwitches.put("-sv", 0);
+//		fIgnoredSwitches.put("-sv", 0);
 		fIgnoredSwitches.put("-sv05compat", 0);
 		fIgnoredSwitches.put("-sv09compat", 0);
 		fIgnoredSwitches.put("-oldsv", 0);
@@ -211,6 +212,10 @@ public class SVFScanner {
 	
 	public Map<String, String> getDefineMap() {
 		return fDefineMap;
+	}
+	
+	public boolean getForceSV() {
+		return fForceSV;
 	}
 	
 	public void scan(ITextScanner scanner) throws Exception {
@@ -387,6 +392,8 @@ public class SVFScanner {
 					}
 					
 					fLibPaths.add(tmp.toString());
+				} else if (key.equals("-sv") || key.equals("-sverilog")) {
+					fForceSV = true;
 				}
 			} else if (ch == '#') {
 				// Skip preprocessor like lines such as #ifndef, #endif

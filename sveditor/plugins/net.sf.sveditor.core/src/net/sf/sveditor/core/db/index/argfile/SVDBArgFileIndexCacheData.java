@@ -40,6 +40,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	
 	public boolean							fMFCU;
 	
+	public boolean							fForceSV;
+	
 	public SVDBArgFileIndexCacheData(String base_location) {
 		super(base_location);
 		fArgFileTimestamps = new ArrayList<Long>();

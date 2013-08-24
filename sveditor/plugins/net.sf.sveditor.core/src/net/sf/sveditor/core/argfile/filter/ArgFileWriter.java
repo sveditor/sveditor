@@ -73,6 +73,10 @@ public class ArgFileWriter {
 				writeIncFileStmt((SVDBArgFileIncFileStmt)item);
 			} break;
 			
+			case ArgFileForceSvStmt: {
+//				writeForceSvStmt((SVDB))
+			} break;
+			
 			case ArgFileLibExtStmt: {
 				writeLibExtStmt((SVDBArgFileLibExtStmt)item);
 			} break;

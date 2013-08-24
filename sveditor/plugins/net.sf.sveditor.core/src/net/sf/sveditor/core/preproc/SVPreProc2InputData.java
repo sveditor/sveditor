@@ -23,7 +23,6 @@ public class SVPreProc2InputData {
 	private int 				fLastCh;
 	private int 				fUngetCh1;
 	private int 				fUngetCh2;
-	private boolean 			fEof;
 	private boolean 			fIncPos;
 	private Map<String, String> fRefMacros;
 	private SVDBFileTree 		fFileTree;
@@ -49,7 +48,6 @@ public class SVPreProc2InputData {
 		fFilename = filename;
 		fFileId   = file_id;
 		fLastCh = -1;
-		fEof = false;
 		fIncPos = inc_pos;
 		fRefMacros = new HashMap<String, String>();
 		fUngetCh1 = -1;
@@ -67,20 +65,19 @@ public class SVPreProc2InputData {
 			try {
 				ch = fInput.read();
 			} catch (IOException e) {}
-		}
-	
-		if (ch != -1) {
-			if (fLastCh == '\n') {
-				if (fIncPos) {
-					// Save a marker for the line in the line map
-					fLineno++;
-					if (fPreProc != null) {
-						fPreProc.add_file_change_info(fFileId, fLineno);
+			if (ch != -1) {
+				if (fLastCh == '\n') {
+					if (fIncPos) {
+						// Save a marker for the line in the line map
+						fLineno++;
+						if (fPreProc != null) {
+							fPreProc.add_file_change_info(fFileId, fLineno);
+						}
 					}
+					fLineCount++;
 				}
-				fLineCount++;
+				fLastCh = ch;
 			}
-			fLastCh = ch;
 		}
 		
 		return ch;
