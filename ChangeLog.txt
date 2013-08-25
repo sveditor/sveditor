@@ -1,4 +1,7 @@
 
+-- 1.3.8 Release --
+
+------------------------------------------------------------------------------
 -- 1.3.7 Release --
 
 - #(274) - Correct an issue with brace matching in the presence of escaped
