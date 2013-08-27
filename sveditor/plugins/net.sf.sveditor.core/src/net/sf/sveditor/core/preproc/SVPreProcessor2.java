@@ -497,6 +497,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						// doesn't change file content. This isn't precisely correct.
 						defs = fIncFileProvider.findCachedIncFile(inc);
 						
+						SVPreProc2InputData curr_in = fInputCurr;
 						if (defs != null) {
 							// Add in the macros from the included file
 							for (SVDBFileTreeMacroList l : defs.second()) {
@@ -504,8 +505,26 @@ public class SVPreProcessor2 extends AbstractTextScanner
 									addMacro(m);
 								}
 							}
+						
+							// TODO: Need to mark as a 'virtual' include?
+							SVDBInclude svdb_inc = new SVDBInclude(inc);
+							svdb_inc.setLocation(new SVDBLocation(
+									scan_loc.getFileId(), 
+									scan_loc.getLineNo(),
+									scan_loc.getLinePos()));
+							
+							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
+							
+							SVDBFileTree ft_i = new SVDBFileTree(defs.first());
+							ft_i.setParent(curr_in.getFileTree());
+							curr_in.getFileTree().addIncludedFileTree(ft_i);
+					
+							for (SVDBFileTreeMacroList ml : defs.second()) {
+								for (SVDBMacroDef m : ml.getMacroList()) {
+									ft_i.addToMacroSet(m);
+								}
+							}
 						} else if ((in = fIncFileProvider.findIncFile(inc)) != null && in.second() != null) {
-							SVPreProc2InputData curr_in = fInputCurr;
 							if (fDebugEn) {
 								fLog.debug("Switching from file " + 
 										curr_in.getFileName() + " to " + in.first());
@@ -534,7 +553,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 									MarkerKind.MissingInclude,
 									"Failed to find include file " + inc);
 							m.setLocation(location);
-							SVPreProc2InputData curr_in = fInputCurr;
+//							SVPreProc2InputData curr_in = fInputCurr;
 							curr_in.getFileTree().fMarkers.add(m);
 
 							// TODO: add missing-include error
