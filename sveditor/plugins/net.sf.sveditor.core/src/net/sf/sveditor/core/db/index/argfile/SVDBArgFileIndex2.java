@@ -1584,6 +1584,7 @@ public class SVDBArgFileIndex2 implements
 			end = System.currentTimeMillis();
 				
 			for (SVDBMacroDef m : incoming_macros) {
+				System.out.println("Incoming Macro: " + m.getName());
 				preproc.setMacro(m);
 			}
 
@@ -1644,8 +1645,15 @@ public class SVDBArgFileIndex2 implements
 		SVDBFileTree ft = findTargetFileTree(build_data, path);
 		
 		if (ft != null) {
+			if (fDebugEn) {
+				fLog.debug("calculateIncomingMacros: root file=" + ft.getFilePath());
+			}
 			// Collect macros up the inclusion tree
 			collectRootFileTreeMacros(all_defs, ft);
+		} else {
+			if (fDebugEn) {
+				fLog.debug("calculateIncomingMacros: failed to find target file for " + path);
+			}
 		}
 		
 		if (build_data.isMFCU()) {
@@ -2632,6 +2640,10 @@ public class SVDBArgFileIndex2 implements
 	private void collectRootFileTreeMacros(
 			Map<String, SVDBMacroDef> 		defines, 
 			SVDBFileTree					ft) {
+		
+		if (fDebugEn) {
+			fLog.debug("--> collectRootFileTreeMacros: " + ft.getFilePath());
+		}
 	
 		while (ft.getParent() != null) {
 			// Find the index where this file is included
@@ -2646,6 +2658,10 @@ public class SVDBArgFileIndex2 implements
 				}
 			}
 			
+			if (fDebugEn) {
+				fLog.debug("  Search for file in parent " + p_ft.getFilePath() + " index=" + include_idx);
+			}
+			
 			if (include_idx == -1) {
 				break;
 			}
@@ -2653,9 +2669,17 @@ public class SVDBArgFileIndex2 implements
 			for (int i=include_idx; i>=0; i--) {
 				// Collect the macros from defined at this level
 				SVDBFileTree ft_i = p_ft.getIncludedFileTreeList().get(i);
+				
+				if (fDebugEn) {
+					fLog.debug("  Process preceding file: " +  ft_i.getFilePath());
+				}
+				
 				SVDBFileTreeMacroList ml = p_ft.fMacroSetList.get(i);
 				
 				for (SVDBMacroDef m : ml.getMacroList()) {
+					if (fDebugEn) {
+						fLog.debug("    Add macro: " + m.getName());
+					}
 					if (!defines.containsKey(m.getName())) {
 						defines.put(m.getName(), m);
 					}
@@ -2672,6 +2696,10 @@ public class SVDBArgFileIndex2 implements
 			// Move up a level
 			ft = p_ft;
 		}
+		
+		if (fDebugEn) {
+			fLog.debug("<-- collectRootFileTreeMacros: " + ft.getFilePath());
+		}
 	}
 	
 	/**
@@ -2681,11 +2709,18 @@ public class SVDBArgFileIndex2 implements
 	 * @param ft
 	 */
 	private void collectFileTreeMacros(Map<String, SVDBMacroDef> defines, SVDBFileTree ft) {
+		if (fDebugEn) {
+			fLog.debug("--> collectFileTreeMacros: " + ft.getFilePath());
+		}
 
 		for (int i=ft.fIncludedFileTrees.size(); i>=0; i--) {
 			SVDBFileTreeMacroList ml = ft.fMacroSetList.get(i);
 			
 			for (SVDBMacroDef m : ml.getMacroList()) {
+				if (fDebugEn) {
+					fLog.debug("  -- collectFileTreeMacros: " + m.getName());
+				}
+				
 				if (!defines.containsKey(m.getName())) {
 					defines.put(m.getName(), m);
 				}
@@ -2696,6 +2731,10 @@ public class SVDBArgFileIndex2 implements
 				// Now, recurse and collect from included file trees
 				collectFileTreeMacros(defines, ft_i);
 			}
+		}
+		
+		if (fDebugEn) {
+			fLog.debug("<-- collectFileTreeMacros: " + ft.getFilePath());
 		}
 	}
 	

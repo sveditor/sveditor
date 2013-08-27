@@ -1,6 +1,9 @@
 
 -- 1.3.8 Release --
 
+- #(nobug) - Correct an issue with the 'new' index and incremental parsing.
+  In some cases, macros from cached include files were not found. 
+
 ------------------------------------------------------------------------------
 -- 1.3.7 Release --
 
