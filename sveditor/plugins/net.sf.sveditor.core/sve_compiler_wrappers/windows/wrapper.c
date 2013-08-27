@@ -8,7 +8,7 @@
 int main(int argc, char **argv) {
   int i;
   const char *outfile = getenv("SVE_COMPILER_ARGS_FILE");
-  FILE *fp = fopen(outfile, "w");
+  FILE *fp = fopen(outfile, "a");
   char *tmp = (char *)malloc(32768);
   
   GetCurrentDirectory(32768, tmp);
