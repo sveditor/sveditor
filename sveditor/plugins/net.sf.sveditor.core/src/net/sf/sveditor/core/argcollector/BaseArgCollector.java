@@ -86,17 +86,21 @@ public class BaseArgCollector implements IArgCollector {
 				}
 			}
 		} catch (InterruptedException e) {}
-		
-		try {
-			InputStream in = new FileInputStream(fOutFile);
-			fArguments = SVFileUtils.readInput(in);
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		if (fOutFile.isFile()) {
+			try {
+				InputStream in = new FileInputStream(fOutFile);
+				fArguments = SVFileUtils.readInput(in);
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			fArguments = "";
 		}
 
 		if (fTmpDir != null) {
-//			SVFileUtils.delete(fTmpDir);
+			SVFileUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 		
