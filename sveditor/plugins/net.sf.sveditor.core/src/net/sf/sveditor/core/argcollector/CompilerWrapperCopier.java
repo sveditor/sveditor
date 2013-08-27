@@ -73,8 +73,12 @@ public class CompilerWrapperCopier {
 			wrapper_src += "/" + wrapper;
 			
 			File wrapper_f = new File(os_dir, wrapper);
-			
-			utils.copyBundleFileToFS(wrapper_src, wrapper_f);
+		
+			if (is_win) {
+				utils.copyBundleFileToFS(wrapper_src, wrapper_f);
+			} else {
+				utils.copyBundleFileToFSText(wrapper_src, wrapper_f);
+			}
 		
 			if (!wrapper_f.setExecutable(true)) {
 				System.out.println("Failed to make " + wrapper_f.getAbsolutePath() + " executable");
