@@ -63,6 +63,7 @@ public class BaseArgCollector implements IArgCollector {
 		} catch (IOException e) {
 			SVFileUtils.delete(fTmpDir);
 			fTmpDir = null;
+			e.printStackTrace();
 			throw e;
 		}
 		
@@ -95,7 +96,7 @@ public class BaseArgCollector implements IArgCollector {
 		}
 
 		if (fTmpDir != null) {
-			SVFileUtils.delete(fTmpDir);
+//			SVFileUtils.delete(fTmpDir);
 			fTmpDir = null;
 		}
 		
