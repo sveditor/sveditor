@@ -38,8 +38,6 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"/****************************************************************************\n" +
 			" * test.svh\n" +
 			" ****************************************************************************/\n" +
-			"`ifndef INCLUDED_test_svh\n" +
-			"`define INCLUDED_test_svh\n" +
 			"\n" +
 			"/**\n" +
 			" * Class: new_class\n" +
@@ -54,8 +52,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"\n" +
 			"\n" +
 			"endclass\n" +
-			"\n" +
-			"`endif /* INCLUDED_test_svh */\n"
+			"\n"
 			;
 		NewClassGenerator gen = new NewClassGenerator();
 		LogHandle log = LogFactory.getLogHandle("testNewClassBasics");
@@ -106,8 +103,6 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"/****************************************************************************\n" +
 			" * test.svh\n" +
 			" ****************************************************************************/\n" +
-			"`ifndef INCLUDED_test_svh\n" +
-			"`define INCLUDED_test_svh\n" +
 			"\n" +
 			"/**\n" +
 			" * Class: new_class\n" +
@@ -123,8 +118,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"\n" +
 			"\n" +
 			"endclass\n" +
-			"\n" +
-			"`endif /* INCLUDED_test_svh */\n"
+			"\n"
 			;
 		NewClassGenerator gen = new NewClassGenerator();
 		LogHandle log = LogFactory.getLogHandle("testNewClassSuperCtor");
@@ -172,8 +166,6 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"/****************************************************************************\n" +
 			" * test.svh\n" +
 			" ****************************************************************************/\n" +
-			"`ifndef INCLUDED_test_svh\n" +
-			"`define INCLUDED_test_svh\n" +
 			"\n" +
 			"/**\n" +
 			" * Class: new_class\n" +
@@ -189,8 +181,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"\n" +
 			"\n" +
 			"endclass\n" +
-			"\n" +
-			"`endif /* INCLUDED_test_svh */\n"
+			"\n"
 			;
 		NewClassGenerator gen = new NewClassGenerator();
 		LogHandle log = LogFactory.getLogHandle("testNewClassTemplateSuper");

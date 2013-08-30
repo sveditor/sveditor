@@ -135,11 +135,17 @@ public class SVArgFileExprScanner {
 				}
 			}
 		} else { // Not in a string
+			
 			// Read a ws-delimited element. This could either be 
 			// an option or a path
 			c = scanner.get_ch();
 			
+			debug("next c=" + (char)c);
+			
 			if (!Character.isWhitespace(c)) {
+				scanner.unget_ch(c);
+				c = scanner.get_ch();
+				debug("re-get c=" + (char)c);
 				scanner.unget_ch(c);
 				String elem = readToken(scanner, leaf_scan_fwd);
 				
@@ -327,6 +333,8 @@ public class SVArgFileExprScanner {
 				!Character.isWhitespace(ch)) {
 			debug("ch=" + (char)ch);
 		}
+		
+		debug("post-scan-back ch=" + (char)ch);
 	
 		if (ch == -1) {
 			start_pos = 0;

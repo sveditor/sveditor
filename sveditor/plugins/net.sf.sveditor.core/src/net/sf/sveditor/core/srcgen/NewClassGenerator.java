@@ -29,7 +29,6 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 import org.eclipse.core.resources.IFile;
@@ -46,21 +45,19 @@ public class NewClassGenerator {
 			String				superclass,
 			boolean				implement_new,
 			IProgressMonitor	monitor) {
-		String subst_filename = "";
+//		String subst_filename = "";
 		
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
 		monitor.beginTask("Creating class", 100);
 		
-		subst_filename = SVCharacter.toSVIdentifier(file_path.getName());
+//		subst_filename = SVCharacter.toSVIdentifier(file_path.getName());
 		
 		String template =
 			"/****************************************************************************\n" +
 			" * " + file_path.getName() + "\n" +
 			" ****************************************************************************/\n" +
-			"`ifndef INCLUDED_" + subst_filename + "\n" +
-			"`define INCLUDED_" + subst_filename + "\n" +
 			"\n";
 
 		template += "/**\n";
@@ -176,8 +173,7 @@ public class NewClassGenerator {
 		template += "endclass\n";
 		
 		template += 
-			"\n" +
-			"`endif /* INCLUDED_" + subst_filename + " */\n";
+			"\n";
 
 		monitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(

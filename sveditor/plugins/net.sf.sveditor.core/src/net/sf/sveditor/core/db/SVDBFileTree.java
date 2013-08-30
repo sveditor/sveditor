@@ -182,6 +182,10 @@ public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 		ml.addMacro(m);
 	}
 	
+	public List<SVDBFileTreeMacroList> getMacroSetList() {
+		return fMacroSetList;
+	}
+	
 	public List<String> getIncludedByFiles() {
 		return fIncludedByFiles;
 	}
