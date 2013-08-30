@@ -700,5 +700,46 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
+
+	public void testLeafMultimatchInclude() throws IOException, CoreException, URISyntaxException {
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/leaf_multimatch_include/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "leaf_multimatch_include");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/leaf_multimatch_include.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		/*
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/macros_found_onthefly_parse/macros_found_onthefly_parse.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		 */
 	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "my_cls1", "cls1");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
 }

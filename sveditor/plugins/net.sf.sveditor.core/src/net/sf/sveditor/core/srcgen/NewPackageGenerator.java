@@ -45,8 +45,6 @@ public class NewPackageGenerator {
 			"/****************************************************************************\n" +
 			" * " + file_path.getName() + "\n" +
 			" ****************************************************************************/\n" +
-			"`ifndef INCLUDED_" + subst_filename + "\n" +
-			"`define INCLUDED_" + subst_filename + "\n" +
 			"\n";
 
 		template += "/**\n";
@@ -66,8 +64,7 @@ public class NewPackageGenerator {
 		template += "endpackage\n";
 		
 		template += 
-			"\n" +
-			"`endif /* INCLUDED_" + subst_filename + " */\n";
+			"\n";
 
 		monitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(

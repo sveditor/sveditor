@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.ui.editor.CCommentRule;
+import net.sf.sveditor.ui.editor.SLCommentRule;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
@@ -56,7 +57,8 @@ public class SVArgFileDocSetupParticipant implements IDocumentSetupParticipant {
 		
 		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 		
-		rules.add(new EndOfLineRule("//", slc));
+//		rules.add(new EndOfLineRule("//", slc));
+		rules.add(new SLCommentRule(slc));
 		rules.add(new CCommentRule(mlc));
 
 		IPredicateRule rulesArr[] = rules.toArray(new IPredicateRule[rules.size()]);
