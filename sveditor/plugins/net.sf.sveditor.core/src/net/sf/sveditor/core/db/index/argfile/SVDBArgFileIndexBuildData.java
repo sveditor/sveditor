@@ -193,9 +193,22 @@ public class SVDBArgFileIndexBuildData implements
 		String incfile_fullpath = null;
 		for (Tuple<String, String> e : fIncludeFileList) {
 			if (e.first().endsWith(incfile)) {
-				ft_root = fCache.getFileTree(new NullProgressMonitor(), e.second(), false);
-				incfile_fullpath = e.first();
-				break;
+				String try_path = e.first();
+				boolean matches = false;
+				if (try_path.length() > incfile.length()) {
+					int prev_ch = try_path.charAt(try_path.length()-incfile.length()-2);
+					if (prev_ch == '/' || prev_ch == '\\') {
+						matches = true;
+					}
+				} else if (try_path.length() == incfile.length() && try_path.equals(incfile)) {
+					matches = true;
+				}
+
+				if (matches) {
+					ft_root = fCache.getFileTree(new NullProgressMonitor(), e.second(), false);
+					incfile_fullpath = e.first();
+					break;
+				}
 			}
 		}
 		
