@@ -1584,7 +1584,6 @@ public class SVDBArgFileIndex2 implements
 			end = System.currentTimeMillis();
 				
 			for (SVDBMacroDef m : incoming_macros) {
-				System.out.println("Incoming Macro: " + m.getName());
 				preproc.setMacro(m);
 			}
 
@@ -1929,11 +1928,10 @@ public class SVDBArgFileIndex2 implements
 				null, // pkg_item_list
 				file,
 				ft);
-		/*
+
 		cacheFileTreeDeclarations(
 				ft,
 				file_item_list);
-		 */
 				
 
 		/** TODO: 
@@ -1956,11 +1954,11 @@ public class SVDBArgFileIndex2 implements
 		int curr_fileid = fileid;
 		String curr_filename = build_data.mapFileIdToPath(curr_fileid);
 		boolean is_root_scope = (scope == null || scope.getType() == SVDBItemType.PackageDecl);
-		
+
 		if (fDebugEn) {
 			fLog.debug("--> cacheFileDeclarations(file=" + curr_filename + ", " + scope);
 		}
-
+		
 		for (ISVDBChildItem item : scope.getChildren()) {
 			if (fDebugEn) {
 				fLog.debug("  item: " + item.getType() + " "
@@ -2090,20 +2088,26 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	private void cacheFileTreeDeclarations(
 			SVDBFileTree				ft,
 			List<SVDBDeclCacheItem>		file_item_list) {
-		
-		SVDBFile file = ft.getSVDBFile();
-		
-		for (ISVDBChildItem c : file.getChildren()) {
-			
-			
+	
+		if (ft.getSVDBFile() != null) {
+			for (ISVDBChildItem c : ft.getSVDBFile().getChildren()) {
+				if (c.getType() == SVDBItemType.MacroDef) {
+					SVDBMacroDef def = (SVDBMacroDef)c;
+					SVDBDeclCacheItem item = new SVDBDeclCacheItem(this, 
+							ft.getFilePath(),
+							def.getName(),
+							SVDBItemType.MacroDef,
+							true);
+					file_item_list.add(item);
+				}
+			}
 		}
-
-		for (SVDBFileTree ft_s : ft.getIncludedFileTreeList()) {
-			cacheFileTreeDeclarations(ft_s, file_item_list);
+		
+		for (SVDBFileTree ft_i : ft.getIncludedFileTreeList()) {
+			cacheFileTreeDeclarations(ft_i, file_item_list);
 		}
 	}
 
@@ -2210,7 +2214,7 @@ public class SVDBArgFileIndex2 implements
 		// If this is a pre-processor item, then return the FileTree view of the
 		// file
 		if (item.isFileTreeItem()) {
-			SVDBFileTree ft = findFileTree(item.getFilename(), false);
+			SVDBFileTree ft = findTargetFileTree(fBuildData, item.getFilename());
 			if (ft != null) {
 				file = ft.getSVDBFile();
 			}

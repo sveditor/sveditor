@@ -17,6 +17,8 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 public class AbstractArgFileCompletionProcessor implements ILogLevel {
 	protected List<SVArgFileCompletionProposal>			fProposals;
@@ -85,6 +87,7 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 		String resolved_base = null;
 		String proposal_base = "";
 		String proposal_leaf = "";
+		String pathsep = "/";
 		
 		fLog.debug("leaf=" + ctxt.fLeaf + " root=" + ctxt.fRoot);
 		
@@ -124,6 +127,7 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 						proposal_base = ctxt.fLeaf;
 						proposal_leaf = "";
 						resolved_base = ctxt.fLeaf;
+						pathsep = "" + ctxt.fLeaf.charAt(ctxt.fLeaf.length()-1);
 					} else {
 						// Proposal request does have a leaf. We should resolve
 						// relative to the base of the leaf
@@ -176,6 +180,12 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 				}
 			}
 		} else {
+			int last_sl;
+			
+			if ((last_sl = resolved_base.lastIndexOf('/')) == -1) {
+				last_sl = resolved_base.lastIndexOf('\\');
+			}
+			
 			if (fFileSystemProvider.isDir(resolved_base)) {
 				List<String> files = fFileSystemProvider.getFiles(resolved_base);
 
@@ -199,6 +209,15 @@ public class AbstractArgFileCompletionProcessor implements ILogLevel {
 								addProposal(ctxt, proposal);
 							}
 						}
+					}
+				}
+			} else if (resolved_base.equals("${workspace_loc}")) {
+				// List projects
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				
+				for (IProject p : root.getProjects()) {
+					if (matches(p.getName(), proposal_leaf)) {
+						addProposal(ctxt, resolved_base + pathsep + p.getName());
 					}
 				}
 			} else {

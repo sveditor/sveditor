@@ -1,6 +1,4 @@
 ${file_header}
-`ifndef INCLUDED_${name}_seq_base_SVH
-`define INCLUDED_${name}_seq_base_SVH
 
 class ${name}_seq_base extends uvm_sequence #(${name}_seq_item);
 	`uvm_object_utils(${name}_seq_base);
@@ -16,8 +14,6 @@ class ${name}_seq_base extends uvm_sequence #(${name}_seq_item);
 	endtask
 	
 endclass
-
-`endif /* INCLUDED_${name}_seq_base_SVH */
 
 ${file_footer}
 

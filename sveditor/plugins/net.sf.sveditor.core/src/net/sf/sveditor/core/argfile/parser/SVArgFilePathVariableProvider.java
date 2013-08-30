@@ -52,7 +52,11 @@ public class SVArgFilePathVariableProvider implements
 		HashSet<String> ret = new HashSet<String>();
 		
 		for (String key : fPathVariableManager.getPathVariableNames()) {
-			ret.add(key);
+			if (key.equals("WORKSPACE_LOC")) {
+				ret.add("workspace_loc");
+			} else {
+				ret.add(key);
+			}
 		}
 		
 		return ret;
