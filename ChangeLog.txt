@@ -1,6 +1,14 @@
 
 -- 1.3.9 Release --
 
+- #(nobug) - Correct a bug in the argument-file document partitioner that
+  caused incorrect completions to be returned in some cases when no
+  leaf element was supplied. For example: ${workspace_loc}/
+  
+- #(enh) - Add argument-file content assist support for projects in the
+  workspace. Now, requesting content assist for ${workspace_loc}/ returns
+  a list of projects in the workspace.
+
 ------------------------------------------------------------------------------
 -- 1.3.8 Release --
 
