@@ -30,6 +30,7 @@ public interface ISVDBDeclCache {
 	int							FILE_ATTR_SRC_FILE		= (1 << 1);
 	int							FILE_ATTR_ARG_FILE		= (1 << 2);
 	int							FILE_ATTR_ROOT_FILE		= (1 << 3);
+	int							FILE_ATTR_LIB_FILE		= (1 << 4);
 	
 	/**
 	 * Returns a list of declarations from the global scope (class, module, interface, program, package, function, task)  

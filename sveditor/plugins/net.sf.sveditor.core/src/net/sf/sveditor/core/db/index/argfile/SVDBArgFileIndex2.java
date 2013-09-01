@@ -54,6 +54,7 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -107,6 +108,7 @@ import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -1471,6 +1473,23 @@ public class SVDBArgFileIndex2 implements
 
 		addFileDir(build_data, path);
 	}
+	
+	private void addLibFile(
+			SVDBArgFileIndexBuildData 	build_data, 
+			String 						path) {
+		if (fDebugEn) {
+			fLog.debug("addLibFile: " + path);
+		}
+		long last_modified = build_data.fFileSystemProvider.getLastModifiedTime(path);
+		build_data.fCache.addFile(path, false);
+		build_data.fCache.setLastModified(path, last_modified, false);
+		
+		build_data.fIndexCacheData.addFile(path, 
+				FILE_ATTR_SRC_FILE+FILE_ATTR_LIB_FILE);
+
+		addFileDir(build_data, path);
+		
+	}
 
 	private void addFileDir(SVDBArgFileIndexBuildData build_data, String file_path) {
 		File f = new File(file_path);
@@ -2452,7 +2471,6 @@ public class SVDBArgFileIndex2 implements
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
 
-					/* TODO: need a better strategy for SrcLibPath
 					if (getFileSystemProvider().isDir(stmt.getSrcLibPath())) {
 						List<String> paths = getFileSystemProvider().getFiles(stmt.getSrcLibPath());
 						Set<String> exts = SVFScanner.getSrcExts();
@@ -2461,7 +2479,7 @@ public class SVDBArgFileIndex2 implements
 							if (last_dot != -1) {
 								String ext = file_p.substring(last_dot);
 								if (exts.contains(ext)) {
-									addFile(build_data, file_p, false);
+									addLibFile(build_data, file_p);
 								}
 							}
 						}
@@ -2471,12 +2489,10 @@ public class SVDBArgFileIndex2 implements
 						m.setLocation(stmt.getLocation());
 						markers.add(m);
 					}
-					 */
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibFileStmt) {
 					SVDBArgFileSrcLibFileStmt stmt = (SVDBArgFileSrcLibFileStmt)ci;
 					
-//					addFile(build_data, stmt.getSrcLibFile(), false);
-					
+					addLibFile(build_data, stmt.getSrcLibFile());
 				}
 			}
 
@@ -2761,7 +2777,7 @@ public class SVDBArgFileIndex2 implements
 			IProgressMonitor 				monitor,
 			SVDBArgFileIndexBuildData		build_data) {
 		long start_time=-1, end_time=-1;
-		int total_work = 10000;
+		int total_work = 1000000;
 		int per_file_work = 0;
 		
 		monitor.beginTask("Build Index", total_work);
@@ -2786,13 +2802,20 @@ public class SVDBArgFileIndex2 implements
 		}
 
 		// Next, parse each of the discovered file paths
-		List<String> paths = build_data.fIndexCacheData.fRootFileList;
+		List<String> paths = build_data.fIndexCacheData.getFileList(
+				ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+				ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
+		List<String> libfile_paths = build_data.fIndexCacheData.getFileList(
+				ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+				ISVDBDeclCache.FILE_ATTR_LIB_FILE);
 		Map<String, SVDBMacroDef> defines = new HashMap<String, SVDBMacroDef>();
 		
 		build_data.fIndexStats.setNumRootFiles(paths.size());
-
-		if (paths.size() > 0) {
-			per_file_work = (total_work / paths.size());
+		
+		int total_files = (paths.size()+libfile_paths.size());
+		
+		if (total_files > 0) {
+			per_file_work = (total_work / total_files);
 		}
 		if (per_file_work == 0) {
 			per_file_work = 1;
@@ -2846,6 +2869,38 @@ public class SVDBArgFileIndex2 implements
 
 				monitor.worked(per_file_work);
 			}
+		}
+		
+		// Finally, parse library-file paths
+		for (int i=0; i<libfile_paths.size(); i++) {
+			String path = libfile_paths.get(i);
+			
+			if (fDebugEn) {
+				fLog.debug(LEVEL_MID, "LibFile Path: " + path);
+			}
+			
+			if (fFileSystemProvider.fileExists(path)) {
+				monitor.subTask("Parse " + path);
+				
+				Map<String, SVDBMacroDef> new_defines = parseFile(path, build_data, defines);
+				
+				if (monitor.isCanceled()) {
+					fLog.debug(LEVEL_MIN, "Index " + getBaseLocation() + " cancelled");
+					return;
+				}
+				
+				if (build_data.isMFCU()) {
+					// Accumulate the new defines
+					for (Entry<String, SVDBMacroDef> e : defines.entrySet()) {
+						if (!new_defines.containsKey(e.getKey())) {
+							new_defines.put(e.getKey(), e.getValue());
+						}
+					}
+					defines = new_defines;
+				}
+
+				monitor.worked(per_file_work);
+			}			
 		}
 		
 		end_time = System.currentTimeMillis();

@@ -683,7 +683,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		assertNotNull(in);
 
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-//		SVCorePlugin.getDefault().enableDebug(true);
+//		SVCorePlugin.getDefault().enableDebug(false);
 		fLog.debug("--> Parsing cls1.svh");
 		Tuple<SVDBFile, SVDBFile> result = index.parse(
 				new NullProgressMonitor(), 
@@ -742,4 +742,72 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
+	
+	public void testLibDirOption() throws IOException, CoreException, URISyntaxException {
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/libdir/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "libdir");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/libdir.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "top", "m1", "m2");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}	
+	
+	public void testLibDirOptionMFCU() throws IOException, CoreException, URISyntaxException {
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/libdir_mfcu/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "libdir_mfcu");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/libdir_mfcu.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "top", "m1", "m2");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}	
 }

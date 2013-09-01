@@ -1828,7 +1828,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testGenerateCase() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module qlc_async_fifo #(parameter\n" +
 			" ADEPTH          = 16,\n" +

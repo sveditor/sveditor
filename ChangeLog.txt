@@ -20,6 +20,9 @@
   
 - #(nobug) - Allow generate statements to include task calls. Task calls 
   are used in some cases to force errors in case of faulty elaboration
+  
+- #(nobug) - Add back support for -y (libdir) and -l (libfile) to the
+  'new' index in both SFCU and MFCU mode
 
 ------------------------------------------------------------------------------
 -- 1.3.8 Release --

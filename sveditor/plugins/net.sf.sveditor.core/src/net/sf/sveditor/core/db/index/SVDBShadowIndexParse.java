@@ -7,14 +7,13 @@ import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ops.SVDBFindMacroOp;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
-import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
@@ -42,7 +41,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 			InputStream 			in, 
 			String 					path, 
 			List<SVDBMarker> 		markers) {
-		SVPreProcessor2 preproc = new SVPreProcessor2(path, in, null, null);
+		SVPreProcessor2 preproc = new SVPreProcessor2(path, in, null, fileMapper);
 		preproc.setMacroProvider(new MacroProvider());
 		
 		SVPreProcOutput pp_out = preproc.preprocess();
@@ -57,10 +56,12 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		for (SVDBMarker m : pp_out.getFileTree().fMarkers) {
 			markers.add(m);
 		}
-				
-		return new Tuple<SVDBFile, SVDBFile>(pp_out.getFileTree().fSVDBFile, file);
+			
+		SVDBFileTree ft = pp_out.getFileTree();
+		return new Tuple<SVDBFile, SVDBFile>(ft.getSVDBFile(), file);
 	}
 
+	/*
 	private ISVPreProcIncFileProvider	includeFileProvider = new ISVPreProcIncFileProvider() {
 		
 		public Tuple<String, List<SVDBFileTreeMacroList>> findCachedIncFile(String incfile) {
@@ -73,20 +74,19 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 			
 		}
 
-
-
 		public Tuple<String, InputStream> findIncFile(String incfile) {
 			// TODO Auto-generated method stub
 			return null;
 		}
 	};
+	 */
 	
 	private ISVPreProcFileMapper fileMapper = new ISVPreProcFileMapper() {
 		
 		@Override
 		public int mapFilePathToId(String path, boolean add) {
 			// TODO Auto-generated method stub
-			return 0;
+			return 1;
 		}
 		
 		@Override
@@ -98,8 +98,10 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 	
 	private class MacroProvider implements IPreProcMacroProvider {
 		private Map<String, SVDBMacroDef>		fMacroMap = new HashMap<String, SVDBMacroDef>();
+		
 
 		public SVDBMacroDef findMacro(String name, int lineno) {
+			
 			if (fMacroMap.containsKey(name)) {
 				return fMacroMap.get(name);
 			}
@@ -115,7 +117,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 				
 				return md;
 			}
-			
+	
 			return null;
 		}
 
@@ -131,7 +133,6 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 				addMacro(new SVDBMacroDef(key, value));
 			}
 		}
-		
 	};
 	
 }

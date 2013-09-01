@@ -254,7 +254,7 @@ public class SVEditor extends TextEditor
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			fLog.debug("<-- re-parse file");
-			
+		
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
 				fSVDBFilePP = new_in.first();
@@ -559,7 +559,7 @@ public class SVEditor extends TextEditor
 
 	void updateSVDBFile(IDocument doc) {
 		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fFileIndexParser);
-		
+	
 		if (fFileIndexParser != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {
