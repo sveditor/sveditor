@@ -17,6 +17,9 @@
 - #(nobug) - Correct an issue with include-file caching in the 'new' index,
   where include files with a common leaf element would match. For example,
   my_cls.svh would be used when the actual include was cls.svh. 
+  
+- #(nobug) - Allow generate statements to include task calls. Task calls 
+  are used in some cases to force errors in case of faulty elaboration
 
 ------------------------------------------------------------------------------
 -- 1.3.8 Release --

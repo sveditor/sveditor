@@ -1827,6 +1827,69 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, SVLanguageLevel.Verilog2005, new String[] {"my_module", "a", "b"});
 	}
 	
+	public void testGenerateCase() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module qlc_async_fifo #(parameter\n" +
+			" ADEPTH          = 16,\n" +
+			" DWIDTH          = 16,\n" +
+			" AWIDTH          = bits(ADEPTH),\n" +
+			" WITH_RPERR_REG  = 1,                // Register the read parity error\n" +
+			" WITH_WPERR_REG  = 1,                // Register the write parity error\n" +
+			" WITH_HALF_FLAGS = 0,                // Enable the half full/empty flags\n" +
+			" WITH_DELTAS     = 0,                // Enable the read/write deltas\n" +
+			" // lint_checking USEPAR off\n" +
+			" WITH_FLOPS      = 0,                // Force flops to be used\n" +
+			" // lint_checking USEPAR on\n" +
+			" PERR_CLOCK = \"xclk\"                 // which clock to use for reporting perr \n" +
+			"); \n" +
+			"\n" +
+			" generate\n" +
+			" case (PERR_CLOCK)\n" +
+			" (\"rclk\"):\n" +
+			" begin : SYNC_PERR\n" +
+			" qlc_interlock_sync\n" +
+			" sync_wperr (.src_clk   (wclk),\n" +
+			" .src_reset (wrst),\n" +
+			" .src_pulse (wperr_reg),\n" +
+			" .dest_clk   (rclk),\n" +
+			" .dest_reset (rrst),\n" +
+			" .idle       (),\n" +
+			" .dest_pulse (wperr_sync));\n" +
+			" assign sync_perr = rperr_reg || wperr_sync;\n" +
+			" end\n" +
+			"\n" +
+			" (\"wclk\"):\n" +
+			" begin : SYNC_PERR\n" +
+			" qlc_interlock_sync\n" +
+			" sync_wperr (.src_clk   (rclk),\n" +
+			" .src_reset (rrst),\n" +
+			" .src_pulse (rperr_reg),\n" +
+			" .dest_clk   (wclk),\n" +
+			" .dest_reset (wrst),\n" +
+			" .idle       (),\n" +
+			" .dest_pulse (rperr_sync));\n" +
+			" assign sync_perr = rperr_sync || wperr_reg;\n" +
+			" end\n" +
+			" (\"xclk\"):\n" +
+			" `ifdef SYNTHESIS\n" +
+			" assign sync_perr = 1'b0;\n" +
+			" `else\n" +
+			" assign sync_perr = 1'bz;\n" +
+			" `endif\n" +
+			"\n" +
+			" default:\n" +
+			" syntax_error (\"invalid PERR_CLOCK\");\n" +
+			" endcase     \n" +
+			" endgenerate\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, SVLanguageLevel.SystemVerilog, 
+				new String[] {"qlc_async_fifo"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,
