@@ -1,4 +1,7 @@
 
+-- 1.4.0 Release --
+
+------------------------------------------------------------------------------
 -- 1.3.9 Release --
 
 - #(nobug) - Correct a bug in the argument-file document partitioner that
