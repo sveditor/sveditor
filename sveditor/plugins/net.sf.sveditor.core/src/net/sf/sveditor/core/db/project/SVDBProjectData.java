@@ -36,6 +36,7 @@ import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -74,7 +75,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		}
 	}
 	
-	public synchronized void init() {
+	public void init() {
 		IFile svproject = fProject.getFile(".svproject");
 		SVProjectFileWrapper wrapper;
 		
@@ -152,13 +153,22 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	
 	private SVProjectFileWrapper readProjectFile(IFile svproject) {
 		SVProjectFileWrapper wrapper = null;
-		
-		try {
-			svproject.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-			InputStream in = svproject.getContents();
-			wrapper = new SVProjectFileWrapper(in);
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		for (int i=0; i<2; i++) {
+			try {
+				if (svproject.exists()) {
+					InputStream in = svproject.getContents();
+					wrapper = new SVProjectFileWrapper(in);
+				}
+				break;
+			} catch (Exception e) {
+				if (e instanceof CoreException) {
+					try {
+						svproject.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+					} catch (CoreException ex) {}
+				}
+				e.printStackTrace();
+			}
 		}
 	
 		return wrapper;

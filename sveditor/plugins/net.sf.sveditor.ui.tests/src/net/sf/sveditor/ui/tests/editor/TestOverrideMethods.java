@@ -15,11 +15,14 @@ package net.sf.sveditor.ui.tests.editor;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBTypeInfoClassItem;
+import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
@@ -57,7 +60,7 @@ public class TestOverrideMethods extends TestCase {
 		    "\n" +
 		    "\n" +
 		    "	/**\n" +
-		    "	 * my_func()\n" +
+		    "	 * Function: my_func\n" +
 		    "	 *\n" +
 		    "	 * Override from class base\n" +
 		    "	 */\n" +
@@ -97,7 +100,7 @@ public class TestOverrideMethods extends TestCase {
 		    "\n" +
 		    "\n" +
 		    "	/**\n" +
-		    "	 * my_func()\n" +
+		    "	 * Function: my_func\n" +
 		    "	 *\n" +
 		    "	 * Override from class base\n" +
 		    "	 */\n" +
@@ -113,6 +116,7 @@ public class TestOverrideMethods extends TestCase {
 	}
 	
 	public void testOverrideRefArgTask() throws BadLocationException {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"virtual class base;\n" +
 			"\n" +
@@ -137,7 +141,7 @@ public class TestOverrideMethods extends TestCase {
 		    "\n" +
 		    "\n" +
 		    "	/**\n" +
-		    "	 * my_func()\n" +
+		    "	 * Task: my_func\n" +
 		    "	 *\n" +
 		    "	 * Override from class base\n" +
 		    "	 */\n" +
@@ -177,7 +181,7 @@ public class TestOverrideMethods extends TestCase {
 		    "\n" +
 		    "\n" +
 		    "	/**\n" +
-		    "	 * my_func()\n" +
+		    "	 * Task: my_func\n" +
 		    "	 *\n" +
 		    "	 * Override from class base\n" +
 		    "	 */\n" +
@@ -211,15 +215,17 @@ public class TestOverrideMethods extends TestCase {
 		
 		SVDBClassDecl extension = null;
 		SVDBClassDecl	base = null;
-		for (ISVDBItemBase it : sve_tester.getSVDBFile().getItems()) {
+		for (ISVDBItemBase it : sve_tester.getSVDBFile().getChildren()) {
 			if (SVDBItem.getName(it).equals(extension_class_name)) {
 				extension = (SVDBClassDecl)it;
 			}
 		}
 		assertNotNull(extension);
-		
-		for (ISVDBItemBase it : sve_tester.getSVDBFile().getItems()) {
-			if (SVDBItem.getName(it).equals(extension.getSuperClass())) {
+
+		SVDBTypeInfoClassType ci = extension.getSuperClass();
+		for (ISVDBItemBase it : sve_tester.getSVDBFile().getChildren()) {
+			System.out.println("extension=" + ci.getName() + " it=" + SVDBItem.getName(it));
+			if (SVDBItem.getName(it).equals(ci.getName())) {
 				base = (SVDBClassDecl)it;
 			}
 		}

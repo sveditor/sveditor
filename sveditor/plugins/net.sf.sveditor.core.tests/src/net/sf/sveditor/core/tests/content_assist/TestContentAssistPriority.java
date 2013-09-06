@@ -75,26 +75,26 @@ public class TestContentAssistPriority extends TestCase {
 	public void testLocalScopeVars() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
-			"class cls1;\n" +
+			"class cls1;\n" +					// 1
 			"  int			m_def;\n" +
 			"  int			m_abc;\n" +
 			"endclass\n" +
-			"\n" +
+			"\n" +								// 5
 			"class cls2 extends cls1;\n" +
 			"  int			m_jkl;\n" +
 			"  int			m_ghi;\n" +
 			"endclass\n" +
-			"\n" +
+			"\n" +								// 10
 			"class cls3 extends cls2;\n" +
 			"  int			m_pqr;\n" +
 			"  int			m_mno;\n" +
 			"\n" +
-			"  function void foo;\n" +
+			"  function void foo;\n" +			// 15
 			"    int m_pqr;\n" +
 			"    begin\n" +
-			"      int stu;\n" +
+			"      int m_stu;\n" +
 			"		\n" +
-			"      m_<<MARK>>\n" +
+			"      m_<<MARK>>\n" +				// 20
 			"    end\n" +
 			"  endfunction\n" +
 			"endclass\n"
@@ -104,7 +104,6 @@ public class TestContentAssistPriority extends TestCase {
 				"m_stu",
 				"m_pqr",
 				"m_mno",
-				"m_pqr",
 				"m_ghi",
 				"m_jkl",
 				"m_abc",

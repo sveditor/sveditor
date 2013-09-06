@@ -7,6 +7,9 @@ import java.util.Map;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -16,12 +19,14 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class SVProjectBuilder extends IncrementalProjectBuilder {
+public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogLevel {
+	private LogHandle			fLog;
 	
 	public static final String BUILDER_ID = "net.sf.sveditor.core.SVProjectBuilder";
 
 	public SVProjectBuilder() {
 		// TODO Auto-generated constructor stub
+		fLog = LogFactory.getLogHandle("SVProjectBuilder");
 	}
 	
 	@Override
@@ -45,13 +50,13 @@ public class SVProjectBuilder extends IncrementalProjectBuilder {
 			case CLEAN_BUILD:
 			case FULL_BUILD:
 				// Rebuild the target project
-				System.out.println("Clean/Full Build: " + kind);
+				fLog.debug(LEVEL_MIN, "Clean/Full Build: " + kind);
 				pmgr.rebuildProject(monitor, p);
 				break;
 				
 			case AUTO_BUILD:
 			case INCREMENTAL_BUILD: {
-				System.out.println("Auto/Incr Build: " + kind);
+				fLog.debug(LEVEL_MIN, "Auto/Incr Build: " + kind);
 				final List<SVDBIndexResourceChangeEvent> changes = new ArrayList<SVDBIndexResourceChangeEvent>();
 				IResourceDelta delta = getDelta(p);
 				

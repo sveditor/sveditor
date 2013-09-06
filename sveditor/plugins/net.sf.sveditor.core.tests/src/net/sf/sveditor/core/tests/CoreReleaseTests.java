@@ -53,7 +53,7 @@ public class CoreReleaseTests extends TestSuite {
 		fErrorLogListener = new ILogListener() {
 			public void message(ILogHandle handle, int type, int level, String message) {
 				if (type == ILogListener.Type_Error) {
-					System.out.println("MSG: " + message);
+//					System.out.println("MSG: " + message);
 					try {
 						throw new Exception("[" + handle.getName() + "] " + message);
 					} catch (Exception e) {

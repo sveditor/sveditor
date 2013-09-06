@@ -215,11 +215,22 @@ public class SVGenerateBlockParser extends SVParserBase {
 					fLexer.readId();
 				}
 			} else {
-				fParsers.modIfcBodyItemParser().parse(case_blk, "generate");
+				generate_item(case_blk);
 			}
 		}
 
 		fLexer.readKeyword("endcase");
 	}
 
+	private void generate_item(ISVDBAddChildItem blk) throws SVParseException {
+		SVToken tok = fLexer.consumeToken();
+		
+		if (tok.isIdentifier() && fLexer.peekOperator("(")) {
+			fLexer.ungetToken(tok);
+			fParsers.behavioralBlockParser().statement(blk);
+		} else {
+			fLexer.ungetToken(tok);
+			fParsers.modIfcBodyItemParser().parse(blk, "generate");
+		}
+	}
 }

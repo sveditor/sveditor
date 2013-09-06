@@ -90,31 +90,6 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			
 		}
 		
-		/*
-		if (elem instanceof ISVDBChildParent && 
-				!fDoNotRecurseScopes.contains(((ISVDBChildParent)elem).getType())) {
-			ISVDBChildParent cp = (ISVDBChildParent)elem;
-			List<ISVDBItemBase> c = new ArrayList<ISVDBItemBase>();
-			for (ISVDBChildItem it : cp.getChildren()) {
-				if (it.getType() == SVDBItemType.VarDeclStmt ||
-						it.getType() == SVDBItemType.ImportStmt ||
-						it.getType() == SVDBItemType.ExportStmt) {
-					for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
-						c.add(ci);
-					}
-				} else if (it.getType() == SVDBItemType.ModIfcInst) {
-					for (ISVDBChildItem ci : ((SVDBModIfcInst)it).getChildren()) {
-						c.add(ci);
-					}
-				} else {
-					if (it.getType() != SVDBItemType.NullStmt) {
-						c.add(it);
-					}
-				}
-			}
-			return c.toArray();
-		}
-		 */
 		return new Object[0];
 	}
 	

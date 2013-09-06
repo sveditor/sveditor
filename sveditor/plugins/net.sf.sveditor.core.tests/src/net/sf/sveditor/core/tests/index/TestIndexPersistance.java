@@ -23,7 +23,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
@@ -37,6 +36,7 @@ import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
@@ -45,12 +45,17 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 	public void index_changed(int reason, SVDBFile file) {}
 
 	public void index_rebuilt() {
+		try {
+			throw new Exception("index_rebuilt");
+		} catch (Exception e) {
+			fLog.debug("Index Rebuilt", e);
+		}
 		fRebuildCount++;
 	}
 
 	public void testWSArgFileIndex() {
-//		SVCorePlugin.getDefault().enableDebug(false);
-		SVCorePlugin.getDefault().setDebugLevel(0);
+		SVCorePlugin.getDefault().enableDebug(false);
+// 		SVCorePlugin.getDefault().setDebugLevel(0);
 		LogHandle log = LogFactory.getLogHandle("testWSArgFileIndex");
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -63,8 +68,10 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File xbus = new File(test_dir, "ovm/examples/xbus");
-		
-		addProject(TestUtils.createProject("xbus", xbus));
+
+		IProject p = TestUtils.createProject("xbus", xbus);
+		SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
+		addProject(p);
 		
 		ISVDBIndex index;
 		SVDBFile   file;
@@ -78,6 +85,8 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
+		
+		index.loadIndex(new NullProgressMonitor());
 		
 		in = index.getFileSystemProvider().openStream(path);
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
@@ -134,7 +143,9 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File ovm = new File(test_dir, "ovm");
 		
-		addProject(TestUtils.createProject("ovm", ovm));
+		IProject p = TestUtils.createProject("ovm", ovm);
+		SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
+		addProject(p);
 		
 		ISVDBIndex index;
 		SVDBFile   file;
