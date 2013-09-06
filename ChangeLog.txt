@@ -23,6 +23,11 @@
   
 - #(nobug) - Add back support for -y (libdir) and -l (libfile) to the
   'new' index in both SFCU and MFCU mode
+  
+- #(278) - Correct an issue with auto-indent around if/else blocks without
+  begin/end  
+  
+- #(276) - Clean up some debug messages displayed on the console
 
 ------------------------------------------------------------------------------
 -- 1.3.8 Release --

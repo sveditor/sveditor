@@ -20,6 +20,7 @@ import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
 import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 
 import org.eclipse.core.resources.IProject;
@@ -92,7 +93,11 @@ public class TestOutlineViewOperations extends EditorTestCaseBase {
 		SVOutlinePage outline = (SVOutlinePage)editor.getAdapter(IContentOutlinePage.class);
 
 		ITreeContentProvider cp = outline.getContentProvider();
-		Object roots[] = cp.getElements(editor.getSVDBFile());
+		SVOutlineContent content = new SVOutlineContent(editor.getSVDBFile(), null);
+		cp.inputChanged(null, null, content);
+		
+		Object root_roots[] = cp.getElements(content);
+		Object roots[] = cp.getChildren(root_roots[0]);
 		
 		for (Object r : roots) {
 			log.debug("r=" + r);

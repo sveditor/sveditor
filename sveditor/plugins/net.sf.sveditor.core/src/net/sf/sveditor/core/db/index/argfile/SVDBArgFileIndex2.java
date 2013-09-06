@@ -2466,7 +2466,6 @@ public class SVDBArgFileIndex2 implements
 				} else if (ci.getType() == SVDBItemType.ArgFileMfcuStmt) {
 					build_data.setMFCU();
 				} else if (ci.getType() == SVDBItemType.ArgFileForceSvStmt) {
-					System.out.println("ForceSvStmt");
 					build_data.setForceSV(true);
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;

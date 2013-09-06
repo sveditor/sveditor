@@ -444,7 +444,7 @@ public class SVEditor extends TextEditor
 				fFileIndexParser = new SVDBShadowIndexParse(index_mgr);
 				fSVDBIndex = new SVDBFileOverrideIndex(
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
-				System.out.println("init w/ShadowIndex");
+				fLog.debug(LEVEL_MIN, "init w/ShadowIndex");
 			} else {
 				// An index was specified, so proceed normally
 				
@@ -463,7 +463,7 @@ public class SVEditor extends TextEditor
 				fFileIndexParser = index_mgr;
 				fSVDBIndex = new SVDBFileOverrideIndex(
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
-				System.out.println("init w/RealIndex");
+				fLog.debug(LEVEL_MIN, "init w/RealIndex");
 			}
 		}
 		if (fPendingProjectSettingsUpdate != null) {

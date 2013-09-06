@@ -277,7 +277,7 @@ public class SVDBProjectManager implements
 		}
 		
 		if (rebuild_workspace) {
-			System.out.println("Skip due to rebuild workspace");
+			fLog.debug(LEVEL_MIN, "Skip due to rebuild workspace");
 			return;
 		}
 		
@@ -369,58 +369,22 @@ public class SVDBProjectManager implements
 	 * @param proj
 	 * @return
 	 */
-	public synchronized SVDBProjectData getProjectData(IProject proj) {
+	public SVDBProjectData getProjectData(IProject proj) {
 		SVDBProjectData ret = null;
 		
-		if (fProjectMap.containsKey(proj.getFullPath())) {
-			ret = fProjectMap.get(proj.getFullPath());
-		} else if (proj.exists()) {
-			
-			/*
-			IFile svproject;
-			SVProjectFileWrapper f_wrapper = null;
-			if ((svproject = proj.getFile(".svproject")).exists()) {
-				InputStream in = null;
-				try {
-					svproject.refreshLocal(IResource.DEPTH_ZERO, null);
-					in = svproject.getContents();
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-
-				try {
-					f_wrapper = new SVProjectFileWrapper(in);
-				} catch (Exception e) {
-					// File format is bad
-					f_wrapper = null;
-				}
+		synchronized (fProjectMap) {
+			if (fProjectMap.containsKey(proj.getFullPath())) {
+				ret = fProjectMap.get(proj.getFullPath());
 			}
-			
-			if (f_wrapper == null) {
-				f_wrapper = new SVProjectFileWrapper();
-				
-				setupDefaultProjectFile(f_wrapper);
-				
-				// Write the file
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				f_wrapper.toStream(bos);
-				ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-				
-				try {
-					if (svproject.exists()) {
-						svproject.setContents(bis, true, true, null);
-					} else {
-						svproject.create(bis, true, null);
-					}
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-			 */
+		}
+		
+		if (ret == null && proj.exists()) {
 			
 			ret = new SVDBProjectData(proj);
 
-			fProjectMap.put(proj.getFullPath(), ret);
+			synchronized (fProjectMap) {
+				fProjectMap.put(proj.getFullPath(), ret);
+			}
 		}
 		
 		return ret;

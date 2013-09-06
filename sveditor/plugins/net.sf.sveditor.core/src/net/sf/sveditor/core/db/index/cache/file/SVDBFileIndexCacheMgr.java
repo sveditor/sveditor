@@ -201,7 +201,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			String 			project_name,
 			String 			base_location) {
 		SVDBFileIndexCache ret = null;
-
+		
 		for (SVDBFileIndexCache c : fIndexList) { 
 			if (c.getProjectName().equals(project_name) &&
 					c.getBaseLocation().equals(base_location)) {
@@ -218,7 +218,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			String 			base_location) {
 		SVDBFileIndexCache ret;
 		boolean found_id = false;
-
+		
 		int id = ((fIndexId+1) & 0xFFFFFF);
 		
 		while (!found_id) {

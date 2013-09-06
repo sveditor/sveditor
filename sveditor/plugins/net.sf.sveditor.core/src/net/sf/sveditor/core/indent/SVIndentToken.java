@@ -112,6 +112,18 @@ public class SVIndentToken {
 		return fLeadingWS;
 	}
 	
+	public String getLeadingNonNewLineWS() {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<fLeadingWS.length(); i++) {
+			if (fLeadingWS.charAt(i) != '\r' && 
+					fLeadingWS.charAt(i) != '\n') {
+				sb.append(fLeadingWS.charAt(i));
+			}
+		}
+		
+		return sb.toString();
+	}
+	
 	public void setLeadingWS(String leading_ws) {
 		fLeadingWS = leading_ws;
 	}

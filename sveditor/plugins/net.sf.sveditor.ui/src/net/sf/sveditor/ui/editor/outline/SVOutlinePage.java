@@ -110,6 +110,10 @@ public class SVOutlinePage extends ContentOutlinePage
 		return fContentProvider;
 	}
 	
+	public SVOutlineContent getContent() {
+		return fContent;
+	}
+	
 	@Override
 	public void setSelection(ISelection selection) {
 		if (fDebugEn) {
