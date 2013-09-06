@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;

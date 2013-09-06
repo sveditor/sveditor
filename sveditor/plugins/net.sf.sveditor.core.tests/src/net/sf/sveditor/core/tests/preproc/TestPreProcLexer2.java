@@ -206,7 +206,7 @@ public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 		SVLexer lexer = new SVLexer();
 		lexer.init(null, output);
 		
-		System.out.println("Output:\n" + output.dump());
+		fLog.debug("Output:\n" + output.dump());
 
 		SVToken t;
 		int idx = 0;

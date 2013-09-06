@@ -95,7 +95,7 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 	}
 	
 	public void testCircularArgFileIndexCrossRef() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		IProject p1 = TestUtils.setupIndexWSProject(

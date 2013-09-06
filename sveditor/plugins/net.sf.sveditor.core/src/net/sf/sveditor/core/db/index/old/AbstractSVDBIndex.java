@@ -320,7 +320,7 @@ public abstract class AbstractSVDBIndex implements
 			if (fDebugEn) {
 				fLog.debug("Cache is valid");
 			}
-			fIndexState = IndexState_FileTreeValid;
+			fIndexState = IndexState_AllFilesParsed;
 			
 			// If we've determined the index data is valid, then we need to fixup some index entries
 			if (fIndexCacheData.getDeclCacheMap() != null) {
@@ -545,6 +545,7 @@ public abstract class AbstractSVDBIndex implements
 	 * @param state
 	 */
 	public synchronized void ensureIndexState(IProgressMonitor monitor, int state) {
+		boolean notify_rebuilt = false;
 		long start_time=0, end_time=0;
 		// The following weights are an attempt to skew the "amount of work" between the different states
 		// I came up these weights by looking at how long each of these tasks took on a SINGLE project
@@ -619,7 +620,7 @@ public abstract class AbstractSVDBIndex implements
 			fIndexState = IndexState_FileTreeValid;
 		
 			propagateAllMarkers();
-			notifyIndexRebuilt();
+			notify_rebuilt = true;
 			fIsDirty = false;
 			
 			if (fDebugEn) {
@@ -642,7 +643,7 @@ public abstract class AbstractSVDBIndex implements
 				parseFiles(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			}
 			fIndexState = IndexState_AllFilesParsed;
-			notifyIndexRebuilt();
+			notify_rebuilt = true;
 			fIsDirty = false;
 			synchronized (fDeferredPkgCacheFiles) {
 				for (Tuple<String, List<String>> e : fDeferredPkgCacheFiles) {
@@ -662,7 +663,10 @@ public abstract class AbstractSVDBIndex implements
 		else  {
 			monitor.worked(monitor_weight_AllFilesParsed);
 		}
-	
+
+		if (notify_rebuilt) {
+			notifyIndexRebuilt();
+		}
 		
 		monitor.done();
 	}

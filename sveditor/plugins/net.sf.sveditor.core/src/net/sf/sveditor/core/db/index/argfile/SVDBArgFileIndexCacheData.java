@@ -31,6 +31,10 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	// List of the root source files
 	public List<String>						fRootFileList;
 	
+	// List of the library files
+	public List<String>						fLibFileList;
+	public List<Integer>					fLibFileAttr;
+	
 	// List of all source files (roots + included)
 	public List<String>						fSrcFileList;
 	public List<Integer>					fSrcFileAttr;
@@ -49,6 +53,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		fArgFiles = new ArrayList<SVDBFile>();
 		fArgFileAttr = new ArrayList<Integer>();
 		fRootFileList = new ArrayList<String>();
+		fLibFileList = new ArrayList<String>();
+		fLibFileAttr = new ArrayList<Integer>();
 		fSrcFileList = new ArrayList<String>();
 		fSrcFileAttr = new ArrayList<Integer>();
 		fRootIncludeMap = new HashMap<String, List<String>>();
@@ -66,6 +72,11 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 				return true;
 			}
 		}
+		if ((attr & ISVDBDeclCache.FILE_ATTR_LIB_FILE) != 0) {
+			if (fLibFileList != null && fLibFileList.contains(path)) {
+				return true;
+			}
+		}
 		
 		return false;
 	}
@@ -76,6 +87,11 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 			if ((flags & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) != 0) {
 				if (!fRootFileList.contains(path)) {
 					fRootFileList.add(path);
+				}
+			} else if ((flags & ISVDBDeclCache.FILE_ATTR_LIB_FILE) != 0) {
+				if (!fLibFileList.contains(path)) {
+					fLibFileList.add(path);
+					fLibFileAttr.add(flags);
 				}
 			} else {
 				if (!fSrcFileList.contains(path)) {
@@ -97,6 +113,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		
 		if ((idx = fSrcFileList.indexOf(path)) != -1) {
 			ret = fSrcFileAttr.get(idx);
+		} else if ((idx = fLibFileList.indexOf(path)) != -1) {
+			ret = fLibFileAttr.get(idx);
 		} else if ((idx = fArgFilePaths.indexOf(path)) != -1) {
 			ret = fArgFileAttr.get(idx);
 		}
@@ -109,6 +127,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		
 		if ((idx = fSrcFileList.indexOf(path)) != -1) {
 			fSrcFileAttr.set(idx, flags);
+		} else if ((idx = fLibFileList.indexOf(path)) != -1) {
+			fLibFileAttr.set(idx, flags);
 		} else if ((idx = fArgFilePaths.indexOf(path)) != -1) {
 			fArgFileAttr.set(idx, flags);
 		}
@@ -148,6 +168,10 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		if ((flags & ISVDBDeclCache.FILE_ATTR_SRC_FILE) != 0) {
 			if ((flags & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) != 0) {
 				for (String path : fRootFileList) {
+					ret.add(path);
+				}
+			} else if ((flags & ISVDBDeclCache.FILE_ATTR_LIB_FILE) != 0) {
+				for (String path : fLibFileList) {
 					ret.add(path);
 				}
 			} else {

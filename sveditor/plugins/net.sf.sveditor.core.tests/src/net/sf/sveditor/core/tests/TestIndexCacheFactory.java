@@ -42,7 +42,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 			fCacheImpl = new SVDBFileIndexCacheMgr();
 			fFileSystem = new SVDBFileSystem(fRoot, SVCorePlugin.getVersion());
 			try {
-				fFileSystem.init();
+				boolean status = fFileSystem.init();
 			} catch (IOException e) {
 				TestCase.fail("Failed to initialize filesystem");
 			}

@@ -181,6 +181,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// If we're moving to a new line, put a dummy statement in place
 			// as a marker
 			if (indent_newline) {
+				fLog.debug("indent_newline");
 				doc_str.append("DUMMY=5;\n");
 			}
 			
@@ -210,6 +211,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			 */
 			if (indent_newline) {
 				target_lineno++;
+   				fLog.debug("target_lineno=" + target_lineno);
 			}
 			indenter.setAdaptiveIndentEnd(target_lineno);
 			indenter.indent();
@@ -227,6 +229,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
     		
     		if (indent != null) {
     			if (indent_newline) {
+    				fLog.debug("Indented Content:\n" +
+    						indenter.indent());
+    				fLog.debug("indent=\"" + indent + "\"");
     				cmd.text += indent;
     				// Increment the cmd.length by the amount of leading whitespace. This
     				// causes the correct amount of leading whitespace (as determined by 

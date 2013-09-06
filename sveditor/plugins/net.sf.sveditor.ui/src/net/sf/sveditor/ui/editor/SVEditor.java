@@ -254,7 +254,7 @@ public class SVEditor extends TextEditor
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			fLog.debug("<-- re-parse file");
-			
+		
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
 				fSVDBFilePP = new_in.first();
@@ -444,7 +444,7 @@ public class SVEditor extends TextEditor
 				fFileIndexParser = new SVDBShadowIndexParse(index_mgr);
 				fSVDBIndex = new SVDBFileOverrideIndex(
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
-				System.out.println("init w/ShadowIndex");
+				fLog.debug(LEVEL_MIN, "init w/ShadowIndex");
 			} else {
 				// An index was specified, so proceed normally
 				
@@ -463,7 +463,7 @@ public class SVEditor extends TextEditor
 				fFileIndexParser = index_mgr;
 				fSVDBIndex = new SVDBFileOverrideIndex(
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
-				System.out.println("init w/RealIndex");
+				fLog.debug(LEVEL_MIN, "init w/RealIndex");
 			}
 		}
 		if (fPendingProjectSettingsUpdate != null) {
@@ -559,7 +559,7 @@ public class SVEditor extends TextEditor
 
 	void updateSVDBFile(IDocument doc) {
 		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fFileIndexParser);
-		
+	
 		if (fFileIndexParser != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {

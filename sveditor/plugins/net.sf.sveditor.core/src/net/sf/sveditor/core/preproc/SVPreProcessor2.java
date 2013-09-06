@@ -755,7 +755,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fIndexStats.incNumProcessedFiles();
 		}
 		
-		SVPreProc2InputData curr_in = fInputStack.pop();
+		/*SVPreProc2InputData curr_in =*/ fInputStack.pop();
 		
 		SVPreProc2InputData new_file = fInputStack.peek();
 		fInputCurr = new_file;
@@ -1031,7 +1031,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 		public SVDBMacroDef findMacro(String name, int lineno) {
 			SVDBMacroDef m = fMacroMap.get(name);
-			SVPreProc2InputData in = fInputCurr;
+			// SVPreProc2InputData in = fInputCurr;
 			
 			// TODO: Add macro reference to current file data
 			fInputCurr.addRefMacro(name, m);

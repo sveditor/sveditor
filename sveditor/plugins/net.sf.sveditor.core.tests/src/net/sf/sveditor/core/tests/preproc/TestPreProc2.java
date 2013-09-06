@@ -58,7 +58,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testBasicDefine() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -136,7 +136,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testIfdef_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -171,7 +171,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testBitRangeMacroExpansion() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -186,7 +186,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMissingIncludeWithoutIfdefs() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -205,7 +205,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMissingIncludeWithIfdefs() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());

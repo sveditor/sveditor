@@ -10,7 +10,7 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 public class TestExprScanner extends SVCoreTestCaseBase {
 	
 	public void testIncludeFindsQuotes() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 				"`include \"\n"
 				;

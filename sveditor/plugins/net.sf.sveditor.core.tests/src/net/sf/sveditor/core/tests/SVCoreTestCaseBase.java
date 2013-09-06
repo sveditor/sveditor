@@ -75,7 +75,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			rgy.close();
 			
-			fCacheFactory.dispose();
+//			fCacheFactory.dispose();
 			
 			if (SVCorePlugin.getDefault().getProjMgr() != null) {
 				SVCorePlugin.getDefault().getProjMgr().dispose();
