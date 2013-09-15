@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -112,11 +113,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		fClassList		= new ArrayList<Class<?>>();
 		fClassSet		= new HashSet<Class<?>>();
 		fTargetPkg = "net.sf.sveditor.core.db.persistence";
-		fTargetPkgList = new ArrayList<String>();
-		fTargetPkgList.add("net.sf.sveditor.core.db");
-		fTargetPkgList.add("net.sf.sveditor.core.db.expr");
-		fTargetPkgList.add("net.sf.sveditor.core.db.stmt");
-		fTargetPkgList.add("net.sf.sveditor.core.db.argfile");
+		fTargetPkgList = SVCorePlugin.getPersistenceClassPkgList();
 
 		fClassList.add(SVDBFile.class);
 //		fClassList.add(SVDBScopeItem.class);

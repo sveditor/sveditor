@@ -23,12 +23,14 @@ public class SVDBIncFileInfo {
 		if (other instanceof SVDBIncFileInfo) {
 			SVDBIncFileInfo i = (SVDBIncFileInfo)other;
 			boolean eq = true;
-			
+		
+			/*
 			if (i.fIndex == null || fIndex == null) {
 				eq &= (i.fIndex == fIndex);
 			} else {
 				eq &= i.fIndex.equals(fIndex);
 			}
+			 */
 			
 			if (i.fIncPath == null || fIncPath == null) {
 				eq &= (i.fIncPath == fIncPath);

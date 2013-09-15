@@ -208,7 +208,13 @@ public enum SVDBItemType {
 	ArgFileMfcuStmt,
 	ArgFileSrcLibPathStmt,
 	ArgFileSrcLibFileStmt,
-	ArgFileLibExtStmt	
+	ArgFileLibExtStmt,
+	
+	
+	//***************************************************************
+	//* VHDL Types
+	//***************************************************************
+//	VHEntityDecl
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

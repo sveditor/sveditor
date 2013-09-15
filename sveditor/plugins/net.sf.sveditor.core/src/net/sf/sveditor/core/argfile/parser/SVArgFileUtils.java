@@ -55,7 +55,6 @@ public class SVArgFileUtils {
 						found_var = 1;
 					
 						// Try to replace /[a-zA-Z]: with [a-zA-Z]:
-						System.out.println("val=" + val);
 						if (val.length() >= 3 && 
 								val.charAt(0) == '/' &&
 								val.charAt(2) == ':' &&

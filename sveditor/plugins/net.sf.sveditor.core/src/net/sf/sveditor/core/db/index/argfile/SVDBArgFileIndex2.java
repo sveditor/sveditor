@@ -1920,6 +1920,7 @@ public class SVDBArgFileIndex2 implements
 			SVDBFileTree 				ft) {
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = build_data.getDeclCacheMap();
 		String file_path = ft.getFilePath();
+//		SVDBRefCacheEntry ref_entry = build_data.get
 
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MID, "cacheDeclarations: " + ft.getFilePath());

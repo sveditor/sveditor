@@ -32,13 +32,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SVDBFileOverrideIndex 
 	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel,
 		ISVDBIncludeFileProviderObsolete {
-	private SVDBFile				fFile;
-	private SVDBFile				fFilePP;
-	private SVDBFileTree			fFileTree;
-	private ISVDBIndex				fIndex;
-	private ISVDBIndexIterator		fSuperIterator;
-	private List<SVDBMarker>		fMarkers;
-	private LogHandle				fLog;
+	private SVDBFile					fFile;
+	private SVDBFile					fFilePP;
+	private SVDBFileTree				fFileTree;
+	private ISVDBIndex					fIndex;
+	private ISVDBIndexIterator			fSuperIterator;
+	private ISVDBIncludeFilesFinder		fIncFilesFinder;
+	private List<SVDBMarker>			fMarkers;
+	private LogHandle					fLog;
 	
 	public SVDBFileOverrideIndex(
 			SVDBFile			file,
@@ -52,6 +53,8 @@ public class SVDBFileOverrideIndex
 		fSuperIterator = item_it;
 		fMarkers = markers;
 		fLog = LogFactory.getLogHandle(getClass().getName());
+		
+		fIncFilesFinder = fIndex;
 	}
 	
 	public void setFile(SVDBFile file) {
@@ -68,6 +71,10 @@ public class SVDBFileOverrideIndex
 	
 	public void setBaseIndex(ISVDBIndex index) {
 		fIndex = index;
+	}
+	
+	public void setIncFilesFinder(ISVDBIncludeFilesFinder inc_p) {
+		fIncFilesFinder = inc_p;
 	}
 
 	public void setIndexBuilder(ISVDBIndexBuilder builder) { }
@@ -398,11 +405,21 @@ public class SVDBFileOverrideIndex
 	}
 	
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
-		if (fIndex != null) {
-			return fIndex.findIncludeFiles(root, flags);
-		} else {
-			return new ArrayList<SVDBIncFileInfo>();
+		List<SVDBIncFileInfo> ret = new ArrayList<SVDBIncFileInfo>();
+
+		if (fIncFilesFinder != null) {
+			ret.addAll(fIncFilesFinder.findIncludeFiles(root, flags));
 		}
+		
+		if (fSuperIterator != null) {
+			for (SVDBIncFileInfo inc_i : fSuperIterator.findIncludeFiles(root, flags)) {
+				if (!ret.contains(inc_i)) {
+					ret.add(inc_i);
+				}
+			}
+		}
+		
+		return ret;
 	}
 
 	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {

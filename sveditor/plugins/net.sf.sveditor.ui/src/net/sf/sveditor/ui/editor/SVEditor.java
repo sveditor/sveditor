@@ -46,6 +46,7 @@ import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
 import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
@@ -429,6 +430,7 @@ public class SVEditor extends TextEditor
 				// See if this file is part of a project with a
 				// configured index
 				IFile file = SVFileUtils.findWorkspaceFile(fSVDBFilePath);
+				String file_dir = SVFileUtils.getPathParent(fSVDBFilePath);
 				
 				if (file != null) {
 					if (SVDBProjectManager.isSveProject(file.getProject())) {
@@ -444,6 +446,8 @@ public class SVEditor extends TextEditor
 				fFileIndexParser = new SVDBShadowIndexParse(index_mgr);
 				fSVDBIndex = new SVDBFileOverrideIndex(
 						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
+				fSVDBIndex.setIncFilesFinder(
+						new SVDBShadowIncludeFilesFinder(file_dir));
 				fLog.debug(LEVEL_MIN, "init w/ShadowIndex");
 			} else {
 				// An index was specified, so proceed normally

@@ -160,6 +160,8 @@ public class SVDBArgFileIndexBuildData implements
 	Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
 		return fIndexCacheData.getDeclCacheMap();
 	}
+	
+	
 
 	// FileMapper API
 	public int mapFilePathToId(String path, boolean add) {

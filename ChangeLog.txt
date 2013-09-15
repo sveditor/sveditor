@@ -1,6 +1,18 @@
 
 -- 1.4.0 Release --
 
+- #(nobug) - Correct a pre-processor bug with the 'new' indexer that allowed
+  `__FILE and `__LINE macros to be expanded within a text region otherwise
+  disabled by `ifdef/`ifndef. This bug is typically observed as a parse-error
+  marker within a disabled region.
+  
+- #(nobug) - Ensure that include-file content assist works for files not
+  associated with an index.
+
+- #(nobug) - Convert a couple of pre-processor error messages to markers.
+
+
+
 ------------------------------------------------------------------------------
 -- 1.3.9 Release --
 
