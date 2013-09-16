@@ -1156,6 +1156,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		// randcase does not have an expression
 		if (is_case(tok)) {
 			tok = next_s(); // should be expression
+			// Continue on till we get a closed brace.  We could have case (some_vec[3:2]).  
+			// This is important because below we just check for : to determine indentation, and
+			// a : in the indenter was throwing the indenter off
+			if (tok.isOp("("))  {
+				while (!next_s().isOp(")")); // should be expression
+			}
 		}
 
 		tok = next_s();
