@@ -1072,6 +1072,13 @@ public void testIndentCase() throws BadLocationException {
 			"out = '0;\n" +
 			"end\n" +
 			"endcase\n" +
+			"// Case with vector\n" +
+			"case (someting[3:2])\n" +
+			"8'b0000_0000 : begin out = 4'b0000; end\n" +
+			"default      : begin\n" +
+			"out = '0;\n" +
+			"end\n" +
+			"endcase\n" +
 			"// casex\n" +
 			"casex (someting)\n" +
 			"8'b0000_0000 :\n" +
@@ -1099,6 +1106,13 @@ public void testIndentCase() throws BadLocationException {
 			"				out = '0;\n" +
 			"			end\n" +
 			"		endcase\n" +
+			"		// Case with vector\n" +
+			"		case (someting[3:2])\n" +
+			"			8'b0000_0000 : begin out = 4'b0000; end\n" +
+			"			default      : begin\n" +
+			"				out = '0;\n" +
+			"			end\n" +
+			"		endcase\n" +
 			"		// casex\n" +
 			"		casex (someting)\n" +
 			"			8'b0000_0000 :\n" +
@@ -1120,7 +1134,7 @@ public void testIndentCase() throws BadLocationException {
 	tester.type(input);
 	String result = tester.getContent();
 	
-	IndentComparator.compare("testModulePorts", expected, result);
+	IndentComparator.compare("testIndentCase", expected, result);
 }
 // This test checks constraints
 public void testIndentConstraint() throws BadLocationException {
