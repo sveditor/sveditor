@@ -149,6 +149,9 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		}
 	
 		List<SVCompletionProposal> temp_p = new ArrayList<SVCompletionProposal>();
+		if (fCompletionProposals == null) {
+			fCompletionProposals = new ArrayList<SVCompletionProposal>();
+		}
 		synchronized (fCompletionProposals) {
 			temp_p.addAll(fCompletionProposals);
 		}
@@ -294,6 +297,14 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			cp = new CompletionProposal(p.getReplacement(), 
 					p.getReplacementOffset(), p.getReplacementLength(), 
 					p.getReplacement().length(), SVUiPlugin.getImage("/icons/edecl16/keyword_obj.gif"), null, null, null);
+		} else if (p.getType() == SVCompletionProposalType.Include) {
+			cp = new CompletionProposal(p.getReplacement(), 
+					p.getReplacementOffset(), p.getReplacementLength(), 
+					p.getReplacement().length(), 
+					SVUiPlugin.getImage("/icons/edecl16/include_obj.gif"), 
+					p.getDisplayString(), 
+					null, 
+					p.getAdditionalInfo());
 		} else {
 			cp = new CompletionProposal(p.getReplacement(), 
 					p.getReplacementOffset(), p.getReplacementLength(), 

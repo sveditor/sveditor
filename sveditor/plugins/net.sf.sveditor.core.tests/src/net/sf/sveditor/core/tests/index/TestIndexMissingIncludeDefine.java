@@ -58,15 +58,7 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc_def/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
 		
@@ -81,15 +73,7 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc_def/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc_def/pkg.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -105,15 +89,7 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc_def/", project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			db.delete();
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
@@ -157,7 +133,8 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 		fs_provider_m.getMarkers().clear();
 		// String path = "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv"; 
 		InputStream in = fs_provider_m.openStream(path);
-		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, null).second();
+		List<SVDBMarker> markers_1 = new ArrayList<SVDBMarker>();
+		SVDBFile file = index.parse(new NullProgressMonitor(), in, path, markers_1).second();
 		
 		assertNotNull("Failed to parse target file", file);
 		LogFactory.removeLogHandle(log);

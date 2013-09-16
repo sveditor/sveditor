@@ -32,6 +32,10 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	public void reconcile(IRegion region) {
 		IAnnotationModel model = getAnnotationModel();
 		
+		if (model == null) {
+			return;
+		}
+		
 		fProblems.clear();
 		
 		ITypedRegion regions[] = null;
@@ -46,15 +50,6 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 			if (SVDocumentPartitions.SV_MULTILINE_COMMENT.equals(r.getType()) ||
 					SVDocumentPartitions.SV_SINGLELINE_COMMENT.equals(r.getType())) {
 				super.reconcile(r);
-				/*
-				Iterator<Annotation> it = model.getAnnotationIterator();
-				while (it.hasNext()) {
-					Annotation ann = (Annotation)it.next();
-					System.out.println("  Add annotation: " + ann);
-					ann_list_total.add(ann);
-					pos_list_total.add(model.getPosition(ann));
-				}
-				 */
 			}
 		}
 	
@@ -62,18 +57,30 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 		Iterator<Annotation> it = model.getAnnotationIterator();
 		while (it.hasNext()) {
 			Annotation ann = (Annotation)it.next();
-			Position pos = model.getPosition(ann);
-
-			boolean in_region = false;
-			for (ITypedRegion r : regions) {
-				if (pos.getOffset() >= r.getOffset() &&
-						pos.getOffset() < r.getOffset()+r.getLength()) {
-					in_region = true;
-					break;
-				}
+			
+			if (ann == null || !ann.getType().equals(SpellingAnnotation.TYPE)) {
+				continue;
 			}
 			
-			if (in_region) {
+			Position pos = model.getPosition(ann);
+
+			if (pos != null) {
+				boolean in_region = false;
+				for (ITypedRegion r : regions) {
+					if (r == null) {
+						continue;
+					}
+					if (pos.getOffset() >= r.getOffset() &&
+							pos.getOffset() < r.getOffset()+r.getLength()) {
+						in_region = true;
+						break;
+					}
+				}
+
+				if (in_region) {
+					model.removeAnnotation(ann);
+				}
+			} else if (ann != null) {
 				model.removeAnnotation(ann);
 			}
 		}

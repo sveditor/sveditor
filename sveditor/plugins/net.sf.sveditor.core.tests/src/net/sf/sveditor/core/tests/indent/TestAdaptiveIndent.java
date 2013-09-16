@@ -305,7 +305,7 @@ public class TestAdaptiveIndent extends TestCase {
 			"		\n" +																			// 8
 			"	function void foobar();\n" +														// 9
 			"		$psprintf(\"Hello World\\n Testing %d\\n\",\n" +								// 10
-			"			a, b, c);\n" +																// 11
+			"				a, b, c);\n" +															// 11
 			"		if (foobar) begin\n" +															// 12
 			"			a = 6;\n" +																	// 13
 			"		end\n" +																		// 14

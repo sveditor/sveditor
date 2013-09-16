@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -38,6 +39,7 @@ import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
+import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
@@ -84,86 +86,6 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		super.tearDown();
 	}
 	
-	/*
-	public void testOVMXbusDirectDumpLoad() throws DBFormatException, DBWriteException {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(false);
-		LogHandle log = LogFactory.getLogHandle("testOVMXbusDirectDumpLoad");
-		
-		File test_dir = new File(fTmpDir, "testOVMXbusDirectDumpLoad");
-		if (test_dir.exists()) {
-			test_dir.delete();
-		}
-		test_dir.mkdirs();
-		
-		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
-		File xbus = new File(test_dir, "ovm/examples/xbus");
-		
-		IProject project_dir = TestUtils.createProject("xbus", xbus);
-		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(TestIndexCacheFactory.instance(db));
-		TestNullIndexCache cache = new TestNullIndexCache();
-		
-		ISVDBIndex target_index = rgy.findCreateIndex(
-				new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
-				SVDBArgFileIndexFactory.TYPE, cache, null);
-		
-		// Force loading
-		ISVDBItemIterator item_it = target_index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		
-		while (item_it.hasNext()) {
-			ISVDBItemBase it = item_it.nextItem();
-			if (it.getType() == SVDBItemType.Marker) {
-				errors.add((SVDBMarker)it);
-			}
-			assertNotNull("Item " + SVDBItem.getName(it) + " has null location");
-			if (it instanceof SVDBTask) {
-				for (SVDBParamPortDecl p : ((SVDBTask)it).getParams()) {
-					assertNotNull("Parameter " + p.getVarList().get(0).getName() + 
-							" of " + SVDBItem.getName(it) + " has null location",
-							p.getLocation());
-				}
-			}
-		}
-		
-		for (SVDBMarker m : errors) {
-			log.debug("[ERROR] " + m.getMessage());
-		}
-		assertEquals("Unexpected errors: ", 0, errors.size());
-		
-		SVDBDump dumper = new SVDBDump(SVCorePlugin.getDefault().getVersion());
-		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		dumper.dump(index, out);
-
-		SVDBLoad loader = new SVDBLoad(SVCorePlugin.getDefault().getVersion());
-		
-		// May throw exception
-		loader.load(index, new ByteArrayInputStream(out.toByteArray()));
-		
-		assertEquals(index.getDumpDBFileList().size(), index.getLoadDBFileList().size());
-		
-		for (int i=0; i<index.getDumpDBFileList().size(); i++) {
-			SVDBFile fd = index.getDumpDBFileList().get(i);
-			SVDBFile fl = index.getLoadDBFileList().get(i);
-			
-			SVDBItemTestComparator c = new SVDBItemTestComparator();
-			c.compare(fd, fl);
-		}
-		TestUtils.deleteProject(project_dir);
-		LogFactory.removeLogHandle(log);
-		TestCase.fail("Expected fail");
-	}
-	*/
-
 	public void testXbusTransferFileParse() throws DBFormatException {
 		String testname = "testXbusTransferFileParse";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -193,12 +115,14 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 
 		String path = "${workspace_loc}/xbus/sv/xbus_transfer.sv";
 		ISVDBFileSystemProvider fs = target_index.getFileSystemProvider();
+		target_index.loadIndex(new NullProgressMonitor());
 		ISVPreProcessor pp = ((ISVDBIndexInt)target_index).createPreProcScanner(path);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		InputStream in = fs.openStream(path);
 
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		log.debug("--> Parse 1");
-		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, null).second();
+		SVDBFile file = target_index.parse(new NullProgressMonitor(), in, path, markers).second();
 		log.debug("<-- Parse 1");
 		
 		SVPreProcOutput pp_out = pp.preprocess();
@@ -351,6 +275,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/ovm_error_unbalanced_paren/ovm_error_unbalanced_paren.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		target_index.loadIndex(new NullProgressMonitor());
 		
 		
 		String path = "${workspace_loc}/ovm_error_unbalanced_paren/ovm_error_unbalanced_paren.svh";
@@ -412,23 +337,15 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 
 		IndexTestUtils.assertNoErrWarn(log, index);
 
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		SVDBFindByName finder = new SVDBFindByName(index);
+		List<ISVDBItemBase> items_1 = finder.findItems("class1", true);
+	
+		assertEquals(1, items_1.size());
+		assertEquals("class1", SVDBItem.getName(items_1.get(0)));
 		
 		rgy.close();
 
@@ -476,27 +393,12 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		/*
-		index.rebuildIndex(new NullProgressMonitor());
-		index.loadIndex(new NullProgressMonitor());
-		 */
+		finder = new SVDBFindByName(index);
 		
-		it = index.getItemIterator(new NullProgressMonitor());
-		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it: " + tmp_it);
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
-		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", SVDBItem.getName(target_it));
+		List<ISVDBItemBase> items = finder.findItems("class1_2", true);
+	
+		assertEquals(1, items.size());
+		assertEquals("class1_2", SVDBItem.getName(items.get(0)));
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -657,23 +559,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		ISVDBItemBase class1_2 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2 = tmp_it;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
-		assertNull("Ensure don't fine class1_2 yet", class1_2);
+		IndexTestUtils.assertFileHasElements(index, "class1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_2");
 		
 		rgy.close();
 
@@ -715,20 +602,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		index = rgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBArgFileIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
-		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", SVDBItem.getName(target_it));
+		IndexTestUtils.assertFileHasElements(index, "class1_2");
 		
 		LogFactory.removeLogHandle(log);
 	}

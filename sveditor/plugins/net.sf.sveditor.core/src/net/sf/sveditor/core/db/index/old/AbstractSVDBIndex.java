@@ -53,10 +53,13 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -118,7 +121,6 @@ public abstract class AbstractSVDBIndex implements
 	private IProject								fProject;
 	private String 									fBaseLocation;
 	private String 									fResolvedBaseLocation;
-	private String 									fBaseLocationDir;
 	private String 									fResolvedBaseLocationDir;
 
 	private SVDBBaseIndexCacheData 					fIndexCacheData;
@@ -162,6 +164,9 @@ public abstract class AbstractSVDBIndex implements
 	protected boolean								fAutoRebuildEn;
 	protected boolean								fIsDirty;
 	protected ISVDBIndexBuilder						fIndexBuilder;
+
+	// Changed by the shadow index to prevent showing of markers
+	protected boolean								fPropagateMarkers = true;
 
 	static {
 		fWinPathPattern = Pattern.compile("\\\\");
@@ -222,6 +227,15 @@ public abstract class AbstractSVDBIndex implements
 
 	public ISVDBIndexChangePlan createIndexChangePlan(List<SVDBIndexResourceChangeEvent> changes) {
 		SVDBIndexChangePlan plan = new SVDBIndexChangePlan(this, SVDBIndexChangePlanType.Empty);
+		
+		if (fDebugEn) {
+			fLog.debug("--> createIndexChangePlan");
+			if (changes != null) {
+				for (SVDBIndexResourceChangeEvent ev : changes) {
+					fLog.debug("  " + ev.getPath());
+				}
+			}
+		}
 	
 		/*
 		if (changes == null || (fIndexState == IndexState_AllInvalid)) {
@@ -306,7 +320,7 @@ public abstract class AbstractSVDBIndex implements
 			if (fDebugEn) {
 				fLog.debug("Cache is valid");
 			}
-			fIndexState = IndexState_FileTreeValid;
+			fIndexState = IndexState_AllFilesParsed;
 			
 			// If we've determined the index data is valid, then we need to fixup some index entries
 			if (fIndexCacheData.getDeclCacheMap() != null) {
@@ -531,6 +545,7 @@ public abstract class AbstractSVDBIndex implements
 	 * @param state
 	 */
 	public synchronized void ensureIndexState(IProgressMonitor monitor, int state) {
+		boolean notify_rebuilt = false;
 		long start_time=0, end_time=0;
 		// The following weights are an attempt to skew the "amount of work" between the different states
 		// I came up these weights by looking at how long each of these tasks took on a SINGLE project
@@ -543,11 +558,16 @@ public abstract class AbstractSVDBIndex implements
 		final int monitor_weight_FileTreeValid       = 80;
 		final int monitor_weight_AllFilesParsed      = 10;
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 100); // discover_root_files+preprocessFiles+buildFileTree+initLoad
-		fLog.debug(LEVEL_MID, "ensureIndexState0 Starting Ensure Index State");
+		
+		if (fDebugEn) {
+			fLog.debug(LEVEL_MID, "ensureIndexState0 Starting Ensure Index State");
+		}
 	
 		if (fIndexState < state) {
-			fLog.debug(LEVEL_MIN, "ensureIndexState " + getBaseLocation() + 
-					" " + fIndexState + " => " + state);
+			if (fDebugEn) {
+				fLog.debug(LEVEL_MID, "ensureIndexState " + getBaseLocation() + 
+						" " + fIndexState + " => " + state);
+			}
 		}
 		
 		if (fIndexState < IndexState_RootFilesDiscovered
@@ -598,9 +618,9 @@ public abstract class AbstractSVDBIndex implements
 			}
 			buildFileTree(new SubProgressMonitor(monitor, monitor_weight_FileTreeValid));
 			fIndexState = IndexState_FileTreeValid;
-			
+		
 			propagateAllMarkers();
-			notifyIndexRebuilt();
+			notify_rebuilt = true;
 			fIsDirty = false;
 			
 			if (fDebugEn) {
@@ -623,7 +643,7 @@ public abstract class AbstractSVDBIndex implements
 				parseFiles(new SubProgressMonitor(monitor, monitor_weight_AllFilesParsed));
 			}
 			fIndexState = IndexState_AllFilesParsed;
-			notifyIndexRebuilt();
+			notify_rebuilt = true;
 			fIsDirty = false;
 			synchronized (fDeferredPkgCacheFiles) {
 				for (Tuple<String, List<String>> e : fDeferredPkgCacheFiles) {
@@ -643,7 +663,10 @@ public abstract class AbstractSVDBIndex implements
 		else  {
 			monitor.worked(monitor_weight_AllFilesParsed);
 		}
-	
+
+		if (notify_rebuilt) {
+			notifyIndexRebuilt();
+		}
 		
 		monitor.done();
 	}
@@ -659,7 +682,7 @@ public abstract class AbstractSVDBIndex implements
 		final List<String> paths = new ArrayList<String>();
 //		final List<IJob> jobs = new ArrayList<IJob>();
 		
-		fLog.debug(LEVEL_MIN, "parseFiles " + getBaseLocation());
+		fLog.debug(LEVEL_MID, "parseFiles " + getBaseLocation());
 		
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList(false));
@@ -951,7 +974,8 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected void addIncludePath(String path) {
-		fIndexCacheData.addIncludePath(path);
+		String r_path = SVFileUtils.resolvePath(path, getResolvedBaseLocation(), fFileSystemProvider, true);
+		fIndexCacheData.addIncludePath(r_path);
 	}
 
 	/**
@@ -959,6 +983,12 @@ public abstract class AbstractSVDBIndex implements
 	 * list is valid after: - Root File discovery - Pre-processor parse
 	 */
 	public synchronized Iterable<String> getFileList(IProgressMonitor monitor) {
+		ensureIndexState(monitor, IndexState_FileTreeValid);
+		return fCache.getFileList(false);
+	}
+	
+	// TODO: just return full list for now
+	public synchronized Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
 		ensureIndexState(monitor, IndexState_FileTreeValid);
 		return fCache.getFileList(false);
 	}
@@ -1064,8 +1094,15 @@ public abstract class AbstractSVDBIndex implements
 		
 		return file;		
 	}
-			
 	
+	
+	public boolean doesIndexManagePath(String path) {
+		// Dumb implementation for now
+		SVDBFile file = findPreProcFile(path);
+		
+		return (file != null);
+	}
+
 	public synchronized List<SVDBMarker> getMarkers(String path) {
 		/*SVDBFile file = */findFile(path);
 
@@ -1105,6 +1142,10 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected void propagateAllMarkers() {
+		if (!fPropagateMarkers) {
+			return;
+		}
+		
 		for (boolean is_argfile : new boolean[] {false, true}) {
 			Set<String> file_list = fCache.getFileList(is_argfile);
 			for (String path : file_list) {
@@ -1116,6 +1157,10 @@ public abstract class AbstractSVDBIndex implements
 	}
 	
 	protected void propagateMarkers(String path) {
+		if (!fPropagateMarkers) {
+			return;
+		}
+		
 		List<SVDBMarker> ml = fCache.getMarkers(path);
 		getFileSystemProvider().clearMarkers(path);
 		
@@ -1160,7 +1205,7 @@ public abstract class AbstractSVDBIndex implements
 	protected void preProcessFiles(final IProgressMonitor monitor) {
 		final List<String> paths = new ArrayList<String>();
 		
-		fLog.debug(LEVEL_MIN, "preProcessFiles " + getBaseLocation());
+		fLog.debug(LEVEL_MID, "preProcessFiles " + getBaseLocation());
 		
 		synchronized (fCache) {
 			paths.addAll(fCache.getFileList(false));
@@ -1832,6 +1877,7 @@ public abstract class AbstractSVDBIndex implements
 			InputStream 		in,
 			String 				path, 
 			List<SVDBMarker>	markers) {
+		ensureIndexState(new NullProgressMonitor(), IndexState_AllFilesParsed);
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		monitor.beginTask("parse" , 1);
@@ -1918,7 +1964,13 @@ public abstract class AbstractSVDBIndex implements
 		}
 
 		dp.setMacroProvider(createMacroProvider(file_tree));
-		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(file_tree.getFilePath());
+		SVLanguageLevel language_level;
+		
+		if (fIndexCacheData.fForceSV) {
+			language_level = SVLanguageLevel.SystemVerilog;
+		} else {
+			language_level = SVLanguageLevel.computeLanguageLevel(file_tree.getFilePath());
+		}
 		SVDBFile svdb_f = factory.parse(language_level, copier.copy(), 
 				file_tree.getFilePath(), markers);
 		
@@ -1940,6 +1992,11 @@ public abstract class AbstractSVDBIndex implements
 
 		return new SVDBIndexItemIterator(
 				getFileList(new NullProgressMonitor()), this);
+	}
+	
+	public List<SVDBFilePath> getFilePath(String path) {
+		// Disabled for now
+		return new ArrayList<SVDBFilePath>();
 	}
 
 	public SVDBFile findFile(String path) {
@@ -1974,7 +2031,13 @@ public abstract class AbstractSVDBIndex implements
 			}
 		}
 
-		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path.getFilePath());
+		SVLanguageLevel language_level;
+		
+		if (fIndexCacheData.fForceSV) {
+			language_level = SVLanguageLevel.SystemVerilog;
+		} else {
+			language_level = SVLanguageLevel.computeLanguageLevel(path.getFilePath());
+		}
 		SVDBFile svdb_f = factory.parse(language_level, in, path.getFilePath(), markers);
 
 		// Problem parsing the file..
@@ -2552,4 +2615,12 @@ public abstract class AbstractSVDBIndex implements
 		return null;
 	}
 	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		return new ArrayList<SVDBIncFileInfo>();
+	}
+
+	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
+		op.index_operation(monitor, this);
+	}
+
 }

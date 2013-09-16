@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -58,6 +59,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/global_field_ref/global_field_ref.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 
 		ContentAssistTests.runTest(testname, doc, index, 
 				"field_cls");

@@ -84,7 +84,7 @@ public class SelectionConverter {
 			SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(
 					editor.getIndexIterator()) ;
 			
-				found = finder_c.find(expr_ctxt.fLeaf); 
+				found = finder_c.findItems(expr_ctxt.fLeaf); 
 				ISVDBItemBase cls = (found != null && found.size() > 0)?found.get(0):null; 
 				
 				if(cls == null) {

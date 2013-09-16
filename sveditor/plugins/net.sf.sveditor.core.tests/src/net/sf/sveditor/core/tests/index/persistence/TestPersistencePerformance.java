@@ -86,7 +86,7 @@ public class TestPersistencePerformance extends TestCase {
 	
 	public void testJITPersistence() throws Exception {
 		SVDBInclude inc = new SVDBInclude("foo");
-		inc.setLocation(new SVDBLocation(1, 1));
+		inc.setLocation(new SVDBLocation(0, 1, 1));
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(bos);
 		DataInputStream in;

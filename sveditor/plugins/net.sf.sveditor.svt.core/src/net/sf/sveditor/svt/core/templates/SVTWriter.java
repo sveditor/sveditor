@@ -145,10 +145,22 @@ public class SVTWriter {
 	}
 	
 	private void writeParameter(Element parameters_e, TemplateParameterBase p) {
-		Element parameter_e = fDocument.createElement("parameter");
+		Element parameter_e;
+	
+		if (p.getType() == TemplateParameterType.ParameterType_Group) {
+			parameter_e = fDocument.createElement("group");
+		} else {
+			parameter_e = fDocument.createElement("parameter");
+		}
 		String type = null;
 	
 		setAttrIfNotNull(parameter_e, "name", p.getName());
+
+		if (p.getDescription() != null && !p.getDescription().trim().equals("")) {
+			Element description = fDocument.createElement("description");
+			description.setTextContent(p.getDescription());
+			parameter_e.appendChild(description);
+		}
 		
 		switch (p.getType()) {
 			case ParameterType_Id: {
@@ -180,13 +192,10 @@ public class SVTWriter {
 				break;
 		}
 		
-		parameter_e.setAttribute("type", type);
-		
-		if (p.getDescription() != null && !p.getDescription().trim().equals("")) {
-			Element description = fDocument.createElement("description");
-			description.setTextContent(p.getDescription());
-			parameter_e.appendChild(description);
+		if (p.getType() != TemplateParameterType.ParameterType_Group) {
+			parameter_e.setAttribute("type", type);
 		}
+		
 	
 		if (p.getType() == TemplateParameterType.ParameterType_Bool ||
 				p.getType() == TemplateParameterType.ParameterType_Enum ||
@@ -212,10 +221,16 @@ public class SVTWriter {
 		} else if (p.getType() == TemplateParameterType.ParameterType_Group) {
 			TemplateParameterGroup pg = (TemplateParameterGroup)p;
 			
+			if (pg.isHidden()) {
+				parameter_e.setAttribute("hidden", "true");
+			}
+			
 			for (TemplateParameterBase tp : pg.getParameters()) {
 				writeParameter(parameter_e, tp);
 			}
 		}
+		
+
 		
 		parameters_e.appendChild(parameter_e);
 	}

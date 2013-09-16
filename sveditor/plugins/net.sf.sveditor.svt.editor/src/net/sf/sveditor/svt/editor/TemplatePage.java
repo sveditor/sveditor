@@ -3,8 +3,10 @@ package net.sf.sveditor.svt.editor;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.ui.EditorInputUtils;
@@ -27,9 +29,12 @@ import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -67,6 +72,12 @@ public class TemplatePage extends FormPage {
 	private Button						fRemoveParameterButton;
 	private Button						fMoveParameterUpButton;
 	private Button						fMoveParameterDownButton;
+
+	/*
+	private Composite					fFilesButtons;
+	private Button						fAddFileButton;
+	private Button						fAddFilesButton;
+	 */
 	
 	private Composite					fDefaultButtons;
 	private Button						fAddButton;
@@ -96,6 +107,7 @@ public class TemplatePage extends FormPage {
 	
 	private Composite					fParameterGroupDetailsPane;
 	private Text						fParameterGroupName;
+	private Button						fParameterGroupHidden;
 	private Text						fParameterGroupDescription;
 	
 	private Composite					fFileDetailsPane;
@@ -168,7 +180,8 @@ public class TemplatePage extends FormPage {
 				new TemplateDragSource(fTreeViewer));
 		fTreeViewer.addDropSupport(operations, transfer_types,
 				new TemplateDropAdapter(fTreeViewer));
-		
+	
+		fTreeViewer.getTree().addKeyListener(keyListener);
 		fTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
@@ -276,7 +289,7 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 2;
 		fTemplateId.setLayoutData(gd);
 		fTemplateId.addModifyListener(modifyListener);
-		fAttrMap.put(fTemplateId, "name");
+		fAttrMap.put(fTemplateId, "id");
 		
 		tk.createLabel(c, "Category:");
 		fTemplateCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
@@ -298,7 +311,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fTemplateDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fTemplateDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fTemplateDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fTemplateDescription.setLayoutData(gd);
@@ -339,7 +353,8 @@ public class TemplatePage extends FormPage {
 		fParameterRestrictions.setLayoutData(gd);
 		fParameterRestrictions.addModifyListener(modifyListener);
 		fAttrMap.put(fParameterRestrictions, "restrictions");
-		
+	
+		/*
 		tk.createLabel(c, "Class Extends From:");
 		fParameterExtFromClass = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -347,6 +362,7 @@ public class TemplatePage extends FormPage {
 		fParameterExtFromClass.setLayoutData(gd);
 		fParameterExtFromClass.addModifyListener(modifyListener);
 		fAttrMap.put(fParameterExtFromClass, "extends_from");
+		 */
 		
 		/** TODO:
 		fParameterExtFromClassBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
@@ -367,7 +383,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fParameterDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fParameterDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fParameterDescription.setLayoutData(gd);
@@ -392,6 +409,14 @@ public class TemplatePage extends FormPage {
 		fParameterGroupName.addModifyListener(modifyListener);
 		fAttrMap.put(fParameterGroupName, "name");
 		
+		tk.createLabel(c, "Hidden:");
+		fParameterGroupHidden = tk.createButton(c, "", SWT.CHECK);
+		gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+		gd.horizontalSpan = 2;
+		fParameterGroupHidden.setLayoutData(gd);
+		fParameterGroupHidden.addSelectionListener(selectionListener);
+		fAttrMap.put(fParameterGroupHidden, "hidden");
+		
 		Group g = new Group(c, SWT.NONE);
 		g.setText("Description");
 		tk.adapt(g);
@@ -399,7 +424,8 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 3;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		fParameterGroupDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fParameterGroupDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fParameterGroupDescription.addModifyListener(modifyListener);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fParameterGroupDescription.setLayoutData(gd);
@@ -464,7 +490,8 @@ public class TemplatePage extends FormPage {
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
 		g.setText("Description");
-		fCategoryDescription = tk.createText(g, "", SWT.BORDER+SWT.MULTI+SWT.WRAP);
+		fCategoryDescription = tk.createText(g, "", 
+				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fCategoryDescription.addModifyListener(modifyListener);
 		fElemMap.put(fCategoryDescription, "description");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -521,7 +548,9 @@ public class TemplatePage extends FormPage {
 		fParameterName.setText(getAttribute(fActiveElement, "name"));
 		fParameterType.select(getTypeIndex(getAttribute(fActiveElement, "type")));
 		fParameterDefault.setText(getAttribute(fActiveElement, "default"));
+		/*
 		fParameterExtFromClass.setText(getAttribute(fActiveElement, "extends_from"));
+		 */
 		fParameterRestrictions.setText(getAttribute(fActiveElement, "restrictions"));
 		
 		fParameterDescription.setText(getElementText(fActiveElement, "description"));
@@ -546,6 +575,7 @@ public class TemplatePage extends FormPage {
 	
 		fParameterGroupName.setText(getAttribute(fActiveElement, "name"));
 		fParameterGroupDescription.setText(getElementText(fActiveElement, "description"));
+		fParameterGroupHidden.setSelection(getBooleanAttribute(fActiveElement, "hidden", false));
 		
 		fControlModify = false;
 
@@ -559,18 +589,24 @@ public class TemplatePage extends FormPage {
 		fControlModify = true;
 		
 		if (type.equals("id") || type.equals("int")) {
+			/*
 			fParameterExtFromClass.setText("");
 			fParameterExtFromClass.setEnabled(false);
+			 */
 			fParameterRestrictions.setText("");
 			fParameterRestrictions.setEnabled(false);
 		} else if (type.equals("enum")) {
+			/*
 			fParameterExtFromClass.setText("");
 			fParameterExtFromClass.setEnabled(false);
+			 */
 			fParameterRestrictions.setText(getAttribute(fActiveElement, "restrictions"));
 			fParameterRestrictions.setEnabled(true);
 		} else if (type.equals("class")) {
+			/*
 			fParameterExtFromClass.setText(getAttribute(fActiveElement, "extends_from"));
 			fParameterExtFromClass.setEnabled(true);
+			 */
 			fParameterRestrictions.setText("");
 			fParameterRestrictions.setEnabled(false);
 		} else {
@@ -700,12 +736,50 @@ public class TemplatePage extends FormPage {
 			new_elem = createParameter();
 		} else if (fActiveElement.getNodeName().equals("files") ||
 				fActiveElement.getNodeName().equals("file")) {
+			Tuple<File, IFile> ret = EditorInputUtils.getFileLocation(getEditorInput());
 			if (fActiveElement.getNodeName().equals("files")) {
 				target = fActiveElement;
 			} else {
 				target = (Element)fActiveElement.getParentNode();
 			}
-			new_elem = createFile();
+			
+			FileBrowseDialog dlg;
+			if (ret.first() != null) {
+				dlg = new FileBrowseDialog(fAddButton.getShell(),
+						ret.first().getParentFile(), SWT.MULTI);
+			} else {
+				dlg = new FileBrowseDialog(fAddButton.getShell(),
+						ret.second().getParent(), SWT.MULTI);
+			}
+			
+			if (dlg.open() == Window.OK) {
+				List<String> paths = dlg.getSelectedFiles();
+				Element first_elem = null;
+				
+				for (String path : paths) {
+					Element elem = createFile();
+					setAttr(elem, "template", path);
+					String leaf = new File(path).getName();
+					setAttr(elem, "name", leaf);
+					
+					target.appendChild(elem);
+					
+					if (first_elem == null) {
+						first_elem = elem;
+					}
+				}
+				fActiveElement = first_elem;
+				fTreeViewer.refresh();
+				fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						fTreeViewer.expandToLevel(fActiveElement, 0);
+						fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+					}
+				});
+
+				fIsDirty = true;
+				getEditor().editorDirtyStateChanged();
+			}
 		}
 		
 		if (new_elem != null) {
@@ -725,7 +799,15 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void removeElement() {
-		fActiveElement.getParentNode().removeChild(fActiveElement);
+		List<Node> elems = getSelectedNodes();
+		
+		for (Node n : elems) {
+			Node p = n.getParentNode();
+			p.removeChild(n);
+		}
+	
+		// TODO: must set new selection
+		
 		fTreeViewer.refresh();
 		
 		fIsDirty = true;
@@ -776,10 +858,23 @@ public class TemplatePage extends FormPage {
 			target = (Element)fActiveElement.getParentNode();
 		}
 		
-		next_elem = (Element)fActiveElement.getNextSibling();
+//		next_elem = (Element)fActiveElement.getNextSibling();
 		
 		new_elem = createParameterGroup();
 		
+		insertElement(fActiveElement, "parameters", new_elem);
+		fActiveElement = new_elem;
+		fTreeViewer.refresh();
+		fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				fTreeViewer.expandToLevel(fActiveElement, 0);
+				fTreeViewer.setSelection(new StructuredSelection(fActiveElement), true);
+			}
+		});		
+		fIsDirty = true;
+		getEditor().editorDirtyStateChanged();
+	
+		/*
 		if (new_elem != null) {
 			target.insertBefore(new_elem, next_elem);
 			fActiveElement = new_elem;
@@ -793,7 +888,8 @@ public class TemplatePage extends FormPage {
 			// TODO: notify dirty
 			fIsDirty = true;
 			getEditor().editorDirtyStateChanged();
-		}		
+		}	
+		 */	
 	}
 	
 	private void removeParameter() {
@@ -832,18 +928,134 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void moveParameterUp() {
-		Node parent = fActiveElement.getParentNode();
-		List<Element> el_l = getElements(parent.getChildNodes());
+		List<Node> sel_nodes = getSelectedNodes();
 		
-		
-	
-		fTreeViewer.refresh();
-		fIsDirty = true;
-		getEditor().editorDirtyStateChanged();
+		if (sel_nodes.size() > 0) {
+			// TODO: need to detect when we have a heterogeneous selection
+			Node next_node = getNextSiblingElement(sel_nodes.get(sel_nodes.size()-1));
+			Node parent = sel_nodes.get(0).getParentNode();
+			
+			unlinkNodes(sel_nodes);
+			
+			if (next_node == null) {
+				// Append these elements to the end of the parent
+				insertNodesInside(parent, sel_nodes);
+			} else {
+				// Insert before the next node
+				insertNodesBefore(next_node, sel_nodes);
+			}
+			
+			fIsDirty = true;
+			fTreeViewer.refresh();
+			getEditor().editorDirtyStateChanged();
+		}
 	}
 	
 	private void moveParameterDown() {
+		List<Node> sel_nodes = getSelectedNodes();
 		
+//		System.out.println("moveParameterDown: " + sel_nodes.size());
+		
+		if (sel_nodes.size() > 0) {
+			// TODO: need to detect when we have a heterogeneous selection
+			Node next_node = getNextSiblingElement(sel_nodes.get(sel_nodes.size()-1));
+			Node parent = sel_nodes.get(0).getParentNode();
+			
+//			System.out.println("next_node=" + next_node);
+			
+			unlinkNodes(sel_nodes);
+			
+			if (next_node == null) {
+				// Append these elements to the end of the parent
+				insertNodesInside(parent, sel_nodes);
+			} else {
+				// Insert before the next node
+				insertNodesAfter(next_node, sel_nodes);
+			}
+			
+			fIsDirty = true;
+			fTreeViewer.refresh();
+			getEditor().editorDirtyStateChanged();
+		}		
+	}
+	
+	private List<Node> getSelectedNodes() {
+		List<Node> ret = new ArrayList<Node>();
+		IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
+		Iterator<Object> sel_it = sel.iterator();
+		
+		while (sel_it.hasNext()) {
+			ret.add((Node)sel_it.next());
+		}
+
+		// Filter out category nodes
+		while (ret.size() > 0 &&
+				ret.get(0).getNodeName().equals("parameters") ||
+				ret.get(0).getNodeName().equals("files")) {
+			ret.remove(0);
+		}
+	
+		// Filter out any nodes that don't match the root
+		if (ret.size() > 0) {
+			String root = ret.get(0).getNodeName();
+			
+			for (int i=1; i<ret.size(); i++) {
+				if (!ret.get(i).getNodeName().equals(root)) {
+					ret.remove(i);
+					i--;
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	private Node getNextSiblingElement(Node n) {
+		while ((n = n.getNextSibling()) != null &&
+				!(n instanceof Element)) { 
+		}
+		
+		return n;
+	}
+
+	private Node getPrevSiblingElement(Node n) {
+		while ((n = n.getNextSibling()) != null &&
+				!(n instanceof Element)) { }
+		
+		return n;
+	}
+	
+	private void insertElement(Node active, String parent, Node new_elem) {
+		if (active.getNodeName().equals(parent)) {
+			// Insert the new node beneath the parent
+			NodeList children = active.getChildNodes();
+			if (children.getLength() == 0) {
+				active.appendChild(new_elem);
+			} else {
+				Node first = children.item(0);
+				active.insertBefore(new_elem, first);
+			}
+		} else {
+			// Insert
+			Node p_node = active.getParentNode();
+			Node next = nextElement(active);
+			
+			if (next != null) {
+				p_node.insertBefore(new_elem, next);
+			} else {
+				p_node.appendChild(new_elem);
+			}
+		}
+	}
+	
+	private Node nextElement(Node active) {
+		Node next = active;
+		
+		while ((next = next.getNextSibling()) != null &&
+				!(next instanceof Element)) {
+		}
+		
+		return next;
 	}
 
 	private SelectionListener selectionListener = new SelectionListener() {
@@ -864,6 +1076,10 @@ public class TemplatePage extends FormPage {
 				moveParameterUp();
 			} else if (e.widget == fMoveParameterDownButton) {
 				moveParameterDown();
+			} else if (e.widget == fParameterGroupHidden) {
+				setAttr(fActiveElement, "hidden", "" + fParameterGroupHidden.getSelection());
+				fIsDirty = true;
+				getEditor().editorDirtyStateChanged();
 			} else if (e.widget == fParameterType) {
 				if (!fControlModify) {
 					setAttr(fActiveElement, "type", fParameterType.getText());
@@ -889,6 +1105,19 @@ public class TemplatePage extends FormPage {
 				}
 			}
 		}
+	};
+	
+	private KeyListener keyListener = new KeyListener() {
+		
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if (e.keyCode == SWT.DEL) {
+//				System.out.println("DELETE");
+			}
+		}
+		
+		@Override
+		public void keyPressed(KeyEvent e) { }
 	};
 
 	private ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
@@ -964,27 +1193,57 @@ public class TemplatePage extends FormPage {
 			fViewer = viewer;
 		}
 
-		@Override
-		public void dragStart(DragSourceEvent event) {
-			// TODO Auto-generated method stub
-			System.out.println("dragStart");
-			
-		}
+		public void dragStart(DragSourceEvent event) { }
 
-		@Override
 		public void dragSetData(DragSourceEvent event) {
-			// TODO Auto-generated method stub
+			IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
 			
-			System.out.println("dragSetData");
+			StringBuilder sel_sb = new StringBuilder();
+			Iterator<Object> sel_it = sel.iterator();
+			while (sel_it.hasNext()) {
+				sel_sb.append(buildPath((Node)sel_it.next()));
+				if (sel_it.hasNext()) {
+					sel_sb.append("::;;::");
+				}
+			}
+			
+			event.data = sel_sb.toString();
 		}
 
-		@Override
-		public void dragFinished(DragSourceEvent event) {
-			// TODO Auto-generated method stub
-			
-			System.out.println("dragFinished");
+		public void dragFinished(DragSourceEvent event) { }
+	}
+	
+	private String buildPath(Node n) {
+		StringBuilder path = new StringBuilder();
+		List<Node> hierarchy = new ArrayList<Node>();
+		
+		while (n != null) {
+			if (n instanceof Element) {
+				hierarchy.add(n);
+			}
+			n = n.getParentNode();
 		}
 		
+		for (int i=hierarchy.size()-1; i>=0; i--) {
+			Node e = hierarchy.get(i);
+			String name = e.getNodeName();
+			
+			if (e instanceof Element) {
+				Element el = (Element)e;
+				if (el.hasAttribute("id")) {
+					name += ":id=" + el.getAttribute("id");
+				} else if (el.hasAttribute("name")) {
+					name += ":name=" + el.getAttribute("name");
+				}
+			}
+			path.append(name);
+			
+			if (i > 0) {
+				path.append(";;::;;");
+			}
+		}
+		
+		return path.toString();
 	}
 	
 	private class TemplateDropAdapter extends ViewerDropAdapter {
@@ -995,9 +1254,40 @@ public class TemplatePage extends FormPage {
 
 		@Override
 		public boolean performDrop(Object data) {
-			System.out.println("performDrop");
-			// TODO Auto-generated method stub
-			return false;
+			Element target = (Element)getCurrentTarget();
+			int location = getCurrentLocation();
+			int op = getCurrentOperation();
+			List<Node> nodes = getNodesFromPath((String)data);
+
+			if (target.getNodeName().equals("parameter") ||
+					target.getNodeName().equals("parameters") ||
+					target.getNodeName().equals("group")) {
+				switch (location) {
+					case LOCATION_ON: 
+						if (target.getNodeName().equals("group")) {
+							// Move the nodes inside the group
+							unlinkNodes(nodes);
+							insertNodesInside(target, nodes);
+						}
+						fIsDirty = true;
+						break;
+						
+					case LOCATION_BEFORE:
+						unlinkNodes(nodes);
+						insertNodesBefore(target, nodes);
+						fIsDirty = true;
+						break;
+						
+					case LOCATION_AFTER:
+						unlinkNodes(nodes);
+						insertNodesAfter(target, nodes);
+						fIsDirty = true;
+						break;
+				}
+			}
+			fTreeViewer.refresh();
+
+			return true;
 		}
 
 		@Override
@@ -1005,10 +1295,192 @@ public class TemplatePage extends FormPage {
 				Object 			target, 
 				int 			operation,
 				TransferData 	transferType) {
-			System.out.println("validateDrop: " + target + " " + operation + " " + transferType);
+			DropTargetEvent event = getCurrentEvent();
+			Object data = event.data;
+			
+			if (!(target instanceof Element)) {
+				return false;
+			}
+			
+			if (operation != DND.DROP_MOVE) {
+				return false;
+			}
+			
+//			System.out.println("validateDrop: " + target + " " + operation + " " + transferType);
 			// TODO Auto-generated method stub
-			return false;
+			return true;
 		}
+	}
+	
+	private void unlinkNodes(List<Node> nodes) {
+		for (Node n : nodes) {
+			n.getParentNode().removeChild(n);
+		}
+	}
+	
+	private void insertNodesInside(Node parent, List<Node> nodes) {
+		for (Node n : nodes) {
+			parent.appendChild(n);
+		}
+	}
+	
+	private void insertNodesBefore(Node marker, List<Node> nodes) {
+		Node parent = marker.getParentNode();
+		for (Node n : nodes) {
+			parent.insertBefore(n, marker);
+		}
+	}
+	
+	private void insertNodesAfter(Node marker, List<Node> nodes) {
+		Node parent = marker.getParentNode();
+		Node next_marker = marker;
+
+		next_marker = getNextSiblingElement(marker);
+		
+		if (next_marker == null) {
+			for (Node n : nodes) {
+				parent.appendChild(n);
+			}
+		} else {
+			for (Node n : nodes) {
+				parent.insertBefore(n, next_marker);
+			}
+		}
+	}
+	
+	private List<Node> getNodesFromPath(String path) {
+		List<Node> ret = new ArrayList<Node>();
+		List<String> paths = parsePathList(path);
+
+		for (String p : paths) {
+			List<Tuple<String, Map<String, String>>> selected = parseItem(p);
+			Node n = findNode(fRoot, selected);
+			ret.add(n);
+		}
+		
+		return ret;
+	}
+	
+	private List<String> parsePathList(String path) {
+		List<String> ret = new ArrayList<String>();
+		int idx = 0;
+		int n_idx;
+		
+		while (true) {
+			n_idx = path.indexOf("::;;::", idx);
+			
+			if (n_idx == -1) {
+				// Done
+				ret.add(path.substring(idx));
+				break;
+			} else {
+				ret.add(path.substring(idx, n_idx));
+				idx = n_idx+6;
+			}
+		}
+		
+		
+		return ret;
+	}
+	
+	private List<Tuple<String, Map<String, String>>> parseItem(String item) {
+		List<Tuple<String, Map<String, String>>> ret = new ArrayList<Tuple<String,Map<String,String>>>();
+		int idx = 0;
+		int n_idx;
+		
+		while (true) {
+			n_idx = item.indexOf(";;::;;", idx);
+		
+			String elem;
+			if (n_idx == -1) {
+				elem = item.substring(idx);
+			} else {
+				elem = item.substring(idx, n_idx);
+				n_idx += 6;
+			}
+			
+			Tuple<String, Map<String, String>> elem_p = parseElem(elem);
+			ret.add(elem_p);
+			
+			if (n_idx == -1) {
+				break;
+			}
+			idx = n_idx;
+		}
+		
+		return ret;
+	}
+	
+	private Tuple<String, Map<String, String>> parseElem(String elem) {
+		String name;
+		String key=null, val=null;
+		Map<String, String> map = new HashMap<String, String>();
+		
+		int idx = elem.indexOf(":");
+		
+		if (idx == -1) {
+			name = elem;
+		} else {
+			name = elem.substring(0, idx);
+			int eq_idx = elem.indexOf("=", idx);
+			key = elem.substring(idx+1, eq_idx);
+			val = elem.substring(eq_idx+1);
+		}
+	
+		if (key != null) {
+			map.put(key, val);
+		}
+	
+		return new Tuple<String, Map<String,String>>(name, map);
+	}
+	
+	private Node findNode(Element root, List<Tuple<String, Map<String, String>>> path) {
+		Node node = root;
+		Node ret = null;
+		
+		for (int i=0; i<path.size(); i++) {
+			Tuple<String, Map<String, String>> p = path.get(i);
+			
+			if (i == 0) {
+				if (!p.first().equals(node.getNodeName())) {
+					break;
+				}
+			} else {
+				Node next_node = null;
+				NodeList nl = node.getChildNodes();
+				for (int j=0; j<nl.getLength(); j++) {
+					Node n = nl.item(j);
+					if (n instanceof Element && n.getNodeName().equals(p.first())) {
+						Element el = (Element)n;
+						// See all attributes are present
+						boolean match = true;
+						for (Entry<String, String> e : p.second().entrySet()) {
+							if (!el.hasAttribute(e.getKey()) || 
+									!el.getAttribute(e.getKey()).equals(e.getValue())) {
+								match = false;
+								break;
+							}
+						}
+						
+						if (match) {
+							next_node = n;
+							break;
+						}
+					}
+				}
+				
+				if (next_node == null) {
+					break;
+				}
+				node = next_node;
+			}
+			
+			if (i+1 == path.size()) {
+				ret = node;
+			}
+		}
+		
+		return ret;
 	}
 	
 	private void setAttr(Element elem, String attr, String value) {
@@ -1016,15 +1488,22 @@ public class TemplatePage extends FormPage {
 	}
 
 	private void setElem(Element elem, String e_name, String value) {
-		NodeList nl = elem.getElementsByTagName(e_name);
-		Element e;
+		NodeList nl = elem.getChildNodes();
+		Element e = null;
 		
-		if (nl.getLength() > 0) {
-			e = (Element)nl.item(0);
-		} else {
+		for (int i=0; i<nl.getLength(); i++) {
+			if (nl.item(i) instanceof Element &&
+					nl.item(i).getNodeName().equals(e_name)) {
+				e = (Element)nl.item(i);
+				break;
+			}
+		}
+		
+		if (e == null) {
 			e = fDocument.createElement(e_name);
 			elem.appendChild(e);
 		}
+		
 		e.setTextContent(value);
 	}
 	
@@ -1041,6 +1520,15 @@ public class TemplatePage extends FormPage {
 	private String getAttribute(Element elem, String attr) {
 		return getAttribute(elem, attr, "");
 	}
+	
+	private boolean getBooleanAttribute(Element elem, String attr, boolean dflt) {
+		if (elem.hasAttribute(attr)) {
+			String val = elem.getAttribute(attr);
+			return val.equals("true");
+		} else {
+			return dflt;
+		}
+	}
 
 	private String getAttribute(Element elem, String attr, String dflt) {
 		String ret = elem.getAttribute(attr);
@@ -1053,11 +1541,15 @@ public class TemplatePage extends FormPage {
 	}
 
 	private String getElementText(Element elem, String c_elem) {
-		NodeList nl = elem.getElementsByTagName(c_elem);
 		String ret = "";
+		NodeList nl = elem.getChildNodes();
 		
-		if (nl.getLength() != 0) {
-			ret = nl.item(0).getTextContent();
+		for (int i=0; i<nl.getLength(); i++) {
+			if (nl.item(i).getNodeName().equals(c_elem) &&
+					nl.item(i) instanceof Element) {
+				ret = nl.item(i).getTextContent();
+				break;
+			}
 		}
 		
 		return ret;

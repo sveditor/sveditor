@@ -4,9 +4,16 @@
 
     <!-- Import the version info -->
     <property file="${basedir}/../etc/sveditor.info"/>
+    <property file="${basedir}/../etc/sveditor_${version_type}.info"/>
     <property file="${basedir}/build.properties"/>
 
     <property name="gef_zest" location="${env.SVE_ADDINS}/gef_zest"/>
+
+    <condition property="sf_update_dir"
+	value="update"
+	else="update_testing">
+	<equals arg1="${version_type}" arg2="release"/>
+    </condition>
 
     <property name="eclipse.home" location="${env.ECLIPSE_HOME}"/>
 	<condition property="eclipsec" 
@@ -37,7 +44,7 @@
     </taskdef>
         
     <target name="build" depends="compile, mkarchive">
-	<delete dir="${buildDirectory}"/>
+		<delete dir="${buildDirectory}"/>
     </target>
 
     <target name="compile"> 
@@ -62,6 +69,25 @@
             </filterset>
         </copy>
 
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.core.feature"/>
+        </antcall>
+    	
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.ui.feature"/>
+        </antcall>
+    
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor.svt.feature"/>
+        </antcall>
+    	
+        <antcall target="build_feature">
+            <param name="feature.id" value="net.sf.sveditor"/>
+        </antcall>
+    </target>
+
+    <target name="build_feature">
+    	<echo message="==> buildScript type=${type} id=${feature.id}"/>
         <eclipse.buildScript
             elements="${type}@${feature.id}"
             buildDirectory="${buildDirectory}"
@@ -69,6 +95,7 @@
             configInfo="${os},${ws},${arch}"
             forceContextQualifier="${forceContextQualifier}"
             generateFeatureVersionSuffix="true"/>
+    	<echo message="&lt;== buildScript type=${type} id=${feature.id}"/>
 
         <ant antfile="${buildDirectory}/features/${feature.id}/build.xml"
             dir="${buildDirectory}/features/${feature.id}"
@@ -145,7 +172,8 @@
 
         <xmltask source="${repository}/artifacts.xml"
                  dest="${repository}/artifacts_1.xml">
-        	<replace path="/repository/@name" withText="http://sveditor.sourceforge.net/update"/>
+        	<replace path="/repository/@name" 
+			withText="http://sveditor.sourceforge.net/${sf_update_dir}"/>
         </xmltask>
 
         <move file="${repository}/artifacts_1.xml"
@@ -153,7 +181,8 @@
 
         <xmltask source="${repository}/content.xml"
                  dest="${repository}/content_1.xml">
-        	<replace path="/repository/@name" withText="http://sveditor.sourceforge.net/update"/>
+        	<replace path="/repository/@name" 
+			withText="http://sveditor.sourceforge.net/${sf_update_dir}"/>
         </xmltask>
 
         <move file="${repository}/content_1.xml"

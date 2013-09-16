@@ -44,12 +44,17 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.Bundle;
 
 public class TestUtils {
@@ -240,6 +245,17 @@ public class TestUtils {
 		}
 	}
 	
+	public static void copy_ws(String in, String ws_path) {
+		TestCase.assertTrue(ws_path.startsWith("${workspace_loc}"));
+		
+		ws_path = ws_path.substring("${workspace_loc}".length());
+		
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFile file = root.getFile(new Path(ws_path));
+		
+		copy(in, file);
+	}
+	
 	public static void copy(String in, IFile out) {
 		try {
 			InputStream  in_s = new StringInputStream(in);
@@ -344,15 +360,45 @@ public class TestUtils {
 		return project;
 	}
 
-	public static void deleteProject(IProject project_dir) {
+	public static void deleteProject(final IProject project_dir) {
 		if (project_dir != null && project_dir.exists()) {
+			Job delete_job = new Job("Delete Project " + project_dir.getName()) {
+				
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						project_dir.close(new NullProgressMonitor());
+						project_dir.delete(true, true, new NullProgressMonitor());
+					} catch (CoreException e) {
+						System.out.println("Failed to delete project: " + project_dir.getName());
+						e.printStackTrace();
+						TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
+								e.getMessage());
+					}
+
+					return Status.OK_STATUS;
+				}
+			};
+		
+			delete_job.setRule(ResourcesPlugin.getWorkspace().getRoot());
+			delete_job.schedule();
 			try {
-				project_dir.close(new NullProgressMonitor());
-				project_dir.delete(true, true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
-						e.getMessage());
-				e.printStackTrace();
+				delete_job.join();
+			} catch (InterruptedException e) {
+				
+			}
+		}
+	}
+	
+	private static void delete(IContainer parent) throws CoreException {
+		for (IResource r : parent.members()) {
+			if (r instanceof IContainer) {
+				delete((IContainer)r);
+			}
+		}
+		for (IResource r : parent.members()) {
+			if (!(r instanceof IContainer)) {
+				r.delete(true, new NullProgressMonitor());
 			}
 		}
 	}
@@ -399,30 +445,48 @@ public class TestUtils {
 		return lines;
 	}	
 	
-	public static IProject importProject(File project) {
-		IProjectDescription pd = null;
-		IWorkspace ws = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot root = ws.getRoot();
-	
-		try {
-			pd = ws.loadProjectDescription(
-					new Path(new File(project, ".project").getAbsolutePath()));
-		} catch (CoreException e) {
-			TestCase.fail("Failed to load project description: " + 
-					project.getAbsolutePath() + ": " + e.getMessage());
-		}
-	
-		IProject p = root.getProject(pd.getName());
+	public static IProject importProject(final File project) {
+		final IWorkspace ws = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot root = ws.getRoot();
+		final List<IProject> result = new ArrayList<IProject>();
 		
-		try {
-			p.create(pd, null);
-			p.open(null);
-		} catch (CoreException e) {
-			TestCase.fail("Failed to open project: " + 
-					project.getAbsolutePath() + ": " + e.getMessage());
-		}
+		Job import_job = new Job("Import " + project.getName()) {
+			
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				IProjectDescription pd = null;
+				
+				try {
+					pd = ws.loadProjectDescription(
+							new Path(new File(project, ".project").getAbsolutePath()));
+				} catch (CoreException e) {
+					TestCase.fail("Failed to load project description: " + 
+							project.getAbsolutePath() + ": " + e.getMessage());
+				}
+			
+				IProject p = root.getProject(pd.getName());
+				
+				try {
+					p.create(pd, null);
+					p.open(null);
+				} catch (CoreException e) {
+					TestCase.fail("Failed to open project: " + 
+							project.getAbsolutePath() + ": " + e.getMessage());
+				}
+				
+				result.add(p);
+				
+				return Status.OK_STATUS;
+			}
+		};
 		
-		return p;
+		import_job.setRule(root);
+		import_job.schedule();
+		try {
+			import_job.join();
+		} catch (InterruptedException e) {}
+		
+		return result.get(0);
 	}
 
 	public static List<String> grep(

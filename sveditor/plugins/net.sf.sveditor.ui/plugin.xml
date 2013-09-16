@@ -1035,32 +1035,61 @@ endclass
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
             annotationType="net.sf.sveditor.ui.occurrences"
-            textPreferenceKey="occurrenceIndication"
-            textPreferenceValue="false"
-            highlightPreferenceKey="occurrenceHighlighting"
-            highlightPreferenceValue="true"
-            contributesToHeader="false"
-            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
-            overviewRulerPreferenceValue="true"
-            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
-            verticalRulerPreferenceValue="false"
             colorPreferenceKey="occurrenceIndicationColor"
             colorPreferenceValue="212,212,212"
-            presentationLayer="4"
-            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
-            showInNextPrevDropdownToolbarAction="true"
-            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget"
+            contributesToHeader="false"
+            highlightPreferenceKey="occurrenceHighlighting"
+            highlightPreferenceValue="true"
             isGoToNextNavigationTarget="false"
-            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget"
             isGoToPreviousNavigationTarget="false"
+            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            label="SV Mark Occurences Annotation"
+            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            presentationLayer="4"
+            showInNextPrevDropdownToolbarAction="true"
+            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
+            textPreferenceKey="occurrenceIndication"
+            textPreferenceValue="false"
             textStylePreferenceKey="occurrenceTextStyle"
-            textStylePreferenceValue="NONE">
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false">
+      </specification>
+      <specification
+            annotationType="net.sf.sveditor.ui.disabledRegion"
+            colorPreferenceKey="disabledRegionColorPrefKey"
+            colorPreferenceValue="224,224,224"
+            contributesToHeader="false"
+            highlightPreferenceKey="disabledRegionHighlightPrefKey"
+            highlightPreferenceValue="true"
+            includeOnPreferencePage="true"
+            isGoToNextNavigationTarget="false"
+            isGoToNextNavigationTargetKey="disabledRegionGoToNextPrefKey"
+            isGoToPreviousNavigationTarget="false"
+            isGoToPreviousNavigationTargetKey="disabledRegionGoToPrevPrefKey"
+            label="SV Disabled Region Annotation"
+            overviewRulerPreferenceKey="disabledRegionOverviewRulerPrefKey"
+            overviewRulerPreferenceValue="false"
+            presentationLayer="1"
+            showInNextPrevDropdownToolbarAction="false"
+            showInNextPrevDropdownToolbarActionKey="disabledRegionNextPrevPrefKey"
+            textPreferenceKey="disabledRegionTextPrefKey"
+            textPreferenceValue="false"
+            textStylePreferenceKey="disabledRegionRulerPrefKey"
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="disabledRegionVerticalRulerPrefKey"
+            verticalRulerPreferenceValue="false">
       </specification>
    </extension>
    <extension
          point="org.eclipse.ui.editors.annotationTypes">
       <type
             name="net.sf.sveditor.ui.occurrences">
+      </type>
+      <type
+            name="net.sf.sveditor.ui.disabledRegion">
       </type>
    </extension>
    <extension
@@ -1085,6 +1114,12 @@ endclass
             class="net.sf.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportWizard"
             id="net.sf.sveditor.ui.compilationArgWizard"
             name="Compilation Arguments">
+      </wizard>
+      <wizard
+            category="net.sf.sveditor.ui.importWizardCategory"
+            class="net.sf.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportDumpFileWizard"
+            id="net.sf.sveditor.ui.compilationArgDumpFileWizard"
+            name="Compilation Arguments Dumpfile">
       </wizard>
    </extension>
    <extension
@@ -1112,6 +1147,16 @@ endclass
             id="net.sf.sveditor.ui.svSpellingEngine"
             label="SystemVerilog Engine">
       </engine>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+         <!--
+      <image
+            icon="icons/vlog_16_16.gif"
+            id="net.sf.sveditor.ui.SVProjectNatureImage"
+            natureId="net.sf.sveditor.core.SVNature">
+      </image>
+          -->
    </extension>
 
 </plugin>

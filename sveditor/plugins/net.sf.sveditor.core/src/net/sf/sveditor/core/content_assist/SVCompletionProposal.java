@@ -14,6 +14,8 @@ package net.sf.sveditor.core.content_assist;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class SVCompletionProposal {
 	public static final int				PRIORITY_BEHAVIORAL_SCOPE    = 0;
@@ -23,23 +25,39 @@ public class SVCompletionProposal {
 	public static final int				PRIORITY_GLOBAL_SCOPE 		 = (PRIORITY_PACKAGE_SCOPE+1);
 	public static final int				PRIORITY_PREPROC_SCOPE 		 = (PRIORITY_GLOBAL_SCOPE+1);
 	public static final int				PRIORITY_MAX = (PRIORITY_PREPROC_SCOPE+1);
-	
+
+	private SVDBDeclCacheItem			fCacheItem;
 	private ISVDBItemBase				fItem;
 	private String						fPrefix;
 	private String						fReplacement;
 	private int							fReplacementOffset;
 	private int							fReplacementLength;
+	private String						fDisplayString;
+	private String						fAdditionalInfo;
 	private SVCompletionProposalType	fType;
 	private int							fPriorityCategory;
 	private int							fPriority;
 	
 	
 	public SVCompletionProposal(
-			ISVDBItemBase 	item,
-			String			prefix,
-			int				replacementOffset,
-			int				replacementLength) {
-		fItem 				= item;
+			SVDBDeclCacheItem 	item,
+			String				prefix,
+			int					replacementOffset,
+			int					replacementLength) {
+		fCacheItem			= item;
+		fPrefix 			= prefix;
+		fReplacement		= item.getName();
+		fReplacementOffset 	= replacementOffset;
+		fReplacementLength 	= replacementLength;
+		fType				= SVCompletionProposalType.SVObject;
+	}
+
+	public SVCompletionProposal(
+			ISVDBItemBase 		item,
+			String				prefix,
+			int					replacementOffset,
+			int					replacementLength) {
+		fItem				= item;
 		fPrefix 			= prefix;
 		fReplacement		= SVDBItem.getName(item);
 		fReplacementOffset 	= replacementOffset;
@@ -75,6 +93,22 @@ public class SVCompletionProposal {
 		fReplacement = replacement;
 	}
 	
+	public String getDisplayString() {
+		return fDisplayString;
+	}
+	
+	public void setDisplayString(String str) {
+		fDisplayString = str;
+	}
+	
+	public String getAdditionalInfo() {
+		return fAdditionalInfo;
+	}
+	
+	public void setAdditionalInfo(String str) {
+		fAdditionalInfo = str;
+	}
+	
 	public SVCompletionProposal(
 			String 				replacement, 
 			int 				startOffset, 
@@ -97,7 +131,41 @@ public class SVCompletionProposal {
 	}
 
 	public ISVDBItemBase getItem() {
-		return fItem;
+		if (fItem != null) {
+			return fItem;
+		} else if (fCacheItem != null) {
+			fItem = fCacheItem.getSVDBItem();
+			return fItem;
+		} else {
+			return null;
+		}
+	}
+	
+	public SVDBDeclCacheItem getCacheItem() {
+		return fCacheItem;
+	}
+	
+	public String getName() {
+		if (fCacheItem != null) {
+			return fCacheItem.getName();
+		} else {
+			ISVDBItemBase item = getItem();
+			if (item != null) {
+				return SVDBItem.getName(item);
+			} else {
+				return fReplacement;
+			}
+		}
+	}
+	
+	public SVDBItemType getItemType() {
+		if (fCacheItem != null) {
+			return fCacheItem.getType();
+		} else if (fItem != null) {
+			return fItem.getType();
+		} else {
+			return null;
+		}
 	}
 	
 	public SVCompletionProposalType getType() {

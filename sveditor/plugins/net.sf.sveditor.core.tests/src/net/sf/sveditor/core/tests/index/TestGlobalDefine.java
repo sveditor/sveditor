@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
@@ -91,6 +92,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		CoreReleaseTests.clearErrors();
 		
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
 		
@@ -101,11 +103,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		fw.addArgFilePath("${workspace_loc}/project/basic_lib_global_defs/proj.f");
 		p_data.setProjectFileWrapper(fw);
 		
-		try {
-			int_testGlobalDefine("testArgFileIndexGlobalDefine", p_data, null);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
+		int_testGlobalDefine("testArgFileIndexGlobalDefine", p_data, null);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
@@ -151,22 +149,10 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		assertEquals("Check that define not forgotten", 1, p_wrap.getGlobalDefines().size());
 		
 		SVDBIndexCollection index_mgr = project_data.getProjectIndexMgr();
-		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
+		index_mgr.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemBase class1_it = null;
-		while (index_it.hasNext()) {
-			ISVDBItemBase it_tmp = index_it.nextItem();
-			log.debug("it " + it_tmp.getType() + " " + SVDBItem.getName(it_tmp));
-			if (SVDBItem.getName(it_tmp).equals("class1")) {
-				class1_it = it_tmp;
-			}
-		}
+		IndexTestUtils.assertFileHasElements(fLog, index_mgr, "class1");
 		
-		assertNotNull("Expect to find \"class1\"", class1_it);
-		for (Exception err : CoreReleaseTests.getErrors()) {
-			log.debug("Core Error: " + err.getMessage());
-			err.printStackTrace();
-		}
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}

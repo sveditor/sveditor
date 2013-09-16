@@ -21,12 +21,12 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.ops.SVDBCreatePreProcScannerOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -38,7 +38,6 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -552,10 +551,6 @@ public class TestPreProc extends SVCoreTestCaseBase {
 
 	public void disabled_testNestedMacro() {
 		File tmpdir = new File(fTmpDir, "preproc_vmm");
-		
-		if (tmpdir.exists()) {
-			tmpdir.delete();
-		}
 		tmpdir.mkdirs();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -656,12 +651,6 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle("testOvmSequenceUtilsExpansion");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-		assertTrue(fTmpDir.mkdirs());
-		
-		File db = new File(fTmpDir, "db");
 		
 		utils.unpackBundleZipToFS("/ovm.zip", fTmpDir);
 		utils.copyBundleFileToFS("/data/ovm_sequence_utils_macro.svh", fTmpDir);
@@ -681,6 +670,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		File target = new File(fTmpDir, "ovm_sequence_utils_macro.svh");
 		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
@@ -704,12 +694,6 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle("testUvmTlm2DoRecordMacroExpansion");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-		assertTrue(fTmpDir.mkdirs());
-		
-		File db = new File(fTmpDir, "db");
 		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		utils.copyBundleFileToFS("/data/uvm_tlm2_generic_payload_fields.svh", fTmpDir);
@@ -729,6 +713,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		File target = new File(fTmpDir, "uvm_tlm2_generic_payload_fields.svh");
 		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
 		assertNotNull(pp);
@@ -883,10 +868,6 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle("testUVMFieldArrayIntExpansion");
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-		assertTrue(fTmpDir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		
@@ -918,15 +899,14 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		ps.flush();
 		ps.close();
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-
-		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
+		ISVDBIndexInt index = (ISVDBIndexInt)fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(), "GLOBAL", 
 				new File(fTmpDir, "test.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
+		
 		File target = new File(fTmpDir, "uvm_fields.svh");
-		ISVPreProcessor pp = index.createPreProcScanner(target.getAbsolutePath());
+		ISVPreProcessor pp = SVDBCreatePreProcScannerOp.op(index, target.getAbsolutePath());
 		assertNotNull(pp);
 		
 		StringBuilder sb = new StringBuilder();
@@ -954,7 +934,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		}
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = SVDBTestUtils.parse(log, sb.toString(), "uvm_fields.svh", markers);
+		/* SVDBFile file = */ SVDBTestUtils.parse(log, sb.toString(), "uvm_fields.svh", markers);
 		
 		assertEquals("Errors", 0, markers.size());
 		

@@ -12,12 +12,11 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.io.InputStream;
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlanner;
@@ -27,7 +26,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndex extends 
 	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache,
-	ISVDBIndexChangePlanner {
+	ISVDBIndexChangePlanner, ISVDBIndexOperationRunner,
+	ISVDBIndexParse {
 	
 	ISVDBFileSystemProvider getFileSystemProvider();
 	
@@ -35,11 +35,6 @@ public interface ISVDBIndex extends
 	
 	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder);
 
-	Tuple<SVDBFile, SVDBFile> parse(
-			IProgressMonitor monitor,
-			InputStream in, 
-			String path, 
-			List<SVDBMarker> markers);
 	
 	/**
 	 * setEnableAutoRebuild()
@@ -85,6 +80,8 @@ public interface ISVDBIndex extends
 	
 	Iterable<String> getFileList(IProgressMonitor monitor);
 	
+//	String getFilePath(SVDBLocation loc);
+	
 	List<SVDBMarker> getMarkers(String path);
 
 	/**
@@ -112,6 +109,12 @@ public interface ISVDBIndex extends
 	 * @return
 	 */
 	SVDBFile findPreProcFile(String path);
+	
+	/**
+	 * Returns whether the specified path is managed by this
+	 * index
+	 */
+	boolean doesIndexManagePath(String path);
 
 	/**
 	 * Forces a rebuild of the index
@@ -144,5 +147,6 @@ public interface ISVDBIndex extends
 	boolean isFileListLoaded();
 	
 	SVDBIndexConfig getConfig();
-	
+
+
 }

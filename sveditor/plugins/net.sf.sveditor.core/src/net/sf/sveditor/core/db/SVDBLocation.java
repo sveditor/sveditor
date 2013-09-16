@@ -18,11 +18,13 @@ public class SVDBLocation {
 	public int				fLine;
 	public int				fPos;
 
+	/*
 	public SVDBLocation(int line, int pos) {
 		fFileId = -1;
 		fLine   = line;
 		fPos    = pos;
 	}
+	 */
 	
 	public SVDBLocation(int file_id, int line, int pos) {
 		fFileId = file_id;
@@ -49,6 +51,7 @@ public class SVDBLocation {
 	}
 	
 	public void init(SVDBLocation other) {
+		fFileId = other.fFileId;
 		fLine = other.fLine;
 		fPos  = other.fPos;
 	}

@@ -1,4 +1,249 @@
 
+-- 1.4.0 Release --
+
+------------------------------------------------------------------------------
+-- 1.3.9 Release --
+
+- #(nobug) - Correct a bug in the argument-file document partitioner that
+  caused incorrect completions to be returned in some cases when no
+  leaf element was supplied. For example: ${workspace_loc}/
+  
+- #(enh) - Add argument-file content assist support for projects in the
+  workspace. Now, requesting content assist for ${workspace_loc}/ returns
+  a list of projects in the workspace.
+  
+- #(enh 74) - Remove `ifndef guards from standard and methodlogy templates
+
+- #(nobug) - Re-enable Open Declaration and content assist for macros
+  in the 'new' indexer
+  
+- #(nobug) - Correct an issue with include-file caching in the 'new' index,
+  where include files with a common leaf element would match. For example,
+  my_cls.svh would be used when the actual include was cls.svh. 
+  
+- #(nobug) - Allow generate statements to include task calls. Task calls 
+  are used in some cases to force errors in case of faulty elaboration
+  
+- #(nobug) - Add back support for -y (libdir) and -l (libfile) to the
+  'new' index in both SFCU and MFCU mode
+  
+- #(278) - Correct an issue with auto-indent around if/else blocks without
+  begin/end  
+  
+- #(276) - Clean up some debug messages displayed on the console
+
+------------------------------------------------------------------------------
+-- 1.3.8 Release --
+
+- #(nobug) - Correct an issue with the 'new' index and incremental parsing.
+  In some cases, macros from cached include files were not found. 
+  
+- #(nobug) - Correct an issue that could cause compilation-argument import
+  to fail on Unix due to wrapper scripts having Windows-style line endings.
+  Now, line endings are correctly converted.
+
+------------------------------------------------------------------------------
+-- 1.3.7 Release --
+
+- #(274) - Correct an issue with brace matching in the presence of escaped
+  double quotes within strings (eg "this is a \" string")
+  
+- #(nobug) - Correct an issue with the content assist provider that caused
+  non-class proposals to be given for class 'extends'
+
+- #(enh) - Add initial macro-caching scheme to the 'new' indexer to prevent
+  include files from being repeatedly processed. In the new scheme,
+  after initial processing of an include file, subsequent inclusions of 
+  that file simply bring in the macros previously defined.
+  
+- #(nobug) - Correct a line-number issue with the 'new' index. `ifdef/`ifndef
+  directives caused the line number to incorrectly be incremented  
+  
+- #(275) - Add support for the '-sv' and '-sverilog' switches to force all 
+  files in the argument-file tree to be processed as SystemVerilog files.
+
+------------------------------------------------------------------------------
+-- 1.3.6 Release --
+
+- #(272) - Update bracket-matching behavior to match JDT's behavior. 
+
+- #(nobug) - Corrected an issue with the code that annotates spell-check
+  markers that could cause other annotations to be removed
+  
+- #(72:enh) - Added support for shading code regions disabled by a 
+  preprocessor ifdef/ifndef directive. The new support is enabled
+  for the 'new' indexer and for files not part of an index
+  
+- #(71:enh) - Add initial support for code folding. Classes, modules,
+  interfaces, packages, tasks, and functions, and constraint blocks
+  can be folded.
+
+------------------------------------------------------------------------------
+-- 1.3.5 Release --
+
+- #(nobug) - Correct a class-cast exception from the argument file 
+  outline view
+
+------------------------------------------------------------------------------
+-- 1.3.4 Release --
+
+- #(268) - Correct a thread-access issue involving the editor and Eclipse's
+  isPartVisible() method. 
+  
+- #(ehh) - Enhance the argument-file outline view with double-click navigation
+  to file paths specified in the argument file.
+  
+- #(nobug) - Correct a new-indexer bug involving over-aggressive caching of
+  non-root objects.
+  
+- #(269) - Correct an specification error in the definition of the annotation
+  marker that caused the Annotations preference page to not display. Turns 
+  out that the 'label' property really is required (despite not being labeled as such)
+
+- #(nobug) - Correct a bug with the 'new' argument file parser that could lead
+  to include directories incorrectly being marked as 'missing'
+  
+- #(nobug) - Correct a bug in the 'new' indexer that caused some cached items
+  to not be resolved back to their actual items. This could result in NPEs
+  when performing content-assist or open declaration operations
+  
+- #(enh) - Add index-performance debug output for the 'new' index. This
+  output is displayed at 'Minimum' debug level after a full rebuild and
+  gives some statistics on how many source files and lines were processed,
+  and how long each operation phase took.
+  
+- #(enh) - More changes to better-integrate with the Eclipse builder 
+  to filter out redundant build requests and wait until post-import
+  refresh is complete before kicking off index builds.
+  
+- #(nobug) - Correct an issue with the 'new' indexer that caused some items
+  declared by `included files to be shown in the Outline view of the 
+  active file. Items declared in `included files are now filtered out of the
+  outline view.
+  
+- #(271) - Correct a longstanding bug in the bracket-matching code related
+  to bracket characters in comments. The bracket-matching code now uses
+  the same comment-region-aware scanner used by the content-assist utilities
+
+------------------------------------------------------------------------------
+-- 1.3.3 Release --
+
+- #(nobug) - Correct a windows-specific hang that could occur during file
+  pre-processing when Java throws an exception rather than returning a
+  'no data available' return code from the read() method
+  
+
+------------------------------------------------------------------------------
+-- 1.3.2 Release --
+
+- #(nobug) - Correct a bug in the build procedure that could cause the
+  template-engine plugins to be deployed without any .class files. 
+
+------------------------------------------------------------------------------
+-- 1.3.1 Release --
+
+- #(267) - Add logic to the spelling reconciler to check for null handles
+  returned from the annotation model, and deal gracefully with that.
+  
+- #(nobug) - Correct an issue with the 'new' index where content from a
+  macro expansion had no file ID
+  
+- #(enh) - Add 'Include Hierarchy' element to the outline view of the argument file
+  editor. As with the 'Include Hierarchy' element in the SV editor outline view,
+  this shows the include path back to the root argument file. 
+  Note: this is only enabled for the 'new' argument-file index
+  
+- #(nobug) - New index: ensure .svproject file is re-read after project import
+  if project data was incorrectly creasted prior to existence of .svproject file.
+
+------------------------------------------------------------------------------
+-- 1.3.0 Release --
+
+- #(266) - Correct parse error with |-> property expression
+
+------------------------------------------------------------------------------
+-- 1.2.9 Release --
+
+- #(nobug) - Enable non-ANSI portlist declarations to end with ','. For example:
+  module (a, b,);
+  endmodule
+  
+- #(enh) - Add .flist as a recognized extension for an argument file
+
+- #(enh) - Enable argument-file editor to open verilog source-library files.
+  For example: -v <file>
+
+- #(nobug) - Correct an issue with the new indexer and verilog source-library files
+
+- #(nobug) - Correct an issue with a SV keyword (context) being incorrectly
+  recognized as a variable modifier when used in a Verilog context.
+  
+- #(enh) - Update the editor to react to rebuilds of its index by re-parsing. This
+  ensures that markers are updated, etc
+ 
+- #(enh) - Add 'Include Hierarchy' element to outline view (.testing release ONLY).
+  This allows the user to trace how the active file is included in compilation
+  
+- #(enh) - More reliable support for detecting project import/open and 
+  kicking off an index operation for the newly-available project
+  
+- #(nobug) - Correct a constraint-parse error involving an implication
+  constraint: (expr) -> foreach
+  
+- #(265) - Correct a bug with word highlighting of words containing regular-expression 
+  special characters due to a change in behavior with new Eclipse versions.
+
+------------------------------------------------------------------------------
+-- 1.2.8 Release --
+
+- #(260) - Correct an issue that caused certain operators to not be correctly
+  colored in the editor. Due to history, operator lists were stored in different
+  places in the code. Now, all operators are listed in the SVOperators class.
+  
+- #(nobug) - Correct an off-by-one line numbering issue with the Argument File
+  editor. This issue caused errors to be annotated one line off from where
+  they should have been positioned.
+  
+- #(enh) - Enhance argument-file editor to react to resource-variable changes.
+
+- #(nobug) - Correct a build issue with 1.2.7 that caused the 
+  template-instantiation wizard to not load.
+  
+- #(enh) - Enhance support for editing files that are not part of an index,
+  but are inside a project where indexed files are configured. This often 
+  happens, for example, when a new file is added to a project. With the
+  enhancements, macro definitions are pulled from the project's index.
+  
+- #(264) - Correct a bug involving selected-word highlighting for words
+  containing regular-expression characters
+
+- #(261) - Correct a bug involving first_match in an assertion
+
+- #(262) - Correct a bug involving 'within' used within an assertion
+
+------------------------------------------------------------------------------
+-- 1.2.7 Release --
+
+- #(127) - Correct a parse bug involving a package-qualified 
+  parameterized-class type reference (uvm_pkg::uvm_resource_db #(type)::set)
+  
+- #(259) - Spurious parser error with inout in clocking block
+
+- #(nobug) - Correct issues with specifying argument files relative to
+  ${project_loc}.
+   
+------------------------------------------------------------------------------
+-- 1.2.6 Release --
+
+- #(nobug) - A few required patch-ups due to the plug-in reorganization. 
+  The SVT editor now properly displays its icon, and PNG images are 
+  now properly exported to the help area.
+
+- #(enh) - Template parameter references (ie ${my_parameter}) in SV 
+  files are now colorized.
+  
+
+------------------------------------------------------------------------------
 -- 1.2.5 Release --
 
 - #(enh) - Update SV editor to display a decorated icon for files that are
@@ -7,6 +252,17 @@
 - #(253) - Change index to detect the language variant used in a file based 
   on its extension. .v, .vl, and .vlog are considered to be Verilog 2005 files,
   while the remainder are considered to be SystemVerilog files.
+  
+- #(enh) - Add support for running JavaScript extension scripts from 
+  within SVE. There is now a launch configuration where a script and
+  arguments can be specified.  
+  
+- #(nobug) - Change 'shadow' index such that errors are not propagated
+  to the filesystem. Previously, propagating markers made it appear
+  that SVEditor was managing a file, while in reality it wasn't
+  
+- #(258) - Added an exception to allow parens around a dist statement.
+  This isn't LRM-compliant, but some simulators appear to support it.
 
 ------------------------------------------------------------------------------
 -- 1.2.4 Release --

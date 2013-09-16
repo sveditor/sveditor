@@ -11,9 +11,12 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileForceSvStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
@@ -25,7 +28,7 @@ public class SVArgFileParser {
 	private SVArgFileLexer						fLexer;
 	private String								fFilename;
 	private LogHandle							fLog;
-	private boolean							fDebugEn = true;
+	private boolean								fDebugEn = true;
 	private List<SVDBMarker>					fMarkers;
 	private ISVDBFileSystemProvider				fFSProvider;
 	private String								fResolvedBaseLocation;
@@ -116,7 +119,7 @@ public class SVArgFileParser {
 									path = SVFileUtils.resolvePath(path, 
 											fResolvedBaseLocation, fFSProvider, true);
 
-									if (!fFSProvider.fileExists(path)) {
+									if (!fFSProvider.isDir(path)) {
 										error(tok.getStartLocation(), "Include path \"" + path + "\" does not exist. " +
 												"Resolved relative to \"" + fResolvedBaseLocation + "\"");
 									}
@@ -141,9 +144,8 @@ public class SVArgFileParser {
 										tok.getImage(),
 										fLexer.readPath());
 							} else {
-								def = fOptionProviders.getDefValue(
-										tok.getImage(),
-										tok.getOptionVal());
+								String val = (tok.getOptionVal() != null)?tok.getOptionVal():"";
+								def = fOptionProviders.getDefValue(tok.getImage(), val);
 							}
 							
 							stmt.setKey(def.first());
@@ -193,6 +195,13 @@ public class SVArgFileParser {
 							}
 							} break;
 							
+						case MFCU: {
+							SVDBArgFileMfcuStmt stmt = new SVDBArgFileMfcuStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							file.addChildItem(stmt);
+							} break;
+							
 						case SrcLibPath: {
 							SVDBArgFileSrcLibPathStmt stmt = new SVDBArgFileSrcLibPathStmt();
 							stmt.setLocation(fLexer.getStartLocation());
@@ -208,6 +217,29 @@ public class SVArgFileParser {
 							stmt.setSrcLibPath(path);
 							file.addChildItem(stmt);
 							} break;
+							
+						case SrcLibFile: {
+							SVDBArgFileSrcLibFileStmt stmt = new SVDBArgFileSrcLibFileStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							String path = fLexer.readPath();
+							path = SVFileUtils.resolvePath(path, fResolvedBaseLocation, 
+									fFSProvider, true);
+							if (!fFSProvider.fileExists(path)) {
+								error(tok.getStartLocation(),
+										"Source library file \"" + path + "\" does not exist; " + 
+											"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+							}
+							stmt.setSrcLibFile(path);
+							file.addChildItem(stmt);
+							} break;
+							
+						case SV: {
+							SVDBArgFileForceSvStmt stmt = new SVDBArgFileForceSvStmt();
+							stmt.setLocation(fLexer.getStartLocation());
+							
+							file.addChildItem(stmt);
+						} break;
 							
 						default:
 							error(tok.getStartLocation(), "Unrecognized option type " + type);

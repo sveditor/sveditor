@@ -20,10 +20,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -33,12 +33,13 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 import net.sf.sveditor.core.db.refs.SVDBRefType;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -50,7 +51,6 @@ import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -60,28 +60,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestUvmBasics extends SVCoreTestCaseBase {
-	
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-	
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		super.tearDown();
-	}
 	
 	public void testBasicExamplePkg() {
 		
@@ -303,12 +281,10 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
 		
-		fProject = TestUtils.createProject("uvm", uvm_src);
+		IProject project = TestUtils.createProject("uvm", uvm_src);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
 		index.setGlobalDefine("QUESTA", "");
 		
@@ -337,16 +313,14 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestIndexCacheFactory(new File(fTmpDir, "db")));
-		
+	
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		
 		PrintStream ps;
 		File pdir = new File(fTmpDir, testname);
 		
-		fProject = TestUtils.createProject(testname, pdir);
+		IProject project = TestUtils.createProject(testname, pdir);
+		addProject(project);
 		
 		ps = new PrintStream(new File(pdir, testname + ".f"));
 		ps.println("+incdir+../uvm/src");
@@ -384,9 +358,9 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		ps.close();
 
 		// Ensure the project is up-to-date with new files
-		fProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 
-		ISVDBIndexInt index = (ISVDBIndexInt)rgy.findCreateIndex(
+		ISVDBIndexInt index = (ISVDBIndexInt)fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(), testname + "_1", 
 				"${workspace_loc}/" + testname + "/" + testname + ".f",
 				SVDBArgFileIndexFactory.TYPE, null);
@@ -444,18 +418,27 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		File listFile = new File(projDir, "file.list") ;
 		
-		fProject = TestUtils.createProject(testName, projDir) ;
+		IProject project = TestUtils.createProject(testName, projDir) ;
+		addProject(project);
 		
 		SVFileUtils.writeToFile(listFile, listFileContent) ;
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
 		ISVDBIndex index = 
-			rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+			fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				listFile.toString(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.loadIndex(new NullProgressMonitor());
+		
+		List<SVDBDeclCacheItem> items = SVDBFindDeclOp.op(index, "", 
+				new ISVDBFindNameMatcher() {
+					public boolean match(ISVDBNamedItem it, String name) {
+						return true;
+					}
+				}, true);
+		
+		for (SVDBDeclCacheItem it : items) {
+			assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+		}
 		
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();

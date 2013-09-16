@@ -97,18 +97,21 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	}
 	
 	public ISVDBItemBase getSVDBItem() {
-		if(fParent == null) {
+		ISVDBItemBase ret = null;
+		
+		if(fParent != null) {
+			SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
+			
+			if (file != null) {
+				ret = findSVDBItem(file);
+			} else {
+//				System.out.println("File is null");
+			}
+		} else {
 			// FIXME: should we also warn or generate an error here?
-			return null ;
 		}
 		
-		SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
-		
-		if (file != null) {
-			return findSVDBItem(file);
-		}
-		
-		return null;
+		return ret;
 	}
 	
 	private ISVDBItemBase findSVDBItem(ISVDBChildParent scope) {

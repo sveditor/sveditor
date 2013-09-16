@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index.cache;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBFile;
@@ -23,6 +24,12 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndexCache {
+	
+	enum FileType {
+		Invalid,
+		ArgFile,
+		SVFile
+	}
 	
 	ISVDBIndexCacheMgr getCacheMgr();
 	
@@ -104,6 +111,19 @@ public interface ISVDBIndexCache {
 	void setFile(String path, SVDBFile file, boolean is_argfile);
 	
 	void removeFile(String path, boolean is_argfile);
+	
+	/**
+	 * 
+	 */
+	Map<Integer, SVDBFile> getSubFileMap(String path);
+	
+	void setSubFileMap(String path, Map<Integer, SVDBFile> map);
+		
+	
+	/**
+	 * Returns the type of the given file
+	 */
+	FileType getFileType(String path);
 	
 	/**
 	 * Synchronize the cache with the backing storage

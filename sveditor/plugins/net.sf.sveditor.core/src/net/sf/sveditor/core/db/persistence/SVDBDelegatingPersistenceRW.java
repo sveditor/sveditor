@@ -110,7 +110,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 		
 		return ret;
 	}
-	
+
 	public Map<String, Object> readMapStringObject(Class val_c) throws DBFormatException {
 		Map<String, Object> ret = new HashMap<String, Object>();
 		int type = readRawType();
@@ -155,7 +155,7 @@ public class SVDBDelegatingPersistenceRW extends SVDBPersistenceRWBase
 			}
 		}
 	}
-	
+
 	public void writeMapStringObject(Map<String, Object> map, Class obj_c)
 			throws DBWriteException, DBFormatException {
 		if (map == null) {

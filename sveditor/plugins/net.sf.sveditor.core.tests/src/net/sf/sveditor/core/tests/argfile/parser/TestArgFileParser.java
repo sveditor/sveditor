@@ -160,6 +160,7 @@ public class TestArgFileParser extends TestCase {
 		
 		String content =
 				"\n" +									// 1
+				"\n" +
 				"+incdir+/home/mballance\n" +			// 2
 				"\n" +									// 3
 				"\n" +									// 4
@@ -174,11 +175,12 @@ public class TestArgFileParser extends TestCase {
 		SVDBFile file = ArgFileParserTests.parse(log, null, getName(), content, markers);
 	
 		// Check line numbers
-		int lineno[] = new int[] {2, 5, 6, 9};
+		int lineno[] = new int[] {3, 6, 7, 10};
 		int idx = 0;
 		for (ISVDBItemBase it : file.getChildren()) {
 			assertTrue(idx < lineno.length);
 			assertEquals("lineno for " + it.getType(), lineno[idx], it.getLocation().getLine());
+			idx++;
 		}
 	}
 }

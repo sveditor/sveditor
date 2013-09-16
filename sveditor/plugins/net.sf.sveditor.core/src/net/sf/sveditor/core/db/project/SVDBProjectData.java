@@ -36,6 +36,7 @@ import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -48,6 +49,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private IProject								fProject;
 	private SVProjectFileWrapper 					fFileWrapper;
+	private boolean									fHaveDotSvProject;
 	private SVDBIndexCollection						fIndexCollection;
 	private String									fProjectName;
 	private LogHandle								fLog;
@@ -60,22 +62,39 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
 		fProjectName    = project.getName();
 		
-//		fIndexCollection = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), fProjectName);
-	
-		IFile svproject = project.getFile(".svproject");
-		
-		SVProjectFileWrapper wrapper;
-		
 		fLog.debug("Create SVDBProjectData for \"" + project.getName() + "\"");
+		
+		init();
+	}
+	
+	public synchronized void refresh() {
+		IFile svproject = fProject.getFile(".svproject");
+		
+		if (!fHaveDotSvProject && svproject.exists()) {
+			init();
+		}
+	}
+	
+	public void init() {
+		IFile svproject = fProject.getFile(".svproject");
+		SVProjectFileWrapper wrapper;
 		
 		if (svproject.exists()) {
 			fLog.debug(".svproject exists");
 			wrapper = readProjectFile(svproject);
+			fHaveDotSvProject = true;
 		} else {
 			// Create defaults
-			fLog.debug(".svproject does not exist");
+			Exception e = null;
+			try {
+				throw new Exception();
+			} catch (Exception ex) {
+				e = ex;
+			}
+			fLog.debug(".svproject does not exist", e);
 			wrapper = new SVProjectFileWrapper();
 			SVDBProjectManager.setupDefaultProjectFile(wrapper);
+			fHaveDotSvProject = false;
 		}
 
 		// Initialize to null, so initial setup is performed
@@ -85,6 +104,10 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	
 	public IProject getProject() {
 		return fProject;
+	}
+	
+	public boolean haveDotSvProject() {
+		return fHaveDotSvProject;
 	}
 	
 	public SVDBIndexCollection resolveProjectRef(String path) {
@@ -130,13 +153,22 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	
 	private SVProjectFileWrapper readProjectFile(IFile svproject) {
 		SVProjectFileWrapper wrapper = null;
-		
-		try {
-			svproject.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-			InputStream in = svproject.getContents();
-			wrapper = new SVProjectFileWrapper(in);
-		} catch (Exception e) {
-			e.printStackTrace();
+
+		for (int i=0; i<2; i++) {
+			try {
+				if (svproject.exists()) {
+					InputStream in = svproject.getContents();
+					wrapper = new SVProjectFileWrapper(in);
+				}
+				break;
+			} catch (Exception e) {
+				if (e instanceof CoreException) {
+					try {
+						svproject.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+					} catch (CoreException ex) {}
+				}
+				e.printStackTrace();
+			}
 		}
 	
 		return wrapper;
@@ -322,7 +354,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getLibraryPaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, path.getPath(), 
+					fProjectName, expandPath(path.getPath()),
 					SVDBLibPathIndexFactory.TYPE, args);
 			
 			if (index != null) {
@@ -339,7 +371,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
 		for (SVDBPath path : fw.getArgFilePaths()) {
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, path.getPath(),
+					fProjectName, expandPath(path.getPath()),
 					SVDBArgFileIndexFactory.TYPE, args);
 			
 			if (index != null) {
@@ -365,7 +397,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			params.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
 			
 			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, srcc.getBaseLocation(),
+					fProjectName, expandPath(srcc.getBaseLocation()),
 					SVDBSourceCollectionIndexFactory.TYPE, params);
 			
 			if (index != null) {
@@ -407,6 +439,22 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		if (refresh) {
 			SVCorePlugin.getDefault().getProjMgr().projectSettingsChanged(this);
 		}
+	}
+	
+	private String expandPath(String path) {
+		int idx;
+		
+		while ((idx = path.indexOf("${project_loc}")) != -1) {
+			if (idx == 0) {
+				path = "${workspace_loc}/" + fProjectName + 
+						path.substring(idx+"${project_loc}".length());
+			} else {
+				path = path.substring(0, idx) + "${workspace_loc}/" + fProjectName + 
+						path.substring(idx+"${project_loc}".length());
+			}
+		}
+		
+		return path;
 	}
 	
 	public boolean equals(Object other) {

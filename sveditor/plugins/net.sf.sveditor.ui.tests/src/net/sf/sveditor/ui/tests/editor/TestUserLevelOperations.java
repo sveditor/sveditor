@@ -14,17 +14,16 @@ package net.sf.sveditor.ui.tests.editor;
 
 import java.io.File;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -48,27 +47,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
-public class TestUserLevelOperations extends TestCase {
-	private File			fTmpDir;
-	private IProject		fProject;
+public class TestUserLevelOperations extends SVCoreTestCaseBase {
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
-
 	public void testOpenClassDeclaration() throws CoreException, InterruptedException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		cleanupWorkspace();
@@ -78,16 +58,10 @@ public class TestUserLevelOperations extends TestCase {
 
 		// Create a new project for the 
 		File test_dir = new File(fTmpDir, "testArgFileIndex");
-		File db_dir = new File(fTmpDir, "db");
 		if (test_dir.exists()) {
 			assertTrue(test_dir.delete());
 		}
 		assertTrue(test_dir.mkdirs());
-		
-		if (db_dir.exists()) {
-			assertTrue(db_dir.delete());
-		}
-		assertTrue(db_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
 		File xbus = new File(test_dir, "ovm/examples/xbus");
@@ -105,9 +79,9 @@ public class TestUserLevelOperations extends TestCase {
 		
 		// Now, open xbus/examples/xbus_demo_tb.sv
 		SVDBIndexCollection project_index = p_data.getProjectIndexMgr();
+		
 		// force index loading
-		ISVDBItemIterator it = project_index.getItemIterator(new NullProgressMonitor());
-		it.nextItem();
+		project_index.loadIndex(new NullProgressMonitor());
 
 		IEditorPart xbus_demo_tb = SVEditorUtil.openEditor("${workspace_loc}/xbus/examples/xbus_demo_tb.sv");
 		assertNotNull(xbus_demo_tb);
@@ -127,13 +101,14 @@ public class TestUserLevelOperations extends TestCase {
 		//sveditor.setSelection(idx, idx+"ovm_env".length(), true);
 
 		ISVDBIndexIterator index_it = sveditor.getIndexIterator();
-		System.out.println("--> Dump index");
-		ISVDBItemIterator item_it = index_it.getItemIterator(new NullProgressMonitor());
-		while (item_it.hasNext()) {
-			/*ISVDBItemBase it_t = */ item_it.nextItem();
+	
+//		System.out.println("--> Dump index");
+//		ISVDBItemIterator item_it = index_it.getItemIterator(new NullProgressMonitor());
+//		while (item_it.hasNext()) {
+//			/*ISVDBItemBase it_t = */ item_it.nextItem();
 			// System.out.println("    it_t=" + it_t.getName());
-		}
-		System.out.println("<-- Dump index");
+//		}
+//		System.out.println("<-- Dump index");
 
 		while (Display.getDefault().readAndDispatch()) {}
 		

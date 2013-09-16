@@ -491,8 +491,6 @@ public class SVKeywords {
 	public static final Set<String>					fStrength1;
 	public static final Set<String>					fStrengthC;
 	public static final Set<String>					fStrength;
-	public static final Set<String>					fAssignmentOps;
-	public static final Set<String>					fBinaryOps;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -579,31 +577,7 @@ public class SVKeywords {
 		fStrength.addAll(fStrength1);
 		fStrength.addAll(fStrengthC);
 		
-		fAssignmentOps = new HashSet<String>();
-		fAssignmentOps.add("=");
-		fAssignmentOps.add("+=");
-		fAssignmentOps.add("-=");
-		fAssignmentOps.add("*=");
-		fAssignmentOps.add("/=");
-		fAssignmentOps.add("&=");
-		fAssignmentOps.add("|=");
-		fAssignmentOps.add("^=");
-		fAssignmentOps.add("%=");
-		fAssignmentOps.add("<<=");
-		fAssignmentOps.add(">>=");
-		fAssignmentOps.add("<<<=");
-		fAssignmentOps.add(">>>=");
-		fAssignmentOps.add("<=");
-		fAssignmentOps.add("->");				// force an event
-		
-		fBinaryOps = new HashSet<String>();
-		for (String op : new String[] {"&", "&&", "|", "||", "-",
-				"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
-				"?", "<", "<<", "<=", "<<<", ">", ">>", ">=", ">>>", "=", "*=",
-				"/=", "%=", "+=", "==", "!=", "-=", "<<=", ">>=", "<<<=", ">>>=",
-				"&=", "^=", "|=", "===", "!==", "==?", "!=?", "--", "++", "~&", "~|", ":"}) {
-			fBinaryOps.add(op);
-		}
+
 	};
 
 	/**

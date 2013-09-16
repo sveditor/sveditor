@@ -145,6 +145,12 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 			return OptionType.ArgFileRootInc;
 		} else if (name.equals("-y")) {
 			return OptionType.SrcLibPath;
+		} else if (name.equals("-v")) {
+			return OptionType.SrcLibFile;
+		} else if (name.equals("-mfcu")) {
+			return OptionType.MFCU;
+		} else if (name.equals("-sv")) {
+			return OptionType.SV;
 		} else if (fOptions.containsKey(name)) {
 			return OptionType.Ignored;
 		} else {
@@ -172,18 +178,20 @@ public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 	public List<String> getIncPaths(String option, String arg) {
 		if (option.startsWith("+incdir+")) {
 			List<String> ret = new ArrayList<String>();
-			
-			int last_plus = -1, next_plus = -1;
-			do {
-				next_plus = arg.indexOf('+', last_plus+1);
-				
-				if (next_plus != -1) {
-					ret.add(arg.substring(last_plus+1, next_plus));
-				} else {
-					ret.add(arg.substring(last_plus+1));
-				}
-				last_plus = next_plus;
-			} while (next_plus != -1);
+
+			if (arg != null) {
+				int last_plus = -1, next_plus = -1;
+				do {
+					next_plus = arg.indexOf('+', last_plus+1);
+
+					if (next_plus != -1) {
+						ret.add(arg.substring(last_plus+1, next_plus));
+					} else {
+						ret.add(arg.substring(last_plus+1));
+					}
+					last_plus = next_plus;
+				} while (next_plus != -1);
+			}
 			return ret;
 		} else {
 			return null;

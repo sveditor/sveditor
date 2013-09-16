@@ -60,40 +60,7 @@ public class SVLexer extends SVToken {
 	private Context					fContext;
 	private SVLanguageLevel			fLanguageLevel;
 
-	public static final String RelationalOps[] = { "&", "&&", "&&&", "|", "||", "-",
-			"+", "%", "!", "*", "**", "/", "^", "^~", "~^", "~",
-			"?", "<", "<<", "<=", "<<<", ">", ">>", ">=", ">>>", "=", "*=",
-			"/=", "%=", "+=", "==", "!=", "-=", "<<=", ">>=", "<<<=", ">>>=",
-			"&=", "^=", "|=", "===", "!==", "==?", "!=?"};
 
-	public static final String GroupingOps[] = { "(", ")", "{", "}", "[", "]", };
-
-	public static final String MiscOps[] = { ":", "::", ":/", ":=", "+:", "-:", // array-index
-																				// operators
-			",", ";", ".", ".*", "'", "->", "->>", "-->", "#", "##", "@", "@@", "(*", "*)",
-			// Assertion operators
-			"=>", "|=>", "|->", "#-#", "#=#", "##",
-			"--", "++"};
-
-	public static final String AllOperators[];
-
-	static {
-		AllOperators = new String[RelationalOps.length + GroupingOps.length
-				+ MiscOps.length];
-		int idx = 0;
-
-		for (String o : RelationalOps) {
-			AllOperators[idx++] = o;
-		}
-
-		for (String o : GroupingOps) {
-			AllOperators[idx++] = o;
-		}
-
-		for (String o : MiscOps) {
-			AllOperators[idx++] = o;
-		}
-	}
 	
 	public SVLexer() {
 		this(SVLanguageLevel.SystemVerilog);
@@ -123,7 +90,7 @@ public class SVLexer extends SVToken {
 
 		fTokenListeners = new ArrayList<ISVTokenListener>();
 
-		for (String op : AllOperators) {
+		for (String op : SVOperators.AllOperators) {
 			if (op.length() == 3) {
 				fSeqPrefixes[1].add(op.substring(0,2));
 				fSeqPrefixes[2].add(op.substring(0,3));
@@ -890,9 +857,7 @@ public class SVLexer extends SVToken {
 			}
 			fTokenConsumed = false;
 			if (fDebugEn) {
-				debug("next_token(): \"" + fImage + "\"");
-			}
-			if (fDebugEn) {
+				fLog.debug("next_token(): \"" + fImage + "\"");
 				fLog.debug("<-- next_token_int()");
 			}
 			return true;
@@ -901,6 +866,7 @@ public class SVLexer extends SVToken {
 	
 	private void append_ch(int ch) {
 		fStringBuffer.append((char)ch);
+		/*
 		if (fDebugEn) {
 			debug("append_ch: " + (char)ch + " => " + fStringBuffer.toString());
 			if (ch == -1 || ch == 0xFFFF) {
@@ -911,6 +877,7 @@ public class SVLexer extends SVToken {
 				}
 			}
 		}
+		 */
 	}
 
 	private void operator() throws SVParseException {

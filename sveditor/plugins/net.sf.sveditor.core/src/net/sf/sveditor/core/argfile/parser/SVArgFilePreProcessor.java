@@ -21,15 +21,15 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 	 */
 	private List<Integer>				fLineMap;
 	private StringBuilder				fTmpBuffer;
-	private int						fLineno = 1;
-	private int						fLastCh;
-	private int						fUngetCh[] = {-1,-1};
+	private int							fLineno = 1;
+	private int							fLastCh;
+	private int							fUngetCh[] = {-1,-1};
 	private byte						fInBuffer[];
-	private int						fInBufferIdx;
-	private int						fInBufferMax;
-	private boolean					fInPreProcess;
+	private int							fInBufferIdx;
+	private int							fInBufferMax;
+	private boolean						fInPreProcess;
 	private ISVArgFileVariableProvider	fVarProvider;
-	private boolean					fDebugEn = true;
+	private boolean						fDebugEn = true;
 	private LogHandle					fLog;
 
 	public SVArgFilePreProcessor(
@@ -303,8 +303,8 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 				System.out.println(fOutput.toString());
 				System.out.println("<< Current Output:");
 				 */
-				fLineMap.add(fOutput.length()-1);
 				fLineno++;
+				fLineMap.add(fOutput.length());
 			}
 			fLastCh = ch;
 		}

@@ -261,7 +261,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		}
 	
 		if (entry != null) {
-//			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.MARKERS_MASK);
 			List<SVDBMarker> mlist = entry.getMarkersRef();
 			if (mlist != null) {
 				markers.addAll(mlist);
@@ -278,9 +278,42 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 
-		fCacheMgr.ensureUpToDate(entry);
+		// Ensure entry is on the 'cached' list, but don't bother
+		// reading back the markers. We'll be re-setting anyway
+		fCacheMgr.ensureUpToDate(entry, 0);
 		
 		entry.setMarkersRef(markers);
+	}
+	
+	public Map<Integer, SVDBFile> getSubFileMap(String path) {
+		SVDBFileIndexCacheEntry entry = null;
+		Map<Integer, SVDBFile> ret = null;
+		
+		synchronized (fCache) {
+			entry = fCache.get(path);
+		}
+		
+		if (entry != null) {
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SUBFILES_MASK);
+			Map<Integer, SVDBFile> map = entry.getSubFileMapRef();
+			if (map != null) {
+				ret = new HashMap<Integer, SVDBFile>();
+				ret.putAll(map);
+			}
+		}
+		
+		return ret;
+	}
+	
+	public void setSubFileMap(String path, Map<Integer, SVDBFile> map) {
+		SVDBFileIndexCacheEntry entry = null;
+		synchronized (fCache) {
+			entry = fCache.get(path);
+		}
+		
+		if (entry != null) {
+			entry.setSubFileMapRef(map);
+		}
 	}
 
 	public SVDBFile getPreProcFile(IProgressMonitor monitor, String path) {
@@ -288,7 +321,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		SVDBFile file = null;
 		
 		if (entry != null) {
-			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SVDB_PREPROC_FILE_MASK);
 			file = entry.getSVDBPreProcFileRef();
 		}
 		
@@ -299,7 +332,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, FILE_ID, true);
 		
-		fCacheMgr.ensureUpToDate(entry);
+		fCacheMgr.ensureUpToDate(entry, 0);
 
 		entry.setPreProcFile(file);
 	}
@@ -313,7 +346,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		SVDBFileTree ft = null;
 		
 		if (entry != null) {
-			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SVDB_FILETREE_MASK);
 			ft = entry.getSVDBFileTreeRef();
 		}
 		
@@ -325,7 +358,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 		
-		fCacheMgr.ensureUpToDate(entry);
+		fCacheMgr.ensureUpToDate(entry, 0);
 
 		entry.setFileTree(file);
 	}
@@ -341,7 +374,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 			return null;
 		} else {
 			// Load the file
-			fCacheMgr.ensureUpToDate(entry);
+			fCacheMgr.ensureUpToDate(entry, SVDBFileIndexCacheEntry.SVDB_FILE_MASK);
 			return entry.getSVDBFileRef();
 		}
 	}
@@ -351,10 +384,11 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 		
-		fCacheMgr.ensureUpToDate(entry);
+		fCacheMgr.ensureUpToDate(entry, 0);
 
 		entry.setFile(file);
 	}
+	
 
 	public void removeFile(String path, boolean is_argfile) {
 		int type = (is_argfile)?ARGFILE_ID:FILE_ID;
@@ -362,6 +396,21 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 		
 		fCacheMgr.removeEntry(entry);
+	}
+	
+	public FileType getFileType(String path) {
+		FileType ret = FileType.Invalid;
+		SVDBFileIndexCacheEntry entry = getCacheEntry(path, 0, false);
+		
+		if (entry != null) {
+			if (entry.getType() == ARGFILE_ID) {
+				ret = FileType.ArgFile; 
+			} else if (entry.getType() == FILE_ID) {
+				ret = FileType.SVFile;
+			}
+		}
+		
+		return ret;
 	}
 
 	public void sync() {

@@ -12,26 +12,19 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
@@ -93,21 +86,16 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
-		
-		List<SVDBDeclCacheItem> result = p2_index.findGlobalScopeDecl(
-				new NullProgressMonitor(), 
-				"p1_c", SVDBFindDefaultNameMatcher.getDefault());
-		
-		assertEquals(1, result.size());
-		SVDBDeclCacheItem p1_c = result.get(0);
-		assertEquals("p1_c", p1_c.getName());
-		assertEquals(SVDBItemType.ClassDecl, p1_c.getType());
-		assertNotNull(p1_c.getSVDBItem());
+		p1_index.loadIndex(new NullProgressMonitor());
+		p2_index.loadIndex(new NullProgressMonitor());
+	
+		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c");
 	}
 	
 	public void testCircularArgFileIndexCrossRef() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
 		IProject p1 = TestUtils.setupIndexWSProject(
@@ -139,18 +127,12 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p1_index.loadIndex(new NullProgressMonitor());
+		p2_index.loadIndex(new NullProgressMonitor());
 		
-		List<SVDBDeclCacheItem> result = p2_index.findGlobalScopeDecl(
-				new NullProgressMonitor(), 
-				"p1_c", SVDBFindDefaultNameMatcher.getDefault());
-		
-		assertEquals(1, result.size());
-		SVDBDeclCacheItem p1_c = result.get(0);
-		assertEquals("p1_c", p1_c.getName());
-		assertEquals(SVDBItemType.ClassDecl, p1_c.getType());
-		assertNotNull(p1_c.getSVDBItem());
+		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c");
 	}
 
 	public void testIteratorCircularArgFileIndexCrossRef() throws CoreException {
@@ -185,25 +167,12 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		p1_pdata.setProjectFileWrapper(p1_fwrapper);
 		p2_pdata.setProjectFileWrapper(p2_fwrapper);
 	
-		/* SVDBIndexCollection p1_index = */ p1_pdata.getProjectIndexMgr();
+		SVDBIndexCollection p1_index = p1_pdata.getProjectIndexMgr();
 		SVDBIndexCollection p2_index = p2_pdata.getProjectIndexMgr();
+		p1_index.loadIndex(new NullProgressMonitor());
+		p2_index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = p2_index.getItemIterator(new NullProgressMonitor());
-		
-		ISVDBItemBase p1_c=null, p2_c=null;
-		while (it.hasNext()) {
-			ISVDBItemBase item = it.nextItem();
-			if (SVDBItem.getName(item).equals("p1_c")) {
-				p1_c = item;
-			} else if (SVDBItem.getName(item).equals("p2_c")) {
-				p2_c = item;
-			}
-		}
-		
-		assertNotNull(p1_c);
-		assertNotNull(p2_c);
-		assertEquals(SVDBItemType.ClassDecl, p1_c.getType());
-		assertEquals(SVDBItemType.ClassDecl, p2_c.getType());
+		IndexTestUtils.assertFileHasElements(fLog, p2_index, "p1_c", "p2_c");
 	}
 
 }

@@ -9,7 +9,7 @@
    </description>
 
    <copyright>
-      Copyright 2008-2012 Matthew Ballance and contributors. All Rights Reserved
+      Copyright 2008-2013 Matthew Ballance and contributors. All Rights Reserved
    </copyright>
 
    <license url="http://www.eclipse.org/legal/epl-v10.html">
@@ -118,7 +118,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          version="0.0.0"/>
 
    <plugin
-         id="net.sf.sveditor.doc.user"
+         id="net.sf.sveditor.core.uvm.templates"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -132,7 +132,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          unpack="false"/>
 
    <plugin
-         id="net.sf.sveditor.core.uvm.templates"
+         id="net.sf.sveditor.doc.user"
          download-size="0"
          install-size="0"
          version="0.0.0"

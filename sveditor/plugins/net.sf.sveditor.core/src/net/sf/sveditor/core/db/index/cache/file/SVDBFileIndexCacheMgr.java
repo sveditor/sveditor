@@ -1,12 +1,11 @@
 package net.sf.sveditor.core.db.index.cache.file;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -29,7 +28,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private SVDBFileIndexCacheEntry					fUnCachedHead;
 	private SVDBFileIndexCacheEntry					fUnCachedTail;
 	
+//	private int										fMaxCacheSize = 100;
 	private int										fMaxCacheSize = 100;
+//	private int										fMaxCacheSize = 1;
 	
 	private boolean									fUseSoftRef = true;
 	
@@ -37,6 +38,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private List<IDBWriter>							fPersistenceWriterSet;
 
 	private List<SVDBFileIndexCache>				fIndexList;
+	private int										fIndexId;
 
 	// File ID for the file containing index data
 	private int										fIndexDataId;
@@ -44,6 +46,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private SVDBFileSystem							fFileSystem;
 	private LogHandle								fLog;
 	private boolean									fDebugEn;
+	
+	private boolean									fIsDisposed;
 
 	
 	public SVDBFileIndexCacheMgr() {
@@ -52,8 +56,14 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCacheMgr");
 		fIndexList = new ArrayList<SVDBFileIndexCache>();
 	}
-	
-	public boolean init(SVDBFileSystem fs) {
+
+	/**
+	 * Initialize the cache manager. This is a blocking operation
+	 * 
+	 * @param fs
+	 * @return
+	 */
+	public synchronized boolean init(SVDBFileSystem fs) {
 		fFileSystem = fs;
 		
 		fCacheHead = null;
@@ -84,8 +94,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 	
 	private void write_state(SVDBFileSystemDataOutput dat) throws IOException, DBWriteException {
-
-		
 		// Write back the number of indexes
 		dat.writeInt(fIndexList.size());
 		
@@ -96,6 +104,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		
 		// Now, write back the number of cache entries
 		int n_entries = count_entries(fCacheHead) + count_entries(fUnCachedHead);
+		int n_cached=0, n_uncached=0;
 		
 		dat.writeInt(n_entries);
 		SVDBFileIndexCacheEntry entry;
@@ -103,18 +112,23 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		entry = fCacheHead;
 		while (entry != null) {
 			// Ensure entry contents are written back
+//			System.out.println("writeBackEntry: " + entry.getPath());
 			writeBackEntry(entry);
 			
 			entry.write(dat);
 			entry = entry.getNext();
+			n_cached++;
 		}
 		
 		entry = fUnCachedHead;
 		while (entry != null) {
 			entry.write(dat);
 			entry = entry.getNext();
+			n_uncached++;
 		}
-	
+		
+//		System.out.println("<-- write_state n_cached=" + n_cached + " n_uncached=" + n_uncached + " " + 
+//				(n_cached+n_uncached));
 	}
 	
 	private void read_state(SVDBFileSystemDataInput din) throws IOException {
@@ -148,7 +162,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		return count;
 	}
 
-	public void sync() {
+	public synchronized void sync() {
 		
 		// TODO: save cache and entry data to the filesystem
 		// - TODO: Write-back any dirty cache entries (future)
@@ -183,48 +197,47 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	public SVDBFileIndexCache findIndexCache(
+	public synchronized SVDBFileIndexCache findIndexCache(
 			String 			project_name,
 			String 			base_location) {
 		SVDBFileIndexCache ret = null;
 		
-		synchronized (fIndexList) {
-			for (SVDBFileIndexCache c : fIndexList) { 
-				if (c.getProjectName().equals(project_name) &&
-						c.getBaseLocation().equals(base_location)) {
-					ret = c;
-					break;
-				}
+		for (SVDBFileIndexCache c : fIndexList) { 
+			if (c.getProjectName().equals(project_name) &&
+					c.getBaseLocation().equals(base_location)) {
+				ret = c;
+				break;
 			}
 		}
-		
+
 		return ret;
 	}
 
-	public SVDBFileIndexCache createIndexCache(
+	public synchronized SVDBFileIndexCache createIndexCache(
 			String 			project_name,
 			String 			base_location) {
 		SVDBFileIndexCache ret;
-
-		synchronized (fIndexList) {
-			int id = -1;
+		boolean found_id = false;
+		
+		int id = ((fIndexId+1) & 0xFFFFFF);
+		
+		while (!found_id) {
+			found_id = true;
+			
 			for (int i=0; i<fIndexList.size(); i++) {
-				if (fIndexList.get(i) == null) {
-					id = i;
+				if (fIndexList.get(i).getCacheId() == id) {
+					found_id = false;
 					break;
 				}
 			}
 			
-			if (id == -1) {
-				ret = new SVDBFileIndexCache(this, 
-						fIndexList.size(), project_name, base_location);
-				fIndexList.add(ret);
-			} else {
-				ret = new SVDBFileIndexCache(this, id,
-						project_name, base_location);
-				fIndexList.set(id, ret);
+			if (!found_id) {
+				id = ((id+1) & 0xFFFFFF);
 			}
 		}
+
+		ret = new SVDBFileIndexCache(this, id, project_name, base_location);
+		fIndexList.add(ret);
 		
 		return ret;
 	}
@@ -245,6 +258,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 		
 		fIndexDataId = -1;
+		fIsDisposed = true;
 	}
 
 	/**
@@ -258,17 +272,23 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			entry = fCacheHead;
 			while (entry != null) {
 				if (entry.getCacheId() == cache.getCacheId()) {
+					SVDBFileIndexCacheEntry next = entry.getNext();
 					deleteEntry(entry);
+					entry = next;
+				} else {
+					entry = entry.getNext();
 				}
-				entry = entry.getNext();
 			}
 
 			entry = fUnCachedHead;
 			while (entry != null) {
 				if (entry.getCacheId() == cache.getCacheId()) {
+					SVDBFileIndexCacheEntry next = entry.getNext();
 					deleteEntry(entry);
+					entry = next;
+				} else {
+					entry = entry.getNext();
 				}
-				entry = entry.getNext();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -308,10 +328,12 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * Removes a client cache from the manager
 	 * @param cache
 	 */
-	void removeIndexCache(SVDBFileIndexCache cache) {
-		synchronized (fIndexList) {
-			fIndexList.remove(cache);
+	synchronized void removeIndexCache(SVDBFileIndexCache cache) {
+		if (fIsDisposed) {
+			return;
 		}
+		
+		fIndexList.remove(cache);
 	
 		// Clear the entries of the cache
 		clearIndexCache(cache);
@@ -319,24 +341,35 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	
 	/**
 	 * Ensures that the cache item is up-to-date
+	 * 
+	 * This method uses the 'mask' parameter, in conjunction with 
+	 * the 'loaded' attribute of the entry, to determine which
+	 * elements of the entry must be restored from backing store
+	 * 
 	 * @param entry
 	 */
-	synchronized void ensureUpToDate(SVDBFileIndexCacheEntry entry) {
+	synchronized void ensureUpToDate(SVDBFileIndexCacheEntry entry, int mask) {
+		int loaded_mask;
+		
 		if (entry.isCached()) {
 			moveElementToCachedTail(entry);
+			loaded_mask = entry.loadedMask();
 		} else {
-			// Need to bring back into the cache
-			readBackEntry(entry);
-			
 			removeFromUnCachedList(entry);
-			
-			entry.setCached();
-		
 			// addToCachedList() ensures index size is observed
 			addToCachedList(entry);
+			
+			loaded_mask = entry.setCached();
+			// Need to bring back into the cache
+		}
+		
+		mask ^= loaded_mask;
+		
+		if ((mask & SVDBFileIndexCacheEntry.BACKED_MASK) != 0) {
+			readBackEntry(entry, mask);
 		}
 	}
-
+	
 	/**
 	 * Removes the specified entry from the index cache mgr
 	 * 
@@ -362,7 +395,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param entry
 	 * @throws IOException
 	 */
-	private void deleteStorage(SVDBFileIndexCacheEntry entry) throws IOException {
+	private synchronized void deleteStorage(SVDBFileIndexCacheEntry entry) throws IOException {
 		if (entry.getMarkersId() != -1) {
 			fFileSystem.deleteFile(
 					entry.getPath(), entry.getMarkersId());
@@ -444,7 +477,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param cache_id
 	 * @param cache
 	 */
-	void loadCache(int cache_id, Map<String, SVDBFileIndexCacheEntry> cache) {
+	synchronized void loadCache(int cache_id, Map<String, SVDBFileIndexCacheEntry> cache) {
 		cache.clear();
 		
 		SVDBFileIndexCacheEntry entry = fCacheHead;
@@ -467,13 +500,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	public synchronized void addToCachedList(SVDBFileIndexCacheEntry entry) {
-		if (entry == null) {
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 		entry.setOnList();
 		if (fCacheHead == null) {
 			// First entry
@@ -492,6 +518,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		fCacheSize++;
 		
 		while (fCacheSize > fMaxCacheSize) {
+			if (!fCacheHead.isCached()) {
+				System.out.println("[ERROR] Head is not cached");
+			}
 			uncacheEntry(fCacheHead);
 		}
 	}
@@ -503,6 +532,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param entry
 	 */
 	synchronized void removeFromUnCachedList(SVDBFileIndexCacheEntry entry) {
+		entry.clrOnList();
+
 		if (entry.getPrev() == null) {
 			fUnCachedHead = entry.getNext();
 		} else {
@@ -514,9 +545,13 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		} else {
 			entry.getNext().setPrev(entry.getPrev());
 		}
+		entry.setPrev(null);
+		entry.setNext(null);
 	}
 
 	synchronized void removeFromCachedList(SVDBFileIndexCacheEntry entry) {
+		entry.clrOnList();
+		
 		// Ensure the entry is not marked cached
 		entry.clearCached();
 		
@@ -531,6 +566,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		} else {
 			entry.getNext().setPrev(entry.getPrev());
 		}
+		entry.setPrev(null);
+		entry.setNext(null);
+		fCacheSize--;
 	}
 
 	/**
@@ -540,7 +578,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * 
 	 * @param info
 	 */
-	void uncacheEntry(SVDBFileIndexCacheEntry info) {
+	synchronized void uncacheEntry(SVDBFileIndexCacheEntry info) {
 		// First, 
 		if (info.isCached()) {
 			// Remove the entry from the cached list, and move
@@ -554,7 +592,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			
 			// Release references
 			info.clearCached();
-			fCacheSize--;
 		}
 	}
 	
@@ -605,24 +642,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	private void removeElement(SVDBFileIndexCacheEntry info) {
-			if (info.getPrev() == null) {
-				fCacheHead = info.getNext();
-			} else {
-				info.getPrev().setNext(info.getNext());
-			}
-
-			if (info.getNext() == null) {
-				fCacheTail = info.getPrev();
-			} else {
-				info.getNext().setPrev(info.getPrev());
-			}
-			
-			// Release references
-			info.clearCached();
-			fCacheSize--;
-	}	
-	
 	IDBReader allocReader() {
 		IDBReader reader = null;
 		synchronized (fPersistenceRdrSet) {
@@ -662,7 +681,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	private void writeBackEntry(SVDBFileIndexCacheEntry entry) {
+	private synchronized void writeBackEntry(SVDBFileIndexCacheEntry entry) {
 		if (entry.getSVDBFileRef() != null) {
 			writeBackSVDBFile(entry);
 		}
@@ -680,43 +699,57 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	private void readBackEntry(SVDBFileIndexCacheEntry entry) {
-		if (entry.getSVDBFileId() != -1) {
+	private synchronized void readBackEntry(SVDBFileIndexCacheEntry entry, int mask) {
+		// TODO:
+		mask = SVDBFileIndexCacheEntry.ALL_MASK;
+		
+		if (entry.getSVDBFileId() != -1 && (mask & SVDBFileIndexCacheEntry.SVDB_FILE_MASK) != 0) {
 			if (entry.getSVDBFileRef() != null) {
 				// Just reset the reference
 				entry.setSVDBFileRef(entry.getSVDBFileRef());
 			} else {
+//				long start = System.currentTimeMillis();
 				readBackSVDBFile(entry);
+//				long end = System.currentTimeMillis();
+//				System.out.println("readBackSVDBFile: " + entry.getPath() + " " + (end-start) + "ms");
 			}
 		}
 	
-		if (entry.getSVDBPreProcFileId() != -1) {
+		if (entry.getSVDBPreProcFileId() != -1 && (mask & SVDBFileIndexCacheEntry.SVDB_PREPROC_FILE_MASK) != 0) {
 			if (entry.getSVDBPreProcFileRef() != null) {
 				// Just reset the reference
 				entry.setSVDBPreProcFileRef(entry.getSVDBPreProcFileRef());
 			} else {
+//				long start = System.currentTimeMillis();
 				readBackSVDBPreProcFile(entry);
+//				long end = System.currentTimeMillis();
+//				System.out.println("readBackSVDBPreProcFile: " + entry.getPath() + " " + (end-start) + "ms");
 			}
 		}
 		
-		if (entry.getSVDBFileTreeId() != -1) {
+		if (entry.getSVDBFileTreeId() != -1 && (mask & SVDBFileIndexCacheEntry.SVDB_FILETREE_MASK) != 0) {
 			if (entry.getSVDBFileTreeRef() != null) {
 				entry.setSVDBFileTreeRef(entry.getSVDBFileTreeRef());
 			} else {
+//				long start = System.currentTimeMillis();
 				readBackSVDBFileTree(entry);
+//				long end = System.currentTimeMillis();
+//				System.out.println("readBackSVDBFileTree: " + entry.getPath() + " " + (end-start) + "ms");
 			}
 		}
 		
-		if (entry.getMarkersId() != -1) {
+		if (entry.getMarkersId() != -1 && (mask & SVDBFileIndexCacheEntry.MARKERS_MASK) != 0) {
 			if (entry.getMarkersRef() != null) {
 				entry.setMarkersRef(entry.getMarkersRef());
 			} else {
 				readBackMarkers(entry);
 			}
 		}
+		
+		long end = System.currentTimeMillis();
 	}
 
-	private void writeBackSVDBFile(SVDBFileIndexCacheEntry entry) {
+	private synchronized void writeBackSVDBFile(SVDBFileIndexCacheEntry entry) {
 		try {
 			if (entry.getSVDBFileId() != -1) {
 				// Free the old file
@@ -727,12 +760,9 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			SVDBFileSystemDataOutput data_out = new SVDBFileSystemDataOutput();
 			writer.init(data_out);
 			writer.writeObject(SVDBFile.class, file);
-		
-			ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
-			DataOutputStream data_out2 = new DataOutputStream(bos2);
-			writer.init(data_out2);
-			writer.writeObject(SVDBFile.class, file);
 			
+//			System.out.println("writeSVDBFile: " + entry.getPath() + " " + data_out.getLength());
+		
 			int file_id = fFileSystem.writeFile(entry.getPath(), data_out);
 			
 			entry.setSVDBFileId(file_id);
@@ -745,7 +775,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 
-	private void readBackSVDBFile(SVDBFileIndexCacheEntry entry) {
+	private synchronized void readBackSVDBFile(SVDBFileIndexCacheEntry entry) {
 		try {
 			IDBReader reader = allocReader();
 			SVDBFile file = new SVDBFile();
@@ -764,7 +794,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 
-	private void writeBackSVDBPreProcFile(SVDBFileIndexCacheEntry entry) {
+	private synchronized void writeBackSVDBPreProcFile(SVDBFileIndexCacheEntry entry) {
 		try {
 			if (entry.getSVDBPreProcFileId() != -1) {
 				// Free the old file
@@ -788,7 +818,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	private void readBackSVDBPreProcFile(SVDBFileIndexCacheEntry entry) {
+	private synchronized void readBackSVDBPreProcFile(SVDBFileIndexCacheEntry entry) {
 		try {
 			IDBReader reader = allocReader();
 			SVDBFile file = new SVDBFile();
@@ -816,8 +846,48 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			IDBWriter writer = allocWriter();
 			SVDBFileTree file = entry.getSVDBFileTreeRef();
 			SVDBFileSystemDataOutput data_out = new SVDBFileSystemDataOutput();
+			/*
+			ByteArrayOutputStream byte_out = new ByteArrayOutputStream();
+			GZIPOutputStream zip_out = new GZIPOutputStream(byte_out);
+			writer.init(new DataOutputStream(zip_out));
+			 */
 			writer.init(data_out);
 			writer.writeObject(SVDBFileTree.class, file);
+	
+			/*
+			zip_out.flush();
+			data_out.write(byte_out.toByteArray());
+			 */
+			
+			/*
+			System.out.println("writeSVDBFileTree: " + entry.getPath() + " " + data_out.getLength());
+			{
+				ByteArrayOutputStream bos;
+				
+				bos = new ByteArrayOutputStream();
+				writer.init(new DataOutputStream(bos));
+				if (file.fSVDBFile != null) {
+					writer.writeObject(SVDBFile.class, file.fSVDBFile);
+				}
+				System.out.println("  fSVDBFile: " + bos.toByteArray().length);
+				
+				if (file.fSVDBFile != null) {
+					for (ISVDBChildItem it : file.fSVDBFile.getChildren()) {
+						System.out.println("    it: " + SVDBItem.getName(it));
+					}
+				}
+
+				bos = new ByteArrayOutputStream();
+				writer.init(new DataOutputStream(bos));
+				writer.writeItemList(file.fIncludedFileTrees);
+				System.out.println("  fIncludedFileTrees: " + bos.toByteArray().length);
+				
+				bos = new ByteArrayOutputStream();
+				writer.init(new DataOutputStream(bos));
+				writer.writeObject(file.fReferencedMacros.getClass(), file.fReferencedMacros);
+				System.out.println("  fReferencedMacros: " + bos.toByteArray().length);
+			}
+			 */
 			
 			int file_id = fFileSystem.writeFile(entry.getPath() + ":fileTree", data_out);
 			
@@ -831,7 +901,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	private void readBackSVDBFileTree(SVDBFileIndexCacheEntry entry) {
+	private synchronized void readBackSVDBFileTree(SVDBFileIndexCacheEntry entry) {
 		try {
 			IDBReader reader = allocReader();
 			SVDBFileTree ft = new SVDBFileTree();
@@ -851,7 +921,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		}
 	}
 	
-	private void writeBackMarkers(SVDBFileIndexCacheEntry entry) {
+	private synchronized void writeBackMarkers(SVDBFileIndexCacheEntry entry) {
 		try {
 			if (entry.getMarkersId() != -1) {
 				// Free the old file
@@ -876,7 +946,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}	
 
 	@SuppressWarnings("unchecked")
-	private void readBackMarkers(SVDBFileIndexCacheEntry entry) {
+	private synchronized void readBackMarkers(SVDBFileIndexCacheEntry entry) {
 		try {
 			IDBReader reader = allocReader();
 			SVDBFileSystemDataInput data_in = fFileSystem.readFile(

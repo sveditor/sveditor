@@ -3,7 +3,8 @@
 sveditor/plugins/net.sf.sveditor.doc.dev/api_docs/resources/*.gif
 sveditor/plugins/net.sf.sveditor.doc.user/help/*
 docs/pdf/*
-*.properties
+sveditor/plugins/net.sf.sveditor.ui/class/net/sf/sveditor/ui/*.properties
+sveditor/plugins/net.sf.sveditor.ui/class/net/sf/sveditor/ui/text/hover/*.properties
 .svproject
 stylesheet.css
 package-list

@@ -57,6 +57,7 @@ import net.sf.sveditor.core.db.expr.SVDBStringExpr;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.expr.SVDBTypeExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
+import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 import net.sf.sveditor.core.parser.SVLexer.Context;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -67,7 +68,7 @@ public class SVExprParser extends SVParserBase {
 	private Stack<Boolean>					fEventExpr;
 	private Stack<Boolean>					fAssertionExpr;
 	private Stack<Boolean>					fArglistExpr;
-	private boolean						fEnableNameMappedPrimary = false;
+	private boolean							fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -654,7 +655,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> assignmentExpression()");}
 		SVDBExpr a = conditionalExpression();
 		
-		if (fLexer.peekOperator(SVKeywords.fAssignmentOps)) {
+		if (fLexer.peekOperator(SVOperators.fAssignmentOps)) {
 			String op = fLexer.readOperator();
 			SVDBExpr rhs = assignmentExpression();
 			a = new SVDBAssignExpr(a, op, rhs);
@@ -671,7 +672,7 @@ public class SVExprParser extends SVParserBase {
 			
 			a = inside;
 			
-			if (fLexer.peekOperator(SVKeywords.fBinaryOps)) {
+			if (fLexer.peekOperator(SVOperators.fBinaryOps)) {
 				a = new SVDBBinaryExpr(a, fLexer.eatToken(), expression());
 			}
 		}
@@ -1065,6 +1066,11 @@ public class SVExprParser extends SVParserBase {
 					fLexer.eatToken();
 					expr = fParsers.exprParser().expression();
 				}
+			} else if (fLexer.peekKeyword("dist") && getConfig().allowDistInsideParens()) {
+				// TODO: 
+				SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
+				fLexer.readKeyword("dist");
+				fParsers.constraintParser().dist_list(dist_stmt);				
 			}
 			
 			fLexer.readOperator(")");
@@ -1400,11 +1406,18 @@ public class SVExprParser extends SVParserBase {
 					
 						SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
 						rhs.setTypeInfo(info);
+						
 						if (fDebugEn) {
 							debug("  rhs=" + rhs);
-							debug("<-- selector() - DataType");
+							debug("<-- selector() - DataType (" + fLexer.peek() + ")");
 						}
-						return new SVDBFieldAccessExpr(expr, true, rhs);
+						expr = new SVDBFieldAccessExpr(expr, true, rhs);
+						
+						if (fLexer.peekOperator("::")) {
+							return selector(expr);
+						} else {
+							return expr;
+						}
 					} else {
 						if (fDebugEn) {debug("<-- selector() - IdentifierExpr(2)");}
 						return new SVDBFieldAccessExpr(expr, (q.equals("::")), 
@@ -1469,7 +1482,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	private SVDBTFCallExpr tf_args_call(SVDBExpr target, String id) throws SVParseException {
-		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id, arguments());
+		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id, arguments());	
 		
 		if (fLexer.peekKeyword("with")) {
 			fLexer.eatToken();

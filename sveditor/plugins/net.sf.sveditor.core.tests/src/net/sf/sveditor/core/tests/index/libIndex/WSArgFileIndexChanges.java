@@ -15,15 +15,12 @@ package net.sf.sveditor.core.tests.index.libIndex;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
-import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -55,29 +52,11 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
-		ISVDBItemBase class1_it = null, class1_2_it = null;
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_2");
 		
-		List<SVDBDeclCacheItem> result;
-		
-		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
-				"class1", SVDBFindDefaultNameMatcher.getDefault());
-
-		assertEquals("Expected 1 result for find class1", 1, result.size());
-		if (result.size() > 0) {
-			class1_it = result.get(0).getSVDBItem();
-		}
-		
-		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
-				"class1_2", SVDBFindDefaultNameMatcher.getDefault());
-		
-		if (result.size() > 0) {
-			class1_2_it = result.get(0).getSVDBItem();
-		}
-				
-		assertNotNull("Expect to find class1", class1_it);
-		assertNull("Expect to not find class1_2", class1_2_it);
-
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(out);
 		
@@ -107,25 +86,9 @@ public class WSArgFileIndexChanges extends SVCoreTestCaseBase {
 		} catch (InterruptedException e) {}
 		System.out.println("<-- Sleep");
 
-		class1_it = null;
-		class1_2_it = null;
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1_2");
 
-		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
-				"class1", SVDBFindDefaultNameMatcher.getDefault());
-		
-		if (result.size() > 0) {
-			class1_it = result.get(0).getSVDBItem();
-		}
-		
-		result = index.findGlobalScopeDecl(new NullProgressMonitor(), 
-				"class1_2", SVDBFindDefaultNameMatcher.getDefault());
-		
-		if (result.size() > 0) {
-			class1_2_it = result.get(0).getSVDBItem();
-		}
-		
-		assertNotNull("Expect to find class1", class1_it);
-		assertNotNull("Expect to find class1_2", class1_2_it);
 		index.dispose();
 	}
 

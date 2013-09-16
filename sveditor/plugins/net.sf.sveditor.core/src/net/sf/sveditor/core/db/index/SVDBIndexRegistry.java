@@ -24,8 +24,6 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -184,7 +182,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		index.dispose();
 	
 		// Clear out data from the cache
-		cache.clear(new NullProgressMonitor());
+		cache.dispose();
 	}
 	
 	public SVDBIndexCollection getGlobalIndexMgr() {
@@ -256,14 +254,10 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			ISVDBIndexFactory factory = findFactory(type);
 			ISVDBIndexCache cache = null;
 			
-			if (type.equals(SVDBShadowIndexFactory.TYPE)) {
-				cache = new InMemoryIndexCache();
-			} else {
-				cache = fCacheFactory.findIndexCache(project, base_location);
-				
-				if (cache == null) {
-					cache = fCacheFactory.createIndexCache(project, base_location);
-				}
+			cache = fCacheFactory.findIndexCache(project, base_location);
+			
+			if (cache == null) {
+				cache = fCacheFactory.createIndexCache(project, base_location);
 			}
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);

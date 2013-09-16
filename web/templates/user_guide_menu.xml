@@ -1,0 +1,36 @@
+
+<div id="menu">
+	<table>
+	<tr><td>
+		<img src="../imgs/window_img_128_128.gif"/>
+	</td></tr>
+	</table>
+	<hr/>
+	<table>
+	<tr><td>
+		<a href="../index.html">Home</a>
+	</td></tr>
+	</table>
+	<hr/>
+	<table>
+	<tr><td>
+		<a href="sveditor_user_guide.html">User Guide</a>
+	</td></tr>
+	<tr><td>
+		<a href="Setting_up_an_SVEditor_Project.html">Setting up an SVEditor Project</a>
+	</td></tr>
+	<tr><td>
+		<a href="Editing_SystemVerilog_Files.html">Editing SystemVerilog Files</a>
+	</td></tr>
+	<tr><td>
+		<a href="Source_Navigation.html">Source Navigation</a>
+	</td></tr>
+	<tr><td>
+		<a href="Source_Documentation.html">Source Documentation</a>
+	</td></tr>
+	<tr><td>
+		<a href="Working_with_Templates.html">Working with Templates</a>
+	</td></tr>
+	</table>
+	<hr/>
+</div>

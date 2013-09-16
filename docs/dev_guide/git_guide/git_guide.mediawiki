@@ -1,10 +1,10 @@
-
+= SVEditor Git Guide =
 Note: The guide below assumes that you want to setup Git to participate in SVEditor development. Some portions of the below do not apply if you are using Git in read-only mode to get access to the latest and greatest SVEditor source.
 
-= Register for a GitHub Account =
+== Register for a GitHub Account ==
 SVEditor uses GitHub for Git repository hosting. Sign up for an account here: [https://github.com/signup/free https://github.com/signup/free]
 
-= Install EGit =
+== Install EGit ==
 Eclipse provides support for Git via the EGit set of plug-ins. Install EGit from your development Eclipse environment. Select Help->Install New Software. 
 
 The EGit user guide is here:
@@ -12,25 +12,98 @@ The EGit user guide is here:
 
 [[Image:install_egit.gif]]
 
-= Install Git (Optional) =
+== Install Git (Optional) ==
 Installing the command-line version of Git may be helpful. Instructions for installing Git can be found here:
 
 * [http://help.github.com/linux-set-up-git Linux]
 * [http://help.github.com/win-set-up-git Windows]
 
 
-= Development Workflow =
+== Git Development Workflow ==
 Git is a distributed version control system that has been gaining popularity with Open Source projects due to its features that facilitate decentralized development. 
 
 In a version control system, such as Subversion or CVS, there is one central source repository. Developers with commit access to the repository can modify the repository directly -- committing source to repository, creating branches, and merging branches. Developers without commit access must submit their changes to the project source via more indirect means -- perhaps by creating a patch file and submitting it for consideration to one of the project maintainers.
 
 In a distributed version control system, there are multiple repositories. Developers with commit access to the primary repository can modify the repository at will. Developers without commit access to the primary repository can create a 'fork' of the primary repository. This, effectively, creates a derived repository that is linked to the primary repository. The developer can now modify the source in the derived repository, all the while receiving updates from the primary repository when desired. When a feature in a derived repository is complete, a 'pull' request is sent to the maintainer of the primary repository. At this point, the maintainer can review the proposed changes, provide feedback, and finally 'pull' the code for the completed feature from the derived repository.
 
-== Creating a Development Repository ==
+=== Creating a Development Repository ===
+This section describes how to setup a Git repository for development. 
 
-This section describes how to setup a Git repository for development. Click on this link to walk through the steps to [https://sourceforge.net/apps/mediawiki/sveditor/index.php?title=Creating_a_Development_Repository create a development repository].
+==== Forking the SVEditor Repository ====
+The primary SVEditor Git repository is hosted on GitHub here: [https://github.com/mballance/sveditor https://github.com/mballance/sveditor]
 
-== Importing Projects ==
+* Log-in to GitHub (in this case, I'm signed in as mballance-sf, a user that contributes to SVEditor)
+* Navigate to [https://github.com/mballance/sveditor https://github.com/mballance/sveditor]
+* Select the 'Fork' button in the upper-right corner, as shown below
+[[Image:fork_sveditor_1.gif]]
+* GitHub will take a few moments to create a new fork of the repository
+* Finally, the new fork of the repository (owned by mballance-sf, in this case) is shown
+[[Image:fork_sveditor_2.gif]]
+
+==== Adding the Git Repository to Eclipse ====
+* In the web browser that is displaying the forked SVEditor repository:
+** Select the 'HTTP' button
+** Copy the displayed URL, as shown below
+[[Image:clone_copy_url.gif]]
+* Launch Eclipse
+* Open the Git Repository Exploring perspective
+** Select Window->Open Perspective->Other...
+** Select Git Repository Exploring from the list
+* In the Git Repositories view, select the 'Clone Repository' button, as shown below
+[[Image:clone_select_clone_repo_button.gif]]
+* The Clone Git Repository dialog will open. 
+** The URL copied in step 1 should be auto-filled. If not, copy the URL into the dialog
+** Fill in your GitHub password
+[[Image:clone_fill_in_repo_info.gif]]
+* Select Next
+* The Clone Git Repository wizard will fetch the branches from the repository, as shown below
+[[Image:clone_available_branches.gif]]
+* Select Next
+* Specify the local directory in which to place the cloned repository
+[[Image:clone_specify_local_directory.gif]]
+* Finally, select Finish
+* Eclipse will clone the repository, which could take some time depending on the network speed
+[[Image:clone_progress_dialog.gif]]
+
+
+The new cloned repository will now be shown in the Git Repository Explorer.
+
+[[Image:clone_complete.gif]]
+
+==== Specifying the Upstream Repository ====
+We've specified how to access our developer's fork of the SVEditor repository. We now need to specify how to access the primary repository so we can obtain updates.
+
+* In a web browser, navigate to [https://github.com/mballance/sveditor https://github.com/mballance/sveditor]
+* Select the repository URL (https://github.com/mballance/sveditor.git) and copy it
+* Note that you want the "mballance" link as shown above.
+[[Image:create_remote_upstream_url.gif]]
+* Expand the repository in the Git Repository Explorer
+* Select Remotes, then select Create Remote... from the context menu
+[[Image:create_remote_open_dialog.gif]]
+* The New Remote dialog will open. 
+** Specify the Remote name as "upstream"
+** Specify "Configure fetch"
+[[Image:create_remote_1.gif]]
+* Select OK
+* The Configure Fetch dialog will open
+[[Image:create_remote_configure_fetch_1.gif]]
+* Select the Change... button
+* A dialog will open with the primary SVEditor URL filled in (the URL you copied in step 1)
+[[Image:create_remote_select_uri.gif]]
+* Select Finish in the 'Select a URI' dialog
+* Next, select 'Add...' in the RefSpec: portion of the Configure Fetch dialog
+* In the "Adding a Refspec for Fetch", specify the following source: refs/heads/master
+[[Image:create_remote_add_refspec.gif]]
+* Select Next in the "Adding a Refspec for Fetch" dialog
+* The next wizard page prompts for a destination. Select Finish to take the default settings.
+[[Image:create_remote_select_dest.gif]]
+* Now, we are back to the "Configure Fetch" dialog. 
+[[Image:create_remote_spec_complete.gif]]
+* Select "Save and Fetch" to complete.
+* Now, the upstream repository is shown in the Git Repository Explorer
+[[Image:create_remote_upstream_shown.gif]]
+
+=== Importing Projects ===
 Once the remote repository is cloned and connected to the primary repository, we can import the SVEditor projects into Eclipse.
 * In the Git Repository Explorer, select the repository, then select Import Projects...
 [[Image:proj_imp_open_import_dialog.gif]]
@@ -41,7 +114,7 @@ Once the remote repository is cloned and connected to the primary repository, we
 * Now that the projects are imported, switch back to the Java perspective
 [[Image:proj_imp_switch_to_java_perspective.gif]]
 
-== Committing Changes ==
+=== Committing Changes ===
 Centralized version-control systems, such as Subversion, implement a single-step commit operation. Git, effectively implements a two-step commit operation. 
 * The first step of a Git commit commits selected changes to the local clone of the Git repository. Git refers to this operation as "commit"
 * The second step of a Git commit transmits locally-committed changes from the local Git-repository clone to the remote Git repository. Git refers to this operation as "push"
@@ -63,7 +136,7 @@ A dialog will open to confirm the set of commits to push to the remote repositor
 
 You can commit multiple local changes and push them to your central development repository with a single 'push'.
 
-== Submitting Changes to SVEditor ==
+=== Submitting Changes to SVEditor ===
 
 Once you're happy with a particular set of bug fixes ore improvements to SVEditor, you will want to submit them back to the primary SVEditor repository. This is done by sending a Pull Request via GitHub.
 
@@ -79,7 +152,7 @@ Once you're happy with a particular set of bug fixes ore improvements to SVEdito
 
 * The maintainer of the core SVEditor repository (that's me) will receive an email with details on the change to be submitted. Once the proposed changes are accepted, they will be pulled into the central SVEditor repository and made available to everyone.
 
-== Updating a Development Repository ==
+=== Updating a Development Repository ===
 When a change is applied to the master SVEditor repository, you will want to fetch that to your development repository. This can be done via the following steps.
 
 * Open the Git Repository Explorer view

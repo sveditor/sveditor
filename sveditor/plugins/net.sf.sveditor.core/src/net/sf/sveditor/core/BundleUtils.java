@@ -13,11 +13,14 @@
 package net.sf.sveditor.core;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -68,6 +71,38 @@ public class BundleUtils {
 		} while (len > 0);
 
 		out.close();
+		in.close();
+	}
+
+	public void copyBundleFileToFSText(
+			String			bundle_file,
+			File			fs_path) throws IOException {
+		URL url = fBundle.getEntry(bundle_file);
+	
+		File outfile;
+		if (fs_path.isDirectory()) {
+			String leafname = new File(bundle_file).getName();
+			outfile = new File(fs_path, leafname);
+		} else {
+			outfile = fs_path;
+		}
+		
+		if (!fs_path.getParentFile().isDirectory()) {
+			fs_path.mkdirs();
+		}
+
+		FileOutputStream out = new FileOutputStream(outfile);
+		InputStream in = url.openStream();
+		
+		BufferedReader rdr = new BufferedReader(new InputStreamReader(in));
+		PrintStream ps = new PrintStream(out);
+
+		String str;
+		while ((str = rdr.readLine()) != null) {
+			ps.println(str);
+		}
+
+		ps.close();
 		in.close();
 	}
 	

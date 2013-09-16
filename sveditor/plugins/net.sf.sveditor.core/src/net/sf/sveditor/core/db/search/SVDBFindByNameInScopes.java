@@ -63,7 +63,7 @@ public class SVDBFindByNameInScopes {
 		fRet.add(item);
 	}
 	
-	public synchronized List<ISVDBItemBase> find(
+	public synchronized List<ISVDBItemBase> findItems(
 			ISVDBChildItem			context,
 			String					name,
 			boolean					stop_on_first_match,

@@ -1,0 +1,9 @@
+= News =
+
+== [[20130727_New_Indexer_Preview_Releases|20130727 - New Indexer Preview Releases]] ==
+A fairly major overhaul of the indexing and caching sub-systems of SVEditor has been underway 
+for the past few months. Overall functionality and quality has reached a point where we are
+ready for input from the community. Click above to learn more about the changes and
+how to try out the new functionality.
+
+

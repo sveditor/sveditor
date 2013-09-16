@@ -32,7 +32,6 @@ public class SVDBIndexBuildJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		Exception ex = null;
-		System.out.println("Job Started");
 		synchronized (this) {
 			fIsStarted = true;
 		}
@@ -53,9 +52,8 @@ public class SVDBIndexBuildJob extends Job {
 				fSyncObj.notifyAll();
 			} 
 			
-			if (ex != null) {
+			if (ex == null) {
 				// Try a replan
-				System.out.println("plan complete: " + fPlan.getType());
 				if (fPlan.getType() == SVDBIndexChangePlanType.Refresh) {
 					ISVDBIndexChangePlan plan = fPlan.getPlanner().createIndexChangePlan(null);
 					if (plan.getType() != SVDBIndexChangePlanType.Empty) {

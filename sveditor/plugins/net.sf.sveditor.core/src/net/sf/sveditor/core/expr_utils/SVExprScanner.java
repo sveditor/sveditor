@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.expr_utils;
 
 import net.sf.sveditor.core.expr_utils.SVExprContext.ContextType;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -81,10 +82,17 @@ public class SVExprScanner {
 			scanner.seek(pos-1);
 			int prev_ch = scanner.get_ch();
 			
+			debug("      prev_ch=" + (char)prev_ch);
+			
 			if (Character.isWhitespace(prev_ch) || prev_ch == '"' || 
 					(SVCharacter.isSVIdentifierPart(c) && 
 							!SVCharacter.isSVIdentifierPart(prev_ch))) {
-				scanner.seek(pos);
+				// Consider 
+				if (prev_ch == '"' && (c == '\n' || c == '\r')) {
+					scanner.seek(pos-1);
+				} else {
+					scanner.seek(pos);
+				}
 			} else {
 				scanner.seek(pos-1);
 			}
@@ -214,13 +222,49 @@ public class SVExprScanner {
 						ret.fLeaf = "";
 					}
 					ret.fRoot = readExpression(scanner);
+				} else {
+					// Back up to see if there's an include previously
+					scanner.seek(ret.fStart);
+					c = scanner.skipWhite(c);
+					
+//					int ch2 = scanner.get_ch();
+//					int ch3 = scanner.get_ch();
+					
+//					debug("notInTriggered: c=\"" + (char)c + "\" ch2=" + (char)ch2 + " ch3=" + (char)ch3);
+					debug("notInTriggered: scanFwd=" + scanner.getScanFwd());
+					
+					scanner.unget_ch(c);
+					
+					String id = readIdentifier(scanner, false);
+					
+					debug("notInTriggered: id=\"" + id + "\"");
+					
+					if (id != null && 
+							(id.equals("include") ||
+							 id.equals("extends") ||
+							 id.equals("import")
+							)) {
+						if (ret.fStart > 0) {
+							ret.fStart--;
+						}
+						
+						if (id.equals("include")) {
+							ret.fTrigger = "`";
+						}
+						ret.fRoot = id;
+						ret.fLeaf = "";
+					}
 				}
 			}
 		}
 		
 		if (ret.fType != ContextType.String) {
-			if (ret.fRoot != null && ret.fRoot.equals("import")) {
-				ret.fType = ContextType.Import;
+			if (ret.fRoot != null) {
+				if (ret.fRoot.equals("import")) {
+					ret.fType = ContextType.Import;
+				} else if (ret.fRoot.equals("extends")) {
+					ret.fType = ContextType.Extends;
+				}
 			} else {
 				// Read preceeding token. It's possible we need to change this type
 				c = scanner.skipWhite(scanner.get_ch());
@@ -432,8 +476,13 @@ public class SVExprScanner {
 		
 		// First, scan back to the string beginning
 		scanner.setScanFwd(false);
-		while ((ch = scanner.get_ch()) != -1 &&
-				SVCharacter.isSVIdentifierPart(ch)) { }
+		while ((ch = scanner.get_ch()) != -1) {
+//MSB			System.out.println("ch=" + (char)ch);
+			if (!SVCharacter.isSVIdentifierPart(ch)) { 
+				break;
+			}
+		}
+				
 		
 		start_pos = scanner.getPos() + 2;
 		seek = scanner.getPos() + 1;
@@ -456,7 +505,7 @@ public class SVExprScanner {
 
 	private void debug(String msg) {
 		if (fDebugEn) {
-			fLog.debug(msg);
+			fLog.debug(ILogLevel.LEVEL_MID, msg);
 		}
 	}
 }

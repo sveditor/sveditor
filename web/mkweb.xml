@@ -20,106 +20,200 @@
 	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
 		<classpath path="${basedir}/../scripts/xmltask.jar"/>
 	</taskdef>
-	
+
+	<macrodef name="mkhtml">
+		<attribute name="docfile"/>
+		<attribute name="doctitle"/>
+		<attribute name="menu"/>
+		<attribute name="style"/>
+		<attribute name="layout"/>
+		<attribute name="output.dir"/>
+
+		<sequential>
+			<mkdir dir="@{output.dir}/html1"/>
+			<mkdir dir="@{output.dir}/html2"/>
+			
+			<wikitext-to-html 
+				markupLanguage="MediaWiki"
+				title="@{doctitle}"
+				multipleOutputFiles="true"
+				linkRel=""
+				file="@{output.dir}/@{docfile}"
+				formatOutput="true"
+				prependImagePrefix="imgs"
+				xhtmlStrict="false"
+				emitDoctype="false"
+				internalLinkPattern="{0}.html">
+				<markuplanguageconfiguration escapingHtmlAndXml="false"/>
+			</wikitext-to-html>
+
+			<replace dir="@{output.dir}" value="">
+				<include name="*.html"/>
+				<replacetoken> xmlns="http://www.w3.org/1999/xhtml"</replacetoken>
+			</replace>
+
+			<replaceregexp flags="g" 
+				match="/wiki/([a-zA-Z0-9_]+)" 
+				replace="\1.html">
+				<fileset dir="@{output.dir}">
+					<include name="*.html"/>
+				</fileset>
+			</replaceregexp>
+			
+			<replaceregexp flags="g" 
+				match="&amp;lt;iframe" 
+				replace="&lt;iframe">
+				<fileset dir="@{output.dir}">
+					<include name="*.html"/>
+				</fileset>
+			</replaceregexp>
+
+			<replaceregexp flags="g" 
+				match="/&amp;gt;" 
+				replace="/&gt;>">
+				<fileset dir="@{output.dir}">
+					<include name="*.html"/>
+				</fileset>
+			</replaceregexp>
+		
+			<copy todir="@{output.dir}/html1">
+				<fileset dir="@{output.dir}" includes="*.html"/>
+				<filtermapper>
+					<replacestring from="-" to="_"/>
+				</filtermapper>
+			</copy>
+		
+			<delete>
+				<fileset dir="@{output.dir}" includes="*.html"/>
+			</delete>
+		
+			<xmltask todir="@{output.dir}/html2">
+				<fileset dir="@{output.dir}/html1"
+					includes="*.html"/>
+				<remove path="/html/body/hr"/>
+				<remove path="/html/body/table[@class='navigation']"/>
+				<attr path="/html/body" attr="id" value="mainText"/>
+				<rename path="html/body" to="div"/>
+				<cut path="/html/div" buffer="mainText"/>
+				<insert path="/html/head/title" file="@{style}" position="after"/>
+				<insert path="/html/head" file="@{layout}" position="after"/>
+			
+				<insert path="/html/body/table/tr/td[1]" file="@{menu}"/>
+				<insert path="/html/body/table/tr/td[2]" buffer="mainText"/>
+			</xmltask>
+		
+			<!-- Copy files back to the output directory -->
+			<copy todir="@{output.dir}" force="true">
+				<fileset dir="@{output.dir}/html2" includes="*"/>
+			</copy>
+			
+			<delete dir="@{output.dir}/html1"/>
+			<delete dir="@{output.dir}/html2"/>
+		</sequential>
+	</macrodef>
+
 	<target name="mk_html">
 		<delete dir="${output.dir}/html"/>
-		<delete dir="${output.dir}/html1"/>
-		<delete dir="${output.dir}/html2"/>
 		<mkdir dir="${output.dir}/html"/>
-		<mkdir dir="${output.dir}/html1"/>
-		<mkdir dir="${output.dir}/html2"/>
 		<mkdir dir="${output.dir}/html/imgs"/>
-		<mkdir dir="${output.dir}/html2/imgs"/>
+		<mkdir dir="${output.dir}/html/user_guide"/>
+		<mkdir dir="${output.dir}/html/dev_guide"/>
 
-		<ant antfile="${srcdir}/../docs/mkdoc.xml"
-			target="collect_files">
-			<property name="srcdir" value="${srcdir}/../docs"/>
-			<property name="output.dir" value="${output.dir}/html"/>
-		</ant>
+		<antcall target="mk_web_index"/>
+		<antcall target="mk_web_user_guide"/>
+		<antcall target="mk_web_dev_guide"/>
+		
+		<copy todir="${output.dir}/html">
+			<fileset dir="${output.dir}/index_html" 
+				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<copy todir="${output.dir}/html/user_guide">
+			<fileset dir="${output.dir}/user_guide_html" 
+				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<copy todir="${output.dir}/html/dev_guide">
+			<fileset dir="${output.dir}/dev_guide_html" 
+				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+	
+		<delete dir="${output.dir}/user_guide_html"/>
+		<delete dir="${output.dir}/dev_guide_html"/>
+		<delete dir="${output.dir}/index_html"/>
 
-		<concat destfile="${output.dir}/html/index.mediawiki">
+	</target>
+	
+	<!-- Create the top-level web files -->
+	<target name="mk_web_index">
+		<mkdir dir="${output.dir}/index_html"/>
+		<mkdir dir="${output.dir}/index_html/imgs"/>
+		
+		<concat destfile="${output.dir}/index_html/index.mediawiki">
 			<filelist refid="web_files"/>
 		</concat>
 		
-		<copy todir="${output.dir}/html/imgs" flatten="true">
+		<copy todir="${output.dir}/index_html/imgs" flatten="true">
 			<fileset dir="${web.dir}/pages"
-				includes="**/*.gif,**/*.jpg"/>
-		</copy>
-		
-		<copy todir="${output.dir}/html2/imgs" flatten="true">
-			<fileset dir="${output.dir}/html"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 
-		<wikitext-to-html markupLanguage="MediaWiki"
-			title="SVEditor"
-			multipleOutputFiles="true"
-			linkRel=""
-			file="${output.dir}/html/index.mediawiki"
-			formatOutput="true"
-			prependImagePrefix="imgs"
-			xhtmlStrict="false"
-			emitDoctype="false"
-			internalLinkPattern="{0}.html">
-			<markuplanguageconfiguration escapingHtmlAndXml="false"/>
-		</wikitext-to-html>
+		<mkhtml doctitle="SVEditor"
+			docfile="index.mediawiki"
+			menu="${srcdir}/templates/menu.xml"
+			style="${srcdir}/templates/style.xml"
+			layout="${srcdir}/templates/layout.xml"
+			output.dir="${output.dir}/index_html">
+		</mkhtml>
+	</target>
+	
+	<target name="mk_web_user_guide">
+		<mkdir dir="${output.dir}/user_guide_html"/>
+		<mkdir dir="${output.dir}/user_guide_html/imgs"/>
+		
+		<ant antfile="${srcdir}/../docs/mkdoc.xml"
+			target="collect_files">
+			<property name="srcdir" value="${srcdir}/../docs"/>
+			<property name="output.dir" value="${output.dir}/user_guide_html"/>
+		</ant>
+	
+		<!-- Move the image files to a subdir -->
+		<move todir="${output.dir}/user_guide_html/imgs">
+			<fileset dir="${output.dir}/user_guide_html"
+				includes="*.gif,*.jpg,*.png"/>
+		</move>
 
-		<replace dir="${output.dir}/html" value="">
-			<include name="*.html"/>
-			<replacetoken> xmlns="http://www.w3.org/1999/xhtml"</replacetoken>
-		</replace>
-
-		<replaceregexp flags="g" 
-			match="/wiki/([a-zA-Z0-9_]+)" 
-			replace="\1.html">
-			<fileset dir="${output.dir}/html">
-				<include name="*.html"/>
-			</fileset>
-		</replaceregexp>
-		
-		<replaceregexp flags="g" 
-			match="&amp;lt;iframe" 
-			replace="&lt;iframe">
-			<fileset dir="${output.dir}/html">
-				<include name="*.html"/>
-			</fileset>
-		</replaceregexp>
-		
-		<replaceregexp flags="g" 
-			match="/&amp;gt;" 
-			replace="/&gt;>">
-			<fileset dir="${output.dir}/html">
-				<include name="*.html"/>
-			</fileset>
-		</replaceregexp>
-		
-		<copy todir="${output.dir}/html1">
-			<fileset dir="${output.dir}/html" includes="*.html"/>
-			<filtermapper>
-				<replacestring from="-" to="_"/>
-			</filtermapper>
-		</copy>
-		
-		<xmltask todir="${output.dir}/html2">
-			<fileset dir="${output.dir}/html1"
-				includes="*.html"/>
-			<remove path="/html/body/hr"/>
-			<remove path="/html/body/table[@class='navigation']"/>
-			<attr path="/html/body" attr="id" value="mainText"/>
-			<rename path="html/body" to="div"/>
-			<cut path="/html/div" buffer="mainText"/>
-			<insert path="/html/head/title" file="${srcdir}/templates/style.xml" position="after"/>
-			<insert path="/html/head" file="${srcdir}/templates/layout.xml" position="after"/>
-			
-			<insert path="/html/body/table/tr/td[1]" file="${srcdir}/templates/menu.xml"/>
-			<insert path="/html/body/table/tr/td[2]" buffer="mainText"/>
-		</xmltask>
-		
-		<delete dir="${output.dir}/html"/>
-		<delete dir="${output.dir}/html1"/>
-
+		<mkhtml doctitle="SVEditor User Guide"
+			docfile="sveditor_user_guide.mediawiki"
+			menu="${srcdir}/templates/user_guide_menu.xml"
+			style="${srcdir}/templates/style.xml"
+			layout="${srcdir}/templates/layout.xml"
+			output.dir="${output.dir}/user_guide_html"/>
 	</target>
 
+	<target name="mk_web_dev_guide">
+		<mkdir dir="${output.dir}/dev_guide_html"/>
+		<mkdir dir="${output.dir}/dev_guide_html/imgs"/>
+		
+		<ant antfile="${srcdir}/../docs/mkdoc.xml"
+			target="collect_devguide_files">
+			<property name="srcdir" value="${srcdir}/../docs"/>
+			<property name="output.dir" value="${output.dir}/dev_guide_html"/>
+		</ant>
+	
+		<!-- Move the image files to a subdir -->
+		<move todir="${output.dir}/dev_guide_html/imgs">
+			<fileset dir="${output.dir}/dev_guide_html"
+				includes="*.gif,*.jpg,*.png"/>
+		</move>
+
+		<mkhtml doctitle="SVEditor Developer Guide"
+			docfile="sveditor_dev_guide.mediawiki"
+			menu="${srcdir}/templates/dev_guide_menu.xml"
+			style="${srcdir}/templates/style.xml"
+			layout="${srcdir}/templates/layout.xml"
+			output.dir="${output.dir}/dev_guide_html"/>
+	</target>
 	
 	<target name="collect_files">
 		<!-- Copy image files -->
@@ -128,7 +222,7 @@
 		
 		<copy todir="${output.dir}" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<!-- Now, build the doc -->

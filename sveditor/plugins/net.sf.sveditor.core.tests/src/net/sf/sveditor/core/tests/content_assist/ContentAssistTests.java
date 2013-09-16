@@ -71,8 +71,11 @@ public class ContentAssistTests extends TestCase {
 			String exp = expected[exp_idx];
 			boolean found = false;
 			
+//			System.out.println("[" + exp_idx + "] exp=\"" + exp + "\"");
+			
 			if (ordered) {
 				if (exp_idx < proposals.size()) {
+//					System.out.println("[" + exp_idx + "] proposal=\"" + proposals.get(exp_idx).getReplacement() + "\"");
 					if (proposals.get(exp_idx).getReplacement().equals(exp)) {
 						proposals.set(exp_idx, null);
 						found = true;

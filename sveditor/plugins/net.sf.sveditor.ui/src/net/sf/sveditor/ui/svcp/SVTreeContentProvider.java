@@ -21,6 +21,8 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
+import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -30,6 +32,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	private static final Set<SVDBItemType>		fDoNotRecurseScopes;
 	private static final Set<SVDBItemType>		fExpandInLineItems;
 	private static final Set<SVDBItemType>		fIgnoreItems;
+	private ISVDBChildParent					fRoot;
 	
 	static {
 		fDoNotRecurseScopes = new HashSet<SVDBItemType>();
@@ -37,6 +40,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fDoNotRecurseScopes.add(SVDBItemType.Task);
 		fDoNotRecurseScopes.add(SVDBItemType.Coverpoint);
 		fDoNotRecurseScopes.add(SVDBItemType.CoverpointCross);
+		fDoNotRecurseScopes.add(SVDBItemType.Constraint);
 		fDoNotRecurseScopes.add(SVDBItemType.ConfigDecl);
 		
 		fExpandInLineItems = new HashSet<SVDBItemType>();
@@ -51,12 +55,24 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	}
 	
 	public Object[] getChildren(Object elem) {
+		int file_id = -1;
+		
+		if (fRoot != null && fRoot.getLocation() != null) {
+			file_id = fRoot.getLocation().getFileId();
+		}
+		
 		if (elem instanceof ISVDBItemBase) {
 			List<ISVDBItemBase> c = new ArrayList<ISVDBItemBase>();
 			ISVDBItemBase it = (ISVDBItemBase)elem;
+			
 			if (it instanceof ISVDBChildParent && 
 					!fDoNotRecurseScopes.contains(it.getType())) {
 				for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
+					if (file_id != -1 && ci.getLocation() != null) {
+						if (file_id != ci.getLocation().getFileId()) {
+							continue;
+						}
+					}
 					if (fExpandInLineItems.contains(ci.getType())) {
 						for (ISVDBChildItem ci_p : ((ISVDBChildParent)ci).getChildren()) {
 							c.add(ci_p);
@@ -66,7 +82,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 					}
 				}
 			} else {
-				System.out.println("elem instanceof " + (elem instanceof ISVDBChildParent));
+//				System.out.println("elem instanceof " + (elem instanceof ISVDBChildParent));
 			}
 			
 			return c.toArray();
@@ -74,31 +90,6 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			
 		}
 		
-		/*
-		if (elem instanceof ISVDBChildParent && 
-				!fDoNotRecurseScopes.contains(((ISVDBChildParent)elem).getType())) {
-			ISVDBChildParent cp = (ISVDBChildParent)elem;
-			List<ISVDBItemBase> c = new ArrayList<ISVDBItemBase>();
-			for (ISVDBChildItem it : cp.getChildren()) {
-				if (it.getType() == SVDBItemType.VarDeclStmt ||
-						it.getType() == SVDBItemType.ImportStmt ||
-						it.getType() == SVDBItemType.ExportStmt) {
-					for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
-						c.add(ci);
-					}
-				} else if (it.getType() == SVDBItemType.ModIfcInst) {
-					for (ISVDBChildItem ci : ((SVDBModIfcInst)it).getChildren()) {
-						c.add(ci);
-					}
-				} else {
-					if (it.getType() != SVDBItemType.NullStmt) {
-						c.add(it);
-					}
-				}
-			}
-			return c.toArray();
-		}
-		 */
 		return new Object[0];
 	}
 	
@@ -130,5 +121,12 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	}
 
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		if (newInput instanceof SVOutlineContent) {
+			fRoot = ((SVOutlineContent)newInput).getFile();
+		} else if (newInput instanceof SVArgFileOutlineContent) {
+			fRoot = ((SVArgFileOutlineContent)newInput).getFile();
+		} else if (newInput instanceof ISVDBChildParent) {
+			fRoot = (ISVDBChildParent)newInput;
+		}
 	}
 }

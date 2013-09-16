@@ -55,10 +55,11 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		}
 
 
+		int fileid = readInt();
 		int line = readInt();
 		int pos  = readInt();
 
-		return new SVDBLocation(line, pos);
+		return new SVDBLocation(fileid, line, pos);
 	}
 
 	public String readString() throws DBFormatException {
@@ -125,6 +126,27 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 			String key = readString();
 			String val = readString();
 			ret.put(key, val);
+		}
+		
+		return ret;
+	}
+
+	public Map<String, List> readMapStringStringList() throws DBFormatException {
+		Map<String, List> ret = new HashMap<String, List>();
+		int type = readRawType();
+		
+		if (type == TYPE_NULL) {
+			return null;
+		}
+		
+		if (type != TYPE_MAP) {
+			throw new DBFormatException("Expecting TYPE_MAP ; received " + type);
+		}
+		
+		int size = readInt();
+		for (int i=0; i<size; i++) {
+			String key = readString();
+			ret.put(key, readStringList());
 		}
 		
 		return ret;
@@ -399,7 +421,21 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
  		}
 	}
 
-
+	public void writeMapStringStringList(Map<String, List> map) 
+			throws DBWriteException, DBFormatException {
+		if (map == null) {
+			writeRawType(TYPE_NULL);
+		} else {
+			writeRawType(TYPE_MAP);
+			
+			writeInt(map.size());
+			for (Entry<String, List> e : map.entrySet()) {
+				writeString(e.getKey());
+				writeStringList(e.getValue());
+			}
+		}
+	}
+	
 	public void writeStringList(List<String> items) throws DBWriteException {
 		if (items == null) {
 			writeRawType(TYPE_NULL);
@@ -457,6 +493,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 			writeRawType(TYPE_NULL);
 		} else {
 			writeRawType(TYPE_SVDB_LOCATION);
+			writeInt(loc.getFileId());
 			writeInt(loc.getLine());
 			writeInt(loc.getPos());
 		}

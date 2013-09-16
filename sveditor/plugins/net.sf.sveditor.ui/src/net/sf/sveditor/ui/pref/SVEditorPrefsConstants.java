@@ -35,6 +35,8 @@ public class SVEditorPrefsConstants {
 	public static final String P_NUMBERS_S										= EDIT_SETTINGS + "numbersStylePreference";
 	public static final String P_OPERATORS_S									= EDIT_SETTINGS + "operatorsStylePreference";
 	
+	public static final String P_SVT_PARAMETERS_S								= EDIT_SETTINGS + "svtParametersStylePreference";
+	
 	public static final String P_SV_FILE_EXTENSIONS_S 							= "svFileExtensions";
 	
 	public static final String P_AUTO_INDENT_ENABLED_S 							= EDIT_SETTINGS + "autoIndentEnabled";

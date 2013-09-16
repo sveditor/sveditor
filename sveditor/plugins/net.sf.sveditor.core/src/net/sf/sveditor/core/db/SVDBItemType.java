@@ -14,11 +14,13 @@ package net.sf.sveditor.core.db;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings("rawtypes")
 public enum SVDBItemType {
 	File,
 	FileTree,
+	FileTreeMacroList,
 	ModuleDecl,
 	ClassDecl,
 	ConfigDecl,
@@ -201,8 +203,11 @@ public enum SVDBItemType {
 	ArgFileIncDirStmt,
 	ArgFilePathStmt,
 	ArgFileDefineStmt,
+	ArgFileForceSvStmt,
 	ArgFileIncFileStmt,
+	ArgFileMfcuStmt,
 	ArgFileSrcLibPathStmt,
+	ArgFileSrcLibFileStmt,
 	ArgFileLibExtStmt	
 	;
 	
@@ -224,6 +229,10 @@ public enum SVDBItemType {
 		}
 				
 		return false;
+	}
+	
+	public boolean isElemOf(Set<SVDBItemType> types) {
+		return types.contains(this);
 	}
 	
 	public static final Map<SVDBItemType, Class>		fObjectMap;

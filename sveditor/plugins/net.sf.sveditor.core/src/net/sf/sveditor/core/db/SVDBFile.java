@@ -14,7 +14,12 @@ package net.sf.sveditor.core.db;
 
 import java.io.File;
 
+import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+
 public class SVDBFile extends SVDBScopeItem {
+	@SVDBDoNotSaveAttr
+	public ISVDBIndex					fIndex;
 	public String						fFile;
 	
 	public SVDBFile() {
@@ -34,7 +39,15 @@ public class SVDBFile extends SVDBScopeItem {
 			}
 		}
 		fFile               = file;
-		setLocation(new SVDBLocation(-1, -1));
+		setLocation(new SVDBLocation(-1, -1, -1));
+	}
+	
+	public void setIndex(ISVDBIndex index) {
+		fIndex = index;
+	}
+	
+	public ISVDBIndex getIndex() {
+		return fIndex;
 	}
 
 	public String getFilePath() {

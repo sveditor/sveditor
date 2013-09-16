@@ -16,7 +16,7 @@ import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.SVOutlinePage;
+import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
 
 import org.eclipse.core.resources.IProject;

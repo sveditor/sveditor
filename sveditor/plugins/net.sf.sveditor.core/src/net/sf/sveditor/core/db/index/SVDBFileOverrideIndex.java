@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
@@ -64,6 +65,10 @@ public class SVDBFileOverrideIndex
 	public ISVDBIndex getBaseIndex() {
 		return fIndex;
 	}
+	
+	public void setBaseIndex(ISVDBIndex index) {
+		fIndex = index;
+	}
 
 	public void setIndexBuilder(ISVDBIndexBuilder builder) { }
 
@@ -91,6 +96,15 @@ public class SVDBFileOverrideIndex
 		}		
 	}
 	
+	public List<SVDBFilePath> getFilePath(String path) {
+		if (fSuperIterator != null) {
+			return fSuperIterator.getFilePath(path);
+		} else {
+			return new ArrayList<SVDBFilePath>();
+		}
+	}
+
+
 	private ISVDBItemIterator SVEmptyItemIterator = new ISVDBItemIterator() {
 		public ISVDBItemBase nextItem(SVDBItemType... type_list) { return null; }
 		public boolean hasNext(SVDBItemType... type_list) { return false; }
@@ -98,27 +112,16 @@ public class SVDBFileOverrideIndex
 
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
 			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
-		List<SVDBDeclCacheItem> ret = fSuperIterator.findGlobalScopeDecl(monitor, name, matcher);
+		List<SVDBDeclCacheItem> ret;
+		if (fSuperIterator != null) {
+			ret = fSuperIterator.findGlobalScopeDecl(monitor, name, matcher);
+		} else {
+			ret = new ArrayList<SVDBDeclCacheItem>();
+		}
 
 		// First, remove any results from this file
 		for (int i=0; i<ret.size(); i++) {
-			if (ret.get(i) == null) {
-				System.out.println("Element " + i + " is null");
-			}
-			if (ret.get(i).getFile() == null) {
-				System.out.println("Element " + i + " has null file");
-				continue;
-			} else if (ret.get(i).getFile().getFilePath() == null) {
-				System.out.println("Element filepath " + i + " has null file");
-				continue;
-			}
-			if (fFile == null) {
-				System.out.println("fFile == null");
-			}
-			if (fFile.getFilePath() == null) {
-				System.out.println("getFilePath == null");
-			}
-			String filepath = ret.get(i).getFile().getFilePath();
+			String filepath = ret.get(i).getFilename();
 			String filepath_f = fFile.getFilePath();
 			if (filepath != null && filepath.equals(filepath_f)) {
 				fLog.debug(LEVEL_MID, "Remove item \"" + ret.get(i).getName() + "\" because from active file");
@@ -165,28 +168,40 @@ public class SVDBFileOverrideIndex
 	
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
-		return fSuperIterator.findPackageDecl(monitor, pkg_item);
+		if (fSuperIterator != null) {
+			return fSuperIterator.findPackageDecl(monitor, pkg_item);
+		} else {
+			return new ArrayList<SVDBDeclCacheItem>();
+		}
 	}
 
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		if (item.getFilename().equals(fFile.getFilePath())) {
 			return fFile;
-		} else {
+		} else if (fSuperIterator != null) {
 			return fSuperIterator.getDeclFile(monitor, item);
+		} else {
+			return null;
 		}
 	}
 	
 	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		if (item.getFilename().equals(fFile.getFilePath())) {
 			return fFile;
-		} else {
+		} else if (fSuperIterator != null) {
 			return fSuperIterator.getDeclFilePP(monitor, item);
-		}		
+		} else {
+			return null;
+		}
 	}
 
 	public List<SVDBRefCacheItem> findReferences(IProgressMonitor monitor,
 			String name, ISVDBRefMatcher matcher) {
-		return fSuperIterator.findReferences(monitor, name, matcher);
+		if (fSuperIterator != null) {
+			return fSuperIterator.findReferences(monitor, name, matcher);
+		} else {
+			return new ArrayList<SVDBRefCacheItem>();
+		}
 	}
 
 	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
@@ -255,7 +270,24 @@ public class SVDBFileOverrideIndex
 	}
 
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
-		return fSuperIterator.getFileList(monitor);	
+		if (fIndex != null) {
+			return fIndex.getFileList(monitor);
+		} else {
+			List<String> ret = new ArrayList<String>();
+			ret.add(fFile.getFilePath());
+			return ret;
+		}
+	}
+	
+	public Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
+		if (fIndex != null) {
+			return fIndex.getFileList(monitor, flags);
+		} else {
+			// TODO: Not exactly right...
+			List<String> ret = new ArrayList<String>();
+			ret.add(fFile.getFilePath());
+			return ret;
+		}
 	}
 	
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
@@ -275,60 +307,110 @@ public class SVDBFileOverrideIndex
 		return findPreProcFile(path);
 	}
 	
+	public boolean doesIndexManagePath(String path) {
+		return (fFileTree.getFilePath().equals(path));
+	}
+
 	public List<SVDBMarker> getMarkers(String path) {
 		if (fFile.getFilePath().equals(path)) {
 			return fMarkers;
-		} else {
+		} else if (fIndex != null) {
 			return fIndex.getMarkers(path);
+		} else {
+			return new ArrayList<SVDBMarker>();
 		}
 	}
 
 	public SVDBFile findFile(String path) {
 		if (fFile.getFilePath().equals(path)) {
 			return fFile;
-		} else {
+		} else if (fSuperIterator != null) {
 			return fSuperIterator.findFile(new NullProgressMonitor(), path);
+		} else {
+			return null;
 		}
 	}
 
 	public SVDBFile findPreProcFile(String path) {
 		if (fFile.getFilePath().equals(path)) {
 			return fFilePP;
-		} else {
+		} else if (fSuperIterator != null) {
 			return fSuperIterator.findPreProcFile(new NullProgressMonitor(), path);
+		} else {
+			return null;
 		}
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) {
-		fIndex.rebuildIndex(monitor);
+		if (fIndex != null) {
+			fIndex.rebuildIndex(monitor);
+		}
 	}
 
 	public void addChangeListener(ISVDBIndexChangeListener l) {
-		fIndex.addChangeListener(l);
+		if (fIndex != null) {
+			fIndex.addChangeListener(l);
+		}
 	}
 
 	public void removeChangeListener(ISVDBIndexChangeListener l) {
-		fIndex.removeChangeListener(l);
+		if (fIndex != null) {
+			fIndex.removeChangeListener(l);
+		}
 	}
 
 	public ISVDBIndexCache getCache() {
-		return fIndex.getCache();
+		if (fIndex != null) {
+			return fIndex.getCache();
+		} else {
+			return null;
+		}
 	}
 
 	public void loadIndex(IProgressMonitor monitor) {
-		fIndex.loadIndex(monitor);
+		if (fIndex != null) {
+			fIndex.loadIndex(monitor);
+		}
 	}
 	
 	public boolean isLoaded() {
-		return fIndex.isLoaded();
+		if (fIndex != null) {
+			return fIndex.isLoaded();
+		} else {
+			return true;
+		}
 	}
 	
 	public boolean isFileListLoaded() {
-		return fIndex.isFileListLoaded();
+		if (fIndex != null) {
+			return fIndex.isFileListLoaded();
+		} else {
+			return true;
+		}
 	}
 
 	public SVDBIndexConfig getConfig() {
-		return fIndex.getConfig();
+		if (fIndex != null) {
+			return fIndex.getConfig();
+		} else {
+			return null;
+		}
+	}
+	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		if (fIndex != null) {
+			return fIndex.findIncludeFiles(root, flags);
+		} else {
+			return new ArrayList<SVDBIncFileInfo>();
+		}
 	}
 
+	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
+		if (fIndex != null) {
+			fIndex.execOp(monitor, op, sync);
+		} else if (fSuperIterator != null) {
+			fSuperIterator.execOp(monitor, op, sync);
+		}
+	}
+	
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -83,6 +84,10 @@ public class CompilationArgImportWizard extends Wizard implements IImportWizard 
 
 			// Add the new file to the project settings
 			IProject p = file.getProject();
+			
+			// Ensure the project is setup as SVE project
+			SVProjectNature.ensureHasSvProjectNature(p);
+			
 			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 			SVDBProjectData pdata = pmgr.getProjectData(p);
 			

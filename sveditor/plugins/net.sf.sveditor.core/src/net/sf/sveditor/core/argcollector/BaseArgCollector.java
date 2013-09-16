@@ -63,6 +63,7 @@ public class BaseArgCollector implements IArgCollector {
 		} catch (IOException e) {
 			SVFileUtils.delete(fTmpDir);
 			fTmpDir = null;
+			e.printStackTrace();
 			throw e;
 		}
 		
@@ -85,13 +86,17 @@ public class BaseArgCollector implements IArgCollector {
 				}
 			}
 		} catch (InterruptedException e) {}
-		
-		try {
-			InputStream in = new FileInputStream(fOutFile);
-			fArguments = SVFileUtils.readInput(in);
-			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		if (fOutFile.isFile()) {
+			try {
+				InputStream in = new FileInputStream(fOutFile);
+				fArguments = SVFileUtils.readInput(in);
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			fArguments = "";
 		}
 
 		if (fTmpDir != null) {

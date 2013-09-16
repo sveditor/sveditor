@@ -77,6 +77,27 @@ public class SVFileUtils {
 		
 		return leaf;
 	}
+	
+	public static String getPathFirstElem(String path) {
+		String first = path;
+		int idx;
+		
+		if ((idx = path.indexOf('/', 1)) != -1) { // avoid leading '/'
+			if (path.length() > 0 && path.charAt(0) == '/') {
+				first = path.substring(1, idx);
+			} else {
+				first = path.substring(0, idx);
+			}
+		} else if ((idx = path.indexOf('\\', 1)) != -1) {
+			if (path.length() > 0 && path.charAt(0) == '\\') {
+				first = path.substring(1, idx);
+			} else {
+				first = path.substring(0, idx);
+			}
+		}
+		
+		return first;
+	}
 
 	public static String normalize(String path) {
 		if (path.indexOf('\\') != -1) {
@@ -132,9 +153,42 @@ public class SVFileUtils {
 		
 		path = normalize(path);
 
-		f = root.getFile(new Path(path));
+		try {
+			f = root.getFile(new Path(path));
+		} catch (IllegalArgumentException e) {
+			// Ignore -- likely we asked for an invalid path
+		}
 		
 		return f;
+	}
+
+	/**
+	 * Resolves the specified path to its filesystem location
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static File getFile(String path) {
+		
+		if (path.startsWith("${workspace_loc}")) {
+			String ws_path = path.substring("${workspace_loc}".length());
+			
+			IFile file = getWorkspaceFile(ws_path);
+			
+			if (file != null && file.exists()) {
+				return file.getLocation().toFile();
+			}
+			
+			IContainer folder = getWorkspaceFolder(ws_path);
+			
+			if (folder != null && folder.exists()) {
+				return folder.getLocation().toFile();
+			}
+			
+			return new File(path);
+		} else {
+			return new File(path);
+		}
 	}
 
 	/**
@@ -144,14 +198,24 @@ public class SVFileUtils {
 	 */
 	public static IFile findWorkspaceFile(String path) {
 		IFile f = null;
-
-		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
-			f = root.getFileForLocation(new Path(path));
-		} catch (IllegalStateException e) {
-			// Happens when the workspace is closed
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			try {
+				f = root.getFile(new Path(path));
+			} catch (IllegalStateException e) {
+				// Happens when the workspace is closed
+			}
+		} else {
+			try {
+
+				f = root.getFileForLocation(new Path(path));
+			} catch (IllegalStateException e) {
+				// Happens when the workspace is closed
+			}
 		}
+
 		
 		return f;
 	}
@@ -164,9 +228,9 @@ public class SVFileUtils {
 	public static IContainer findWorkspaceFolder(String path) {
 		IContainer c = null;
 		try {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
-		c = root.getContainerForLocation(new Path(path));
+			c = root.getContainerForLocation(new Path(path));
 		} catch (IllegalStateException e) {
 			// Happens when the workspace is closed
 		}
@@ -307,6 +371,7 @@ public class SVFileUtils {
 		}
 		
 		norm_path = (norm_path != null) ? norm_path : path_orig;
+		norm_path = normalizePath(norm_path);
 		
 		if (fDebugEn) {
 			fLog.debug("<-- resolvePath: " + path_orig + " " + norm_path);
@@ -461,7 +526,7 @@ public class SVFileUtils {
 		}
 	}
 
-	public static void copy(ByteArrayOutputStream in, IFile out) {
+	public static IFile copy(ByteArrayOutputStream in, IFile out) {
 		try {
 			InputStream  in_s = new ByteArrayInputStream(in.toByteArray());
 
@@ -473,9 +538,10 @@ public class SVFileUtils {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to write file \"" + out + "\"");
 		}
+		return out;
 	}
 	
-	public static void copy(String in, IFile out) {
+	public static IFile copy(String in, IFile out) {
 		try {
 			InputStream  in_s = new StringInputStream(in);
 
@@ -487,6 +553,8 @@ public class SVFileUtils {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to write file \"" + out + "\"");
 		}
+		
+		return out;
 	}
 
 	public static void copy(String in, File out) {
@@ -499,7 +567,7 @@ public class SVFileUtils {
 		}
 	}
 	
-	public static void mkdir(IContainer c, String dir) {
+	public static IFolder mkdir(IContainer c, String dir) {
 		IFolder f = c.getFolder(new Path(dir));
 		
 		try {
@@ -507,6 +575,8 @@ public class SVFileUtils {
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
+		
+		return f;
 	}
 
 	public static String readInput(InputStream in) {

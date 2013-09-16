@@ -124,7 +124,7 @@ public class TemplateRegistry implements ILogLevel {
 		
 		if (fPathProviders.size() > 0) {
 			for (IExternalTemplatePathProvider p : fPathProviders) {
-				System.out.println("PathProvider: " + p);
+//				System.out.println("PathProvider: " + p);
 				for (String path : p.getExternalTemplatePath()) {
 					fLog.debug(LEVEL_MID, "Processing path \"" + path + "\"");
 					if (path.startsWith("${workspace_loc}")) {

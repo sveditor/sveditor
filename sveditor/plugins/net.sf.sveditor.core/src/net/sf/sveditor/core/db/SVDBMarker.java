@@ -45,6 +45,15 @@ public class SVDBMarker extends SVDBItemBase {
 		fMessage 	= message;
 	}
 	
+	public SVDBMarker(
+			MarkerType		type,
+			MarkerKind		kind,
+			String 			message,
+			SVDBLocation	loc) {
+		this(type, kind, message);
+		setLocation(loc);
+	}
+	
 	public MarkerType getMarkerType() {
 		return fMarkerType;
 	}
@@ -80,8 +89,12 @@ public class SVDBMarker extends SVDBItemBase {
 		if (obj instanceof SVDBMarker) {
 			SVDBMarker o = (SVDBMarker)obj;
 			boolean ret = super.equals(obj);
-			
+
+			ret &= (o.fMarkerType == fMarkerType);
 			ret &= (o.fKind == fKind);
+			ret &= o.fMessage.equals(fMessage);
+			
+			ret &= o.fLocation.equals(fLocation);
 			
 			return ret;
 		}

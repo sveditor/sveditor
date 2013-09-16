@@ -1,6 +1,8 @@
 <project>
 	<property name="srcdir" value="${basedir}"/>
 	<property name="userguide.dir" value="${srcdir}/user_guide"/>
+	<property name="devguide.dir" value="${srcdir}/dev_guide"/>
+	
 	<property name="tmpdir" value="${basedir}/output"/>
 	<property name="output.dir" value="${basedir}"/>
 	<property name="docbook.xsl" 
@@ -9,6 +11,7 @@
 		value="/usr/share/xml/docbook/stylesheet/docbook-xsl-ns/xhtml-1_1/docbook.xsl"/>
 
 	<import file="${srcdir}/userguide.xml"/>
+	<import file="${srcdir}/devguide.xml"/>
 
 	<path id="wikitext.classpath">
 		<fileset dir="${eclipse.home}/plugins">
@@ -31,7 +34,7 @@
 
 		<copy todir="${output.dir}/pdf" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<concat destfile="${output.dir}/pdf/sveditor_user_guide.mediawiki">
@@ -85,13 +88,12 @@
 		
 		<copy todir="${output.dir}/html">
 			<fileset dir="${output.dir}"
-				includes="*.gif,*.jpg"/>
+				includes="*.gif,*.jpg,*.png"/>
 		</copy>
 		
-		<copy todir="${output.dir}/html">
-			<fileset dir="${output.dir}"
-				includes="sveditor_user_guide.mediawiki"/>
-		</copy>
+		<concat destfile="${output.dir}/html/sveditor_user_guide.mediawiki">
+			<filelist refid="userguide_files"/>
+		</concat>
 
 		<wikitext-to-docbook markupLanguage="MediaWiki"
 		    bookTitle="SVEditor User Guide"
@@ -105,13 +107,14 @@
 		</exec>
 	</target>
 
-	
+
+	<!-- Target intended for external callers -->
 	<target name="collect_files">
 		
 		<!-- Copy image files -->
 		<copy todir="${output.dir}" flatten="true">
 			<fileset dir="${userguide.dir}"
-				includes="**/*.gif,**/*.jpg"/>
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
 		
 		<!-- Now, build the doc -->
@@ -120,9 +123,20 @@
 		</concat>
 	</target>
 
-  <target name="mkdoc">
-
-  </target>
+	<!-- Target intended for external callers -->
+	<target name="collect_devguide_files">
+		
+		<!-- Copy image files -->
+		<copy todir="${output.dir}" flatten="true">
+			<fileset dir="${devguide.dir}"
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<!-- Now, build the doc -->
+		<concat destfile="${output.dir}/sveditor_dev_guide.mediawiki">
+			<filelist refid="devguide_files"/>
+		</concat>
+	</target>
 
 </project>
 

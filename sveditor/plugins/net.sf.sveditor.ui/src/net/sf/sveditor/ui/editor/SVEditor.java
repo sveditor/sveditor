@@ -15,28 +15,39 @@ package net.sf.sveditor.ui.editor;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBEndLocation;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBIndexParse;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.old.SVDBShadowIndexFactory;
+import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -62,13 +73,14 @@ import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
+import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
@@ -86,12 +98,18 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
+import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.eclipse.jface.text.source.projection.ProjectionSupport;
+import org.eclipse.jface.text.source.projection.ProjectionViewer;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -100,7 +118,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
@@ -115,30 +135,50 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
-			ISVDBIndexChangeListener, IResourceChangeListener {
+			ISVDBIndexChangeListener, IResourceChangeListener,
+			IPartListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
 	private SVCodeScanner					fCodeScanner;
 	private MatchingCharacterPainter		fMatchingCharacterPainter;
 	private SVCharacterPairMatcher			fCharacterMatcher;
+	
+	// Holds the current parsed AST view of the file
 	private SVDBFile						fSVDBFile;
+	
+	// Holds the current parsed AST pre-processor view of the file
 	private SVDBFile						fSVDBFilePP;
-	private SVDBFileOverrideIndex			fSVDBIndex;
+	
+	// Holds the current list of markers from the file
 	private List<SVDBMarker>				fMarkers;
+	
 	private String							fFile;
-	private SVDBIndexCollection				fIndexMgr;
+	
+	// The FileIndexParser is responsible for parsing file content
+	// in a way consistent with the containing scope
+	private ISVDBIndexParse					fFileIndexParser;
+
+	// The SVDBIndex is responsible for providing a merged view 
+	// of this and the containing index to clients, including
+	// content assist
+	private SVDBFileOverrideIndex			fSVDBIndex;
+	
 	private LogHandle						fLog;
 	private String							fSVDBFilePath;
 	private UpdateProjectSettingsJob		fProjectSettingsJob;
 	private SVDBProjectData					fPendingProjectSettingsUpdate;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
 	private boolean							fPendingUpdateSVDBFile;
+	private boolean							fNeedUpdate;
 	private boolean							fOccurrenceHighlightDebounceActive;
 	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
 	IInformationPresenter fQuickHierarchyPresenter;
+	
+	private ProjectionSupport				fProjectionSupport;
+	private Annotation						fOldFoldingRegions[];
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -210,11 +250,11 @@ public class SVEditor extends TextEditor
 			StringInputStream sin = new StringInputStream(doc.get());
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 			fLog.debug("--> re-parse file");
-			Tuple<SVDBFile, SVDBFile> new_in = fIndexMgr.parse(
+			Tuple<SVDBFile, SVDBFile> new_in = fFileIndexParser.parse(
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			fLog.debug("<-- re-parse file");
-			
+		
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
 				fSVDBFilePP = new_in.first();
@@ -224,6 +264,8 @@ public class SVEditor extends TextEditor
 				}
 
 				addErrorMarkers(markers);
+				applyUnprocessedRegions(fSVDBFilePP);
+				applyFolding(fSVDBFile);
 			}
 
 			if (fOutline != null) {
@@ -232,6 +274,7 @@ public class SVEditor extends TextEditor
 			
 			synchronized (SVEditor.this) {
 				fUpdateSVDBFileJob = null;
+				fNeedUpdate = false;
 				if (fPendingUpdateSVDBFile) {
 					updateSVDBFile(fDocument);
 				}
@@ -262,6 +305,8 @@ public class SVEditor extends TextEditor
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.init(site, input);
+		
+		site.getPage().addPartListener(this);
 		
 		if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
@@ -309,6 +354,8 @@ public class SVEditor extends TextEditor
 		initSVDBMgr();
 	}
 	
+	
+	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
 		super.doSave(progressMonitor);
@@ -343,7 +390,9 @@ public class SVEditor extends TextEditor
 		}
 	}
 
-	public void int_projectSettingsUpdated(final ISVDBIndex index, final SVDBIndexCollection index_mgr) {
+	public void int_projectSettingsUpdated(
+			final ISVDBIndex 		index, 
+			SVDBIndexCollection 	index_mgr) {
 		fLog.debug(LEVEL_MIN, "projectSettingsUpdated " + fSVDBFilePath + " - index=" + 
 				((index != null)?(index.getTypeID() + "::" + index.getBaseLocation()):"null") + 
 				" ; index_mgr=" + 
@@ -351,19 +400,14 @@ public class SVEditor extends TextEditor
 		
 		final SVActionContributor ac = (SVActionContributor)getEditorSite().getActionBarContributor();
 		getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
-			
 			public void run() {
 				String msg = "";
 				boolean is_indexed = false;
 				if (index != null) {
-					if (index.getTypeID().equals(SVDBShadowIndexFactory.TYPE)) {
-						msg = "Index: None";
-					} else {
-						msg = "Index: " + index.getBaseLocation();
-						is_indexed = true;
-					}
+					msg = "Index: " + index.getBaseLocation();
+					is_indexed = true;
 				} else {
-					msg = "Index: Problem locating";
+					msg = "Index: None";
 				}
 				ac.getActionBars().getStatusLineManager().setMessage(msg);
 				Image icon = null;
@@ -378,9 +422,49 @@ public class SVEditor extends TextEditor
 		
 		synchronized (this) {
 			fProjectSettingsJob = null;
-			fIndexMgr = index_mgr;
-			fSVDBIndex = new SVDBFileOverrideIndex(
-					fSVDBFile, fSVDBFilePP, index, fIndexMgr, fMarkers);
+			
+			if (index == null) {
+				// Create a shadow index
+				
+				// See if this file is part of a project with a
+				// configured index
+				IFile file = SVFileUtils.findWorkspaceFile(fSVDBFilePath);
+				
+				if (file != null) {
+					if (SVDBProjectManager.isSveProject(file.getProject())) {
+						SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+						SVDBProjectData pdata = pmgr.getProjectData(file.getProject());
+					
+						if (pdata != null) {
+							index_mgr = pdata.getProjectIndexMgr();
+						}
+					}
+				}
+			
+				fFileIndexParser = new SVDBShadowIndexParse(index_mgr);
+				fSVDBIndex = new SVDBFileOverrideIndex(
+						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
+				fLog.debug(LEVEL_MIN, "init w/ShadowIndex");
+			} else {
+				// An index was specified, so proceed normally
+				
+				// Unhook the index listener from the old index
+				ISVDBIndex old_index = null;
+				if (fSVDBIndex != null) {
+					old_index = fSVDBIndex.getBaseIndex();
+				}
+				if (old_index != null) {
+					old_index.removeChangeListener(this);
+				}
+			
+				// Add a change listener to the new index
+				index.addChangeListener(this);
+				
+				fFileIndexParser = index_mgr;
+				fSVDBIndex = new SVDBFileOverrideIndex(
+						fSVDBFile, fSVDBFilePP, index, index_mgr, fMarkers);
+				fLog.debug(LEVEL_MIN, "init w/RealIndex");
+			}
 		}
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
@@ -425,8 +509,11 @@ public class SVEditor extends TextEditor
 					}
 				}
 				
-				fIndexMgr = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), plugin);
+				fFileIndexParser = new SVDBIndexCollection(rgy.getIndexCollectionMgr(), plugin);
 
+				// TODO: This argues that we should have an index collection
+				// for each plugin index 
+				/*
 				if (target != null) {
 					fLog.debug(LEVEL_MIN, "Found a target plugin library");
 					fIndexMgr.addPluginLibrary(rgy.findCreateIndex(
@@ -436,6 +523,7 @@ public class SVEditor extends TextEditor
 				} else {
 					fLog.debug(LEVEL_MIN, "Did not find the target plugin library");
 				}
+				 */
 			} else { // regular workspace or filesystem path
 				if (ed_in instanceof FileEditorInput) {
 					// Regular in-workspace file
@@ -470,9 +558,9 @@ public class SVEditor extends TextEditor
 	}
 
 	void updateSVDBFile(IDocument doc) {
-		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fIndexMgr);
-		
-		if (fIndexMgr != null) {
+		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fFileIndexParser);
+	
+		if (fFileIndexParser != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {
 					fPendingUpdateSVDBFile = false;
@@ -705,6 +793,8 @@ public class SVEditor extends TextEditor
 	public void dispose() {
 		super.dispose();
 		
+		getSite().getPage().removePartListener(this);
+		
 		if (fOutline != null) {
 			fOutline.dispose();
 			fOutline = null;
@@ -724,7 +814,7 @@ public class SVEditor extends TextEditor
 		
 		// Remove handles to shadow index
 		fSVDBIndex = null;
-		fIndexMgr  = null;
+		fFileIndexParser  = null;
 
 		// Remove the resource listener
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
@@ -744,6 +834,14 @@ public class SVEditor extends TextEditor
 		
 		super.createPartControl(parent);
 		
+	    ProjectionViewer viewer = (ProjectionViewer)getSourceViewer();
+
+	    fProjectionSupport = new ProjectionSupport(viewer, getAnnotationAccess(), getSharedColors());
+	    fProjectionSupport.install();
+	    
+	    //turn projection mode on
+	    viewer.doOperation(ProjectionViewer.TOGGLE);
+	    
 		if (fHighlightManager == null) {
 			fHighlightManager = new SVHighlightingManager();
 			fHighlightManager.install(
@@ -773,9 +871,31 @@ public class SVEditor extends TextEditor
 		 */
 		
 	}
+	
+	@Override
+	protected ISourceViewer createSourceViewer(
+			Composite 			parent,
+			IVerticalRuler 		ruler, 
+			int 				styles) {
+		ISourceViewer viewer = new ProjectionViewer(parent, ruler,
+				getOverviewRuler(), isOverviewRulerVisible(), styles);
+
+		// ensure decoration support has been created and configured.
+		getSourceViewerDecorationSupport(viewer);
+
+		return viewer;		
+	}
 
 	public SVDBFile getSVDBFile() {
 		return fSVDBFile;
+	}
+	
+	public List<SVDBFilePath> getSVDBFilePath() {
+		if (fSVDBIndex != null) {
+			return fSVDBIndex.getFilePath(fSVDBFilePath);
+		} else {
+			return null;
+		}
 	}
 	
 	public String getFilePath() {
@@ -845,13 +965,44 @@ public class SVEditor extends TextEditor
 	
 	public void index_changed(int reason, SVDBFile file) {
 		// TODO Auto-generated method stub
-		
+//		System.out.println("index_changed");
 	}
 
 	public void index_rebuilt() {
+		if (Display.getDefault() == null) {
+			fNeedUpdate = true;
+			return;
+		}
+		
 		// Force a rebuild to pick up latest errors
-		updateSVDBFile(getDocument());
+		// Note: isPartVisible() is a display-thread protected method
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+				if (getSite() != null && getSite().getPage().isPartVisible(SVEditor.this)) {
+					if (fSVDBIndex.getBaseIndex() == null) {
+						// Try re-checking
+						projectSettingsChanged(null);
+					}
+					updateSVDBFile(getDocument());
+				} else {
+					// Store the knowledge that we need an update for later
+					fNeedUpdate = true;
+				}
+			}
+		});
 	}
+
+	// IPartListener methods
+	public void partActivated(IWorkbenchPart part) {
+		if (fNeedUpdate) {
+			updateSVDBFile(getDocument());
+		}
+	}
+
+	public void partBroughtToTop(IWorkbenchPart part) { }
+	public void partClosed(IWorkbenchPart part) { }
+	public void partDeactivated(IWorkbenchPart part) { }
+	public void partOpened(IWorkbenchPart part) { }
 
 	/**
 	 * Clears error annotations
@@ -890,6 +1041,8 @@ public class SVEditor extends TextEditor
 		}
 		clearErrors();
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+
+		
 		
 		for (SVDBMarker marker : markers) {
 			Annotation ann = null;
@@ -914,6 +1067,141 @@ public class SVEditor extends TextEditor
 		}
 	}
 	
+	private void applyUnprocessedRegions(SVDBFile file_pp) {
+		List<SVDBUnprocessedRegion> unprocessed_regions = new ArrayList<SVDBUnprocessedRegion>();
+		IDocument doc = getDocument();
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		clearUnprocessedRegionAnnotations();
+		collectUnprocessedRegions(unprocessed_regions, file_pp);
+		
+		for (SVDBUnprocessedRegion r : unprocessed_regions) {
+			SVDBLocation start = r.getLocation();
+			SVDBLocation end = r.getEndLocation();
+
+			if (start == null || end == null) {
+				continue;
+			}
+			
+			Annotation ann_1 = new Annotation("net.sf.sveditor.ui.disabledRegion", false, "");
+			try {
+				int line1 = doc.getLineOffset((start.getLine()>0)?start.getLine()-1:0);
+				int line2 = doc.getLineOffset(end.getLine());
+				ann_model.addAnnotation(ann_1, new Position(line1, (line2-line1)));
+			} catch (BadLocationException e) {}
+		}
+	}
+	
+	private void collectUnprocessedRegions(List<SVDBUnprocessedRegion> unprocessed_regions, ISVDBChildParent scope) {
+		for (ISVDBChildItem ci : scope.getChildren()) {
+			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
+				unprocessed_regions.add((SVDBUnprocessedRegion)ci);
+			}
+		}
+	}
+	
+	private void applyFolding(SVDBFile file) {
+	    ProjectionViewer viewer =(ProjectionViewer)getSourceViewer();
+	    if (viewer == null) {
+	    	return;
+	    }
+	    ProjectionAnnotationModel ann_model = viewer.getProjectionAnnotationModel();
+	    
+	    if (ann_model == null) {
+	    	return;
+	    }
+	    
+		List<Position> positions = new ArrayList<Position>();
+		HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<ProjectionAnnotation, Position>();
+		
+		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
+	
+		Annotation annotations[] = new Annotation[positions.size()];
+		
+		for (int i=0; i<positions.size(); i++) {
+			ProjectionAnnotation ann = new ProjectionAnnotation();
+			newAnnotations.put(ann, positions.get(i));
+			annotations[i] = ann;
+		}
+
+		ann_model.modifyAnnotations(fOldFoldingRegions, newAnnotations, annotations);
+	}
+	
+	private static final Set<SVDBItemType>				fFoldingRegions;
+	private static final Set<SVDBItemType>				fRecurseFoldingRegions;
+	
+	static {
+		fFoldingRegions = new HashSet<SVDBItemType>();
+		fRecurseFoldingRegions = new HashSet<SVDBItemType>();
+		fFoldingRegions.add(SVDBItemType.ModuleDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.ModuleDecl);
+		fFoldingRegions.add(SVDBItemType.InterfaceDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.InterfaceDecl);
+		fFoldingRegions.add(SVDBItemType.ClassDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.ClassDecl);
+		fFoldingRegions.add(SVDBItemType.PackageDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.PackageDecl);
+		fFoldingRegions.add(SVDBItemType.ProgramDecl);
+		fRecurseFoldingRegions.add(SVDBItemType.ProgramDecl);
+		
+		fFoldingRegions.add(SVDBItemType.Task);
+		fFoldingRegions.add(SVDBItemType.Function);
+		fFoldingRegions.add(SVDBItemType.Constraint);
+	}
+	
+	private void collectFoldingRegions(int file_id, ISVDBChildParent scope, List<Position> positions) {
+		IDocument doc = getDocument();
+		for (ISVDBChildItem ci : scope.getChildren()) {
+			if (fFoldingRegions.contains(ci.getType())) {
+				ISVDBEndLocation el = (ISVDBEndLocation)ci;
+				SVDBLocation start = ci.getLocation();
+				SVDBLocation end = el.getEndLocation();
+			
+				if (start != null && end != null) {
+					int it_file_id = start.getFileId();
+					
+					if (file_id == -1 || it_file_id == file_id) {
+						try {
+							int start_l = start.getLine();
+							int end_l = end.getLine();
+							if (start_l != end_l) {
+//								System.out.println("fold: " + start_l + " .. " + end_l);
+								if (start_l > 0) {
+									start_l--;
+								}
+
+								int start_o = doc.getLineOffset(start_l);
+								int end_o = doc.getLineOffset(end_l);
+
+								positions.add(new Position(start_o, (end_o-start_o)));
+							}
+						} catch (BadLocationException e) {}
+						
+						if (fRecurseFoldingRegions.contains(ci.getType())) {
+							// Must recurse
+							collectFoldingRegions(file_id, (ISVDBChildParent)ci, positions);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private void clearUnprocessedRegionAnnotations() {
+		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		// Clear annotations
+		@SuppressWarnings("unchecked")
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			
+			if (ann.getType().equals("net.sf.sveditor.ui.disabledRegion")) {
+				ann_model.removeAnnotation(ann);
+			}
+		}
+	}
+	
 	private void clearOccurrenceHighlight() {
 		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
 		
@@ -929,7 +1217,16 @@ public class SVEditor extends TextEditor
 	}
 
 	private void updateWordSelectionHighlight() {
-		ITextSelection sel = (ITextSelection)getSourceViewer().getSelectionProvider().getSelection();
+		if (getSourceViewer() == null) {
+			return;
+		}
+		ISelectionProvider sel_p = getSourceViewer().getSelectionProvider();
+		
+		if (sel_p == null) {
+			return;
+		}
+		
+		ITextSelection sel = (ITextSelection)sel_p.getSelection();
 		
 		clearOccurrenceHighlight();
 		
@@ -955,7 +1252,9 @@ public class SVEditor extends TextEditor
 					IRegion region = null;
 					
 					try {
-						region = finder.find(start, sel.getText(), true, true, true, false);
+						String selected_text = SVUiPlugin.shouldEscapeFindWordPattern() ? 
+								Pattern.quote(sel.getText()) : sel.getText();
+						region = finder.find(start, selected_text, true, true, true, false);
 					} catch (BadLocationException e) {}
 					
 					if (region != null) {

@@ -31,6 +31,7 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -92,16 +93,18 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
 	private SVMarkerPropagationJob			fMarkerPropagationJob;
 	private static IJobMgr					fJobMgr;
-	private int								fNumIndexCacheThreads = 0;
-	private int								fMaxIndexThreads = 0;
-	private static boolean					fEnableAsyncCacheClear;
 	private static boolean					fTestMode = false;
 	private SVParserConfig					fParserConfig;
 	private SVResourceChangeListener		fResourceChangeListener;
 	private SVDBIndexBuilder				fIndexBuilder;
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
-	public static boolean					fUseNewCacheMgr = false;
+	public static final boolean				fUseNewCacheMgr = SVDBArgFileIndexFactory.fUseArgFile2Index;
+	
+	// Obsolete Fields
+	private int								fNumIndexCacheThreads = 0;
+	private int								fMaxIndexThreads = 0;
+	private static boolean					fEnableAsyncCacheClear;
 	
 	/**
 	 * The constructor
@@ -160,6 +163,12 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		fEnableAsyncCacheClear = true;
 		
 		LogFactory.getDefault().addLogListener(this);
+		
+		fProjManager.init();
+	}
+	
+	public SVResourceChangeListener getResourceChangeListener() {
+		return fResourceChangeListener;
 	}
 	
 	public static void setTestMode() {
@@ -209,7 +218,9 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
 		ParserSVDBFileFactory f = new ParserSVDBFileFactory(dp);
-		f.setConfig(getDefault().getParserConfig());
+		if (getDefault() != null) {
+			f.setConfig(getDefault().getParserConfig());
+		}
 		
 		return f;
 	}
@@ -226,8 +237,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fJobMgr;
 	}
 	
-
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.runtime.Plugin#stop(org.osgi.framework.BundleContext)
@@ -243,12 +252,12 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			fProjManager.dispose();
 		}
 		
-		fResourceChangeListener.dispose();
-		
 		if (fIndexRegistry != null) {
 			fIndexRegistry.close();
 		}
-	
+		
+		fResourceChangeListener.dispose();
+
 		LogFactory.getDefault().removeLogListener(this);
 		
 		if (fLogStream != null) {
@@ -264,16 +273,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		
 		// Shut down the builder
 		fIndexBuilder.dispose();
-		
-		// Flush cache data out to the filesystem
-//		if (fCacheMgr != null) {
-//			fCacheMgr.sync();
-//		}
-		
-		// Close the index cache
-//		if (fCacheFS != null) {
-//			fCacheFS.close();
-//		}
 		
 		// Don't null out the plugin until we're sure we don't need it
 		fPlugin = null;
@@ -467,6 +466,19 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
 		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");
+		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+
+		List<String> ret = new ArrayList<String>();
+		for (String e : exts) {
+			ret.add(e);
+		}
+		
+		return ret;
+	}
+	
+	public List<String> getDefaultArgFileExts() {
+		IContentTypeManager mgr = Platform.getContentTypeManager();
+		IContentType type = mgr.getContentType(PLUGIN_ID + ".argfile");
 		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 
 		List<String> ret = new ArrayList<String>();

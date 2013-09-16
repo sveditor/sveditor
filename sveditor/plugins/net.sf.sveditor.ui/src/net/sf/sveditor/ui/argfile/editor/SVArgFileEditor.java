@@ -26,6 +26,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
@@ -35,9 +36,13 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlinePage;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IPathVariableChangeEvent;
+import org.eclipse.core.resources.IPathVariableChangeListener;
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -63,7 +68,8 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-public class SVArgFileEditor extends TextEditor implements ILogLevel {
+public class SVArgFileEditor extends TextEditor 
+		implements ILogLevel, IPathVariableChangeListener {
 	private SVArgFileCodeScanner			fCodeScanner;
 	private LogHandle						fLog;
 	private UpdateSVDBFileJob				fUpdateSVDBFileJob;
@@ -73,6 +79,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	private SVArgFileOutlinePage			fOutline;
 	private ISVDBFileSystemProvider			fFSProvider;
 	private boolean							fDebugEn = true;
+	private IPathVariableManager			fPathVariableMgr;
 	
 	public SVArgFileEditor() {
 		fLog = LogFactory.getLogHandle("SVArgFileEditor");
@@ -83,6 +90,7 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		super.init(site, input);
+		IFile ws_file = null;
 		
 		if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
@@ -90,14 +98,26 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 				fFile = "plugin:" + uri.getPath();
 			} else {
 				fFile = uri.getPath();
-				IFile ws_file = SVFileUtils.findWorkspaceFile(fFile);
+				ws_file = SVFileUtils.findWorkspaceFile(fFile);
 				if (ws_file != null) {
 					fFile = "${workspace_loc}" + ws_file.getFullPath().toOSString();
 				}
 			}
 		} else if (input instanceof IFileEditorInput) {
-			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
+			ws_file = ((IFileEditorInput)input).getFile();
+			fFile = ws_file.getFullPath().toOSString();
 		}
+		
+		if (ws_file != null) {
+			// Register ourselves as a variable-change listener
+			fPathVariableMgr = ws_file.getProject().getPathVariableManager();
+			fPathVariableMgr.addChangeListener(this);
+		}
+	
+		// Register ourselves as a listener to the workspace variable manager
+		IWorkspaceRoot ws = ResourcesPlugin.getWorkspace().getRoot();
+		IPathVariableManager pvm = ws.getPathVariableManager();
+		pvm.addChangeListener(this);
 		
 		fFile = SVFileUtils.normalize(fFile);
 		
@@ -105,9 +125,39 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 		fFSProvider = new SVDBWSFileSystemProvider();
 		fFSProvider.init(SVFileUtils.getPathParent(fFile));
 	}
+	
+	@Override
+	public void dispose() {
+		if (fPathVariableMgr != null) {
+			fPathVariableMgr.removeChangeListener(this);
+		}
+		
+		IWorkspaceRoot ws = ResourcesPlugin.getWorkspace().getRoot();
+		IPathVariableManager pvm = ws.getPathVariableManager();
+		pvm.removeChangeListener(this);
+		
+		super.dispose();
+	}
+
+	public void pathVariableChanged(IPathVariableChangeEvent event) {
+		// Any change event triggers a re-build
+		updateSVDBFile(getDocumentProvider().getDocument(getEditorInput()));
+	}
 
 	public SVDBFile getSVDBFile() {
 		return fSVDBFile;
+	}
+	
+	public List<SVDBFilePath> getSVDBFilePath() {
+		String project = getProject();
+		Tuple<ISVDBIndex, SVDBIndexCollection> result = 
+				SVDBIndexUtil.findArgFileIndex(fFile, project);
+		
+		if (result != null && result.first() != null) {
+			return result.first().getFilePath(fFile);
+		} else {
+			return null;
+		}
 	}
 	
 	public void setSelection(ISVDBItemBase it, boolean set_cursor) {
@@ -503,14 +553,8 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 		return ret.reverse().toString();
 	}
 	
-	/**
-	 * 
-	 * @return <resolved_base_location, variable_provider>
-	 */
-	public Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
-		// Search for the index to which this file belongs
+	private String getProject() {
 		String project = null;
-		String root_file = null;
 		
 		if (fFile.startsWith("${workspace_loc}")) {
 			String fullpath = fFile.substring("${workspace_loc}".length());
@@ -522,6 +566,19 @@ public class SVArgFileEditor extends TextEditor implements ILogLevel {
 				project = file.getProject().getName();
 			}
 		}
+		
+		return project;
+	}
+	
+	/**
+	 * 
+	 * @return <resolved_base_location, variable_provider>
+	 */
+	public Tuple<String, ISVArgFileVariableProvider> findArgFileContext() {
+		// Search for the index to which this file belongs
+		String root_file = null;
+		String project = getProject();
+		
 		
 		Tuple<ISVDBIndex, SVDBIndexCollection> result = 
 				SVDBIndexUtil.findArgFileIndex(fFile, project);

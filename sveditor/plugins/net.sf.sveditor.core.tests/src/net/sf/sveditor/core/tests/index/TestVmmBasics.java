@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -24,10 +25,12 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -43,32 +46,11 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestVmmBasics extends SVCoreTestCaseBase {
 	
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		SVCorePlugin.setTestMode();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		super.tearDown();
-	}
-
 	public void testBasicProcessing() {
 		LogHandle log = LogFactory.getLogHandle("testBasicProcessing");
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -124,12 +106,10 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File ethernet = new File(test_dir, "vmm/sv/examples/std_lib/ethernet");
 		
-		fProject = TestUtils.createProject("ethernet", ethernet);
+		IProject project = TestUtils.createProject("ethernet", ethernet);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", "${workspace_loc}/ethernet/ethernet.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -169,12 +149,10 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File wishbone = new File(test_dir, "vmm/sv/examples/std_lib/wishbone");
 		
-		fProject = TestUtils.createProject("wishbone", wishbone);
+		IProject project = TestUtils.createProject("wishbone", wishbone);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
 				"GENERIC", "${workspace_loc}/wishbone/wishbone.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
@@ -207,28 +185,34 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, "testScenariosExample");
-		if (test_dir.exists()) {
-			TestUtils.delete(test_dir);
-		}
-		test_dir.mkdirs();
+		assertTrue(test_dir.mkdirs());
 		
 		utils.copyBundleDirToFS("/vmm/", test_dir);
 		File scenarios = new File(test_dir, "vmm/sv/examples/std_lib/scenarios");
 
-		fProject = TestUtils.createProject("scenarios", scenarios);
+		IProject project = TestUtils.createProject("scenarios", scenarios);
+		addProject(project);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/scenarios/scenarios.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
-		ISVDBIndexInt af_index = (ISVDBIndexInt)index;
+		final ISVDBIndexInt af_index = (ISVDBIndexInt)index;
 		// ISVDBFileSystemProvider fs_p = af_index.getFileSystemProvider();
-		ISVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+		final Tuple<ISVPreProcessor, ISVPreProcessor> result = new Tuple<ISVPreProcessor, ISVPreProcessor>(null, null);
 		
+		ISVDBIndexOperation op = new ISVDBIndexOperation() {
+			
+			public void index_operation(IProgressMonitor monitor, ISVDBIndex index) {
+				ISVPreProcessor pp = af_index.createPreProcScanner("${workspace_loc}/scenarios/simple_sequencer.sv");
+				result.setFirst(pp);
+			}
+		};
+		af_index.execOp(new NullProgressMonitor(), op, true);
+		
+		ISVPreProcessor pp = result.first();
 		assertNotNull(pp);
 	
 		SVPreProcOutput pp_out = pp.preprocess();
@@ -272,5 +256,4 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		assertEquals("No errors", 0, errors.size());
 		LogFactory.removeLogHandle(log);
 	}
-
 }

@@ -46,6 +46,16 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		return new SVDBIndexItemItIterator(fIndexIteratorList.iterator(), monitor);
 	}
 
+	public List<SVDBFilePath> getFilePath(String path) {
+		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
+		
+		for (ISVDBIndexIterator it : fIndexIteratorList) {
+			ret.addAll(it.getFilePath(path));
+		}
+		
+		return ret;
+	}
+
 	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
 			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
@@ -77,7 +87,33 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		
 		return ret;
 	}
+
+	public Iterable<String> getFileList(IProgressMonitor monitor, int flags) {
+		StringIterableIterator ret = new StringIterableIterator();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			ret.addIterable(index_it.getFileList(new NullProgressMonitor(), flags));
+		}
+		
+		return ret;
+	}
 	
+	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
+		List<SVDBIncFileInfo> ret = new ArrayList<SVDBIncFileInfo>();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			List<SVDBIncFileInfo> result = index_it.findIncludeFiles(root, flags);
+			
+			for (SVDBIncFileInfo r : result) {
+				if (!ret.contains(r)) {
+					ret.add(r);
+				}
+			}
+		}
+		
+		return ret;
+	}
+
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
 		
@@ -134,6 +170,15 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 			}
 		}
 		return null;
+	}
+
+	public void execOp(
+			IProgressMonitor monitor, 
+			ISVDBIndexOperation op,
+			boolean sync) {
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			index_it.execOp(monitor, op, sync);
+		}
 	}
 
 }

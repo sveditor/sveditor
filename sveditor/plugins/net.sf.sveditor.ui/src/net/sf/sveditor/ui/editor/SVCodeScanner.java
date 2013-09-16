@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.parser.SVOperators;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -57,6 +58,9 @@ public class SVCodeScanner extends RuleBasedScanner {
 		final IToken ops = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.OPERATORS),
 				null, SVEditorColors.getStyle(SVEditorColors.OPERATORS)));
+		final IToken svt_params = new Token(new TextAttribute(
+				SVEditorColors.getColor(SVEditorColors.SVT_PARAMETERS),
+				null, SVEditorColors.getStyle(SVEditorColors.SVT_PARAMETERS)));
 		
 		IToken default_t = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.DEFAULT),
@@ -70,6 +74,8 @@ public class SVCodeScanner extends RuleBasedScanner {
 	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));
 
 	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
+	    rules.add(new SingleLineRule("${", "}", svt_params));
+	    
 /*
 		rules.add(new IRule() {
 			public IToken evaluate(ICharacterScanner scanner) {
@@ -179,11 +185,8 @@ public class SVCodeScanner extends RuleBasedScanner {
 		}, default_t);
 
 		// Operators
-		for (String kw :SVKeywords.fAssignmentOps) {
-			wordRule_ops.addWord(kw, ops);
-		}
-		for (String kw :SVKeywords.fBinaryOps) {
-			wordRule_ops.addWord(kw, ops);
+		for (String op :SVOperators.AllOperators) {
+			wordRule_ops.addWord(op, ops);
 		}
 
 		rules.add (wordRule_ops);

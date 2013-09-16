@@ -19,6 +19,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
@@ -41,7 +42,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 			fCacheImpl = new SVDBFileIndexCacheMgr();
 			fFileSystem = new SVDBFileSystem(fRoot, SVCorePlugin.getVersion());
 			try {
-				fFileSystem.init();
+				boolean status = fFileSystem.init();
 			} catch (IOException e) {
 				TestCase.fail("Failed to initialize filesystem");
 			}
@@ -102,7 +103,15 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 		}
 		
 		public ISVDBIndexCache createIndexCache(String project_name, String base_location) {
-			SVDBDirFS fs = new SVDBDirFS(fRoot);
+			File cache_dir = new File(fRoot, project_name + "_" + SVFileUtils.computeMD5(base_location));
+
+			if (!cache_dir.exists()) {
+				if (!cache_dir.mkdirs()) {
+					System.out.println("Failed to create cache directory");
+				}
+			}
+			
+			SVDBDirFS fs = new SVDBDirFS(cache_dir);			
 			return new SVDBFileIndexCacheOld(fs);
 		}
 		

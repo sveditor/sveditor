@@ -31,6 +31,7 @@ public class SVPortListParser extends SVParserBase {
 		List<SVDBParamPortDecl> ports = new ArrayList<SVDBParamPortDecl>();
 		int dir = SVDBParamPortDecl.Direction_Input;
 		SVDBTypeInfo last_type = null;
+		boolean is_ansi = false;
 		
 		fLexer.readOperator("(");
 		
@@ -50,6 +51,7 @@ public class SVPortListParser extends SVParserBase {
 			SVDBLocation it_start = fLexer.getStartLocation();
 			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
 				String dir_s = fLexer.eatToken();
+				is_ansi = true;
 				if (dir_s.equals("input")) {
 					dir = SVDBParamPortDecl.Direction_Input;
 				} else if (dir_s.equals("output")) {
@@ -130,6 +132,10 @@ public class SVPortListParser extends SVParserBase {
 			
 			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
+				if (!is_ansi && fLexer.peekOperator(")")) {
+					// We're done
+					break;
+				}
 			} else {
 				break;
 			}

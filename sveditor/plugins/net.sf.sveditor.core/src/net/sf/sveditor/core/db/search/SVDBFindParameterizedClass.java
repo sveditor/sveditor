@@ -90,7 +90,7 @@ public class SVDBFindParameterizedClass {
 		}
 		
 		if (ret == null) {
-			List<SVDBClassDecl> result = fFindNamedClass.find(type_info.getName());
+			List<SVDBClassDecl> result = fFindNamedClass.findItem(type_info.getName());
 			
 			if (result.size() > 0) {
 				ret = specialize(result.get(0), type_info);

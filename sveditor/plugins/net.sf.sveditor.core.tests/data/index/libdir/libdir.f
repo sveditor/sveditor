@@ -1,0 +1,3 @@
+top.sv
+
+-y libs

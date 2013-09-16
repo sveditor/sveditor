@@ -78,7 +78,7 @@ public class IndexTests extends TestSuite {
 				SVDBFindDefaultNameMatcher.getDefault());
 		TestCase.assertEquals("Failed to find " + name, 1, result.size());
 		SVDBDeclCacheItem item_c = result.get(0);
-		TestCase.assertNotNull(item_c.getSVDBItem());
+		TestCase.assertNotNull("failed to get item " + item_c.getName(), item_c.getSVDBItem());
 		TestCase.assertEquals("item is not of type " + type, type, item_c.getSVDBItem().getType());
 	}
 

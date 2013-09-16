@@ -64,6 +64,39 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, 
 				new String[] {"test"});
 	}
+
+	public void testPropertyIfStmt() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"	module AssertionErrors (\n" +
+			"		input wire clk,\n" +
+			"		input wire reset_n,\n" +
+			"		input wire a,\n" +
+			"		input wire b,\n" +
+			"		input wire c,\n" +
+			"		input wire d\n" +
+			"	);\n" +
+			"\n" +
+			"	property p_example_1;\n" +
+			"		@(posedge clk) disable iff (!reset_n)\n" +
+			"		$fell(a) |-> \n" +
+			"		if (b)\n" +
+			"			##[0:7] c\n" +
+			"		else\n" +
+			"			##[0:15] d;\n" +
+			"	endproperty\n" +
+			"\n" +
+			"	a_example_1: assert property(p_example_1);\n" +
+			"endmodule\n"
+			;
+
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"AssertionErrors"});
+	}
+	
+
+			
 	
 	public void testPropertyCaseStmt() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -84,7 +117,42 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, 
 				new String[] {"t"});
 	}
+	
+	public void testPropertyFirstMatch() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module test ();\n" +
+			"  property some_prop;\n" +
+			"		@(posedge clk)\n" +
+			"			(sig1 && (bus1[15:0]==SOME_PARAM) && \n" +
+			"			(|be) && (bus2[14]==1'b1)) ##1\n" +
+			"			first_match	(##[1:2] $fell(sig1)) |=>@(posedge sig1) (sig2 == bus3[14]) ; \n" +
+			"  endproperty\n" +
+			"endmodule\n"
+			;
 
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"test"});
+	}	
+
+	public void testPropertyWithin() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module test ();\n" +
+			"property some_prop (prop_param);\n" +
+			"	@(posedge clk)\n" +
+			"		((bus1[prop_param] == 2'b01) && bus2[prop_param] && $rose(bus3[prop_param]) ##[0:2] bus4[prop_param] && $rose(bus5[prop_param]))\n" +
+			"		within (!bus6[prop_param]);\n" +
+			"endproperty\n" +
+			"endmodule\n"
+			;
+
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"test"});
+	}
+	
 	public void testPropertyNot() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = getName();

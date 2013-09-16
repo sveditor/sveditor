@@ -47,7 +47,76 @@ public class TestAutoIndent extends TestCase {
 		System.out.println("Result:\n" + content);
 		IndentComparator.compare("testBasicIndent", expected, content);
 	}
-	
+
+	public void testNoBlockIf() throws BadLocationException {
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		tester.type("\n\n");
+		tester.type("class foobar;\n");
+		tester.type("\nfunction void foobar();\n");
+		tester.type("if (foo)\n");
+		tester.type("$display(\"Hello\");\n");
+		tester.type("else\n");
+		tester.type("$display(\"Goodbye\");\n");
+		tester.type("$display(\"World\");\n");
+		tester.type("endfunction\n\n");
+		tester.type("endclass\n");
+		
+		String content = tester.getContent();
+		
+		String expected = 
+			"\n\n" +
+			"class foobar;\n" +
+			"\t\n" +
+			"\tfunction void foobar();\n" +
+			"\t\tif (foo)\n" +
+			"\t\t\t$display(\"Hello\");\n" +
+			"\t\telse\n" +
+			"\t\t\t$display(\"Goodbye\");\n" +
+			"\t\t$display(\"World\");\n" +
+			"\tendfunction\n" +
+			"\t\n" +
+			"endclass\n";
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare(getName(), expected, content);
+	}
+
+	public void testNoBlockIf_2() throws BadLocationException {
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		tester.type("\n\n");
+		tester.type("class foobar;\n");
+		tester.type("\nfunction void foobar();\n");
+		tester.type("if (foo)\n");
+		tester.type("a=5;\n"); 
+		tester.type("else\n");
+		tester.type("b=6;\n"); 
+		tester.type("c=7;\n"); 
+		tester.type("endfunction\n\n");
+		tester.type("endclass\n");
+		
+		String content = tester.getContent();
+		
+		String expected = 
+			"\n\n" +
+			"class foobar;\n" +
+			"\t\n" +
+			"\tfunction void foobar();\n" +
+			"\t\tif (foo)\n" +
+			"\t\t\ta=5;\n" +
+			"\t\telse\n" +
+			"\t\t\tb=6;\n" +
+			"\t\tc=7;\n" +
+			"\tendfunction\n" +
+			"\t\n" +
+			"endclass\n";
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare(getName(), expected, content);
+	}
 	
 	public void testAutoIndentAlways() throws BadLocationException {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
@@ -619,12 +688,12 @@ public class TestAutoIndent extends TestCase {
 			"		var_cp : coverpoint (var) iff (var_cond);\n" +
 			"		var1_cp : coverpoint (var) iff (var_cond);\n" +
 			"		var2_cp : coverpoint (var) iff (var_cond) {\n" +
-			"				bins subrange1[] = {[0:3]};\n" +
-			"				bins subrange2[] = {\n" +
-			"					[0:3],\n" +
-			"					[4:7]\n" +
-			"				};\n" +
-			"			}\n" +
+			"			bins subrange1[] = {[0:3]};\n" +
+			"			bins subrange2[] = {\n" +
+			"				[0:3],\n" +
+			"				[4:7]\n" +
+			"			};\n" +
+			"		}\n" +
 			"	endgroup\n" +
 			"	covergroup cg_1;\n" +
 			"		cp_3: coverpoint \n" +

@@ -19,5 +19,17 @@
             id="net.sf.sveditor.svt.app.ui.perspective">
       </perspective>
    </extension>
+   <extension
+         id="svt"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="net.sf.sveditor.svt.app.core.svt"
+            name="SVT">
+         <property
+               name="appName"
+               value="SVT">
+         </property>
+      </product>
+   </extension>
 
 </plugin>

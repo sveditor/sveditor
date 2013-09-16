@@ -11,7 +11,19 @@
 		<a href="index.html">Home</a>
 	</td></tr>
 	<tr><td>
+		<a href="News.html">News</a>
+	</td></tr>
+	<tr><td>
 		<a href="Multimedia.html">Multimedia</a>
+	</td></tr>
+	</table>
+	<hr/>
+	<table>
+	<tr><td>
+		<a href="user_guide/sveditor_user_guide.html">User Guide</a>
+	</td></tr>
+	<tr><td>
+		<a href="dev_guide/sveditor_dev_guide.html">Developer Guide</a>
 	</td></tr>
 	</table>
 	<hr/>

@@ -15,7 +15,6 @@ package net.sf.sveditor.core.tests.indent;
 import java.io.ByteArrayOutputStream;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
@@ -64,6 +63,43 @@ public class IndentTests extends SVCoreTestCaseBase {
 		
 		IndentComparator.compare("testClass", ref, result.toString());
 	}
+	
+	public void testBasicCoverpoint() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c1;\n" +
+			"\n" +
+			"covergroup cg1;\n" +
+			"cp : coverpoint a {\n" +
+			"bins ab[] = {1, 2, 3, 4};\n" +
+			"}\n" +
+			"endgroup\n" +
+			"endclass\n"
+			;
+		String expected =
+			"class c1;\n" +
+			"\n" +
+			"	covergroup cg1;\n" +
+			"		cp : coverpoint a {\n" +
+			"			bins ab[] = {1, 2, 3, 4};\n" +
+			"		}\n" +
+			"	endgroup\n" +
+			"endclass\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}	
 
 	public void testBasicClass() {
 		LogHandle log = LogFactory.getLogHandle("testBasicClass");
@@ -107,6 +143,80 @@ public class IndentTests extends SVCoreTestCaseBase {
 		log.debug(result);
 		IndentComparator.compare("testBasicClass", expected, result);
 		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testBasicCoverpoint_2() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c1;\n" +
+			"\n" +
+			"covergroup cg1;\n" +
+			"cp : coverpoint a;\n" +
+			"cp : coverpoint b;\n" +
+			"endgroup\n" +
+			"endclass\n"
+			;
+		String expected =
+			"class c1;\n" +
+			"\n" +
+			"	covergroup cg1;\n" +
+			"		cp : coverpoint a;\n" +
+			"		cp : coverpoint b;\n" +
+			"	endgroup\n" +
+			"endclass\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}
+
+	public void testBasicCoverpoint_3() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c1;\n" +
+			"\n" +
+			"covergroup cg1;\n" +
+			"cp : coverpoint\n" +
+			"a;\n" +
+			"cp : coverpoint\n" +
+			"b;\n" +
+			"endgroup\n" +
+			"endclass\n"
+			;
+		String expected =
+			"class c1;\n" +
+			"\n" +
+			"	covergroup cg1;\n" +
+			"		cp : coverpoint\n" +
+			"			a;\n" +
+			"		cp : coverpoint\n" +
+			"			b;\n" +
+			"	endgroup\n" +
+			"endclass\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
 	}
 	
 	public void testEmptyCaseStmt() throws Exception {
@@ -693,6 +803,46 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testNoBlockIf() {
+		String content =
+			"class class1;\n" +
+			"\n" +
+			"function new();\n" +
+			"if (foo)\n" +
+			"$display(\"Hello\");\n" +
+			"else\n" +
+			"$display(\"Goodbye\");\n" +
+			"foo = 6;\n" +
+			"endfunction\n" +
+			"endclass\n"
+			;
+		String expected =
+			"class class1;\n" +
+			"\n" +
+			"	function new();\n" +
+			"		if (foo)\n" +
+			"			$display(\"Hello\");\n" +
+			"		else\n" +
+			"			$display(\"Goodbye\");\n" +
+			"		foo = 6;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;				
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}
+	
 	public void testModule() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		ByteArrayOutputStream bos;

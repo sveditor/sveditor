@@ -14,7 +14,11 @@ public interface ISVArgFileOptionProvider {
 		ArgFileInc,    		// -f path
 		ArgFileRootInc, 	// -F path
 		SrcLibPath, 		// -y <path>
-		SrcLibExt			// +libext+.sv+.svh+.vlog
+		SrcLibFile,			// -v <file>
+		SrcLibExt,			// +libext+.sv+.svh+.vlog
+		MFCU,				// -mfcu
+		SFCU,				// -sfcu
+		SV,					// -sv or -sverilog
 	}
 	
 	OptionType getOptionType(String name);

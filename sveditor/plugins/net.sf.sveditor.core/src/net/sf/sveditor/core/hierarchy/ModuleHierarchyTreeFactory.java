@@ -57,7 +57,7 @@ public class ModuleHierarchyTreeFactory {
 				if (inst.getTypeInfo() == null) {
 					fLog.error("module instance \"" + inst.getName() + "\" has null type");
 				}
-				List<ISVDBItemBase> it_l = fFinder.find(inst.getTypeInfo().getName(), 
+				List<ISVDBItemBase> it_l = fFinder.findItems(inst.getTypeInfo().getName(), 
 						SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl);
 			
 				for (SVDBModIfcInstItem inst_i : inst.getInstList()) {
@@ -67,7 +67,7 @@ public class ModuleHierarchyTreeFactory {
 						ret.addChild(n);
 					} else if (it instanceof ISVDBNamedItem) {
 						// ERROR: Unknown module
-						fLog.error("Unknown module type" + SVDBItem.getName(it));
+						fLog.error("Unknown module type " + it.getType() + " " + SVDBItem.getName(it));
 						ret.addChild(new HierarchyTreeNode(ret, ((ISVDBNamedItem)it).getName()));
 					}
 				}

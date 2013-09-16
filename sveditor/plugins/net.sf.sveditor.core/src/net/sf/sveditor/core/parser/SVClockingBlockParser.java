@@ -85,37 +85,35 @@ public class SVClockingBlockParser extends SVParserBase {
 			// TODO: Add to AST
 			// clocking_direction [clocking_skew] list_of_clocking_decl_assign
 			String dir = fLexer.eatToken();
-			if (!dir.equals("inout")) {
-				if (fDebugEn) {
-					debug("post-direction: " + fLexer.peek());
-				}
-				if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
-					clocking_skew();
-					if (dir.equals("input") && fLexer.peekKeyword("output")) {
-						fLexer.eatToken();
-						if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
-							clocking_skew();
-						}
-					}
-				}
-				
-				while (fLexer.peek() != null) {
-					fLexer.readId();
-				
-					if (fLexer.peekOperator("=")) {
-						fLexer.eatToken();
-						fParsers.exprParser().expression();
-					}
-					
-					if (fLexer.peekOperator(",")) {
-						fLexer.eatToken();
-					} else {
-						break;
-					}
-				}
-				
-				fLexer.readOperator(";");
+			if (fDebugEn) {
+				debug("post-direction: " + fLexer.peek());
 			}
+			if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
+				clocking_skew();
+				if (dir.equals("input") && fLexer.peekKeyword("output")) {
+					fLexer.eatToken();
+					if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
+						clocking_skew();
+					}
+				}
+			}
+
+			while (fLexer.peek() != null) {
+				fLexer.readId();
+
+				if (fLexer.peekOperator("=")) {
+					fLexer.eatToken();
+					fParsers.exprParser().expression();
+				}
+
+				if (fLexer.peekOperator(",")) {
+					fLexer.eatToken();
+				} else {
+					break;
+				}
+			}
+
+			fLexer.readOperator(";");
 		} else {
 			// {attribute_instance} assertion_item_declaration
 			fParsers.attrParser().parse(null);

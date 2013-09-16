@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -25,6 +26,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
@@ -103,7 +105,6 @@ public class OpenDeclUtils {
 						new NullProgressMonitor(), expr_ctxt.fLeaf, 
 						SVDBFindDefaultNameMatcher.getDefault())) {
 					if (it.getType() == SVDBItemType.MacroDef) {
-						// System.out.println("Add macro " + SVDBItem.getName(it.getSVDBItem()));
 						ret.add(new OpenDeclResult(
 								it.getFile(),
 								it.getFilePP(),
@@ -126,6 +127,7 @@ public class OpenDeclUtils {
 				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
 						active_scope, SVDBFindDefaultNameMatcher.getDefault(), index_it);
 				ISVDBItemBase item = v.findItem(expr);
+				
 				
 				if (item != null) {
 					ret.add(new OpenDeclResult(

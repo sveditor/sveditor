@@ -14,35 +14,45 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IPathVariableManager;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.URIUtil;
 
-public class TestArgFileIndex extends SVTestCaseBase {
+public class TestArgFileIndex extends SVCoreTestCaseBase {
 	
 	public void testIncludePathPriority() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -61,25 +71,11 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_multi_include/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1_dir1 = null, class1_dir2 = null;
+		IndexTestUtils.assertFileHasElements(index, "class1_dir1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_dir2");
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1_dir1")) {
-				class1_dir1 = tmp_it;
-			} else if (name.equals("class1_dir2")) {
-				class1_dir2 = tmp_it;
-			}
-		}
-		
-		assertNull("Incorrectly found class1_dir2", class1_dir2);
-		assertNotNull("Failed to find class1_dir1", class1_dir1);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -100,43 +96,11 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_multi_include_multi_root/arg_file_multi_include_multi_root.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
-//		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1_dir2 = null, class3_dir2 = null;
-		List<SVDBDeclCacheItem> f = index.findGlobalScopeDecl(
-				new NullProgressMonitor(), "class1_dir2", 
-				new SVDBFindDefaultNameMatcher());
+		IndexTestUtils.assertDoesNotContain(index, "class1_dir2");
+		IndexTestUtils.assertFileHasElements(fLog, index, "class3");
 
-		
-		if (f.size() > 0) {
-			class1_dir2 = f.get(0).getSVDBItem();
-		}
-		
-		f = index.findGlobalScopeDecl(
-				new NullProgressMonitor(), "class3", 
-				new SVDBFindDefaultNameMatcher());
-		
-		if (f.size() > 0) {
-			class3_dir2 = f.get(0).getSVDBItem();
-		}
-
-		/*
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1_dir2")) {
-				class1_dir2 = tmp_it;
-			} else if (name.equals("class3")) {
-				class3_dir2 = tmp_it;
-			}
-		}
-		 */
-		
-		assertNull("Incorrectly found class1_dir2", class1_dir2);
-		assertNotNull("Failed to find class1_dir1", class3_dir2);
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -157,16 +121,12 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_libpath/arg_file_libpath.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		String names[] = {"a","b","arg_file_libpath_1","arg_file_libpath_2"};
-	
-		for (String n : names) {
-			List<SVDBDeclCacheItem> res = index.findGlobalScopeDecl(
-					new NullProgressMonitor(), n, 
-					SVDBFindDefaultNameMatcher.getDefault());
-			assertEquals("Find of \"" + n + "\" failed: ", 1, res.size());
-		}
 		
+		IndexTestUtils.assertFileHasElements(fLog, index, names);
+
 		LogFactory.removeLogHandle(log);
 	}
 
@@ -365,29 +325,10 @@ public class TestArgFileIndex extends SVTestCaseBase {
 				"${workspace_loc}/testArgFileIncludePath_project/arg_file_include_path/arg_file_include_path.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		SVCorePlugin.setenv("TEST_ENVVAR", fTmpDir.getAbsolutePath() + "/testArgFileIncludePath_project");
-		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1 = null, class2 = null;
-		ISVDBItemBase arg_file_multi_include = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1_dir1")) {
-				class1 = tmp_it;
-			} else if (name.equals("class2")) {
-				class2 = tmp_it;
-			} else if (name.equals("arg_file_multi_include")) {
-				arg_file_multi_include = tmp_it;
-			} 
-		}
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+	
+		IndexTestUtils.assertFileHasElements(index, "class1_dir1", "class2", "arg_file_multi_include");
 
-		assertNotNull(class1);
-		assertNotNull(class2);
-		assertNotNull(arg_file_multi_include);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}
@@ -428,32 +369,11 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		ps.println("    endclass");
 		ps.println("endpackage");
 		ps.close();
-
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase class1 = null, class2 = null;
-		ISVDBItemBase ext_pkg_1 = null, ext_pkg_2 = null;
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			String name = SVDBItem.getName(tmp_it);
-			
-			log.debug("Item: " + tmp_it.getType() + " " + name);
-			
-			if (name.equals("class1")) {
-				class1 = tmp_it;
-			} else if (name.equals("class2")) {
-				class2 = tmp_it;
-			} else if (name.equals("ext_pkg_1")) {
-				ext_pkg_1 = tmp_it;
-			} else if (name.equals("ext_pkg_2")) {
-				ext_pkg_2 = tmp_it;
-			}
-		}
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+		
+		IndexTestUtils.assertFileHasElements(index, "class1", "class2", "ext_pkg_1", "ext_pkg_2");
 
-		assertNotNull(class1);
-		assertNotNull(class2);
-		assertNotNull(ext_pkg_1);
-		assertNotNull(ext_pkg_2);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}
@@ -476,6 +396,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "_project/multi_arg_file/multi_arg_file.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, 
 				"top_package", "sub_package", "sub_sub_package");
@@ -513,6 +434,7 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "_project/multi_arg_file_env_var/multi_arg_file.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, 
 				"top_package", "sub_package", "sub_sub_package");
@@ -539,16 +461,10 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		String data_root = "/data/arg_file_multi_include_single_root/";
 		utils.copyBundleDirToWS(data_root, project_dir);
 		
-		File db = new File(fTmpDir, "db");
-		if (db.exists()) {
-			TestUtils.delete(db);
-		}
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "/arg_file_multi_include_single_root/arg_file_multi_include.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertDoesNotContain(index, "class1_dir1", "class2_dir2");
 		IndexTestUtils.assertFileHasElements(index, "class1_root", "class2_root");
@@ -575,10 +491,329 @@ public class TestArgFileIndex extends SVTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/" + testname + "/arg_file_mixed_sv_vlog/arg_file_mixed_sv_vlog.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertFileHasElements(index, "my_cls1", "my_cls2", "bit");
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
+	}	
+	
+	public void testMixedSvVlogOverride() throws IOException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		
+		String data_root = "/data/index/change_src_levels/";
+		utils.copyBundleDirToWS(data_root, project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/change_src_levels/change_src_levels.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "file1_pkg", "file2_pkg");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
+	
+	public void testMacrosFoundOnTheFlyParse() throws IOException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		final IProject project_dir = TestUtils.createProject(testname);
+		addProject(project_dir);
+		
+		String data_root = "/data/index/macros_found_onthefly_parse/";
+		utils.copyBundleDirToWS(data_root, project_dir);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/macros_found_onthefly_parse/macros_found_onthefly_parse.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "root_pkg", "cls1");
+		
+		String cls1_svh = "${workspace_loc}/" + testname + "/macros_found_onthefly_parse/cls1.svh";
+		
+		InputStream in = index.getFileSystemProvider().openStream(cls1_svh);
+		
+		assertNotNull(in);
+
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		fLog.debug("--> Parsing cls1.svh");
+		Tuple<SVDBFile, SVDBFile> result = index.parse(new NullProgressMonitor(), in, cls1_svh, markers);
+		fLog.debug("<-- Parsing cls1.svh");
+		
+		for (SVDBMarker m : markers) {
+			fLog.debug("Marker: " + m.getMessage());
+		}
+		
+		assertEquals("Unexpected errors", 0, markers.size());
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}	
+
+	public void testMacrosFoundOnTheFlyParse_2() throws IOException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/macros_found_onthefly_parse_2/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "macros_found_onthefly_parse_2");
+	
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/sim/sve.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		/*
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/macros_found_onthefly_parse/macros_found_onthefly_parse.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		 */
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "root_pkg", "cls1");
+		
+		String cls1_svh = "${workspace_loc}/macros_found_onthefly_parse_2/sv/cls1.svh";
+
+		SVDBWSFileSystemProvider fs_provider = new SVDBWSFileSystemProvider();
+		InputStream in = fs_provider.openStream(cls1_svh);
+		
+		assertNotNull(in);
+
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		fLog.debug("--> Parsing cls1.svh");
+		Tuple<SVDBFile, SVDBFile> result = index.parse(new NullProgressMonitor(), in, cls1_svh, markers);
+		fLog.debug("<-- Parsing cls1.svh");
+		
+		for (SVDBMarker m : markers) {
+			fLog.debug("Marker: " + m.getMessage());
+		}
+		
+		assertEquals("Unexpected errors", 0, markers.size());
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}	
+	
+	public void testMacrosFoundOnTheFlyParse_3() throws IOException, CoreException, URISyntaxException {
+		String testname = getName();
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/macros_found_onthefly_parse_3/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "macros_found_onthefly_parse_3");
+		
+		utils.unpackBundleZipToFS("uvm.zip", fTmpDir);
+	
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		IPathVariableManager pvm = project.getPathVariableManager();
+		File uvm_home = new File(fTmpDir, "uvm");
+		pvm.setURIValue("UVM_HOME", uvm_home.toURI()); // URIUtil.toURI(uvm_home.toURL()));
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/sim/sve.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		/*
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/macros_found_onthefly_parse/macros_found_onthefly_parse.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		 */
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "multi_port_shared_cov_env");
+		
+		String multi_port_shared_cov_env = "${workspace_loc}/macros_found_onthefly_parse_3/tb/multi_port_shared_cov_env.svh";
+
+		SVDBWSFileSystemProvider fs_provider = new SVDBWSFileSystemProvider();
+		InputStream in = fs_provider.openStream(multi_port_shared_cov_env);
+		
+		assertNotNull(in);
+
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+//		SVCorePlugin.getDefault().enableDebug(false);
+		fLog.debug("--> Parsing cls1.svh");
+		Tuple<SVDBFile, SVDBFile> result = index.parse(
+				new NullProgressMonitor(), 
+				in, 
+				multi_port_shared_cov_env,
+				markers);
+		fLog.debug("<-- Parsing cls1.svh");
+		
+		for (SVDBMarker m : markers) {
+			fLog.debug("Marker: " + m.getMessage());
+		}
+		
+		assertEquals("Unexpected errors", 0, markers.size());
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
+
+	public void testLeafMultimatchInclude() throws IOException, CoreException, URISyntaxException {
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/leaf_multimatch_include/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "leaf_multimatch_include");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/leaf_multimatch_include.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		/*
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/" + testname + "/macros_found_onthefly_parse/macros_found_onthefly_parse.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		 */
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "my_cls1", "cls1");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
+	
+	public void testLibDirOption() throws IOException, CoreException, URISyntaxException {
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/libdir/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "libdir");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/libdir.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "top", "m1", "m2");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}	
+	
+	public void testLibDirOptionMFCU() throws IOException, CoreException, URISyntaxException {
+		
+		if (!SVDBArgFileIndexFactory.fUseArgFile2Index) {
+			// Only passes with the new indexer
+			return;
+		}
+		
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String data_root = "/data/index/libdir_mfcu/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "libdir_mfcu");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/libdir_mfcu.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "top", "m1", "m2");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}	
 }

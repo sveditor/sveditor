@@ -77,6 +77,7 @@ public class TestIndexCache extends TestCase {
 		}
 	}
 
+	/**
 	public void testFileCacheBasics() throws IOException {
 		String testname = "testFileCacheBasics";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -113,7 +114,7 @@ public class TestIndexCache extends TestCase {
 				SVDBArgFileIndexFactory.TYPE, null);
 
 		Iterable<String> l_1 = index.getFileList(new NullProgressMonitor());
-		/* SVDBFile f1_1 = */index.findFile(l_1.iterator().next());
+		index.findFile(l_1.iterator().next());
 		
 		end = System.currentTimeMillis();
 		log.debug("First Iteration 1: " + (end-start) + "ms");
@@ -136,7 +137,7 @@ public class TestIndexCache extends TestCase {
 
 		Iterable<String> l = index.getFileList(new NullProgressMonitor());
 		for (String file : l) {
-			/*SVDBFile f1 = */index.findFile(file);
+			index.findFile(file);
 		}
 		
 		end = System.currentTimeMillis();
@@ -146,6 +147,7 @@ public class TestIndexCache extends TestCase {
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		LogFactory.removeLogHandle(log);
 	}
+	 */
 
 	public void testFileCacheBasicsUVM() {
 		String testname = "testFileCacheBasicsUVM";
