@@ -335,7 +335,7 @@ public class SVDBArgFileIndex2 implements
 		fIndexRefreshed = true;
 	}
 	
-	private void rebuild_index(IProgressMonitor	monitor) {
+	protected void rebuild_index(IProgressMonitor monitor) {
 		long start = System.currentTimeMillis();
 		
 //		if (!fIndexRefreshed) {
@@ -1455,7 +1455,7 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 
-	private void addFile(
+	protected void addFile(
 			SVDBArgFileIndexBuildData 	build_data, 
 			String 						path, 
 			boolean 					is_argfile) {
@@ -1914,12 +1914,12 @@ public class SVDBArgFileIndex2 implements
 	 * @param filename
 	 * @param scope
 	 */
-	private void cacheDeclarations(
+	protected void cacheDeclarations(
 			SVDBArgFileIndexBuildData	build_data,
 			SVDBFile 					file, 
 			SVDBFileTree 				ft) {
 		Map<String, List<SVDBDeclCacheItem>> decl_cache = build_data.getDeclCacheMap();
-		String file_path = ft.getFilePath();
+		String file_path = file.getFilePath();
 //		SVDBRefCacheEntry ref_entry = build_data.get
 
 		if (fDebugEn) {
@@ -1949,19 +1949,11 @@ public class SVDBArgFileIndex2 implements
 				file,
 				ft);
 
-		cacheFileTreeDeclarations(
-				ft,
-				file_item_list);
-				
-
-		/** TODO: 
-		SVDBFileTree ft = findFileTree(file.getFilePath(), false);
 		if (ft != null) {
-			cacheDeclarations(processed_files, file.getFilePath(),
-					decl_cache.get(file.getFilePath()), null, null,
-					ft.getSVDBFile(), true);
+			cacheFileTreeDeclarations(
+					ft,
+					file_item_list);
 		}
-		 */
 	}
 
 	private void cacheFileDeclarations(
@@ -1973,10 +1965,13 @@ public class SVDBArgFileIndex2 implements
 			SVDBFileTree					ft) {
 		int curr_fileid = fileid;
 		String curr_filename = build_data.mapFileIdToPath(curr_fileid);
-		boolean is_root_scope = (scope == null || scope.getType() == SVDBItemType.PackageDecl);
+		boolean is_root_scope = (scope == null || 
+				scope.getType() == SVDBItemType.PackageDecl ||
+				scope.getType() == SVDBItemType.File);
 
 		if (fDebugEn) {
 			fLog.debug("--> cacheFileDeclarations(file=" + curr_filename + ", " + scope);
+			fLog.debug("  scope=" + ((scope != null)?scope.getType():"null"));
 		}
 		
 		for (ISVDBChildItem item : scope.getChildren()) {
@@ -2773,7 +2768,7 @@ public class SVDBArgFileIndex2 implements
 	 * @param monitor
 	 * @param build_data
 	 */
-	private void buildIndex(
+	protected void buildIndex(
 			IProgressMonitor 				monitor,
 			SVDBArgFileIndexBuildData		build_data) {
 		long start_time=-1, end_time=-1;

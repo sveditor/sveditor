@@ -12,35 +12,19 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.content_assist.SVCompletionProposal;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.core.tests.TextTagPosUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestContentAssistBehavioralBlock extends TestCase {
+public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 	
 	
 	/**
 	 * Test that basic macro content assist works
 	 */
 	public void testAssignRHS() {
-		LogHandle log = LogFactory.getLogHandle("testAssignRHS");
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String doc1 =
+		String doc =
 			"class foobar;\n" +
 			"	int		AAAA;\n" +
 			"	int		AABB;\n" +
@@ -65,7 +49,10 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"	param = m_<<MARK>>\n" +
 			"endtask\n"
 			;
-				
+
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"m_field");
+		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
@@ -87,14 +74,13 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		
 		ContentAssistTests.validateResults(new String[] {"m_field"}, proposals);
 		LogFactory.removeLogHandle(log);
+		 */
 	}
 
 	public void testBlockLocalVariable() {
-		String testname = "testBlockLocalVariable";
-		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String doc1 =
+		String doc =
 			"\n" +
 			"class my_class;\n" +
 			"	foobar		m_field;\n" +
@@ -112,7 +98,11 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-				
+		
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"AAAA", "AABB");
+		
+		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
@@ -134,14 +124,13 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		
 		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
 		LogFactory.removeLogHandle(log);
+		 */
 	}
 
 	public void testFieldRefBlockLocalVariable() {
-		String testname = "testFieldRefBlockLocalVariable";
-		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String doc1 =
+		String doc =
 			"\n" +
 			"class my_type;\n" +
 			"	int AAAA;\n" +
@@ -163,7 +152,11 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-				
+		
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"AAAA", "AABB");
+			
+		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
@@ -185,14 +178,13 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		
 		ContentAssistTests.validateResults(new String[] {"AAAA", "AABB"}, proposals);
 		LogFactory.removeLogHandle(log);
+		 */
 	}
 
 	public void testLessEqualAssist() {
-		String testname = "testLessEqualAssist";
-		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String doc1 =
+		String doc =
 			"\n" +
 			"class my_class;\n" +
 			"	foobar		m_field1;\n" +
@@ -205,7 +197,10 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"\n" +
 			"endclass\n"
 			;
-				
+			
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"m_field1", "m_field2");
+		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
 		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
@@ -227,6 +222,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 		
 		ContentAssistTests.validateResults(new String[] {"m_field1", "m_field2"}, proposals);
 		LogFactory.removeLogHandle(log);
+		 */
 	}
 
 	public void testStructFieldAssistInForIfScope() {
@@ -254,7 +250,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"AA", "AB", "BA", "BB");
 	}
 	
@@ -281,7 +277,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"AA", "AB", "BA", "BB");
 	}
 	
@@ -307,7 +303,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"AA", "AB");
 	}
 	
@@ -334,13 +330,13 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"AA", "AB");
 	}
 
 	public void testRootScopeGlobalClassVarDecl() {
 		String testname = "testRootScopeGlobalClassVarDecl";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc =
 			// These fields might effectively be in a
@@ -366,7 +362,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"AA", "AB");
 	}
 	
@@ -398,7 +394,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"c1_inst");
 	}	
 
@@ -427,7 +423,7 @@ public class TestContentAssistBehavioralBlock extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"AA", "AB");
 	}
 }

@@ -81,6 +81,10 @@ public class SVDBArgFileIndexBuildData implements
 		// Free the entries in the old cache
 		old_cache.dispose();
 	}
+	
+	public ISVDBIndexCache getCache() {
+		return fCache;
+	}
 
 	/**
 	 * Clean up after this data. This is typically 

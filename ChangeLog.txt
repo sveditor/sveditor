@@ -11,6 +11,8 @@
 
 - #(nobug) - Convert a couple of pre-processor error messages to markers.
 
+- #(nobug) - Correct a content assist error related to a null-pointer 
+  exception on UVM macro vs enumerator.
 
 
 ------------------------------------------------------------------------------

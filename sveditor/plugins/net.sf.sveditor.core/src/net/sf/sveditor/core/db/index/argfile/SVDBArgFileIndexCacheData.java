@@ -93,11 +93,12 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 					fLibFileList.add(path);
 					fLibFileAttr.add(flags);
 				}
-			} else {
-				if (!fSrcFileList.contains(path)) {
-					fSrcFileList.add(path);
-					fSrcFileAttr.add(flags);
-				}
+			}
+			
+			// All files are source files
+			if (!fSrcFileList.contains(path)) {
+				fSrcFileList.add(path);
+				fSrcFileAttr.add(flags);
 			}
 		} else if ((flags & ISVDBDeclCache.FILE_ATTR_ARG_FILE) != 0) {
 			if (!fArgFilePaths.contains(path)) {

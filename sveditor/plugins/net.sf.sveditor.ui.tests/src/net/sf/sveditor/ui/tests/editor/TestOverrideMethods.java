@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.ui.editor.actions.IOverrideMethodsTargetProvider;
@@ -33,7 +34,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 
-public class TestOverrideMethods extends TestCase {
+public class TestOverrideMethods extends SVCoreTestCaseBase {
 	
 	public void testOverrideFunction() throws BadLocationException {
 		String doc = 
@@ -206,7 +207,8 @@ public class TestOverrideMethods extends TestCase {
 		
 		
 		SVEditorTester sve_tester = new SVEditorTester(
-				tag_utils.getStrippedData(), "testOverrideFunction");
+				tag_utils.getStrippedData(), "testOverrideFunction",
+				fCacheFactory);
 
 		ITextSelection sel = new TextSelection(
 				sve_tester.getDocument(), tag_utils.getTagPos("MARK"), 1);

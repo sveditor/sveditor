@@ -12,14 +12,13 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestContentAssistModule extends TestCase {
+public class TestContentAssistModule extends SVCoreTestCaseBase {
 	
 	
 	public void testModuleBlankItems() {
-		String testname = "testModuleBlankItems";
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module m(a, b);\n" +
@@ -29,7 +28,7 @@ public class TestContentAssistModule extends TestCase {
 			"endmodule\n"
 			;
 
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
 				"a", "b", "m", "d");
 	}
 	
