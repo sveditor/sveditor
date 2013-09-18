@@ -14,7 +14,9 @@
 - #(nobug) - Correct a content assist error related to a null-pointer 
   exception on UVM macro vs enumerator.
 
-
+- #(279) - Fix indenting when a vector is placed in a case statement 
+     case (some_sig[3:2]) <- this was causing indenter to get confused
+     
 ------------------------------------------------------------------------------
 -- 1.3.9 Release --
 
