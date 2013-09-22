@@ -10,6 +10,7 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.search.SVDBFindDocComment;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.log.LogFactory;
@@ -40,8 +41,9 @@ public class TestFindDocComments extends SVCoreTestCaseBase {
 		Tuple<SVDBFile, SVDBFile> file = SVDBTestUtils.parse(log, uvm_report_object_svh, markers); 
 	
 		assertNotNull(file);
-	
-		FileIndexIterator index_it = new FileIndexIterator(file);
+
+		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
+		FileIndexIterator index_it = new FileIndexIterator(file, cache);
 		
 		SVDBFindNamedClass finder = new SVDBFindNamedClass(index_it);
 		List<SVDBClassDecl> result = finder.findItem("uvm_report_object");

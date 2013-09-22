@@ -81,6 +81,10 @@ public class SVDBArgFileIndexBuildData implements
 		// Free the entries in the old cache
 		old_cache.dispose();
 	}
+	
+	public ISVDBIndexCache getCache() {
+		return fCache;
+	}
 
 	/**
 	 * Clean up after this data. This is typically 
@@ -160,6 +164,8 @@ public class SVDBArgFileIndexBuildData implements
 	Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
 		return fIndexCacheData.getDeclCacheMap();
 	}
+	
+	
 
 	// FileMapper API
 	public int mapFilePathToId(String path, boolean add) {

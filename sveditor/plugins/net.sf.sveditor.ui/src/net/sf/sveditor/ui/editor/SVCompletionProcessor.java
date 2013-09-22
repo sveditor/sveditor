@@ -487,26 +487,25 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 
 		d.append(SVDBItem.getName(it));
 		r.append(SVDBItem.getName(it));
-		if (md.getParameters().size() > 0) {
+		if (md.getParameters() != null &&
+				md.getParameters().size() > 0) {
 			d.append(" (");
 			r.append(" (");
-		}
-		
-		for (int i=0; i<md.getParameters().size(); i++) {
-			String param = md.getParameters().get(i).getName();
 			
-			d.append(param);
-			r.append("${");
-			r.append(param);
-			r.append("}");
-			
-			if (i+1 < md.getParameters().size()) {
-				d.append(", ");
-				r.append(",\n");
+			for (int i=0; i<md.getParameters().size(); i++) {
+				String param = md.getParameters().get(i).getName();
+
+				d.append(param);
+				r.append("${");
+				r.append(param);
+				r.append("}");
+
+				if (i+1 < md.getParameters().size()) {
+					d.append(", ");
+					r.append(",\n");
+				}
 			}
-		}
-		
-		if (md.getParameters().size() > 0) {
+
 			d.append(")");
 			r.append(")");
 		}

@@ -22,6 +22,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -174,7 +175,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		if (key == null) {
 			ch = scanner.get_ch();
-			fLog.error("Failed to read macro name starting with " + (char)ch);
+			error("Failed to read macro name starting with " + (char)ch);
 			scanner.unget_ch(ch);
 		} else if (key.equals("ifdef") || key.equals("ifndef") || key.equals("else") || key.equals("endif")) {
 			// Don't expand
@@ -367,10 +368,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		if (expand_params) {
 			expand_params = (params_vals.size() == param_names.size());
 			if (params_vals.size() != param_names.size()) {
-				fLog.error("param count for macro \"" + 
+				error("param count for macro \"" + 
 						m.getName() + "\" doesn't match: " + 
 						params_vals.size() + " vs " + m.getParameters().size());
-				fLog.error("    Location: " + fFilename + ":" + fLineno);
+//				fLog.error("    Location: " + fFilename + ":" + fLineno);
 				if (fDebugEn) {
 					try {
 						throw new Exception();
@@ -691,7 +692,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					String key = scanner.readPreProcIdentifier(ch);
 					
 					if (key == null) {
-						fLog.error("Failed to read macro name starting with " +	(char)ch);
+						error("Failed to read macro name starting with " +	(char)ch);
 					}
 					
 					// Handle macro-embedded pre-processor directives

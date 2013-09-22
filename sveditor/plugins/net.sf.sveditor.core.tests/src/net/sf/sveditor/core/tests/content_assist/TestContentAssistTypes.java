@@ -1,9 +1,10 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import junit.framework.TestCase;
 
-public class TestContentAssistTypes extends TestCase {
+public class TestContentAssistTypes extends SVCoreTestCaseBase {
 	
 	public void testTypeAssistPackageScope() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -19,7 +20,7 @@ public class TestContentAssistTypes extends TestCase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"my_int32_type", "my_int64_type");
 	}
 
@@ -39,7 +40,7 @@ public class TestContentAssistTypes extends TestCase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"my_enum_t", "MY_ENUM_A", "MY_ENUM_B");
 	}
 
@@ -57,7 +58,7 @@ public class TestContentAssistTypes extends TestCase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"my_int32_type", "my_int64_type");
 	}
 
@@ -77,7 +78,7 @@ public class TestContentAssistTypes extends TestCase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc,
 				"my_enum_t", "MY_ENUM_A", "MY_ENUM_B");
 	}
 	
@@ -93,7 +94,7 @@ public class TestContentAssistTypes extends TestCase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, doc, 
+		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
 				"my_type");
 	}
 

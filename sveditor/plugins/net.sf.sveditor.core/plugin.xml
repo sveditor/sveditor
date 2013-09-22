@@ -150,5 +150,18 @@
             value="true">
       </persistent>
    </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            id="vhdl"
+            name="VHDL"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.svfile">
+         </property>
+      </content-type>
+   </extension>
 
 </plugin>

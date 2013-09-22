@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.sf.sveditor.core.SVDBIndexFactories">
+      <SVDBIndexFactory
+            class="net.sf.sveditor.vhdl.core.db.index.VhdlArgFileIndexFactory"
+            id="net.sf.sveditor.vhdl.argFileIndex">
+      </SVDBIndexFactory>
+   </extension>
+
+</plugin>

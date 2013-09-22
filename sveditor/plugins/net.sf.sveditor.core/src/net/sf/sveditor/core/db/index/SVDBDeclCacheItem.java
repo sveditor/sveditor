@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -29,13 +31,19 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBDeclCacheItem implements ISVDBNamedItem {
+	// TODO: should change this to a file id
 	public String						fFileName;
 	
 	@SVDBDoNotSaveAttr
 	private ISVDBDeclCache				fParent;
 	
 	public String						fName;
+
+	// Used to store base-class list
+	public List<String>					fExtList;
+	
 	public SVDBItemType					fType;
+	
 	// Specifies whether this item is actually located in the FileTree view of the file.
 	// This will be the case for pre-processor items
 	public boolean						fIsFileTreeItem;

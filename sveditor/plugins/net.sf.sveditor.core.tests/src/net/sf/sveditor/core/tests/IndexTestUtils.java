@@ -31,6 +31,8 @@ import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperationRunner;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -157,9 +159,10 @@ public class IndexTestUtils {
 		index_it.execOp(new NullProgressMonitor(), op, true);
 	}
 
-	public static ISVDBIndexIterator buildIndex(String doc, String filename) {
+	public static ISVDBIndexIterator buildIndex(String doc, String filename, ISVDBIndexCacheMgr cache_mgr) {
 		SVDBFile file = SVDBTestUtils.parse(doc, filename);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file);
+		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
+		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
 		
 		return target_index;
 	}

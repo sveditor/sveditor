@@ -30,13 +30,14 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcessor2 extends AbstractTextScanner 
-		implements ISVPreProcessor, ILogLevelListener {
+		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener {
 	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private StringBuilder							fOutput;
@@ -115,6 +116,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 		fMacroProvider  = defaultMacroProvider;
 		fDefineProvider = new SVPreProcDefineProvider(fMacroProvider);
+		fDefineProvider.addErrorListener(this);
 		
 		fLog = LogFactory.getLogHandle("SVPreProcessor2");
 		fLog.addLogLevelListener(this);
@@ -567,9 +569,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 			}
 		} else if (type.equals("__LINE__")) {
-			output("" + fInputCurr.getLineNo());
+			if (ifdef_enabled()) {
+				output("" + fInputCurr.getLineNo());
+			}
 		} else if (type.equals("__FILE__")) {
-			output("\"" + fInputCurr.getFileName() + "\"");
+			if (ifdef_enabled()) {
+				output("\"" + fInputCurr.getFileName() + "\"");
+			}
 		} else if (type.equals("pragma")) {
 			ch = skipWhite(get_ch());
 			String id = readIdentifier(ch);
@@ -1047,4 +1053,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fMacroMap.put(macro.getName(), macro);
 		}
 	};
+
+	@Override
+	public void preProcError(String msg, String filename, int lineno) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

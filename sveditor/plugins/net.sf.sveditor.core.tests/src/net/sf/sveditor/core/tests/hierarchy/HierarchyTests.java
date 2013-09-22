@@ -21,14 +21,16 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class HierarchyTests extends TestCase {
+public class HierarchyTests extends SVCoreTestCaseBase {
 	
 	public static Test suite() {
 		TestSuite suite = new TestSuite("HierarchyTests");
@@ -50,7 +52,7 @@ public class HierarchyTests extends TestCase {
 			"\n"
 			;
 		String testname = "testClassHierarchy";
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname);
+		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, fCacheFactory);
 		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
@@ -82,7 +84,7 @@ public class HierarchyTests extends TestCase {
 			"\n"
 			;
 		String testname = "testClassHierarchy";
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname);
+		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, fCacheFactory);
 		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
@@ -112,11 +114,12 @@ public class HierarchyTests extends TestCase {
 	}
 
 	public static void runModuleHierarchyTest(
-			String			testname,
-			String			doc,
-			String			top,
-			String	...		paths) {
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname);
+			String					testname,
+			String					doc,
+			String					top,
+			ISVDBIndexCacheMgr		cache_mgr,
+			String	...				paths) {
+		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, cache_mgr);
 		ModuleHierarchyTreeFactory tf = new ModuleHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedModIfcClassIfc mod_finder = new SVDBFindNamedModIfcClassIfc(index_it);

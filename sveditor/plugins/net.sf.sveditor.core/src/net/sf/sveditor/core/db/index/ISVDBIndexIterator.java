@@ -12,12 +12,14 @@
 
 package net.sf.sveditor.core.db.index;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 
 
-public interface ISVDBIndexIterator extends ISVDBDeclCache, ISVDBIndexOperationRunner, ISVDBIndexFileStructProvider {
+public interface ISVDBIndexIterator extends 
+	ISVDBDeclCache, 
+	ISVDBIncludeFilesFinder,
+	ISVDBIndexOperationRunner, 
+	ISVDBIndexFileStructProvider {
 
 	/**
 	 * This method is deprecated. The 'findGlobal' methods should be
@@ -29,14 +31,4 @@ public interface ISVDBIndexIterator extends ISVDBDeclCache, ISVDBIndexOperationR
 	@Deprecated
 	ISVDBItemIterator 		getItemIterator(IProgressMonitor monitor);
 
-	int FIND_INC_SV_FILES      = 0x01;
-	int FIND_INC_ARG_FILES     = 0x02;
-	int FIND_INC_ALL_FILES     = 0x04;
-
-	/**
-	 * findIncludeFiles()
-	 * 
-	 * Locates include paths 
-	 */
-	List<SVDBIncFileInfo> findIncludeFiles(String root, int flags);
 }

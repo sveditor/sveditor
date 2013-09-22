@@ -19,33 +19,41 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
-import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
-import net.sf.sveditor.core.db.index.old.AbstractSVDBIndex;
-import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBIndexIterator  */{
+public class FileIndexIterator extends SVDBArgFileIndex2 {
+	
 	private SVDBFile				fFile;
 	private SVDBFileTree			fFileTree;
 	private SVDBFile				fPPFile;
 	Map<String, SVDBFile>			fFileMap;
 	
-	public FileIndexIterator(SVDBFile file) {
-		super("project", "base", new SVDBFSFileSystemProvider(), new InMemoryIndexCache(), null);
+	public static ISVDBIndexCache createCache(ISVDBIndexCacheMgr cache_factory) {
+		return cache_factory.createIndexCache("project", "base");
+	}
+	
+	public FileIndexIterator(SVDBFile file, ISVDBIndexCache cache) {
+		super("project", "base", new SVDBFSFileSystemProvider(), cache, null);
 		fFile = file;
+		fFileTree = new SVDBFileTree(fFile.getFilePath());
 		fFileMap = new HashMap<String, SVDBFile>();
 		
 		fFileMap.put(file.getName(), file);
 		init(new NullProgressMonitor(), null);
-		loadIndex(new NullProgressMonitor());
+		rebuild_index(new NullProgressMonitor());
+//		loadIndex(new NullProgressMonitor());
 	}
 	
-	public FileIndexIterator(Tuple<SVDBFile, SVDBFile> file) {
-		super("project", "base", new SVDBFSFileSystemProvider(), new InMemoryIndexCache(), null);
+	public FileIndexIterator(
+			Tuple<SVDBFile, SVDBFile> 	file,
+			ISVDBIndexCache				cache) {
+		super("project", "base", new SVDBFSFileSystemProvider(), cache, null);
 		fPPFile = file.first();
 		fFile = file.second();
 		fFileMap = new HashMap<String, SVDBFile>();
@@ -58,23 +66,20 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 	public String getTypeID() {
 		return "FileIndexIterator";
 	}
-
-	@Override
-	protected String getLogName() {
-		return "FileIndexIterator";
-	}
-
-	@Override
-	protected void discoverRootFiles(IProgressMonitor monitor) {
-		addFile(fFile.getFilePath(), false);
-	}
 	
 	@Override
-	protected void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
-		// Do Nothing
+	protected void buildIndex(
+			IProgressMonitor 			monitor,
+			SVDBArgFileIndexBuildData 	build_data) {
+		
+		addFile(build_data, fFile.getFilePath(), false);
+		
+		cacheDeclarations(build_data, fFile, fFileTree);
+		
+		build_data.getCache().setFile(fFile.getFilePath(), fFile, false);
 	}
 
-	@Override
+	/*
 	protected SVDBFile processPreProcFile(String path) {
 		// Do Nothing
 		cacheDeclarations(fFile);
@@ -82,6 +87,7 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 		getCache().setFile(fFile.getFilePath(), fFile, false);
 		return null;
 	}
+	 */
 	
 	@Override
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
@@ -102,119 +108,9 @@ public class FileIndexIterator extends AbstractSVDBIndex /* implements ISVDBInde
 	}
 
 	@Override
-	protected void parseFiles(IProgressMonitor monitor) {
-		// Do Nothing
-	}
-
-	@Override
-	protected void buildFileTree(IProgressMonitor monitor) {
-		// Do Nothing
-	}
-
-	@Override
 	public synchronized SVDBFileTree findFileTree(String path, boolean is_argfile) {
-		if (fPPFile != null && !is_argfile) {
-			SVDBFileTree ft = new SVDBFileTree(
-					(SVDBFile)fPPFile.duplicate());
-			SVDBFileTreeUtils ft_utils = new SVDBFileTreeUtils();
-			Map<String, SVDBFileTree> working_set = new HashMap<String, SVDBFileTree>();
-			ft_utils.resolveConditionals(ft, new SVPreProcDefineProvider(
-					createPreProcMacroProvider(ft, working_set)));
-			return ft;
-		} else if (fFile.getFilePath().equals(path)) {
-			return fFileTree;
-		} else {
-			return null;
-		}
-	}
-	
-	/*
-	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		Set<String> path = new HashSet<String>();
-		for (String elem : fFileMap.keySet()) {
-			path.add(elem);
-		}
-		return new SVDBIndexItemIterator(path,
-				new ISVDBIndex() {
-					
-					public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {return null;}
-					public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {return null;}
-					public void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider) {}
-					public void setGlobalDefine(String key, String val) {}
-					public void removeChangeListener(ISVDBIndexChangeListener l) {}
-					public void rebuildIndex() {}
-					public ISVDBIndexCache getCache() { return null; }
-					public SVDBIndexConfig getConfig() { return null; }
-					public SVDBFile parse(IProgressMonitor monitor, InputStream in, String path, List<SVDBMarker> markers) {
-						return null;
-					}
-					public void setEnableAutoRebuild(boolean en) {}
-					public boolean isDirty() { return false; }
-					public void init(IProgressMonitor monitor) {}
-					public String getTypeID() {
-						return null;
-					}
-					public Set<String> getFileList(IProgressMonitor monitor) {
-						return null;
-					}
-					public List<SVDBMarker> getMarkers(String path ) {
-						return null;
-					}
-					public String getBaseLocation() {
-						return null;
-					}
-					public String getProject() {
-						return "";
-					}
-					public SVDBFile findPreProcFile(String path) {
-						return null;
-					}
-					public SVDBFile findFile(String path) {
-						return fFileMap.get(path);
-					}
-					public void dispose() {}
-					public void clearGlobalDefines() {}
-					public void addChangeListener(ISVDBIndexChangeListener l) {}
-					public void loadIndex(IProgressMonitor monitor) {}
-					
-					public List<SVDBDeclCacheItem> findGlobalScopeDecl(
-							IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) { return null; }
-					public List<SVDBDeclCacheItem> findPackageDecl(
-							IProgressMonitor monitor, SVDBDeclCacheItem pkg_item) { return null; }
-					public SVDBFile getDeclFile(IProgressMonitor monitor,
-							SVDBDeclCacheItem item) { return null; }
-					
-					
-				});
-	}
-
-	public List<SVDBDeclCacheItem> findGlobalScopeDecl(
-			IProgressMonitor monitor, String name, ISVDBFindNameMatcher matcher) {
-		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
-		for (Entry<String, SVDBFile> e : fFileMap.entrySet()) {
-			for (ISVDBChildItem c : e.getValue().getChildren()) {
-				if (matcher.match((ISVDBNamedItem)c, name)) {
-					ret.add(new SVDBDeclCacheItem(this, e.getKey(), 
-							((ISVDBNamedItem)c).getName(), c.getType()));
-				}
-			}
-		}
-		
-		return ret;
-	}
-	
-	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
-			SVDBDeclCacheItem pkg_item) {
+		// TODO:
 		return null;
 	}
-	
-	public Iterable<String> getFileList(IProgressMonitor monitor) {
-		return fFileMap.keySet();
-	}
-	
-	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		return fFileMap.get(item.getFilename());
-	}
-	 */
 
 }

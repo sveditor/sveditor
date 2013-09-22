@@ -2,8 +2,9 @@ package net.sf.sveditor.core.tests.hierarchy;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestModuleHierarchy extends TestCase {
+public class TestModuleHierarchy extends SVCoreTestCaseBase {
 
 	public void testModuleSubHierarchy() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -30,7 +31,7 @@ public class TestModuleHierarchy extends TestCase {
 			;
 		String testname = "testModuleSubHierarchy";
 		
-		HierarchyTests.runModuleHierarchyTest(testname, doc, "top", 
+		HierarchyTests.runModuleHierarchyTest(testname, doc, "top", fCacheFactory,
 				"top.m3_1.m2_2.m1_1");
 	}
 }

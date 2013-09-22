@@ -1,5 +1,22 @@
 
 -- 1.4.0 Release --
+
+- #(enh) - Switch over to the 'new' indexer. The new indexer offers improved
+  performance and support for MFCU (multi-file compilation unit) indexing mode.
+
+- #(nobug) - Correct a pre-processor bug with the 'new' indexer that allowed
+  `__FILE and `__LINE macros to be expanded within a text region otherwise
+  disabled by `ifdef/`ifndef. This bug is typically observed as a parse-error
+  marker within a disabled region.
+  
+- #(nobug) - Ensure that include-file content assist works for files not
+  associated with an index.
+
+- #(nobug) - Convert a couple of pre-processor error messages to markers.
+
+- #(nobug) - Correct a content assist error related to a null-pointer 
+  exception on UVM macro vs enumerator.
+
 - #(279) - Fix indenting when a vector is placed in a case statement 
      case (some_sig[3:2]) <- this was causing indenter to get confused
      

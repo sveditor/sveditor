@@ -81,7 +81,7 @@ public class SVDBFindByNameInClassHierarchy {
 			// Looks like an extern function
 			String clsname = ((ISVDBNamedItem)scope).getName().substring(0, 
 					((ISVDBNamedItem)scope).getName().indexOf("::"));
-			
+		
 			SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndexIterator);
 			List<ISVDBChildItem> result = finder.findItems(clsname);
 			
