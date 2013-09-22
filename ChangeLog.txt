@@ -1,6 +1,9 @@
 
 -- 1.4.0 Release --
 
+- #(enh) - Switch over to the 'new' indexer. The new indexer offers improved
+  performance and support for MFCU (multi-file compilation unit) indexing mode.
+
 - #(nobug) - Correct a pre-processor bug with the 'new' indexer that allowed
   `__FILE and `__LINE macros to be expanded within a text region otherwise
   disabled by `ifdef/`ifndef. This bug is typically observed as a parse-error
