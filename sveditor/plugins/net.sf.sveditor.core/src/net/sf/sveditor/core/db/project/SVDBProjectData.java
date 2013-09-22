@@ -56,7 +56,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private List<ISVDBProjectSettingsListener>		fListeners;
 
 	public SVDBProjectData(IProject	project) {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+//		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		fProject = project;
 		fLog = LogFactory.getLogHandle("SVDBProjectData");
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();

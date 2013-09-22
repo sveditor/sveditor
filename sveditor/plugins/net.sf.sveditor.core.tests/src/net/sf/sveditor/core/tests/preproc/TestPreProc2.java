@@ -226,6 +226,40 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				);
 	}
 	
+	public void testMacroExpansionInDisabledRegion() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class foo extends uvm_component;\n" +
+			"\n" +
+			"task run_phase(uvm_phase phase);\n" +
+			"\n" +
+			" `ifdef UNDEFINED // MSB      \n" +
+			"\n" +
+			" uvm_report_warning( \"BAR\", s,, `__FILE__,`__LINE__);\n" +
+			"\n" +
+			" `endif // MSB      	\n" +
+			" endtask\n" +
+			"endclass\n"
+			;
+		String exp =
+			"class foo extends uvm_component;\n" +
+			"\n" +
+			"task run_phase(uvm_phase phase);\n" +
+			"\n" +
+			"       \n" +
+			" endtask\n" +
+			"endclass\n"
+			;
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				doc,
+				inc_provider,
+				exp
+				);
+	}
+	
 	private void runTest(
 			String							doc,
 			ISVPreProcIncFileProvider		inc_provider,

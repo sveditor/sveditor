@@ -41,6 +41,7 @@ Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.db.search,
  net.sf.sveditor.core.db.stmt,
  net.sf.sveditor.core.db.utils,
+ net.sf.sveditor.core.db.vhdl,
  net.sf.sveditor.core.diagrams,
  net.sf.sveditor.core.dirtree,
  net.sf.sveditor.core.docs,
@@ -60,6 +61,7 @@ Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.scanner,
  net.sf.sveditor.core.scanutils,
  net.sf.sveditor.core.srcgen,
- net.sf.sveditor.core.svf_scanner
+ net.sf.sveditor.core.svf_scanner,
+ net.sf.sveditor.core.vhdl.parser
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

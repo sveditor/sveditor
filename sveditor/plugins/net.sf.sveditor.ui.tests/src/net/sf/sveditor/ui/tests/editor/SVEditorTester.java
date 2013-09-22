@@ -21,6 +21,8 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.ui.editor.ISVEditor;
 import net.sf.sveditor.ui.tests.UiReleaseTests;
@@ -47,7 +49,7 @@ public class SVEditorTester implements ISVEditor {
 		fTextSel    	= null;
 	}
 
-	public SVEditorTester(String doc, String filename) throws BadLocationException {
+	public SVEditorTester(String doc, String filename, ISVDBIndexCacheMgr cache_mgr) throws BadLocationException {
 		fAutoEditTester = UiReleaseTests.createAutoEditTester();
 		fAutoEditTester.setContent(doc);
 
@@ -56,7 +58,8 @@ public class SVEditorTester implements ISVEditor {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		fSVDBFile = factory.parse(new StringInputStream(doc), filename, markers);
 
-		fIndexIt = new FileIndexIterator(fSVDBFile);
+		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
+		fIndexIt = new FileIndexIterator(fSVDBFile, cache);
 	}
 
 	public IDocument getDocument() {

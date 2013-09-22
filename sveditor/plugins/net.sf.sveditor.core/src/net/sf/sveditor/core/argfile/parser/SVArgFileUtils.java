@@ -55,14 +55,12 @@ public class SVArgFileUtils {
 						found_var = 1;
 					
 						// Try to replace /[a-zA-Z]: with [a-zA-Z]:
-						System.out.println("val=" + val);
 						if (val.length() >= 3 && 
 								val.charAt(0) == '/' &&
 								val.charAt(2) == ':' &&
 								((val.charAt(1) >= 'a' && val.charAt(1) <= 'z') ||
 								 (val.charAt(1) >= 'A' && val.charAt(1) <= 'Z'))) {
 							val = val.substring(1);
-							System.out.println("new val=" + val);
 						}
 						sb.replace(start, end, val);
 						break;	// need to break because our string has been changed, start again

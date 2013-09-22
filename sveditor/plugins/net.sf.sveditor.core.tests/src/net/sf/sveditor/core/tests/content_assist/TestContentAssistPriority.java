@@ -1,9 +1,10 @@
 package net.sf.sveditor.core.tests.content_assist;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import junit.framework.TestCase;
 
-public class TestContentAssistPriority extends TestCase {
+public class TestContentAssistPriority extends SVCoreTestCaseBase {
 	
 	public void testUntriggeredClassHierarchy() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -28,7 +29,7 @@ public class TestContentAssistPriority extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), doc, 
+		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
 				"m_mno",
 				"m_pqr",
 				"m_ghi",
@@ -62,7 +63,7 @@ public class TestContentAssistPriority extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), doc, 
+		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
 				"m_mno",
 				"m_pqr",
 				"m_ghi",
@@ -100,7 +101,7 @@ public class TestContentAssistPriority extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), doc, 
+		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
 				"m_stu",
 				"m_pqr",
 				"m_mno",
@@ -141,7 +142,7 @@ public class TestContentAssistPriority extends TestCase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), doc, 
+		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
 				"m_pqr",
 				"m_mno",
 				"m_ghi",

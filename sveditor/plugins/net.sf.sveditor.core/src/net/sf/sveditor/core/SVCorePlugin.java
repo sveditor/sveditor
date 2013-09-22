@@ -105,6 +105,16 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private int								fNumIndexCacheThreads = 0;
 	private int								fMaxIndexThreads = 0;
 	private static boolean					fEnableAsyncCacheClear;
+	private static List<String>				fPersistenceClassPkgList;
+	
+	static {
+		fPersistenceClassPkgList = new ArrayList<String>();
+		fPersistenceClassPkgList.add("net.sf.sveditor.core.db");
+		fPersistenceClassPkgList.add("net.sf.sveditor.core.db.expr");
+		fPersistenceClassPkgList.add("net.sf.sveditor.core.db.stmt");
+		fPersistenceClassPkgList.add("net.sf.sveditor.core.db.argfile");
+		fPersistenceClassPkgList.add("net.sf.sveditor.core.db.vhdl");
+	}
 	
 	/**
 	 * The constructor
@@ -165,6 +175,19 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		LogFactory.getDefault().addLogListener(this);
 		
 		fProjManager.init();
+	}
+	
+	public static List<String> getPersistenceClassPkgList() {
+		List<String> ret = new ArrayList<String>();
+		ret.addAll(fPersistenceClassPkgList);
+		
+		return ret;
+	}
+	
+	public static void addPersistenceClassPkg(String pkg) {
+		if (!fPersistenceClassPkgList.contains(pkg)) {
+			fPersistenceClassPkgList.add(pkg);
+		}
 	}
 	
 	public SVResourceChangeListener getResourceChangeListener() {

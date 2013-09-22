@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
@@ -106,7 +108,11 @@ public class ContentAssistTests extends TestCase {
 		assertEquals(unexp.toString(), 0, nonnull_proposals);
 	}
 	
-	public static void runTest(String testname, String doc, String ... expected) {
+	public static void runTest(
+			String					testname,
+			ISVDBIndexCacheMgr		cache_mgr,
+			String 					doc, 
+			String ... expected) {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
@@ -120,8 +126,9 @@ public class ContentAssistTests extends TestCase {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
+		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
 		TestCompletionProcessor cp = new TestCompletionProcessor(
-				log, file, new FileIndexIterator(file));
+				log, file, new FileIndexIterator(file, cache));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -132,7 +139,11 @@ public class ContentAssistTests extends TestCase {
 		LogFactory.removeLogHandle(log);		
 	}
 
-	public static void runTestOrder(String testname, String doc, String ... expected) {
+	public static void runTestOrder(
+			String testname, 
+			ISVDBIndexCacheMgr		cache_mgr,
+			String doc, 
+			String ... expected) {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
@@ -146,8 +157,9 @@ public class ContentAssistTests extends TestCase {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
+		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
 		TestCompletionProcessor cp = new TestCompletionProcessor(
-				log, file, new FileIndexIterator(file));
+				log, file, new FileIndexIterator(file, cache));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
@@ -164,6 +176,7 @@ public class ContentAssistTests extends TestCase {
 	
 	public static void runTest(
 			String 			testname, 
+			ISVDBIndexCacheMgr		cache_mgr,
 			String 			doc, 
 			String			expected[],
 			String			unexpected[]) {
@@ -180,8 +193,9 @@ public class ContentAssistTests extends TestCase {
 			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
 		}
 
+		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
 		TestCompletionProcessor cp = new TestCompletionProcessor(
-				log, file, new FileIndexIterator(file));
+				log, file, new FileIndexIterator(file, cache));
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 
