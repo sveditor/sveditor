@@ -61,7 +61,6 @@ public class SVArgFileUtils {
 								((val.charAt(1) >= 'a' && val.charAt(1) <= 'z') ||
 								 (val.charAt(1) >= 'A' && val.charAt(1) <= 'Z'))) {
 							val = val.substring(1);
-							System.out.println("new val=" + val);
 						}
 						sb.replace(start, end, val);
 						break;	// need to break because our string has been changed, start again
