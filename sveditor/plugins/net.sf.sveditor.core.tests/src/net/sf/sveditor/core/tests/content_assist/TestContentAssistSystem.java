@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
@@ -180,11 +181,23 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		
 		IProject project = TestUtils.createProject("pdir", pdir);
 		addProject(project);
+	
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
 		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		fw.addArgFilePath("${project_loc}/argfile.f");
+		pdata.setProjectFileWrapper(fw, true);
+	
+		/*
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
 				"pdir", "${workspace_loc}/pdir/argfile.f",
 				SVDBArgFileIndexFactory.TYPE,
 				null);
+		 */
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+
+		index.loadIndex(new NullProgressMonitor());
 	
 		/*
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -195,7 +208,24 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		 */
 
 		
-		ContentAssistTests.runTest(getName(), doc, index, "size");
+		ContentAssistTests.runTest(getName(), doc, index, 
+				"uvm_mem_mam",
+				"uvm_mem_region",
+				"uvm_mem_mam_policy",
+				"uvm_mem_mam_cfg",
+				"uvm_mem",
+				"uvm_mem_single_walk_seq",
+				"uvm_mem_walk_seq",
+				"uvm_mem_single_access_seq",
+				"uvm_mem_access_seq",
+				"uvm_mem_shared_access_seq",
+				"UVM_MEDIUM",
+				"UVM_MEM",
+				"uvm_mem_cb",
+				"uvm_mem_cb_iter",
+				"UVM_MESSAGE_DEFINES_SVH",
+				"UVM_MEM_MAM__SV"
+				);
 	}
 	
 	public void testUvmEnumerator_2() throws IOException {
@@ -227,10 +257,11 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		SVDBProjectData pdata = pmgr.getProjectData(project);
 		
 		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
-		fw.addArgFilePath("${workspace_loc}/argfile.f");
+		fw.addArgFilePath("${project_loc}/argfile.f");
 		pdata.setProjectFileWrapper(fw);
 		
-		pdata.getProjectIndexMgr().loadIndex(new NullProgressMonitor());
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
 	
 		/*
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -240,8 +271,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 				file, null, result.first(), result.second(), markers);
 		 */
 		
-		ContentAssistTests.runTest(getName(), doc, 
-				pdata.getProjectIndexMgr(), 
+		ContentAssistTests.runTest(getName(), doc, index,
 				"UVM_MEDIUM");
 	}	
 
