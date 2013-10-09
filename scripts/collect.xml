@@ -1,0 +1,281 @@
+<project name="collect">
+	
+	<property name="packages_dir" value="${basedir}/../packages"/>
+	<property name="force" value="false"/>
+	
+	<property file="${basedir}/packages.properties"/>
+	
+	<property name="eclipse.home" location="${buildRoot}/eclipse"/>
+	<condition property="eclipsec" 
+		value="${eclipse.home}/eclipsec" 
+		else="${eclipse.home}/eclipse">
+		<os family="windows"/>
+	</condition>
+	
+	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+		<classpath path="${basedir}/xmltask.jar"/>
+	</taskdef>
+
+	<macrodef name="mirrorUpdate">
+		<attribute name="source"/>
+		<attribute name="dest"/>
+		
+		<sequential>
+			<exec executable="${eclipsec}" failonerror="true">
+				<arg value="-nosplash"/>
+				<arg value="--launcher.suppressErrors"/>
+				<arg value="-application"/>
+				<arg value="org.eclipse.equinox.p2.artifact.repository.mirrorApplication"/>
+				<arg value="-source"/>
+				<arg value="@{source}"/>
+				<arg value="-destination"/>
+				<arg value="file://@{dest}"/>
+			</exec>
+			<exec executable="${eclipsec}" failonerror="true">
+				<arg value="-nosplash"/>
+				<arg value="--launcher.suppressErrors"/>
+				<arg value="-application"/>
+				<arg value="org.eclipse.equinox.p2.metadata.repository.mirrorApplication"/>
+				<arg value="-source"/>
+				<arg value="@{source}"/>
+				<arg value="-destination"/>
+				<arg value="file://@{dest}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: name                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="collect" 
+    	depends="init,collect_eclipse,collect_zest,collect_mpc,
+    		collect_equinox,collect_vrapper">
+            
+    </target>
+	
+	<target name="init">
+		<mkdir dir="${packages_dir}"/>
+	</target>
+	
+	<!-- Eclipse SDK -->
+	<target name="collect_eclipse" 
+		depends="collect_eclipse_linux,collect_eclipse_linux_x86_64,
+		collect_eclipse_win32,collect_eclipse_win32_x86_64,
+		collect_eclipse_deltapack"/>
+	
+	<condition property="fetch.eclipse.linux">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_linux_tgz}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<os name="linux"/>
+			<not>
+				<os arch="amd64"/>
+			</not>
+		</and>
+	</condition>
+	
+	<target name="collect_eclipse_linux" if="${fetch.eclipse.linux}">
+		<delete file="${packages_dir}/${eclipse_linux_tgz}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_release}/${eclipse_linux_tgz}"/>
+		</exec>
+	</target>	
+
+	<condition property="fetch.eclipse.linux_x86_64">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_linux_x86_64_tgz}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<os name="linux"/>
+			<os arch="amd64"/>
+		</and>
+	</condition>
+	
+	<target name="collect_eclipse_linux_x86_64" if="${fetch.eclipse.linux_x86_64}">
+		<delete file="${packages_dir}/${eclipse_linux_x86_64_tgz}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_release}/${eclipse_linux_x86_64_tgz}"/>
+		</exec>
+	</target>
+	
+	<condition property="fetch.eclipse.win32">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_win32_zip}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<os name="windows"/>
+			<not>
+				<os arch="amd64"/>
+			</not>
+		</and>
+	</condition>
+	
+	<target name="collect_eclipse_win32" if="${fetch.eclipse.win32}">
+		<delete file="${packages_dir}/${eclipse_win32_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_release}/${eclipse_win32_zip}"/>
+		</exec>
+	</target>	
+	
+	<condition property="fetch.eclipse.win32_x86_64">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_win32_x86_64_zip}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<!--
+			<os name="windows"/>
+			<os arch="amd64"/>
+			  -->
+		</and>
+	</condition>
+	
+	<target name="collect_eclipse_win32_x86_64" if="${fetch.eclipse.win32_x86_64}">
+		<delete file="${packages_dir}/${eclipse_win32_x86_64_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_release}/${eclipse_win32_x86_64_zip}"/>
+		</exec>
+	</target>
+	
+	<!-- Eclipse Delta Pack -->
+	<condition property="fetch.eclipse.deltapack">
+		<or>
+			<not>
+				<available file="${packages_dir}/${eclipse_delta_pack_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+	
+	<target name="collect_eclipse_deltapack" if="${fetch.eclipse.deltapack}">
+		<delete file="${packages_dir}/${eclipse_delta_pack_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_release}/${eclipse_delta_pack_zip}"/>
+		</exec>
+	</target>
+
+	<!-- GEF Zest+Draw2d -->
+	<condition property="fetch.zest">
+		<or>
+			<not>
+				<available file="${packages_dir}/${zest_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+		
+	<target name="collect_zest" if="${fetch.zest}">
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${mirror_ftp}/${zest_release}/${zest_zip}"/>
+		</exec>
+	</target>
+	
+	<!-- MPC -->
+	<condition property="fetch.mpc">
+		<or>
+			<not>
+				<available file="${packages_dir}/${mpc_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+		
+	<target name="collect_mpc" if="${fetch.mpc}">
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${mirror_ftp}/${mpc_release}/${mpc_zip}"/>
+		</exec>
+	</target>
+
+	<!-- MPC -->
+	<condition property="fetch.equinox">
+		<or>
+			<not>
+				<available file="${packages_dir}/${equinox_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+		
+	<target name="collect_equinox" if="${fetch.equinox}">
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${mirror_ftp}/${equinox_release}/${equinox_zip}"/>
+		</exec>
+	</target>
+
+	<!-- Vrapper -->
+	<condition property="fetch.vrapper">
+		<or>
+			<not>
+				<available file="${packages_dir}/${vrapper_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+	
+	<target name="collect_vrapper" if="${fetch.vrapper}">
+		<delete file="${packages_dir}/${vrapper_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="-O"/>
+			<arg value="${vrapper_zip}"/>
+			<arg value="${vrapper_release}"/>
+		</exec>
+	</target>
+	
+</project>

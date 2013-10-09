@@ -6,9 +6,11 @@
 <project name="mk_product_1" default="mk_product">
 	
 	<property name="buildDirectory" value="${basedir}/../build"/>
+	<property name="baseLocation" value="${eclipse.home}"/>
+	<property file="${basedir}/../../etc/sveditor.info"/>
+	<property file="${basedir}/../../scripts/mk_sve.properties"/>
 	
 	<target name="mk_product">
-		<property name="baseLocation" value="${eclipse.home}"/>
 <!--
 		<delete dir="${builder}"/>
   -->
