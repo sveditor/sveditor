@@ -21,9 +21,5 @@ fi
 $ECLIPSE_HOME/${eclipse} \
     -nosplash -application org.eclipse.ant.core.antRunner \
     --launcher.suppressErrors \
-    -buildfile mk_sve.xml mk_sve
-
-#    -Dos=${os} -Dws=${ws} -Darch=${arch} mk_sve
-
-#    -Dos=${os} -Darch=${arch} -Dc_os=${os} -Dc_arch=${arch} -Dc_ws=${ws} build_archive
+    -buildfile mk_sve.xml mk_deb
 
