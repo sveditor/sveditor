@@ -176,12 +176,10 @@
 			<property name="arch" value="x86"/>
 			<property name="Win64" value="no"/>
 		</ant>
-<!--
 		<delete dir="${installerTmp}"/>
-  -->
 	</target>
 
-	<target name="mk_deb" unless="is_win">
+	<target name="mk_deb">
 		<ant antfile="${basedir}/mk_deb.xml" inheritall="false">
 			<property name="arch" value="x86"/>
 			<property name="deb_arch" value="i386"/>

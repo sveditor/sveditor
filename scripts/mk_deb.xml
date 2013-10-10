@@ -7,12 +7,19 @@
 	<property name="buildResult" location="${basedir}/../buildResult"/>
 	<property name="etc.dir" location="${basedir}/../etc"/>
 	<property name="deb_tmp" location="${buildResult}/deb_tmp"/>
+	<property name="deb_tmp_data" location="${buildResult}/deb_tmp/data"/>
 	<property name="sveArchive" 
 		location="${buildResult}/sve-${sve_version}-linux_${arch}.tar.gz"/>
 	<property name="sve_deb" 
 		location="${buildResult}/sve-${sve_version}-linux-${deb_arch}.deb"/>
 
-	<target name="mk_deb">
+	<condition property="is_win">
+		<os family="windows"/>
+	</condition>
+
+	<target name="mk_deb" depends="mk_deb_linux,mk_deb_win32"/>
+
+	<target name="mk_deb_linux" unless="is_win">
 		<delete dir="${deb_tmp}"/>
 		<mkdir dir="${deb_tmp}"/>
 		<mkdir dir="${deb_tmp}/DEBIAN"/>
@@ -60,4 +67,86 @@
 		</exec>
 		<delete dir="${deb_tmp}"/>
 	</target>
+	
+	<target name="mk_deb_win32" if="is_win">
+		<delete dir="${deb_tmp}"/>
+		<mkdir dir="${deb_tmp}"/>
+		<mkdir dir="${deb_tmp}/DEBIAN"/>
+		<mkdir dir="${deb_tmp_data}"/>
+
+		<copy todir="${deb_tmp}/DEBIAN">
+			<fileset dir="${etc.dir}/deb/DEBIAN">
+				<include name="**/*"/>
+			</fileset>
+			<filterset begintoken="1" endtoken="3">
+				<filter token=".2." value="${sve_version}"/>
+			</filterset>
+			<filterset>
+				<filter token="arch" value="${deb_arch}"/>
+			</filterset>
+		</copy>
+		<exec executable="tar" failonerror="true"
+			dir="${deb_tmp}/DEBIAN">
+			<arg value="-czf"/>
+			<arg value="../control.tar.gz"/>
+			<arg value="--mode=755"/>
+			<arg value="*"/>
+		</exec>
+
+		<mkdir dir="${deb_tmp_data}/usr/lib"/>
+		<exec executable="tar" failonerror="true"
+			dir="${deb_tmp_data}/usr/lib">
+			<arg value="xvzf"/>
+			<arg value="../../../../sve-${sve_version}-linux_${arch}.tar.gz"/>
+		</exec>
+		<mkdir dir="${deb_tmp_data}/usr/share/applications"/>
+		<mkdir dir="${deb_tmp_data}/usr/share/pixmaps"/>
+		<copy todir="${deb_tmp_data}/usr/share/applications">
+			<fileset dir="${etc.dir}/deb">
+				<include name="sve.desktop"/>
+			</fileset>
+			<filterset begintoken="1" endtoken="3">
+				<filter token=".2." value="${sve_version}"/>
+			</filterset>
+		</copy>
+		<copy todir="${deb_tmp_data}/usr/share/pixmaps">
+			<fileset dir="${etc.dir}/deb">
+				<include name="sve.png"/>
+			</fileset>
+		</copy>
+
+		<exec executable="tar" failonerror="true"
+			dir="${deb_tmp_data}/">
+			<arg value="--exclude=usr/lib/sve-${sve_version}/sve"/>
+			<arg value="-cf"/>
+			<arg value="../data.tar"/>
+			<arg value="*"/>
+		</exec>
+		<exec executable="tar" failonerror="true"
+			dir="${deb_tmp_data}/">
+			<arg value="-rf"/>
+			<arg value="../data.tar"/>
+			<arg value="--mode=755"/>
+			<arg value="usr/lib/sve-${sve_version}/sve"/>
+		</exec>
+		<exec executable="gzip" dir="${deb_tmp}" failonerror="true">
+			<arg value="-f"/>
+			<arg value="data.tar"/>
+		</exec>
+		
+		<echo message="2.0${line.separator}" file="${deb_tmp}/debian-binary"/>
+		
+		<exec executable="ar" failonerror="true" dir="${deb_tmp}">
+			<arg value="r"/>
+			<arg value="${sve_deb}"/>
+			<arg value="debian-binary"/>
+			<arg value="control.tar.gz"/>
+			<arg value="data.tar.gz"/>
+		</exec>
+
+		
+<!--
+		<delete dir="${deb_tmp}"/>
+  -->
+	</target>	
 </project>
