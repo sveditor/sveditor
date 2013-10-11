@@ -1,8 +1,18 @@
 = Installing SVEditor =
-There are several ways to install SVEditor. They are listed below in order of difficulty.
+There are several ways to install SVEditor:
+* Install the 'SVE' package, which bundles Eclipse and SVEditor together. Installers are provided for Windows and Debian Linux. 
+* Install the 'DVKit' package made available by the DVKit project, which bundles Eclipse and many helpful editors together.
+* Install the SVEditor feature into an existing Eclipse environment from the update site.
 
 == Installing SVE ==
 SVE is a combination of Eclipse and SVEditor that provides a complete development environment for SystemVerilog. SVE is provided as an installable package for Windows and Debian operating systems. SVE is the simplest way to get started with SVEditor if you are not already an Eclipse user. Download SVE from the SVEditor project page: [https://sourceforge.net/projects/sveditor/files/sve/ https://sourceforge.net/projects/sveditor/files/sve/]
+
+== Installing DVKit ==
+DVKit is a combination of Eclipse, SVEditor, and other helpful plug-ins for design verification. 
+DVKit is provided as installable packages and archives (.zip / .tar.gz) for Windows, Mac OSX, and Debian Linux operating systems. 
+You can learn more about DVKit on the DVKit project page: [http://dvkit.org http://dvkit.org]
+Download DVKit from the DVKit project page:
+[https://sourceforge.net/projects/dvkit/files/ https://sourceforge.net/projects/dvkit/files/]
 
 
 == Installing SVEditor in an Existing Eclipse Environment ==
@@ -28,17 +38,17 @@ Updating an Eclipse plug-in is simple. Simply select Help->Check for Updates fro
 
 [[Image:help_check_for_updates.gif]]
 
-=== Updating SVE ===
-If you installed one of the SVE packages, the procedure to update the SVEditor plug-in will be nearly identical to that described above. When SVE is installed, it is typically installed by the system administrator. Consequently, a normal user cannot update the SVEditor plug-in. In order to update the SVEditor plug-in, SVE must be started by an administrator.
+=== Updating DVKit ===
+If you installed one of the DVKit packages, the procedure to update the SVEditor plug-in will be nearly identical to that described above. When DVKit is installed, it is typically installed by the system administrator. Consequently, a normal user cannot update the SVEditor plug-in. In order to update the SVEditor plug-in, DVKit must be started by an administrator.
 
 ==== Windows 7====
-On Windows 7, locate the SVE executable in the Start menu. Instead of directly launching SVE, however, select Run as Administrator from the context menu. Running SVE in this way provides sufficient permissions to update the SVEditor plug-in.
+On Windows 7, locate the DVKit executable in the Start menu. Instead of directly launching DVKit, however, select Run as Administrator from the context menu. Running DVKit in this way provides sufficient permissions to update the SVEditor plug-in.
 
 [[Image:windows7_start_sve_as_admin.gif]]
 
 ==== Ubuntu Linux ====
 On Ubuntu, run the following command either from a terminal or from the quick-launch prompt (Alt+F2):
 
-gksu sve
+gksu dvkit
 
-You will be prompted for the administrator password, and SVE will launch with sufficient permissions to update the SVEditor plug-ins.
+You will be prompted for the administrator password, and DVKit will launch with sufficient permissions to update the SVEditor plug-ins.

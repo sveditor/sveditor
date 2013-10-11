@@ -1,6 +1,11 @@
 
 -- 1.4.1 Release --
 
+- #(nobug) - Corrected a Windows-specific issue with the Project variable 
+  provider used by the argument-file parser. With older (3.X) versions of
+  Eclipse, sometimes project variable paths were returned as /X:/... 
+  Now, these paths are properly transforms to X:/...
+
 ------------------------------------------------------------------------------
 -- 1.4.0 Release --
 
