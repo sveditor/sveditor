@@ -38,6 +38,7 @@
       </win>
    </launcher>
 
+
    <vm>
    </vm>
 
@@ -139,17 +140,17 @@ This Agreement is governed by the laws of the State of New York and the intellec
    <features>
       <feature id="net.sf.sveditor.sve" version="1.2.3"/>
       <feature id="org.eclipse.platform"/>
+      <feature id="org.eclipse.e4.rcp"/>
       <feature id="org.eclipse.help"/>
       <feature id="org.eclipse.emf.ecore"/>
-      <feature id="org.eclipse.e4.rcp"/>
       <feature id="org.eclipse.equinox.p2.core.feature"/>
       <feature id="org.eclipse.emf.common"/>
       <feature id="org.eclipse.equinox.p2.rcp.feature"/>
-      <feature id="org.eclipse.zest"/>
       <feature id="org.eclipse.equinox.p2.user.ui"/>
       <feature id="org.eclipse.rcp"/>
-      <feature id="org.eclipse.draw2d"/>
       <feature id="org.eclipse.equinox.p2.extras.feature"/>
+      <feature id="org.eclipse.zest"/>
+      <feature id="org.eclipse.draw2d"/>
    </features>
 
 
