@@ -15,7 +15,9 @@ package net.sf.sveditor.ui.wizards.templates;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVFileUtils;
@@ -146,8 +148,18 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 							monitor.worked(1);
 							try {
 								if (!file.getParent().exists()) {
-									((IFolder)file.getParent()).create(
+									// Create the folder path up to the file
+									List<IContainer> mk_list = new ArrayList<IContainer>();
+									IContainer c = file.getParent();
+									while (!c.exists()) {
+										mk_list.add(0, c);
+										c = c.getParent();
+									}
+									
+									for (IContainer cc : mk_list) {
+										((IFolder)cc).create(
 											true, true, new NullProgressMonitor());
+									}
 								}
 								if (file.exists()) {
 									file.setContents(content, true, true, new NullProgressMonitor());

@@ -5,6 +5,17 @@
   provider used by the argument-file parser. With older (3.X) versions of
   Eclipse, sometimes project variable paths were returned as /X:/... 
   Now, these paths are properly transforms to X:/...
+  
+- #(enh) - Add an 'Executable' checkbox to the 'file' portion of the
+  template-descriptor editor to allow template files to be marked as 'executable'
+  
+- #(nobug) - Correct an issue with adding new parameters using the template
+  descriptor editor.
+
+- #(nobug) - Enable the template engine to correctly construct multiple
+  levels of directory hierarchy
+  
+- #(nobug) - Ensure template processor expands recursive variable references.
 
 ------------------------------------------------------------------------------
 -- 1.4.0 Release --
