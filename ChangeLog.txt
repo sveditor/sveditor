@@ -8,6 +8,9 @@
   
 - #(281) - Change parser to accept data types as task/function arguments
 
+- #(nobug) - Correct an issue with linked resources that caused SVEditor
+  to not correlate files in a linked resource with their containing project.
+
 ------------------------------------------------------------------------------
 -- 1.4.0 Release --
 
