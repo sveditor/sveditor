@@ -21,7 +21,9 @@ public class SVArgFilePathVariableProvider implements
 	}
 
 	public boolean providesVar(String var) {
-		return (fPathVariableManager.getURIValue(var) != null);
+		boolean provides = (fPathVariableManager.getURIValue(var) != null);
+		
+		return provides;
 	}
 
 	public String expandVar(String var) {
@@ -30,7 +32,15 @@ public class SVArgFilePathVariableProvider implements
 		if (val != null) {
 			String ret = val.getPath();
 			
-			// TODO: may need to do some fixup
+			// May need to do some fixup
+			// Ensure Windows paths such as /c:/... are
+			// properly transformed to c:/...
+			if (ret.length() >= 3 &&
+					ret.charAt(0) == '/' &&
+					ret.charAt(2) == ':' &&
+					Character.isAlphabetic(ret.charAt(1))) {
+				ret = ret.substring(1);
+			}
 			
 			Tuple<String, String> v = new Tuple<String, String>(var, ret);
 			

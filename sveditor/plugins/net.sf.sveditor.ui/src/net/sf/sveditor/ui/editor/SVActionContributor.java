@@ -45,7 +45,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fPrevWordAction;
 	protected RetargetTextEditorAction fSelNextWordAction;
 	protected RetargetTextEditorAction fSelPrevWordAction;
-	
+
 	protected MenuManager			   fSourceMenu;
 
 	public SVActionContributor() {

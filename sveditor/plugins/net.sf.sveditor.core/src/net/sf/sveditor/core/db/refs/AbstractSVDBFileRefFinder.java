@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
@@ -99,6 +100,10 @@ public abstract class AbstractSVDBFileRefFinder {
 						SVDBTypeInfoClassType cls_t = cls.getSuperClass();
 						visitRef(null, SVDBRefType.TypeReference, cls_t.getName());
 					}
+				} break;
+				
+				case ModIfcInst: {
+					SVDBModIfcInst inst = (SVDBModIfcInst)c;
 				} break;
 				
 				default: {

@@ -114,6 +114,7 @@ public class TemplatePage extends FormPage {
 	private Text						fFileName;
 	private Text						fTemplatePath;
 	private Button						fFilePathBrowse;
+	private Button						fFileIsExecutable;
 	
 	private Composite					fCategoryDetailsPane;
 	private Text						fCategoryId;
@@ -458,6 +459,15 @@ public class TemplatePage extends FormPage {
 		fAttrMap.put(fTemplatePath, "template");
 		fFilePathBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fFilePathBrowse.addSelectionListener(selectionListener);
+		
+		tk.createLabel(c, "Executable:");
+		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd.horizontalSpan = 2;
+		fFileIsExecutable = tk.createButton(c, "", SWT.CHECK);
+		fFileIsExecutable.setLayoutData(gd);
+		fFileIsExecutable.addSelectionListener(selectionListener);
+	
+		fAttrMap.put(fFileIsExecutable, "executable");
 
 		return c;
 	}
@@ -531,6 +541,7 @@ public class TemplatePage extends FormPage {
 		
 		fFileName.setText(getAttribute(fActiveElement, "name"));
 		fTemplatePath.setText(getAttribute(fActiveElement, "template"));
+		fFileIsExecutable.setSelection(getBooleanAttribute(fActiveElement, "executable", false));
 
 		fControlModify = false;
 		setDetailsPane(fFileDetailsPane);
@@ -702,6 +713,8 @@ public class TemplatePage extends FormPage {
 	private Element createFile() {
 		Element ret = fDocument.createElement("file");
 		
+		ret.setAttribute("executable", "false");
+		
 		return ret;
 	}
 	
@@ -816,23 +829,22 @@ public class TemplatePage extends FormPage {
 	
 	private void addParameter() {
 		Element new_elem = null;
-		Element target = null;
 		Node next_elem = null;
 		
-		if (fActiveElement.getNodeName().equals("parameters")) {
-			target = fActiveElement;
-		} else {
-			target = (Element)fActiveElement.getParentNode();
-		}
 
-		next_elem = fActiveElement;
-		while ((next_elem = next_elem.getNextSibling()) != null && 
-				!(next_elem instanceof Element)) { }
 		
 		new_elem = createParameter();
 		
 		if (new_elem != null) {
-			target.insertBefore(new_elem, next_elem);
+			if (fActiveElement.getNodeName().equals("parameters")) {
+				fActiveElement.appendChild(new_elem);
+			} else {
+				next_elem = fActiveElement;
+				while ((next_elem = next_elem.getNextSibling()) != null && 
+						!(next_elem instanceof Element)) { }
+				fActiveElement.getParentNode().insertBefore(new_elem, next_elem);
+			}
+			
 			fActiveElement = new_elem;
 			fTreeViewer.refresh();
 			fTreeViewer.getTree().getDisplay().asyncExec(new Runnable() {
@@ -1102,6 +1114,13 @@ public class TemplatePage extends FormPage {
 				
 				if (dlg.open() == Window.OK) {
 					fTemplatePath.setText(dlg.getSelectedFile());
+				}
+			} else if (fAttrMap.containsKey(e.widget)) {
+				if (e.widget instanceof Button) {
+					// Assume is a checkbox
+					Button b = (Button)e.widget;
+					setAttr(fActiveElement, fAttrMap.get(e.widget), 
+							b.getSelection());
 				}
 			}
 		}
@@ -1487,6 +1506,10 @@ public class TemplatePage extends FormPage {
 		elem.setAttribute(attr, value);
 	}
 
+	private void setAttr(Element elem, String attr, boolean value) {
+		elem.setAttribute(attr, "" + value);
+	}
+	
 	private void setElem(Element elem, String e_name, String value) {
 		NodeList nl = elem.getChildNodes();
 		Element e = null;
