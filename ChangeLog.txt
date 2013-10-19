@@ -5,6 +5,8 @@
   provider used by the argument-file parser. With older (3.X) versions of
   Eclipse, sometimes project variable paths were returned as /X:/... 
   Now, these paths are properly transforms to X:/...
+  
+- #(281) - Change parser to accept data types as task/function arguments
 
 ------------------------------------------------------------------------------
 -- 1.4.0 Release --

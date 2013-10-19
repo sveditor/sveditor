@@ -13,6 +13,11 @@
 package net.sf.sveditor.core.scanner;
 
 public class SVCharacter {
+	
+	public static boolean isAlphabetic(int c) {
+		return ((c >= 'a' && c <= 'z') ||
+				(c >= 'A' && c <= 'Z'));
+	}
 
 	public static boolean isSVIdentifierStart(int c) {
 		return (Character.isJavaIdentifierStart(c) ||
