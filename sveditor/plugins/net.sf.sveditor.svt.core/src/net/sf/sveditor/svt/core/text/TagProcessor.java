@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.svt.core.text;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,11 +39,20 @@ public class TagProcessor {
 	}
 	
 	public String process(String in) {
-		StringInputStream in_str = new StringInputStream(in);
+		InputStream in_str = new StringInputStream(in);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			process(in_str, out);
-		} catch (IOException e) { }
+		int substitutions = 0, iterations = 0;
+		do {
+			try {
+				substitutions = process(in_str, out);
+			} catch (IOException e) { }
+			iterations++;
+			
+			if (substitutions > 0 && iterations < 100) {
+				in_str = new ByteArrayInputStream(out.toByteArray());
+				out = new ByteArrayOutputStream();
+			}
+		} while (substitutions > 0 && iterations < 100);
 		
 		return out.toString();
 	}
