@@ -6,6 +6,11 @@
   Eclipse, sometimes project variable paths were returned as /X:/... 
   Now, these paths are properly transforms to X:/...
   
+- #(281) - Change parser to accept data types as task/function arguments
+
+- #(nobug) - Correct an issue with linked resources that caused SVEditor
+  to not correlate files in a linked resource with their containing project.
+
 - #(enh) - Add an 'Executable' checkbox to the 'file' portion of the
   template-descriptor editor to allow template files to be marked as 'executable'
   
@@ -16,6 +21,7 @@
   levels of directory hierarchy
   
 - #(nobug) - Ensure template processor expands recursive variable references.
+
 
 ------------------------------------------------------------------------------
 -- 1.4.0 Release --

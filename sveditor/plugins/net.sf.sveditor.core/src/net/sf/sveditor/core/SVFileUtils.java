@@ -30,6 +30,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.scanner.SVCharacter;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -209,8 +210,17 @@ public class SVFileUtils {
 			}
 		} else {
 			try {
-
 				f = root.getFileForLocation(new Path(path));
+				
+				if (f == null) {
+					// getFileForLocation only looks at resources actually in the workspace
+					// findFilesForLocationURI searches linked resources as well
+					IFile files[] = root.findFilesForLocationURI((new File(path)).toURI());
+					
+					if (files != null && files.length > 0) {
+						f = files[0];
+					}
+				}
 			} catch (IllegalStateException e) {
 				// Happens when the workspace is closed
 			}
@@ -231,6 +241,15 @@ public class SVFileUtils {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		
 			c = root.getContainerForLocation(new Path(path));
+			
+			if (c == null) {
+				// Try the longer route
+				IContainer c_l[] = root.findContainersForLocationURI((new File(path)).toURI());
+				
+				if (c_l != null && c_l.length > 0) {
+					c = c_l[0];
+				}
+			}
 		} catch (IllegalStateException e) {
 			// Happens when the workspace is closed
 		}

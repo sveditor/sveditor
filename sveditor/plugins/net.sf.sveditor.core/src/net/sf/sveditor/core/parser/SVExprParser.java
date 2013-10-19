@@ -362,6 +362,21 @@ public class SVExprParser extends SVParserBase {
 		
 	}
 	
+	public SVDBExpr tf_argument_expression() throws SVParseException {
+		if (fLexer.peekKeyword("virtual")) {
+			// Know this is a type
+			SVDBTypeExpr expr = new SVDBTypeExpr();
+			expr.setLocation(fLexer.getStartLocation());
+			
+			SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
+			expr.setTypeInfo(info);
+			
+			return expr;
+		} else {
+			return expression();
+		}
+	}
+	
 	public SVDBExpr assert_expression() throws SVParseException {
 		fAssertionExpr.push(true);
 		fEventExpr.push(true);
@@ -1343,7 +1358,7 @@ public class SVExprParser extends SVParserBase {
 					// empty argument specifier
 					arg_expr.setExpr(new SVDBLiteralExpr(""));
 				} else {
-					arg_expr.setExpr(expression());
+					arg_expr.setExpr(tf_argument_expression());
 				}
 				fLexer.readOperator(")");
 				arguments.add(arg_expr);
@@ -1352,7 +1367,7 @@ public class SVExprParser extends SVParserBase {
 				arguments.add(new SVDBLiteralExpr(""));
 			} else {
 				if (fDebugEn) {debug("   --> argument_expr " + fLexer.peek());}
-				arguments.add(expression());
+				arguments.add(tf_argument_expression());
 				if (fDebugEn) {debug("   <-- argument_expr " + fLexer.peek());}
 			}
 			

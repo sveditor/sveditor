@@ -1,11 +1,15 @@
 package net.sf.sveditor.core.tests.project_settings;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -25,6 +29,7 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -311,6 +316,70 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		
 		// Ensure that there are now no errors
 		assertTrue(CoreReleaseTests.getErrors().size() == 0);
+	}
+	
+	public void testArgFileInLinkedFolder() throws CoreException, IOException {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		SVCorePlugin.getDefault().enableDebug(true);
+
+		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+		
+		IProject project = TestUtils.createProject("ubus");
+		addProject(project);
+
+		File uvm = new File(fTmpDir, "uvm");
+		project.getPathVariableManager().setURIValue("UVM_HOME", uvm.toURI());
+	
+		IFolder ubus = project.getFolder(new Path("ubus"));
+		File ubus_d = new File(uvm, "examples/integrated/ubus");
+		ubus.createLink(
+				ubus_d.toURI(),
+				0,
+				new NullProgressMonitor());
+		
+		SVFileUtils.copy(
+				"+incdir+${UVM_HOME}/src\n" +
+				"${UVM_HOME}/src/uvm_pkg.sv\n" +
+				"+incdir+examples\n" +
+				"+incdir+sv\n" +
+				"examples/ubus_tb_top.sv\n",
+				ubus.getFile(new Path("ubus.f")));
+				
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
+		SVDBIndexCollection index_collection = null;
+		SVProjectFileWrapper fw;
+		
+		CoreReleaseTests.clearErrors();
+		fw = pdata.getProjectFileWrapper();
+		fw.addArgFilePath("${workspace_loc}/ubus/ubus/ubus.f");
+		pdata.setProjectFileWrapper(fw, true);
+		
+		index_collection = pdata.getProjectIndexMgr();
+		index_collection.loadIndex(new NullProgressMonitor());
+		
+		String ubus_f = SVFileUtils.readInput(new FileInputStream(new File(ubus_d, "ubus.f")));
+	
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		index_collection.parse(new NullProgressMonitor(), 
+				new StringInputStream(ubus_f), 
+				"${workspace_loc}/ubus/ubus/ubus.f",
+				markers);
+		
+		// Ensure that there's at least an error
+		assertTrue(CoreReleaseTests.getErrors().size() > 0);
+		
+		// Now, set the correct path
+		CoreReleaseTests.clearErrors();
+		fw = pdata.getProjectFileWrapper();
+		fw.getArgFilePaths().clear();
+		fw.addArgFilePath("${workspace_loc}/project_settings_proj1/top_dir/files.f");
+		pdata.setProjectFileWrapper(fw, true);
+		
+		index_collection = pdata.getProjectIndexMgr();
+		index_collection.loadIndex(new NullProgressMonitor());
+		
+		// Ensure that there are now no errors
+		assertTrue(CoreReleaseTests.getErrors().size() == 0);		
 	}
 
 }

@@ -97,7 +97,7 @@ public class SVArgFileEditor extends TextEditor
 			if (uri.getScheme().equals("plugin")) {
 				fFile = "plugin:" + uri.getPath();
 			} else {
-				fFile = uri.getPath();
+				fFile = SVFileUtils.normalize(uri.getPath());
 				ws_file = SVFileUtils.findWorkspaceFile(fFile);
 				if (ws_file != null) {
 					fFile = "${workspace_loc}" + ws_file.getFullPath().toOSString();

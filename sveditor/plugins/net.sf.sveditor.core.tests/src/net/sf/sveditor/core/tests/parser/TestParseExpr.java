@@ -337,6 +337,21 @@ public class TestParseExpr extends TestCase {
 		runTest(testname, content, new String[] {"c", "foo"});
 	}
 
+	public void testVirtualInterfaceSysTFParam() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class c;\n" +
+			"	rand bit[3:0] a;\n" +
+			"	rand bit[3:0] b;\n" +
+			"\n" +
+			"	function void foo();\n" +
+			"		$display($typename(virtual some_interface));\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		runTest(getName(), content, new String[] {"c", "foo"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

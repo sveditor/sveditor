@@ -266,7 +266,7 @@ public class SVEditor extends TextEditor
 
 				addErrorMarkers(markers);
 				applyUnprocessedRegions(fSVDBFilePP);
-				applyFolding(fSVDBFile);
+				applyFolding(fSVDBFile, fSVDBFilePP);
 			}
 
 			if (fOutline != null) {
@@ -1104,7 +1104,7 @@ public class SVEditor extends TextEditor
 		}
 	}
 	
-	private void applyFolding(SVDBFile file) {
+	private void applyFolding(SVDBFile file, SVDBFile file_pp) {
 	    ProjectionViewer viewer =(ProjectionViewer)getSourceViewer();
 	    if (viewer == null) {
 	    	return;
@@ -1115,17 +1115,48 @@ public class SVEditor extends TextEditor
 	    	return;
 	    }
 	    
-		List<Position> positions = new ArrayList<Position>();
+		List<Tuple<Position, Boolean>> positions = 
+				new ArrayList<Tuple<Position,Boolean>>();
 		HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<ProjectionAnnotation, Position>();
 		
 		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
+		
 	
 		Annotation annotations[] = new Annotation[positions.size()];
 		
 		for (int i=0; i<positions.size(); i++) {
-			ProjectionAnnotation ann = new ProjectionAnnotation();
-			newAnnotations.put(ann, positions.get(i));
+			Tuple<Position, Boolean> pos = positions.get(i);
+			ProjectionAnnotation ann = new ProjectionAnnotation(pos.second());
+			newAnnotations.put(ann, pos.first());
 			annotations[i] = ann;
+		}
+	
+		IDocument doc = getDocument();
+		for (ISVDBChildItem ci : file_pp.getChildren()) {
+			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
+				SVDBUnprocessedRegion ur = (SVDBUnprocessedRegion)ci;
+				SVDBLocation start = ur.getLocation();
+				SVDBLocation end = ur.getEndLocation();
+			
+				if (start != null && end != null) {
+					try {
+						int start_l = start.getLine();
+						int end_l = end.getLine();
+						
+						if (start_l != end_l) {
+							if (start_l > 0) {
+								start_l--;
+							}
+							
+							int start_o = doc.getLineOffset(start_l);
+							int end_o = doc.getLineOffset(end_l);
+					
+							ProjectionAnnotation ann = new ProjectionAnnotation(true);
+							newAnnotations.put(ann, new Position(start_o, (end_o-start_o)));
+						}
+					} catch (BadLocationException e) {}
+				}
+			}
 		}
 
 		ann_model.modifyAnnotations(fOldFoldingRegions, newAnnotations, annotations);
@@ -1153,7 +1184,10 @@ public class SVEditor extends TextEditor
 		fFoldingRegions.add(SVDBItemType.Constraint);
 	}
 	
-	private void collectFoldingRegions(int file_id, ISVDBChildParent scope, List<Position> positions) {
+	private void collectFoldingRegions(
+			int 							file_id, 
+			ISVDBChildParent 				scope, 
+			List<Tuple<Position,Boolean>>	positions) {
 		IDocument doc = getDocument();
 		for (ISVDBChildItem ci : scope.getChildren()) {
 			if (fFoldingRegions.contains(ci.getType())) {
@@ -1177,7 +1211,9 @@ public class SVEditor extends TextEditor
 								int start_o = doc.getLineOffset(start_l);
 								int end_o = doc.getLineOffset(end_l);
 
-								positions.add(new Position(start_o, (end_o-start_o)));
+								positions.add(new Tuple<Position, Boolean>(
+										new Position(start_o, (end_o-start_o)),
+										false));
 							}
 						} catch (BadLocationException e) {}
 						

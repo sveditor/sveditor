@@ -143,6 +143,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 	}
 
 	public void testTrivialExample() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testTrivialExample");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
