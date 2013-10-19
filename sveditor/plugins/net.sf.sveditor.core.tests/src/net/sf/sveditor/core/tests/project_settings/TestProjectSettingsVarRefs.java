@@ -320,7 +320,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 	
 	public void testArgFileInLinkedFolder() throws CoreException, IOException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		

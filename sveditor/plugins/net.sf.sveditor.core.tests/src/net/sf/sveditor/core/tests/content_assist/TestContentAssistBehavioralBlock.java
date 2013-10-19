@@ -336,7 +336,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 
 	public void testRootScopeGlobalClassVarDecl() {
 		String testname = "testRootScopeGlobalClassVarDecl";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			// These fields might effectively be in a
