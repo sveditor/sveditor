@@ -1087,7 +1087,7 @@ public class SVEditor extends TextEditor
 				continue;
 			}
 			
-			Annotation ann_1 = new Annotation("net.sf.sveditor.ui.disabledRegion", false, "");
+			Annotation ann_1 = new Annotation(SVUiPlugin.PLUGIN_ID + ".disabledRegion", false, "");
 			try {
 				int line1 = doc.getLineOffset((start.getLine()>0)?start.getLine()-1:0);
 				int line2 = doc.getLineOffset(end.getLine());
@@ -1102,6 +1102,39 @@ public class SVEditor extends TextEditor
 				unprocessed_regions.add((SVDBUnprocessedRegion)ci);
 			}
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Annotation [] computeDifferences(ProjectionAnnotationModel model, List<Tuple<Position, Boolean>> regions) {
+		List<Annotation> deletions = new ArrayList<Annotation>();
+
+		Iterator ann_it = model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Object ann_o = ann_it.next();
+			
+			if (ann_o instanceof ProjectionAnnotation) {
+				ProjectionAnnotation ann_p = (ProjectionAnnotation)ann_o;
+				Position pos = model.getPosition(ann_p);
+				
+				// See if this already exists
+				int idx = -1;
+				for (int i=0; i<regions.size(); i++) {
+					Tuple<Position, Boolean> tr = regions.get(i);
+					if (tr.first().equals(pos)) {
+						idx = i;
+						break;
+					}
+				}
+				
+				if (idx != -1) {
+					regions.remove(idx);
+				} else {
+					deletions.add(ann_p);
+				}
+			}
+		}
+		
+		return deletions.toArray(new Annotation[deletions.size()]);
 	}
 	
 	private void applyFolding(SVDBFile file, SVDBFile file_pp) {
@@ -1121,16 +1154,6 @@ public class SVEditor extends TextEditor
 		
 		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
 		
-	
-		Annotation annotations[] = new Annotation[positions.size()];
-		
-		for (int i=0; i<positions.size(); i++) {
-			Tuple<Position, Boolean> pos = positions.get(i);
-			ProjectionAnnotation ann = new ProjectionAnnotation(pos.second());
-			newAnnotations.put(ann, pos.first());
-			annotations[i] = ann;
-		}
-	
 		IDocument doc = getDocument();
 		for (ISVDBChildItem ci : file_pp.getChildren()) {
 			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
@@ -1141,25 +1164,42 @@ public class SVEditor extends TextEditor
 				if (start != null && end != null) {
 					try {
 						int start_l = start.getLine();
-						int end_l = end.getLine();
+						int end_l = end.getLine(); // this is the `endif or `else
 						
-						if (start_l != end_l) {
-							if (start_l > 0) {
-								start_l--;
-							}
-							
+						if (start_l > 0) {
+							start_l--;
+						}
+					
+						// We want to show the ending directive
+						end_l--;
+						
+						if (start_l < end_l) {
 							int start_o = doc.getLineOffset(start_l);
 							int end_o = doc.getLineOffset(end_l);
-					
-							ProjectionAnnotation ann = new ProjectionAnnotation(true);
-							newAnnotations.put(ann, new Position(start_o, (end_o-start_o)));
+							
+							positions.add(new Tuple<Position, Boolean>(
+									new Position(start_o, (end_o-start_o)), true));
 						}
 					} catch (BadLocationException e) {}
 				}
 			}
 		}
+	
+		Annotation deletions[] = computeDifferences(ann_model, positions);
+	
+		Annotation annotations[] = new Annotation[positions.size()];
+		
+		for (int i=0; i<positions.size(); i++) {
+			Tuple<Position, Boolean> pos = positions.get(i);
+			ProjectionAnnotation ann = new ProjectionAnnotation(pos.second());
+			newAnnotations.put(ann, pos.first());
+			annotations[i] = ann;
+		}
 
-		ann_model.modifyAnnotations(fOldFoldingRegions, newAnnotations, annotations);
+		if (deletions.length != 0 || newAnnotations.size() != 0) {
+			ann_model.modifyAnnotations(deletions, newAnnotations, 
+					new Annotation[] {});
+		}
 	}
 	
 	private static final Set<SVDBItemType>				fFoldingRegions;
