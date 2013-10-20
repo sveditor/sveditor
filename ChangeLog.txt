@@ -1,4 +1,14 @@
 
+-- 1.4.2 Release --
+
+- #(nobug) - Corrected some instability in folding regions that could
+  cause folded regions to change their expanded state after modification
+  by the user.
+
+- #(enh) - Make 'unprocessed' regions (eg `ifdef UNDEFINED) collapsed
+  by default.
+
+------------------------------------------------------------------------------
 -- 1.4.1 Release --
 
 - #(nobug) - Corrected a Windows-specific issue with the Project variable 
