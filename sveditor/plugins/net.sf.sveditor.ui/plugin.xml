@@ -1061,7 +1061,6 @@ endclass
             annotationType="net.sf.sveditor.ui.disabledRegion"
             colorPreferenceKey="disabledRegionColorPrefKey"
             colorPreferenceValue="224,224,224"
-            contributesToHeader="false"
             highlightPreferenceKey="disabledRegionHighlightPrefKey"
             highlightPreferenceValue="true"
             includeOnPreferencePage="true"
