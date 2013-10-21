@@ -38,7 +38,7 @@ public class SVArgFilePathVariableProvider implements
 			if (ret.length() >= 3 &&
 					ret.charAt(0) == '/' &&
 					ret.charAt(2) == ':' &&
-					Character.isAlphabetic(ret.charAt(1))) {
+					SVCharacter.isAlphabetic(ret.charAt(1))) {
 				ret = ret.substring(1);
 			}
 			
