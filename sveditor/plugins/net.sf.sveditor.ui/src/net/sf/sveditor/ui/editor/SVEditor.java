@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -75,6 +76,7 @@ import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -86,6 +88,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -132,6 +135,7 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ResourceAction;
 import org.eclipse.ui.texteditor.TextOperationAction;
+import org.eclipse.ui.texteditor.spelling.IPreferenceStatusMonitor;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
@@ -174,11 +178,14 @@ public class SVEditor extends TextEditor
 	private boolean							fNeedUpdate;
 	private boolean							fOccurrenceHighlightDebounceActive;
 	
+	private Map<String, Boolean>			fFoldingPrefs = new HashMap<String, Boolean>();
+	
 	IInformationPresenter fQuickObjectsPresenter;
 	IInformationPresenter fQuickOutlinePresenter;
 	IInformationPresenter fQuickHierarchyPresenter;
 	
 	private ProjectionSupport				fProjectionSupport;
+	private boolean							fInitialFolding = true;
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -300,6 +307,8 @@ public class SVEditor extends TextEditor
 		
 		// Check in with the plug-in
 		SVUiPlugin.getDefault().startRefreshJob();
+		
+		updateFoldingPrefs();
 	}
 	
 	@Override
@@ -843,7 +852,9 @@ public class SVEditor extends TextEditor
 	    fProjectionSupport.install();
 	    
 	    //turn projection mode on
-	    viewer.doOperation(ProjectionViewer.TOGGLE);
+	    if (getFoldingPref(SVEditorPrefsConstants.P_FOLDING_ENABLE)) {
+	    	viewer.doOperation(ProjectionViewer.TOGGLE);
+	    }
 	    
 		if (fHighlightManager == null) {
 			fHighlightManager = new SVHighlightingManager();
@@ -1183,8 +1194,15 @@ public class SVEditor extends TextEditor
 							int start_o = doc.getLineOffset(start_l);
 							int end_o = doc.getLineOffset(end_l);
 							
+							boolean init_folded = false;
+							
+							if (fInitialFolding) {
+								init_folded = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED);
+							}
+							
 							positions.add(new Tuple<Position, Boolean>(
-									new Position(start_o, (end_o-start_o)), true));
+									new Position(start_o, (end_o-start_o)), init_folded));
+									
 						}
 					} catch (BadLocationException e) {}
 				}
@@ -1206,6 +1224,8 @@ public class SVEditor extends TextEditor
 			ann_model.modifyAnnotations(deletions, newAnnotations, 
 					new Annotation[] {});
 		}
+		
+		fInitialFolding = false;
 	}
 	
 	private static final Set<SVDBItemType>				fFoldingRegions;
@@ -1249,17 +1269,34 @@ public class SVEditor extends TextEditor
 							int start_l = start.getLine();
 							int end_l = end.getLine();
 							if (start_l != end_l) {
-//								System.out.println("fold: " + start_l + " .. " + end_l);
 								if (start_l > 0) {
 									start_l--;
 								}
 
 								int start_o = doc.getLineOffset(start_l);
 								int end_o = doc.getLineOffset(end_l);
+								
+								boolean fold_default = false;
+							
+								if (fInitialFolding) {
+									switch (ci.getType()) {
+									case ModuleDecl:
+										fold_default = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_MODULES);
+										break;
+									case ClassDecl:
+										fold_default = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_CLASSES);
+										break;
+									case InterfaceDecl:
+										fold_default = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_INTERFACES);
+										break;
+									default:
+										break;
+									}
+								}
 
 								positions.add(new Tuple<Position, Boolean>(
 										new Position(start_o, (end_o-start_o)),
-										false));
+										fold_default));
 							}
 						} catch (BadLocationException e) {}
 						
@@ -1371,6 +1408,23 @@ public class SVEditor extends TextEditor
 		return super.getAdapter(adapter);
 	}
 	
+
+	private void updateFoldingPrefs() {
+		fFoldingPrefs.clear();
+		IPreferenceStore ps = SVUiPlugin.getDefault().getChainedPrefs();
+		for (String fp : SVEditorPrefsConstants.P_FOLDING_PREFS) {
+			fFoldingPrefs.put(fp, ps.getBoolean(fp));
+		}
+	}
+	
+	private boolean getFoldingPref(String key) {
+		if (fFoldingPrefs.containsKey(key)) {
+			return fFoldingPrefs.get(key);
+		} else {
+			return false;
+		}
+	}
+	
 	private IPropertyChangeListener fPropertyChangeListener = 
 		new IPropertyChangeListener() {
 
@@ -1380,6 +1434,10 @@ public class SVEditor extends TextEditor
 				if (getSourceViewer() != null && getSourceViewer().getTextWidget() != null) {
 					getSourceViewer().getTextWidget().redraw();
 					getSourceViewer().getTextWidget().update();
+				}
+				
+				if (SVEditorPrefsConstants.P_FOLDING_PREFS.contains(event.getProperty())) {
+					updateFoldingPrefs();
 				}
 			}
 	};
