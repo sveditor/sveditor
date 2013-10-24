@@ -1,6 +1,9 @@
 
 -- 1.4.4 Release --
 
+- #(283) - Correct a case where a folded-by-default folding region was auto-folded
+  after pasting content into the region. 
+
 ------------------------------------------------------------------------------
 -- 1.4.3 Release --
 
