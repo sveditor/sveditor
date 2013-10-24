@@ -179,7 +179,6 @@ public class SVEditor extends TextEditor
 	IInformationPresenter fQuickHierarchyPresenter;
 	
 	private ProjectionSupport				fProjectionSupport;
-	private Annotation						fOldFoldingRegions[];
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -1120,7 +1119,14 @@ public class SVEditor extends TextEditor
 				int idx = -1;
 				for (int i=0; i<regions.size(); i++) {
 					Tuple<Position, Boolean> tr = regions.get(i);
-					if (tr.first().equals(pos)) {
+					// The annotation model attempts to update the bounds of the projection
+					// annotation when the document changes. It mostly successful, but 
+					// seems to get tripped up when pasting or deleting a block of content
+					// from within an folding region. Work around this by recognizing that
+					// a region that starts at the same point is the same even if the
+					// length has changed.
+					if (tr.first().equals(pos) ||
+							tr.first().getOffset() == pos.getOffset()) {
 						idx = i;
 						break;
 					}
@@ -1186,7 +1192,7 @@ public class SVEditor extends TextEditor
 		}
 	
 		Annotation deletions[] = computeDifferences(ann_model, positions);
-	
+		
 		Annotation annotations[] = new Annotation[positions.size()];
 		
 		for (int i=0; i<positions.size(); i++) {
