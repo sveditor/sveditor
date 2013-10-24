@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.scanner.SVCharacter;
 
 import org.eclipse.core.resources.IPathVariableManager;
 
