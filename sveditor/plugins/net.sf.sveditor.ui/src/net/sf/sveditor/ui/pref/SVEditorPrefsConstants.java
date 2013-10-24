@@ -12,12 +12,16 @@
 
 package net.sf.sveditor.ui.pref;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class SVEditorPrefsConstants {
 	
 	private static final String EDIT_SETTINGS = "EditSettings.";
 	private static final String OUTLINE_SETTINGS = "OutlineSettings.";
 	private static final String TEMPLATE_SETTINGS = "TemplateSettings.";
 	private static final String INDEX_SETTINGS = "IndexSettings.";
+	private static final String FOLDING_SETTINGS = EDIT_SETTINGS + "Folding";
 	
 	public static final String P_DEFAULT_C 										= EDIT_SETTINGS + "defaultColorPreference";
 	public static final String P_COMMENT_C 										= EDIT_SETTINGS + "singleLineCommentColorPreference";
@@ -60,6 +64,24 @@ public class SVEditorPrefsConstants {
 	public static final String P_CONTENT_ASSIST_HOVER_USES_BROWSER				= EDIT_SETTINGS + "contentAssistHoverUsesBrowser";
 	public static final String P_CONTENT_ASSIST_HOVER_BG_COLOR					= EDIT_SETTINGS + "contentAssistHoverBgColor";
 	public static final String P_CONTENT_ASSIST_HOVER_FG_COLOR					= EDIT_SETTINGS + "contentAssistHoverFgColor";
+
+	// Folding Settings
+	public static final String P_FOLDING_ENABLE									= FOLDING_SETTINGS + "enableFolding";
+	public static final String P_FOLDING_INIT_MODULES							= FOLDING_SETTINGS + "initFoldModules";
+	public static final String P_FOLDING_INIT_INTERFACES						= FOLDING_SETTINGS + "initFoldInterfaces";
+	public static final String P_FOLDING_INIT_CLASSES							= FOLDING_SETTINGS + "initFoldClasses";
+	public static final String P_FOLDING_INIT_UNPROCESSED						= FOLDING_SETTINGS + "initFoldUnprocessed";
+	
+	public static final Set<String> P_FOLDING_PREFS;
+	
+	static {
+		P_FOLDING_PREFS = new HashSet<String>();
+		P_FOLDING_PREFS.add(P_FOLDING_ENABLE);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_CLASSES);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_MODULES);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_INTERFACES);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_UNPROCESSED);
+	};
 	
 	// SV Template Paths
 	public static final String P_SV_TEMPLATE_PATHS								= TEMPLATE_SETTINGS + "svTemplatePaths";

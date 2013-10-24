@@ -678,6 +678,12 @@
             id="net.sf.sveditor.ui.svEditorCodeStylePrefs"
             name="Code Style Preferences">
       </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVEditorFoldingPrefsPage"
+            id="net.sf.sveditor.ui.sveditorFoldingPrefs"
+            name="Folding">
+      </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -1156,6 +1162,16 @@ endclass
             natureId="net.sf.sveditor.core.SVNature">
       </image>
           -->
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="net.sf.sveditor.ui.launch.SVBuildLauncher"
+            id="net.sf.sveditor.ui.buildScriptLaunch"
+            modes="run"
+            name="SVEditor Build Script"
+            public="true">
+      </launchConfigurationType>
    </extension>
 
 </plugin>

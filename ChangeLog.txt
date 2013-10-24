@@ -1,4 +1,14 @@
 
+-- 1.4.4 Release --
+
+- #(283) - Correct a case where a folded-by-default folding region was auto-folded
+  after pasting content into the region. 
+
+- #(nobug) - Ensure folding is only applied when the file is initially opened
+
+- #(78 - enh) - Add preference page to control folding
+
+------------------------------------------------------------------------------
 -- 1.4.3 Release --
 
 - #(282) - Remove the use of a Java 7 API (Character.isAlphabetic)
