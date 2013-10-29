@@ -373,6 +373,11 @@
             id="net.sf.sveditor.ui.editor.open.type"
             name="Open Type">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.open.super.method"
+            name="Open Super Method">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -1089,8 +1094,23 @@ endclass
       </specification>
       <specification
             annotationType="net.sf.sveditor.ui.methodOverride"
+            colorPreferenceKey="svMethodOverrideColorPreferenceKey"
+            colorPreferenceValue="244,244,244"
+            contributesToHeader="false"
+            highlightPreferenceKey="svMethodOverrideHighlightTextPreferenceKey"
+            highlightPreferenceValue="false"
+            icon="icons/obj16/over_co.gif"
             includeOnPreferencePage="true"
-            label="SV Method Override Annotation">
+            label="SV Method Override Annotation"
+            overviewRulerPreferenceKey="svMethodOverrideOverviewRulerPreferenceKey"
+            overviewRulerPreferenceValue="false"
+            presentationLayer="1"
+            textPreferenceKey="svMethodOverrideTextPreferenceKey"
+            textPreferenceValue="false"
+            textStylePreferenceKey="svMethodOverrideTextStylePreferenceKey"
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="svMethodOverrideVerticalRulerPreferenceKey"
+            verticalRulerPreferenceValue="true">
       </specification>
    </extension>
    <extension

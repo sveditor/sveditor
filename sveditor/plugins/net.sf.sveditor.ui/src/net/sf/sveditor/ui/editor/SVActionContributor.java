@@ -45,6 +45,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fPrevWordAction;
 	protected RetargetTextEditorAction fSelNextWordAction;
 	protected RetargetTextEditorAction fSelPrevWordAction;
+	protected RetargetTextEditorAction fOpenSuperMethodAction;
 
 	protected MenuManager			   fSourceMenu;
 
@@ -111,6 +112,9 @@ public class SVActionContributor extends TextEditorActionContributor {
 		
 		fSelPrevWordAction = new RetargetTextEditorAction(bundle, "SelPrevWordAction.");
 		fSelPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
+		
+		fOpenSuperMethodAction = new RetargetTextEditorAction(bundle, "OpenSuperMethodAction.");
+		fOpenDeclarationAction.setActionDefinitionId("net.sf.sveditor.ui.open.super.method");
 		
 	}
 
