@@ -33,11 +33,14 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBEndLocation;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
@@ -53,6 +56,7 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -72,6 +76,7 @@ import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
 import net.sf.sveditor.ui.editor.actions.PrevWordAction;
 import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.SVRulerAnnotationAction;
 import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
@@ -135,7 +140,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ResourceAction;
 import org.eclipse.ui.texteditor.TextOperationAction;
-import org.eclipse.ui.texteditor.spelling.IPreferenceStatusMonitor;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class SVEditor extends TextEditor 
@@ -273,6 +277,7 @@ public class SVEditor extends TextEditor
 				addErrorMarkers(markers);
 				applyUnprocessedRegions(fSVDBFilePP);
 				applyFolding(fSVDBFile, fSVDBFilePP);
+				applyOverrideAnnotations(fSVDBFile);
 			}
 
 			if (fOutline != null) {
@@ -732,6 +737,11 @@ public class SVEditor extends TextEditor
 		sel_pw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
 		setAction(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS, sel_pw_action);
 		
+		// Add annotation-action
+		SVRulerAnnotationAction action = new SVRulerAnnotationAction(bundle, 
+				"Editor.RulerAnnotationSelection.", this, getVerticalRuler());
+		setAction(ITextEditorActionConstants.RULER_CLICK, action);
+		
 	}
 	
 	public ISVDBIndexIterator getIndexIterator() {
@@ -740,6 +750,14 @@ public class SVEditor extends TextEditor
 	
 	public IDocument getDocument() {
 		return getDocumentProvider().getDocument(getEditorInput());
+	}
+	
+	public IAnnotationModel getAnnotationModel() {
+		IAnnotationModel ann_model = null;
+		
+		ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		return ann_model;
 	}
 	
 	public ITextSelection getTextSel() {
@@ -1110,6 +1128,160 @@ public class SVEditor extends TextEditor
 		for (ISVDBChildItem ci : scope.getChildren()) {
 			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
 				unprocessed_regions.add((SVDBUnprocessedRegion)ci);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void applyOverrideAnnotations(SVDBFile file) {
+		SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator());
+		List<SVDBClassDecl> classes = new ArrayList<SVDBClassDecl>();
+		
+		// First, clear existing override annotations
+		ISourceViewer sv = getSourceViewer();
+		if (sv == null) {
+			return;
+		}
+		IAnnotationModel ann_model = sv.getAnnotationModel();
+		IDocument doc = getDocument();
+		
+		if (ann_model == null) {
+			return;
+		}
+		
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			if (ann.getType().equals(SVUiPlugin.PLUGIN_ID + ".methodOverride")) {
+				ann_model.removeAnnotation(ann);
+			}
+		}
+	
+		// Collect all classes declared in this file
+		collectClasses(classes, fSVDBFile);
+		
+		// For each class, 
+		// - find all methods declared in the super-class structure
+		// - find methods declared in this class that override super-structure methods
+		for (SVDBClassDecl cls : classes) {
+			SVDBClassDecl super_cls = super_finder.find(cls);
+			
+			if (super_cls != null) {
+				Set<String> processed_classes = new HashSet<String>();
+				Set<SVDBTask> super_methods = new HashSet<SVDBTask>();
+				List<SVDBTask> override_tf = new ArrayList<SVDBTask>();
+				collectSuperClassMethods(processed_classes, super_methods, super_finder, super_cls);
+				
+				collectOverrideMethods(cls, super_methods, override_tf);
+				
+				// Apply override annotations
+				for (SVDBTask tf : override_tf) {
+					
+					SVDBTask target_t = null;
+					for (SVDBTask ti : super_methods) {
+						if (ti.getName().equals(tf.getName())) {
+							target_t = ti;
+							break;
+						}
+					}
+					
+					if (target_t == null) {
+						// unexpected
+						continue;
+					}
+					
+					Annotation ann = new SVOverrideMethodAnnotation(target_t, 
+							"overrides " + SVDBItem.getName(target_t.getParent()) + "::" + target_t.getName());
+					
+					try {
+						int line = tf.getLocation().getLine();
+						if (line > 0) {
+							line = doc.getLineOffset(line-1);
+						} else {
+							line = doc.getLineOffset(0);
+						}
+						
+						ann_model.addAnnotation(ann, new Position(line, 0));
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Collects all class declarations from this file
+	 */
+	private void collectClasses(List<SVDBClassDecl> classes, ISVDBChildParent scope) {
+		for (ISVDBChildItem ci : scope.getChildren()) {
+			if (ci.getType() == SVDBItemType.ClassDecl) {
+				classes.add((SVDBClassDecl)ci);
+			} else if (ci.getType() == SVDBItemType.PackageDecl ||
+					ci.getType() == SVDBItemType.ModuleDecl ||
+					ci.getType() == SVDBItemType.InterfaceDecl ||
+					ci.getType() == SVDBItemType.ProgramDecl) {
+				collectClasses(classes, (ISVDBChildParent)ci);
+			}
+		}
+	}
+	
+	private void collectSuperClassMethods(
+			Set<String>				processed_classes, // avoid accidental infinite recursion
+			Set<SVDBTask>			super_methods,
+			SVDBFindSuperClass		super_class_finder,
+			SVDBClassDecl			cls) {
+
+		processed_classes.add(cls.getName());
+		for (ISVDBChildItem ci : cls.getChildren()) {
+			// Look for tasks/functions here
+			if (ci.getType() == SVDBItemType.Function ||
+					ci.getType() == SVDBItemType.Task) {
+				boolean found = false;
+				String name = SVDBItem.getName(ci);
+				
+				if (!name.equals("new")) {
+					for (SVDBTask t : super_methods) {
+						if (t.getName().equals(name)) {
+							found = true;
+							break;
+						}
+					}
+
+					if (!found) {
+						super_methods.add((SVDBTask)ci);
+					}
+				}
+			}
+		}
+		
+		SVDBClassDecl super_cls = super_class_finder.find(cls);
+		
+		if (super_cls != null) {
+			if (!processed_classes.contains(super_cls.getName())) {
+				collectSuperClassMethods(processed_classes, super_methods, super_class_finder, super_cls);
+			}
+		}
+	}
+			
+	private void collectOverrideMethods(
+			SVDBClassDecl	 		cls,
+			Set<SVDBTask>			super_methods,
+			List<SVDBTask>			override_tf) {
+		for (ISVDBChildItem ci : cls.getChildren()) {
+			if (ci.getType() == SVDBItemType.Task || ci.getType() == SVDBItemType.Function) {
+				// 
+				SVDBTask t = (SVDBTask)ci;
+				boolean found = false;
+				for (SVDBTask ti : super_methods) {
+					if (ti.getName().equals(t.getName())) {
+						found = true;
+						break;
+					}
+				}
+				if (found) {
+					override_tf.add(t);
+				}
 			}
 		}
 	}

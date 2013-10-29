@@ -66,7 +66,7 @@ public class SVEditorUtil {
 			}
 		}
 		
-		if(p == null) {
+		if (p == null) {
 			fLog.debug("Failed to find file for type \"" + typeName + "\"");
 			return null ;
 		}
