@@ -8,6 +8,11 @@
 
 - #(78 - enh) - Add preference page to control folding
 
+- #(enh) - Add support for override annotations. Override annotations are displayed
+  next to tasks and functions that override a method from a super class. Hovering 
+  over the annotation displays information about the base method. Clicking on the
+  annotation navigates to the super method.
+
 ------------------------------------------------------------------------------
 -- 1.4.3 Release --
 
