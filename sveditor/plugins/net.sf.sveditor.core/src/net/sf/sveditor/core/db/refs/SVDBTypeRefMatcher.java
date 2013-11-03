@@ -1,9 +1,17 @@
 package net.sf.sveditor.core.db.refs;
 
-import java.util.List;
 
 public class SVDBTypeRefMatcher implements ISVDBRefMatcher {
+	
+	
 
+	@Override
+	public boolean matches(ISVDBRefSearchSpec ref_spec, SVDBRefItem item) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/** MSB:
 	public void find_matches(
 			List<SVDBRefCacheItem>	matches,
 			SVDBRefCacheEntry 		item, 
@@ -12,5 +20,6 @@ public class SVDBTypeRefMatcher implements ISVDBRefMatcher {
 			matches.add(new SVDBRefCacheItem(item, null, SVDBRefType.TypeReference, name));
 		}
 	}
+	 */
 
 }

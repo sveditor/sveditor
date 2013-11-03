@@ -12,9 +12,12 @@
 
 package net.sf.sveditor.core.db.refs;
 
+import java.util.Stack;
+
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 
-public class SVDBFileRefCollector extends AbstractSVDBFileRefFinder {
+public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 	private SVDBRefCacheEntry			fReferences;
 	
 	public SVDBFileRefCollector() {
@@ -35,8 +38,11 @@ public class SVDBFileRefCollector extends AbstractSVDBFileRefFinder {
 		return fReferences;
 	}
 
-	@Override
-	protected void visitRef(SVDBLocation loc, SVDBRefType type, String name) {
+	public void visitRef(
+			SVDBLocation 			loc, 
+			SVDBRefType 			type, 
+			Stack<ISVDBChildItem>	scope_stack,
+			String 					name) {
 		switch (type) {
 			case FieldReference: {
 				fReferences.addFieldRef(name);

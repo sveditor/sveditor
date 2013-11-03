@@ -115,6 +115,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fFileMapper			= file_mapper;
 	
 		fMacroProvider  = defaultMacroProvider;
+		defaultMacroProvider.setMacro("SVEDITOR", "");
 		fDefineProvider = new SVPreProcDefineProvider(fMacroProvider);
 		fDefineProvider.addErrorListener(this);
 		

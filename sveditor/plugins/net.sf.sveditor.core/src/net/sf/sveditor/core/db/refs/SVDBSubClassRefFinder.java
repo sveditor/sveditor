@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBSubClassRefFinder {
 	
@@ -15,6 +12,7 @@ public class SVDBSubClassRefFinder {
 			ISVDBDeclCache 	decl_cache,
 			String			clsname) {
 		List<SVDBClassDecl> ret = new ArrayList<SVDBClassDecl>();
+		/** MSB:
 		List<SVDBRefCacheItem> cache_items = decl_cache.findReferences(
 				new NullProgressMonitor(), clsname, new SVDBTypeRefMatcher());
 		
@@ -30,6 +28,7 @@ public class SVDBSubClassRefFinder {
 				}
 			}
 		}
+		 */
 		return ret;
 	}
 

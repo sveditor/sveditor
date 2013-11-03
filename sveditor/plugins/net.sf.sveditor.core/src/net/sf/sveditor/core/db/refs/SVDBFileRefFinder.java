@@ -47,11 +47,12 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWaitStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
 
-public abstract class AbstractSVDBFileRefFinder {
-	protected SVDBFile						fFile;
+public class SVDBFileRefFinder {
+	protected SVDBFile					fFile;
 	protected Stack<ISVDBChildItem>		fScopeStack;
+	protected ISVDBRefFinderVisitor		fRefVisitor;
 	
-	public AbstractSVDBFileRefFinder() {
+	public SVDBFileRefFinder() {
 		fScopeStack = new Stack<ISVDBChildItem>();
 	}
 	
@@ -104,6 +105,7 @@ public abstract class AbstractSVDBFileRefFinder {
 				
 				case ModIfcInst: {
 					SVDBModIfcInst inst = (SVDBModIfcInst)c;
+					visitRef(null, SVDBRefType.TypeReference, inst.getTypeName());
 				} break;
 				
 				default: {
@@ -408,6 +410,9 @@ public abstract class AbstractSVDBFileRefFinder {
 	}
 	
 	protected void visitRef(SVDBLocation loc, SVDBRefType type, String name) {
+		if (fRefVisitor != null) {
+			fRefVisitor.visitRef(loc, type, fScopeStack, name);
+		}
 		System.out.println("reference: " + type + " : " + name);
 	}
 

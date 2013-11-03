@@ -119,8 +119,16 @@ public abstract class AbstractTextScanner implements ITextScanner {
 			}
 			unget_ch(ci);
 		}
-		
-		return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;
+
+		if (fScanFwd) {
+			return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;
+		} else {
+			if (fTmpBuffer.length() == 0) {
+				return null;
+			} else {
+				return fTmpBuffer.reverse().toString();
+			}
+		}
 	}
 	
 

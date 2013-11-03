@@ -11,6 +11,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
@@ -19,7 +20,8 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
+import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
+import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -202,12 +204,15 @@ public class SVDBFileOverrideIndex
 		}
 	}
 
-	public List<SVDBRefCacheItem> findReferences(IProgressMonitor monitor,
-			String name, ISVDBRefMatcher matcher) {
+	public List<SVDBRefItem> findReferences(
+			IProgressMonitor 		monitor,
+			ISVDBRefSearchSpec		ref_spec,
+			ISVDBRefMatcher			ref_matcher) {
 		if (fSuperIterator != null) {
-			return fSuperIterator.findReferences(monitor, name, matcher);
+			return fSuperIterator.findReferences(
+					monitor, ref_spec, ref_matcher);
 		} else {
-			return new ArrayList<SVDBRefCacheItem>();
+			return new ArrayList<SVDBRefItem>();
 		}
 	}
 
@@ -423,9 +428,13 @@ public class SVDBFileOverrideIndex
 	}
 
 	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op, boolean sync) {
+		// First, run the operation on this index
+		op.index_operation(monitor, this);
+		
 		if (fIndex != null) {
 			fIndex.execOp(monitor, op, sync);
-		} else if (fSuperIterator != null) {
+		}
+		if (fSuperIterator != null) {
 			fSuperIterator.execOp(monitor, op, sync);
 		}
 	}

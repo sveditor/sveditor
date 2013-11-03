@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
-
 public class SVDBBaseIndexCacheData {
 	
 	public String									fVersion;
@@ -29,7 +27,9 @@ public class SVDBBaseIndexCacheData {
 	public Map<String, String>						fDefineMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fPackageCacheMap;
-	public Map<String, SVDBRefCacheEntry>			fReferenceCacheMap;
+	
+	// Map between reference ids and file ids containing them
+	public Map<String, List<Integer>>				fRefCache;
 	public boolean									fForceSV;
 
 	public SVDBBaseIndexCacheData(String base) {
@@ -40,7 +40,7 @@ public class SVDBBaseIndexCacheData {
 		fDefineMap = new HashMap<String, String>();
 		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
-		fReferenceCacheMap = new HashMap<String, SVDBRefCacheEntry>();
+		fRefCache = new HashMap<String, List<Integer>>();
 	}
 	
 	public String getVersion() {
@@ -122,8 +122,8 @@ public class SVDBBaseIndexCacheData {
 		return fPackageCacheMap;
 	}
 	
-	public Map<String, SVDBRefCacheEntry> getReferenceCacheMap() {
-		return fReferenceCacheMap;
+	public Map<String, List<Integer>> getReferenceCacheMap() {
+		return fRefCache;
 	}
 	
 	public void clear() {

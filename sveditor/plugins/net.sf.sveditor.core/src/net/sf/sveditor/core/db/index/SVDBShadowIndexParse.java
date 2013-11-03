@@ -99,6 +99,10 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 	private class MacroProvider implements IPreProcMacroProvider {
 		private Map<String, SVDBMacroDef>		fMacroMap = new HashMap<String, SVDBMacroDef>();
 		
+		public MacroProvider() {
+			setMacro("SVEDITOR", "");
+		}
+		
 
 		public SVDBMacroDef findMacro(String name, int lineno) {
 			
