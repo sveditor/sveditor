@@ -294,7 +294,8 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 			SVDBFileRefCollector finder = new SVDBFileRefCollector();
 			SVDBFile file = index.findFile(filename);
 			System.out.println("[VISIT FILE] " + filename);
-			finder.visitFile(file);
+// MSB:
+//			finder.visitFile(file);
 			SVDBRefCacheEntry ref = finder.getReferences();
 		
 			for (SVDBRefType t : SVDBRefType.values()) {

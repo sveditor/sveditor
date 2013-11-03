@@ -37,6 +37,9 @@ public class SVCompletionProposal {
 	private SVCompletionProposalType	fType;
 	private int							fPriorityCategory;
 	private int							fPriority;
+
+	// Context where the proposal must be surrounded with ()
+	private boolean						fNameMapped; 
 	
 	
 	public SVCompletionProposal(
@@ -79,6 +82,14 @@ public class SVCompletionProposal {
 	
 	public int getPriority() {
 		return fPriority;
+	}
+	
+	public void setNameMapped(boolean name_mapped) {
+		fNameMapped = name_mapped;
+	}
+	
+	public boolean getNameMapped() {
+		return fNameMapped;
 	}
 	
 	public String getPrefix() {

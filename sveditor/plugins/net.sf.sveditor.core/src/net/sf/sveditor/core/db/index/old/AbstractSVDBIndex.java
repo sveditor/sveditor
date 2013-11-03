@@ -73,8 +73,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
-import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.refs.SVDBRefFinder;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
@@ -343,11 +342,13 @@ public abstract class AbstractSVDBIndex implements
 			}
 			
 			// Also re-set filenames on the reference cache
+			/** MSB:
 			if (fIndexCacheData.getReferenceCacheMap() != null) {
 				for (Entry<String, SVDBRefCacheEntry> e : fIndexCacheData.getReferenceCacheMap().entrySet()) {
 					e.getValue().setFilename(e.getKey());
 				}
 			}
+			 */
 			
 			// Register all files with the directory set
 			for (String f : fCache.getFileList(false)) {
@@ -2463,6 +2464,7 @@ public abstract class AbstractSVDBIndex implements
 	}
 	
 	protected void cacheReferences(SVDBFile file) {
+		/** MSB:
 		SVDBFileRefCollector collector = new SVDBFileRefCollector();
 		collector.visitFile(file);
 		
@@ -2473,6 +2475,7 @@ public abstract class AbstractSVDBIndex implements
 		SVDBRefCacheEntry ref = collector.getReferences();
 		ref.setFilename(file.getFilePath());
 		ref_map.put(file.getFilePath(), ref);
+		 */
 	}
 
 	public List<SVDBDeclCacheItem> findPackageDecl(
@@ -2511,11 +2514,15 @@ public abstract class AbstractSVDBIndex implements
 		return ret;
 	}
 	
-	public List<SVDBRefCacheItem> findReferences(IProgressMonitor monitor, String name, ISVDBRefMatcher matcher) {
+	public List<SVDBRefItem> findReferences(
+			IProgressMonitor	monitor,
+			ISVDBRefSearchSpec	ref_spec,
+			ISVDBRefMatcher		ref_matcher) {
 		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
 		
 		ensureIndexState(monitor, IndexState_AllFilesParsed);
-	
+
+		/*
 		Map<String, SVDBRefCacheEntry> ref_cache = fIndexCacheData.getReferenceCacheMap();
 		for (Entry<String, SVDBRefCacheEntry> e : ref_cache.entrySet()) {
 			matcher.find_matches(ret, e.getValue(), name);
@@ -2526,20 +2533,26 @@ public abstract class AbstractSVDBIndex implements
 		}
 		
 		return ret;
+		 */
+		return new ArrayList<SVDBRefItem>();
 	}
 	
-	public List<SVDBRefItem> findReferences(IProgressMonitor monitor, SVDBRefCacheItem item) {
+	public List<SVDBRefItem> findReferences(
+			IProgressMonitor monitor, SVDBRefCacheItem item) {
 		ensureIndexState(monitor, IndexState_AllFilesParsed);
 		
 		SVDBRefFinder finder = new SVDBRefFinder(item.getRefType(), item.getRefName());
 	
 		SVDBFile file = findFile(item.getFilename());
-		
+
+		/*
 		if(file != null) {
 			return finder.find_refs(file);
 		} else {
 			return new ArrayList<SVDBRefItem>(); 
 		}
+		 */
+		return new ArrayList<SVDBRefItem>();
 	}
 	
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {

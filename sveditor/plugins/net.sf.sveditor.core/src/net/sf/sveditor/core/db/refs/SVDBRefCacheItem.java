@@ -43,6 +43,7 @@ public class SVDBRefCacheItem {
 	 * @return
 	 */
 	public List<SVDBRefItem> findReferences(IProgressMonitor monitor) {
-		return fRefFinder.findReferences(monitor, this);
+//		return fRefFinder.findReferences(monitor, this);
+		return null;
 	}
 }

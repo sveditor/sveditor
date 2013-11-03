@@ -2,12 +2,14 @@ package net.sf.sveditor.core.db.refs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBLocation;
 
-public class SVDBRefFinder extends AbstractSVDBFileRefFinder {
+public class SVDBRefFinder implements ISVDBRefFinderVisitor {
 	private SVDBRefType				fRefType;
 	private String					fRefName;
 	private List<SVDBRefItem>		fRefList;
@@ -19,17 +21,22 @@ public class SVDBRefFinder extends AbstractSVDBFileRefFinder {
 		fRefType = ref_type;
 		fRefName = ref_name;
 	}
-	
+
+	/*
 	public List<SVDBRefItem> find_refs(SVDBFile file) {
 		visitFile(file);
 		return fRefList;
 	}
+	 */
 
-	@Override
-	protected void visitRef(SVDBLocation loc, SVDBRefType type, String name) {
+	public void visitRef(
+			SVDBLocation 			loc,
+			SVDBRefType 			type,
+			Stack<ISVDBChildItem>	scope,
+			String 					name) {
 		if (type == fRefType && name.equals(fRefName)) {
 			List<ISVDBItemBase> ref_path = new ArrayList<ISVDBItemBase>();
-			ref_path.addAll(fScopeStack);
+			ref_path.addAll(scope);
 			fRefList.add(new SVDBRefItem(ref_path, fRefName, fRefType));
 		}
 	}

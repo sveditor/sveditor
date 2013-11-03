@@ -1,6 +1,26 @@
 
 -- 1.4.5 Release --
-`
+
+- #(enh) - Cause assign statements to show the relevant LHS and RHS expressions
+  in the Outline view
+  
+- #(enh) - Change content-assist proposal for name-mapped module-instance 
+  parameters. Now, a module-port proposal includes the parens and prompts the
+  user to specify the connected net.
+  
+- #(enh) - Add SVEDITOR as a built-in pre-processor directive. This can be
+  used to disable processing of code that the SVEditor parser does not 
+  currently support.
+  
+- #(nobug) - Corrected a bug where, in some cases, the types declared local
+  to the file being edited were not being searched during content-assist operations
+ 
+- #(enh) - Add content-assist support for task/function name-mapped parameters
+
+- #(enh) - Add content-assist support for name-mapped module, interface, and
+  class parameters.
+
+
 ------------------------------------------------------------------------------
 -- 1.4.4 Release --
 
