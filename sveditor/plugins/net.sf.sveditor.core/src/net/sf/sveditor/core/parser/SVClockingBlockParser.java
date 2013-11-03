@@ -118,18 +118,19 @@ public class SVClockingBlockParser extends SVParserBase {
 			// {attribute_instance} assertion_item_declaration
 			fParsers.attrParser().parse(null);
 			assertion_item_declaration(clk_blk);
-			fLexer.eatToken();
 		}
 	}
 	
 	private void assertion_item_declaration(ISVDBAddChildItem parent) throws SVParseException {
-		String type = fLexer.readKeyword("property", "sequence", "let");
+		String type = fLexer.peek();
 		if (type.equals("property")) {
 			fParsers.propertyParser().property(parent);
 		} else if (type.equals("sequence")) {
 			fParsers.sequenceParser().sequence(parent);
-		} else {
+		} else if (type.equals("let")) {
 			error("let construct unsupported");
+		} else {
+			error("Unknown assertion_item_declaration item: " + type);
 		}
 	}
 

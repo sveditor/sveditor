@@ -20,6 +20,8 @@
 - #(enh) - Add content-assist support for name-mapped module, interface, and
   class parameters.
 
+- #(285) - Correct a bug in the clocking block parser involving assertion 
+  items (eg property) declared within the clocking block.
 
 ------------------------------------------------------------------------------
 -- 1.4.4 Release --
