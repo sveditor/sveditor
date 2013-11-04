@@ -52,6 +52,7 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelProvider {
 	protected boolean							fShowFunctionRetType;
 	
+	
 	private WorkbenchLabelProvider				fLabelProvider;
 	
 	
