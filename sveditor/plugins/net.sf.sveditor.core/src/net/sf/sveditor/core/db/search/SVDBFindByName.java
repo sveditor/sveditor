@@ -47,12 +47,12 @@ public class SVDBFindByName implements ISVDBIndexOperation {
 	
 	public void index_operation(IProgressMonitor monitor, ISVDBIndex index) {
 		// TODO Auto-generated method stub
-
+		
 		List<SVDBDeclCacheItem> found = index.findGlobalScopeDecl(
 				new NullProgressMonitor(), fName, fMatcher);
 		
 		for (SVDBDeclCacheItem item : found) {
-			if (item.getType().isElemOf(fTypes)) {
+			if (fTypes.length == 0 || item.getType().isElemOf(fTypes)) {
 				if (item.getSVDBItem() != null) {
 					fRet.add(item);
 				} else {

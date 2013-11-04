@@ -512,7 +512,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		SVDBFindByName finder_n = new SVDBFindByName(fIndexIt);
 
 		List<ISVDBItemBase> item_l = finder_n.findItems(name);
-
+		
 		// Filter out the forward typedefs
 		filterFwdDecls(item_l);
 

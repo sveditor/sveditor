@@ -64,7 +64,7 @@ public class TestPersistenceUnit extends TestCase {
 		SVDBRefCacheEntry entry = new SVDBRefCacheEntry();
 		entry.setFilename("file1");
 		entry.addTypeRef("type1");
-		index_data.fReferenceCacheMap.put("file1", entry);
+//TODO:		index_data.fReferenceCacheMap.put("file1", entry);
 	
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutput out = new DataOutputStream(bos); 

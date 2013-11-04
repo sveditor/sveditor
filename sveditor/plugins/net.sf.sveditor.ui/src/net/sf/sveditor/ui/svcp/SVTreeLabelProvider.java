@@ -14,6 +14,8 @@ package net.sf.sveditor.ui.svcp;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBAssign;
+import net.sf.sveditor.core.db.SVDBAssignItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBGenerateIf;
@@ -32,6 +34,7 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
@@ -255,6 +258,18 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			} else if (it.getType() == SVDBItemType.ExportItem) {
 				SVDBExportItem exp = (SVDBExportItem)it;
 				ret = new StyledString("export " + exp.getExport());
+			} else if (it.getType() == SVDBItemType.Assign) {
+				SVDBAssign assign = (SVDBAssign)it;
+				if (assign.getAssignList().size() > 0) {
+					SVDBAssignItem assign_it = assign.getAssignList().get(0);
+					
+					ret = new StyledString(
+							assign_it.getLHS().toString() + 
+							" = " + 
+							assign_it.getRHS().toString());
+				} else {
+					ret = new StyledString("assign");
+				}
 			} else if (it.getType() == SVDBItemType.ArgFilePathStmt) {
 				SVDBArgFilePathStmt path = (SVDBArgFilePathStmt)it;
 				ret = new StyledString("path : " + path.getPath());

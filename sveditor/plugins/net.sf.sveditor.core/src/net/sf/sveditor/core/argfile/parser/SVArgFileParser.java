@@ -2,6 +2,8 @@ package net.sf.sveditor.core.argfile.parser;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
@@ -33,10 +35,12 @@ public class SVArgFileParser {
 	private ISVDBFileSystemProvider				fFSProvider;
 	private String								fResolvedBaseLocation;
 	private String								fBaseLocation;
+	private IProject							fRootProject;
 	
 	public SVArgFileParser(
 			String						base_location,
 			String 						resolved_base_location, 
+//			IProject					root_proj,
 			ISVDBFileSystemProvider 	fs_provider) {
 		fOptionProviders = new SVArgFileOptionProviderList();
 		fOptionProviders.add(new SVArgFileQuestaOptionProvider());

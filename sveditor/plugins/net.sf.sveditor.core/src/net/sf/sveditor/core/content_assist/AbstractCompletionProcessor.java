@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModportDecl;
@@ -67,6 +68,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
+import net.sf.sveditor.core.scanutils.ScanUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -249,8 +251,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			} else if (ctxt.fTrigger.equals(".")) {
 				// null root and '.' -- likely a port completion
 				fLog.debug(LEVEL_MID, "likely port completion");
-
-				findPortCompletionProposals(ctxt, src_scope, lineno, linepos);
+				
+				findPortCompletionProposals(scanner, ctxt, src_scope, lineno, linepos);
 			} else {
 				// Unknown trigger
 			}
@@ -606,12 +608,174 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	}
 	
 	private void findPortCompletionProposals(
+			IBIDITextScanner		scanner,
 			SVExprContext			ctxt,
-			ISVDBChildParent		src_scope,
+			ISVDBScopeItem			src_scope,
 			int						lineno,
 			int						linepos) {
+		boolean is_param_port = false;
 		fLog.debug("--> findPortCompletionProposals:");
+		
+		// Need to do secondary lookup to discover whether this is a
+		// module name-mapped port, task/function name-mapped port, 
+		// module name-mapped param, or class name-mapped param
+		scanner.setScanFwd(false);
+		scanner.seek(ctxt.fStart-1);
+		
+		// Now, scan back to the opening paren
+		int count=1, ch;
+		while ((ch = scanner.get_ch()) != -1) {
+			if (ch == '(') {
+				count--;
+			} else if (ch == ')') {
+				count++;
+			}
+			
+			if (count == 0) {
+				break;
+			}
+		}
+		
+		ch = scanner.get_ch();
+		
+	
+		String root_id = null;
+	
+		if (ch == '#') {
+			// class/module parameter port
+		
+			ch = scanner.skipWhite(scanner.get_ch());
+			root_id = scanner.readIdentifier(ch);
+			is_param_port = true;
+		} else {
+			// module/task/function parameter port
+			ch = scanner.skipWhite(ch);
+			scanner.unget_ch(ch);
+			String nid;
+			
+			while ((nid = ScanUtils.readHierarchicalId(scanner, scanner.get_ch())) != null) {
+				boolean keep_going = false;
+				
+				ch = scanner.skipWhite(scanner.get_ch());
+				root_id = nid;
+
+				if (ch == ',') {
+					ch = scanner.get_ch();
+					ch = scanner.skipWhite(ch);
+					keep_going = true;
+				}
+
+				if (ch == ')') {
+					ch = scanner.skipPastMatch(")(");
+					ch = scanner.skipWhite(ch);
+					if (ch == '#') {
+						ch = scanner.get_ch();
+					}
+					ch = scanner.skipWhite(ch);
+					keep_going = true;
+				}
+				scanner.unget_ch(ch);
+				
+				if (!keep_going) {
+					break;
+				}
+			}
+			System.out.println("m/i/tf id=" + root_id);
+		}
+		
+		if (root_id == null) {
+			fLog.debug("Failed to find root id; exiting");
+			return;
+		}
+		
+		// Now, determine of what type the root_id is
+		// - First, try a global type lookup
+		// - Next, see if this is a task/function call
+		ISVDBItemBase item = null;
+	
+		// Look closer... Perhaps a TF call
+		SVDBExpr expr = null;
+		SVExprUtilsParser parser = new SVExprUtilsParser(root_id);
+		try {
+			expr = parser.parsers().exprParser().expression();
+		} catch (SVParseException e) {
+			fLog.debug(LEVEL_MID, "Failed to parse expression " + root_id);
+			return;
+		}
+
+		if (expr == null) {
+			fLog.debug(LEVEL_MID, "Expression parse of " + root_id + " results in 'null'");
+			return;
+		}
+
+		SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(src_scope, 
+				SVDBFindDefaultNameMatcher.getDefault(), getIndexIterator());
+		item = v.findItem(expr);
+		
+		if (item == null) {
+			return;
+		}
+		
 		SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
+		
+		if (item.getType() == SVDBItemType.Task || item.getType() == SVDBItemType.Function) {
+			// task/function
+			SVDBTask tf = (SVDBTask)item;
+			for (SVDBParamPortDecl p : tf.getParams()) {
+				for (ISVDBChildItem pi : p.getChildren()) {
+					if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
+						SVCompletionProposal prop = addProposal(pi, ctxt.fLeaf, 0,
+								SVCompletionProposal.PRIORITY_MOD_IFC_CLS_SCOPE,
+								true, ctxt.fStart, ctxt.fLeaf.length());
+						if (prop != null) {
+							prop.setNameMapped(true);
+						}
+					}
+				}
+			}			
+		} else {
+			// A type of some sort
+			if (is_param_port) {
+				// Content assist for parameters. This works for classes as well
+				List<SVDBModIfcClassParam> params = null;
+				
+				if (item.getType() == SVDBItemType.ClassDecl) {
+					params = ((SVDBClassDecl)item).getParameters();
+				} else if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl)) {
+					params = ((SVDBModIfcDecl)item).getParameters();
+				}
+				
+				if (params != null) {
+					for (SVDBModIfcClassParam p : params) {
+						if (matcher.match((ISVDBNamedItem)p, ctxt.fLeaf)) {
+							SVCompletionProposal prop = addProposal(p, ctxt.fLeaf, 0,
+									SVCompletionProposal.PRIORITY_MOD_IFC_CLS_SCOPE,
+									true, ctxt.fStart, ctxt.fLeaf.length());
+							
+							if (prop != null) {
+								prop.setNameMapped(true);
+							}
+						}
+					}
+				}
+			} else {
+				// Interface ports are only supported for modules, interfaces
+				if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl)) {
+					SVDBModIfcDecl mod_ifc = (SVDBModIfcDecl)item;
+					
+					for (SVDBParamPortDecl p : mod_ifc.getPorts()) {
+						for (ISVDBChildItem pi : p.getChildren()) {
+							if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
+								addProposal(pi, ctxt.fLeaf, 0,
+										SVCompletionProposal.PRIORITY_MOD_IFC_CLS_SCOPE,
+										true, ctxt.fStart, ctxt.fLeaf.length());
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		// TODO: only provide content assist if we are in a module/interface scope
 		fLog.debug("1");
 		if (src_scope == null || 
@@ -1082,7 +1246,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		}
 	}
 	
-	protected void addProposal(
+	protected SVCompletionProposal addProposal(
 			ISVDBItemBase 		it,
 			String				prefix,
 			int					priority,
@@ -1131,8 +1295,11 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				p.setPriority(priority);
 				
 				addProposal(p);
+				return p;
 			}
 		}
+		
+		return null;
 	}
 	
 	protected void debug(String msg) {

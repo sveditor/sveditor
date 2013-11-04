@@ -12,6 +12,9 @@ public interface ISVDBRefFinder {
 	 * @param item
 	 * @return
 	 */
-	List<SVDBRefItem> findReferences(IProgressMonitor monitor, SVDBRefCacheItem item);
+	List<SVDBRefItem> findReferences(
+			IProgressMonitor 		monitor, 
+			ISVDBRefSearchSpec		ref_spec,
+			ISVDBRefMatcher			ref_matcher);
 	
 }

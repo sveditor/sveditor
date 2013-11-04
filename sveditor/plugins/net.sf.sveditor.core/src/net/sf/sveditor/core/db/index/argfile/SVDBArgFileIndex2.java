@@ -85,11 +85,9 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
-import net.sf.sveditor.core.db.refs.SVDBRefFinder;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -118,7 +116,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBArgFileIndex2 implements 
-		ISVDBIndex, ISVDBIndexInt, ISVDBRefFinder, 
+		ISVDBIndex, ISVDBIndexInt,  
 		ILogLevelListener, ILogLevel {
 
 	public String 								fProjectName;
@@ -300,12 +298,14 @@ public class SVDBArgFileIndex2 implements
 			}
 
 			// Also re-set filenames on the reference cache
+			/** MSB:
 			if (fBuildData.fIndexCacheData.getReferenceCacheMap() != null) {
 				for (Entry<String, SVDBRefCacheEntry> e : 
 					fBuildData.fIndexCacheData.getReferenceCacheMap().entrySet()) {
 					e.getValue().setFilename(e.getKey());
 				}
 			}
+			 */
 
 			// Register all files with the directory set
 			for (String f : fBuildData.fCache.getFileList(false)) {
@@ -2181,17 +2181,32 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 
-	public List<SVDBRefCacheItem> findReferences(IProgressMonitor monitor,
-			String name, ISVDBRefMatcher matcher) {
+	/*
+	public List<SVDBRefCacheItem> findReferences(
+			IProgressMonitor 		monitor,
+			ISVDBRefSearchSpec		ref_spec,
+			ISVDBRefMatcher			ref_matcher) {
 		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
 
 		checkInIndexOp("findReferences");
 
-		Map<String, SVDBRefCacheEntry> ref_cache = 
+		Map<String, List<Integer>> ref_cache = 
 				fBuildData.fIndexCacheData.getReferenceCacheMap();
-		for (Entry<String, SVDBRefCacheEntry> e : ref_cache.entrySet()) {
-			matcher.find_matches(ret, e.getValue(), name);
+	
+		List<Integer> files = ref_cache.get(name);
+		
+		for (int file_id : files) {
+			String path = fBuildData.mapFileIdToPath(file_id);
+			SVDBFile file = fBuildData.getCache().getFile(new NullProgressMonitor(), path);
+			SVDBFileRefCollector collector = new SVDBFileRefCollector();
+			
+//			collector.
 		}
+		
+		
+//		for (Entry<String, SVDBRefCacheEntry> e : ref_cache.entrySet()) {
+//			matcher.find_matches(ret, e.getValue(), name);
+//		}
 
 		for (SVDBRefCacheItem item : ret) {
 			item.setRefFinder(this);
@@ -2199,18 +2214,23 @@ public class SVDBArgFileIndex2 implements
 
 		return ret;
 	}
+	 */
 
 	public List<SVDBRefItem> findReferences(
 			IProgressMonitor 		monitor,
-			SVDBRefCacheItem 		item) {
+			ISVDBRefSearchSpec		ref_spec,
+			ISVDBRefMatcher			ref_matcher) {
 		checkInIndexOp("findReferences");
 
+		/*
 		SVDBRefFinder finder = new SVDBRefFinder(item.getRefType(),
 				item.getRefName());
 
 		SVDBFile file = findFile(item.getFilename());
 
 		return finder.find_refs(file);
+		 */
+		return new ArrayList<SVDBRefItem>();
 	}
 
 	/**

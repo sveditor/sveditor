@@ -33,8 +33,8 @@ public class SVExprUtilsParser implements ISVParser {
 	}
 	
 	public SVExprUtilsParser(SVExprContext context, boolean parse_full) {
-		StringBuilder content = new StringBuilder();
 		fLog = LogFactory.getLogHandle("SVExprUtilsParser", ILogHandle.LOG_CAT_PARSER);
+		StringBuilder content = new StringBuilder();
 		
 		if (context.fTrigger == null) {
 			content.append(context.fLeaf);
@@ -45,7 +45,15 @@ public class SVExprUtilsParser implements ISVParser {
 				content.append(context.fLeaf);
 			}
 		}
-		
+	
+		fLexer = new SVLexer();
+		fLexer.init(this, new StringTextScanner(content));
+		fParsers = new SVParsers(this);
+		fParsers.init(this);
+	}
+	
+	public SVExprUtilsParser(String content) {
+		fLog = LogFactory.getLogHandle("SVExprUtilsParser", ILogHandle.LOG_CAT_PARSER);
 		fLexer = new SVLexer();
 		fLexer.init(this, new StringTextScanner(content));
 		fParsers = new SVParsers(this);

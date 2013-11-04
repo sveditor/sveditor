@@ -15,8 +15,6 @@ package net.sf.sveditor.core.db.index;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -92,7 +90,5 @@ public interface ISVDBDeclCache {
 	 * @return
 	 */
 	SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item);
-
-	List<SVDBRefCacheItem> findReferences(IProgressMonitor monitor, String name, ISVDBRefMatcher matcher);
 
 }
