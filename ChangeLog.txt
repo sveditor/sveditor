@@ -23,6 +23,9 @@
 - #(285) - Correct a bug in the clocking block parser involving assertion 
   items (eg property) declared within the clocking block.
 
+- #(284) - Ensure that 'pre-formatted' portions of NaturalDocs comments are
+  presented in fixed-width font in the doc hover
+  
 ------------------------------------------------------------------------------
 -- 1.4.4 Release --
 

@@ -16,6 +16,7 @@ package net.sf.sveditor.ui.text.hover;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.doc.HTML2TextReader;
 import net.sf.sveditor.ui.editor.SVColorManager;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -61,8 +63,11 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Drawable;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -381,6 +386,39 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			}
 		}
 		
+		private static class SVDocInformationPresenter implements DefaultInformationControl.IInformationPresenter, DefaultInformationControl.IInformationPresenterExtension {
+
+			public String updatePresentation(Drawable drawable,
+					String hoverInfo, TextPresentation presentation,
+					int maxWidth, int maxHeight) {
+				HTML2TextReader rdr = new HTML2TextReader(
+						new StringReader(hoverInfo), presentation);
+				String ret = hoverInfo;
+				
+				try {
+					ret = rdr.getString();
+					rdr.close();
+				} catch (IOException e) {}
+
+				return ret;									
+			}
+
+			public String updatePresentation(Display display, String hoverInfo,
+					TextPresentation presentation, int maxWidth, int maxHeight) {
+				// TODO Auto-generated method stub
+				HTML2TextReader rdr = new HTML2TextReader(
+						new StringReader(hoverInfo), presentation);
+				String ret = hoverInfo;
+				
+				try {
+					ret = rdr.getString();
+					rdr.close();
+				} catch (IOException e) {}				
+				
+				return ret;									
+			}
+		}
+
 		private final class SVDefaultInformationControl extends DefaultInformationControl 
 			implements IInformationControlCreator {
 			IInformationControlCreator		fCreator;
@@ -388,11 +426,11 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			Color							fFgColor;
 			
 			public SVDefaultInformationControl(
-					Shell parent, 
-					String msg,
+					Shell 			parent, 
+					String 			msg,
 					Color			bg_color,
 					Color			fg_color) {
-				super(parent, msg);
+				super(parent, msg, new SVDocInformationPresenter());
 				setBackgroundColor(bg_color);
 				setForegroundColor(fg_color);
 				fBgColor = bg_color;
