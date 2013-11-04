@@ -159,8 +159,12 @@ public class TemplateFilesTableViewer extends TableViewer {
 		
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
-				IContainer c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
+				IContainer c = null;
 				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				
+				if (fSourceFolderStr != null) {
+					c = SVFileUtils.getWorkspaceFolder(fSourceFolderStr);
+				}
 
 				if (c != null) {
 					String filename = element.toString();

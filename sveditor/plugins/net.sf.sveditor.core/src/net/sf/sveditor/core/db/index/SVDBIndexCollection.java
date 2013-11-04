@@ -276,7 +276,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return new SVDBIndexItemItIterator(iterator_list.iterator(), monitor);
 	}
 	
-	@Override
 	public List<SVDBFilePath> getFilePath(String path) {
 		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
 		

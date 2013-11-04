@@ -17,7 +17,6 @@ public class SVDBShadowIncludeFilesFinder implements ISVDBIncludeFilesFinder {
 		fDirList.add(dir);
 	}
 
-	@Override
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
 		return SVDBFindIncFileUtils.findIncludeFiles(
 				null,
