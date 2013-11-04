@@ -18,10 +18,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.graphics.Font;
 
 
 /**
@@ -35,6 +38,7 @@ public class HTML2TextReader extends SubstitutionTextReader {
 	private static final String EMPTY_STRING= ""; //$NON-NLS-1$
 	private static final Map<String,String> fgEntityLookup;
 	private static final Set<String> fgTags;
+	private static final String BLOCK_SELECTION_MODE_FONT = "org.eclipse.ui.workbench.texteditor.blockSelectionModeFont";
 
 	static {
 
@@ -69,18 +73,24 @@ public class HTML2TextReader extends SubstitutionTextReader {
 		fgEntityLookup.put("quot", "\"");		 //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private int fCounter= 0;
-	private TextPresentation fTextPresentation;
-	private int fBold= 0;
-	private int fItalic= 0;
-	private int fBoldStartOffset= -1;
-	private int fItalicStartOffset= -1;
-	private int fStrikeout= 0;
-	private int fStrikeoutStartOffset= -1;
-	private boolean fInParagraph= false;
-	private boolean fIsPreformattedText= false;
-	private boolean fIgnore= false;
-	private boolean fHeaderDetected= false;
+	private int 				fCounter= 0;
+	private TextPresentation 	fTextPresentation;
+	private boolean 			fInParagraph= false;
+	private int 				fIsPreformattedText = 0;
+	private boolean 			fIgnore= false;
+	private boolean 			fHeaderDetected= false;
+	
+	private int 				fBold = 0;
+	private int 				fItalic = 0;
+	private int					fStrikeout= 0;
+	private int					fTextStyle = SWT.NORMAL;
+	private int					fLastRegionEnd;
+	private Stack<Font>			fFontStack;
+	
+	private static int BOLD 		= 1;
+	private static int ITALIC 		= 2;
+	private static int STRIKEOUT 	= 4;
+	
 
 	/**
 	 * Transforms the HTML text from the reader to formatted text.
@@ -92,15 +102,143 @@ public class HTML2TextReader extends SubstitutionTextReader {
 	public HTML2TextReader(Reader reader, TextPresentation presentation) {
 		super(new PushbackReader(reader));
 		fTextPresentation= presentation;
+		fFontStack = new Stack<Font>();
 	}
 
 	public int read() throws IOException {
 		int c= super.read();
-		if (c != -1)
-			++ fCounter;
+		if (c != -1) {
+	//		fCounter++;
+		}
 		return c;
 	}
+	
+	@Override
+	public String getString() throws IOException {
+		StringBuilder sb = new StringBuilder();
+		int ch;
+		
+		while ((ch = read()) != -1) {
+			sb.append((char)ch);
+			fCounter = sb.length();
+		}
+	
+		return sb.toString();
+	}
 
+	private void setTextAttr(int attr) {
+		int old_style = fTextStyle;
+		
+		if ((attr & BOLD) != 0) {
+			fBold++;
+		}
+	
+		if ((attr & ITALIC) != 0) {
+			fItalic++;
+		}
+		
+		if ((attr & STRIKEOUT) != 0) {
+			fStrikeout++;
+		}
+
+		fTextStyle = 
+				((fBold>0)?BOLD:0) +
+				((fItalic>0)?ITALIC:0) +
+				((fStrikeout>0)?STRIKEOUT:0);
+		
+		if (old_style != fTextStyle && fCounter != fLastRegionEnd) {
+			// Apply the 'old' style to the previous region
+			applyStyleRegion(old_style, currFont());
+		}
+	}
+	
+	private void clrTextAttr(int attr) {
+		int old_style = fTextStyle;
+		
+		if ((attr & BOLD) != 0) {
+			if (fBold > 0) {
+				fBold--;
+			}
+		}
+	
+		if ((attr & ITALIC) != 0) {
+			if (fItalic > 0) {
+				fItalic--;
+			}
+		}
+		
+		if ((attr & STRIKEOUT) != 0) {
+			if (fStrikeout > 0) {
+				fStrikeout--;
+			}
+		}
+
+		fTextStyle = 
+				((fBold>0)?BOLD:0) +
+				((fItalic>0)?ITALIC:0) +
+				((fStrikeout>0)?STRIKEOUT:0);
+		
+		if (old_style != fTextStyle && fCounter != fLastRegionEnd) {
+			// Apply the 'old' style to the previous region
+			applyStyleRegion(old_style, currFont());
+		}
+	}
+	
+	private void setFont(Font font) {
+		Font old_font = currFont();
+		fFontStack.push(font);
+		
+		if (old_font != currFont() && fCounter != fLastRegionEnd) {
+			// Apply the 'old' style to the previous region
+			applyStyleRegion(fTextStyle, old_font);
+		}
+	}
+	
+	private void clrFont() {
+		Font old_font = currFont();
+		if (fFontStack.size() > 0) {
+			fFontStack.pop();
+		}
+		
+		if (old_font != currFont() && fCounter != fLastRegionEnd) {
+			applyStyleRegion(fTextStyle, old_font);
+		}
+	}
+	
+	private Font currFont() {
+		if (fFontStack.size() > 0) {
+			return fFontStack.peek();
+		} else {
+			return null;
+		}
+	}
+	
+	private void applyStyleRegion(int text_style, Font font) {
+		int offset = fLastRegionEnd;
+		int length = (fCounter-fLastRegionEnd);
+
+		if (fTextPresentation != null && offset >= 0 && length > 0) {
+			StyleRange range = new StyleRange(offset, length, null, null);
+			if ((text_style & BOLD) != 0) {
+				range.fontStyle += SWT.BOLD;
+			}
+			if ((text_style & ITALIC) != 0) {
+				range.fontStyle += SWT.ITALIC;
+			}
+			if ((text_style & STRIKEOUT) != 0) {
+				range.strikeout = true;
+			}
+			
+			if (font != null) {
+				range.font = font;
+			}
+		
+			fTextPresentation.addStyleRange(range);
+		}
+		fLastRegionEnd = fCounter;
+	}
+
+	/*
 	private void setBold(int offset, int length) {
 		if (fTextPresentation != null && offset >= 0 && length > 0) {
 			fTextPresentation.addStyleRange(new StyleRange(offset, length, null, null, SWT.BOLD));
@@ -128,8 +266,12 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			fTextPresentation.addStyleRange(new StyleRange(offset, length, null, null, SWT.ITALIC));
 		}
 	}
+	 */
 	
 	protected void startBold() {
+		setTextAttr(BOLD);
+	
+		/*
 		if (fBold == 0) {
 			fBoldStartOffset= fCounter;
 			if (fStrikeout > 0) {
@@ -137,9 +279,12 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			}
 		}
 		++fBold;
+		 */
 	}
 
 	protected void stopBold() {
+		clrTextAttr(BOLD);
+		/*
 		--fBold;
 		if (fBold == 0) {
 			if (fStrikeout == 0) {
@@ -150,9 +295,12 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			}
 			fBoldStartOffset= -1;
 		}
+		 */
 	}
 
 	protected void startItalic() {
+		setTextAttr(ITALIC);
+		/*
 		if (fItalic == 0) {
 			fItalicStartOffset= fCounter;
 			if (fStrikeout > 0) {
@@ -160,9 +308,12 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			}
 		}
 		++fItalic;
+		 */
 	}
 
 	protected void stopItalic() {
+		clrTextAttr(ITALIC);
+		/*
 		--fItalic;
 		if (fItalic == 0) {
 			if (fStrikeout == 0) {
@@ -173,9 +324,12 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			}
 			fItalicStartOffset= -1;
 		}
+		 */
 	}
 	
 	protected void startStrikeout() {
+		setTextAttr(STRIKEOUT);
+		/*
 		if (fStrikeout == 0) {
 			fStrikeoutStartOffset= fCounter;
 			if (fBold > 0) {
@@ -183,9 +337,12 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			}
 		}
 		++fStrikeout;
+		 */
 	}
 
 	protected void stopStrikeout() {
+		clrTextAttr(STRIKEOUT);
+		/*
 		--fStrikeout;
 		if (fStrikeout == 0) {
 			if (fBold == 0) {
@@ -196,15 +353,20 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			}
 			fStrikeoutStartOffset= -1;
 		}
+		 */
 	}
 
 	protected void startPreformattedText() {
-		fIsPreformattedText= true;
+		setFont(JFaceResources.getTextFont());
+		fIsPreformattedText++;
 		setSkipWhitespace(false);
 	}
 
 	protected void stopPreformattedText() {
-		fIsPreformattedText= false;
+		clrFont();
+		if (fIsPreformattedText > 0) {
+			fIsPreformattedText--;
+		}
 		setSkipWhitespace(true);
 	}
 
@@ -213,26 +375,27 @@ public class HTML2TextReader extends SubstitutionTextReader {
 	 * @see org.eclipse.jdt.internal.ui.text.SubstitutionTextReader#computeSubstitution(int)
 	 */
 	protected String computeSubstitution(int c) throws IOException {
-
-		if (c == '<')
+		if (c == '<') {
 			return  processHTMLTag();
-		else if (fIgnore)
+		} else if (fIgnore) {
 			return EMPTY_STRING;
-		else if (c == '&')
+		} else if (c == '&') {
 			return processEntity();
-		else if (fIsPreformattedText)
+		} else if (fIsPreformattedText > 0) {
 			return processPreformattedText(c);
+		}
 
 		return null;
 	}
 
 	private String html2Text(String html) {
 
-		if (html == null || html.length() == 0)
+		if (html == null || html.length() == 0) {
 			return EMPTY_STRING;
+		}
 
 		html= html.toLowerCase();
-
+		
 		String tag= html;
 		if ('/' == tag.charAt(0))
 			tag= tag.substring(1);
@@ -251,8 +414,9 @@ public class HTML2TextReader extends SubstitutionTextReader {
 			return EMPTY_STRING;
 		}
 
-		if (fIsPreformattedText)
+		if (fIsPreformattedText > 0) {
 			return EMPTY_STRING;
+		}
 
 		if ("b".equals(html)) { //$NON-NLS-1$
 			startBold();
