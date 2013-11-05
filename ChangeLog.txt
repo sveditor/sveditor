@@ -26,6 +26,15 @@
 - #(284) - Ensure that 'pre-formatted' portions of NaturalDocs comments are
   presented in fixed-width font in the doc hover
   
+- #(286) - Correct a pre-processor issue with macros inside a string parameter
+  to a macro. For example:
+  
+  `ovm_info("id", $psprintf("Not a macro: `ovm_do"), OVM_MEDIUM);
+
+  The pre-processor should not expand `ovm_do, and now it does not.
+ 
+  
+  
 ------------------------------------------------------------------------------
 -- 1.4.4 Release --
 

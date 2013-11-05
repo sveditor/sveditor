@@ -646,9 +646,10 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	}
 	
 	private void expandMacroRefs(StringTextScanner scanner, Set<String> referenced_params) {
-		int ch;
+		int ch, last_ch=-1;
 		int iteration = 0;
 		int marker = -1;
+		boolean in_string = false;
 		
 		if (fDebugEn) {
 			debug("--> expandMacroRefs");
@@ -663,7 +664,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				debug("ch=\"" + (char)ch + "\" iteration=" + iteration + " " + scanner.getOffset());
 			}
 
-			if (ch == '`') {
+			if (!in_string && ch == '`') {
 				int macro_start = scanner.getOffset()-1;
 				int ch2 = scanner.get_ch();
 				if (fDebugChEn) {
@@ -686,6 +687,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 					// Skip any non-identifier characters
 					// TODO: this seems a bit strange...
 					if (!SVCharacter.isSVIdentifierStart(ch)) {
+						last_ch = ch;
 						continue;
 					}
 					
@@ -914,11 +916,14 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 						}
 					}
 				}
+			} else if (ch == '"' && last_ch != '\\') {
+				in_string = !in_string;
 			}
 			
 			if (fDebugChEn) {
 				debug("end iteration: ch=\"" + (char)ch + "\" iteration=" + iteration + " " + scanner.getOffset());
 			}
+			last_ch = ch;
 		}
 		
 		if (fDebugEn) {

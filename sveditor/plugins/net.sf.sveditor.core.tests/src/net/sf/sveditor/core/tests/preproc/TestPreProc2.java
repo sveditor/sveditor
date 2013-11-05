@@ -260,6 +260,28 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				);
 	}
 	
+	public void testMacroInString() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"`define macro foo\n" +
+			"`define msg(ID, MSG) report(ID, MSG)\n" +
+			"`msg(\"id\", \"don't expand `macro\");\n"
+			;
+		String exp =
+			"\n" +
+			"\n" +
+			" report(\"id\", \"don't expand `macro\");\n"
+			;
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				doc,
+				inc_provider,
+				exp
+				);		
+	}
+	
 	private void runTest(
 			String							doc,
 			ISVPreProcIncFileProvider		inc_provider,
@@ -277,7 +299,11 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		printFileTree("", output.getFileTree());
 
+		fLog.debug("==");
 		fLog.debug("Output:\n" + output.toString());
+		fLog.debug("==");
+		fLog.debug("Exp:\n" + exp);
+		fLog.debug("==");
 		
 		assertEquals(exp, output.toString());
 	}
