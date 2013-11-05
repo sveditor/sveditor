@@ -142,6 +142,10 @@ public VhdlLexer(LexerSharedInputState state) {
 	literals.put(new ANTLRHashString("group", this), new Integer(31));
 }
 
+public Hashtable getLiterals() {
+	return literals;
+}
+
 public Token nextToken() throws TokenStreamException {
 	Token theRetToken=null;
 tryAgain:

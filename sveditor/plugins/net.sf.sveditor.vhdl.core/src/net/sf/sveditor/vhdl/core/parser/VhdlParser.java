@@ -22,7 +22,7 @@ public class VhdlParser extends antlr.LLkParser       implements VhdlParserToken
 	/**
 	 *	Track module declarations and instances.
 	 */
-	public static Tracker	stTracker = new Tracker();
+	public Tracker			stTracker = new Tracker();
 
 	/**
 	 *	A convenience for building Token

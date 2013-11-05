@@ -3,7 +3,9 @@ package net.sf.sveditor.vhdl.ui.editor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.vhdl.parser.VHDLKeywords;
+import net.sf.sveditor.vhdl.core.parser.VhdlLexer;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IRule;
@@ -23,6 +25,7 @@ public class VHDLCodeScanner extends RuleBasedScanner {
 	}
 	
 	public void updateRules(VHDLEditor editor) {
+		VhdlLexer lexer = new VhdlLexer(new StringInputStream(""));
 		final IToken keyword = new Token(new TextAttribute(
 				editor.getColor(VHDLEditorColors.getColor(VHDLEditorColors.KEYWORD)),
 				null, VHDLEditorColors.getStyle(VHDLEditorColors.KEYWORD)));

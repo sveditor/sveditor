@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="net.sf.sveditor.vhdl.ui.editor.VHDLEditor"
+            contributorClass="net.sf.sveditor.vhdl.ui.editor.VhdlActionContributor"
+            default="false"
+            icon="icons/vhd_16_16.png"
+            id="net.sf.sveditor.vhdl.ui.VhdlEditor"
+            name="VHDL Editor">
+         <contentTypeBinding
+               contentTypeId="net.sf.sveditor.vhdl.core.vhdl">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="net.sf.sveditor.vhdl.ui.editor.VHDLDocumentSetupParticipant"
+            contentTypeId="net.sf.sveditor.vhdl.core.vhdl">
+      </participant>
+   </extension>
+
+</plugin>
