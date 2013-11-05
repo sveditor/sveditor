@@ -3,20 +3,17 @@ package net.sf.sveditor.core.db.index.ops;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.SVMarkers;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
+
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.SVMarkers;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 
 public class SVDBClearMarkersOp implements ISVDBIndexOperation {
 

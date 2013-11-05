@@ -120,10 +120,8 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 	}
 
 	@Override
-	public List<SVDBRefItem> findReferences(
-			IProgressMonitor 	monitor,
-			ISVDBRefSearchSpec	ref_spec,
-			ISVDBRefMatcher		ref_matcher) {
+	public List<SVDBRefItem> findReferences(IProgressMonitor monitor,
+			ISVDBRefSearchSpec ref_spec, ISVDBRefMatcher ref_matcher) {
 		// TODO Auto-generated method stub
 		return null;
 	}

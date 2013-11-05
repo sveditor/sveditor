@@ -35,7 +35,6 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		fSuperCollection = super_collection;
 	}
 
-	@Override
 	public Tuple<SVDBFile, SVDBFile> parse(
 			IProgressMonitor 		monitor,
 			InputStream 			in, 
@@ -83,13 +82,11 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 	
 	private ISVPreProcFileMapper fileMapper = new ISVPreProcFileMapper() {
 		
-		@Override
 		public int mapFilePathToId(String path, boolean add) {
 			// TODO Auto-generated method stub
 			return 1;
 		}
 		
-		@Override
 		public String mapFileIdToPath(int id) {
 			// TODO Auto-generated method stub
 			return null;
