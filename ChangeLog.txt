@@ -32,7 +32,9 @@
   `ovm_info("id", $psprintf("Not a macro: `ovm_do"), OVM_MEDIUM);
 
   The pre-processor should not expand `ovm_do, and now it does not.
- 
+
+- #(287) - Add support for case inside statement, which allows value ranges
+  for case items.
   
   
 ------------------------------------------------------------------------------

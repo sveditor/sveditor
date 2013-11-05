@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVDBOpenRangeListExpr;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
@@ -764,6 +765,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		String type_s = fLexer.eatToken();
 		CaseType type = null;
 		List<SVToken> token_l = new ArrayList<SVToken>();
+		boolean case_inside = false;
 		
 		if (type_s.equals("case")) {
 			type = CaseType.Case;
@@ -784,10 +786,14 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			fLexer.readOperator(")");
 		}
 		parent.addChildItem(case_stmt);
-		
+
 		if (fLexer.peekKeyword("matches", "inside")) {
 			// TODO: ignore for now
-			fLexer.eatToken();
+			String casetype = fLexer.eatToken();
+			
+			if (casetype.equals("inside")) {
+				case_inside = true;
+			}
 		}
 		
 		while (fLexer.peek() != null && !fLexer.peekKeyword("endcase")) {
@@ -802,7 +808,13 @@ public class SVBehavioralBlockParser extends SVParserBase {
 				}
 			} else {
 				while (fLexer.peek() != null) {
-					item.addExpr(fParsers.exprParser().expression());
+					if (case_inside) {
+						SVDBOpenRangeListExpr range_list = new SVDBOpenRangeListExpr();
+						fParsers.exprParser().open_range_list_1(range_list.getRangeList());
+						item.addExpr(range_list);
+					} else {
+						item.addExpr(fParsers.exprParser().expression());
+					}
 					if (type != CaseType.Randcase && fLexer.peekOperator(",")) {
 						fLexer.eatToken();
 					} else {

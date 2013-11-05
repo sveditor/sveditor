@@ -146,6 +146,25 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest(getName(), doc, new String[] { "c", "f" });
 	}
 
+	public void testCaseRangeCaseItem() throws SVParseException {
+		String doc = 
+			"class c;\n" +
+			"	function f;\n" +
+			"		begin\n" +
+			"			case (frame_type) inside\n" +
+			"				1: a <= #1 25;\n" +
+			"				[2:3]: a <= #1 35;\n" +
+			"			endcase\n" +
+			"		end\n" +
+			"	endfunction\n" +
+			"endclass\n" 
+			;
+			;
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		runTest(getName(), doc, new String[] { "c", "f" });
+	}
+	
 	public void testNonBlockingEventTrigger() throws SVParseException {
 		String doc =
 			"module t;\n" +

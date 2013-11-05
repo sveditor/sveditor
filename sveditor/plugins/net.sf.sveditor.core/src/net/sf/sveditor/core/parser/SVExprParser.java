@@ -712,6 +712,21 @@ public class SVExprParser extends SVParserBase {
 		fLexer.readOperator("}");
 		if (fDebugEn) {debug("<-- open_range_list - " + fLexer.peek());}
 	}
+
+	public void open_range_list_1(List<SVDBExpr> list) throws SVParseException {
+		if (fDebugEn) {debug("--> open_range_list_1 - " + fLexer.peek());}
+		do {
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+			}
+			if (fLexer.peekOperator("[")) {
+				list.add(parse_range());
+			} else {
+				list.add(expression());
+			}
+		} while (fLexer.peekOperator(","));
+		if (fDebugEn) {debug("<-- open_range_list_1 - " + fLexer.peek());}
+	}
 	
 	public SVDBRangeExpr parse_range() throws SVParseException {
 		if (fDebugEn) {debug("--> parse_range - " + fLexer.peek());}
