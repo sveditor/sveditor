@@ -170,6 +170,7 @@ public enum SVDBItemType {
 	NamedArgExpr, // .ARG(value)
 	NameMappedExpr,
 	NullExpr,
+	OpenRangeListExpr,
 	ParamIdExpr,	
 	ParenExpr,
 	PropertyWeakStrongExpr,
