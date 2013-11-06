@@ -321,17 +321,17 @@ public class SVEditor extends TextEditor
 		super.init(site, input);
 		
 		site.getPage().addPartListener(this);
-		
-		if (input instanceof IURIEditorInput) {
+	
+		if (input instanceof IFileEditorInput) {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
+		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
 			if (uri.getScheme().equals("plugin")) {
 				fFile = "plugin:" + uri.getPath();
 			} else {
 				fFile = uri.getPath();
 			}
-		} else if (input instanceof IFileEditorInput) {
-			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 		}
 		
 		fSVDBFile = new SVDBFile(fFile);

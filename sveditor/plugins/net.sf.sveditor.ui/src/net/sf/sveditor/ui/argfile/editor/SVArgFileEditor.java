@@ -91,8 +91,11 @@ public class SVArgFileEditor extends TextEditor
 			throws PartInitException {
 		super.init(site, input);
 		IFile ws_file = null;
-		
-		if (input instanceof IURIEditorInput) {
+	
+		if (input instanceof IFileEditorInput) {
+			ws_file = ((IFileEditorInput)input).getFile();
+			fFile = "${workspace_loc}" + ws_file.getFullPath().toOSString();
+		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
 			if (uri.getScheme().equals("plugin")) {
 				fFile = "plugin:" + uri.getPath();
@@ -117,14 +120,12 @@ public class SVArgFileEditor extends TextEditor
 				
 				// Offending code
 				fFile = SVFileUtils.normalize(uri.getPath()); 		// SGD - creates an absolute path
+				
 				ws_file = SVFileUtils.findWorkspaceFile(fFile);		//SGD Takes a best guess as to what project we were actually in, the specific project information has already been lost above
 				if (ws_file != null) {
 					fFile = "${workspace_loc}" + ws_file.getFullPath().toOSString();
 				}
 			}
-		} else if (input instanceof IFileEditorInput) {
-			ws_file = ((IFileEditorInput)input).getFile();
-			fFile = ws_file.getFullPath().toOSString();
 		}
 		
 		if (ws_file != null) {

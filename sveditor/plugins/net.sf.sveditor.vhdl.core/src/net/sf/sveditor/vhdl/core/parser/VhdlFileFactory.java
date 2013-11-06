@@ -15,7 +15,7 @@ public class VhdlFileFactory {
 //		Tracker tracker = new Tracker();
 	
 		synchronized (VhdlParser.class) {
-			VhdlParser.stTracker = new Tracker();
+
 			try {
 				p.design_file();
 			} catch (TokenStreamException e) {

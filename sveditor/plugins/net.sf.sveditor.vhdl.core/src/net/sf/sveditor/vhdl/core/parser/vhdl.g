@@ -42,7 +42,7 @@ options {
 	/**
 	 *	Track module declarations and instances.
 	 */
-	public static Tracker	stTracker = new Tracker();
+	public Tracker			stTracker = new Tracker();
 
 	/**
 	 *	A convenience for building Token
@@ -1343,6 +1343,7 @@ voptions
 //}END parser
 
 //=====================================================================
+@SuppressWarnings("rawtypes")
 class VhdlLexer extends Lexer;
 options {
 	k=2;

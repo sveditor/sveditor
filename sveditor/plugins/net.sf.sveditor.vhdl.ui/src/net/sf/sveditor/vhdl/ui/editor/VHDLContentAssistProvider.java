@@ -33,7 +33,8 @@ public class VHDLContentAssistProvider implements IContentAssistProcessor {
 		
 		IExtensionPoint ept = rgy.getExtensionPoint(
 				VhdlUiPlugin.PLUGIN_ID, "contentAssistTemplates");
-		
+
+		if (ept != null) {
 		for (IExtension ext : ept.getExtensions()) {
 			for (IConfigurationElement ex : ext.getConfigurationElements()) {
 				String trigger = ex.getAttribute("trigger");
@@ -54,7 +55,7 @@ public class VHDLContentAssistProvider implements IContentAssistProcessor {
 				
 			}
 		}
-		
+		}
 	}
 
 	public ICompletionProposal[] computeCompletionProposals(

@@ -229,6 +229,37 @@ public class SVFileUtils {
 		
 		return f;
 	}
+
+	/**
+	 * Attempts to map a filesystem path to a workspace one
+	 * @param path
+	 * @return
+	 */
+	public static IFile[] findWorkspaceFiles(String path) {
+		IFile f[] = null;
+		
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			try {
+				IFile tf = root.getFile(new Path(path));
+				
+				if (tf != null) {
+					f = new IFile[] {tf};
+				}
+			} catch (IllegalStateException e) {
+				// Happens when the workspace is closed
+			}
+		} else {
+			try {
+				f = root.findFilesForLocationURI((new File(path)).toURI());
+			} catch (IllegalStateException e) {
+				// Happens when the workspace is closed
+			}
+		}
+		
+		return f;
+	}
 	
 	/**
 	 * Attempts to map a filesystem path to a workspace one
