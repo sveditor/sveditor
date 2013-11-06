@@ -97,8 +97,27 @@ public class SVArgFileEditor extends TextEditor
 			if (uri.getScheme().equals("plugin")) {
 				fFile = "plugin:" + uri.getPath();
 			} else {
-				fFile = SVFileUtils.normalize(uri.getPath());
-				ws_file = SVFileUtils.findWorkspaceFile(fFile);
+				// Bug 280: Variable Resolution in .f file 
+				// 
+				// The heart of the problem is the code below, where the project name is at the
+				// start of the path of "input", but the explosion, and collapse of "getURI" results in a workspace
+				// path, to the highest project in the workspace, resulting in problems when you have a submodule
+				// project, in the same file-system hierarchy as another project (say a chip)
+				// The following code "fixes" the problem, but I don't know enough about it to really know what the 
+				// greater impact of the hack is.
+				// fFile = input.toString();
+				// fFile = "${workspace_loc}/" + fFile .substring(fFile .indexOf("/")+1);
+				// fFile = fFile .replace(")", "");
+				// 
+				// An alternative solution, likely better is to extract just the project name here, and pass that to "findWorkspaceFile" below,
+				// which will give "findWorkspacePath" the information needed to return the "correct" path
+				// String project_loc = input.toString();
+				// project_loc = project_loc.substring(project_loc.indexOf("/")+1);	// remove everything to the first /
+				// project_loc = project_loc.replaceAll("/.*", "");
+				
+				// Offending code
+				fFile = SVFileUtils.normalize(uri.getPath()); 		// SGD - creates an absolute path
+				ws_file = SVFileUtils.findWorkspaceFile(fFile);		//SGD Takes a best guess as to what project we were actually in, the specific project information has already been lost above
 				if (ws_file != null) {
 					fFile = "${workspace_loc}" + ws_file.getFullPath().toOSString();
 				}
