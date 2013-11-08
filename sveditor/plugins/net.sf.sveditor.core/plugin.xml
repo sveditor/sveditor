@@ -4,6 +4,7 @@
    <extension-point id="SVLibraries" name="SystemVerilog Libraries" schema="schema/SVLibraries.exsd"/>
    <extension-point id="SVDBIndexFactories" name="SVDB Index Factory extension point" schema="schema/SVDBIndexFactories.exsd"/>
    <extension-point id="SVTemplates" name="SystemVerilog Templates" schema="schema/SVTemplates.exsd"/>
+   <extension-point id="SVLogMessageScanners" name="Log Message Scanner" schema="schema/SVLogMessageScanners.exsd"/>
    <extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
@@ -149,6 +150,59 @@
       <persistent
             value="true">
       </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchDelegates">
+      <launchDelegate
+            delegate="net.sf.sveditor.core.script.launch.ScriptLaunchDelegate"
+            id="net.sf.sveditor.core.buildScriptLaunchDelegate"
+            modes="run"
+            name="SVEditor Build Script"
+            type="net.sf.sveditor.core.buildScriptLaunchType">
+      </launchDelegate>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            id="net.sf.sveditor.core.buildScriptLaunchType"
+            modes="run"
+            name="SVEditor Build Script">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         id="svScriptProblem"
+         name="SVEditor Script Marker"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute
+            name="id">
+      </attribute>
+      <attribute
+            name="flags">
+      </attribute>
+      <attribute
+            name="arguments">
+      </attribute>
+      <attribute
+            name="categoryId">
+      </attribute>
+   </extension>
+   <extension
+         point="net.sf.sveditor.core.SVLogMessageScanners">
+      <LogMessageScanner
+            class="net.sf.sveditor.core.script.launch.QuestaLogMessageScanner"
+            id="net.sf.sveditor.core.questaLogMessageScanner"
+            name="Questa Log Scanner"
+            type="general">
+      </LogMessageScanner>
    </extension>
 
 

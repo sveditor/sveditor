@@ -15,7 +15,8 @@ Require-Bundle:
  org.apache.ant,
  org.eclipse.core.variables,
  org.eclipse.zest.core,
- org.eclipse.zest.layouts
+ org.eclipse.zest.layouts,
+ org.eclipse.debug.core
 Eclipse-LazyStart: true
 Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.argcollector,
@@ -60,6 +61,7 @@ Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.preproc,
  net.sf.sveditor.core.scanner,
  net.sf.sveditor.core.scanutils,
+ net.sf.sveditor.core.script.launch,
  net.sf.sveditor.core.srcgen,
  net.sf.sveditor.core.svf_scanner,
  net.sf.sveditor.core.vhdl.parser

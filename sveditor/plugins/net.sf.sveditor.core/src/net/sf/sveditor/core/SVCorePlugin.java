@@ -101,11 +101,16 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBFileIndexCacheMgr			fCacheMgr;
 	public static final boolean				fUseNewCacheMgr = SVDBArgFileIndexFactory.fUseArgFile2Index;
 	
+	// Listeners
+	private List<ILineListener>				fStdoutLineListeners = new ArrayList<ILineListener>();
+	private List<ILineListener>				fStderrLineListeners = new ArrayList<ILineListener>();
+	
 	// Obsolete Fields
 	private int								fNumIndexCacheThreads = 0;
 	private int								fMaxIndexThreads = 0;
 	private static boolean					fEnableAsyncCacheClear;
 	private static List<String>				fPersistenceClassPkgList;
+	
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
@@ -175,6 +180,48 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		LogFactory.getDefault().addLogListener(this);
 		
 		fProjManager.init();
+	}
+	
+	public void addStdoutLineListener(ILineListener l) {
+		fStdoutLineListeners.add(l);
+	}
+	
+	public void removeStdoutLineListener(ILineListener l) {
+		fStdoutLineListeners.remove(l);
+	}
+	
+	public void addStderrLineListener(ILineListener l) {
+		fStderrLineListeners.add(l);
+	}
+	
+	public void removeStderrLineListener(ILineListener l) {
+		fStderrLineListeners.remove(l);
+	}
+	
+	private ILineListener			fStderrLineListener = new ILineListener() {
+		@Override
+		public void line(String msg) {
+			for (ILineListener l : fStderrLineListeners) {
+				l.line(msg);
+			}
+		}
+	};
+
+	private ILineListener			fStdoutLineListener = new ILineListener() {
+		@Override
+		public void line(String msg) {
+			for (ILineListener l : fStdoutLineListeners) {
+				l.line(msg);
+			}
+		}
+	};
+	
+	public ILineListener getStdoutLineListener() {
+		return fStdoutLineListener;
+	}
+	
+	public ILineListener getStderrLineListener() {
+		return fStderrLineListener;
 	}
 	
 	public static List<String> getPersistenceClassPkgList() {

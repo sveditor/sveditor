@@ -1192,14 +1192,20 @@ endclass
           -->
    </extension>
    <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            delegate="net.sf.sveditor.ui.launch.SVBuildLauncher"
-            id="net.sf.sveditor.ui.buildScriptLaunch"
-            modes="run"
-            name="SVEditor Build Script"
-            public="true">
-      </launchConfigurationType>
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="net.sf.sveditor.ui.script.launch.ScriptLaunchTabGroup"
+            id="net.sf.sveditor.ui.buildScriptLaunchTabGroup"
+            type="net.sf.sveditor.core.buildScriptLaunchType">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="net.sf.sveditor.core.buildScriptLaunchType"
+            icon="icons/eview16/builder.gif"
+            id="net.sf.sveditor.ui.buildScriptTypeImage">
+      </launchConfigurationTypeImage>
    </extension>
 
 </plugin>

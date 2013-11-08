@@ -30,7 +30,6 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanner.SVCharacter;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -125,6 +124,45 @@ public class SVFileUtils {
 		try {
 			if ((r = root.getFolder(new Path(path))) != null && r.exists()) {
 				return (IContainer)r;
+			}
+		} catch (IllegalArgumentException e) {
+			// ignore, since this probably means we're looking at a project
+		}
+		
+		// See if this is a project root
+		String pname = path;
+		if (pname.startsWith("/")) {
+			pname = pname.substring(1);
+		}
+		if (pname.endsWith("/")) {
+			pname = pname.substring(0, pname.length()-1);
+		}
+		for (IProject p_t : root.getProjects()) {
+			if (p_t.getName().equals(pname)) {
+				p = p_t;
+				break;
+			}
+		}
+		
+		return p;
+	}
+
+	public static IResource getWorkspaceResource(String path) {
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource r = null;
+		IProject  p = null;
+		
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+		}
+		
+		path = normalize(path);
+		
+		try {
+			if ((r = root.getFolder(new Path(path))) != null && r.exists()) {
+				return r;
+			} else if ((r = root.getFile(new Path(path))) != null && r.exists()) {
+				return r;
 			}
 		} catch (IllegalArgumentException e) {
 			// ignore, since this probably means we're looking at a project

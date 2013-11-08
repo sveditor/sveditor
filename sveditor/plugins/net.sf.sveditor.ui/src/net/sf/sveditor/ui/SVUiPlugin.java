@@ -22,6 +22,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
 
+import net.sf.sveditor.core.ILineListener;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -121,6 +122,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		// add console listener
 		LogFactory.getDefault().addLogListener(this);
+		
+		SVCorePlugin.getDefault().addStdoutLineListener(fStdoutLineListener);
+		SVCorePlugin.getDefault().addStderrLineListener(fStderrLineListener);
 		
 		// Don't change settings if we're in test mode
 		if (!SVCorePlugin.getTestMode()) {
@@ -245,6 +249,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 		getPreferenceStore().removePropertyChangeListener(this);
 
 		LogFactory.getDefault().removeLogListener(this);
+		
+		SVCorePlugin.getDefault().removeStdoutLineListener(fStdoutLineListener);
+		SVCorePlugin.getDefault().removeStderrLineListener(fStderrLineListener);
 
 		super.stop(context);
 	}
@@ -294,6 +301,20 @@ public class SVUiPlugin extends AbstractUIPlugin
 				fLogMessageQueue.clear();
 				fLogMessageScheduled = false;
 			}
+		}
+	};
+	
+	private ILineListener fStderrLineListener = new ILineListener() {
+		public void line(String l) {
+			MessageConsoleStream err = getStderrStream();
+			err.println(l);
+		}
+	};
+	
+	private ILineListener fStdoutLineListener = new ILineListener() {
+		public void line(String l) {
+			MessageConsoleStream out = getStdoutStream();
+			out.println(l);
 		}
 	};
 	

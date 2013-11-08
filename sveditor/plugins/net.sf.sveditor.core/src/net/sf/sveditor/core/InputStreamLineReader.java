@@ -17,6 +17,14 @@ public class InputStreamLineReader extends Thread {
 		fInput = in;
 		fListeners = new ArrayList<ILineListener>(l);
 	}
+	
+	public InputStreamLineReader(
+			InputStream				in,
+			ILineListener 			l) {
+		fInput = in;
+		fListeners = new ArrayList<ILineListener>();
+		fListeners.add(l);
+	}
 
 	@Override
 	public void run() {
