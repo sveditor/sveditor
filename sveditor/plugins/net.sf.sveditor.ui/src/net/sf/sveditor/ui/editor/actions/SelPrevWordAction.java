@@ -17,6 +17,9 @@ import java.util.ResourceBundle;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Point;
@@ -37,6 +40,8 @@ public class SelPrevWordAction extends TextEditorAction {
 	public void run() {
 		ISourceViewer sv = fEditor.sourceViewer();
 		StyledText text = fEditor.sourceViewer().getTextWidget();
+		IDocument doc = sv.getDocument();
+		ITextSelection tsel = (ITextSelection)fEditor.getSite().getSelectionProvider().getSelection();
 		int offset = text.getCaretOffset();
 		int start_offset = offset;
 		
@@ -48,41 +53,43 @@ public class SelPrevWordAction extends TextEditorAction {
 			// If the caret is placed at the limit, contract
 			// Otherwise, just reset
 			if (sel.x == offset) {
-				start_offset = sel.y;
+				start_offset = (tsel.getOffset()+tsel.getLength());
+				offset = tsel.getOffset();
 			} else if (sel.y == offset) {
-				start_offset = sel.x;
+				start_offset = tsel.getOffset();
+				offset = (tsel.getOffset()+tsel.getLength());
 			}
 		}
-		
-		String str = text.getText();
 		
 		offset--;
 		if (offset < 0) {
 			return;
 		}
-		
-		int ch = str.charAt(offset);
-		if (SVCharacter.isSVIdentifierPart(ch)) {
-			// scan back to end or next non-id_part
-			while (offset >= 0) {
-				ch = str.charAt(offset);
-				if (!SVCharacter.isSVIdentifierPart(ch)) {
-					break;
+	
+		try {
+			int ch = doc.getChar(offset);
+			if (SVCharacter.isSVIdentifierPart(ch)) {
+				// scan back to end or next non-id_part
+				while (offset >= 0) {
+					ch = doc.getChar(offset);
+					if (!SVCharacter.isSVIdentifierPart(ch)) {
+						break;
+					}
+					offset--;
 				}
+			} else if (Character.isWhitespace(ch)) {
+				// scan back to end or end of whitespace
+				while (offset >= 0) {
+					ch = doc.getChar(offset);
+					if (!Character.isWhitespace(ch)) {
+						break;
+					}
+					offset--;
+				}
+			} else {
 				offset--;
 			}
-		} else if (Character.isWhitespace(ch)) {
-			// scan back to end or end of whitespace
-			while (offset >= 0) {
-				ch = str.charAt(offset);
-				if (!Character.isWhitespace(ch)) {
-					break;
-				}
-				offset--;
-			}
-		} else {
-			offset--;
-		}
+		} catch (BadLocationException e) {}
 		
 		if (offset < 0) {
 			offset = 0;

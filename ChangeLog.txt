@@ -5,6 +5,13 @@
   of the editor input. The fix results in improved support for nested projects
   and linked resources, where the same physical resource may be linked into
   multiple projects.
+  
+- #(enh - 70) - Add initial support for launching build scripts from SVEditor.
+  Error messages (currently, just Questa compilation messages) are recognized
+  and problem markers added.   
+
+- #(288) - Correct an issue with Next/Previous word selection when folding
+  is enabled. 
 
 ------------------------------------------------------------------------------
 -- 1.4.5 Release --
