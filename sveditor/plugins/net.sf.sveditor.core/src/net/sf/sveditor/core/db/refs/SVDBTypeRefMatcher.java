@@ -1,14 +1,13 @@
 package net.sf.sveditor.core.db.refs;
 
 
-public class SVDBTypeRefMatcher implements ISVDBRefMatcher {
+public class SVDBTypeRefMatcher implements ISVDBRefVisitor {
 	
 	
 
 	@Override
-	public boolean matches(ISVDBRefSearchSpec ref_spec, SVDBRefItem item) {
+	public void visitRef(ISVDBRefSearchSpec ref_spec, SVDBRefItem item) {
 		// TODO Auto-generated method stub
-		return false;
 	}
 
 	/** MSB:

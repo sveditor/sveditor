@@ -85,10 +85,13 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
+import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
+import net.sf.sveditor.core.db.refs.SVDBFileRefFinder;
+import net.sf.sveditor.core.db.refs.SVDBRefFinder;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
+import net.sf.sveditor.core.db.refs.SVDBRefType;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -1940,7 +1943,7 @@ public class SVDBArgFileIndex2 implements
 		processed_files.add(file_path);
 		
 		int fileid = build_data.mapFilePathToId(file_path, false);
-
+		
 		cacheFileDeclarations(
 				build_data,
 				fileid, 
@@ -2126,21 +2129,25 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 
-	/*
-	private void cacheReferences(SVDBFile file) {
-		SVDBFileRefCollector collector = new SVDBFileRefCollector();
-		collector.visitFile(file);
+	private void cacheReferences(SVDBArgFileIndexBuildData build_data, SVDBFile file) {
+		Map<String, List<Integer>> ref_map = build_data.fIndexCacheData.getReferenceCacheMap();
+		
+		SVDBFileRefCollector collector = new SVDBFileRefCollector(ref_map);
+		SVDBFileRefFinder finder = new SVDBFileRefFinder();
+		finder.setRefVisitor(collector);
+		
+		finder.visitFile(file);
 
-		Map<String, SVDBRefCacheEntry> ref_map = getCacheData()
-				.getReferenceCacheMap();
-		if (ref_map.containsKey(file.getFilePath())) {
-			ref_map.remove(file.getFilePath());
+		/*
+		for (Entry<String, List<Integer>> e : ref_map.entrySet()) {
+			StringBuilder files = new StringBuilder();
+			for (int file_id : e.getValue()) {
+				files.append("" + file_id + " ");
+			}
+			System.out.println("key=" + e.getKey() + " " + files.toString());
 		}
-		SVDBRefCacheEntry ref = collector.getReferences();
-		ref.setFilename(file.getFilePath());
-		ref_map.put(file.getFilePath(), ref);
+		 */
 	}
-	 */
 
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
@@ -2216,12 +2223,39 @@ public class SVDBArgFileIndex2 implements
 	}
 	 */
 
-	public List<SVDBRefItem> findReferences(
+	public void findReferences(
 			IProgressMonitor 		monitor,
 			ISVDBRefSearchSpec		ref_spec,
-			ISVDBRefMatcher			ref_matcher) {
+			ISVDBRefVisitor			ref_matcher) {
 		checkInIndexOp("findReferences");
 
+		Map<String, List<Integer>> ref_map = fBuildData.fIndexCacheData.getReferenceCacheMap();
+		List<Integer> file_list = ref_map.get(ref_spec.getName());
+		
+		if (file_list != null) {
+			// Now, have a closer look
+			
+			for (Integer file_id : file_list) {
+				String filename = fBuildData.mapFileIdToPath(file_id);
+				SVDBFile file = fBuildData.getCache().getFile(new NullProgressMonitor(), filename);
+				
+				if (file != null) {
+					SVDBRefFinder visitor = new SVDBRefFinder(SVDBRefType.TypeReference, ref_spec.getName());
+					SVDBFileRefFinder finder = new SVDBFileRefFinder();
+					finder.setRefVisitor(visitor);
+					finder.visitFile(file);
+					
+					List<SVDBRefItem> ref_list = visitor.getRefList();
+					
+					System.out.println("ref_list : " + ref_list);
+					
+					for (SVDBRefItem ref_it : ref_list) {
+						ref_matcher.visitRef(ref_spec, ref_it);
+						System.out.println("ref_it: " + SVDBItem.getName(ref_it.getLeaf()));
+					}
+				}
+			}
+		}
 		/*
 		SVDBRefFinder finder = new SVDBRefFinder(item.getRefType(),
 				item.getRefName());
@@ -2230,7 +2264,6 @@ public class SVDBArgFileIndex2 implements
 
 		return finder.find_refs(file);
 		 */
-		return new ArrayList<SVDBRefItem>();
 	}
 
 	/**
@@ -2594,6 +2627,10 @@ public class SVDBArgFileIndex2 implements
 		cacheDeclarations(build_data, file, ft);
 		end = System.currentTimeMillis();
 //		System.out.println("CacheDecl " + path + " " + (end-start));
+		
+		start = System.currentTimeMillis();
+		cacheReferences(build_data, file);
+		end = System.currentTimeMillis();
 		
 		start = System.currentTimeMillis();
 		long last_modified = fFileSystemProvider.getLastModifiedTime(path);

@@ -12,16 +12,34 @@
 
 package net.sf.sveditor.core.db.refs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 
+/**
+ * Builds an index of the identifier references present in a given
+ * file
+ * 
+ * @author ballance
+ *
+ */
 public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
-	private SVDBRefCacheEntry			fReferences;
+	private Map<String, List<Integer>>	fReferences;
 	
 	public SVDBFileRefCollector() {
-		fReferences = new SVDBRefCacheEntry();
+		this(null);
+	}
+	
+	public SVDBFileRefCollector(Map<String, List<Integer>> ref_map) {
+		if (ref_map == null) {
+			ref_map = new HashMap<String, List<Integer>>();
+		}
+		fReferences = ref_map;
 	}
 
 	/*
@@ -34,28 +52,44 @@ public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 	}
 	 */
 	
-	public SVDBRefCacheEntry getReferences() {
+	public Map<String, List<Integer>> getReferences() {
 		return fReferences;
 	}
 
 	public void visitRef(
-			SVDBLocation 			loc, 
-			SVDBRefType 			type, 
+			SVDBLocation 			loc,
+			SVDBRefType 			type,
 			Stack<ISVDBChildItem>	scope_stack,
 			String 					name) {
 		switch (type) {
 			case FieldReference: {
-				fReferences.addFieldRef(name);
+				addRef(loc, name);
 			} break;
 			case ImportReference: {
-				fReferences.addImportRef(name);
+				addRef(loc, name);
 			} break;
 			case IncludeReference: {
-				fReferences.addIncludeRef(name);
+				addRef(loc, name);
 			} break;
 			case TypeReference: {
-				fReferences.addTypeRef(name);
+				addRef(loc, name);
 			} break;
+		}
+	}
+	
+	private void addRef(SVDBLocation loc, String name) {
+		if (loc != null) {
+			int file_id = loc.getFileId();
+			List<Integer> file_list = fReferences.get(name);
+
+			if (file_list == null) {
+				file_list = new ArrayList<Integer>();
+				fReferences.put(name, file_list);
+			}
+
+			if (!file_list.contains(file_id)) {
+				file_list.add(file_id);
+			}
 		}
 	}
 }
