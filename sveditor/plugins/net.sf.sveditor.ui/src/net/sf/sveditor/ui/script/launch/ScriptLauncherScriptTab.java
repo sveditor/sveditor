@@ -46,13 +46,6 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		top.setLayout(new GridLayout());
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 	
-		// Script Group
-		Group script_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		script_group.setText("JavaScript");
-		script_group.setLayout(new GridLayout(2, false));
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		script_group.setLayoutData(gd);
-		
 		// Working Directory Group
 		Group wd_group = new Group(top, SWT.SHADOW_ETCHED_IN);
 		wd_group.setText("Working Directory");
@@ -76,7 +69,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		
 		// Script Arguments
 		Group args_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		args_group.setText("Arguments");
+		args_group.setText("Command line");
 		args_group.setLayout(new GridLayout());
 		args_group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
