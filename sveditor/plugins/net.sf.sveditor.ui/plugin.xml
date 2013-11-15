@@ -1207,5 +1207,16 @@ endclass
             id="net.sf.sveditor.ui.buildScriptTypeImage">
       </launchConfigurationTypeImage>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="net.sf.sveditor.ui.viewCategory"
+            class="net.sf.sveditor.ui.views.design_hierarchy.DesignHierarchyView"
+            icon="icons/eview16/class_hi.gif"
+            id="net.sf.sveditor.ui.designHierarchy"
+            name="Design Hierarchy"
+            restorable="true">
+      </view>
+   </extension>
 
 </plugin>

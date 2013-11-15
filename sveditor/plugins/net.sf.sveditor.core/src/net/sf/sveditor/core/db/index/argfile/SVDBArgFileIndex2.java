@@ -2245,25 +2245,12 @@ public class SVDBArgFileIndex2 implements
 					finder.setRefVisitor(visitor);
 					finder.visitFile(file);
 					
-					List<SVDBRefItem> ref_list = visitor.getRefList();
-					
-					System.out.println("ref_list : " + ref_list);
-					
-					for (SVDBRefItem ref_it : ref_list) {
-						ref_matcher.visitRef(ref_spec, ref_it);
-						System.out.println("ref_it: " + SVDBItem.getName(ref_it.getLeaf()));
+					for (SVDBRefItem it : visitor.getRefList()) {
+						ref_matcher.visitRef(ref_spec, it);
 					}
 				}
 			}
 		}
-		/*
-		SVDBRefFinder finder = new SVDBRefFinder(item.getRefType(),
-				item.getRefName());
-
-		SVDBFile file = findFile(item.getFilename());
-
-		return finder.find_refs(file);
-		 */
 	}
 
 	/**

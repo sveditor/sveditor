@@ -12,6 +12,11 @@
 
 - #(288) - Correct an issue with Next/Previous word selection when folding
   is enabled. 
+  
+- #(enh) - Initial support for reference indexing and searching in an index
+
+- #(enh) - Add support for a Design Hierarchy view that shows the module
+  hierarchy of each project.
 
 ------------------------------------------------------------------------------
 -- 1.4.5 Release --

@@ -20,4 +20,5 @@ public class SVDBRefCollectorVisitor implements ISVDBRefVisitor {
 		fItemList.add(item);
 	}
 
+	
 }
