@@ -10,6 +10,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
@@ -18,8 +19,9 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
 import net.sf.sveditor.core.db.refs.SVDBFindReferencesOp;
-import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
+import net.sf.sveditor.core.db.refs.SVDBRefMayContainVisitor;
 import net.sf.sveditor.core.db.refs.SVDBRefSearchByNameSpec;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
@@ -29,6 +31,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class DesignHierarchyContentProviderBase {
 	
@@ -55,26 +58,36 @@ public class DesignHierarchyContentProviderBase {
 				List<SVDBDeclCacheItem> module_l = index.findGlobalScopeDecl(
 						new NullProgressMonitor(), "", 
 						new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl));
+				SubProgressMonitor m = new SubProgressMonitor(monitor, 1000);
+				m.beginTask("Checking module declarations", 100*module_l.size());
+//				System.out.println("module_l.size=" + module_l.size());
 				
 				List<SVDBModuleDecl> root_list = new ArrayList<SVDBModuleDecl>();
 				
 				for (SVDBDeclCacheItem module_it : module_l) {
-					SVDBModuleDecl module = (SVDBModuleDecl)module_it.getSVDBItem();
-					SVDBRefCollectorVisitor visitor = new SVDBRefCollectorVisitor();
+//					SVDBModuleDecl module = (SVDBModuleDecl)module_it.getSVDBItem();
+					SVDBRefMayContainVisitor visitor = new SVDBRefMayContainVisitor();
 
-					if (module != null) {
-						pdata.getProjectIndexMgr().execOp(monitor, 
-								new SVDBFindReferencesOp(
-									new SVDBRefSearchByNameSpec(module.getName()),
-									visitor), 
+					pdata.getProjectIndexMgr().execOp(
+							new NullProgressMonitor(),
+							new SVDBFindReferencesOp(new SVDBRefSearchByNameSpec(
+											module_it.getName(), 
+											NameMatchType.MayContain), visitor),
 									false);
-						if (visitor.getItemList().size() == 0) {
-							root_list.add(module);
+					
+					if (!visitor.mayContain()) {
+						if (module_it.getSVDBItem() != null) {
+							root_list.add((SVDBModuleDecl)module_it.getSVDBItem());
 						}
 					}
+					m.worked(100);
 				}
 				
+				m.done();
+				
 				fRootMap.put(p, root_list);
+			} else {
+				monitor.worked(1000);
 			}
 		}
 		
@@ -100,7 +113,7 @@ public class DesignHierarchyContentProviderBase {
 			DesignHierarchyNode dn = (DesignHierarchyNode)parent;
 			List<DesignHierarchyNode> ret = new ArrayList<DesignHierarchyNode>();
 			Object target = dn.getTarget();
-			SVDBModuleDecl module_decl = null;
+			SVDBModIfcDecl module_decl = null;
 			
 			if (target instanceof SVDBModuleDecl) {
 				module_decl = (SVDBModuleDecl)target;
@@ -112,7 +125,7 @@ public class DesignHierarchyContentProviderBase {
 				List<SVDBDeclCacheItem> item = dn.getIndexIt().findGlobalScopeDecl(
 						new NullProgressMonitor(), typename, fNameMatcher);
 				if (item.size() > 0) {
-					module_decl = (SVDBModuleDecl)item.get(0).getSVDBItem();
+					module_decl = (SVDBModIfcDecl)item.get(0).getSVDBItem();
 //					ret.add(new DesignHierarchyNode(dn.getIndexIt(),
 //							item.get(0).getSVDBItem(), dn));
 				}
@@ -133,5 +146,27 @@ public class DesignHierarchyContentProviderBase {
 		} else {
 			return new Object[0];
 		}
+	}
+	
+	public boolean hasChildren(Object parent) {
+		if (parent instanceof IProject) {
+			if (fRootMap.containsKey(parent)) {
+				return true;
+			}
+		} else if (parent instanceof DesignHierarchyNode) {
+			DesignHierarchyNode dn = (DesignHierarchyNode)parent;
+			
+			if (dn.getTarget() instanceof SVDBModIfcDecl) {
+				for (ISVDBChildItem ci : ((SVDBModIfcDecl)dn.getTarget()).getChildren()) {
+					if (ci.getType() == SVDBItemType.ModIfcInst) {
+						return true;
+					}
+				}
+			} else {
+				return (getChildren(parent).length > 0);
+			}
+		} 
+		
+		return false;
 	}
 }

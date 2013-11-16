@@ -1,5 +1,6 @@
 package net.sf.sveditor.ui.views.design_hierarchy;
 
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
@@ -43,13 +44,31 @@ public class DesignHierarchyLabelProvider extends LabelProvider {
 				String type_name = ((SVDBModIfcInst)inst_item.getParent()).getTypeName();
 				
 				return inst_name + " : " + type_name;
-			} else if (target instanceof SVDBModuleDecl) {
-				return ((SVDBModuleDecl)target).getName();
+			} else if (target instanceof SVDBModIfcDecl) {
+				return ((SVDBModIfcDecl)target).getName();
 			}
 		} else if (element instanceof IProject) {
 			return ((IProject)element).getName();
 		}
 		return super.getText(element);
+	}
+	
+	public String getName(Object element) {
+		if (element instanceof DesignHierarchyNode) {
+			DesignHierarchyNode dn = (DesignHierarchyNode)element;
+			Object target = dn.getTarget();
+			
+			if (target instanceof SVDBModIfcInstItem) {
+				SVDBModIfcInstItem inst_item = (SVDBModIfcInstItem)target;
+				return inst_item.getName();
+			} else if (target instanceof SVDBModIfcDecl) {
+				return ((SVDBModIfcDecl)target).getName();
+			}
+		} else if (element instanceof IProject) {
+			return ((IProject)element).getName();
+		}		
+		
+		return "";
 	}
 	
 }

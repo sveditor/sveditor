@@ -15,6 +15,8 @@ import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -89,10 +91,9 @@ public class DesignHierarchyView extends ViewPart {
 		fTreeViewer.setLabelProvider(fLabelProvider);
 		
 		fTreeViewer.addDoubleClickListener(doubleClickListener);
+		fTreeViewer.setComparator(comparator);
 		
 		fTreeViewer.setInput(ResourcesPlugin.getWorkspace().getRoot());
-		
-		refreshJob.schedule();
 	}
 	
 	private IDoubleClickListener doubleClickListener = new IDoubleClickListener() {
@@ -119,6 +120,16 @@ public class DesignHierarchyView extends ViewPart {
 		}
 	};
 	
+	private ViewerComparator comparator = new ViewerComparator() {
+
+		@Override
+		public int compare(Viewer viewer, Object e1, Object e2) {
+			String n1 = fLabelProvider.getName(e1);
+			String n2 = fLabelProvider.getName(e2);
+			
+			return n1.toLowerCase().compareTo(n2.toLowerCase());
+		}
+	};
 
 	@Override
 	public void setFocus() {

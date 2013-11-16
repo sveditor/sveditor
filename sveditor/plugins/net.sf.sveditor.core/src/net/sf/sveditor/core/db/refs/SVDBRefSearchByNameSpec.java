@@ -6,14 +6,20 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBRefSearchByNameSpec implements ISVDBRefSearchSpec {
 	private String					fName;
+	private NameMatchType			fMatchType;
+	
+	public SVDBRefSearchByNameSpec(String name, NameMatchType type) {
+		fName = name;
+		fMatchType = type;
+	}
 	
 	public SVDBRefSearchByNameSpec(String name) {
-		fName = name;
+		this(name, NameMatchType.Equals);
 	}
 
 	@Override
 	public NameMatchType getNameMatchType() {
-		return NameMatchType.Equals;
+		return fMatchType;
 	}
 
 	@Override

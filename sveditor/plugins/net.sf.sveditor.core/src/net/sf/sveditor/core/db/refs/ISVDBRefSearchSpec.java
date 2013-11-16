@@ -8,7 +8,8 @@ public interface ISVDBRefSearchSpec {
 	
 	enum NameMatchType {
 		Any,			// Ignore name
-		Equals
+		Equals,
+		MayContain		// Perform a quick search to see if there may be references
 	}
 	
 	NameMatchType getNameMatchType();
