@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
@@ -37,8 +38,6 @@ import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
-import net.sf.sveditor.core.db.refs.SVDBRefType;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
@@ -296,14 +295,16 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 			System.out.println("[VISIT FILE] " + filename);
 // MSB:
 //			finder.visitFile(file);
-			SVDBRefCacheEntry ref = finder.getReferences();
-		
+			Map<String, List<Integer>> ref = finder.getReferences();
+	
+			/*
 			for (SVDBRefType t : SVDBRefType.values()) {
 				System.out.println("    TYPE: " + t);
 				for (String n : ref.getRefSet(t)) {
 					System.out.println("        NAME: " + n);
 				}
 			}
+			 */
 		}
 		
 		LogFactory.removeLogHandle(log);

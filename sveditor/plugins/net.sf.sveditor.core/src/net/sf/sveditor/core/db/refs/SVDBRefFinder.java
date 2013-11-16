@@ -6,7 +6,6 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBLocation;
 
 public class SVDBRefFinder implements ISVDBRefFinderVisitor {
@@ -20,6 +19,10 @@ public class SVDBRefFinder implements ISVDBRefFinderVisitor {
 		fRefList = new ArrayList<SVDBRefItem>();
 		fRefType = ref_type;
 		fRefName = ref_name;
+	}
+	
+	public List<SVDBRefItem> getRefList() {
+		return fRefList;
 	}
 
 	/*

@@ -72,7 +72,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
-import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.refs.SVDBRefFinder;
@@ -2514,10 +2514,10 @@ public abstract class AbstractSVDBIndex implements
 		return ret;
 	}
 	
-	public List<SVDBRefItem> findReferences(
+	public void findReferences(
 			IProgressMonitor	monitor,
 			ISVDBRefSearchSpec	ref_spec,
-			ISVDBRefMatcher		ref_matcher) {
+			ISVDBRefVisitor		ref_matcher) {
 		List<SVDBRefCacheItem> ret = new ArrayList<SVDBRefCacheItem>();
 		
 		ensureIndexState(monitor, IndexState_AllFilesParsed);
@@ -2534,7 +2534,6 @@ public abstract class AbstractSVDBIndex implements
 		
 		return ret;
 		 */
-		return new ArrayList<SVDBRefItem>();
 	}
 	
 	public List<SVDBRefItem> findReferences(

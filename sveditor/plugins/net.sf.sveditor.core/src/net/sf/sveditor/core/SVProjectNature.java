@@ -46,20 +46,22 @@ public class SVProjectNature implements IProjectNature, ILogLevel {
 
 	public static boolean hasSvProjectNature(IProject p) {
 		boolean has = false;
-		try {
-			IProjectDescription d = p.getDescription();
-			String natures[] = d.getNatureIds();
-			
-			if (natures != null) {
-				for (String n : natures) {
-					if (n.equals(SVProjectNature.NATURE_ID)) {
-						has = true;
-						break;
+		if (p.isAccessible()) {
+			try {
+				IProjectDescription d = p.getDescription();
+				String natures[] = d.getNatureIds();
+
+				if (natures != null) {
+					for (String n : natures) {
+						if (n.equals(SVProjectNature.NATURE_ID)) {
+							has = true;
+							break;
+						}
 					}
 				}
+			} catch (CoreException e) {
+				e.printStackTrace();
 			}
-		} catch (CoreException e) {
-			e.printStackTrace();
 		}
 		
 		return has;

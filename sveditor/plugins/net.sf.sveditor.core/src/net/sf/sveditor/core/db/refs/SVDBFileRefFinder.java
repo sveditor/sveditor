@@ -56,8 +56,12 @@ public class SVDBFileRefFinder {
 		fScopeStack = new Stack<ISVDBChildItem>();
 	}
 	
+	public void setRefVisitor(ISVDBRefFinderVisitor v) {
+		fRefVisitor = v;
+	}
+
 	public void visitFile(SVDBFile file) {
-		fFile = file;
+		fFile 		= file;
 		fScopeStack.push(fFile);
 		visitChildParent(fFile);
 		fScopeStack.pop();
@@ -99,13 +103,13 @@ public class SVDBFileRefFinder {
 					SVDBClassDecl cls = (SVDBClassDecl)c;
 					if (cls.getSuperClass() != null) {
 						SVDBTypeInfoClassType cls_t = cls.getSuperClass();
-						visitRef(null, SVDBRefType.TypeReference, cls_t.getName());
+						visitRef(cls.getLocation(), SVDBRefType.TypeReference, cls_t.getName());
 					}
 				} break;
 				
 				case ModIfcInst: {
 					SVDBModIfcInst inst = (SVDBModIfcInst)c;
-					visitRef(null, SVDBRefType.TypeReference, inst.getTypeName());
+					visitRef(inst.getLocation(), SVDBRefType.TypeReference, inst.getTypeName());
 				} break;
 				
 				default: {
@@ -413,7 +417,7 @@ public class SVDBFileRefFinder {
 		if (fRefVisitor != null) {
 			fRefVisitor.visitRef(loc, type, fScopeStack, name);
 		}
-		System.out.println("reference: " + type + " : " + name);
+//		System.out.println("reference: " + type + " : " + name);
 	}
 
 }

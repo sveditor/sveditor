@@ -13,18 +13,30 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
+import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
-import net.sf.sveditor.core.db.refs.SVDBRefType;
+import net.sf.sveditor.core.db.refs.SVDBRefSearchByNameSpec;
+import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
@@ -67,14 +79,16 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 			System.out.println("[VISIT FILE] " + filename);
 			// MSB: 
 //			finder.visitFile(file);
-			SVDBRefCacheEntry ref = finder.getReferences();
-		
+			Map<String, List<Integer>> refs = finder.getReferences();
+	
+			/*
 			for (SVDBRefType t : SVDBRefType.values()) {
 				System.out.println("    TYPE: " + t);
 				for (String n : ref.getRefSet(t)) {
 					System.out.println("        NAME: " + n);
 				}
 			}
+			 */
 		}
 		
 		LogFactory.removeLogHandle(log);
@@ -127,6 +141,70 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		System.out.println("Ref-find time: " + (ref_find_end-ref_find_start));
 		
 		LogFactory.removeLogHandle(log);
+	}
+
+	public void testModuleInstRefs() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		File test_dir = new File(fTmpDir, getName());
+		test_dir.mkdirs();
+		
+		utils.unpackBundleZipToFS("/wb_ethmac.zip", test_dir);		
+		File wb_ethmac = new File(test_dir, "wb_ethmac");
+		
+		IProject project = TestUtils.createProject("wb_ethmac", wb_ethmac);
+		addProject(project);
+		
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
+				"${workspace_loc}/wb_ethmac/wb_ethmac.f",
+				SVDBArgFileIndexFactory.TYPE,
+				null);
+		index.setGlobalDefine("QUESTA", "");
+		
+		index.loadIndex(new NullProgressMonitor());
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		List<SVDBModuleDecl> roots = new ArrayList<SVDBModuleDecl>();
+		
+		for (SVDBDeclCacheItem module : index.findGlobalScopeDecl(new NullProgressMonitor(), "", 
+				new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl))) {
+			System.out.println("module: " + module.getName());
+			SVDBRefCollectorVisitor visitor = new SVDBRefCollectorVisitor();
+			
+			index.findReferences(new NullProgressMonitor(), 
+					new SVDBRefSearchByNameSpec(module.getName()), 
+					visitor);
+			
+			if (visitor.getItemList().size() == 0) {
+				// Root
+				roots.add((SVDBModuleDecl)module.getSVDBItem());
+			}
+		}
+
+		for (SVDBModuleDecl root : roots) {
+			dump_hierarchy(index, root, "");
+		}
+	}
+	
+	private void dump_hierarchy(ISVDBIndexIterator index_it, SVDBModuleDecl m, String indent) {
+		System.out.println(indent + m.getName());
+		
+		for (ISVDBChildItem it : m.getChildren()) {
+			if (it.getType() == SVDBItemType.ModIfcInst) {
+				SVDBModIfcInst inst = (SVDBModIfcInst)it;
+				List<SVDBDeclCacheItem> mod_it_l = index_it.findGlobalScopeDecl(
+						new NullProgressMonitor(), inst.getTypeName(), 
+						new SVDBFindByNameMatcher());
+				
+				
+				if (mod_it_l.size() > 0) {
+					dump_hierarchy(index_it, 
+							(SVDBModuleDecl)mod_it_l.get(0).getSVDBItem(), 
+							indent + "    ");
+				}
+			}
+		}
 	}
 	
 }

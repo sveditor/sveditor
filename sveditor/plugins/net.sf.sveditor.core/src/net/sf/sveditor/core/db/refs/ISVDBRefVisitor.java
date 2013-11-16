@@ -1,9 +1,9 @@
 package net.sf.sveditor.core.db.refs;
 
 
-public interface ISVDBRefMatcher {
+public interface ISVDBRefVisitor {
 	
-	boolean matches(
+	void visitRef(
 			ISVDBRefSearchSpec		ref_spec,
 			SVDBRefItem				item);
 

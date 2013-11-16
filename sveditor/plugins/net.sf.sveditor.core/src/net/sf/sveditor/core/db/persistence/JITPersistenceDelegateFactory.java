@@ -838,6 +838,12 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 									readMethod  = "readMapStringStringList";
 									writeSig = "(L" + getClassName(Map.class) + ";)V";
 									readSig = "()L" + getClassName(Map.class) + ";";
+								} else if (elem_c == Integer.class) {
+									elem_c = null; // Prevent the byte-code generation from trying to load the type
+									writeMethod = "writeMapStringIntegerList";
+									readMethod = "readMapStringIntegerList";
+									writeSig = "(L" + getClassName(Map.class) + ";)V";
+									readSig = "()L" + getClassName(Map.class) + ";";
 								} else {
 									local_access = false;
 									writeMethod = "writeMapStringList";

@@ -17,7 +17,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.refs.ISVDBRefMatcher;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -67,18 +67,14 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		return ret;
 	}
 	
-	public List<SVDBRefItem> findReferences(
+	public void findReferences(
 			IProgressMonitor 	monitor,
 			ISVDBRefSearchSpec	ref_spec,
-			ISVDBRefMatcher		ref_matcher) {
-		List<SVDBRefItem> ret = new ArrayList<SVDBRefItem>();
+			ISVDBRefVisitor		ref_matcher) {
 		
 		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-			List<SVDBRefItem> r = index_it.findReferences(monitor, ref_spec, ref_matcher);
-			ret.addAll(r);
+			index_it.findReferences(monitor, ref_spec, ref_matcher);
 		}
-
-		return ret;
 	}
 	
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
