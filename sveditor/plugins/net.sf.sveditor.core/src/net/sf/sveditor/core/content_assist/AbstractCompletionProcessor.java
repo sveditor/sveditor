@@ -680,7 +680,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					break;
 				}
 			}
-			System.out.println("m/i/tf id=" + root_id);
 		}
 		
 		if (root_id == null) {
