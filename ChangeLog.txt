@@ -5,6 +5,8 @@
 
 - #(enh) - Add support for a Design Hierarchy view that shows the module
   hierarchy of each project.
+  
+- #(enh) - Clean-ups to script launcher tab
 
 ------------------------------------------------------------------------------
 -- 1.4.6 Release --
