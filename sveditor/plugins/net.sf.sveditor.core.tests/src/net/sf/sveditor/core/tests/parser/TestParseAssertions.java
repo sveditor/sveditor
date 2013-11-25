@@ -136,6 +136,24 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"test"});
 	}	
 
+	public void testPropertyZDelay() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc = 
+			"module top ();\n" +
+			"	logic clk, signala, signalb;\n" +
+			"	property some_prop (addr,exp_val);\n" +
+			"		@(negedge clk)\n" +
+			"			signala |=> (signala == 1'b1) \n" +
+			"			##0 (signalb);\n" +
+			"	endproperty:some_prop\n" +
+			"endmodule\n" 
+			;
+
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"top"});
+	}
+	
 	public void testPropertyWithin() throws SVParseException {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);

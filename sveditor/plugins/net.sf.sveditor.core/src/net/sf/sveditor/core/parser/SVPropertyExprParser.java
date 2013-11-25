@@ -126,7 +126,7 @@ public class SVPropertyExprParser extends SVParserBase {
 				ret = match_expr;
 			} else {
 				ret = new SVDBParenExpr(p_expr);
-				debug("  post SVDBParenExpr: " + fLexer.peek());
+				if (fDebugEn) {debug("  post SVDBParenExpr: " + fLexer.peek());}
 			}
 		} else if (fLexer.peekKeyword("not")) {
 			// not expression
@@ -169,6 +169,7 @@ public class SVPropertyExprParser extends SVParserBase {
 				ret = new SVDBBinaryExpr(ret, op, sequence_expr());
 			} else {
 				op = op_t.getImage();
+				fLexer.ungetToken(op_t);
 				ret = new SVDBBinaryExpr(ret, op, sequence_expr());
 			}
 			
