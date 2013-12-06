@@ -2861,7 +2861,7 @@ public class SVDBArgFileIndex2 implements
 				fLog.debug(LEVEL_MID, "Path: " + path);
 			}
 			
-			if (fFileSystemProvider.fileExists(path)) {
+			if (fFileSystemProvider.fileExists(path) && !fFileSystemProvider.isDir(path)) {
 				monitor.subTask("Parse " + path);
 				
 				Map<String, SVDBMacroDef> new_defines = parseFile(path, build_data, defines);
@@ -2893,7 +2893,7 @@ public class SVDBArgFileIndex2 implements
 				fLog.debug(LEVEL_MID, "LibFile Path: " + path);
 			}
 			
-			if (fFileSystemProvider.fileExists(path)) {
+			if (fFileSystemProvider.fileExists(path) && !fFileSystemProvider.isDir(path)) {
 				monitor.subTask("Parse " + path);
 				
 				Map<String, SVDBMacroDef> new_defines = parseFile(path, build_data, defines);

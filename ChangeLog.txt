@@ -3,7 +3,16 @@
 
 - #(292) - Property parser bug corrected
 
+- #(enh 81) - Add preference setting for how auto-reparse is done within the
+  active editor. If set to -1, re-parse is only performed when the file is
+  saved. Otherwise, the setting is a delay for how long to wait.
 
+- #(295) - Correct a parse bug in an associated-array initialization statement 
+  involving scoped identifiers. 
+  
+- #(291) - Correct an indexer crash when the argument file contains a directory
+  path rather than a file path. The indexer now ignores the directory path, and
+  the argument-file parser adds an error marker.
 
 ------------------------------------------------------------------------------
 -- 1.4.7 Release --

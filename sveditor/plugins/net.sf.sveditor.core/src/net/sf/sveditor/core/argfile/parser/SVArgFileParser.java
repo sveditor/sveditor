@@ -266,6 +266,8 @@ public class SVArgFileParser {
 				if (!fFSProvider.fileExists(path)) {
 					error(loc, "Path \"" + path + "\" does not exist; " + 
 						"Resolved relative to \"" + fResolvedBaseLocation + "\"");
+				} else if (fFSProvider.isDir(path)) {
+					error(loc, "Path \"" + path + "\" is a directory, not a file");
 				}
 			}
 		}
