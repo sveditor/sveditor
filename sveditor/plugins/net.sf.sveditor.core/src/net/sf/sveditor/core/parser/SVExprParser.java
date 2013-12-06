@@ -1449,9 +1449,15 @@ public class SVExprParser extends SVParserBase {
 							return expr;
 						}
 					} else {
+						fLexer.ungetToken(id_tok);
+						SVDBExpr id_expr = primary();
+					
+						// Sometimes the id parse fails -- especially while working with incomplete data
+						if (id_expr == null) {
+							id_expr = new SVDBIdentifierExpr(id);
+						}
 						if (fDebugEn) {debug("<-- selector() - IdentifierExpr(2)");}
-						return new SVDBFieldAccessExpr(expr, (q.equals("::")), 
-								new SVDBIdentifierExpr(id));
+						return new SVDBFieldAccessExpr(expr, (q.equals("::")), id_expr);
 					}
 				}
 			}

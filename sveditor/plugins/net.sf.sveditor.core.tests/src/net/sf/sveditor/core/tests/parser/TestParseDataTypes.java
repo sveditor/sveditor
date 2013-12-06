@@ -373,6 +373,20 @@ public class TestParseDataTypes extends TestCase {
 			;
 		runTest(testname, content, new String[] {"top"});
 	}
+
+	public void testScopedEnumInAssocArray() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"package my_package;\n" +
+			"	typedef enum {STATE0, STATE1} state_e;\n" +
+			"endpackage\n" +
+			"\n" +
+			"module top;\n" +
+			" bit assoc_array[my_package::state_e] = '{my_package::STATE0:1'b0, my_package::STATE1:1'b1};\n" +
+			"endmodule\n"
+			;
+		runTest(getName(), content, new String[] {"top"});
+	}
 	
 	private void runTest(
 			String			testname,
