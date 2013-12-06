@@ -3,7 +3,10 @@
 
 - #(292) - Property parser bug corrected
 
-
+- #(enh 81) - Add preference setting for how auto-reparse is done within the
+  active editor. If set to -1, re-parse is only performed when the file is
+  saved. Otherwise, the setting is a delay for how long to wait.
+ 
 
 ------------------------------------------------------------------------------
 -- 1.4.7 Release --

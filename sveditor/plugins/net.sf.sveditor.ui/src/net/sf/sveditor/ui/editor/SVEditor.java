@@ -91,6 +91,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -190,6 +191,8 @@ public class SVEditor extends TextEditor
 	
 	private ProjectionSupport				fProjectionSupport;
 	private boolean							fInitialFolding = true;
+	private int								fReparseDelay;
+	private boolean							fIncrReparseEn = false;
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -288,7 +291,7 @@ public class SVEditor extends TextEditor
 				fUpdateSVDBFileJob = null;
 				fNeedUpdate = false;
 				if (fPendingUpdateSVDBFile) {
-					updateSVDBFile(fDocument);
+					updateSVDBFile(fDocument, true);
 				}
 			}
 			
@@ -314,8 +317,22 @@ public class SVEditor extends TextEditor
 		SVUiPlugin.getDefault().startRefreshJob();
 		
 		updateFoldingPrefs();
+		updateAutoIndexDelayPref();
 	}
 	
+	protected void updateAutoIndexDelayPref() {
+		IPreferenceStore ps = SVUiPlugin.getDefault().getChainedPrefs();
+		
+		int delay = ps.getInt(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY);
+		
+		if (delay == -1) {
+			fIncrReparseEn = false;
+		} else {
+			fIncrReparseEn = true;
+			fReparseDelay = delay;
+		}
+	}
+
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.init(site, input);
@@ -366,6 +383,8 @@ public class SVEditor extends TextEditor
 		
 		// Hook into the SVDB management structure
 		initSVDBMgr();
+		
+		updateAutoIndexDelayPref();
 	}
 	
 	
@@ -373,15 +392,22 @@ public class SVEditor extends TextEditor
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
 		super.doSave(progressMonitor);
+	
+		if (!fIncrReparseEn) {
+			updateSVDBFile(getDocument(), true);
+		}
 		
 		// TODO: When the user saves the file, clear any cached information
 		// on validity.
-		
 	}
 
 	@Override
 	public void doSaveAs() {
 		super.doSaveAs();
+	
+		if (!fIncrReparseEn) {
+			updateSVDBFile(getDocument(), true);
+		}
 		
 		// TODO: Probably need to make some updates when the name changes
 	}
@@ -486,7 +512,7 @@ public class SVEditor extends TextEditor
 		if (fPendingProjectSettingsUpdate != null) {
 			projectSettingsChanged(fPendingProjectSettingsUpdate);
 		} else {
-			updateSVDBFile(null);
+			updateSVDBFile(null, false);
 		}
 	}
 
@@ -574,15 +600,17 @@ public class SVEditor extends TextEditor
 		}
 	}
 
-	void updateSVDBFile(IDocument doc) {
+	void updateSVDBFile(IDocument doc, boolean force) {
 		fLog.debug(LEVEL_MAX, "updateSVDBFile - fIndexMgr=" + fFileIndexParser);
 	
 		if (fFileIndexParser != null) {
 			if (fUpdateSVDBFileJob == null) {
 				synchronized (this) {
 					fPendingUpdateSVDBFile = false;
-					fUpdateSVDBFileJob = new UpdateSVDBFileJob(doc);
-					fUpdateSVDBFileJob.schedule();
+					if (fIncrReparseEn || force) {
+						fUpdateSVDBFileJob = new UpdateSVDBFileJob(doc);
+						fUpdateSVDBFileJob.schedule(fReparseDelay);
+					}
 				}
 			} else {
 				fPendingUpdateSVDBFile = true;
@@ -1015,7 +1043,7 @@ public class SVEditor extends TextEditor
 						// Try re-checking
 						projectSettingsChanged(null);
 					}
-					updateSVDBFile(getDocument());
+					updateSVDBFile(getDocument(), false);
 				} else {
 					// Store the knowledge that we need an update for later
 					fNeedUpdate = true;
@@ -1027,7 +1055,7 @@ public class SVEditor extends TextEditor
 	// IPartListener methods
 	public void partActivated(IWorkbenchPart part) {
 		if (fNeedUpdate) {
-			updateSVDBFile(getDocument());
+			updateSVDBFile(getDocument(), true);
 		}
 	}
 
@@ -1610,6 +1638,8 @@ public class SVEditor extends TextEditor
 				
 				if (SVEditorPrefsConstants.P_FOLDING_PREFS.contains(event.getProperty())) {
 					updateFoldingPrefs();
+				} else if (event.getProperty().equals(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY)) {
+					updateAutoIndexDelayPref();
 				}
 			}
 	};
@@ -1640,7 +1670,7 @@ public class SVEditor extends TextEditor
 				event.getResource().getFullPath().toOSString().equals(fFile)) {
 			// Re-parse the file and update markers if the file changes 
 			// outside the editor. 
-			updateSVDBFile(getDocument());
+			updateSVDBFile(getDocument(), true);
 		}
 	}
 	
