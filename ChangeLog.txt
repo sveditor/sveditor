@@ -9,6 +9,10 @@
 
 - #(295) - Correct a parse bug in an associated-array initialization statement 
   involving scoped identifiers. 
+  
+- #(291) - Correct an indexer crash when the argument file contains a directory
+  path rather than a file path. The indexer now ignores the directory path, and
+  the argument-file parser adds an error marker.
 
 ------------------------------------------------------------------------------
 -- 1.4.7 Release --
