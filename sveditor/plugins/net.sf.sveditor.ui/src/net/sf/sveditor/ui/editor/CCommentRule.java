@@ -26,13 +26,15 @@ public class CCommentRule implements IPredicateRule {
 
 	public IToken evaluate(ICharacterScanner scanner, boolean resume) {
 		boolean in_comment = resume;
-		
+	
 		if (!resume) {
 			if (scanner.read() == '/') {
 				if (scanner.read() == '*') {
 					in_comment = true;
+				} else {
+					scanner.unread();
+					scanner.unread();
 				}
-				scanner.unread();
 			} else {
 				scanner.unread();
 			}

@@ -22,7 +22,6 @@ import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
@@ -58,8 +57,8 @@ public class SVArgFileDocSetupParticipant implements IDocumentSetupParticipant {
 		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 		
 //		rules.add(new EndOfLineRule("//", slc));
-		rules.add(new SLCommentRule(slc));
 		rules.add(new CCommentRule(mlc));
+		rules.add(new SLCommentRule(slc));
 
 		IPredicateRule rulesArr[] = rules.toArray(new IPredicateRule[rules.size()]);
 		scanner.setDefaultReturnToken(new Token(IDocument.DEFAULT_CONTENT_TYPE));
