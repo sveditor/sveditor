@@ -16,6 +16,8 @@
   
 - #(293) - Correct block-comment colorizing in argument files
 
+- #(296) Indenter behavior with "assert" and "randomize with" inconsistent 
+
 ------------------------------------------------------------------------------
 -- 1.4.7 Release --
 

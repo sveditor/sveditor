@@ -240,20 +240,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 
 		start_of_scope(tok);
-		
+
 		tok = next_s();
-		
+
 		if (tok.isOp("(")) {
 			tok = consume_expression();
 		} else {
 			//System.out.println("[ERROR] unsure what happened - tok=" + 
-		    // tok.getImage());
+			// tok.getImage());
 			// bail out -- not sure what happened...
 			return tok;
 		}
 
 		tok = indent_if_stmts(null);
-		
+
 		if (tok.isId("else")) {
 			// Insert a dummy scope to prevent the token following the 'else'
 			// from re-setting the adaptive indent
@@ -277,6 +277,57 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (fDebugEn) {
 			debug("<-- indent_if() tok=" + 
 				((tok != null)?tok.getImage():"null"));
+		}
+		
+		return tok;
+	}
+	
+	private SVIndentToken indent_assert (boolean is_else_if) {
+		SVIndentToken tok = current();
+		
+		if (fDebugEn) {
+			debug("--> indent_if() tok=" + tok.getImage());
+		}
+		start_of_scope(tok);
+
+		tok = next_s();
+
+		if (tok.isOp("(")) {
+			tok = consume_expression();
+		} else {
+			//System.out.println("[ERROR] unsure what happened - tok=" + 
+			// tok.getImage());
+			// bail out -- not sure what happened...
+			return tok;
+		}
+
+		if (tok.isId("else")) {
+			leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
+//			start_of_scope(tok);
+		}
+		if (tok.isId("else")) {
+			// Insert a dummy scope to prevent the token following the 'else'
+			// from re-setting the adaptive indent
+			start_of_scope(tok, false);
+			if (fDebugEn) {
+				debug("--> else next_s");
+			}
+			tok = next_s();
+			if (fDebugEn) {
+				debug("<-- else next_s");
+			}
+			leave_scope();
+			if (tok.isId("if")) {
+				tok = indent_if(true);
+			} else {
+				start_of_scope(tok);
+				tok = indent_if_stmts(null);
+			}
+		}
+		
+		if (fDebugEn) {
+			debug("<-- indent_if() tok=" + 
+					((tok != null)?tok.getImage():"null"));
 		}
 		
 		return tok;
@@ -913,6 +964,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		// Just indent the statement
 		if (tok.isId("if")) {
 			tok = indent_if(false);
+		} else if (tok.isId("assert")) {
+			tok = indent_assert(false);
 		} else if (tok.isId("fork")) {
 			tok = indent_fork();
 		} else if (is_case(tok) || tok.isId("randcase")) {
