@@ -1403,7 +1403,7 @@ public class SVExprParser extends SVParserBase {
 			String q = fLexer.eatToken();
 			
 			fLexer.peek();
-			if (fLexer.isIdentifier() || fLexer.peekKeyword("new", "super", "this")) {
+			if (fLexer.isIdentifier() || fLexer.peekKeyword(SVKeywords.fBuiltinSelectorMethods)) {
 				SVToken id_tok = fLexer.consumeToken();
 				String id = id_tok.getImage();
 				
