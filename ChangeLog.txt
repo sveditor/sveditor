@@ -13,6 +13,8 @@
 - #(291) - Correct an indexer crash when the argument file contains a directory
   path rather than a file path. The indexer now ignores the directory path, and
   the argument-file parser adds an error marker.
+  
+- #(293) - Correct block-comment colorizing in argument files
 
 ------------------------------------------------------------------------------
 -- 1.4.7 Release --

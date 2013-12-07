@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
+import net.sf.sveditor.ui.editor.CCommentRule;
+import net.sf.sveditor.ui.editor.SLCommentRule;
 import net.sf.sveditor.ui.editor.SVEditorColors;
 
 import org.eclipse.jface.text.TextAttribute;
@@ -58,9 +60,11 @@ public class SVArgFileCodeScanner extends RuleBasedScanner {
 		setDefaultReturnToken(default_t);
 		
 		List<IRule> rules = new ArrayList<IRule>();
-		
-		rules.add(new EndOfLineRule("//", slc));
-	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));
+
+//		rules.add(new EndOfLineRule("//", slc));
+		rules.add(new CCommentRule(mlc));
+		rules.add(new SLCommentRule(slc));
+//	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));"
 
 	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
 	    rules.add(new SingleLineRule("${", "}", svt_param));

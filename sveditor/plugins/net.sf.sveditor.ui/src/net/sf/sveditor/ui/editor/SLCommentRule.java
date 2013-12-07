@@ -31,8 +31,10 @@ public class SLCommentRule implements IPredicateRule {
 			if (scanner.read() == '/') {
 				if (scanner.read() == '/') {
 					in_comment = true;
+				} else {
+					scanner.unread();
+					scanner.unread();
 				}
-				scanner.unread();
 			} else {
 				scanner.unread();
 			}
