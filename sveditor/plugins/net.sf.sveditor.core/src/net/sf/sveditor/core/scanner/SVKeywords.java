@@ -478,10 +478,11 @@ public class SVKeywords {
 		"string",
 		"unsigned",
 	};
-	
+
 	public static final Set<String>					fBuiltinTypes;
 	public static final Set<String>					fTypePrefixes;
 	public static final Set<String>					fBuiltinDeclTypes;
+	public static final Set<String>					fBuiltinSelectorMethods;
 	private static final Map<String, Boolean>			fKeywordMap;
 	private static final Set<String>					fAllKeywords;
 	public static final Set<String>					fBuiltinGates_with_Strength;
@@ -512,6 +513,14 @@ public class SVKeywords {
 			if (!n.equals("void")) {
 				fBuiltinDeclTypes.add(n);
 			}
+		}
+		
+		fBuiltinSelectorMethods = new HashSet<String>();
+		for (String m : new String[] {
+				"new", "super", "this",
+				"and", "or", "xor"
+				}) {
+			fBuiltinSelectorMethods.add(m);
 		}
 		
 		fBuiltinGates_with_Strength = new HashSet<String>();
