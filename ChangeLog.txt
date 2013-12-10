@@ -1,4 +1,7 @@
 
+-- 1.4.9 Release --
+
+------------------------------------------------------------------------------
 -- 1.4.8 Release --
 
 - #(292) - Property parser bug corrected
@@ -16,7 +19,9 @@
   
 - #(293) - Correct block-comment colorizing in argument files
 
-- #(296) Indenter behavior with "assert" and "randomize with" inconsistent 
+- #(296) - Indenter behavior with "assert" and "randomize with" inconsistent 
+
+- #(297) - Correct a parse bug involving xor/or/and array-reduce methods
 
 ------------------------------------------------------------------------------
 -- 1.4.7 Release --

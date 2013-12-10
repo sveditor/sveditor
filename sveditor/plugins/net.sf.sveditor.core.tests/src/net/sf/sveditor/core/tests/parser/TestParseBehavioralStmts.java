@@ -398,6 +398,36 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest(testname, doc, 
 				new String[] { "check_for_element"});
 	}
+	
+	public void testArrayReduction() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module test;\n" +
+			"	initial begin\n" +
+			"		begin\n" +
+ 			"			automatic byte b[] = { 1, 2, 3, 4 };\n" +
+ 			"			int y;\n" +
+ 			"			y = b.sum ; // y becomes 10 => 1 + 2 + 3 + 4\n" +
+ 			"			y = b.product ; // y becomes 24 => 1 * 2 * 3 * 4\n" +
+ 			"			y = b.xor with ( item + 4 ); // y becomes 12 => 5 ^ 6 ^ 7 ^ 8\n" +
+ 			"			y = b.and();\n" +
+ 			"			y = b.or();\n" +
+ 			"		end\n" +
+ 			"		begin\n" +
+ 			"			automatic logic [7:0] m [2][2] = '{ '{5, 10}, '{15, 20} };\n" +
+ 			"			int y;\n" +
+ 			"			y = m.sum with (item.sum() with (item)); // y becomes 50 => 5+10+15+20\n" +
+ 			"		end\n" +
+ 			"		begin\n" +
+ 			"			logic bit_arr [1024];\n" +
+ 			"			int y;\n" +
+ 			"			y = bit_arr.sum with ( int'(item) ); // forces result to be 32-bit\n" +
+ 			"		end\n" +
+ 			"	end\n" +
+ 			"endmodule\n"
+ 			;
+		runTest(getName(), doc, new String[] { "test"});
+	}
 
 	public void testListUnique() {
 		String testname = "testListUnique";
