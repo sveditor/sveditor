@@ -1,5 +1,42 @@
 = Source Documentation =
+== Introduction ==
+SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of code.  What does this give me?
+* A commenting style that is reasonably easy to sell to your peers
+* Provides pop-ups as you mouse over code
+** Mousing over a module, variable or function name will automatically bring up the text that the user added as he documented his code
+* Allows you to create a reference guide for the verification collateral that you have created.  
+** No more maintaining a separate word document that describes your class structure
+** Keep your code accurately documented, hit "Generate", Select the packages you want to generated documentation for and Viola
 
-SVEditor 
+==First Example==
 
+ /**
+   * Module: my_module
+   * 
+   * This is my module.  Paste this code into SVE.  If you mouse over the various items in the
+   *  code below, you'll see a pop-up showing these comments
+   * 
+   */
+ module my_module();
+    // Variable: first_variable
+    // This is the first variable - note using // instead of /*
+    logic first_variable;
+    
+    /**
+     * Function: addme
+     * 
+     * This function adds <second_var> to <first_var>.  Items in angle braces will be 
+     * interpreted as links if link exists
+     * 
+     * Parameters:
+     * second_var - logic - default 0 - Minuend
+     * first_var  - logic - default 0 - Subtrahend
+     * 
+     * Returns:
+     * logic - sum of second_var and first_var
+     */
+    function logic addme (input logic first_var, input logic second_var);
+       return (first_var + second_var);
+    endfunction
+ endmodule
 
