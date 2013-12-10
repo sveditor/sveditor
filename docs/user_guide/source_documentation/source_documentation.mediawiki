@@ -9,7 +9,6 @@ SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of
 ** Keep your code accurately documented, hit "Generate", Select the packages you want to generated documentation for and Viola
 
 ==First Example==
-
  /**
    * Module: my_module
    * 
@@ -38,5 +37,21 @@ SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of
     function logic addme (input logic first_var, input logic second_var);
        return (first_var + second_var);
     endfunction
+    
+    /**
+     * Task: schematic_task
+     * 
+     * This shows a schematic in our documentation
+     * >
+     * >  D  +----+ Q
+     * > ----|    |-----
+     * > clk |    |     
+     * > ----|>   |     
+     * >     +----+     
+     * >
+     */
+    task schematic_task ();
+    endtask
  endmodule
-
+ 
+ 
