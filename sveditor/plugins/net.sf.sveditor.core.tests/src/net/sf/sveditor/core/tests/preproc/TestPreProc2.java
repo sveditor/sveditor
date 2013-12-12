@@ -281,6 +281,32 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				exp
 				);		
 	}
+
+	public void testCommentInMacroCall() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"`define macro foo\n" +
+			"`define msg(ID, MSG, VERB) report(ID, MSG, VERB)\n" +
+			"`msg(\"id\",\n" +
+			"	/* block comment */\n" +
+			"	\"does not\",\n" +
+			"	// \"previous comment\",\n" +
+			"	VERBOSITY);\n"
+			;
+		String exp =
+			"\n" +
+			"\n" +
+			" report(\"id\", \"does not\", VERBOSITY);\n"
+			;
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				doc,
+				inc_provider,
+				exp
+				);		
+	}
 	
 	private void runTest(
 			String							doc,

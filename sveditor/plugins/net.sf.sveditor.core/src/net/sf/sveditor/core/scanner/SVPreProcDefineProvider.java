@@ -30,7 +30,7 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
-	private static final boolean		fDebugEn				= false;
+	private static final boolean		fDebugEn				= true;
 	private static final boolean		fDebugChEn				= false;
 	private boolean						fDebugUndefinedMacros	= false;
 	private String						fFilename;
@@ -456,6 +456,29 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		for (int i=0; i<m.getParameters().size(); i++) {
 			ch = scanner.skipWhite(ch);
+			
+			if (ch == '/') {
+				int ch2 = scanner.get_ch();
+				System.out.println("ch=" + (char)ch + " ch2=" + (char)ch2);
+				if (ch2 == '/') {
+					while ((ch = scanner.get_ch()) != -1 && ch != '\n') { }
+					ch = scanner.skipWhite(ch);
+					System.out.println("post-slc: " + (char)ch);
+				} else if (ch2 == '*') {
+					int c1=-1, c2=-1;
+					while ((ch = scanner.get_ch()) != -1) {
+						if (c1 == '*' && c2 == '/') {
+							break;
+						}
+						c1 = c2;
+						c2 = ch;
+					}
+					ch = scanner.skipWhite(ch);
+					System.out.println("post-mlc: " + (char)ch);
+				} else {
+					scanner.unget_ch(ch2);
+				}
+			}
 			int p_start = scanner.getOffset()-1;
 			
 			if (ch == -1) {
