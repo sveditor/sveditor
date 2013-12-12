@@ -186,7 +186,15 @@ public class DocCommentParser implements IDocCommentParser {
 	        // Everything but leading whitespace was removed beforehand.
 
 	        if (inCodeSection) {
-	            if (fPatternCodeSectionEnd.matcher(lines[index]).matches()) {  inCodeSection = false ;  }
+	            if (fPatternCodeSectionEnd.matcher(lines[index]).matches()) {  
+	            	// Remove the "end" tag
+	            	lines[index] = lines[index].replaceAll(fPatternCodeSectionEnd.toString(), "");
+	            	inCodeSection = false ;  
+            	}
+	            else  {
+	            	// Here I am pre-pending the lines with >, which is recognized elsewhere as a code marker
+	            	lines[index] = lines[index].replaceAll("^", ">"); 
+            	}
 	
 	            prevLineBlank = false ;
 	            bodyEnd++ ;
@@ -249,6 +257,7 @@ public class DocCommentParser implements IDocCommentParser {
 	            prevLineBlank = false ;
 	            bodyEnd++ ;
 	            if(fPatternCodeSectionStart.matcher(lines[index]).matches()) {
+	            	lines[index] = lines[index].replaceAll(fPatternCodeSectionStart.toString(), "");
 	            	inCodeSection = true ;
 	            }
 	            	
@@ -853,7 +862,6 @@ public class DocCommentParser implements IDocCommentParser {
 	                
 	                output += "&lt;" ;
 	            }
-
 	    	} else if (textBlocks.get(index).matches("~")) {
 	    		
 	    		TagType tagType = tagType(textBlocks, index) ;
