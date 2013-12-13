@@ -99,7 +99,7 @@ public class HTMLFileFactory {
 			+ "<td class=SEntry><a href=\"#" +topic.getTitle()+ "\" >" +topic.getTitle()+ "</a></td>" 
 			+ "<td class=SDescription>" ;
 		
-			res += topic.getSummary() ;
+			res += fMarkupToHTML.convertNDMarkupToHTML(docFile, topic, topic.getSummary(),HTMLFromNDMarkup.NDMarkupToHTMLStyle.General);
 			res += "</tr>" ;
 		}
 		return res ;
