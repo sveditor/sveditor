@@ -3,8 +3,14 @@
 
 - #(298) - Correct a pre-processor bug involving comments inside a macro call
 
- - #(300) Natural Docs update -  Correctly handle (start code) ... (end) blocks in comments 
+- #(300) Natural Docs update -  Correctly handle (start code) ... (end) blocks in comments 
 
+- #(301) Leading white space at start of code section getting corrupted
+  
+- #(302) Bullets in pop-up help
+  
+- #(303) NDOC Parser - Links not showing up in summary table 
+ 
 ------------------------------------------------------------------------------
 -- 1.4.8 Release --
 
