@@ -1,4 +1,7 @@
 
+-- 1.5.0 Release --
+
+------------------------------------------------------------------------------
 -- 1.4.9 Release --
 
 - #(298) - Correct a pre-processor bug involving comments inside a macro call
