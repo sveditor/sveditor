@@ -15,22 +15,27 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
-import net.sf.sveditor.core.docs.model.DocModelFactory;
 import net.sf.sveditor.core.docs.model.DocModel;
+import net.sf.sveditor.core.docs.model.DocModelFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -61,6 +66,17 @@ public class DocGenWizard extends Wizard {
 			pkgs.add(fSelectPkgsPage.getPkgMap().get(pkg.getName())) ;
 		}
 		cfg.setSelectedPackages(pkgs) ;
+	
+		Set<SVDBDeclCacheItem> prog_mods = new HashSet<SVDBDeclCacheItem>();
+		List<ISVDBIndex> projIndexList = SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists();
+		for (ISVDBIndex index : projIndexList) {
+			for (SVDBDeclCacheItem it : index.findGlobalScopeDecl(new NullProgressMonitor(), "", 
+					new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl, SVDBItemType.ProgramDecl))) {
+				prog_mods.add(it);
+			}
+		}
+		cfg.setModulePrograms(prog_mods);
+
 		cfg.setOutputDir(new File(fBasicOptionsPage.getOutputDir())) ;
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
