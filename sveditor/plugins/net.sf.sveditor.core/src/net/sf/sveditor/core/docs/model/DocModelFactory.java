@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -267,6 +268,16 @@ public class DocModelFactory {
 		
 		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
 		
+		for (SVDBDeclCacheItem mod_prog : cfg.getModulePrograms()) {
+			SymbolTableEntry ent = 
+					SymbolTableEntry.createModProgEntry(
+							mod_prog.getName(), 
+							mod_prog.getFilename(),
+							mod_prog);
+			model.getSymbolTable().addSymbol(ent);
+			gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+		}
+		
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
 			SVDBDeclCacheItem pkgDeclCacheItem = pkgTuple.first() ;
 			ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
@@ -299,7 +310,70 @@ public class DocModelFactory {
 		}
 	}
 			
-
+	private void gatherSymbolsFromModuleProgram(
+			DocGenConfig 		cfg, 
+			DocModel 			model, 
+			SVDBDeclCacheItem 	modProgDeclItem) {
+		
+		SVDBModIfcDecl modProgItem = (SVDBModIfcDecl)modProgDeclItem.getSVDBItem() ;
+		if (modProgItem == null) {
+			fLog.error("DocModelFactory Failed to obtain cache handle for " + 
+					modProgDeclItem.getName());
+		}
+		for(ISVDBChildItem ci: modProgItem.getChildren()) {
+			System.out.println("ci: " + ci.getType());
+		}
+		/** TODO: 
+			if(ci.getType() == SVDBItemType.Task) {
+				SVDBTask svdbTask = (SVDBTask)ci ;
+				SymbolTableEntry taskSTE =
+						SymbolTableEntry.createClassMemberEntry(pkgDeclCacheItem.getName(), 
+								modProgDeclItem.getName(), 
+								svdbTask.getName(), 
+								pkgSvdbIndex,
+								modProgDeclItem.getFilename()) ;
+				model.getSymbolTable().addSymbol(taskSTE) ;
+			} else if(ci.getType() == SVDBItemType.Function) {
+				SVDBFunction svdbFunction = (SVDBFunction)ci ;
+				SymbolTableEntry funcSTE =
+						SymbolTableEntry.createClassMemberEntry(pkgDeclCacheItem.getName(), 
+								modProgDeclItem.getName(), 
+								svdbFunction.getName(), 
+								pkgSvdbIndex,
+								modProgDeclItem.getFilename()) ;
+				model.getSymbolTable().addSymbol(funcSTE) ;
+			} else if(ci.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
+				for(ISVDBChildItem varItem: varDecl.getChildren()) {
+					if(varItem instanceof SVDBVarDeclItem) {
+						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
+						SymbolTableEntry varSTE =
+								SymbolTableEntry.createClassMemberEntry(pkgDeclCacheItem.getName(), 
+										modProgDeclItem.getName(), 
+										varDeclItem.getName(), 
+										pkgSvdbIndex,
+										modProgDeclItem.getFilename()) ;
+						model.getSymbolTable().addSymbol(varSTE) ;
+					}
+				}
+			}
+		}
+		List<SVDBDeclCacheItem> pkgDecls = pkgDeclCacheItem.getParent().findPackageDecl(new NullProgressMonitor(), pkgDeclCacheItem) ; 
+		if(pkgDecls != null) {
+			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
+				if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
+					SymbolTableEntry classSTE = 
+							SymbolTableEntry.createClassEntry(pkgDeclCacheItem.getName(), pkgDecl.getName(), pkgSvdbIndex, pkgDecl.getFilename(), pkgDecl) ;
+					model.getSymbolTable().addSymbol(classSTE) ;
+					gatherSymbolsFromClass(cfg,model,pkgSvdbIndex,pkgDeclCacheItem,pkgDecl) ;
+				}
+			}
+		} else {
+			fLog.debug(ILogLevel.LEVEL_MID,"No decls found for pkg(" + pkgDeclCacheItem.getName() + ")") ;
+		}
+		 */
+	}
+	
 	private void gatherSymbolsFromClass(DocGenConfig cfg, DocModel model,
 			ISVDBIndex pkgSvdbIndex, SVDBDeclCacheItem pkgDeclCacheItem,
 			SVDBDeclCacheItem classDeclCacheItem) {

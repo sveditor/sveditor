@@ -3,7 +3,12 @@ package net.sf.sveditor.core.docs.model;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
-enum SymbolType { CLASS, PKG, CLASS_MEMBER } ;
+enum SymbolType { 
+	CLASS, 
+	PKG, 
+	CLASS_MEMBER,
+	MOD_PROG,
+	MOD_PROG_MEMBER} ;
 
 public class SymbolTableEntry {
 	
@@ -26,6 +31,15 @@ public class SymbolTableEntry {
 		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.PKG) ;
 		result.setPkgName(pkgName) ;
 		result.setSvdbIndex(svdbIndex) ;
+		result.setFile(file) ;
+		result.setDeclCacheItem(declCacheItem) ;
+		return result ;
+	}
+
+	public static SymbolTableEntry createModProgEntry(String pkgName, String file, SVDBDeclCacheItem declCacheItem) {
+		String symbolName = pkgName ;
+		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.PKG) ;
+		result.setPkgName(pkgName) ;
 		result.setFile(file) ;
 		result.setDeclCacheItem(declCacheItem) ;
 		return result ;

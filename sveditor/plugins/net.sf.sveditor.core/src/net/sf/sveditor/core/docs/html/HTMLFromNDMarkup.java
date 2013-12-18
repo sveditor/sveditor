@@ -252,7 +252,12 @@ public class HTMLFromNDMarkup {
 		return output ;
 	}
 	
-	private String buildTextLink(DocFile docFile, DocTopic docTopic, String target, String name, String original) {
+	private String buildTextLink(
+			DocFile 	docFile, 
+			DocTopic 	docTopic, 
+			String 		target, 
+			String 		name, 
+			String 		original) {
 		String plainTarget = HTMLUtils.restoreAmpChars(target) ;
 		String symbol = SymbolTableEntry.cleanSymbol(plainTarget) ; 
 		if(fModel == null) {
