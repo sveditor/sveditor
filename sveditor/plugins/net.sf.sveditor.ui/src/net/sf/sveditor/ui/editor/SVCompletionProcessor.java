@@ -40,7 +40,6 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -666,12 +665,14 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	protected SVDBFile getSVDBFile() {
 		return fEditor.getSVDBFile();
 	}
-	
+
+	/**
 	@Override
 	protected ISVStringPreProcessor getPreProcessor() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	 */
 
 	public IContextInformation[] computeContextInformation(
 			ITextViewer viewer, int offset) {
