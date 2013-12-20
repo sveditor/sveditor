@@ -52,4 +52,7 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 		return false;
 	}
 	
+	public String toString() {
+		return getName();
+	}
 }
