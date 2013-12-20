@@ -40,6 +40,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -592,6 +593,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			if (var_stmt.getTypeInfo() != null) {
 				d.append(" : " + var_stmt.getTypeInfo().toString());
 			}
+		
+			/* TODO: could add vector dim
+			if (var.getArrayDim() != null) {
+				d.append(var.getArrayDim().toString());
+			}
+			 */
 			
 			if (var_stmt.getParent() != null && 
 					var_stmt.getParent().getType() == SVDBItemType.ClassDecl) {
@@ -658,6 +665,12 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	@Override
 	protected SVDBFile getSVDBFile() {
 		return fEditor.getSVDBFile();
+	}
+	
+	@Override
+	protected ISVStringPreProcessor getPreProcessor() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public IContextInformation[] computeContextInformation(
