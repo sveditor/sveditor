@@ -1,6 +1,9 @@
 
 -- 1.5.0 Release --
 
+- #(enh) - Change content-assist label provider to display the type name of
+  built-in net proposals (eg wire[14:0])
+
 ------------------------------------------------------------------------------
 -- 1.4.9 Release --
 
