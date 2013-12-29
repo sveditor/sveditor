@@ -32,6 +32,37 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 				"a", "b", "m", "d");
 	}
 	
+	public void testModuleHierarchyRef_1() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc = 
+			"`define TOP top\n" +
+			"module sub2;\n" +
+			"	wire AA;\n" +
+			"	wire BA;\n" +
+			"endmodule\n" +
+			"\n" +
+			"module sub1;\n" +
+			"	sub2	s2_1();\n" +
+			"	sub2	s2_2();\n" +
+			"endmodule\n" +
+			"\n" +
+			"module top;\n" +
+			"	sub1	s1_1();\n" +
+			"	sub1	s1_2();\n" +
+			"endmodule\n" +
+			"\n" +
+			"module m();\n" +
+			"    \n" +
+			"	initial begin\n" +
+			"		`TOP.s1_1.s2_1.A<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"AA");		
+	}
+	
 }
 
 

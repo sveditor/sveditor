@@ -17,11 +17,13 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 public class TestCompletionProcessor extends AbstractCompletionProcessor {
 	
 	private SVDBFile					fSVDBFile;
 	private ISVDBIndexIterator			fIndexIterator;
+	private ISVStringPreProcessor		fPreProcessor;
 	//private boolean						fEnableKeywords;
 	
 	public TestCompletionProcessor(LogHandle log, SVDBFile file, ISVDBIndexIterator iterator) {
@@ -50,6 +52,15 @@ public class TestCompletionProcessor extends AbstractCompletionProcessor {
 	@Override
 	protected SVDBFile getSVDBFile() {
 		return fSVDBFile;
+	}
+
+	@Override
+	protected ISVStringPreProcessor getPreProcessor(int limit_lineno) {
+		return fPreProcessor;
+	}
+
+	public void setPreProcessor(ISVStringPreProcessor preproc) {
+		fPreProcessor = preproc;
 	}
 
 }

@@ -3,6 +3,9 @@
 
 - #(enh) - Change content-assist label provider to display the type name of
   built-in net proposals (eg wire[14:0])
+  
+- #(enh 80) - Add support for code completion of hierarchical references
+  that use macros. For example: `TOP.sub.signal
 
 ------------------------------------------------------------------------------
 -- 1.4.9 Release --

@@ -149,7 +149,7 @@ public class SVExprScanner {
 					ret.fRoot = "include";
 				}
 			}
-		} else {
+		} else { // Not in a string
 			if (SVCharacter.isSVIdentifierPart((c = scanner.get_ch()))) {
 				debug("notInString c=\"" + (char)c + "\"");
 				scanner.unget_ch(c);
@@ -197,7 +197,7 @@ public class SVExprScanner {
 						ret.fType = ContextType.Untriggered;
 					}
 				}
-			} else {
+			} else { // Not an identifier part
 				// backup and try for a triggered identifier
 				debug("notInId: ch=\"" + (char)c + "\"");
 				
@@ -370,7 +370,18 @@ public class SVExprScanner {
 				break;
 			}
 			start_pos = (scanner.getPos()+1);
-		} while ((trigger = readTriggerStr(scanner, false)) != null);
+			trigger = readTriggerStr(scanner, false);
+			
+			if (trigger == null) {
+				break;
+			} else if (trigger.equals("`")) {
+				start_pos = (scanner.getPos()+1);
+				trigger = readTriggerStr(scanner, false);
+				if (trigger == null) {
+					break;
+				}
+			}
+		} while (true); // ((trigger = readTriggerStr(scanner, false)) != null);
 		
 		fLog.debug("<-- readExpression");
 		
