@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
@@ -67,6 +68,8 @@ import net.sf.sveditor.core.expr_utils.SVExprUtilsParser;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ScanUtils;
 
@@ -92,6 +95,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 	protected abstract ISVDBIndexIterator getIndexIterator();
 	
 	protected abstract SVDBFile getSVDBFile();
+	
+	protected abstract ISVStringPreProcessor getPreProcessor(int limit_lineno);
 	
 	protected void addProposal(SVCompletionProposal p) {
 		boolean found = false;
@@ -166,6 +171,19 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		fLog.debug(LEVEL_MID, "ctxt: type=" + ctxt.fType + 
 				" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
 				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
+		
+		// First, check to see if there are macro references within the root expression
+		if (ctxt.fRoot != null && ctxt.fRoot.indexOf('`') != -1) {
+			// Pre-process
+			ISVStringPreProcessor preproc = getPreProcessor(lineno);
+			if (preproc != null) {
+				ctxt.fRoot = preproc.preprocess(new StringInputStream(ctxt.fRoot));
+				ctxt.fRoot = ctxt.fRoot.trim();
+				fLog.debug(LEVEL_MID, "Post-expansion ctxt: type=" + ctxt.fType + 
+						" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
+						" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
+			}
+		}
 
 		if (ctxt.fTrigger != null) {
 			if (ctxt.fTrigger.equals("`")) {

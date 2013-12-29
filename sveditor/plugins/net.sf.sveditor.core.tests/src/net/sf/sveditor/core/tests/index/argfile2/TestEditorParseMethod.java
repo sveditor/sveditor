@@ -17,6 +17,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -173,6 +174,60 @@ public class TestEditorParseMethod extends SVCoreTestCaseBase {
 		index.getFileSystemProvider().closeStream(in);
 	}
 
+	public void testMultiIncludeGuardsIgnoredOnReparse() {
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		IProject p = TestUtils.createProject("multi_include_guards", 
+				new File(fTmpDir, "multi_include_guards"));
+		addProject(p);
+		
+		SVFileUtils.copy(
+				"top_pkg.sv",
+				p.getFile("multi_include_guards.f"));
+		
+		SVFileUtils.copy(
+				"package top_pkg;\n" +
+				"	`include \"cls1.svh\"\n" +
+				"endpackage\n",
+				p.getFile("top_pkg.sv"));
+		
+		SVFileUtils.copy(
+				"`ifndef INCLUDED_CLS1_SVH\n" +
+				"`define INCLUDED_CLS1_SVH\n" +
+				"	class cls1;\n" +
+				"	endclass\n" +
+				"`endif /* INCLUDED_CLS1_SVH */\n",
+				p.getFile("cls1.svh"));
+		
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(),
+				"included_decl",
+				"${workspace_loc}/multi_include_guards/multi_include_guards.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		index.loadIndex(new NullProgressMonitor());
+	
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+	
+//		SVDBFile file = index.findFile("${workspace_loc}/included_decl/top.sv");
+//		SVDBTestUtils.assertFileHasElements(file, "top", "in_top");
+//		SVDBTestUtils.assertFileDoesNotHaveElements(file, "my_func");
+		
+		IndexTestUtils.assertFileHasElements(index, "cls1");
+	
+		// Now, check the return of the index parse method
+		InputStream in = index.getFileSystemProvider().openStream(
+				"${workspace_loc}/multi_include_guards/cls1.svh");
+	
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		Tuple<SVDBFile, SVDBFile> parse_r = index.parse(new NullProgressMonitor(), in, 
+				"${workspace_loc}/multi_include_guards/cls1.svh",
+				markers);
+		
+		SVDBTestUtils.assertFileHasElements(parse_r.second(), "cls1");
+		
+		index.getFileSystemProvider().closeStream(in);
+	}
 }
 
 

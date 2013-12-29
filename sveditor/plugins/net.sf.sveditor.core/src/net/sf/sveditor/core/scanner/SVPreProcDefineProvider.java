@@ -30,7 +30,7 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
-	private static final boolean		fDebugEn				= true;
+	private static final boolean		fDebugEn				= false;
 	private static final boolean		fDebugChEn				= false;
 	private boolean						fDebugUndefinedMacros	= false;
 	private String						fFilename;
