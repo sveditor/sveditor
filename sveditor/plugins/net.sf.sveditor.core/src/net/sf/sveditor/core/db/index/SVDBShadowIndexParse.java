@@ -1,6 +1,7 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +15,10 @@ import net.sf.sveditor.core.db.index.ops.SVDBFindMacroOp;
 import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -59,27 +62,21 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		SVDBFileTree ft = pp_out.getFileTree();
 		return new Tuple<SVDBFile, SVDBFile>(ft.getSVDBFile(), file);
 	}
-
-	/*
-	private ISVPreProcIncFileProvider	includeFileProvider = new ISVPreProcIncFileProvider() {
-		
-		public Tuple<String, List<SVDBFileTreeMacroList>> findCachedIncFile(String incfile) {
-			return null;
-		}
-		
-		@Override
-		public void addCachedIncFile(String incfile, String rootfile) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public Tuple<String, InputStream> findIncFile(String incfile) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	};
-	 */
 	
+	@Override
+	public ISVStringPreProcessor createPreProc(
+			String 			path, 
+			InputStream 	in,
+			int 			limit_lineno) {
+		SVPreProcessor2 preproc = new SVPreProcessor2(path, in, null, fileMapper);
+		MacroProvider mp = new MacroProvider();
+		preproc.setMacroProvider(mp);
+		
+		/* SVPreProcOutput pp_out = */ preproc.preprocess();
+		
+		return new SVStringPreProcessor(mp);
+	}
+
 	private ISVPreProcFileMapper fileMapper = new ISVPreProcFileMapper() {
 		
 		public int mapFilePathToId(String path, boolean add) {
@@ -100,7 +97,6 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 			setMacro("SVEDITOR", "");
 		}
 		
-
 		public SVDBMacroDef findMacro(String name, int lineno) {
 			
 			if (fMacroMap.containsKey(name)) {

@@ -88,6 +88,7 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
@@ -1987,6 +1988,14 @@ public abstract class AbstractSVDBIndex implements
 		monitor.worked(1);
 		monitor.done();
 		return new Tuple<SVDBFile, SVDBFile>(svdb_pp, svdb_f);
+	}
+	
+	@Override
+	public ISVStringPreProcessor createPreProc(
+			String 			path, 
+			InputStream 	in,
+			int 			limit_lineno) {
+		return null;
 	}
 
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {

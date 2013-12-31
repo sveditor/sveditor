@@ -668,9 +668,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	}
 	
 	@Override
-	protected ISVStringPreProcessor getPreProcessor() {
-		// TODO Auto-generated method stub
-		return null;
+	protected ISVStringPreProcessor getPreProcessor(int limit_lineno) {
+		return fEditor.createPreProcessor(limit_lineno);
 	}
 
 	public IContextInformation[] computeContextInformation(

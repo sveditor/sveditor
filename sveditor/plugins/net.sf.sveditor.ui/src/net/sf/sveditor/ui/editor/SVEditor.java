@@ -60,6 +60,7 @@ import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
@@ -774,6 +775,13 @@ public class SVEditor extends TextEditor
 	
 	public ISVDBIndexIterator getIndexIterator() {
 		return fSVDBIndex;
+	}
+	
+	public ISVStringPreProcessor createPreProcessor(int limit_lineno) {
+		IDocument doc = getDocument();
+		StringInputStream sin = new StringInputStream(doc.get());
+	
+		return fFileIndexParser.createPreProc(getFilePath(), sin, limit_lineno);
 	}
 	
 	public IDocument getDocument() {

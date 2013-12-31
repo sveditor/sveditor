@@ -25,15 +25,15 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -524,6 +524,30 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return ret;
 	}
 	
+	@Override
+	public ISVStringPreProcessor createPreProc(String path, InputStream in,
+			int limit_lineno) {
+		ISVStringPreProcessor ret = null;
+		
+		path = SVFileUtils.normalize(path);
+
+		List<ISVDBIndex> result = findManagingIndex(path);
+
+		if (result.size() > 0) {
+			ret = result.get(0).createPreProc(path, in, limit_lineno);
+		} else {
+			Exception e = null;
+			try {
+				throw new Exception();
+			} catch (Exception ex) {
+				e = ex;
+			}
+			fLog.error("Attempting to parse \"" + path + "\" not managed by an index", e);
+		}
+		
+		return ret;		
+	}
+
 	public List<SVDBSearchResult<SVDBFile>> findIncParent(SVDBFile file) {
 		System.out.println("[TODO] SVDBIndexCollection.findIncParent()");
 		return null;
