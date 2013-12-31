@@ -1218,5 +1218,19 @@ endclass
             restorable="true">
       </view>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.always1"
+            name="Always @ Event">
+         <pattern>
+            always @(${event}) begin
+	${body}
+end
+         </pattern>
+      </template>
+   </extension>
 
 </plugin>
