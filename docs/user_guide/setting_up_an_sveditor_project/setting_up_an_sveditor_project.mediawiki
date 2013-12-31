@@ -153,3 +153,17 @@ Note that the source files, and files included by the root files, are annotated
 with a blue dot. Note that files that are not included in the index, 
 such as the Makefiles, are not annotated with a blue dot.
 
+== Resource Filters ==
+
+On larger projects it becomes useful to have Eclipse ignore selected resources or include only selected resources.  Files to exclude are typically generated files, that just add clutter to the Eclipse workspace.  Examples may include:
+
+* Compiled Verilog code
+* Binary files
+* Log files
+
+These can be configured in the Verilog Properties as follows:
+* Open up the ''Project Properties'' as shown above
+* Go to the resource filters (''Resource > Resource Filters'')
+* Include / exclude files & folders as applicable
+
+'''Note:''' When this is done your ''Project Explorer'' view will reflect these changes (not show resources filtered out / be limited to selected resources), and Open Resource ''Ctrl+Shift+R'' will no longer list excluded resources.
