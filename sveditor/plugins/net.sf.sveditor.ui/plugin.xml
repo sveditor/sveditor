@@ -1224,11 +1224,229 @@ endclass
             autoinsert="true"
             contextTypeId="net.sf.sveditor.ui.svTemplateContext"
             id="net.sf.sveditor.ui.always1"
-            name="Always @ Event">
+            description="Always @ Event Instantiation"
+            name="always @">
          <pattern>
             always @(${event}) begin
-	${body}
+	${cursor}
 end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.alwaysff"
+            description="Always Flop Instantiation"
+            name="always_ff">
+         <pattern>
+            always_ff @(posedge ${clk} or negedge ${reset_n}) begin
+   if (!${reset_n})  begin
+      ${flop} &lt;= 1'b0;
+   end
+   else begin
+      ${flop} &lt;= ${cursor};
+   end
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.alwayslt"
+            description="Always Latch Instantiation"
+            name="always_latch">
+         <pattern>
+            always_latch begin
+   if (!${reset_n})  begin
+      ${latch} &lt;= 1'b0;
+   end
+   else begin
+      ${latch} &lt;= ${cursor};
+   end
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.alwayscomb"
+            description="Always Comb Instantiation"
+            name="always_comb">
+         <pattern>
+            always_comb begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.function"
+            description="Function Instantiation"
+            name="function">
+         <pattern>
+            function ${return_type} ${function_name} (${port_list});
+   ${cursor}
+endfunction
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.task"
+            description="Task Instantiation"
+            name="task">
+         <pattern>
+            task ${task_name} (${port_list});
+   ${cursor}
+endtask
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.if"
+            description="If Instantiation"
+            name="if">
+         <pattern>
+            if (${condition}) begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.else"
+            description="Else Instantiation"
+            name="else">
+         <pattern>
+            else begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.for"
+            description="For Loop Instantiation"
+            name="for">
+         <pattern>
+            for (${counter}=0; ${counter}&lt;${max_count}; ${counter}++) begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.while"
+            description="While Instantiation"
+            name="while">
+         <pattern>
+            while (${condition}) begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.do"
+            description="Do-While Instantiation"
+            name="do">
+         <pattern>
+            do begin
+   ${cursor}
+end while (${condition});
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.case"
+            description="Case Instantiation"
+            name="case">
+         <pattern>
+            case (${signal})
+   ${first}: begin
+      ${cursor}
+   end
+   default: begin
+   end
+endcase
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.casex"
+            description="Casex Instantiation"
+            name="casex">
+         <pattern>
+            casex (${signal})
+   ${first}: begin
+      ${cursor}
+   end
+   default: begin
+   end
+endcase
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.casez"
+            description="Casez Instantiation"
+            name="casez">
+         <pattern>
+            casez (${signal})
+   ${first}: begin
+      ${cursor}
+   end
+   default: begin
+   end
+endcase
          </pattern>
       </template>
    </extension>
