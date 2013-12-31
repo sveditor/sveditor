@@ -11,6 +11,8 @@ This view has a couple of other useful features:
 * '''Open files''' - Double clicking on a file will open it.
 * '''Right-Click''' - Right-clicking on a give file (directory) will bring up an menu of useful things that are possible, browse through them.
 
+[[Image:ProjectExplorer.gif]]
+
 === Project Explorer Icons ===
 
 The icons next to each file contain a TON of useful information:
@@ -38,11 +40,16 @@ It is possible to view the design hierarchy in SVEditor.  Open the design hierar
 
 From this point onwards, you can browse through the hierarchy at will.
 
+[[Image:DesignHierarchy.gif]]
+
+
 == Current File's Outline ==
 
 The structure of the file that is open is available in the "Outline" view.  If not already open, this can be opened at ''Window>Show View>Other>General>Outline''.  Once you have it open, you can navigate through the file by clicking on any item in the view. 
 
 You can turn various constructs on and off by clicking on the various icons at the top of this view.  For instance, signal names (variables in other languages) are usually not useful in Verilog, as it is a very "variable heavy" language.  Module instances on the other hand are useful to keep on.  Experiment with these to find a good balance of too much / too little information.
+
+[[Image:Outline.gif]]
 
 == Quick Outline - Ctrl+O ==
 
@@ -50,8 +57,13 @@ This is a non-obvious, but very useful item when you get used to it.  If you are
 
 Simply bring it up by typing '''Ctrl+O''', start typing the name of the item you want to jump to and off you go.
 
+[[Image:QuickOutline.gif]]
+
 == Other Navigation Methods ==
 
 Some other useful navigation methods which are useful once you start browsing through code:
 * '''Ctrl+Q''' - Jump to my last edit location (there is an ICON for this in the default toolbar)
 * '''Alt+Left/Alt+Right''' - Backwards / forwards through history.  Similar to back/forwards in a web browser
+
+[[Image:CodeNavigation.gif]]
+
