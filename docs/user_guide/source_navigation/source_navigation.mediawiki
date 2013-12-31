@@ -2,5 +2,56 @@
 
 SVEditor provides many methods for navigating across the project source.
 
-== Open Declaration ==
+== Project Explorer ==
 
+The ''Project Explorer'' view is one of the most basic views in Eclipse.  This view allows you to browse through your code as though you are in a regular file system browser.  If you loose the view, it can be re-opened at ''Window>Show View>Other>General>Project Explorer''.
+
+This view has a couple of other useful features:
+* '''Link with source''' - This icon (near the top right of the view) will keep the project explorer view "linked" with the source code you currently have open.  This can be useful if you are unsure of the file system structure.
+* '''Open files''' - Double clicking on a file will open it.
+* '''Right-Click''' - Right-clicking on a give file (directory) will bring up an menu of useful things that are possible, browse through them.
+
+=== Project Explorer Icons ===
+
+The icons next to each file contain a TON of useful information:
+
+* '''Blue Dot''' - This is a file / directory that SV Editor is parsing
+* '''Gold Drum''' - This file / directory is under revision control
+* ''' > Sign ''' - This file / directory under revision control has been modified
+* ''' ? ''' - This file / directory is not under revision control  
+
+== Open Declaration - F3 ==
+
+Hitting '''F3''' when on any given construct will take you to that object's declaration.  For example if you hit '''F3''' while the cursor is on a:
+* Signal name: you will be taken to the signal declaration
+* Module name: you will be taken to the module declaration (typically in another file)
+* Class Name: you will be taken to the class declaration
+* Function Name: you will be taken to the function declaration ... and so on
+
+== Open Class Hierarchy - F4 ==
+
+Hitting '''F4''' while on a class name will open up the Hierarchy Browser (this can be opened manually by ''Window>ShowView>SVEditor>Hierarchy'').  Clicking/Double Clicking on anything in this window will take you to through the class hierarchy.
+
+== Open Design Hierarchy ==
+
+It is possible to view the design hierarchy in SVEditor.  Open the design hierarchy view, ''Window>Show View>SVEditor>Design'' Hierarchy.  Once this is open, click on the ''Refresh'' icon in the top right.
+
+From this point onwards, you can browse through the hierarchy at will.
+
+== Current File's Outline ==
+
+The structure of the file that is open is available in the "Outline" view.  If not already open, this can be opened at ''Window>Show View>Other>General>Outline''.  Once you have it open, you can navigate through the file by clicking on any item in the view. 
+
+You can turn various constructs on and off by clicking on the various icons at the top of this view.  For instance, signal names (variables in other languages) are usually not useful in Verilog, as it is a very "variable heavy" language.  Module instances on the other hand are useful to keep on.  Experiment with these to find a good balance of too much / too little information.
+
+== Quick Outline - Ctrl+O ==
+
+This is a non-obvious, but very useful item when you get used to it.  If you are reasonably familiar with the contents of a given file, and want to jump to a different location in the file, without going to the Outline view (described above) the Quick Outline is your friend.
+
+Simply bring it up by typing '''Ctrl+O''', start typing the name of the item you want to jump to and off you go.
+
+== Other Navigation Methods ==
+
+Some other useful navigation methods which are useful once you start browsing through code:
+* '''Ctrl+Q''' - Jump to my last edit location (there is an ICON for this in the default toolbar)
+* '''Alt+Left/Alt+Right''' - Backwards / forwards through history.  Similar to back/forwards in a web browser
