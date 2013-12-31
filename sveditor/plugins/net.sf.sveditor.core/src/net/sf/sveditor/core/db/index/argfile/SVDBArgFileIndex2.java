@@ -80,6 +80,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles.FileListType;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -108,8 +109,10 @@ import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 import org.eclipse.core.resources.IProject;
@@ -229,12 +232,25 @@ public class SVDBArgFileIndex2 implements
 					}
 				}
 				
+				if (changed_sv_files.size() > 0) {
+					if (changed_f_files.size() > 0) {
+						// TODO: Both SV and argument files changed
+						plan = create_incr_hybrid_plan(changed_sv_files, changed_f_files);
+					} else {
+						plan = create_incr_plan(changed_sv_files);
+					}
+				} else if (changed_f_files.size() > 0) {
+					plan = create_incr_argfile_plan(changed_f_files);
+				}
+			
+				/*
 				if (changed_f_files.size() > 0) {
 					// TODO: Full build for now
 					plan = new SVDBIndexChangePlanRebuild(this);
 				} else if (changed_sv_files.size() > 0) {
 					plan = create_incr_plan(changed_sv_files);
 				}
+				 */
 			}
 		}
 		
@@ -398,7 +414,7 @@ public class SVDBArgFileIndex2 implements
 	 */
 	private void rebuild_files(IProgressMonitor monitor, SVDBIndexChangePlanRebuildFiles plan) {
 		if (fDebugEn) {
-			fLog.debug(LEVEL_MIN, "rebuild_files: ");
+			fLog.debug(LEVEL_MIN, "rebuild_files: " + plan.getFileListType());
 		}
 		
 		monitor.beginTask("Update " + getBaseLocation(), 2*1000*plan.getFileList().size());
@@ -415,6 +431,20 @@ public class SVDBArgFileIndex2 implements
 	
 		// Save the number of files pre, so we can update post
 		int n_files_pre = build_data.fIndexCacheData.getFileCount(FILE_ATTR_SRC_FILE);
+		
+		// First build a complete source list of files
+		List<String> file_list = new ArrayList<String>();
+		if (plan.getFileListType() == FileListType.Source) {
+			// simple: already have it
+			file_list.addAll(plan.getFileList());
+		} else if (plan.getFileListType() == FileListType.Filelist) {
+			for (String f_file : plan.getFileList()) {
+				Set<String> processed_argfiles = new HashSet<String>();
+				discover_add_sourcefiles(processed_argfiles, file_list, f_file);
+			}
+		} else if (plan.getFileListType() == FileListType.Hybrid) {
+			
+		}
 	
 		try {
 			// TODO: order files based on previous processing order
@@ -537,6 +567,19 @@ public class SVDBArgFileIndex2 implements
 			monitor.done();
 		}
 	}
+	
+	private void discover_add_sourcefiles(
+			Set<String> 		processed_argfiles,
+			List<String> 		file_list, 
+			String 				argfile) {
+	
+		if (processed_argfiles.contains(argfile)) {
+			return;
+		} else {
+			processed_argfiles.add(argfile);
+		}
+		
+	}
 
 	/**
 	 * Patch the global declarations back into the main cache
@@ -566,6 +609,43 @@ public class SVDBArgFileIndex2 implements
 	private ISVDBIndexChangePlan create_incr_plan(List<String> changed_sv_files) {
 		SVDBIndexChangePlanRebuildFiles plan = new SVDBIndexChangePlanRebuildFiles(this);
 	
+		plan.setFileListType(FileListType.Source);
+		
+		for (String sv_path : changed_sv_files) {
+			SVDBFileTree ft = findRootFileTree(fBuildData, sv_path);
+			if (ft != null) {
+				plan.addFile(ft.getFilePath());
+			}
+		}
+		
+		return plan;
+	}
+	
+	private ISVDBIndexChangePlan create_incr_argfile_plan(List<String> changed_f_files) {
+		SVDBIndexChangePlanRebuildFiles plan = new SVDBIndexChangePlanRebuildFiles(this);
+		
+		plan.setFileListType(FileListType.Filelist);
+	
+		for (String f_path : changed_f_files) {
+			plan.addFile(f_path);
+		}
+		
+		return plan;
+	}
+	
+	private ISVDBIndexChangePlan create_incr_hybrid_plan(
+			List<String> changed_sv_files,
+			List<String> changed_f_files) {
+		SVDBIndexChangePlanRebuildFiles plan = new SVDBIndexChangePlanRebuildFiles(this);
+		
+		plan.setFileListType(FileListType.Hybrid);
+
+		// Add argument files first
+		for (String f_path : changed_f_files) {
+			plan.addFile(f_path);
+		}
+		
+		// Then add source files
 		for (String sv_path : changed_sv_files) {
 			SVDBFileTree ft = findRootFileTree(fBuildData, sv_path);
 			if (ft != null) {
@@ -1647,6 +1727,70 @@ public class SVDBArgFileIndex2 implements
 		
 		return new Tuple<SVDBFile, SVDBFile>(file_ft, file);
 	}
+	
+	public ISVStringPreProcessor createPreProc(
+			String 				path,
+			InputStream			in,
+			int					limit_lineno) {
+		ISVStringPreProcessor ret = null;
+
+		synchronized (fBuildData) {
+			String r_path = SVFileUtils.resolvePath(
+					path, getResolvedBaseLocation(), 
+					fFileSystemProvider, fInWorkspaceOk);
+
+			if (!fFileSystemProvider.fileExists(r_path)) {
+				fLog.debug("parse: path " + r_path + " does not exist");
+				return null;
+			}
+
+			checkInIndexOp("parse");
+
+			long start=0, end=0;
+			
+			if (fDebugEn) {
+				start = System.currentTimeMillis();
+			}
+	
+			
+			if (fDebugEn) {
+				end = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "  findTargetFileTree: " + (end-start) + "ms");
+			}
+
+			//
+			// TODO: using 'this' as the include provider 
+			// may not be ideal
+			SVPreProcessor2 preproc = new SVPreProcessor2(
+					r_path, in, fBuildData, fReadOnlyFileMapper);
+
+			// TODO: add macros from FT
+			List<SVDBMacroDef> incoming_macros = calculateIncomingMacros(fBuildData, r_path);
+			end = System.currentTimeMillis();
+				
+			for (SVDBMacroDef m : incoming_macros) {
+				preproc.setMacro(m);
+			}
+			
+			int this_fileid = fReadOnlyFileMapper.mapFilePathToId(r_path, false);
+			
+			preproc.preprocess();
+			
+			List<SVDBMacroDef> macros = new ArrayList<SVDBMacroDef>();
+			for (SVDBMacroDef m : preproc.getDefaultMacros()) {
+				if (m.getLocation() == null || limit_lineno == -1 ||
+						m.getLocation().getFileId() != this_fileid ||
+						m.getLocation().getLine() <= limit_lineno) {
+					macros.add(m);
+				}
+			}
+			
+			ret = new SVStringPreProcessor(macros);
+		}
+			
+		return ret;
+	}
+	
 	
 	/**
 	 * Traverse through the FileTree structure to calculate the

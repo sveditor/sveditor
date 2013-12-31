@@ -22,13 +22,19 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
@@ -116,10 +122,16 @@ public class ContentAssistTests extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
+		ParserSVDBFileFactory factory = new ParserSVDBFileFactory();
+		SVPreProcessor2 preproc = new SVPreProcessor2(testname, tt_utils.openStream(), null, null);
+		
+		SVPreProcOutput out = preproc.preprocess();
+
+		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, out, testname, markers);
+//		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
 		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
 		
 		for (ISVDBItemBase it : file.getChildren()) {
@@ -129,6 +141,16 @@ public class ContentAssistTests extends TestCase {
 		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
 		TestCompletionProcessor cp = new TestCompletionProcessor(
 				log, file, new FileIndexIterator(file, cache));
+	
+		List<SVDBMacroDef> macros = new ArrayList<SVDBMacroDef>();
+	
+		for (SVDBMacroDef m : preproc.getDefaultMacros()) {
+			macros.add(m);
+		}
+	
+		ISVStringPreProcessor pp = new SVStringPreProcessor(macros);
+		
+		cp.setPreProcessor(pp);
 		
 		scanner.seek(tt_utils.getPosMap().get("MARK"));
 

@@ -42,7 +42,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;

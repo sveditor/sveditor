@@ -2,6 +2,7 @@ package net.sf.sveditor.core.preproc;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +62,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private Stack<SVPreProc2InputData>				fInputStack;
 	private SVPreProc2InputData						fInputCurr;
 	private ISVPreProcFileMapper					fFileMapper;
+	private Map<String, SVDBMacroDef>				fMacroMap = new HashMap<String, SVDBMacroDef>();
 	
 	private static final int    PP_DISABLED 			= 0;
 	private static final int    PP_ENABLED  			= 1;
@@ -125,6 +127,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 		// Add the first file
 		enter_file(filename, input);
+	}
+	
+	public Collection<SVDBMacroDef> getDefaultMacros() {
+		return fMacroMap.values();
 	}
 	
 	public void setIndexStats(SVDBIndexStats stats) {
@@ -1026,7 +1032,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	}
 	
 	private IPreProcMacroProvider defaultMacroProvider = new IPreProcMacroProvider() {
-		private Map<String, SVDBMacroDef>		fMacroMap = new HashMap<String, SVDBMacroDef>();
 		
 		public void setMacro(String key, String value) {
 			if (value == null) {

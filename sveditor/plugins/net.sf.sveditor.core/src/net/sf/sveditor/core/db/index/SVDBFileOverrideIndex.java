@@ -11,7 +11,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
@@ -19,14 +18,14 @@ import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -241,6 +240,19 @@ public class SVDBFileOverrideIndex
 	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor,
 			InputStream in, String path, List<SVDBMarker> markers) {
 		return fIndex.parse(monitor, in, path, markers);
+	}
+	
+	@Override
+	public ISVStringPreProcessor createPreProc(
+			String 			path, 
+			InputStream 	in,
+			int 			limit_lineno) {
+		if (fIndex != null) {
+			// TODO: should add in locally-added macros?
+			return fIndex.createPreProc(path, in, limit_lineno);
+		}
+
+		return null;
 	}
 
 	public void setEnableAutoRebuild(boolean en) {

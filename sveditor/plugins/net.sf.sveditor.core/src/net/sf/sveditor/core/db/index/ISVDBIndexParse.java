@@ -6,6 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -22,4 +23,15 @@ public interface ISVDBIndexParse {
 			InputStream in, 
 			String path, 
 			List<SVDBMarker> markers);
+
+	/**
+	 * Creates a pre-processor for the specified path
+	 * 
+	 * @param path
+	 * @return
+	 */
+	ISVStringPreProcessor createPreProc(
+			String 				path,
+			InputStream			in,
+			int					limit_lineno);
 }

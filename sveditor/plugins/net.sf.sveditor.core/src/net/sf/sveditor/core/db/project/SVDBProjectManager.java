@@ -270,12 +270,13 @@ public class SVDBProjectManager implements
 		boolean rebuild_workspace = false;
 		
 		for (Job j : Job.getJobManager().find(null)) {
+			System.out.println("Job: " + j.getName());
 			if (j.getName().startsWith("Building work")) {
 				rebuild_workspace = true;
 				break;
 			}
 		}
-		
+
 		if (rebuild_workspace) {
 			fLog.debug(LEVEL_MIN, "Skip due to rebuild workspace");
 			return;
