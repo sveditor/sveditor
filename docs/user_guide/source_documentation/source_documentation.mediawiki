@@ -1,4 +1,7 @@
 = Source Documentation =
+
+__TOC__
+
 == Introduction ==
 SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of code.  What does this give me?
 * A commenting style that is reasonably easy to sell to your peers

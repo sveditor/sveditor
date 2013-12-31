@@ -2,6 +2,8 @@
 
 SVEditor provides many methods for navigating across the project source.
 
+__TOC__
+
 == Project Explorer ==
 
 The ''Project Explorer'' view is one of the most basic views in Eclipse.  This view allows you to browse through your code as though you are in a regular file system browser.  If you loose the view, it can be re-opened at ''Window>Show View>Other>General>Project Explorer''.
@@ -21,6 +23,18 @@ The icons next to each file contain a TON of useful information:
 * '''Gold Drum''' - This file / directory is under revision control
 * ''' > Sign ''' - This file / directory under revision control has been modified
 * ''' ? ''' - This file / directory is not under revision control  
+
+== Open Resource - Ctrl+Shift+R ==
+
+Native to Eclipse is the notion that every file within a project is a resource.  To open up a random file in your workspace, type '''Ctrl+Shift+R'''.  This will bring up a dialog box in which you can simple type in a file name, hit Enter and the file you seek will open.
+
+'''Note:''' This is independent of the SV Editor plugin, it is purely Eclipse looking at files on within the project.  See ''Resource Filtering'' below.
+
+== Open Type - Ctrl+Shift+T ==
+
+As SV Editor builds an index of the files in your design, it creates a list of "types".  This will include modules, classes etc. that are outside of the project scope.  These files will not be directly accessible using Eclipse's ''Open Resource'' ('''Ctrl+Shift+R''').  It is possible to open these modules painlessly by invoking the ''Open Type'' command, which is '''Ctrl+Shift+T'''.  
+
+This dialog behaves identically to ''Open Resource'', but lists design modules instead of project files.
 
 == Open Declaration - F3 ==
 
