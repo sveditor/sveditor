@@ -1338,6 +1338,21 @@ end
       <template
             autoinsert="true"
             contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.assert"
+            description="Assert Instantiation"
+            name="assert">
+         <pattern>
+            assert (${condition}) 
+else
+   	${cursor}
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
             id="net.sf.sveditor.ui.else"
             description="Else Instantiation"
             name="else">
@@ -1447,6 +1462,36 @@ endcase
    default: begin
    end
 endcase
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.initial"
+            description="Initial Block Instantiation"
+            name="initial">
+         <pattern>
+            initial begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.final"
+            description="Final Block Instantiation"
+            name="final">
+         <pattern>
+            final begin
+   ${cursor}
+end
          </pattern>
       </template>
    </extension>

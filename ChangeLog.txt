@@ -9,7 +9,7 @@
 
 - #(enh 68) - Added default code templates for some commonly used structures:
    always_ff, always_latch, always_comb, if, else, do, while, for, case, casez, casex,
-   function, task
+   function, task, initial, final, assert
 
 ------------------------------------------------------------------------------
 -- 1.4.9 Release --
