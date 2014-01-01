@@ -16,6 +16,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -28,6 +29,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.contentassist.ContextInformation;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension;
 import org.eclipse.jface.text.contentassist.ICompletionProposalExtension2;
@@ -383,7 +385,8 @@ public class SVIndentingTemplateProposal
 	 * @see ICompletionProposal#getContextInformation()
 	 */
 	public IContextInformation getContextInformation() {
-		return null;
+		return new ContextInformation("SV Template", "This is a SV Template");
+//		return null;
 	}
 
 	private void openErrorDialog(Shell shell, Exception e) {
@@ -527,14 +530,14 @@ public class SVIndentingTemplateProposal
 			
 			indenter.init(scanner);
 			
+			indenter.setIndentIncr(SVUiPlugin.getDefault().getIndentIncr());
+			
 			indenter.setAdaptiveIndent(true);
 			indenter.setAdaptiveIndentEnd(target_lineno+1);
 			
 			// The goal, here, is to format the entire document
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event
-			
-			
 			try {
 				text = indenter.indent(lineno+1, (lineno+line_cnt+1));
 				
@@ -555,21 +558,6 @@ public class SVIndentingTemplateProposal
 			e.printStackTrace();
 		}
 
-		/*
-		int start_line=-1, pre_len=-1, post_len=-1, end_line=-1;
-		try {
-			start_line = viewer.getDocument().getLineOfOffset(offset);
-			pre_len = viewer.getDocument().getLength();
-			// TODO Auto-generated method stub
-			// super.apply(viewer, trigger, stateMask, offset);
-			post_len = viewer.getDocument().getLength();
-			end_line = viewer.getDocument().getLineOfOffset(offset + (post_len-pre_len));
-		} catch (BadLocationException e) { }
-
-		System.out.println("start_line=" + start_line + " end_line=" + end_line);
-		System.out.println("pre_len=" + pre_len + " post_len=" + post_len);
-		 */
-		
 		return text;
 	}
 }

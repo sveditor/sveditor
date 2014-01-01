@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.content_assist.SVCompletionProposalType;
@@ -37,9 +38,12 @@ import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -83,6 +87,39 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	
 	public ICompletionProposal[] computeCompletionProposals(
 			ITextViewer viewer, int offset) {
+		List<ICompletionProposal> ret = new ArrayList<ICompletionProposal>();
+		
+		calculateCompletionProposals(ret, viewer, offset);
+		
+		return ret.toArray(new ICompletionProposal[ret.size()]);
+	}
+	
+	public static IBIDITextScanner createScanner(ITextViewer viewer, int offset) {
+		final SVDocumentTextScanner scanner = new SVDocumentTextScanner(
+				viewer.getDocument(), offset);
+		scanner.setSkipComments(true);
+
+		return scanner;
+	}
+	
+	public static Tuple<Integer, Integer> computeLineOffset(ITextViewer viewer, int offset) {
+		int lineno=-1, linepos=-1;
+		
+		try {
+			lineno = viewer.getDocument().getLineOfOffset(offset);
+			linepos = (offset-viewer.getDocument().getLineOffset(lineno));
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+			return null;
+		}
+	
+		return new Tuple<Integer, Integer>(lineno, linepos);
+	}
+	
+	public void calculateCompletionProposals(
+			List<ICompletionProposal>		proposals,
+			ITextViewer 					viewer,
+			int 							offset) {
 		fProposalUtils.setTFMaxCharsPerLine(SVUiPlugin.getDefault().getIntegerPref(
 				SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT));
 		fProposalUtils.setTFNamedPorts(SVUiPlugin.getDefault().getBooleanPref(
@@ -101,27 +138,25 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 						SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE));
 
 		fProposals.clear();
-		final SVDocumentTextScanner scanner = new SVDocumentTextScanner(
-				viewer.getDocument(), offset);
-		scanner.setSkipComments(true);
+		final IBIDITextScanner scanner = createScanner(viewer, offset);
+		
+		Tuple<Integer, Integer> line_pos = computeLineOffset(viewer, offset);
+		
+		if (line_pos == null) {
+			return;
+		}
 		
 		int lineno = -1, linepos = -1;
-		
-		
-		try {
-			lineno = viewer.getDocument().getLineOfOffset(offset);
-			linepos = (offset-viewer.getDocument().getLineOffset(lineno));
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-			return new ICompletionProposal[0];
-		}
+		lineno = line_pos.first();
+		linepos = line_pos.second();
 
 		IJobMgr job_mgr = SVCorePlugin.getJobMgr();
 		IJob job = job_mgr.createJob();
 		final int lineno_f = lineno, linepos_f = linepos;
 		job.init("Content Assist", new Runnable() {
 			public void run() {
-				computeProposals(scanner, fEditor.getSVDBFile(), lineno_f, linepos_f);
+				SVExprContext ctxt = computeExprContext(scanner, lineno_f);
+				computeProposals(ctxt, scanner, fEditor.getSVDBFile(), lineno_f, linepos_f);
 			}
 		});
 		
@@ -163,7 +198,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 			fProposals.addAll(cp);
 		}
 	
-		return fProposals.toArray(new ICompletionProposal[fProposals.size()]);	
+		proposals.addAll(fProposals);
 	}
 	
 	private static int getIndentStringSize(String indent) {
@@ -175,6 +210,8 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				size++;
 			}
 		}
+		
+		
 		return size;
 	}
 	
@@ -666,12 +703,10 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 		return fEditor.getSVDBFile();
 	}
 
-	/**
 	@Override
 	protected ISVStringPreProcessor getPreProcessor(int limit_lineno) {
 		return fEditor.createPreProcessor(limit_lineno);
 	}
-	 */
 
 	public IContextInformation[] computeContextInformation(
 			ITextViewer viewer, int offset) {

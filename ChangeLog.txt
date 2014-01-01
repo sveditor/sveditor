@@ -6,6 +6,13 @@
   
 - #(enh 80) - Add support for code completion of hierarchical references
   that use macros. For example: `TOP.sub.signal
+  
+- #(306) - Corrected a bug involving auto-indent of code templates when 
+  preference settings cause spaces rather than tabs to be inserted.
+  
+- #(sr 10) - Add support for multiple content-assist contexts, which allows
+  code templates to be selected based on how the content begins as well as
+  the name associated with the code template. 
 
 - #(enh 68) - Added default code templates for some commonly used structures:
    always_ff, always_latch, always_comb, if, else, do, while, for, case, casez, casex,

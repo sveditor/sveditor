@@ -69,7 +69,6 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ScanUtils;
 
@@ -138,15 +137,41 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno) {
-		computeProposals(scanner, active_file, lineno, -1);
+		SVExprContext ctxt = computeExprContext(scanner, lineno);
+		computeProposals(ctxt, scanner, active_file, lineno, -1);
 	}
-
+	
+	public SVExprContext computeExprContext(IBIDITextScanner scanner, int lineno) {
+		SVExprScanner expr_scan = new SVExprScanner();
+		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
+		
+		fLog.debug(LEVEL_MID, "ctxt: type=" + ctxt.fType + 
+				" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
+				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
+		
+		// First, check to see if there are macro references within the root expression
+		if (ctxt.fRoot != null && ctxt.fRoot.indexOf('`') != -1) {
+			// Pre-process
+			ISVStringPreProcessor preproc = getPreProcessor(lineno);
+			if (preproc != null) {
+				ctxt.fRoot = preproc.preprocess(new StringInputStream(ctxt.fRoot));
+				ctxt.fRoot = ctxt.fRoot.trim();
+				fLog.debug(LEVEL_MID, "Post-expansion ctxt: type=" + ctxt.fType + 
+						" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
+						" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
+			}
+		}		
+		
+		return ctxt;
+	}
+	
 	public void computeProposals(
+			SVExprContext		ctxt,
 			IBIDITextScanner 	scanner,
 			SVDBFile			active_file,
 			int					lineno,
 			int					linepos) {
-		SVExprScanner expr_scan = new SVExprScanner();
+//		SVExprScanner expr_scan = new SVExprScanner();
 	
 		synchronized (fCompletionProposalMap) {
 			fCompletionProposalMap.clear();
@@ -167,23 +192,9 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			fLog.debug(LEVEL_MID, "failed to find source scope");
 		}
 
-		SVExprContext ctxt = expr_scan.extractExprContext(scanner, false);
-		fLog.debug(LEVEL_MID, "ctxt: type=" + ctxt.fType + 
-				" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
-				" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
-		
-		// First, check to see if there are macro references within the root expression
-		if (ctxt.fRoot != null && ctxt.fRoot.indexOf('`') != -1) {
-			// Pre-process
-			ISVStringPreProcessor preproc = getPreProcessor(lineno);
-			if (preproc != null) {
-				ctxt.fRoot = preproc.preprocess(new StringInputStream(ctxt.fRoot));
-				ctxt.fRoot = ctxt.fRoot.trim();
-				fLog.debug(LEVEL_MID, "Post-expansion ctxt: type=" + ctxt.fType + 
-						" trigger=" + ctxt.fTrigger + " root=" + ctxt.fRoot + 
-						" leaf=" + ctxt.fLeaf + " start=" + ctxt.fStart);
-			}
-		}
+		/*
+		SVExprContext ctxt = computeExprContext(scanner, lineno); // expr_scan.extractExprContext(scanner, false);
+		 */
 
 		if (ctxt.fTrigger != null) {
 			if (ctxt.fTrigger.equals("`")) {

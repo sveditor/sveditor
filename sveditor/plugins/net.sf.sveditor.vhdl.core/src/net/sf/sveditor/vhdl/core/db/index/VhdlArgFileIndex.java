@@ -23,11 +23,11 @@ import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -179,6 +179,14 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 	public Tuple<SVDBFile, SVDBFile> parse(IProgressMonitor monitor,
 			InputStream in, String path, List<SVDBMarker> markers) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public ISVStringPreProcessor createPreProc(
+			String path, 
+			InputStream in,
+			int limit_lineno) {
 		return null;
 	}
 

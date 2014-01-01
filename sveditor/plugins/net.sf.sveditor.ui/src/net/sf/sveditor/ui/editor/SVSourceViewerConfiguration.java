@@ -54,6 +54,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.ISourceViewerExtension4;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
@@ -99,7 +100,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		if (fContentAssist == null) {
 			fContentAssist = new ContentAssistant();
-			IContentAssistProcessor p = new SVTemplateCompletionProcessor(fEditor);
+			SVTemplateCompletionProcessor p = new SVTemplateCompletionProcessor(fEditor);
 
 			fContentAssist.setContentAssistProcessor(p,
 					IDocument.DEFAULT_CONTENT_TYPE);
@@ -108,6 +109,9 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 			fContentAssist.enableAutoActivation(true);
 			fContentAssist.enableAutoInsert(true);
 			fContentAssist.enablePrefixCompletion(true);
+			fContentAssist.setRepeatedInvocationMode(true);
+			fContentAssist.addCompletionListener(p);
+
 			/*
 			fContentAssist.setAutoActivationDelay(100);
 			 */

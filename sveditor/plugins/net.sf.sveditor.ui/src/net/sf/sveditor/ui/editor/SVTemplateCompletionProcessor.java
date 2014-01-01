@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.resource.ImageRegistry;
@@ -24,7 +27,10 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
+import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContentAssistantExtension2;
 import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
@@ -33,9 +39,17 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.swt.graphics.Image;
 
-public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
+public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor 
+		implements ICompletionListener {
+	private enum CompletionState {
+		AllContext,
+		JustTemplates
+	}
+	
+	private CompletionState						fState;
 	private SVEditor							fEditor;
 	private SVCompletionProcessor				fSubProcessor;
+	private IContentAssistantExtension2			fAssistant;
 
 	@SuppressWarnings("rawtypes")
 	private static final class ProposalComparator implements Comparator {
@@ -53,23 +67,119 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
 	}
 
 	@Override
-	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer,
-			int offset) {
-		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+	@SuppressWarnings("unchecked")
+	public ICompletionProposal[] computeCompletionProposals(
+			ITextViewer 	viewer,
+			int 			offset) {
+		ITextSelection selection= (ITextSelection) viewer.getSelectionProvider().getSelection();
 
-		for (ICompletionProposal p : computeTemplateCompletionProposals(viewer, offset)) {
-			proposals.add(p);
+		// adjust offset to end of normalized selection
+		if (selection.getOffset() == offset) {
+			offset= selection.getOffset() + selection.getLength();
+		}
+
+		String prefix = extractPrefix(viewer, offset);
+		Region region = new Region(offset - prefix.length(), prefix.length());
+		TemplateContext context = createContext(viewer, region);
+		
+		if (context != null) {
+			context.setVariable("selection", selection.getText()); // name of the selection variables {line, word}_selection //$NON-NLS-1$
 		}
 		
-		for (ICompletionProposal p : fSubProcessor.computeCompletionProposals(viewer, offset)) {
-			proposals.add(p);
+		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
+		IBIDITextScanner scanner = SVCompletionProcessor.createScanner(viewer, offset);
+		Tuple<Integer, Integer> line_pos = SVCompletionProcessor.computeLineOffset(viewer, offset);
+		
+		if (line_pos == null) {
+			return new ICompletionProposal[0];
 		}
+	
+		SVExprContext ctxt = fSubProcessor.computeExprContext(scanner, line_pos.first());
+	
+		if (fState == CompletionState.AllContext) {
+			List<ICompletionProposal> template_proposals = new ArrayList<ICompletionProposal>();
+			List<ICompletionProposal> template_proposals_id = new ArrayList<ICompletionProposal>();
+			List<Template> template_l = null;
+			// In the AllContext state, we add templates if the context is a
+			// non-triggered context
+		
+			if (context != null && ctxt.fTrigger == null) {
+				template_l = getTemplates(context);
+
+				addTemplatesByPattern(template_proposals, context, region, template_l, prefix);
+				Collections.sort(template_proposals, fgProposalComparator);
+				proposals.addAll(template_proposals);
+				addTemplatesById(template_proposals_id, context, region, template_l, prefix);
+			}
+			
+			fSubProcessor.calculateCompletionProposals(proposals, viewer, offset);
+			
+			if (template_proposals_id.size() > 0) {
+				// There are ID-selected templates to show
+				fAssistant.setStatusLineVisible(true);
+				fAssistant.setStatusMessage("Press 'Ctrl+Space' to see Template Proposals");
+				fState = CompletionState.JustTemplates;
+			}
+		} else if (fState == CompletionState.JustTemplates) {
+			List<Template> template_l = null;
+			List<ICompletionProposal> template_proposals_id = new ArrayList<ICompletionProposal>();
+			
+			if (context != null) {
+				template_l = getTemplates(context);
+				addTemplatesById(template_proposals_id, context, region, template_l, prefix);
+				Collections.sort(template_proposals_id, fgProposalComparator);
+				proposals.addAll(template_proposals_id);
+			}
+			
+			fAssistant.setStatusLineVisible(true);
+			fAssistant.setStatusMessage("Press 'Ctrl+Space' to see Default Proposals");
+			fState = CompletionState.AllContext;
+		}
+		
 		
 		return proposals.toArray(new ICompletionProposal[proposals.size()]);
 	}
 	
+	private void addTemplatesByPattern(
+			List<ICompletionProposal>	template_proposals,
+			TemplateContext				context,
+			IRegion						region,
+			List<Template>				templates,
+			String						prefix) {
+		for (int i=0; i<templates.size(); i++) {
+			Template t = templates.get(i);
+			if (t.getPattern().toLowerCase().startsWith(prefix.toLowerCase())) {
+				ICompletionProposal p;
+				p = createProposal(t, context, region, getRelevance(t, prefix));
+				template_proposals.add(p);
+			}
+		}
+	}
+	
+	private void addTemplatesById(
+			List<ICompletionProposal>		template_proposals,
+			TemplateContext					context,
+			IRegion							region,
+			List<Template>					templates,
+			String							prefix) {
+		for (int i=0; i<templates.size(); i++) {
+			Template t = templates.get(i);
+		
+			if (t.getName().toLowerCase().startsWith(prefix.toLowerCase())) {
+				ICompletionProposal p;
+				p = createProposal(t, context, region, getRelevance(t, prefix));
+				template_proposals.add(p);
+			}
+		}
+		
+	}
+
+	/** Old code
 	@SuppressWarnings("unchecked")
-	private ICompletionProposal[] computeTemplateCompletionProposals(ITextViewer viewer, int offset) {
+	private ICompletionProposal[] computeTemplateCompletionProposals(
+			ITextViewer viewer, 
+			int 		offset,
+			boolean		filter) {
 
 		ITextSelection selection= (ITextSelection) viewer.getSelectionProvider().getSelection();
 
@@ -95,10 +205,11 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
 			} catch (TemplateException e) {
 				continue;
 			}
-			
-			if (context.getContextType().getId().equals(template.getContextTypeId()) &&
-					!prefix.trim().equals("") && 
-					template.getPattern().toLowerCase().startsWith(prefix.toLowerCase())) {
+		
+//			System.out.println("context=" + context.getContextType().getId() + " template.context=" + template.getContextTypeId());
+			if (!filter || (context.getContextType().getId().equals(template.getContextTypeId()) &&
+							!prefix.trim().equals("") && 
+							template.getPattern().toLowerCase().startsWith(prefix.toLowerCase()))) {
 				matches.add(createProposal(template, context, (IRegion) region, getRelevance(template, prefix)));
 			}
 		}
@@ -107,8 +218,50 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor {
 
 		return (ICompletionProposal[]) matches.toArray(new ICompletionProposal[matches.size()]);
 	}
+	 */
+
+	/**
+	 * Get all 
+	 * @param viewer
+	 * @param offset
+	 * @return
+	 */
+	private List<Template> getTemplates(TemplateContext context) {
+		List<Template> template_l = new ArrayList<Template>();
+
+		if (context != null) {
+			Template[] templates= getTemplates(context.getContextType().getId());
+
+			for (Template t : templates) {
+				if (context.getContextType().getId().equals(t.getContextTypeId())) {
+					template_l.add(t);
+				}
+			}
+		}
+
+		return template_l;
+	}
 
 	
+	@Override
+	public void assistSessionStarted(ContentAssistEvent event) {
+		fAssistant = (IContentAssistantExtension2)event.assistant;
+		fState = CompletionState.AllContext;
+	}
+
+	@Override
+	public void assistSessionEnded(ContentAssistEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void selectionChanged(ICompletionProposal proposal,
+			boolean smartToggle) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@Override
 	protected ICompletionProposal createProposal(Template template,
 			TemplateContext context, IRegion region, int relevance) {
