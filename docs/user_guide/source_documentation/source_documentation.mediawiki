@@ -1,4 +1,7 @@
 = Source Documentation =
+
+__TOC__
+
 == Introduction ==
 SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of code.  What does this give me?
 * A commenting style that is reasonably easy to sell to your peers
@@ -8,50 +11,99 @@ SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of
 ** No more maintaining a separate word document that describes your class structure
 ** Keep your code accurately documented, hit "Generate", Select the packages you want to generated documentation for and Viola
 
+[[Image:GenerateDocsHover.gif]]
+
 ==First Example==
  /**
-   * Module: my_module
-   * 
-   * This is my module.  Paste this code into SVE.  If you mouse over the various items in the
-   *  code below, you'll see a pop-up showing these comments
-   * 
-   */
- module my_module();
-    // Variable: first_variable
-    // This is the first variable - note using // instead of /*
-    logic first_variable;
-    
-    /**
-     * Function: addme
-     * 
-     * This function adds <second_var> to <first_var>.  Items in angle braces will be 
-     * interpreted as links if link exists
-     * 
-     * Parameters:
-     * second_var - logic - default 0 - Minuend
-     * first_var  - logic - default 0 - Subtrahend
-     * 
-     * Returns:
-     * logic - sum of second_var and first_var
-     */
-    function logic addme (input logic first_var, input logic second_var);
-       return (first_var + second_var);
-    endfunction
-    
-    /**
-     * Task: schematic_task
-     * 
-     * This shows a schematic in our documentation
-     * >
-     * >  D  +----+ Q
-     * > ----|    |-----
-     * > clk |    |     
-     * > ----|>   |     
-     * >     +----+     
-     * >
-     */
-    task schematic_task ();
-    endtask
- endmodule
- 
+  * Package: another_pkg
+  * 
+  * This is another_pkg a package for tinkering with SVEditors doc commenting
+  * to test package selection from the wiz.
+  * 
+  */
+
+ package another_pkg;
+   
+   // class: another_pkg_class
+   //
+   // This is another_pkg_class. And it is simple.
+   // Note that I am using // instead of /*...*/
+   //
+   class another_pkg_class ;
+   
+      /**
+       * Variable: var_a
+       * 
+       * This is a variable
+       */
+      rand bit var_a;
+      
+      /**
+       * Variable: var_b
+       * 
+       * This is a random variable var_b, see also <var_a>
+       */
+      rand bit var_b;
+      
+      /**
+       * Function: mult
+       * 
+       * Multiply two numbers
+       * (start code)
+       * output = x * y;
+       * (end)
+       * 
+       * See Also:
+       *  <div>
+       */
+      function mult ();
+      endfunction
+
+      /**
+       * Function: div
+       * 
+       * Divide 2 numbers.
+       * 
+       * (start diagram)
+       * 
+       *   D  +----+ Q
+       *  ----|    |-----
+       *  clk |    |     
+       *  ----|>   |     
+       *      +----+     
+       * 
+       * (end) 
+       * 
+       * See Also:
+       * <mult>
+       */
+      function div ();
+      endfunction
+   
+   endclass
+
+ endpackage 
+
+== Generating Documentation ==
+
+First step is to make sure the code is complete.  The documentation generator extracts comments not right at generation, but when the SV Index is built.  Force a rebuild by ''Right-Click on Project in Project Explorer>Rebuild SV Index''.
+
+[[GenerateDocs0.gif]]
+
+Next step start the document generator by clicking on the blue "Generate Docs" icon on the toolbar.
+
+[[Image:GenerateDocs1.gif]]
+
+Select the packages you want documentation generated for.
+
+[[Image:GenerateDocs2.gif]]
+
+Select the output directory.
+
+[[Image:GenerateDocs3.gif]]
+
+Hit finish and enjoy your handiwork.
+
+[[Image:GenerateDocs4.gif]]
+
  

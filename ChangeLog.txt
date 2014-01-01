@@ -14,6 +14,10 @@
   code templates to be selected based on how the content begins as well as
   the name associated with the code template. 
 
+- #(enh 68) - Added default code templates for some commonly used structures:
+   always_ff, always_latch, always_comb, if, else, do, while, for, case, casez, casex,
+   function, task, initial, final, assert
+
 ------------------------------------------------------------------------------
 -- 1.4.9 Release --
 
