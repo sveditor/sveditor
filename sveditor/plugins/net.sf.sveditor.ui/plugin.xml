@@ -1226,7 +1226,10 @@ endclass
             id="net.sf.sveditor.ui.always1"
             name="Always @ Event">
          <pattern>
-            always @(${event}) begin
+            /**
+ * Comment ${description}
+ */
+always @(${event}) begin
 	${body}
 end
          </pattern>

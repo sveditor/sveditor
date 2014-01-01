@@ -440,7 +440,7 @@ public class SVDBArgFileIndex2 implements
 		} else if (plan.getFileListType() == FileListType.Filelist) {
 			for (String f_file : plan.getFileList()) {
 				Set<String> processed_argfiles = new HashSet<String>();
-				discover_add_sourcefiles(processed_argfiles, file_list, f_file);
+				discover_add_sourcefiles(build_data, getResolvedBaseLocationDir(), processed_argfiles, file_list, f_file);
 			}
 		} else if (plan.getFileListType() == FileListType.Hybrid) {
 			
@@ -569,16 +569,24 @@ public class SVDBArgFileIndex2 implements
 	}
 	
 	private void discover_add_sourcefiles(
-			Set<String> 		processed_argfiles,
-			List<String> 		file_list, 
-			String 				argfile) {
+			SVDBArgFileIndexBuildData		build_data,
+			String							base_location,
+			Set<String> 					processed_argfiles,
+			List<String> 					file_list, 
+			String 							argfile) {
 	
 		if (processed_argfiles.contains(argfile)) {
 			return;
 		} else {
 			processed_argfiles.add(argfile);
+			
+			// Parse argument file and add source files + 
+			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+			SVDBFile svdb_argfile = parseArgFile(build_data, argfile, 
+					base_location, processed_argfiles, markers);
+
+			
 		}
-		
 	}
 
 	/**
