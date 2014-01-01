@@ -7,6 +7,10 @@
 - #(enh 80) - Add support for code completion of hierarchical references
   that use macros. For example: `TOP.sub.signal
 
+- #(enh 68) - Added default code templates for some commonly used structures:
+   always_ff, always_latch, always_comb, if, else, do, while, for, case, casez, casex,
+   function, task, initial, final, assert
+
 ------------------------------------------------------------------------------
 -- 1.4.9 Release --
 
