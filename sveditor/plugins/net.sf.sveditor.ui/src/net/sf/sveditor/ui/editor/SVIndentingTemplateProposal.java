@@ -164,13 +164,15 @@ public class SVIndentingTemplateProposal
 			{
 				int oldReplaceOffset= getReplaceOffset();
 				start= getReplaceOffset();
+				
 				int shift= start - oldReplaceOffset;
 				int end= Math.max(getReplaceEndOffset(), offset + shift);
 				
 				try {
 					// this may already modify the document (e.g. add imports)
-					String pattern = indent_proposal(document, offset, 
-							fTemplate.getPattern().substring(end-start));
+//					String pattern = indent_proposal(document, offset, 
+//							fTemplate.getPattern().substring(end-start));
+					String pattern = indent_proposal(document, start, end, fTemplate.getPattern());
 					Template template_t = new Template(fTemplate.getName(), 
 							fTemplate.getDescription(), fTemplate.getContextTypeId(), 
 							pattern, fTemplate.isAutoInsertable());
@@ -183,6 +185,7 @@ public class SVIndentingTemplateProposal
 
 				// insert template string
 				String templateString= templateBuffer.getString();
+//				document.replace(start, end - start, templateString);
 				document.replace(start, end - start, templateString);
 			}
 
@@ -484,10 +487,10 @@ public class SVIndentingTemplateProposal
 		return fRegion.getOffset();
 	}
 
-	public String indent_proposal(IDocument doc, int offset, String text) {
+	public String indent_proposal(IDocument doc, int offset, int end, String text) {
 		try {
 			int lineno = doc.getLineOfOffset(offset);
-			int length = 0;
+//			int length = 0;
 			int target_lineno = lineno;
 			int line_cnt = 0;
 			
@@ -511,14 +514,16 @@ public class SVIndentingTemplateProposal
 			
 			doc_str.append(doc.get(0, offset));
 			doc_str.append(text);
-			int start = offset+length;
-			int len = (doc.getLength()-(offset+length)-1);
+//			int start = offset+length;
+//			int len = (doc.getLength()-(offset+length)-1);
+			int len = (doc.getLength()-end-1);
 			try {
 				if (len > 0) {
-					doc_str.append(doc.get(start, len));
+//					doc_str.append(doc.get(start, len));
+					doc_str.append(doc.get(end, len));
 				}
 			} catch (BadLocationException e) {
-				System.out.println("[ERROR] start=" + start + " len=" + len + " length=" + doc.getLength());
+				System.out.println("[ERROR] start=" + offset + " len=" + len + " length=" + doc.getLength());
 				throw e;
 			}
 			

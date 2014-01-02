@@ -108,7 +108,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 					getContentAssistPresenterControlCreator(sourceViewer));
 			fContentAssist.enableAutoActivation(true);
 			fContentAssist.enableAutoInsert(true);
-			fContentAssist.enablePrefixCompletion(true);
+			fContentAssist.enablePrefixCompletion(false);
 			fContentAssist.setRepeatedInvocationMode(true);
 			fContentAssist.addCompletionListener(p);
 
