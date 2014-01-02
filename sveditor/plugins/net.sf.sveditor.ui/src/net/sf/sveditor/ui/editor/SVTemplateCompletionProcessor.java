@@ -28,6 +28,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ContentAssistEvent;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.ICompletionListener;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistantExtension2;
@@ -36,7 +37,6 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateCompletionProcessor;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
-import org.eclipse.jface.text.templates.TemplateException;
 import org.eclipse.swt.graphics.Image;
 
 public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor 
@@ -119,6 +119,12 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor
 				fAssistant.setStatusLineVisible(true);
 				fAssistant.setStatusMessage("Press 'Ctrl+Space' to see Template Proposals");
 				fState = CompletionState.JustTemplates;
+		
+				// Could be more proposals
+				ContentAssistant a = (ContentAssistant)fAssistant;
+				a.enablePrefixCompletion(false);
+			} else {
+				((ContentAssistant)fAssistant).enablePrefixCompletion(true);
 			}
 		} else if (fState == CompletionState.JustTemplates) {
 			List<Template> template_l = null;
@@ -246,7 +252,9 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor
 	@Override
 	public void assistSessionStarted(ContentAssistEvent event) {
 		fAssistant = (IContentAssistantExtension2)event.assistant;
+		fAssistant.setStatusLineVisible(false);
 		fState = CompletionState.AllContext;
+		((ContentAssistant)fAssistant).enablePrefixCompletion(false);
 	}
 
 	@Override
