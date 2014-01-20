@@ -633,3 +633,9 @@ Importing your preferences in a new workspace is just as easy:
 # ''File>Import>General>Preferences''
 # Save the preference file somewhere you can find it easily (MyDocuments / or your home area \~).  
 
+==Updating Eclipse==
+The SVEditor plugin is being actively developed.  Updates based on user feedback are released fairly frequently.  To update both your Eclipse installation and all installed plugins:
+* ''Help>Check for Updates''
+
+To update a specific plug-in:
+* ''Help>About>Installation Details>Select the plugin>Update''
