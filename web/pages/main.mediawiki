@@ -23,6 +23,11 @@ A cheat sheet of SVEditor's features, and how to access them, can be found in th
 == Staying Up-to-Date ==
 SVEditor is on Facebook. Like us on Facebook [http://www.facebook.com/sveditor http://www.facebook.com/sveditor] to stay up-to-date with release info, tutorials, and other information.
 
+== Step by Step Tutorial ==
+This [[tutorial/tutorial|tutorial]] was designed to make it easy for VI/EMACS users to get up and running with SVEditor.  The tutorial will cover:
+* Installation
+* Loading a demonstration chip (project)
+* Touch on some of the features that Eclipse and SVEditor brings to a design or verification engineer
 
 == Contributing to SVEditor ==
 The SVEditor project is always looking for contributors. See the 
