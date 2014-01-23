@@ -983,6 +983,33 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "gray2bin1");
 	}
+
+	public void testGenBeginEnd_2() {
+		String doc = 
+			"module eclipse_collapse ();\n" +
+			"	wire wire1;\n" +
+			"	parameter PARAM1 =1 ;\n" +
+			"	generate\n" +
+			"	//begin\n" +
+			"	if (PARAM1)\n" +
+			"	begin\n" +
+			"		assign wire1  = 0;\n" + 
+			"	end\n" +
+			"	else\n" +
+			"	begin\n" +
+			"		assign wire1  = 1;\n" +
+			"	end\n" +
+			"	end\n" +
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "eclipse_collapse");
+	}
 	
 	public void testOutputPort() {
 		

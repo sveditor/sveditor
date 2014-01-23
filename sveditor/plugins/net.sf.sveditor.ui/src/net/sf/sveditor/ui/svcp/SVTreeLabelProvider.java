@@ -18,6 +18,7 @@ import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBAssignItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBGenerateBlock;
 import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
@@ -115,7 +116,25 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			}
 
 			return ret; 
-		} else if (element instanceof ISVDBNamedItem) {
+		} else if (element instanceof SVDBGenerateIf) {
+			SVDBGenerateIf it = (SVDBGenerateIf)element;
+			if (it.fName != null)  {
+				return (new StyledString (it.fName));
+			}
+			// This will occur if a if statement within an initial block etc is suddenly recognized as a "generateif"
+			// The parser doesn't do a good job of casting from the if to the genif, and fname seems to be off in the weeds
+			// TODO: Fix this properly - See Tracker # 3591399
+			else  {
+				return (new StyledString ("if"));
+			}
+		} else if (element instanceof SVDBGenerateBlock) {
+			SVDBGenerateBlock it = (SVDBGenerateBlock)element;
+			if (it.getName() != null)  {
+				return (new StyledString (it.getName()));
+			} else  {
+				return (new StyledString ("generate"));
+			}
+		} else if (element instanceof ISVDBNamedItem && ((ISVDBNamedItem)element).getName() != null) {
 			StyledString ret = new StyledString(((ISVDBNamedItem)element).getName());
 			ISVDBNamedItem ni = (ISVDBNamedItem)element;
 			
@@ -190,17 +209,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			}
 			
 			return ret;
-		} else if (element instanceof SVDBGenerateIf) {
-			SVDBGenerateIf it = (SVDBGenerateIf)element;
-			if (it.fName != null)  {
-				return (new StyledString (it.fName));
-			}
-			// This will occur if a if statement within an initial block etc is suddenly recognized as a "generateif"
-			// The parser doesn't do a good job of casting from the if to the genif, and fname seems to be off in the weeds
-			// TODO: Fix this properly - See Tracker # 3591399
-			else  {
-				return (new StyledString ("if"));
-			}
+
 		} else if (element instanceof SVDBArgFileStmt) {
 			SVDBArgFileStmt stmt = (SVDBArgFileStmt)element;
 			String ret = null;
