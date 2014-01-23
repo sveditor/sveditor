@@ -1,6 +1,9 @@
 
 -- 1.5.1 Release --
 
+- #(309) - Correct a NPE in the label provider when an unlabeled generate 
+  statement is inferred from a begin block within a generate block
+  
 ------------------------------------------------------------------------------
 -- 1.5.0 Release --
 
