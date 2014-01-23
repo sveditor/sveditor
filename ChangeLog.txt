@@ -1,4 +1,7 @@
 
+-- 1.5.1 Release --
+
+------------------------------------------------------------------------------
 -- 1.5.0 Release --
 
 - #(enh) - Change content-assist label provider to display the type name of
