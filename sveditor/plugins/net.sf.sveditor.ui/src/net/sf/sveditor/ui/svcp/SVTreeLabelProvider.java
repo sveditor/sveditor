@@ -37,6 +37,7 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
@@ -273,6 +274,17 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			} else if (it.getType() == SVDBItemType.ArgFilePathStmt) {
 				SVDBArgFilePathStmt path = (SVDBArgFilePathStmt)it;
 				ret = new StyledString("path : " + path.getPath());
+			} else if (it.getType() == SVDBItemType.DefParamItem) {
+				SVDBDefParamItem dp = (SVDBDefParamItem)it;
+				String str = "defparam : ";
+				
+				if (dp.getTarget() != null) {
+					str += dp.getTarget().toString();
+					if (dp.getExpr() != null) {
+						str += " = " + dp.getExpr().toString();
+					}
+				}
+				ret = new StyledString(str);
 			}
 			
 			if (ret == null) {
