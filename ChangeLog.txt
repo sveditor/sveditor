@@ -5,6 +5,9 @@
   statement is inferred from a begin block within a generate block
   
 - #(enh) - Add defparam statements to the Outline view
+
+- #(enh) - Add content assist support for parameters declared on the 
+  containing module
   
 ------------------------------------------------------------------------------
 -- 1.5.0 Release --
