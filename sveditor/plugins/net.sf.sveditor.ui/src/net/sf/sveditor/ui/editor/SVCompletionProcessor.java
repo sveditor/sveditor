@@ -249,9 +249,10 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 							it, doc, replacementOffset, replacementLength,
 							next_line_indent, first_line_pos, subseq_line_pos);
 					break;
-		
+	
+				case InterfaceDecl:
 				case ModuleDecl:
-					cp = createModuleProposal(
+					cp = createModIfcProposal(
 							it, doc, replacementOffset, replacementLength,
 							next_line_indent, first_line_pos, subseq_line_pos);
 					break;
@@ -445,7 +446,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 				getIndexIterator(), it);
 	}
 
-	private ICompletionProposal createModuleProposal(
+	private ICompletionProposal createModIfcProposal(
 			ISVDBItemBase 				it,
 			IDocument					doc,
 			int							replacementOffset,
