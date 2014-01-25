@@ -1,0 +1,123 @@
+= Automating SVEditor Project =
+The "manual" way of configuring an SVEitor project is given in the site [[Setting_up_an_SVEditor_Project]].  This takes a number of steps, and when working between multiple projects, user areas, can get a bit tedious.  Fortunately this process can be automated with minimal effort.
+
+Two files need to be created, after which the newly created project can be imported.  The two files are .svproject and .project, which will typically reside at the top of your user area.  A simple <perl|other_favorite_scripting_language> script is all that is required to create these flies.  After you create this script, it should be as easy as running the script as part of your user area creation.
+
+The easiest way to do this process is to create and configure a project using the GUI.  When you are happy with the way the project runs the project files can be used as templates for your script (or use them to modify the attached scripts).  
+
+== Creating .project ==
+The ''.project'' file contains the following items that I will be describing.
+* Name of the project
+* List of environment variables required
+* Directories to include / exclude
+
+=== Project Name ===
+The project name can really be anything.  The Project name is used in: 
+* The ''Project Explorer'' view
+* Leading the path when you ''Open Resource''
+
+Given the above, keep the Project name short,  unique, and reasonably descriptive.  Often you will have multiple projects loaded into Eclipse, make it easy for yourself and others.
+
+'''Example:'''
+* ''<chip_codename>_<user_sandbox>'' - 555_builderb_01 (assuming you are working on a 555 timer, and your name is Bob the Builder, and this is your first sandbox)  
+
+The project name is set when you go through new project creation in the following dialog:
+
+[[Image:ProjectName.png]]
+
+In the .project file, this can be found near the top of the .project file:
+
+ <projectDescription>
+    <name>Chip1</name>
+
+=== Environment Variables ===
+There is a decent chance that your environment uses assorted environment variables, making it easy for your scripts to work in a user sandbox independent way.  At a minimum most groups will have at least some version of ''SANDBOX_LOCATION'' or ''PROJECT_USER_LOCATION'' specified.  If any of these environment variables are used in your files.f's, you'll want to include these environment variables in your project.  
+
+Using the GUI, these are added using the ''Project Properties>Resource>Linked Resources'' as shown in the picture below.  Eclpise includes a number of standard variables which are useful including:
+* ECLIPSE_HOME
+* PARENT_LOC
+* PROJECT_LOC - Should be the top of your user area!!!
+* WORKSPACE_LOC  
+
+In the example below, I have added a variable, '''CHIP''' which is identical to '''PROJECT_LOC'''.  Chip in this example is the path to the root of my user sandbox.
+
+[[Image:PathVariables.png]]
+
+Path variables can be identified in the ''.project'' file by looking for ''variable_list'' section as shown in the example below:
+    <variableList>
+      <variable>
+         <name>CHIP</name>
+         <value>$%7BPROJECT_LOC%7D</value>
+      </variable>
+   </variableList>
+
+
+=== Resource Filtering ===
+Resource filtering is another massively useful tool, which, if used can "lighten the load" for Eclipse, by filtering out files that Eclipse will never use, and should skip while indexing.
+
+Using the GUI, you'll set these variables using ''Project Properties>Resource>Resource Filters>''.  The example below shows me telling Eclipse to Exclude all files and folders, recursively that are named log.
+
+[[Image:ResourceFilters.png]]
+
+''NOTE:'' For some reason I have found you more or less have to always files&folders, recursively to get the thing to work.  Driving me nuts.
+
+The resource filters are stored in the ''.project'' file in the ''filteredResources'' section.  Example of this given below.  The last argument in the ''<arguments>'' section is the name of the directory to be excluded.  In the example below we are ignoring anything in ''log'' and ''dir_to_exclude''.
+   <filteredResources>
+      <filter>
+         <id>1390544795288</id>
+         <name></name>
+         <type>30</type>
+         <matcher>
+            <id>org.eclipse.ui.ide.multiFilter</id>
+            <arguments>1.0-name-matches-false-false-log</arguments>
+         </matcher>
+      </filter>
+      <filter>
+         <id>1390544911517</id>
+         <name></name>
+         <type>30</type>
+         <matcher>
+            <id>org.eclipse.ui.ide.multiFilter</id>
+            <arguments>1.0-name-matches-false-false-dir_to_exclude</arguments>
+         </matcher>
+      </filter>
+   </filteredResources>
+
+ ==Creating .svproject==
+ The file ''.svproject'' is used by SVEditor to manage it's variables.  Of these, the most important is the location of the files.f(s) which gives SVEditor a list of files in your project.
+ 
+ This is set via the GUI in ''Project Properties>System Verilog Project Properties>Argument Files''.  
+ 
+[[Image:ArgumentFile.png]]
+
+This will appear in your ''.svproject'' file in the ''argFilePaths'' section
+   <argFilePaths>
+      <argFilePath path="${project_loc}/sim/files.f"/>
+   </argFilePaths>
+   
+==Using the Script==
+The script itself is reasonably simple to use.  It is a Perl script.  By the way, if you haven't already done so, install the EPIC perl editor in Eclipse, it rocks.  In my example I am using a .project/.svproject generated by Eclipse 4.3.1, and SVE version 1.5.0.
+
+== Editing the Script ==
+
+Follow the following steps to get the automation in progress:
+
+# Download [[create_eclipse_setup.pl]]
+# Open the file up in Eclipse
+# Search for "Step 1" - Replace the project name with the project name of your choice
+# Search for "Step 2" - Add any environment variables you need
+# Search for "Step 3" - Add any directories you want exclude
+# Search for "Step 4" - Add all files.f's that you need
+# Run the script.  On a command line, run '''./create_eclipse_setup.pl'''
+# Import the project:
+## In Eclipse: ''File>Import>General>Existing Projects into Workspace>Next'' 
+## Browse to the top of your user area (where the newly created .project and .svproject reside)
+# If it looks good, add the script to your repository, and have it run automatically when a user area is created!!!
+
+=== Optional Steps===
+* Using the Eclipse GUI as described in the sections above, create ''.project'' and ''.svproject'' files.  The GUI will give correct syntax in the files.  This can then by copy & pasted into the script, which may make certain things easier.
+* There are scripts available which will make it easy to "grab" your environment variables, making "Step 2" above less manual.
+ 
+
+[[Image:ImportProject.png]]
+
