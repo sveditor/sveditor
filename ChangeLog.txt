@@ -4,6 +4,8 @@
 - #(309) - Correct a NPE in the label provider when an unlabeled generate 
   statement is inferred from a begin block within a generate block
   
+- #(enh) - Add defparam statements to the Outline view
+  
 ------------------------------------------------------------------------------
 -- 1.5.0 Release --
 

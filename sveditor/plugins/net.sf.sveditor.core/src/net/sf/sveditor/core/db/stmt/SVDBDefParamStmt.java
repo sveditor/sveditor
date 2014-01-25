@@ -13,11 +13,14 @@
 package net.sf.sveditor.core.db.stmt;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBDefParamStmt extends SVDBStmt {
+public class SVDBDefParamStmt extends SVDBStmt implements ISVDBChildParent {
 	public List<SVDBDefParamItem>		fParamAssignList;
 	
 	public SVDBDefParamStmt() {
@@ -33,4 +36,24 @@ public class SVDBDefParamStmt extends SVDBStmt {
 		fParamAssignList.add(item);
 	}
 
+	@Override
+	public void addChildItem(ISVDBChildItem item) {
+		item.setParent(this);
+		fParamAssignList.add((SVDBDefParamItem)item);
+	}
+
+	@SuppressWarnings({"unchecked","rawtypes"})
+	@Override
+	public Iterable<ISVDBChildItem> getChildren() {
+		return new Iterable<ISVDBChildItem>() {
+			
+			@Override
+			public Iterator<ISVDBChildItem> iterator() {
+				// TODO Auto-generated method stub
+				return (Iterator)fParamAssignList.iterator();
+			}
+		};
+	}
+
+	
 }

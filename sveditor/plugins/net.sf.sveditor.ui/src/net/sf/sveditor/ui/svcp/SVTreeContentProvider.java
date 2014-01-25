@@ -49,6 +49,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fExpandInLineItems.add(SVDBItemType.ModIfcInst);
 		fExpandInLineItems.add(SVDBItemType.ImportStmt);
 		fExpandInLineItems.add(SVDBItemType.ExportStmt);
+		fExpandInLineItems.add(SVDBItemType.DefParamStmt);
 		
 		fIgnoreItems = new HashSet<SVDBItemType>();
 		fIgnoreItems.add(SVDBItemType.NullStmt);
