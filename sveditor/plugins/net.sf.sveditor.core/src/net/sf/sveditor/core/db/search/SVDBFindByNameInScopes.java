@@ -222,6 +222,20 @@ public class SVDBFindByNameInScopes {
 						}
 					}
 				}
+				
+				// Check parameters
+				List<SVDBModIfcClassParam> param_l = ((SVDBModIfcDecl)context).getParameters();
+				if (param_l != null && (ret.size() == 0 || !stop_on_first_match)) {
+					for (SVDBModIfcClassParam p : param_l) {
+						if (fMatcher.match(p, name)) {
+							add(p, Scope.ScopeModIfcClsVars, scope_level);
+						}
+						
+						if (ret.size() > 0 && stop_on_first_match) {
+							break;
+						}
+					}
+				}
 			}
 
 			if (ret.size() > 0 && stop_on_first_match) {

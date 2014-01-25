@@ -5,6 +5,12 @@
   statement is inferred from a begin block within a generate block
   
 - #(enh) - Add defparam statements to the Outline view
+
+- #(enh) - Add content assist support for parameters declared on the 
+  containing module
+  
+- #(enh) - Align content assist support for interface instantiation with
+  the support already present for module instantiation
   
 ------------------------------------------------------------------------------
 -- 1.5.0 Release --
