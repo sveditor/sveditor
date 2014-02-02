@@ -407,11 +407,18 @@ public class SVExprParser extends SVParserBase {
 	
 	public SVDBExpr variable_lvalue() throws SVParseException {
 		SVDBExpr lvalue;
-		if (fDebugEn) {debug("--> variable_lvalue - " + fLexer.peek());}
-		if (fLexer.peekOperator("{")) {
-			lvalue = concatenation_or_repetition();
-		} else {
-			lvalue = unaryExpression();
+		Context ctxt = fLexer.getContext();
+		
+		fLexer.setContext(Context.Expression);
+		try {
+			if (fDebugEn) {debug("--> variable_lvalue - " + fLexer.peek());}
+			if (fLexer.peekOperator("{")) {
+				lvalue = concatenation_or_repetition();
+			} else {
+				lvalue = unaryExpression();
+			}
+		} finally {
+			fLexer.setContext(ctxt);
 		}
 		
 		if (fDebugEn) {debug("<-- variable_lvalue - " + fLexer.peek());}

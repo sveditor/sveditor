@@ -40,6 +40,7 @@ public class ParserTests extends TestSuite {
 		s.addTest(new TestSuite(TestParseConfigurations.class));
 		s.addTest(new TestSuite(TestParseDataTypes.class));
 		s.addTest(new TestSuite(TestParseExpr.class));
+		s.addTest(new TestSuite(TestParseErrors.class));
 		s.addTest(new TestSuite(TestParseFunction.class));
 		s.addTest(new TestSuite(TestParseInterfaceBodyItems.class));
 		// LineNumbers

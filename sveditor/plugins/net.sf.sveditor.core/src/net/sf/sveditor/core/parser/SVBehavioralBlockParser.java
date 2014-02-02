@@ -56,6 +56,7 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWaitForkStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWaitStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
+import net.sf.sveditor.core.parser.SVLexer.Context;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVBehavioralBlockParser extends SVParserBase {
@@ -70,7 +71,17 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	}
 	
 	public boolean statement(ISVDBAddChildItem parent) throws SVParseException {
-		return statement(parent, false, true);
+		boolean ret = false;
+		Context ctxt = fLexer.getContext();
+
+		try {
+			fLexer.setContext(Context.Behavioral);
+			ret = statement(parent, false, true);
+		} finally {
+			fLexer.setContext(ctxt);
+		}
+		
+		return ret;
 	}
 	
 	public boolean statement(ISVDBAddChildItem parent, boolean decl_allowed, boolean ansi_decl) throws SVParseException {
@@ -112,12 +123,12 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			boolean 			consume_terminator,
 			boolean				could_be_case_item) throws SVParseException {
 		if (fDebugEn) {
-			debug("--> statement " + fLexer.peek() + " is_kw=" + fLexer.isKeyword() +
+			debug("--> statement tok=" + fLexer.peek() + " is_kw=" + fLexer.isKeyword() +
 					" @ " + fLexer.getStartLocation().getLine() + " decl_allowed=" + decl_allowed);
 		}
 		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
 		SVDBLocation start = fLexer.getStartLocation();
-
+		
 		// Try for a declaration here
 		if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 				fLexer.isIdentifier() || fLexer.peekKeyword(
@@ -527,6 +538,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		if (fDebugEn) {	
 			debug("--> expression_stmt: " + fLexer.peek());
 		}
+		
 		if (lvalue == null) {
 			lvalue = fParsers.exprParser().variable_lvalue();
 		}
@@ -563,9 +575,11 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		if (consume_terminator) {
 			fLexer.readOperator(";");
 		}
+		
 		if (fDebugEn) {
 			debug("<-- expression_stmt: " + fLexer.peek());
 		}
+
 	}
 	
 	public void action_block(SVDBActionBlockStmt parent) throws SVParseException {
