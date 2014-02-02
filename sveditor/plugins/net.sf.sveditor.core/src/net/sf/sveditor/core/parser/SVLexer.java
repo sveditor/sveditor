@@ -28,6 +28,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
 public class SVLexer extends SVToken {
 	public enum Context {
 		Default,
+		Behavioral,
 		Expression,
 		Constraint
 	}
@@ -671,6 +672,26 @@ public class SVLexer extends SVToken {
 					fScanner.unget_ch(ch2);
 					break;
 				}
+			} else if (ch == '`') {
+				// Very likely an `undefined operator, but let's check
+				fStringBuffer.setLength(0);
+				while ((ch = fScanner.get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ch)) {
+					fStringBuffer.append((char)ch);
+				}
+				fScanner.unget_ch(ch);
+			
+//				String tok = fStringBuffer.toString();
+				
+				if (fContext == Context.Behavioral) {
+					// Return ';' in a behavioral scope to prevent extraneous errors
+					fIsOperator = true;
+					fTokenConsumed = false;
+					fImage = ";";
+					return true;
+				} else {
+					// treat as whitespace
+					continue;
+				}				
 			} else {
 				if (!Character.isWhitespace(ch) || (ch == '\n' && fNewlineAsOperator)) {
 					break;
@@ -696,6 +717,7 @@ public class SVLexer extends SVToken {
 			 */
 		} else if (fNewlineAsOperator && ch == '\n') {
 			fIsOperator = true;
+
 		} else if (ch == '"') {
 			int last_ch = -1;
 			// String
@@ -836,6 +858,7 @@ public class SVLexer extends SVToken {
 				Set<String> kw = null;
 				
 				switch (fContext) {
+					case Behavioral:
 					case Default:
 						kw = fDefaultKeywordSet;
 						break;

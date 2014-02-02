@@ -199,7 +199,27 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
 				"p_foo");
 	}
-	
+
+	public void testInterfaceInstParamAssist() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		String doc = 
+				"interface i1 #(parameter int AAAA=1, parameter int AABB=2, parameter int BBBB=3) ();\n" +
+				"\n" +
+				"\n" +
+				"endinterface\n" +
+				"\n" +
+				"module top();\n" +
+				"\n" +
+				"	i1 #(\n" +
+				"		.AA<<MARK>>\n" +
+				"	) i1_inst();\n" +
+				"endmodule"
+				;
+		
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"AAAA", "AABB");
+	}
 }
 
 

@@ -37,6 +37,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBConstraint c = new SVDBConstraint();
 		c.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("constraint");
+		Context ctxt = fLexer.getContext();
 		fLexer.setContext(Context.Constraint);
 	
 		try {
@@ -57,7 +58,7 @@ public class SVConstraintParser extends SVParserBase {
 				fLexer.readOperator("}");
 			}
 		} finally {
-			fLexer.setContext(Context.Default);
+			fLexer.setContext(ctxt);
 		}
 	}
 	

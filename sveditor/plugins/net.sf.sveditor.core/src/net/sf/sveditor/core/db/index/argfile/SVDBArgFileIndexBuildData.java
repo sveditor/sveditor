@@ -74,7 +74,15 @@ public class SVDBArgFileIndexBuildData implements
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
 		fIndexStats = build_data.fIndexStats;
-	
+		
+		fIncludeMap = build_data.fIncludeMap;
+		fResolvedIncDirs = build_data.fResolvedIncDirs;
+		fIncDirFiles = build_data.fIncDirFiles;
+		fIncDirDirs = build_data.fIncDirDirs;
+		fFailedSearches = build_data.fFailedSearches;
+		fIncludeFileList = build_data.fIncludeFileList;
+		fIncludeCacheValid = build_data.fIncludeCacheValid;
+		
 		// We've transferred the cache to this build data
 		build_data.fCache = null;
 
