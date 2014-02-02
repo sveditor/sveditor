@@ -132,7 +132,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 					getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
 			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
 					getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
-	
+			SVCorePlugin.getDefault().setFileExtLanguageLevelOverride(
+					getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_OVERRIDE_FILE_EXTENSION_LANGUAGE_LEVEL));
 			update_parser_prefs();
 		}
 	}
@@ -267,7 +268,11 @@ public class SVUiPlugin extends AbstractUIPlugin
 					(Boolean)event.getNewValue());
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS)) {
 			update_parser_prefs();
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_OVERRIDE_FILE_EXTENSION_LANGUAGE_LEVEL)) {
+			SVCorePlugin.getDefault().setFileExtLanguageLevelOverride(
+					(Boolean)event.getNewValue());
 		}
+
 	}
 	
 	

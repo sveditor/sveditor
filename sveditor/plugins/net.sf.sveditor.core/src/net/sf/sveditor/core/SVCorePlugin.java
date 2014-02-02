@@ -88,6 +88,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBProjectManager				fProjManager;
 	private SVDBIndexRegistry				fIndexRegistry;
 	private int								fDebugLevel = 0;
+	private boolean  						fFileExtensionLanguageLevelOverride  = false ;
 	private OutputStream					fLogStream;
 	private PrintStream						fLogPS;
 	private static Map<String, String>		fLocalEnvMap = new HashMap<String, String>();
@@ -271,6 +272,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public void setDebugLevel(int level) {
 		fDebugLevel = level;
 		LogFactory.getDefault().setLogLevel(null, fDebugLevel);
+	}
+	
+	public void setFileExtLanguageLevelOverride(boolean en) {
+		fFileExtensionLanguageLevelOverride = en ;
+	}
+	
+	public boolean getFileExtLanguageLevelOverride() {
+		return fFileExtensionLanguageLevelOverride ;
 	}
 	
 	public void setTestDebugLevel(int level) {
