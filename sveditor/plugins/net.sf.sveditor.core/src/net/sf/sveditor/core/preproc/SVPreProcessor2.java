@@ -94,6 +94,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		// Ignored for now
 		fIgnoredDirectives.add("resetall");
 		fIgnoredDirectives.add("unconnected_drive");
+		//
+		fIgnoredDirectives.add("disable_portfaults");
+		fIgnoredDirectives.add("enable_portfaults");
+		fIgnoredDirectives.add("nosuppress_faults");
+		fIgnoredDirectives.add("suppress_faults");
 		// Ignored for now
 		fIgnoredDirectives.add("undef");
 		fIgnoredDirectives.add("undefineall");
