@@ -27,6 +27,9 @@ public class SVEditorIndexPrefsPage extends FieldEditorPreferencePage implements
 				"Enable Index Auto-Rebuild:", getFieldEditorParent()));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_ENABLE_SHADOW_INDEX, 
 				"Enable Shadow Index:", getFieldEditorParent()));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_ENABLE_SHADOW_INDEX, 
+				"Override Language Level based on file extension. Treat all source as SystemVerilog:", 
+				getFieldEditorParent()));
 		
 		IntegerFieldEditor fi = new IntegerFieldEditor(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY, 
 				"Editor Auto-Index Delay (mS):", getFieldEditorParent());
