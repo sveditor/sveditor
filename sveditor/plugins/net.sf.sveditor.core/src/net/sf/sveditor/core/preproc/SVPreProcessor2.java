@@ -89,6 +89,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		// Ignored for now
 		fIgnoredDirectives.add("line");
 		fIgnoredDirectives.add("nounconnected_drive");
+		fIgnoredDirectives.add("noportcoerce");
 		fIgnoredDirectives.add("timescale");
 		// Ignored for now
 		fIgnoredDirectives.add("resetall");
