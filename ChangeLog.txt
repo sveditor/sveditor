@@ -15,6 +15,11 @@
 - #(fr 86) - Enhance handling of undefined macros to reduce the number of
   follow-on parse errors.
   
+- #(312) - Correct a bug involving missing include files due to 
+  incompletely-specified include directories. Previously, editors would
+  still show the include files as missing even after correcting the include
+  directories. Now, the editors show correct information.
+  
 ------------------------------------------------------------------------------
 -- 1.5.0 Release --
 
