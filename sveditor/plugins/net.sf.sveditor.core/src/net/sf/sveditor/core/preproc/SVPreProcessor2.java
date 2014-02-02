@@ -636,6 +636,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					m.setLocation(location);
 
 					fInputCurr.getFileTree().fMarkers.add(m);
+
 				}
 				
 				if (fDefineProvider.hasParameters(type, fInputCurr.getLineNo()) || !is_defined) {
@@ -687,30 +688,33 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					}
 				}
 
-				if (fDefineProvider != null) {
-						try {
-							String exp = fDefineProvider.expandMacro(
-											fTmpBuffer.toString(), fInputCurr.getFileName(), fInputCurr.getLineNo());
-							
-							if (fDebugEn) {
-								fLog.debug("Expansion of \"" + 
-										fTmpBuffer.toString() + "\" == " + exp);
-							}
-							
-							SVPreProc2InputData in = new SVPreProc2InputData(
-									this, new StringInputStream(exp), 
-									"ANONYMOUS", fInputCurr.getFileId(), false);
-							fInputStack.push(in);
-							fInputCurr = in;
-						} catch (Exception e) {
-							/*
+				if (!is_defined) {
+					// Leave a breadcrumb for the lexer
+					output("`undefined");
+				} else if (fDefineProvider != null) {
+					try {
+						String exp = fDefineProvider.expandMacro(
+								fTmpBuffer.toString(), fInputCurr.getFileName(), fInputCurr.getLineNo());
+
+						if (fDebugEn) {
+							fLog.debug("Expansion of \"" + 
+									fTmpBuffer.toString() + "\" == " + exp);
+						}
+
+						SVPreProc2InputData in = new SVPreProc2InputData(
+								this, new StringInputStream(exp), 
+								"ANONYMOUS", fInputCurr.getFileId(), false);
+						fInputStack.push(in);
+						fInputCurr = in;
+					} catch (Exception e) {
+						/*
 							System.out.println("Exception while expanding \"" + 
 									fTmpBuffer.toString() + "\" @ " +
 									getLocation().getFileName() + ":" + 
 									getLocation().getLineNo());
-							 */
-							e.printStackTrace();
-						}
+						 */
+						e.printStackTrace();
+					}
 				}
 			}
 			

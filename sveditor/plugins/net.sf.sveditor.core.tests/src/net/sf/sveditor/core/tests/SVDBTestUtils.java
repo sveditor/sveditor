@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBBind;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -247,6 +248,8 @@ public class SVDBTestUtils {
 		SVPreProcessor2 pp = new SVPreProcessor2(filename, content_i, null, null);
 		
 		SVPreProcOutput pp_out = pp.preprocess();
+
+		collectMarkers(markers, pp.getFileTree());
 	
 		if (log != null) {
 			log.debug("Content (SVPreProc):");
@@ -269,6 +272,14 @@ public class SVDBTestUtils {
 		
 		return new Tuple<SVDBFile, SVDBFile>(pp_file, file);
 	}	
+	
+	private static void collectMarkers(List<SVDBMarker> markers, SVDBFileTree ft) {
+		markers.addAll(ft.getMarkers());
+		
+		for (SVDBFileTree ft_s : ft.getIncludedFileTreeList()) {
+			collectMarkers(markers, ft_s);
+		}
+	}
 	
 	public static Tuple<SVDBFile, SVDBFile> parse_old(
 			LogHandle				log,
