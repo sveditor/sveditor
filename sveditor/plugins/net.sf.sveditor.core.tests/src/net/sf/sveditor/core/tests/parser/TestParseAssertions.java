@@ -171,6 +171,25 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"test"});
 	}
 	
+	
+	public void testPropertyComplex() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+        " module test ();\n" +
+        " property some_prop(clk, rst_n, valid, mode, timing); \n" +
+        "  	    int count; \n" +
+        "  	  @(posedge clk) disable iff (!rst_n || !valid) \n" +
+        "	    (sigX === {sigA{1'b1}}) ##1 (sigY == mode) ##0 (1, count = timing) |=> \n" +
+        "	            ($stable(sigZ) && count, count = count - 1)[*0:$] ##1 (count == 0) ##0 (sigZ === {sigB{1'b1}}); \n" +
+        " endproperty\n" +
+        " endmodule\n"
+		;
+
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"test"});
+	}
+	
 	public void testPropertyNot() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = getName();
