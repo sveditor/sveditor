@@ -174,7 +174,7 @@ public class TestParseAssertions extends TestCase {
 	
 	public void testPropertyComplex() throws SVParseException {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
         " module test ();\n" +
         " property some_prop(clk, rst_n, valid, mode, timing); \n" +
