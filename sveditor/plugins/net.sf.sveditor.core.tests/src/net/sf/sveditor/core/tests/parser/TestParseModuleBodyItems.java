@@ -1755,6 +1755,34 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"my_module", "a", "b"});
 	}
 
+	public void testProtectedModule() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module a_protected_module;\n" +
+				"	`protected\n" +
+				"	a bunch of unreadable stuff 3413504985 1435kj543 5435067438`16yhagdjk;hdakj;\n" +
+				"	dalfdkj fadoihewiteh40691743hngkdag af;uiqahga;gfh\n" +
+				"	`endprotected\n" +
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, SVLanguageLevel.Verilog2005, new String[] {"a_protected_module"});
+	}
+	
+	public void testProtectedModuleNoSemi() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module a_protected_module_no_semi\n" +
+				"	`protected\n" +
+				"	a bunch of unreadable stuff 3413504985 1435kj543 5435067438`16yhagdjk;hdakj;\n" +
+				"	dalfdkj fadoihewiteh40691743hngkdag af;uiqahga;gfh\n" +
+				"	`endprotected\n" +
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, SVLanguageLevel.Verilog2005, new String[] {"a_protected_module_no_semi"});
+	}
+	
 	public void testParseWireContext() throws SVParseException {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
