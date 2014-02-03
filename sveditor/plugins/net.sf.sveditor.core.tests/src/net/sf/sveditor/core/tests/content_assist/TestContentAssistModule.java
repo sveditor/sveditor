@@ -33,7 +33,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 	}
 	
 	public void testModuleHierarchyRef_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"`define TOP top\n" +
 			"module sub2;\n" +
@@ -64,7 +64,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 	}
 
 	public void testModuleParameters() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module m #(\n" +
 			"	parameter MY_PARAM_A = 1,\n" +

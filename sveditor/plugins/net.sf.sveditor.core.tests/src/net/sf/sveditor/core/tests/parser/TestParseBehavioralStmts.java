@@ -160,7 +160,7 @@ public class TestParseBehavioralStmts extends TestCase {
 			"endclass\n" 
 			;
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		runTest(getName(), doc, new String[] { "c", "f" });
 	}

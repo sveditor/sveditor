@@ -283,7 +283,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testCommentInMacroCall() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define macro foo\n" +
 			"`define msg(ID, MSG, VERB) report(ID, MSG, VERB)\n" +

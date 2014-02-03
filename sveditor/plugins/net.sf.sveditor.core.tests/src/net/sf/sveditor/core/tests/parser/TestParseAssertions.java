@@ -138,7 +138,7 @@ public class TestParseAssertions extends TestCase {
 
 	public void testPropertyZDelay() throws SVParseException {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module top ();\n" +
 			"	logic clk, signala, signalb;\n" +
