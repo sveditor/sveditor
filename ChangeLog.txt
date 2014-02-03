@@ -20,6 +20,9 @@
   still show the include files as missing even after correcting the include
   directories. Now, the editors show correct information.
   
+- #(314) - Allow module declarations without a terminating ';'. This appears
+  to occur when the module has a protected-content body.
+  
 ------------------------------------------------------------------------------
 -- 1.5.0 Release --
 

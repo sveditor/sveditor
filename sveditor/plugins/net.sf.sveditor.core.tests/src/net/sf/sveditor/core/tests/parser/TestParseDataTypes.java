@@ -375,7 +375,7 @@ public class TestParseDataTypes extends TestCase {
 	}
 
 	public void testScopedEnumInAssocArray() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"package my_package;\n" +
 			"	typedef enum {STATE0, STATE1} state_e;\n" +

@@ -105,6 +105,16 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			}
 			module.getPorts().addAll(ports);
 		}
+		
+		if (fLexer.peekKeyword("end" + type_name)) {
+			fLexer.eatToken();
+			if (fDebugEn) {
+				debug("<-- process_mod_ifc_prog(early escape)");
+			}
+			
+			return;
+		}
+		
 		fLexer.readOperator(";");
 		
 		// Extern module/programs don't have bodies

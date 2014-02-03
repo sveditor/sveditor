@@ -990,7 +990,7 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	wire wire1;\n" +
 			"	parameter PARAM1 =1 ;\n" +
 			"	generate\n" +
-			"	//begin\n" +
+			"	begin\n" +
 			"	if (PARAM1)\n" +
 			"	begin\n" +
 			"		assign wire1  = 0;\n" + 
