@@ -4,19 +4,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
+
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 	
@@ -92,4 +96,79 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		assertEquals(0, markers.size());
 	}
 
+	public void testTaskOverrideMarkers() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		String pname = "task_override_markers";
+
+		File pdir = new File(fTmpDir, pname);
+		assertTrue(pdir.mkdirs());
+		
+		IProject p = TestUtils.createProject(pname, pdir);
+		addProject(p);
+		
+		TestUtils.copy(
+				"class base;\n" +
+				"	virtual function func();\n" +
+				"		int x;\n" +
+				"	endfunction\n" +
+				"endclass\n",
+				p.getFile("base.sv"));
+	
+		TestUtils.copy(
+				"`include \"base.sv\"\n" +
+				"\n" +
+				"class derived extends base;\n" +
+				"	function func();\n" +
+				"	endfunction\n" +
+				"endclass\n",
+				p.getFile("derived.sv"));
+		
+		String source =
+				"`include \"derived.sv\"\n" +
+				"\n" +
+				"/* some comments just\n" +
+				" * to take up space\n" +
+				" */\n" +
+				"\n" +
+				"class unreleated ;\n" +
+				"	function func();\n" +
+				"	endfunction\n" +
+				"endclass\n";
+		TestUtils.copy(
+				source,
+				p.getFile("source.sv"));
+		
+		TestUtils.copy(
+				"source.sv\n",
+				p.getFile("list.f"));
+	
+		// Setup the project
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		
+		SVDBProjectData pdata = pmgr.getProjectData(p);
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/list.f");
+		
+		pdata.setProjectFileWrapper(fw, true);
+		
+		// Build the project
+		pmgr.rebuildProject(new NullProgressMonitor(), p);
+		
+		Tuple<SVDBFile, SVDBFile> ret = 
+				pdata.getProjectIndexMgr().parse(new NullProgressMonitor(), 
+				new StringInputStream(source), 
+				"${workspace_loc}/" + pname + "/source.sv",
+				markers);
+		
+		assertEquals(0, markers.size());
+	
+		OverrideTaskFuncFinder finder = new OverrideTaskFuncFinder();
+		List<Tuple<SVDBTask, SVDBTask>> override_tasks = finder.find(ret.second(), pdata.getProjectIndexMgr());
+
+		assertEquals(0, override_tasks.size());
+	}
 }
