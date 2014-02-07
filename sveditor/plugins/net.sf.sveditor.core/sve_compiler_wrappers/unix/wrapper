@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #****************************************************************************
 #* wrapper
 #*
@@ -11,6 +11,12 @@ if test "x$SVE_COMPILER_ARGS_FILE" = "x"; then
 fi
 
 target=`basename $0`
+script=`which $target`
+script_dir=`dirname $script`
+
+export PATH=`echo $PATH | sed -e "s%${script_dir}:%%" -e "s%:${script_dir}%%"`
+
+declare -a exec_args=($target)
 
 echo "/**" >> $SVE_COMPILER_ARGS_FILE
 echo " * Invoking $target in $CWD" >> $SVE_COMPILER_ARGS_FILE
@@ -19,6 +25,8 @@ echo " */" >> $SVE_COMPILER_ARGS_FILE
 echo "-SVE_SET_CWD `pwd`" >> $SVE_COMPILER_ARGS_FILE
 
 while test -n "$1"; do
+	exec_args=( ${exec_args[@]} "$1" )
+	
 	case "$1" in
 		*[[:space:]]*)
 			echo "\"$1\"" >> $SVE_COMPILER_ARGS_FILE
@@ -33,3 +41,7 @@ done
 
 echo "" >> $SVE_COMPILER_ARGS_FILE
 echo "" >> $SVE_COMPILER_ARGS_FILE
+
+if test "x$SVE_COMPILER_ARGS_EXEC" = "x1"; then
+	exec ${exec_args[@]}
+fi

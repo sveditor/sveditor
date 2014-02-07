@@ -89,6 +89,10 @@ public class ArgFileWriter {
 				writeSrcLibPathStmt((SVDBArgFileSrcLibPathStmt)item);
 			} break;
 			
+			case ArgFileMfcuStmt: {
+				fPS.println("-mfcu");
+			} break;
+			
 			default: {
 				fPS.println("// [ERROR] Unknown argument file statement: " + item.getType());
 			}

@@ -38,8 +38,11 @@ public class BaseArgCollector implements IArgCollector {
 	public void addStderrListener(ILineListener l) {
 		fStderrListener.add(l);
 	}
-	
 	public int process(File cwd, List<String> args) throws IOException {
+		return process(cwd, args, false);
+	}
+	
+	public int process(File cwd, List<String> args, boolean exec) throws IOException {
 		// Create a temp directory
 		fTmpDir = SVCorePlugin.getDefault().createWSTmpDir();
 		
@@ -54,6 +57,7 @@ public class BaseArgCollector implements IArgCollector {
 		EnvUtils env = new EnvUtils();
 		env.setenv("SVE_COMPILER_ARGS_FILE", fOutFile.getAbsolutePath());
 		env.prepend("PATH", sve_collect_compiler_dir.getAbsolutePath());
+		env.setenv("SVE_COMPILER_ARGS_EXEC", (exec)?"1":"0");
 	
 		try {
 			fProcess = Runtime.getRuntime().exec(
