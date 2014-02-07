@@ -116,7 +116,11 @@ public class ArgFileFilterDuplicates implements IArgFileFilter {
 						eq &= (s1.getSrcLibPath().equals(s2.getSrcLibPath()));
 					}
 				} break;
-				
+			
+				case ArgFileMfcuStmt: 
+				case ArgFileForceSvStmt:
+					break;
+					
 				default: {
 					System.out.println(getClass().getName() + ": Unhandled type " +
 							it1.getType());

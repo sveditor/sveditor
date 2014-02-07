@@ -56,6 +56,9 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 	private Text						fImportCmdText;
 	private String						fImportCmd;
 	
+	private Button						fExecCmdButton;
+	private boolean						fExecCmd;
+	
 	private Button						fImportButton;
 	private boolean						fImportRun;
 	
@@ -148,7 +151,7 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		fAddToProjectButton.setSelection(true);
 		fAddToProject = true;
 
-		g = new Group(top, SWT.BORDER);
+		g = new Group(top, SWT.BORDER_SOLID);
 		g.setText("Compilation Command");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 3;
@@ -164,6 +167,15 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		fImportCmdText = new Text(g, SWT.SINGLE+SWT.BORDER);
 		fImportCmdText.setLayoutData(gd);
 		fImportCmdText.addModifyListener(textModifyListener);
+		
+		fExecCmdButton = new Button(g, SWT.CHECK);
+		fExecCmdButton.setText("Execute Compiler Commands");
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 3;
+		fExecCmdButton.setLayoutData(gd);
+		fExecCmdButton.addSelectionListener(selectionListener);
+		fExecCmd = true;
+		fExecCmdButton.setSelection(true);
 		
 		// Source directory
 		l = new Label(g, SWT.NONE);
@@ -212,6 +224,8 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 		fDestDirText.setText(fDestDir);
 		fSrcDir.setText(fSrcDirStr);
 		
+		sash.setWeights(new int[] {60, 40});
+		
 		validate();
 		
 		setControl(sash);
@@ -252,7 +266,7 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				Exception exception = null;
 
 				try {
-					collector.process(srcdir_f, args);
+					collector.process(srcdir_f, args, fExecCmd);
 				} catch (IOException e) {
 					exception = e;
 				}
@@ -451,6 +465,8 @@ public class CompilationArgImportSrcInfoPage extends WizardPage {
 				runCompilation();
 			} else if (src == fAddToProjectButton) {
 				fAddToProject = fAddToProjectButton.getSelection();
+			} else if (src == fExecCmdButton) {
+				fExecCmd = fExecCmdButton.getSelection();
 			}
 		}
 		

@@ -4,6 +4,12 @@
 - #(315) - Correct an issue with the task/function override-annotation
   finding code. In some cases, virtual methods from classes declared in 
   included files would be marked in the active source file.
+  
+- #(nobug) - Add compilation-argument import support for -mfcu option
+
+- #(enh) - During compilation-argument import, add support for executing
+  the commands being intercepted by the compiler wrappers. Sometimes a
+  compilation failure causes the entire process to terminate early.
 
 ------------------------------------------------------------------------------
 -- 1.5.1 Release --
