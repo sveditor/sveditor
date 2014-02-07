@@ -61,6 +61,23 @@ public class TestParseClassBodyItems extends TestCase {
 				new String[] {"foobar", "foo_func", "foo_func_e", "foo_task"});
 	}
 
+	public void testVirtualInterfaceFunction() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"interface my_if;\n" +
+			"endinterface\n" +
+			"\n" +
+			"class foobar;\n" +
+			"	virtual my_if	m_if;\n" +
+			"\n" +
+			"    function virtual my_if foo_func();\n" +
+			"		return m_if;\n" +
+			"    endfunction\n" + 
+			"endclass\n";
+		runTest("testTaskFunction", content, 
+				new String[] {"my_if", "foobar", "foo_func"});
+	}
+	
 	public void testTaskFunctionWithSoftArg() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 

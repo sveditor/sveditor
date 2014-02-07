@@ -543,6 +543,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			fMarkers.add(marker);
 		}
 	}
+	
+	public String getFilename(SVDBLocation loc) {
+		if (fFileMapper != null) {
+			return fFileMapper.mapFileIdToPath(loc.getFileId());
+		} else {
+			return "FileId: " + loc.getFileId();
+		}
+	}
 
 	@Deprecated
 	public SVDBFile parse(

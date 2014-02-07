@@ -83,13 +83,14 @@ public class SVTaskFunctionParser extends SVParserBase {
 				
 				// data-type or implicit
 				List<SVToken> data_type_or_implicit = null;
-				if (fLexer.peekKeyword("void") || 
+				if (fLexer.peekKeyword("void","virtual") || 
 						SVKeywords.isBuiltInType(fLexer.peek())) {
 					data_type_or_implicit = new ArrayList<SVToken>();
 					data_type_or_implicit.add(fLexer.consumeToken());
 				} else if (fLexer.peekId()) {
 					data_type_or_implicit = parsers().SVParser().scopedIdentifier_l(true);
 				}
+				// Note: data_type_or_implicit could, technically, be null
 
 				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator("[")) {
 					// probably data-type or implicit data-type
@@ -101,7 +102,12 @@ public class SVTaskFunctionParser extends SVParserBase {
 					tf_name = parsers().SVParser().scopedIdentifier(false);
 				} else {
 					// function with no return type
-					tf_name = parsers().SVParser().scopedIdentifierList2Str(data_type_or_implicit);
+					if (data_type_or_implicit != null) {
+						tf_name = parsers().SVParser().scopedIdentifierList2Str(data_type_or_implicit);
+					} else {
+						tf_name = "UNKNOWN";
+						error("Task/Function type, name incorrectly parsed");
+					}
 
 					// TODO: This is a SystemVerilog warning
 				}
