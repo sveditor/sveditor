@@ -3,6 +3,11 @@
 
 - #(nobug) - Correct a parse bug involving a function that returns a 
   virtual interface handle
+  
+- #(316) - Correct a bug involving unbalanced pre-processor directives
+
+- #(enh) - Add checking for unbalanced pre-processor directives. Error
+  markers are now added when unbalanced directives are seen.
 
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --
