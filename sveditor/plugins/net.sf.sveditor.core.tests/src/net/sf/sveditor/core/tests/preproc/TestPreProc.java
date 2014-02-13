@@ -13,16 +13,20 @@
 package net.sf.sveditor.core.tests.preproc;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
@@ -30,14 +34,17 @@ import net.sf.sveditor.core.db.index.ops.SVDBCreatePreProcScannerOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
+import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
-import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -59,14 +66,150 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
 
-		InputStream in = new StringInputStream(content);
-		SVPreProcDirectiveScanner pp_scanner = new SVPreProcDirectiveScanner();
-		pp_scanner.init(in, "content");
-		SVDBPreProcObserver observer = new SVDBPreProcObserver();
-		pp_scanner.setObserver(observer);
-		pp_scanner.process();
+		runTest(content);
 		
 		// A passing test does not cause an exception
+	}
+
+	public void testUnbalancedConditionals_InitialElse() {
+		String content =
+			"\n" +
+			"class foo;\n" +
+			"`else\n" +
+			"endclass\n" +
+			"\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		runTest(content);
+		
+		// A passing test does not cause an exception
+	}
+
+	public void testUnbalancedConditionals_InitialEndif() {
+		String content =
+			"\n" +
+			"class foo;\n" +
+			"`endif\n" +
+			"endclass\n" +
+			"\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		runTest(content);
+		// A passing test does not cause an exception
+	}
+
+	public void testElsif_BothFalse() {
+		String content =
+			"\n" +
+			"`ifdef FOO\n" +
+			"`elsif BAR\n" +
+			"`endif\n" +
+			"\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		runTest(content);
+		
+		// A passing test does not cause an exception
+	}
+	
+	public void testElsif_ElsifTrue() {
+		String content =
+			"\n" +
+			"`define BAR\n" +
+			"`ifdef FOO\n" +
+			"`elsif BAR\n" +
+			"`endif\n" +
+			"\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		runTest(content);
+		
+		// A passing test does not cause an exception
+	}
+
+	public void testIfdefSplitAcrossFiles() {
+		final Map<String, Integer> path2id = new HashMap<String, Integer>();
+		final Map<Integer, String> id2path = new HashMap<Integer, String>();
+		
+		TestUtils.copy(
+				"package foo;\n" +
+				"`include \"cls1.svh\"\n" +
+				"`endif\n" +
+				"`include \"cls2.svh\"\n" +
+				"endpackage\n",
+				new File(fTmpDir, "foo_pkg.sv"));
+
+		TestUtils.copy(
+				"class cls1;\n" +
+				"`ifdef UNDEFINED\n" +
+				"endclass\n",
+				new File(fTmpDir, "cls1.svh"));
+		
+		TestUtils.copy(
+				"class cls2;\n" +
+				"endclass\n",
+				new File(fTmpDir, "cls2.svh"));
+
+		InputStream in = TestUtils.openFile(new File(fTmpDir, "foo_pkg.sv"));
+		
+		SVPreProcessor2 pp = new SVPreProcessor2(getName(), in, 
+				new ISVPreProcIncFileProvider() {
+					
+					@Override
+					public Tuple<String, InputStream> findIncFile(String incfile) {
+						System.out.println("findIncFile: " + incfile);
+						try {
+							File f = new File(fTmpDir, incfile);
+							InputStream in = new FileInputStream(f);
+								
+							System.out.println("findIncFile: " + f.getAbsolutePath());
+							
+							return new Tuple<String, InputStream>(f.getAbsolutePath(), in);
+						} catch (IOException e) {}
+						
+						return null;
+					}
+					
+					@Override
+					public Tuple<String, List<SVDBFileTreeMacroList>> findCachedIncFile(
+							String incfile) {
+						System.out.println("findCachedIncFile: " + incfile);
+						// TODO Auto-generated method stub
+						return null;
+					}
+					
+					@Override
+					public void addCachedIncFile(String incfile, String rootfile) {
+						// TODO Auto-generated method stub
+						
+					}
+				}, 
+				new ISVPreProcFileMapper() {
+					
+					@Override
+					public int mapFilePathToId(String path, boolean add) {
+						if (path2id.containsKey(path)) {
+							return path2id.get(path);
+						} else if (add) {
+							int id = path2id.size()+1;
+							path2id.put(path, id);
+							id2path.put(id, path);
+						}
+						return -1;
+					}
+					
+					@Override
+					public String mapFileIdToPath(int id) {
+						return id2path.get(id);
+					}
+				});
+		SVPreProcOutput out = pp.preprocess();
+		
+		TestUtils.closeStream(in);
 	}
 	
 	public void testCommaContainingStringMacroParam() {
@@ -1003,4 +1146,11 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	*/
 
+	private SVPreProcOutput runTest(String content) {
+//			SVCorePlugin.getDefault().enableDebug(false);
+
+			InputStream in = new StringInputStream(content);
+			SVPreProcessor2 pp = new SVPreProcessor2(getName(), in, null, null);
+			return pp.preprocess();
+	}
 }

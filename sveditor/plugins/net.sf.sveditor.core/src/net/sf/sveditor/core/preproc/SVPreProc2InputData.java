@@ -165,9 +165,11 @@ public class SVPreProc2InputData {
 		
 			SVDBUnprocessedRegion r = fUnprocessedRegion;
 			fUnprocessedRegion = null;
-			
-			r.setEndLocation(loc);
-			fFileTree.getSVDBFile().addChildItem(r);
+		
+			if (r != null) {
+				r.setEndLocation(loc);
+				fFileTree.getSVDBFile().addChildItem(r);
+			}
 		}		
 	}
 	

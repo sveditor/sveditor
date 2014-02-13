@@ -24,6 +24,7 @@ public class SVDBMarker extends SVDBItemBase {
 	public enum MarkerKind {
 		MissingInclude,
 		UndefinedMacro,
+		UnbalancedDirective,
 		ParseError
 	};
 	
