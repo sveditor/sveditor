@@ -100,4 +100,9 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 	protected void setEndLocation(SVDBScopeItem item) {
 		item.setEndLocation(getLocation());
 	}
+
+	public String getFilename(SVDBLocation loc) {
+		return fParser.getFilename(loc);
+	}
+	
 }
