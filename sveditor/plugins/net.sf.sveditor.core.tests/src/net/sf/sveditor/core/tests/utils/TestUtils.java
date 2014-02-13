@@ -65,6 +65,26 @@ public class TestUtils {
 		fTmp = new byte[1024*1024];
 	}
 	
+	public static InputStream openFile(File file) {
+		try {
+			InputStream in = new FileInputStream(file);
+			
+			return in;
+		} catch (IOException e) {
+			TestCase.fail("Failed to open " + file.getAbsolutePath() + " for reading");
+		}
+		
+		return null;
+	}
+	
+	public static void closeStream(InputStream in) {
+		try {
+			in.close();
+		} catch (IOException e) {
+			TestCase.fail("Failed to close input stream");
+		}
+	}
+	
 	public static File createTempDir() {
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
 		File ret = null;
