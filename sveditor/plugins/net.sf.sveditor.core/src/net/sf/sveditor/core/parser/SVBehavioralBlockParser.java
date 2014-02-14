@@ -598,8 +598,6 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			if (fLexer.peekKeyword("else")) {
 				fLexer.eatToken();
 				statement_int(parent, false, true, true);
-			} else {
-				fLexer.readOperator(";");
 			}
 		}
 	}

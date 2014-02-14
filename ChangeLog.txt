@@ -9,6 +9,9 @@
 - #(enh) - Add checking for unbalanced pre-processor directives. Error
   markers are now added when unbalanced directives are seen.
 
+- #(nobug) - Correct a parse bug involving an assert statement with a 
+  block body statement.
+  
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --
 
