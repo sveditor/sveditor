@@ -54,7 +54,7 @@ SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of
        * (end)
        * 
        * See Also:
-       *  <div>
+       *  &lt;div&gt;
        */
       function mult ();
       endfunction
@@ -75,7 +75,7 @@ SVEditor supports [http://www.naturaldocs.org/ Natural Docs] style commenting of
        * (end) 
        * 
        * See Also:
-       * <mult>
+       * &lt;mult&gt;
        */
       function div ();
       endfunction
