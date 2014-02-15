@@ -1860,6 +1860,39 @@ public class TestParseModuleBodyItems extends TestCase {
 				new String[] {"qlc_async_fifo"});
 	}
 	
+	public void testParseParameterCastExpr() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module my_sub_module #(parameter int A, parameter int B)();\n" +
+				"endmodule\n" +
+				"module my_module(a, b,);\n" +
+				"	input a;\n" +
+				"	input b;\n" +
+				"\n" +
+				"	my_sub_module #(.A(int'(5)), .B(int'(6))) u_sub();\n" +
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"my_module", "a", "b", "u_sub"});
+	}	
+
+	public void testParseParameterCastExprUserDefinedType() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"typedef int int32_t;\n" +
+				"module my_sub_module #(parameter int A, parameter int B)();\n" +
+				"endmodule\n" +
+				"module my_module(a, b,);\n" +
+				"	input a;\n" +
+				"	input b;\n" +
+				"\n" +
+				"	my_sub_module #(.A(int32_t'(5)), .B(int32_t'(6))) u_sub();\n" +
+				"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"my_module", "a", "b", "u_sub"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

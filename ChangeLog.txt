@@ -11,7 +11,11 @@
 
 - #(nobug) - Correct a parse bug involving an assert statement with a 
   block body statement.
-  
+ 
+- #(nobug) - Correct a parse bug involving a cast expression in a 
+  parameter assignment
+
+
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --
 

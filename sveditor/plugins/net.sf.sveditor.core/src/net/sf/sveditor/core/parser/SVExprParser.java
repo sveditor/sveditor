@@ -349,13 +349,23 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr datatype_or_expression() throws SVParseException {
 		if (fLexer.peekKeyword("virtual","const") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
 			// Know this is a type
+			SVDBExpr ret;
 			SVDBTypeExpr expr = new SVDBTypeExpr();
 			expr.setLocation(fLexer.getStartLocation());
+			
+			ret = expr;
 			
 			SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
 			expr.setTypeInfo(info);
 			
-			return expr;
+			if (fLexer.peekOperator("'")) {
+				// Cast expression
+				
+				fLexer.consumeToken();
+				ret = new SVDBCastExpr(expr, expression());
+			}
+			
+			return ret;
 		} else {
 			return expression();
 		}
