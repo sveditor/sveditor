@@ -307,6 +307,28 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				exp
 				);		
 	}
+
+	public void testMacroExternFunctionClassname() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"`define CLS myclass\n" +
+			"function `CLS::myfunction;\n" +
+			"endfunction\n"
+			;
+		String exp =
+			"\n" +
+			"function  myclass::myfunction;\n" +
+			"endfunction\n"
+			;
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				doc,
+				inc_provider,
+				exp
+				);		
+	}
 	
 	private void runTest(
 			String							doc,

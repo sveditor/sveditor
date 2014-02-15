@@ -3,6 +3,27 @@
 
 - #(nobug) - Correct a parse bug involving a function that returns a 
   virtual interface handle
+  
+- #(316) - Correct a bug involving unbalanced pre-processor directives
+
+- #(enh) - Add checking for unbalanced pre-processor directives. Error
+  markers are now added when unbalanced directives are seen.
+
+- #(nobug) - Correct a parse bug involving an assert statement with a 
+  block body statement.
+ 
+- #(nobug) - Correct a parse bug involving a cast expression in a 
+  parameter assignment
+
+- #(nobug) - Correct a parse bug that prevented covergroup declaration
+  in a package scope
+  
+- #(nobug) - Correct a pre-processor bug that in some cases led to 
+  incorrect characters being included with a macro reference
+  
+- #(nobug) - Correct a parse bug that could cause variable declarations
+  of vectored user-defined types in behavioral scopes to be flagged as errors
+  
 
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --

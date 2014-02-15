@@ -54,6 +54,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private StringBuilder							fTmpBuffer;
 	private List<Tuple<String, String>>				fParamList;
 	private Stack<Integer>							fPreProcEn;
+	private Stack<ScanLocation>						fPreProcLoc;
 	private IPreProcMacroProvider					fMacroProvider;
 	private SVPreProcDefineProvider					fDefineProvider;
 	private LogHandle								fLog;
@@ -116,6 +117,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fTmpBuffer = new StringBuilder();
 		fParamList = new ArrayList<Tuple<String,String>>();
 		fPreProcEn = new Stack<Integer>();
+		fPreProcLoc = new Stack<ScanLocation>();
 		fFileMap = new ArrayList<SVPreProcOutput.FileChangeInfo>();
 		fFileList = new ArrayList<String>();
 
@@ -265,6 +267,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		SVPreProcOutput ret = new SVPreProcOutput(
 				fOutput, null, fFileMap, fFileList);
 		ret.setFileTree(fInputCurr.getFileTree());
+		
+		// Clean up after any unbalanced pre-processor directives
+		cleanup_preproc_leftovers();
 	
 		// Leave final file
 		fInputCurr.close();
@@ -347,7 +352,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		if (ch == -1) {
 			type = "";
 		} else {
-			type = readIdentifier(ch);
+			type = readPreProcIdentifier(ch);
 	
 			if (type == null) {
 				type = "";
@@ -360,7 +365,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			ch = skipWhite(get_ch());
 			
 			// TODO: evaluate the expression?
-			String remainder = readIdentifier(ch);
+			String remainder = readPreProcIdentifier(ch);
 			
 			if (remainder != null) {
 				remainder = remainder.trim();
@@ -763,8 +768,31 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fInputCurr = in_data;
 	}
 	
+	private void cleanup_preproc_leftovers() {
+		int file_id = fInputCurr.getFileId();
+		while (fPreProcLoc.size() > 0 && fPreProcLoc.peek().getFileId() == file_id) {
+			
+			// Leftovers indicates unbalanced directives
+			ScanLocation loc = fPreProcLoc.pop();
+			fPreProcEn.pop();
+			SVDBLocation location = new SVDBLocation(loc.getFileId(), 
+					loc.getLineNo(), loc.getLinePos());
+			SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+					MarkerKind.UnbalancedDirective, 
+					"Unbalanced pre-processor directive");
+			m.setLocation(location);
+			if (fInputCurr.getFileTree() != null) {
+				fInputCurr.getFileTree().fMarkers.add(m);
+			}
+		}		
+	}
+	
 	private void leave_file() {
 		SVPreProc2InputData old_file = fInputCurr;
+
+		
+		// Clean up (if needed) after the macro stack
+		cleanup_preproc_leftovers();
 		
 		fInputCurr.leave_file();
 		
@@ -828,6 +856,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 		
 		fPreProcEn.push(e);
+		fPreProcLoc.push(scan_loc);
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
 	
@@ -835,6 +864,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		boolean enabled_pre = ifdef_enabled();
 		if (fPreProcEn.size() > 0) {
 			fPreProcEn.pop();
+			fPreProcLoc.pop();
 		}
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
@@ -843,6 +873,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		boolean enabled_pre = ifdef_enabled();
 		if (fPreProcEn.size() > 0) {
 			int e = fPreProcEn.pop();
+			fPreProcLoc.pop();
 
 			if (enabled) {
 				// Condition evaluates true
@@ -857,6 +888,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			}
 			
 			fPreProcEn.push(e);
+			fPreProcLoc.push(scan_loc);
 		}
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
@@ -865,6 +897,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		boolean enabled_pre = ifdef_enabled();
 		if (fPreProcEn.size() > 0) {
 			int e = fPreProcEn.pop();
+			fPreProcLoc.pop();
 			
 			// Invert only if we're in an enabled scope and
 			// we haven't already 'taken' a branch in the 
@@ -882,6 +915,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			
 			// Flip to 'true' only if we aren't 
 			fPreProcEn.push(e);
+			fPreProcLoc.push(scan_loc);
 		}
 		
 		update_unprocessed_region(scan_loc, enabled_pre);

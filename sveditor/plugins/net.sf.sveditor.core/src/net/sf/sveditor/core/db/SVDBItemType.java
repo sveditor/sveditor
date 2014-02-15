@@ -162,6 +162,7 @@ public enum SVDBItemType {
 	CycleDelayExpr,
 	FieldAccessExpr,
 	FirstMatchExpr,
+	ForeachLoopvarExpr,
 	IdentifierExpr,
 	IncDecExpr,
 	InsideExpr,

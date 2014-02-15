@@ -747,6 +747,64 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		runTest(config, testname, content, new String[] {"my_class"});
 	}
+
+	public void testMultiDimForeachConstraint() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+				"class my_class;\n" +
+				"	rand int arr[4][4];\n" +
+				"	constraint arr_c {\n" +
+				"		foreach (arr[i, j]) {\n" +
+				"			arr[i][j] == i+j;\n" +
+				"       }\n" +
+				"	}\n" +
+				"endclass\n" +
+				"\n"
+				;
+		
+		SVParserConfig config = new SVParserConfig();
+		config.setAllowDistInsideParens(true);
+		
+		runTest(config, testname, content, new String[] {"my_class"});
+	}
+
+	public void testMultiDimForeachConstraint2() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content = 
+				"class my_class;\n" +
+				"	rand int arr[4][4];\n" +
+				"	constraint arr_c {\n" +
+				"		foreach (this.arr[i,j]) {\n" +
+				"			arr[i][j] == i+j;\n" +
+				"       }\n" +
+				"	}\n" +
+				"endclass\n" +
+				"\n"
+				;
+		
+		SVParserConfig config = new SVParserConfig();
+		config.setAllowDistInsideParens(true);
+		
+		runTest(config, testname, content, new String[] {"my_class"});
+	}
+	
+	public void disabled_testIfConcatConstraint() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"class pkt;\n" +
+			"	rand bit one_beat;\n" +
+			"	rand int len;\n" +
+			"	rand bit [31:0] addr;\n" +
+			"\n" +
+			"	constraint wr_c {\n" +
+			"		if (!one_beat) { addr[5:0] == 0, len == 15 };\n" +
+			"	}\n" +
+			"	endclass\n"
+			;
+		runTest(getName(), content, new String[] {"pkt"});
+	}
 	
 	public void testDistConstraint() {
 		String testname = "testDistConstraint";
