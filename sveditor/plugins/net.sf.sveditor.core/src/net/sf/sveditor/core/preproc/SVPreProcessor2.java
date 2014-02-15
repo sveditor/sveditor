@@ -352,7 +352,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		if (ch == -1) {
 			type = "";
 		} else {
-			type = readIdentifier(ch);
+			type = readPreProcIdentifier(ch);
 	
 			if (type == null) {
 				type = "";
@@ -365,7 +365,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			ch = skipWhite(get_ch());
 			
 			// TODO: evaluate the expression?
-			String remainder = readIdentifier(ch);
+			String remainder = readPreProcIdentifier(ch);
 			
 			if (remainder != null) {
 				remainder = remainder.trim();

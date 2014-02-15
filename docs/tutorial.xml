@@ -1,0 +1,7 @@
+
+<project name="tutorial">
+	<filelist id="tutorial_files" dir="${tutorial.dir}">
+		<file name="tutorial.mediawiki"/>
+	</filelist>
+</project>
+

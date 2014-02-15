@@ -2,6 +2,7 @@
 	<property name="srcdir" value="${basedir}"/>
 	<property name="userguide.dir" value="${srcdir}/user_guide"/>
 	<property name="devguide.dir" value="${srcdir}/dev_guide"/>
+	<property name="tutorial.dir" value="${srcdir}/tutorial"/>
 	
 	<property name="tmpdir" value="${basedir}/output"/>
 	<property name="output.dir" value="${basedir}"/>
@@ -12,6 +13,7 @@
 
 	<import file="${srcdir}/userguide.xml"/>
 	<import file="${srcdir}/devguide.xml"/>
+	<import file="${srcdir}/tutorial.xml"/>
 
 	<path id="wikitext.classpath">
 		<fileset dir="${eclipse.home}/plugins">

@@ -353,6 +353,25 @@ public class TestParseBehavioralStmts extends TestCase {
 				new String[] { "m", "test_assert"});
 	}
 	
+	public void testAssertSingleStmt() {
+		String doc = 
+				"module m;\n" +
+				"function bit test_assert(int arg1, int arg2);\n" +
+				" return 0;\n" +
+				" endfunction\n" +
+				"\n" +
+				" initial begin\n" +
+				" assert(test_assert(0, 1)) $display(\"Assert failed\");\n" + 
+				" assert(test_assert(0, .arg2(1)));\n" +
+				" end\n" +
+				"endmodule\n"
+				;
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		runTest(getName(), doc, 
+				new String[] { "m", "test_assert"});
+	}
+	
 	public void testListFindWith() {
 		String testname = "testListFindWith";
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -502,6 +521,41 @@ public class TestParseBehavioralStmts extends TestCase {
 		runTest(getName(), doc, new String[] {"top"});
 	}
 
+	public void testAssertWithBlockBodyStmt() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+				"`define RPT_GET_FUNC_NAME(mesid) \\\n" +
+				"  begin\\\n" +
+				"    int i;\\\n" +
+				"    $sformat(mesid, \"%m\");\\\n" +
+				"    for (i=(mesid.len()-1); i > 0; i--)\\\n" +
+				"       if (mesid[i] == \".\") break;\\\n" +
+				"    if (i > 0)\\\n" +
+				"       mesid = mesid.substr(i+1, mesid.len()-1);\\\n" +
+				"    mesid = {mesid, \"()\"};\\\n" +
+				"  end\n" +
+				"\n" +
+				"`define RPT_REPORT_MESSAGE(id,str,lev)\\\n" +
+				"  begin\\\n" +
+				"     string mid;\\\n" +
+				"     `RPT_GET_FUNC_NAME(mid)\\\n" +
+				"     ovm_report_info(id, $psprintf(\"%s: %s\", mid, str),lev);\\\n" +
+				"  end\n" +
+				"\n" +
+				"`define RPT_MESSAGE_HIGH(id,str)  `RPT_REPORT_MESSAGE(id,str,OVM_HIGH)\n" +
+				"class foobar;\n" +
+				"	function void build();\n" +
+				"		int myid;\n" +
+				"		assert(get_config_int(\"foo_id\", myid))\n" +
+				"      `RPT_MESSAGE_HIGH($psprintf(\"MSG(%s)\", this.get_full_name()), $psprintf(\"this is a message %d\", myid))\n" +
+				"	endfunction\n" +
+				"endclass\n" +
+				"\n";
+			;
+
+		runTest(getName(), doc, new String[] {"foobar"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

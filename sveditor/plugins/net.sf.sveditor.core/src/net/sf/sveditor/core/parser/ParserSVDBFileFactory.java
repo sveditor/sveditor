@@ -179,6 +179,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			parsers().modIfcProgParser().parse(parent, modifiers);
 		} else if (fLexer.peekKeyword("package")) {
 			package_decl(parent);
+		} else if (fLexer.peekKeyword("covergroup")) {
+			parsers().covergroupParser().parse(parent);
 		} else if (fLexer.peekKeyword("import")) {
 			parsers().impExpParser().parse_import(parent);
 		} else if (fLexer.peekKeyword("export")) {

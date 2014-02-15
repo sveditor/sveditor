@@ -40,6 +40,7 @@ import net.sf.sveditor.core.db.expr.SVDBCtorExpr.CtorType;
 import net.sf.sveditor.core.db.expr.SVDBCycleDelayExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
+import net.sf.sveditor.core.db.expr.SVDBForeachLoopvarExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBIncDecExpr;
 import net.sf.sveditor.core.db.expr.SVDBInsideExpr;
@@ -349,13 +350,23 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr datatype_or_expression() throws SVParseException {
 		if (fLexer.peekKeyword("virtual","const") || fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) {
 			// Know this is a type
+			SVDBExpr ret;
 			SVDBTypeExpr expr = new SVDBTypeExpr();
 			expr.setLocation(fLexer.getStartLocation());
+			
+			ret = expr;
 			
 			SVDBTypeInfo info = fParsers.dataTypeParser().data_type(0);
 			expr.setTypeInfo(info);
 			
-			return expr;
+			if (fLexer.peekOperator("'")) {
+				// Cast expression
+				
+				fLexer.consumeToken();
+				ret = new SVDBCastExpr(expr, expression());
+			}
+			
+			return ret;
 		} else {
 			return expression();
 		}
@@ -425,6 +436,25 @@ public class SVExprParser extends SVParserBase {
 		return lvalue;
 	}
 	
+	public SVDBExpr foreach_loopvar() throws SVParseException {
+		SVDBForeachLoopvarExpr loopvar = new SVDBForeachLoopvarExpr();
+		
+		loopvar.setId(hierarchical_identifier());
+	
+		fLexer.readOperator("[");
+		while (true) {
+			loopvar.addLoopVar(idExpr());
+			if (fLexer.peekOperator(",")) {
+				fLexer.consumeToken();
+			} else {
+				break;
+			}
+		}
+		fLexer.readOperator("]");
+	
+		return loopvar;
+	}
+	
 	public SVDBExpr const_or_range_expression() throws SVParseException {
 		if (fDebugEn) {debug("--> const_or_range_expression - " + fLexer.peek());}
 		SVDBExpr expr = expression();
@@ -489,7 +519,7 @@ public class SVExprParser extends SVParserBase {
 		SVDBExpr ret;
 		
 		if (fDebugEn) {debug("--> hierarchical_identifier - " + fLexer.peek());}
-		String id = fLexer.readId();
+		String id = fLexer.readIdOrKeyword();
 		
 		if (fLexer.peekOperator(".","::")) {
 			ret = new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), false, 

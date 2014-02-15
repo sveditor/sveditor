@@ -205,7 +205,7 @@ public class SVConstraintParser extends SVParserBase {
 		fLexer.readKeyword("foreach");
 		
 		fLexer.readOperator("(");
-		stmt.setExpr(fParsers.exprParser().variable_lvalue());
+		stmt.setExpr(fParsers.exprParser().foreach_loopvar());
 		fLexer.readOperator(")");
 		
 		stmt.setStmt(constraint_set(false));
