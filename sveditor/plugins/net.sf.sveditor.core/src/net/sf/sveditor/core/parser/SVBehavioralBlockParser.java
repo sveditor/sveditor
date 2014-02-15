@@ -115,7 +115,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			boolean 			consume_terminator) throws SVParseException {
 		return statement_int(parent, decl_allowed, ansi_decl, consume_terminator, false);
 	}
-
+	
 	private boolean statement_int(
 			ISVDBAddChildItem 	parent, 
 			boolean 			decl_allowed, 
@@ -162,7 +162,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 				if (fDebugEn) {debug(" -- variable declaration 2 " + fLexer.peek());}
 
-				if (fLexer.peekOperator("::","#") || fLexer.peekId()) {
+				if (fLexer.peekOperator("::","#", "[") || fLexer.peekId()) {
 					boolean retry_as_statement = false;
 					// Likely to be a declaration. Let's read a type
 					fLexer.ungetToken(tok);

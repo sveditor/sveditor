@@ -20,6 +20,10 @@
   
 - #(nobug) - Correct a pre-processor bug that in some cases led to 
   incorrect characters being included with a macro reference
+  
+- #(nobug) - Correct a parse bug that could cause variable declarations
+  of vectored user-defined types in behavioral scopes to be flagged as errors
+  
 
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --
