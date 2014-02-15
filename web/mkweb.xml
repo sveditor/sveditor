@@ -117,10 +117,12 @@
 		<mkdir dir="${output.dir}/html"/>
 		<mkdir dir="${output.dir}/html/imgs"/>
 		<mkdir dir="${output.dir}/html/user_guide"/>
+		<mkdir dir="${output.dir}/html/tutorial"/>
 		<mkdir dir="${output.dir}/html/dev_guide"/>
 
 		<antcall target="mk_web_index"/>
 		<antcall target="mk_web_user_guide"/>
+		<antcall target="mk_web_tutorial"/>
 		<antcall target="mk_web_dev_guide"/>
 		
 		<copy todir="${output.dir}/html">
@@ -132,6 +134,11 @@
 			<fileset dir="${output.dir}/user_guide_html" 
 				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
+
+		<copy todir="${output.dir}/html/tutorial">
+			<fileset dir="${output.dir}/tutorial_html" 
+				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
 		
 		<copy todir="${output.dir}/html/dev_guide">
 			<fileset dir="${output.dir}/dev_guide_html" 
@@ -139,6 +146,7 @@
 		</copy>
 	
 		<delete dir="${output.dir}/user_guide_html"/>
+		<delete dir="${output.dir}/tutorial_html"/>
 		<delete dir="${output.dir}/dev_guide_html"/>
 		<delete dir="${output.dir}/index_html"/>
 
@@ -184,6 +192,30 @@
 		</move>
 
 		<mkhtml doctitle="SVEditor User Guide"
+			docfile="sveditor_user_guide.mediawiki"
+			menu="${srcdir}/templates/user_guide_menu.xml"
+			style="${srcdir}/templates/style.xml"
+			layout="${srcdir}/templates/layout.xml"
+			output.dir="${output.dir}/user_guide_html"/>
+	</target>
+
+	<target name="mk_web_tutorial">
+		<mkdir dir="${output.dir}/tutorial_html"/>
+		<mkdir dir="${output.dir}/tutorial_html/imgs"/>
+		
+		<ant antfile="${srcdir}/../docs/mkdoc.xml"
+			target="collect_files_tutorial">
+			<property name="srcdir" value="${srcdir}/../docs"/>
+			<property name="output.dir" value="${output.dir}/tutorial_html"/>
+		</ant>
+	
+		<!-- Move the image files to a subdir -->
+		<move todir="${output.dir}/tutorial_html/imgs">
+			<fileset dir="${output.dir}/tutorial_html"
+				includes="*.gif,*.jpg,*.png"/>
+		</move>
+
+		<mkhtml doctitle="SVEditor Tutorial"
 			docfile="sveditor_user_guide.mediawiki"
 			menu="${srcdir}/templates/user_guide_menu.xml"
 			style="${srcdir}/templates/style.xml"

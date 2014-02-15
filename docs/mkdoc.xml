@@ -123,6 +123,20 @@
 		</concat>
 	</target>
 
+	<target name="collect_tutorial_files">
+		
+		<!-- Copy image files -->
+		<copy todir="${output.dir}" flatten="true">
+			<fileset dir="${tutorial.dir}"
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<!-- Now, build the doc -->
+		<concat destfile="${output.dir}/sveditor_tutorial.mediawiki">
+			<filelist refid="tutorial_files"/>
+		</concat>
+	</target>
+
 	<!-- Target intended for external callers -->
 	<target name="collect_devguide_files">
 		
