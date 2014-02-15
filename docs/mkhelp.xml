@@ -2,10 +2,12 @@
 <project name="mkhelp">
 	<property name="srcdir" value="${basedir}"/>
 	<property name="userguide.dir" value="${srcdir}/user_guide"/>
+	<property name="tutorial.dir" value="${srcdir}/tutorial"/>
 	<property name="tmpdir" value="${basedir}/output"/>
 	<property name="output.dir" value="${basedir}"/>
 
 	<import file="${srcdir}/userguide.xml"/>
+	<import file="${srcdir}/tutorial.xml"/>
 
 	<path id="wikitext.classpath">
 		<fileset dir="${eclipse.home}/plugins">
@@ -39,6 +41,29 @@
 			prependImagePrefix="imgs"/>
 	</target>
 
+	<target name="mk_tutorial_help">
+		<delete dir="${output.dir}/tutorial"/>
+		<mkdir dir="${output.dir}/tutorial"/>
+		<mkdir dir="${output.dir}/tutorial/imgs"/>
+		
+		<copy todir="${output.dir}/tutorial/imgs" flatten="true">
+			<fileset dir="${tutorial.dir}"
+				includes="**/*.gif,**/*.jpg,**/*.png"/>
+		</copy>
+		
+		<concat destfile="${output.dir}/tutorial/sveditor_tutorial.mediawiki">
+			<filelist refid="tutorial_files"/>
+		</concat>
+		
+		<wikitext-to-eclipse-help markupLanguage="MediaWiki"
+			title="SVEditor Getting Started Tutorial"
+			multipleOutputFiles="true"
+			helpPrefix="tutorial"
+			file="${output.dir}/tutorial/sveditor_tutorial.mediawiki"
+			formatOutput="true"
+			prependImagePrefix="imgs"/>
+	</target>
+		
 	<target name="mk_dev_guide_help">
 		<delete dir="${output.dir}/help"/>
 		<mkdir dir="${output.dir}/help"/>

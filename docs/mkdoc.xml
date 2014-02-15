@@ -130,7 +130,7 @@
 		<!-- Copy image files -->
 		<copy todir="${output.dir}" flatten="true">
 			<fileset dir="${tutorial.dir}"
-				includes="**/*.gif,**/*.jpg,**/*.png"/>
+				includes="**/*.gif,**/*.jpg,**/*.png,**/*.zip"/>
 		</copy>
 		
 		<!-- Now, build the doc -->

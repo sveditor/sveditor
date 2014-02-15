@@ -7,6 +7,10 @@
             file="help/user_guide-toc.xml"
             primary="true">
       </toc>
+      <toc
+            file="tutorial/sveditor_tutorial-toc.xml"
+            primary="true">
+      </toc>
    </extension>
 
 </plugin>

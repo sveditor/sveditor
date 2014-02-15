@@ -204,7 +204,7 @@
 		<mkdir dir="${output.dir}/tutorial_html/imgs"/>
 		
 		<ant antfile="${srcdir}/../docs/mkdoc.xml"
-			target="collect_files_tutorial">
+			target="collect_tutorial_files">
 			<property name="srcdir" value="${srcdir}/../docs"/>
 			<property name="output.dir" value="${output.dir}/tutorial_html"/>
 		</ant>
@@ -216,11 +216,11 @@
 		</move>
 
 		<mkhtml doctitle="SVEditor Tutorial"
-			docfile="sveditor_user_guide.mediawiki"
-			menu="${srcdir}/templates/user_guide_menu.xml"
+			docfile="sveditor_tutorial.mediawiki"
+			menu="${srcdir}/templates/tutorial_menu.xml"
 			style="${srcdir}/templates/style.xml"
 			layout="${srcdir}/templates/layout.xml"
-			output.dir="${output.dir}/user_guide_html"/>
+			output.dir="${output.dir}/tutorial_html"/>
 	</target>
 
 	<target name="mk_web_dev_guide">

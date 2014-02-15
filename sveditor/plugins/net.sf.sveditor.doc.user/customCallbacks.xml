@@ -48,9 +48,15 @@
 			target="mk_user_guide_help">
 			<property name="srcdir" value="${docs.dir}"/>
 		</ant>
+		
+		<ant antfile="${docs.dir}/mkhelp.xml" 
+			target="mk_tutorial_help">
+			<property name="srcdir" value="${docs.dir}"/>
+		</ant>
 	</target>
 	
 	<target name="clean_docs">
+		<delete dir="${basedir}/tutorial"/>
 		<delete>
 			<fileset dir="${basedir}">
 				<include name="toc.xml"/>
