@@ -15,6 +15,11 @@
 - #(nobug) - Correct a parse bug involving a cast expression in a 
   parameter assignment
 
+- #(nobug) - Correct a parse bug that prevented covergroup declaration
+  in a package scope
+  
+- #(nobug) - Correct a pre-processor bug that in some cases led to 
+  incorrect characters being included with a macro reference
 
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --

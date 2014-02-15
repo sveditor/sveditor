@@ -129,6 +129,23 @@ public class TestParseDataTypes extends TestCase {
 				new String [] {"foo", "my_var"});
 	}
 	
+	public void testVectoredUserDefinedType() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String content =
+			"class foo;\n" +
+			"	typedef bit[31:0] bit32_t;\n" +
+			"	function bar;\n" +
+			"	int p;\n" +
+			"	bit32_t [0:($bits(SZ)/$bits(bit32_t))-1] v;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest(getName(), content,
+				new String [] {"foo", "v"});
+	}
+	
 	public void testMultiDimWireArrayDecl() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testMultiDimWireArrayDecl";

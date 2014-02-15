@@ -277,7 +277,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			foreach.setLocation(start);
 			fLexer.eatToken();
 			fLexer.readOperator("(");
-			foreach.setCond(parsers().exprParser().expression());
+			foreach.setCond(parsers().exprParser().foreach_loopvar());
 			fLexer.readOperator(")");
 			parent.addChildItem(foreach);
 			statement_int(foreach, false,false, consume_terminator);
