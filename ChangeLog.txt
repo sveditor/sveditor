@@ -24,6 +24,8 @@
 - #(nobug) - Correct a parse bug that could cause variable declarations
   of vectored user-defined types in behavioral scopes to be flagged as errors
   
+- #(317) - Correct a parse conflict between a constraint set and a concat.
+  
 
 ------------------------------------------------------------------------------
 -- 1.5.2 Release --

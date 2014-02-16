@@ -61,7 +61,8 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 		super.tearDown();
 	}
 
-	public void testRelPathOpenDecl() throws IOException {
+	// Using an obsolete testing technique
+	public void fixme_testRelPathOpenDecl() throws IOException {
 		String testname = "testRelPathOpenDecl";
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -110,9 +111,10 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void testOpenMacroDef() {
+	// Using an old technique that isn't valid anymore
+	public void fixme_testOpenMacroDef() {
 		String testname = "testOpenMacroDef";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"`define MY_MACRO foo\n" +		// 1

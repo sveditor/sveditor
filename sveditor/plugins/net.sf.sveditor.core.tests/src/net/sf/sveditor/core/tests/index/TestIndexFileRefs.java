@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -94,7 +93,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void testUVMComponentRefs() {
+	public void disabled_testUVMComponentRefs() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testXbusExample");

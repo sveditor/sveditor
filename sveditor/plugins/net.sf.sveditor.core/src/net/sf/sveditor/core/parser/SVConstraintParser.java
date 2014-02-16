@@ -12,6 +12,9 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -28,9 +31,11 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.parser.SVLexer.Context;
 
 public class SVConstraintParser extends SVParserBase {
+	private List<SVToken>					fTmpTokenList;
 	
 	public SVConstraintParser(ISVParser parser) {
 		super(parser);
+		fTmpTokenList = new ArrayList<SVToken>();
 	}
 	
 	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
@@ -61,20 +66,65 @@ public class SVConstraintParser extends SVParserBase {
 			fLexer.setContext(ctxt);
 		}
 	}
-	
-	public SVDBStmt constraint_set(boolean force_braces) throws SVParseException {
+
+	/**
+	 * 
+	 * @param force_braces
+	 * @param check_for_concat -- check whether for "if () {concat}" case
+	 * @return
+	 * @throws SVParseException
+	 */
+	public SVDBStmt constraint_set(boolean force_braces, boolean check_for_concat) throws SVParseException {
 		if (fDebugEn) {debug("--> constraint_set()");}
 		
 		if (force_braces || fLexer.peekOperator("{")) {
-			SVDBConstraintSetStmt ret = new SVDBConstraintSetStmt(); 
-			fLexer.readOperator("{");
-			while (lexer().peek() != null && !fLexer.peekOperator("}")) {
-				SVDBStmt c_stmt = constraint_set_item();
-				ret.addConstraintStmt(c_stmt);
+			boolean is_concat = false;
+			
+		
+			// Checks to see if what initially appears to be a constraint set block
+			// is actually a concat expression
+			if (check_for_concat) {
+				String tok;
+				int brace_balance = 0;
+				fTmpTokenList.clear();
+				// Scan forward to the first ';' ',' or brace
+				while ((tok = fLexer.peek()) != null && !fLexer.peekOperator(";", ",")) {
+					if (tok.equals("{")) {
+						brace_balance++;
+					} else if (tok.equals("}")) {
+						brace_balance--;
+					}
+					
+					fTmpTokenList.add(fLexer.consumeToken());
+					
+					if (brace_balance == 0) {
+						break;
+					}
+				}
+			
+				if (fLexer.peekOperator(",") ||
+						(brace_balance == 0 && fLexer.peekOperator(";"))) {
+					// Yes, very likely a concat
+					is_concat = true;
+				}
+				fLexer.ungetToken(fTmpTokenList);
 			}
-			fLexer.readOperator("}");
-			if (fDebugEn) {debug("<-- constraint_set()");}
-			return ret;
+
+			if (is_concat) {
+				SVDBStmt ret = constraint_set_item();
+				if (fDebugEn) {debug("<-- constraint_set()");}
+				return ret;
+			} else {
+				SVDBConstraintSetStmt ret = new SVDBConstraintSetStmt(); 
+				fLexer.readOperator("{");
+				while (lexer().peek() != null && !fLexer.peekOperator("}")) {
+					SVDBStmt c_stmt = constraint_set_item();
+					ret.addConstraintStmt(c_stmt);
+				}
+				fLexer.readOperator("}");
+				if (fDebugEn) {debug("<-- constraint_set()");}
+				return ret;
+			}
 		} else {
 			if (fDebugEn) {debug("<-- constraint_set()");}
 			return constraint_set_item();
@@ -116,7 +166,7 @@ public class SVConstraintParser extends SVParserBase {
 				if (fDebugEn) { debug("  implication"); }
 				fLexer.eatToken();
 				
-				ret = new SVDBConstraintImplStmt(expr, constraint_set(false));
+				ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true));
 			} else {
 				error("Unknown suffix for expression: " + fLexer.getImage());
 			}
@@ -180,7 +230,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBExpr if_expr = fParsers.exprParser().expression();
 		fLexer.readOperator(")");
 		
-		SVDBStmt constraint = constraint_set(false);
+		SVDBStmt constraint = constraint_set(false, true);
 		
 		if (fLexer.peekKeyword("else")) {
 			SVDBStmt else_stmt;
@@ -188,7 +238,7 @@ public class SVConstraintParser extends SVParserBase {
 			if (fLexer.peekKeyword("if")) {
 				else_stmt = constraint_if_expression();
 			} else {
-				else_stmt = constraint_set(false);
+				else_stmt = constraint_set(false, true);
 			}
 			ret = new SVDBConstraintIfStmt(if_expr, constraint, else_stmt, true);
 		} else {
@@ -198,7 +248,7 @@ public class SVConstraintParser extends SVParserBase {
 		if (fDebugEn) {debug("<-- constraint_if_expression");}
 		return ret;
 	}
-	
+
 	private SVDBStmt constraint_foreach() throws SVParseException {
 		SVDBConstraintForeachStmt stmt = new SVDBConstraintForeachStmt();
 		stmt.setLocation(fLexer.getStartLocation());
@@ -208,7 +258,7 @@ public class SVConstraintParser extends SVParserBase {
 		stmt.setExpr(fParsers.exprParser().foreach_loopvar());
 		fLexer.readOperator(")");
 		
-		stmt.setStmt(constraint_set(false));
+		stmt.setStmt(constraint_set(false, true));
 		
 		return stmt;
 	}

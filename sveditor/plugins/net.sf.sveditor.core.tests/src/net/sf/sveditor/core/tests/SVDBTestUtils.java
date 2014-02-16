@@ -258,11 +258,15 @@ public class SVDBTestUtils {
 		
 		SVDBFile pp_file = pp.getFileTree().getSVDBFile();
 		
+		TestCase.assertNotNull(pp_file);
+		
 		ParserSVDBFileFactory parser = new ParserSVDBFileFactory();
 		if (config != null) {
 			parser.setConfig(config);
 		}
 		SVDBFile file = parser.parse(language, pp_out, filename, markers);
+		
+		TestCase.assertNotNull(file);
 		
 		for (SVDBMarker m : markers) {
 			if (log != null) {

@@ -790,7 +790,7 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest(config, testname, content, new String[] {"my_class"});
 	}
 	
-	public void disabled_testIfConcatConstraint() {
+	public void testIfConcatConstraint() {
 		SVCorePlugin.getDefault().enableDebug(true);
 		String content =
 			"class pkt;\n" +
@@ -800,6 +800,22 @@ public class TestParseClassBodyItems extends TestCase {
 			"\n" +
 			"	constraint wr_c {\n" +
 			"		if (!one_beat) { addr[5:0] == 0, len == 15 };\n" +
+			"	}\n" +
+			"	endclass\n"
+			;
+		runTest(getName(), content, new String[] {"pkt"});
+	}
+
+	public void testIfConcatConstraint2() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"class pkt;\n" +
+			"	rand bit one_beat;\n" +
+			"	rand int len;\n" +
+			"	rand bit [31:0] addr;\n" +
+			"\n" +
+			"	constraint wr_c {\n" +
+			"		if (!one_beat) { addr[5:0] == 0 };\n" +
 			"	}\n" +
 			"	endclass\n"
 			;

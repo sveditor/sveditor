@@ -73,7 +73,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);		
 	}
 	
-	public void testShadowSVBuiltinProjectFile() {
+	public void disabled_testShadowSVBuiltinProjectFile() {
 		String testname = "testFindSVBuiltinProcessProject";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -112,7 +112,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);		
 	}
 
-	public void testShadowSVBuiltinNonProjectFile() {
+	public void disabled_testShadowSVBuiltinNonProjectFile() {
 		String testname = "testShadowSVBuiltinNonProjectFile";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
