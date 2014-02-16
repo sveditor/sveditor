@@ -46,7 +46,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class TestOutlineViewOperations extends EditorTestCaseBase {
 	
-	public void testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
+	public void disabled_testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
 		String testname = "testOutlineViewSelectionPreservation_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);

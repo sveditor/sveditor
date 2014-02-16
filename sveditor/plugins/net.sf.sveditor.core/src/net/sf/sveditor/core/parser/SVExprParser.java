@@ -1545,7 +1545,7 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.peekKeyword("with")) {
 				fLexer.eatToken();
 				// constraint block
-				rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true));
+				rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true, false));
 			}
 		} finally {
 			fAssertionExpr.pop();

@@ -30,7 +30,6 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.ops.SVDBCreatePreProcScannerOp;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -1036,6 +1035,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 
 		// Create test.f
 		ps = new PrintStream(new File(fTmpDir, "test.f"));
+		ps.println("+define+QUESTA");
 		ps.println("+incdir+./uvm/src");
 		ps.println("./uvm/src/uvm_pkg.sv");
 		ps.println("./uvm_fields.svh");
@@ -1049,35 +1049,14 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		index.loadIndex(new NullProgressMonitor());
 		
 		File target = new File(fTmpDir, "uvm_fields.svh");
-		ISVPreProcessor pp = SVDBCreatePreProcScannerOp.op(index, target.getAbsolutePath());
-		assertNotNull(pp);
-		
-		StringBuilder sb = new StringBuilder();
-		int ch;
-	
-		SVPreProcOutput pp_out = pp.preprocess();
-		while ((ch = pp_out.get_ch()) != -1) {
-			sb.append((char)ch);
-		}
-		int lineno=1;
-		StringBuilder line = new StringBuilder();
-		for (int i=0; i<sb.length(); i++) {
-			while (i<sb.length() && sb.charAt(i) != '\n') {
-				if (sb.charAt(i) != '\r') {
-					line.append(sb.charAt(i));
-				}
-				i++;
-			}
-			if (sb.charAt(i) == '\n') {
-				i++;
-			}
-			log.debug(lineno + ": " + line.toString());
-			line.setLength(0);
-			lineno++;
-		}
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		/* SVDBFile file = */ SVDBTestUtils.parse(log, sb.toString(), "uvm_fields.svh", markers);
+		InputStream in = index.getFileSystemProvider().openStream(
+				target.getAbsolutePath());
+
+		index.parse(new NullProgressMonitor(), in, target.getAbsolutePath(), markers);
+		
+		index.getFileSystemProvider().closeStream(in);
 		
 		assertEquals("Errors", 0, markers.size());
 		

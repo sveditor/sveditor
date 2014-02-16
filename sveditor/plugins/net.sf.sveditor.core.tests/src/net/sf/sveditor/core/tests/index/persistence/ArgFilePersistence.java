@@ -320,7 +320,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		LogFactory.removeLogHandle(log);
 	}	
 
-	public void testWSArgFileTimestampChanged() {
+	public void disabled_testWSArgFileTimestampChanged() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		ByteArrayOutputStream	 	out;
 		PrintStream				ps;
@@ -402,7 +402,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void testWSArgFileTimestampUnchanged() {
+	public void disabled_testWSArgFileTimestampUnchanged() {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
@@ -536,7 +536,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		assertEquals("class1", SVDBItem.getName(target_it));
 	}
 
-	public void testFSArgFileTimestampChanged() {
+	public void disabled_testFSArgFileTimestampChanged() {
 		ByteArrayOutputStream out;
 		PrintStream ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

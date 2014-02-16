@@ -179,7 +179,7 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void testScenariosExample() {
+	public void disabled_testScenariosExample() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testScenariosExample");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
