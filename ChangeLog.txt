@@ -1,4 +1,7 @@
 
+-- 1.5.4 Release --
+
+------------------------------------------------------------------------------
 -- 1.5.3 Release --
 
 - #(nobug) - Correct a parse bug involving a function that returns a 
