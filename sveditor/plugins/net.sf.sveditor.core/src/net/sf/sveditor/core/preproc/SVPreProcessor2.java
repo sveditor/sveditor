@@ -780,6 +780,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 					MarkerKind.UnbalancedDirective, 
 					"Unbalanced pre-processor directive");
+			
+			if (fDebugEn) {
+				fLog.debug("Cleanup pre-proc leftover @ " + loc.getLineNo());
+			}
 			m.setLocation(location);
 			if (fInputCurr.getFileTree() != null) {
 				fInputCurr.getFileTree().fMarkers.add(m);
@@ -792,7 +796,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 
 		
 		// Clean up (if needed) after the macro stack
-		cleanup_preproc_leftovers();
+		// Only cleanup after leaving a file where file content (not expanded macro content)
+		// was present
+		if (fInputCurr.incPos()) {
+			cleanup_preproc_leftovers();
+		}
 		
 		fInputCurr.leave_file();
 		
@@ -857,6 +865,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 		fPreProcEn.push(e);
 		fPreProcLoc.push(scan_loc);
+	
+		if (fDebugEn) {
+			fLog.debug("enter_ifdef: " + scan_loc.getLineNo() + 
+					" enabled=" + enabled + " pre=" + enabled_pre + 
+					" post=" + ifdef_enabled() + " sz=" + fPreProcEn.size());
+		}
+		
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
 	
@@ -866,6 +881,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fPreProcEn.pop();
 			fPreProcLoc.pop();
 		}
+	
+		if (fDebugEn) {
+			fLog.debug("leave_ifdef: " + scan_loc.getLineNo() + 
+					" pre=" + enabled_pre + 
+					" post=" + ifdef_enabled());
+		}
+		
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
 	
@@ -916,6 +938,14 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			// Flip to 'true' only if we aren't 
 			fPreProcEn.push(e);
 			fPreProcLoc.push(scan_loc);
+		} else {
+			fLog.debug("Warning: encountered `else with empty PreProcEn stack");
+		}
+		
+		if (fDebugEn) {
+			fLog.debug("enter_else: " + scan_loc.getLineNo() + 
+					" pre=" + enabled_pre + 
+					" post=" + ifdef_enabled());
 		}
 		
 		update_unprocessed_region(scan_loc, enabled_pre);

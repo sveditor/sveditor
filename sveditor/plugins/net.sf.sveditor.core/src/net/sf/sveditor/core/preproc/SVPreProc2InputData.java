@@ -54,6 +54,10 @@ public class SVPreProc2InputData {
 		fUngetCh2 = -1;
 	}
 	
+	public boolean incPos() {
+		return fIncPos;
+	}
+	
 	int get_ch() {
 		int ch = -1;
 		

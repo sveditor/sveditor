@@ -329,6 +329,39 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				exp
 				);		
 	}
+
+	public void testIfndefElse() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"`define VMM_SCENARIO foo_scenario\n" +
+			"`ifndef MACRO_DEFINED\n" +
+			"task vmm_channel::put(vmm_data obj,\n" +
+			"					int offset=-1,\n" +
+			"					`VMM_SCENARIO grabber=null);\n" +
+			"`else\n" +
+			"task vmm_channel::put(vmm_data obj,\n" +
+			"					int offset=-1);\n" +
+			"`endif\n" +
+			"section_3\n"
+			;
+		String exp =
+			"\n" +
+			"\n" +
+			"task vmm_channel::put(vmm_data obj,\n" +
+			"					int offset=-1,\n" +
+			"					 foo_scenario grabber=null);\n" +
+			" \n" +
+			"section_3\n"
+			;
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				doc,
+				inc_provider,
+				exp
+				);		
+	}
 	
 	private void runTest(
 			String							doc,
