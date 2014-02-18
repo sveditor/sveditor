@@ -267,24 +267,28 @@ public class DocModelFactory {
 	private void gatherSymbols(DocGenConfig cfg, DocModel model) {
 		
 		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
-		
-		for (SVDBDeclCacheItem mod_prog : cfg.getModulePrograms()) {
-			SymbolTableEntry ent = 
-					SymbolTableEntry.createModProgEntry(
-							mod_prog.getName(), 
-							mod_prog.getFilename(),
-							mod_prog);
-			model.getSymbolTable().addSymbol(ent);
-			gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+	
+		if (cfg.getModulePrograms() != null) {
+			for (SVDBDeclCacheItem mod_prog : cfg.getModulePrograms()) {
+				SymbolTableEntry ent = 
+						SymbolTableEntry.createModProgEntry(
+								mod_prog.getName(), 
+								mod_prog.getFilename(),
+								mod_prog);
+				model.getSymbolTable().addSymbol(ent);
+				gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+			}
 		}
-		
-		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
-			SVDBDeclCacheItem pkgDeclCacheItem = pkgTuple.first() ;
-			ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
-			SymbolTableEntry pkgSTE = 
-					SymbolTableEntry.createPkgEntry(pkgDeclCacheItem.getName(), pkgSvdbIndex, pkgDeclCacheItem.getFilename(), pkgDeclCacheItem) ;
-			model.getSymbolTable().addSymbol(pkgSTE) ;
-			gatherSymbolsFromPackage(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
+
+		if (cfg.getSelectedPackages() != null) {
+			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
+				SVDBDeclCacheItem pkgDeclCacheItem = pkgTuple.first() ;
+				ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
+				SymbolTableEntry pkgSTE = 
+						SymbolTableEntry.createPkgEntry(pkgDeclCacheItem.getName(), pkgSvdbIndex, pkgDeclCacheItem.getFilename(), pkgDeclCacheItem) ;
+				model.getSymbolTable().addSymbol(pkgSTE) ;
+				gatherSymbolsFromPackage(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
+			}
 		}
 		model.getSymbolTable().dumpSymbols() ;
 		

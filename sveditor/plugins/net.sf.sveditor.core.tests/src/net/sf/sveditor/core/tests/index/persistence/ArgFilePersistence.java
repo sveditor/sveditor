@@ -23,19 +23,13 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBCovergroup;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -420,37 +414,10 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		
 		index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		SVDBClassDecl target_it = null, target_orig = null;
-		List<ISVDBItemBase> orig_list = new ArrayList<ISVDBItemBase>();
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = (SVDBClassDecl)tmp_it;
-				target_orig = (SVDBClassDecl)tmp_it.duplicate();
-			}
-			orig_list.add(tmp_it.duplicate());
-			if (tmp_it.getType() == SVDBItemType.Covergroup) {
-				SVDBCovergroup cg = (SVDBCovergroup)tmp_it;
-				SVDBCovergroup cg2 = (SVDBCovergroup)cg.duplicate();
-				assertEquals(cg, cg2);
-			}
-		}
-
-		for (int i=0; i<orig_list.size(); i++) {
-			if ((orig_list.get(i) instanceof ISVDBScopeItem) &&
-					orig_list.get(i).getType() != SVDBItemType.File) {
-				assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
-						" Not Equal " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)),
-						orig_list.get(i).equals(orig_list.get(i)));
-			}
-		}
-
 		assertEquals("Index not initially rebuilt", 1, fIndexRebuilt);
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index,
+				"class1");
 		
 		// Now, reset the registry
 		reinitializeIndexRegistry();
@@ -473,67 +440,10 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		index.addChangeListener(this);
 		index.loadIndex(new NullProgressMonitor());
 		
-		it = index.getItemIterator(new NullProgressMonitor());
-		
-		target_it = null;
-		List<ISVDBItemBase> new_list = new ArrayList<ISVDBItemBase>();
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			new_list.add(tmp_it);
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = (SVDBClassDecl)tmp_it;
-			}
-		}
-		
-		target_it.equals(target_orig);
-		
-		assertEquals("item count changed", orig_list.size(), new_list.size());
-		// Compare individual items first
-		for (int i=0; i<orig_list.size(); i++) {
-			if (!(orig_list.get(i) instanceof ISVDBScopeItem)) {
-				assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
-						" Not Equal " + new_list.get(i).getType() + " " + SVDBItem.getName(new_list.get(i)),
-						orig_list.get(i).equals(new_list.get(i)));
-			}
-		}
-
-		// Compare non-file scopes next
-		for (int i=0; i<orig_list.size(); i++) {
-			if ((orig_list.get(i) instanceof ISVDBScopeItem) &&
-					orig_list.get(i).getType() != SVDBItemType.File &&
-					orig_list.get(i).getType() != SVDBItemType.ClassDecl) {
-				if (orig_list.get(i).getType() == SVDBItemType.Function &&
-						SVDBItem.getName(orig_list.get(i)).equals("new")) {
-					SVDBTask f1 = (SVDBTask)orig_list.get(i);
-					SVDBTask f2 = (SVDBTask)new_list.get(i);
-					f1.equals(f2);
-				} else {
-					assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
-							" Not Equal " + new_list.get(i).getType() + " " + SVDBItem.getName(new_list.get(i)),
-							orig_list.get(i).equals(new_list.get(i)));
-				}
-			}
-		}
-
-		// Compare everything next
-		for (int i=0; i<orig_list.size(); i++) {
-			if (orig_list.get(i).getType() == SVDBItemType.File &&
-					SVDBItem.getName(orig_list.get(i)).equals("class1.svh")) {
-				SVDBFile c1 = (SVDBFile)orig_list.get(i);
-				SVDBFile c2 = (SVDBFile)new_list.get(i);
-				
-				c1.equals(c2);
-			}
-			assertTrue("Item " + orig_list.get(i).getType() + " " + SVDBItem.getName(orig_list.get(i)) + 
-					" Not Equal " + new_list.get(i).getType() + " " + SVDBItem.getName(new_list.get(i)),
-					orig_list.get(i).equals(new_list.get(i)));
-		}
-
 		assertEquals("Index rebuilt without cause", 0, fIndexRebuilt);
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index,
+				"class1");
 	}
 
 	public void disabled_testFSArgFileTimestampChanged() {

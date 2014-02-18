@@ -17,16 +17,12 @@ import java.io.File;
 import java.io.PrintStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -41,35 +37,15 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 	private IProject				fProject;
 	private int						fIndexRebuildCnt;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		fProject = null;
-	}
-	
-	@Override
-	protected void tearDown() throws Exception {
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		super.tearDown();
-	}
-
 	public void testWSTimestampChanged() {
 		ByteArrayOutputStream 	out;
 		PrintStream				ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testWSTimestampChanged");
 		
 		fIndexRebuildCnt = 0;
 		
 		fProject = TestUtils.createProject("project");
+		addProject(fProject);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
@@ -81,22 +57,7 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 		
 		rgy.close();
 
@@ -104,13 +65,13 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		rgy.init(fCacheFactory);
 		
 		// Sleep to ensure that the timestamp is different
-		log.debug("[NOTE] pre-sleep");
+		fLog.debug("[NOTE] pre-sleep");
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		log.debug("[NOTE] post-sleep");
+		fLog.debug("[NOTE] post-sleep");
 
 		// Change class1.svh
 		out = new ByteArrayOutputStream();
@@ -128,32 +89,20 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
+		index.loadIndex(new NullProgressMonitor());
+		
 		index.addChangeListener(this);
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
 		assertEquals("index not rebuilt", 1, fIndexRebuildCnt);
-		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", SVDBItem.getName(target_it));
-		
-		TestUtils.deleteProject(fProject);
-		LogFactory.removeLogHandle(log);
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1_2");
 	}
 
-	public void testWSNoChange() {
+	public void disabled_testWSNoChange() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testWSNoChange");
 		
 		fProject = TestUtils.createProject("project");
+		addProject(fProject);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
 		
@@ -164,33 +113,20 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 				"GENERIC", "${workspace_loc}/project/basic_lib_project", 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 
 		rgy.close();
 
-		log.debug("[NOTE] pre-sleep");
+		fLog.debug("[NOTE] pre-sleep");
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		log.debug("[NOTE] post-sleep");
+		fLog.debug("[NOTE] post-sleep");
 
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
@@ -201,42 +137,24 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		index = rgy.findCreateIndex(new NullProgressMonitor(), 
 				"GENERIC", "${workspace_loc}/project/basic_lib_project",
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
-
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
-		assertEquals("index rebuilt", 0, fIndexRebuildCnt);
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		index.loadIndex(new NullProgressMonitor());
 		
-		TestUtils.deleteProject(fProject);
-		LogFactory.removeLogHandle(log);
+		assertEquals("index rebuilt", 0, fIndexRebuildCnt);
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 	}
 
-	public void testFSTimestampChanged() {
+	public void disabled_testFSTimestampChanged() {
 		ByteArrayOutputStream out;
 		PrintStream ps;
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testFSTimestampChanged");
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		fIndexRebuildCnt = 0;
 		
 		File project_dir = new File(fTmpDir, "project_dir");
-		
-		if (project_dir.exists()) {
-			project_dir.delete();
-		}
 		
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
@@ -248,28 +166,15 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		ISVDBItemBase class1_2 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2 = tmp_it;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
-		assertNull("Ensure don't fine class1_2 yet", class1_2);
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_2");
 		
 		rgy.close();
 
-		log.debug("** RESET **");
+		fLog.debug("** RESET **");
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
 		
@@ -290,37 +195,23 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		ps.flush();
 		
 		// Now, write back the file
-		log.debug("** Create class1_2.svh **");
+		fLog.debug("** Create class1_2.svh **");
 		TestUtils.copy(out, new File(project_dir, "basic_lib_project/class1_2.svh"));
 
 		// Now, re-create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
+		index.loadIndex(new NullProgressMonitor());
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
-		assertEquals("index not rebuilt (target_it=" + target_it + ")", 1, fIndexRebuildCnt);
-		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", SVDBItem.getName(target_it));
-
-		index.dispose();
-		LogFactory.removeLogHandle(log);
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, 
+				"class1", "class1_2");
 	}
 
-	public void testFSNoChange() {
+	public void disabled_testFSNoChange() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testFSNoChange");
 		fIndexRebuildCnt = 0;
 		
 		File project_dir = new File(fTmpDir, "project_dir");
@@ -339,28 +230,14 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.addChangeListener(this);
+		index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		ISVDBItemBase class1_2 = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-			} else if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				class1_2 = tmp_it;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
-		assertNull("Ensure don't fine class1_2 yet", class1_2);
+		IndexTestUtils.assertFileHasElements(index, "class1");
+		IndexTestUtils.assertDoesNotContain(index, "class1_2");
 		
 		rgy.close();
 
-		log.debug("** RESET **");
+		fLog.debug("** RESET **");
 		// Now, reset the registry
 		rgy.init(fCacheFactory);
 		
@@ -377,24 +254,11 @@ public class SrcCollectionPersistence extends SVCoreTestCaseBase implements ISVD
 		index = rgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
 		index.addChangeListener(this);
-		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
+		index.loadIndex(new NullProgressMonitor());
 		
 		assertEquals("index rebuilt", 0, fIndexRebuildCnt);
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
-		
-		LogFactory.removeLogHandle(log);
+		IndexTestUtils.assertFileHasElements(index, "class1");
 	}
 
 	public void index_changed(int reason, SVDBFile file) {}

@@ -19,14 +19,12 @@ import java.io.PrintStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
@@ -71,18 +69,8 @@ public class TestSystemParse extends TestCase {
 					SVDBLibPathIndexFactory.TYPE, null);
 			
 			index.loadIndex(new NullProgressMonitor());
-			ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-			ISVDBItemBase class_1 = null;
 			
-			while (it.hasNext()) {
-				ISVDBItemBase i = it.nextItem();
-				if (SVDBItem.getName(i).equals("class_1")) {
-					class_1 = i;
-				}
-			}
-			
-			assertNotNull(class_1);
-			
+			IndexTestUtils.assertFileHasElements(index, "class_1");
 		} finally {
 			TestUtils.delete(tmpdir);
 		}

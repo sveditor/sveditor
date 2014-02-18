@@ -17,12 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
@@ -125,17 +122,14 @@ public class TestOpencoresProjects extends SVCoreTestCaseBase {
 	}
 
 	private void assertNoErrors(LogHandle log, ISVDBIndexIterator index_it) {
-		ISVDBItemIterator it_i = index_it.getItemIterator(new NullProgressMonitor());
+		Iterable<String> file_it = index_it.getFileList(
+				new NullProgressMonitor(),
+				ISVDBDeclCache.FILE_ATTR_HAS_MARKERS);
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
 		
-		while (it_i.hasNext()) {
-			ISVDBItemBase it = it_i.nextItem();
-			if (it.getType() == SVDBItemType.Marker) {
-				SVDBMarker marker = (SVDBMarker)it;
-				if (marker.getMarkerType() == MarkerType.Error) {
-					errors.add(marker);
-				}
-			}
+		for (String file : file_it) {
+			List<SVDBMarker> warnings_errors = index_it.getMarkers(file);
+			errors.addAll(warnings_errors);
 		}
 		
 		for (SVDBMarker m : errors) {

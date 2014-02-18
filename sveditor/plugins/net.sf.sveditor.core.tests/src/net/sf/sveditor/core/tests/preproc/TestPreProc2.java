@@ -309,7 +309,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMacroExternFunctionClassname() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define CLS myclass\n" +
 			"function `CLS::myfunction;\n" +
@@ -362,6 +362,38 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				exp
 				);		
 	}
+
+	/*
+	public void testIfdefFILE() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"`define VMM_LOG_FORMAT_FILE_LINE\n" +
+			"      `ifdef VMM_LOG_FORMAT_FILE_LINE\n" +
+			"			if (this.start_msg(FAILURE_TYP, WARNING_SEV, `__FILE__, `__LINE__)) begin\n" +
+			"      `else\n" +
+			"			if (this.start_msg(FAILURE_TYP, WARNING_SEV)) begin\n" +
+			"      `endif\n" +
+			""
+			;
+		String exp =
+			"\n" +
+			"\n" +
+			"task vmm_channel::put(vmm_data obj,\n" +
+			"					int offset=-1,\n" +
+			"					 foo_scenario grabber=null);\n" +
+			" \n" +
+			"section_3\n"
+			;
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		runTest(
+				doc,
+				inc_provider,
+				exp
+				);		
+	}
+	 */
 	
 	private void runTest(
 			String							doc,

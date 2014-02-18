@@ -771,7 +771,7 @@ public class TestParseClassBodyItems extends TestCase {
 
 	public void testMultiDimForeachConstraint2() {
 		String testname = getName();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 				"class my_class;\n" +
 				"	rand int arr[4][4];\n" +
@@ -791,7 +791,7 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 	
 	public void testIfConcatConstraint() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class pkt;\n" +
 			"	rand bit one_beat;\n" +
@@ -807,7 +807,7 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 
 	public void testIfConcatConstraint2() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class pkt;\n" +
 			"	rand bit one_beat;\n" +

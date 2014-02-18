@@ -14,14 +14,7 @@ package net.sf.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBIndexValueProvider implements IValueProvider {
 	
@@ -32,6 +25,7 @@ public class SVDBIndexValueProvider implements IValueProvider {
 	}
 
 	public BigInteger get_value(String name) throws Exception {
+		/** TODO:
 		ISVDBItemIterator item_it = fIndexIt.getItemIterator(new NullProgressMonitor());
 		
 		while (item_it.hasNext()) {
@@ -42,7 +36,6 @@ public class SVDBIndexValueProvider implements IValueProvider {
 				if (typedef.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
 					SVDBTypeInfoEnum enum_t = (SVDBTypeInfoEnum)typedef.getTypeInfo();
 				
-					/** TODO:
 					Tuple<List<String>, List<String>> enums = enum_t.getEnumValues();
 					for (int i=0; i<enums.first().size(); i++) {
 						String key = enums.first().get(i);
@@ -58,10 +51,11 @@ public class SVDBIndexValueProvider implements IValueProvider {
 							return BigInteger.valueOf(lv);
 						}
 					}
-					 */
 				}
 			}
+			return BigInteger.ZERO;
 		}
+				 */
 		
 		throw new Exception("Unknown value \"" + name + "\"");
 	}

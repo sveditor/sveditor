@@ -45,7 +45,7 @@ public class TestExplorer extends TestCase {
 						SVDBPluginLibIndexFactory.TYPE, null));
 
 		// Force database loading
-		fIndexCollectionOVMMgr.getItemIterator(new NullProgressMonitor());
+		fIndexCollectionOVMMgr.loadIndex(new NullProgressMonitor());
 	}
 	
 	@Override

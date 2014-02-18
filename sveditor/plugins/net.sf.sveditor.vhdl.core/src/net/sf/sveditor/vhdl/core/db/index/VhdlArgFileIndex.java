@@ -13,7 +13,6 @@ import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
@@ -56,12 +55,6 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 		fFSProvider = fs_provider;
 		fCache = cache;
 		fConfig = config;
-	}
-
-	@Override
-	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

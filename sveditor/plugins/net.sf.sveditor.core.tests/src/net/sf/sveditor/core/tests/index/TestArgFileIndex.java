@@ -568,7 +568,6 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 	}	
 
 	public void testMacrosFoundOnTheFlyParse_2() throws IOException {
-		String testname = getName();
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 

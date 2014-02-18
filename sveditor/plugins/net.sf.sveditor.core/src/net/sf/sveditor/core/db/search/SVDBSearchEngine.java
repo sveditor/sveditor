@@ -16,16 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * 
@@ -99,13 +96,12 @@ public class SVDBSearchEngine {
 	}
 
 	private void find_package_decl(List<ISVDBItemBase> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
-		
-		while (iterator.hasNext(SVDBItemType.PackageDecl)) {
-			SVDBItem pkg = (SVDBPackageDecl)iterator.nextItem(SVDBItemType.PackageDecl);
-			if (fSearchSpec.match(pkg.getName())) {
-				items.add(pkg);
-			}
+		List<SVDBDeclCacheItem> found = fSearchContext.findGlobalScopeDecl(
+				new NullProgressMonitor(), 
+				null, new SVDBFindByTypeMatcher(SVDBItemType.PackageDecl));
+
+		for (SVDBDeclCacheItem it : found) {
+			items.add(it.getSVDBItem());
 		}
 	}
 	
@@ -116,25 +112,27 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_type_decl(List<ISVDBItemBase> items) {
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
-		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.ClassDecl, 
-				SVDBItemType.TypedefStmt, SVDBItemType.ModuleDecl};
+		List<SVDBDeclCacheItem> found = fSearchContext.findGlobalScopeDecl(
+				new NullProgressMonitor(), 
+				null, new SVDBFindByTypeMatcher(SVDBItemType.ClassDecl, 
+				SVDBItemType.TypedefStmt, SVDBItemType.ModuleDecl));
 		
-		while (iterator.hasNext(types)) {
-			ISVDBItemBase item = iterator.nextItem(types);
+		for (SVDBDeclCacheItem it : found) {
+			ISVDBItemBase item = it.getSVDBItem();
+			
 			if (item.getType() == SVDBItemType.TypedefStmt) {
 				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
 				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoStruct) {
 					continue;
 				}
 			}
-			if (fSearchSpec.match(SVDBItem.getName(item))) {
-				items.add(item);
-			}
+			
+			items.add(item);
 		}
 	}
 	
 	private void find_type_refs(List<ISVDBItemBase> items) {
+		/** TODO:
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDeclStmt, SVDBItemType.ModIfcInst}; 
 		
@@ -153,9 +151,11 @@ public class SVDBSearchEngine {
 				items.add(item);
 			}
 		}
+		 */
 	}
 	
 	private void find_method_decl(List<ISVDBItemBase> items) {
+		/** TODO:
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.Function, SVDBItemType.Task};
 		
@@ -171,6 +171,7 @@ public class SVDBSearchEngine {
 				items.add(item);
 			}
 		}
+		 */
 	}
 	
 	private void find_method_refs(List<ISVDBItemBase> items) {
@@ -178,6 +179,7 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_field_decl(List<ISVDBItemBase> items) {
+		/** TODO:
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDeclStmt, SVDBItemType.ModIfcInst};
 
@@ -189,6 +191,7 @@ public class SVDBSearchEngine {
 				items.add(item);
 			}
 		}
+		 */
 	}
 	
 	private void find_field_refs(List<ISVDBItemBase> items) {

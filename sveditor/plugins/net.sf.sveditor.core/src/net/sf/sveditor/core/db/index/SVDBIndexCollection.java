@@ -267,16 +267,6 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return ret;
 	}
 
-	@Deprecated
-	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		List<String> referenced_projects = new ArrayList<String>();
-		List<ISVDBIndexIterator> iterator_list = new ArrayList<ISVDBIndexIterator>();
-		
-		getItemIterators(referenced_projects, iterator_list);
-		
-		return new SVDBIndexItemItIterator(iterator_list.iterator(), monitor);
-	}
-	
 	public List<SVDBFilePath> getFilePath(String path) {
 		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
 		

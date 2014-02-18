@@ -38,10 +38,9 @@ public class IndexTests extends TestSuite {
 		TestSuite suite = new TestSuite("IndexTests");
 		suite.addTest(new TestSuite(WSLibIndexFileChanges.class));
 		suite.addTest(new TestSuite(WSArgFileIndexChanges.class));
-		suite.addTest(new TestSuite(SrcCollectionBasics.class));
+//		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestBuiltinIndex.class));
 		suite.addTest(new TestSuite(TestDeclCache.class));
-		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestIndexMissingIncludeDefine.class));
 		suite.addTest(new TestSuite(TestGlobalDefine.class));
 		suite.addTest(new TestSuite(TestVmmBasics.class));
@@ -59,7 +58,8 @@ public class IndexTests extends TestSuite {
 		
 		return suite;
 	}
-	
+
+	/*
 	public static List<SVDBMarker> getErrorsWarnings(ISVDBIndexIterator index_it) {
 		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> ret = new ArrayList<SVDBMarker>();
@@ -73,6 +73,7 @@ public class IndexTests extends TestSuite {
 		
 		return ret;
 	}
+	 */
 	
 	public static void assertContains(ISVDBIndexIterator index_it, String name, SVDBItemType type) {
 		List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(new NullProgressMonitor(), name, 

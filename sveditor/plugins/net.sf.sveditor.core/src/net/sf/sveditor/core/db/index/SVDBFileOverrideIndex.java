@@ -89,6 +89,7 @@ public class SVDBFileOverrideIndex
 	}
 	
 
+	/*
 	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
 		if (fSuperIterator != null) {
 			ISVDBItemIterator super_it = fSuperIterator.getItemIterator(monitor);
@@ -103,6 +104,7 @@ public class SVDBFileOverrideIndex
 			return SVEmptyItemIterator;
 		}		
 	}
+	 */
 	
 	public List<SVDBFilePath> getFilePath(String path) {
 		if (fSuperIterator != null) {

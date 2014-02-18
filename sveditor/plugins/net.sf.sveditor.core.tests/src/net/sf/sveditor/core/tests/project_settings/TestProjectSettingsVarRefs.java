@@ -239,6 +239,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		
 		IProject project = TestUtils.createProject("arg_file_define_proj",  
 				new File(fTmpDir, "arg_file_define_proj"));
+		addProject(project);
 		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 
 		/*
@@ -262,6 +263,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		
 		IProject project = TestUtils.createProject("arg_file_define_proj_1",  
 				new File(fTmpDir, "arg_file_define_proj_1"));
+		addProject(project);
 		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
@@ -359,7 +361,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		index_collection = pdata.getProjectIndexMgr();
 		index_collection.loadIndex(new NullProgressMonitor());
 		
-		String ubus_f = SVFileUtils.readInput(new FileInputStream(new File(ubus_d, "ubus.f")));
+		String ubus_f = SVFileUtils.readInput(new File(ubus_d, "ubus.f"));
 	
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		index_collection.parse(new NullProgressMonitor(), 

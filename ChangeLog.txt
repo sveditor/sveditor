@@ -1,6 +1,10 @@
 
 -- 1.5.4 Release --
 
+- #(nobug) - Correct an issue with the recently-added checker for unbalanced
+  pre-processor directives. This could cause expansion of a macro within an
+  enabled region to cause part of the pre-processor stack to incorrectly be cleared
+
 ------------------------------------------------------------------------------
 -- 1.5.3 Release --
 

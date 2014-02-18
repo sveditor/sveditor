@@ -130,7 +130,7 @@ public class TestParseDataTypes extends TestCase {
 	}
 	
 	public void testVectoredUserDefinedType() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String content =
 			"class foo;\n" +

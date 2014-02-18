@@ -15,13 +15,11 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
+public class SVDBIndexCollectionItemIterator /* implements ISVDBItemIterator */ {
 	List<ISVDBIndex>			fIndexList;
 	int							fIndexListIdx = 0;
 	ISVDBItemIterator			fIndexIterator;
@@ -43,6 +41,7 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 		fIndexList.add(index);
 	}
 
+	/*
 	public boolean hasNext(SVDBItemType ... type_list) {
 		if (fIndexIterator != null && !fIndexIterator.hasNext()) {
 			fIndexIterator = null;
@@ -90,4 +89,5 @@ public class SVDBIndexCollectionItemIterator implements ISVDBItemIterator {
 		
 		return ret;
 	}
+	 */
 }
