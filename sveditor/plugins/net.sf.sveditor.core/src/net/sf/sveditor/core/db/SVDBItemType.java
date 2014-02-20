@@ -152,6 +152,7 @@ public enum SVDBItemType {
 	AssignmentPatternExpr,
 	AssignmentPatternRepeatExpr,
 	AssociativeArrayElemAssignExpr,
+	AssociativeArrayAssignExpr,
 	BinaryExpr,
 	CastExpr,
 	ClockingEventExpr,

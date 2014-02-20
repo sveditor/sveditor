@@ -789,6 +789,27 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		runTest(config, testname, content, new String[] {"my_class"});
 	}
+
+	public void testHierarchcalPathForeachConstraint2() {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+				"class my_class;\n" +
+				"	rand int arr[4][4];\n" +
+				"	constraint arr_c {\n" +
+				"		foreach (top.mid.mid_mid_arr[5].bottom_arr[4].arr[i,j]) {\n" +
+				"			arr[i][j] == i+j;\n" +
+				"       }\n" +
+				"	}\n" +
+				"endclass\n" +
+				"\n"
+				;
+		
+		SVParserConfig config = new SVParserConfig();
+		config.setAllowDistInsideParens(true);
+		
+		runTest(config, testname, content, new String[] {"my_class"});
+	}
 	
 	public void testIfConcatConstraint() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -807,7 +828,7 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 
 	public void testIfConcatConstraint2() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content =
 			"class pkt;\n" +
 			"	rand bit one_beat;\n" +

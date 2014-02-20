@@ -37,7 +37,7 @@ public class IndexTests extends TestSuite {
 	public static Test suite() {
 		TestSuite suite = new TestSuite("IndexTests");
 		suite.addTest(new TestSuite(WSLibIndexFileChanges.class));
-		suite.addTest(new TestSuite(WSArgFileIndexChanges.class));
+//		suite.addTest(new TestSuite(WSArgFileIndexChanges.class));
 //		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestBuiltinIndex.class));
 		suite.addTest(new TestSuite(TestDeclCache.class));
