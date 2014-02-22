@@ -11,14 +11,10 @@
 
 package net.sf.sveditor.ui.wizards;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -27,8 +23,6 @@ import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.ui.SVDBIconUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jface.viewers.IBaseLabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -57,6 +51,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	class MyListLabelProv extends LabelProvider{
 		@Override
 		public String getText(Object element) {
+			@SuppressWarnings("unchecked")
 			Tuple<SVDBDeclCacheItem, ISVDBIndex> item = (Tuple<SVDBDeclCacheItem, ISVDBIndex>) element ;
 			return item.first().getName();
 		}
@@ -75,6 +70,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesLeft ;
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesRight ;
+
 //	private Set<SVDBDeclCacheItem> fPackagesLeft ; 
 //	private Set<SVDBDeclCacheItem> fPackagesRight ; 
 	
@@ -338,8 +334,10 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			public boolean hasChildren(Object element) { return false ; }
 			public Object getParent(Object element) { return null; }
 			public Object[] getElements(Object inputElement) {
-				if(fInput instanceof Collection<?>) {
-					return ((Collection<?>)fInput).toArray() ;
+				if(fInput instanceof HashMap<?,?>) {
+					return ((HashMap<?,?>)fInput).values().toArray() ;
+//				if(fInput instanceof Collection<?>) {
+//					return ((Collection<?>)fInput).toArray() ;
 				} else {
 					return new Object[0] ;
 				}
@@ -349,6 +347,25 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			}
 		}) ;
 		
+		viewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public String getText(Object element) {
+				if(element instanceof Tuple<?,?>) {
+					return ((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getName() ; 
+				} else {
+					return "<unexpected-item-type>" ;
+				}
+			}
+			@SuppressWarnings("unchecked")
+			@Override
+			public Image getImage(Object element) {
+				if(element instanceof Tuple<?,?>) {
+					return SVDBIconUtils.getIcon(((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getType()) ; 
+				}
+				return super.getImage(element) ;
+			}
+		}) ;		
 		
 	}
 
@@ -369,8 +386,10 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			public boolean hasChildren(Object element) { return false ; }
 			public Object getParent(Object element) { return null; }
 			public Object[] getElements(Object inputElement) {
-				if(fInput instanceof Collection<?>) {
-					return ((Collection<?>)fInput).toArray() ;
+				if(fInput instanceof HashMap<?,?>) {
+					return ((HashMap<?,?>)fInput).values().toArray() ;
+//				if(fInput instanceof Collection<?>) {
+//					return ((Collection<?>)fInput).toArray() ;
 				} else {
 					return new Object[0] ;
 				}
@@ -381,18 +400,20 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}) ;
 		
 		viewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				if(element instanceof SVDBDeclCacheItem) {
-					return ((SVDBDeclCacheItem)element).getName() ;
+				if(element instanceof Tuple<?,?>) {
+					return ((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getName() ; 
 				} else {
 					return "<unexpected-item-type>" ;
 				}
 			}
+			@SuppressWarnings("unchecked")
 			@Override
 			public Image getImage(Object element) {
-				if(element instanceof SVDBDeclCacheItem) {
-					return SVDBIconUtils.getIcon(((SVDBDeclCacheItem)element).getType()) ;
+				if(element instanceof Tuple<?,?>) {
+					return SVDBIconUtils.getIcon(((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getType()) ; 
 				}
 				return super.getImage(element) ;
 			}
