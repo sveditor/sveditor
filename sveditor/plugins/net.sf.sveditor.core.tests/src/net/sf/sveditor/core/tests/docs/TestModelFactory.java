@@ -122,8 +122,8 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		
 		DocGenConfig cfg = new DocGenConfig() ;
 		
-		Map<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>> pkgMap = 
-				new HashMap<String, Tuple<SVDBDeclCacheItem,ISVDBIndex>>() ;
+		Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> pkgMap = 
+				new HashMap<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem,ISVDBIndex>>() ;
 	
 		List<ISVDBIndex> projIndexList = fIndexRgy.getAllProjectLists() ;
 		for(ISVDBIndex svdbIndex: projIndexList) {
@@ -131,14 +131,19 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 			for(SVDBDeclCacheItem pkg: foundPkgs) {
 				if(!pkgMap.containsKey(pkg.getName())) { 
 					pkgMap.put(
-							pkg.getName(), 
+							pkg,
 							new Tuple<SVDBDeclCacheItem,ISVDBIndex>(pkg,svdbIndex)) ; 
 				}
 			}
 		}		
 		
-		Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> pkgs = new HashSet<Tuple<SVDBDeclCacheItem,ISVDBIndex>>(pkgMap.values()) ;
-		cfg.setSelectedPackages(pkgs) ;
+//		Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> pkgs = new HashSet<Tuple<SVDBDeclCacheItem,ISVDBIndex>>(pkgMap.values()) ;
+		
+//        Map<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem, ISVDBIndex>> pkgs = new HashMap<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+		
+		
+//		cfg.setSelectedPackages(pkgs) ;
+		cfg.setPkgSet(pkgMap);
 		
 		//
 		//

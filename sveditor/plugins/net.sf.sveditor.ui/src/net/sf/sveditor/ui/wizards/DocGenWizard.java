@@ -14,16 +14,7 @@ package net.sf.sveditor.ui.wizards ;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 import net.sf.sveditor.core.docs.DocGenConfig;
 import net.sf.sveditor.core.docs.IDocWriter;
 import net.sf.sveditor.core.docs.html.HTMLDocWriter;
@@ -35,7 +26,6 @@ import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -61,21 +51,25 @@ public class DocGenWizard extends Wizard {
 	@Override
 	public boolean performFinish() {
 		final DocGenConfig cfg = new DocGenConfig() ;
-		Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> pkgs = new HashSet<Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
-		for(SVDBDeclCacheItem pkg: fSelectPkgsPage.getSelectedPackages()) {
-			pkgs.add(fSelectPkgsPage.getPkgMap().get(pkg.getName())) ;
-		}
-		cfg.setSelectedPackages(pkgs) ;
+
+//		Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> pkgs = new HashSet<Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+//		for(SVDBDeclCacheItem pkg: fSelectPkgsPage.getSelectedPackages()) {
+//			pkgs.add(fSelectPkgsPage.getPkgMap().get(pkg.getName())) ;
+//		}
+
+//		cfg.setSVItems(new SelectPkgsPage.getSelectedPackages().values()) ;
+		cfg.setPkgSet(fSelectPkgsPage.getSelectedPackages());
 	
-		Set<SVDBDeclCacheItem> prog_mods = new HashSet<SVDBDeclCacheItem>();
-		List<ISVDBIndex> projIndexList = SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists();
-		for (ISVDBIndex index : projIndexList) {
-			for (SVDBDeclCacheItem it : index.findGlobalScopeDecl(new NullProgressMonitor(), "", 
-					new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl, SVDBItemType.ProgramDecl))) {
-				prog_mods.add(it);
-			}
-		}
-		cfg.setModulePrograms(prog_mods);
+//		Set<SVDBDeclCacheItem> prog_mods = new HashSet<SVDBDeclCacheItem>();
+//		List<ISVDBIndex> projIndexList = SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists();
+//		for (ISVDBIndex index : projIndexList) {
+//			for (SVDBDeclCacheItem it : index.findGlobalScopeDecl(new NullProgressMonitor(), "", 
+//					new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl, SVDBItemType.ProgramDecl))) {
+//				prog_mods.add(it);
+//			}
+//		}
+//		cfg.setModules(fSelectPkgsPage.getSelectedPackages()());
+//		for(SVDBDeclCacheItem)
 
 		cfg.setOutputDir(new File(fBasicOptionsPage.getOutputDir())) ;
 		try {
