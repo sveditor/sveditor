@@ -29,7 +29,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 	static {
 		fImgDescMap = new HashMap<String, String>();
 //		fImgDescMap.put(DocTopicManager.File, FILE_OBJ);
-//		fImgDescMap.put(DocTopicManager.ModuleDecl, MODULE_OBJ);
+		fImgDescMap.put(DocTopicManager.TOPIC_MODULE, MODULE_OBJ);
 //		fImgDescMap.put(DocTopicManager.InterfaceDecl, INT_OBJ);
 //		fImgDescMap.put(DocTopicManager.ConfigDecl, CONFIG_OBJ);
 		fImgDescMap.put(DocTopicManager.TOPIC_CLASS, CLASS_OBJ);

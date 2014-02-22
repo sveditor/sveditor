@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -57,9 +58,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}
 	}
 	
-//	private Set<SVDBDeclCacheItem> fPackagesLeft ; 
-//	private Set<SVDBDeclCacheItem> fPackagesRight ; 
-	
 	private Boolean fShowModules ;
 	private Boolean fShowPackages ;
 	private Boolean fShowPrograms ;
@@ -71,9 +69,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesLeft ;
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesRight ;
 
-//	private Set<SVDBDeclCacheItem> fPackagesLeft ; 
-//	private Set<SVDBDeclCacheItem> fPackagesRight ; 
-	
 	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getPkgMap() {
 		return fPkgMap ;
 	}
@@ -84,16 +79,9 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		return fProgramMap ;
 	}
 	
-//	public Set<SVDBDeclCacheItem> getSelectedPackages() {
-//		return fPackagesRight;
-//	}
 	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getSelectedPackages() {
 		return fPackagesRight;
 	}
-
-//	public void setfSelectedPackages(Set<SVDBDeclCacheItem> fSelectedPackages) {
-//		this.fPackagesRight = fSelectedPackages;
-//	}
 
 	protected DocGenSelectPkgsWizardPage() {
 		super("Select Packages") ;
@@ -135,7 +123,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		for(ISVDBIndex svdbIndex: projIndexList) {
 			List<SVDBDeclCacheItem> pkgs = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(),"pkgs",new SVDBFindPackageMatcher()) ;
 			for(SVDBDeclCacheItem pkg: pkgs) {
-//			if(!fPkgMap.containsKey(pkg.getName())) { 
 				if(!fPkgMap.containsKey(pkg)) {
 					fPkgMap.put(pkg, new Tuple<SVDBDeclCacheItem,ISVDBIndex>(pkg,svdbIndex)) ; 
 				}
@@ -151,7 +138,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	private void addAllOnLeft() {
 		fPackagesRight.clear() ;
 		for(SVDBDeclCacheItem item: fPackagesLeft.keySet()) {
-//			fPackagesRight.add(item) ;
 			fPackagesRight.put(item, fPackagesLeft.get(item)) ;
 		}
 		fPackagesLeft .clear() ;
@@ -204,16 +190,16 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		button = new Button(group,SWT.PUSH) ;
 		button.setText("&Add Selected") ;
 		button.addSelectionListener(new SelectionAdapter() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SVDBDeclCacheItem item ; // new SVDBDeclCacheItem();
+				Tuple<SVDBDeclCacheItem, ISVDBIndex> item ; 
 				TreeSelection selection = (TreeSelection) fLeftList.getViewer().getSelection();
 				if(selection != null) {
 					for (Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
-						item = (SVDBDeclCacheItem) iterator.next();
-						// TODO
-						fPackagesLeft.remove(item) ;
-//						fPackagesRight.put(item.g) ;
+						item = (Tuple<SVDBDeclCacheItem,ISVDBIndex>) iterator.next() ;
+						fPackagesLeft.remove(item.first()) ;
+						fPackagesRight.put(item.first(),item) ;
 					}
 				}
 				fLeftList .getViewer().setInput(fPackagesLeft) ;
@@ -228,18 +214,19 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		button = new Button(group,SWT.PUSH) ;
 		button.setText("&Remove Selected") ;
 		button.addSelectionListener(new SelectionAdapter() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SVDBDeclCacheItem item = new SVDBDeclCacheItem();
+				Tuple<SVDBDeclCacheItem, ISVDBIndex> item ; // new SVDBDeclCacheItem();
 				TreeSelection selection = (TreeSelection) fRightList.getViewer().getSelection();
-				if ((selection != null) && (selection.getFirstElement() instanceof SVDBDeclCacheItem))  {
-					item = (SVDBDeclCacheItem) selection.getFirstElement();
-				}
-				if(fPkgMap.containsKey(item)) {
-					fPackagesRight.remove(item) ;
-					if(fShowPackages) {
-//						fPackagesLeft.add(item) ;
-					}
+				if ((selection != null) && (selection.getFirstElement() instanceof Tuple<?,?>))  {
+                    item = (Tuple<SVDBDeclCacheItem,ISVDBIndex>) selection.getFirstElement() ;
+                    if(fPkgMap.containsKey(item.first())) {
+                    	fPackagesRight.remove(item.first()) ;
+                    	if(fShowPackages) {
+							fPackagesLeft.put(item.first(),item) ;
+                        }
+                    }
 				}
 				fLeftList .getViewer().setInput(fPackagesLeft) ;
 				fRightList.getViewer().setInput(fPackagesRight) ;
@@ -336,8 +323,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			public Object[] getElements(Object inputElement) {
 				if(fInput instanceof HashMap<?,?>) {
 					return ((HashMap<?,?>)fInput).values().toArray() ;
-//				if(fInput instanceof Collection<?>) {
-//					return ((Collection<?>)fInput).toArray() ;
 				} else {
 					return new Object[0] ;
 				}
@@ -388,8 +373,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			public Object[] getElements(Object inputElement) {
 				if(fInput instanceof HashMap<?,?>) {
 					return ((HashMap<?,?>)fInput).values().toArray() ;
-//				if(fInput instanceof Collection<?>) {
-//					return ((Collection<?>)fInput).toArray() ;
 				} else {
 					return new Object[0] ;
 				}
