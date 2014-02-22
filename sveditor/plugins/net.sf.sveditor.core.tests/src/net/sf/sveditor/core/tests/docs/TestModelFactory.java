@@ -18,10 +18,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
@@ -157,23 +155,6 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		File modelDumpPathAct = new File(testDir, "model_dump_act.txt") ;
 		File modelDumpPathExp = new File(cpBundleDir, "model_dump_exp.txt") ;
 		
-		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| To debug, rerun test with fDebug==true then diff the dumps below") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| modelDumpPathAct: " + modelDumpPathAct ) ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| modelDumpPathExp: " + modelDumpPathExp ) ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| >>   diff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| >> tkdiff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| | If the differences are expected, check them in as golden") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| | <from-your-repo-root> cp " + modelDumpPathAct + " "
-													+ "sveditor/plugins/net.sf.sveditor.core.tests" 
-													+ testBundleDir 
-													+ "/model_dump_exp.txt") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
-		fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
-		
 		OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(modelDumpPathAct.getPath()), Charset.forName("UTF-8") ) ;
 		BufferedWriter bw = new BufferedWriter(fw) ;
 		model.dumpToFile(bw) ;
@@ -186,6 +167,26 @@ public class TestModelFactory extends SVCoreTestCaseBase {
 		Patch patch = DiffUtils.diff(expLines, actLines) ;
 
 		List<Delta> deltas = patch.getDeltas() ;
+		
+		if(deltas.size() != 0) {
+                        fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| To debug, rerun test with fDebug==true then diff the dumps below") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| modelDumpPathAct: " + modelDumpPathAct ) ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| modelDumpPathExp: " + modelDumpPathExp ) ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| >>   diff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| >> tkdiff " + modelDumpPathExp + " " + modelDumpPathAct ) ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| | If the differences are expected, check them in as golden") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| | <from-your-repo-root> cp " + modelDumpPathAct + " "
+                                                                                                                + "sveditor/plugins/net.sf.sveditor.core.tests" 
+                                                                                                                + testBundleDir 
+                                                                                                                + "/model_dump_exp.txt") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
+                        fLog.debug(ILogLevel.LEVEL_OFF, "+--------------------------------------------------------------------") ;
+		}
+		
 
 		assertTrue( 
 				String.format("Detected %d deltas against expected model dump.\n\tExp:%s\n\tAct:%s\n",

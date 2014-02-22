@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
@@ -76,7 +74,7 @@ public class DocModelFactory {
 		try {
 			gatherSymbols(cfg, model) ;
 			gatherDocTopicsFromPreProcFiles(cfg, model, docCommentParser) ;
-			gatherPackageContentFromDeclCache(cfg, model) ;
+			gatherPackageContentFromDeclCache(cfg, model) ; // fixme: this is incorrectly named... it gathers modules and programs as well
 //			gatherModProgContentFromDeclCache(cfg, model) ;
 			assignSymbolsTheirDocFiles(cfg, model) ;
 			setPageTitles(cfg, model) ;
@@ -245,7 +243,7 @@ public class DocModelFactory {
 						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
 						fLog.debug(ILogLevel.LEVEL_MID,"| Exiting file(" + file + ")") ;
 						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
-						if(fileHasDocs) {
+						if(fileHasDocs) { 
 							model.addDocFile(docFile) ;
 						}
 					}
