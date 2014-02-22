@@ -11,12 +11,10 @@
 
 package net.sf.sveditor.ui.wizards;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
@@ -41,6 +39,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -50,29 +49,61 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	private FilteredTree fLeftList ;
 	private FilteredTree fRightList ;
 	
-	private Set<SVDBDeclCacheItem> fPackagesLeft ; 
-	private Set<SVDBDeclCacheItem> fPackagesRight ; 
+	class MyListLabelProv extends LabelProvider{
+		@Override
+		public String getText(Object element) {
+			@SuppressWarnings("unchecked")
+			Tuple<SVDBDeclCacheItem, ISVDBIndex> item = (Tuple<SVDBDeclCacheItem, ISVDBIndex>) element ;
+			return item.first().getName();
+		}
+	}
 	
-	Map<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPkgMap ;
+	private Boolean fShowModules ;
+	private Boolean fShowPackages ;
+	private Boolean fShowPrograms ;
+	
+	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPkgMap ;
+	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fModuleMap ;
+	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fProgramMap ;
 
-	
-	public Map<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getPkgMap() {
+	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesLeft ;
+	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesRight ;
+
+	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getPkgMap() {
 		return fPkgMap ;
 	}
-	
-	public Set<SVDBDeclCacheItem> getSelectedPackages() {
-		return fPackagesRight;
+	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getModuleMap() {
+		return fModuleMap ;
 	}
-
-	public void setfSelectedPackages(Set<SVDBDeclCacheItem> fSelectedPackages) {
-		this.fPackagesRight = fSelectedPackages;
+	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getProgramMap() {
+		return fProgramMap ;
+	}
+	
+	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getSelectedPackages() {
+		return fPackagesRight;
 	}
 
 	protected DocGenSelectPkgsWizardPage() {
 		super("Select Packages") ;
-		fPackagesLeft = new HashSet<SVDBDeclCacheItem>() ;
-		fPackagesRight = new HashSet<SVDBDeclCacheItem>() ;
-		fPkgMap = new HashMap<String,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+		fPackagesLeft = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+		fPackagesRight = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+		fPkgMap = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
+		fShowModules = new Boolean(false) ;
+		fShowPackages = new Boolean(true) ;
+		fShowPrograms = new Boolean(false) ;
+	}
+	
+	private void updatePackagesLeft() {
+		fPackagesLeft.clear();
+		if(fShowPackages) {
+			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
+				SVDBDeclCacheItem pkg = tuple.first() ;
+				if(!fPackagesRight.containsKey(pkg)) {
+					fPackagesLeft.put(pkg,tuple) ;
+				}
+			}
+		}
+		fLeftList.getViewer().setInput(fPackagesLeft) ;
 	}
 
 	public void createControl(Composite parent) {
@@ -92,17 +123,26 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		for(ISVDBIndex svdbIndex: projIndexList) {
 			List<SVDBDeclCacheItem> pkgs = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(),"pkgs",new SVDBFindPackageMatcher()) ;
 			for(SVDBDeclCacheItem pkg: pkgs) {
-				if(!fPkgMap.containsKey(pkg.getName())) { fPkgMap.put(pkg.getName(), new Tuple<SVDBDeclCacheItem,ISVDBIndex>(pkg,svdbIndex)) ; }
+				if(!fPkgMap.containsKey(pkg)) {
+					fPkgMap.put(pkg, new Tuple<SVDBDeclCacheItem,ISVDBIndex>(pkg,svdbIndex)) ; 
+				}
 			}
 		}		
 		
-		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-			fPackagesLeft.add(tuple.first()) ;
-		}
+		updatePackagesLeft() ;
 		
-		fLeftList.getViewer().setInput(fPackagesLeft) ;
 		fRightList.getViewer().setInput(fPackagesRight) ;
 		
+	}
+	
+	private void addAllOnLeft() {
+		fPackagesRight.clear() ;
+		for(SVDBDeclCacheItem item: fPackagesLeft.keySet()) {
+			fPackagesRight.put(item, fPackagesLeft.get(item)) ;
+		}
+		fPackagesLeft .clear() ;
+		fRightList.getViewer().setInput (fPackagesRight) ;
+		fLeftList .getViewer().setInput (fPackagesLeft ) ;
 	}
 
 	private void createSelectionControls(Composite parent) {
@@ -112,37 +152,32 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		container.setLayoutData(new GridData(GridData.FILL_VERTICAL)) ;
 		container.setLayout(new RowLayout(SWT.VERTICAL)) ;
 		
+		Group group = new Group(container, SWT.NONE) ;
+		group.setLayout(new RowLayout(SWT.VERTICAL));
+		
 		/**
-		 * Add all packages to the right hand side
+		 * Button to Add all packages to the right hand side
 		 */
-		button = new Button(container,SWT.PUSH) ;
+		button = new Button(group,SWT.PUSH) ;
 		button.setText("&Select All") ;
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fPackagesLeft .clear() ;
-				fPackagesRight.clear() ;
-				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-					fPackagesRight.add(tuple.first()) ;
-				}
-				fRightList.getViewer().setInput (fPackagesRight) ;
-				fLeftList .getViewer().setInput (fPackagesLeft ) ;
+				addAllOnLeft() ;
 				updatePageComplete() ;
 			}
 		}) ;
 		
 		/**
-		 * Clear all from the right to the left
+		 * Button to Clear all from the right to the left
 		 */
-		button = new Button(container,SWT.PUSH) ;
+		button = new Button(group,SWT.PUSH) ;
 		button.setText("&Clear All") ;
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-					fPackagesLeft.add(tuple.first()) ;
-				}
 				fPackagesRight.clear() ;
+				updatePackagesLeft() ;
 				fLeftList .getViewer().setInput(fPackagesLeft ) ;
 				fRightList.getViewer().setInput(fPackagesRight) ;
 				updatePageComplete() ;
@@ -150,23 +185,21 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}) ;
 
 		/**
-		 * Button to add currently selected items
+		 * Button to Button to add currently selected items
 		 */
-		button = new Button(container,SWT.PUSH) ;
+		button = new Button(group,SWT.PUSH) ;
 		button.setText("&Add Selected") ;
 		button.addSelectionListener(new SelectionAdapter() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SVDBDeclCacheItem svdbci = new SVDBDeclCacheItem();
+				Tuple<SVDBDeclCacheItem, ISVDBIndex> item ; 
 				TreeSelection selection = (TreeSelection) fLeftList.getViewer().getSelection();
-				if ((selection != null) && (selection.getFirstElement() instanceof SVDBDeclCacheItem))  {
-					svdbci = (SVDBDeclCacheItem) selection.getFirstElement();
-				}
-				
-				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-					if (tuple.first().equals(svdbci))  {
-						fPackagesLeft .remove(tuple.first()) ;
-						fPackagesRight.add   (tuple.first()) ;
+				if(selection != null) {
+					for (Iterator<?> iterator = selection.iterator(); iterator.hasNext();) {
+						item = (Tuple<SVDBDeclCacheItem,ISVDBIndex>) iterator.next() ;
+						fPackagesLeft.remove(item.first()) ;
+						fPackagesRight.put(item.first(),item) ;
 					}
 				}
 				fLeftList .getViewer().setInput(fPackagesLeft) ;
@@ -176,27 +209,84 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}) ;
 
 		/**
-		 * Button to remove selected items
+		 * Button to Button to remove selected items
 		 */
-		button = new Button(container,SWT.PUSH) ;
+		button = new Button(group,SWT.PUSH) ;
 		button.setText("&Remove Selected") ;
 		button.addSelectionListener(new SelectionAdapter() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				SVDBDeclCacheItem svdbci = new SVDBDeclCacheItem();
+				Tuple<SVDBDeclCacheItem, ISVDBIndex> item ; // new SVDBDeclCacheItem();
 				TreeSelection selection = (TreeSelection) fRightList.getViewer().getSelection();
-				if ((selection != null) && (selection.getFirstElement() instanceof SVDBDeclCacheItem))  {
-					svdbci = (SVDBDeclCacheItem) selection.getFirstElement();
-				}
-				
-				for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
-					if (tuple.first().equals(svdbci))  {
-						fPackagesLeft .add   (tuple.first()) ;
-						fPackagesRight.remove(tuple.first()) ;
-					}
+				if ((selection != null) && (selection.getFirstElement() instanceof Tuple<?,?>))  {
+                    item = (Tuple<SVDBDeclCacheItem,ISVDBIndex>) selection.getFirstElement() ;
+                    if(fPkgMap.containsKey(item.first())) {
+                    	fPackagesRight.remove(item.first()) ;
+                    	if(fShowPackages) {
+							fPackagesLeft.put(item.first(),item) ;
+                        }
+                    }
 				}
 				fLeftList .getViewer().setInput(fPackagesLeft) ;
 				fRightList.getViewer().setInput(fPackagesRight) ;
+				updatePageComplete() ;
+			}
+		}) ;
+		
+		/**
+		 * Goup to contain misc options
+		 */
+
+		group = new Group(container, SWT.NONE) ;
+		group.setLayout(new RowLayout(SWT.VERTICAL));
+		
+		/**
+		 * Check Button to show Packages
+		 */
+		final Button buttonShowPackages = new Button(group, SWT.CHECK) ;
+		buttonShowPackages.setText("Show &Packages") ;
+		buttonShowPackages.setSelection(fShowPackages);
+		buttonShowPackages.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fShowPackages = buttonShowPackages.getSelection() ;
+				updatePackagesLeft();
+				fLeftList .getViewer().setInput(fPackagesLeft) ;
+				updatePageComplete() ;
+			}
+		}) ;
+		
+
+		/**
+		 * Check Button to show modules
+		 */
+		final Button buttonShowModules = new Button(group, SWT.CHECK) ;
+		buttonShowModules.setText("Show &Modules") ;
+		buttonShowModules.setSelection(fShowModules);
+		buttonShowModules.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fShowModules = buttonShowModules.getSelection() ;
+				updatePackagesLeft();
+				fLeftList .getViewer().setInput(fPackagesLeft) ;
+				updatePageComplete() ;
+			}
+		}) ;
+		
+
+		/**
+		 * Check Button to show programs
+		 */
+		final Button buttonShowProgs = new Button(group, SWT.CHECK) ;
+		buttonShowProgs.setText("Show &Programs") ;
+		buttonShowProgs.setSelection(fShowPrograms);
+		buttonShowProgs.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fShowPrograms = buttonShowProgs.getSelection() ;
+				updatePackagesLeft();
+				fLeftList .getViewer().setInput(fPackagesLeft) ;
 				updatePageComplete() ;
 			}
 		}) ;
@@ -217,6 +307,8 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		fLeftList = new FilteredTree(parent, SWT.H_SCROLL|SWT.V_SCROLL, new PatternFilter(),true) ;
 		
 		fLeftList.setLayoutData(new GridData(GridData.FILL_BOTH)) ;
+		fLeftList.getViewer().setLabelProvider( new MyListLabelProv()) ;
+			
 		
 		TreeViewer viewer = fLeftList.getViewer() ;
 				
@@ -229,8 +321,8 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			public boolean hasChildren(Object element) { return false ; }
 			public Object getParent(Object element) { return null; }
 			public Object[] getElements(Object inputElement) {
-				if(fInput instanceof Collection<?>) {
-					return ((Collection<?>)fInput).toArray() ;
+				if(fInput instanceof HashMap<?,?>) {
+					return ((HashMap<?,?>)fInput).values().toArray() ;
 				} else {
 					return new Object[0] ;
 				}
@@ -240,24 +332,25 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			}
 		}) ;
 		
-		
 		viewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				if(element instanceof SVDBDeclCacheItem) {
-					return ((SVDBDeclCacheItem)element).getName() ;
+				if(element instanceof Tuple<?,?>) {
+					return ((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getName() ; 
 				} else {
 					return "<unexpected-item-type>" ;
 				}
 			}
+			@SuppressWarnings("unchecked")
 			@Override
 			public Image getImage(Object element) {
-				if(element instanceof SVDBDeclCacheItem) {
-					return SVDBIconUtils.getIcon(((SVDBDeclCacheItem)element).getType()) ;
+				if(element instanceof Tuple<?,?>) {
+					return SVDBIconUtils.getIcon(((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getType()) ; 
 				}
 				return super.getImage(element) ;
 			}
-		}) ;
+		}) ;		
 		
 	}
 
@@ -278,8 +371,8 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 			public boolean hasChildren(Object element) { return false ; }
 			public Object getParent(Object element) { return null; }
 			public Object[] getElements(Object inputElement) {
-				if(fInput instanceof Collection<?>) {
-					return ((Collection<?>)fInput).toArray() ;
+				if(fInput instanceof HashMap<?,?>) {
+					return ((HashMap<?,?>)fInput).values().toArray() ;
 				} else {
 					return new Object[0] ;
 				}
@@ -290,18 +383,20 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}) ;
 		
 		viewer.setLabelProvider(new LabelProvider() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public String getText(Object element) {
-				if(element instanceof SVDBDeclCacheItem) {
-					return ((SVDBDeclCacheItem)element).getName() ;
+				if(element instanceof Tuple<?,?>) {
+					return ((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getName() ; 
 				} else {
 					return "<unexpected-item-type>" ;
 				}
 			}
+			@SuppressWarnings("unchecked")
 			@Override
 			public Image getImage(Object element) {
-				if(element instanceof SVDBDeclCacheItem) {
-					return SVDBIconUtils.getIcon(((SVDBDeclCacheItem)element).getType()) ;
+				if(element instanceof Tuple<?,?>) {
+					return SVDBIconUtils.getIcon(((Tuple<SVDBDeclCacheItem,ISVDBIndex>)element).first().getType()) ; 
 				}
 				return super.getImage(element) ;
 			}

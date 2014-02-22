@@ -144,8 +144,8 @@ public class TestCleaner extends TestCase {
 				" class my_class;\n" +
 				" endclass\n"
 				;
+		fDebug = true ;
 		Tuple<SVDBFile, SVDBFile> r = SVDBTestUtils.parsePreProc(doc, testname, false);
-		
 		SVDBFile pp_file = r.first();
 		SVDBDocComment dc = null;
 		for (ISVDBChildItem c : pp_file.getChildren()) {

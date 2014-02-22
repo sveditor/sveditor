@@ -14,7 +14,7 @@ public class SymbolTableEntry {
 	
 	private String symbol ;
 	private String pkgName ;
-	private String className ; 
+	private String className ;  // fixme: this is actually the class/mod/prog name. rename to... er, "typeName" 
 	private String memberName ;
 	private String topicType ;
 	private String file ;
@@ -61,6 +61,16 @@ public class SymbolTableEntry {
 		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.CLASS_MEMBER) ;
 		result.setPkgName(pkgName) ;
 		result.setClassName(className) ;
+		result.setMemberName(memberName) ;
+		result.setSvdbIndex(svdbIndex) ;
+		result.setFile(file) ;
+		return result ;
+	}
+	
+	public static SymbolTableEntry createModProgMemberEntry(String modProgName, String memberName, ISVDBIndex svdbIndex, String file) {
+		String symbolName = String.format("%s::%s", modProgName, memberName) ;
+		SymbolTableEntry result = new SymbolTableEntry(symbolName, SymbolType.MOD_PROG_MEMBER) ;
+		result.setClassName(modProgName) ;
 		result.setMemberName(memberName) ;
 		result.setSvdbIndex(svdbIndex) ;
 		result.setFile(file) ;
