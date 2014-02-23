@@ -18,10 +18,16 @@ public class DocFile extends DocTopic {
 	String fDocPath ;
 	String fPageTitle ;
 	String fOutPath ;
+	boolean fHasUsedSymbol ;  
 
 	public DocFile(String name) {
 		super(name, "", "") ;
 		setDocFile(this) ;
+		fHasUsedSymbol = false ;
+	}
+	
+	public void markAsUsed() {
+		fHasUsedSymbol = true ;
 	}
 	
 	public void setOutPath(String path) {
