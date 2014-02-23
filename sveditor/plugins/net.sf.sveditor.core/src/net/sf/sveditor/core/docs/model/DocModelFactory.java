@@ -77,7 +77,9 @@ public class DocModelFactory {
 			gatherPackageContentFromDeclCache(cfg, model) ; // fixme: this is incorrectly named... it gathers modules and programs as well
 //			gatherModProgContentFromDeclCache(cfg, model) ;
 			assignSymbolsTheirDocFiles(cfg, model) ;
-			pruneDocTopicsNotUnderUserSelectedScopt(cfg, model) ;
+			if(cfg.fPackagesSelected) {
+				pruneDocTopicsNotUnderUserSelectedScope(cfg, model) ;
+			}
 			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
@@ -86,7 +88,7 @@ public class DocModelFactory {
 		return model ;
 	}
 
-	private void pruneDocTopicsNotUnderUserSelectedScopt(
+	private void pruneDocTopicsNotUnderUserSelectedScope(
 			DocGenConfig cfg,
 			DocModel model) {
 		model.pruneUnsedFiles();
@@ -288,7 +290,7 @@ public class DocModelFactory {
 				gatherSymbolsFromPackage(cfg, model, item, pkgSvdbIndex) ;
 			}
 			if(    item.getType() == SVDBItemType.ProgramDecl 
-			    || item.getType() == SVDBItemType.ModuleDecl  ) {
+			    || item.getType() == SVDBItemType.ModuleDecl  ) {  // todo: also spin through interfaces
 				
 				SymbolTableEntry ent = 
 						SymbolTableEntry.createModProgEntry(
