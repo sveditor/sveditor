@@ -52,26 +52,12 @@ public class DocGenWizard extends Wizard {
 	public boolean performFinish() {
 		final DocGenConfig cfg = new DocGenConfig() ;
 
-//		Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> pkgs = new HashSet<Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
-//		for(SVDBDeclCacheItem pkg: fSelectPkgsPage.getSelectedPackages()) {
-//			pkgs.add(fSelectPkgsPage.getPkgMap().get(pkg.getName())) ;
-//		}
-
-//		cfg.setSVItems(new SelectPkgsPage.getSelectedPackages().values()) ;
 		cfg.setPkgSet(fSelectPkgsPage.getSelectedPackages());
 	
-//		Set<SVDBDeclCacheItem> prog_mods = new HashSet<SVDBDeclCacheItem>();
-//		List<ISVDBIndex> projIndexList = SVCorePlugin.getDefault().getSVDBIndexRegistry().getAllProjectLists();
-//		for (ISVDBIndex index : projIndexList) {
-//			for (SVDBDeclCacheItem it : index.findGlobalScopeDecl(new NullProgressMonitor(), "", 
-//					new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl, SVDBItemType.ProgramDecl))) {
-//				prog_mods.add(it);
-//			}
-//		}
-//		cfg.setModules(fSelectPkgsPage.getSelectedPackages()());
-//		for(SVDBDeclCacheItem)
-
 		cfg.setOutputDir(new File(fBasicOptionsPage.getOutputDir())) ;
+		
+		cfg.fPackagesSelected = fSelectPkgsPage.fSelectPackages ;
+
 		try {
 			getContainer().run(true, true, new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) 
@@ -103,7 +89,7 @@ public class DocGenWizard extends Wizard {
 
 	@Override
 	public boolean canFinish() {
-		return fSelectPkgsPage.hasSelection() 
+		return (fSelectPkgsPage.hasSelection() ||fSelectPkgsPage.fSelectPackages==false)
 				&& !(fBasicOptionsPage.getOutputDir().isEmpty()) ;
 	}
 

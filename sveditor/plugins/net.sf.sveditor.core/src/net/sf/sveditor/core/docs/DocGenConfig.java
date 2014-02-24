@@ -13,7 +13,6 @@ package net.sf.sveditor.core.docs;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -24,8 +23,10 @@ public class DocGenConfig {
 	private Map<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPkgSet ;
 
 	private File 										outputDir ;
+
 	private boolean 									includeUndocumentedPkgsInPkgIndex = true ;
 
+	public boolean	fPackagesSelected = false ;
 	
 	public void setOutputDir(File outputDir) {
 		this.outputDir = outputDir ;

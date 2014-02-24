@@ -99,7 +99,13 @@ public class SymbolTable {
 							String.format("| Found(%s)", symbol)) ;
 					break ;
 				} else {
-					fLog.debug(ILogLevel.LEVEL_MID, "| Failed to find symbol") ;
+					/* Before giving up completely, let's get sloppy and look for this 
+					 * symbol under any other arbitrary scope
+					 */
+					entry = sloppySymbolLookup(symbol) ;
+					if(entry == null) {
+                      fLog.debug(ILogLevel.LEVEL_MID, "| Failed to find symbol") ;
+					}
 					break ;
 				}
 			} else {
@@ -126,6 +132,26 @@ public class SymbolTable {
 			
 		}
 		fLog.debug(ILogLevel.LEVEL_MID, "+----------------------------------------------------------------------------------") ;
+		return entry ;
+	}
+
+	private SymbolTableEntry sloppySymbolLookup(String symbol) {
+		SymbolTableEntry entry = null ;
+		for(String trySymbol: getSymbolSet()) {
+		   String choppedTrySymbol = trySymbol ;
+		   int index = choppedTrySymbol.indexOf("::") ;
+ 		   if(index != -1 && index+2 < choppedTrySymbol.length()) {
+					choppedTrySymbol = trySymbol.substring(index+2) ;
+					fLog.debug(ILogLevel.LEVEL_MID, "| trying sloppily " + choppedTrySymbol) ;
+					if(choppedTrySymbol.matches(symbol)) {
+					  entry = fSymbolTable.get(trySymbol) ;
+					  fLog.debug(ILogLevel.LEVEL_MID,
+							  String.format("| Found(%s) sloppily", trySymbol)) ;
+					  break ;
+					}
+ 		   }
+			
+		}
 		return entry ;
 	}
 	

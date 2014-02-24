@@ -58,29 +58,23 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}
 	}
 	
-	private Boolean fShowModules ;
-	private Boolean fShowPackages ;
-	private Boolean fShowPrograms ;
+	public Boolean fSelectPackages ;
 	
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPkgMap ;
-	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fModuleMap ;
-	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fProgramMap ;
 
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesLeft ;
 	private Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPackagesRight ;
+	private Button fButtonAddSelected;
+	private Button fButtonClearAll;
+	private Button fButtonAddAll;
+	private Button fButtonRemoveSelected;
 
 	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getPkgMap() {
 		return fPkgMap ;
 	}
-	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getModuleMap() {
-		return fModuleMap ;
-	}
-	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getProgramMap() {
-		return fProgramMap ;
-	}
 	
 	public Map<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>> getSelectedPackages() {
-		return fPackagesRight;
+		return fSelectPackages ? fPackagesRight : fPkgMap ;
 	}
 
 	protected DocGenSelectPkgsWizardPage() {
@@ -88,14 +82,12 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		fPackagesLeft = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
 		fPackagesRight = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
 		fPkgMap = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
-		fShowModules = new Boolean(false) ;
-		fShowPackages = new Boolean(true) ;
-		fShowPrograms = new Boolean(false) ;
+		fSelectPackages = new Boolean(false) ;
 	}
 	
 	private void updatePackagesLeft() {
 		fPackagesLeft.clear();
-		if(fShowPackages) {
+		if(fSelectPackages) {
 			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> tuple: fPkgMap.values()) {
 				SVDBDeclCacheItem pkg = tuple.first() ;
 				if(!fPackagesRight.containsKey(pkg)) {
@@ -130,6 +122,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		}		
 		
 		updatePackagesLeft() ;
+		updateButtonEnables();
 		
 		fRightList.getViewer().setInput(fPackagesRight) ;
 		
@@ -147,7 +140,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 
 	private void createSelectionControls(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL) ;
-		Button button ;
 		
 		container.setLayoutData(new GridData(GridData.FILL_VERTICAL)) ;
 		container.setLayout(new RowLayout(SWT.VERTICAL)) ;
@@ -158,9 +150,9 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		/**
 		 * Button to Add all packages to the right hand side
 		 */
-		button = new Button(group,SWT.PUSH) ;
-		button.setText("&Select All") ;
-		button.addSelectionListener(new SelectionAdapter() {
+		fButtonAddAll = new Button(group,SWT.PUSH) ;
+		fButtonAddAll.setText("&Select All") ;
+		fButtonAddAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				addAllOnLeft() ;
@@ -171,9 +163,9 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		/**
 		 * Button to Clear all from the right to the left
 		 */
-		button = new Button(group,SWT.PUSH) ;
-		button.setText("&Clear All") ;
-		button.addSelectionListener(new SelectionAdapter() {
+		fButtonClearAll = new Button(group,SWT.PUSH) ;
+		fButtonClearAll.setText("&Clear All") ;
+		fButtonClearAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				fPackagesRight.clear() ;
@@ -187,9 +179,9 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		/**
 		 * Button to Button to add currently selected items
 		 */
-		button = new Button(group,SWT.PUSH) ;
-		button.setText("&Add Selected") ;
-		button.addSelectionListener(new SelectionAdapter() {
+		fButtonAddSelected = new Button(group,SWT.PUSH) ;
+		fButtonAddSelected.setText("&Add Selected") ;
+		fButtonAddSelected.addSelectionListener(new SelectionAdapter() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -211,9 +203,9 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		/**
 		 * Button to Button to remove selected items
 		 */
-		button = new Button(group,SWT.PUSH) ;
-		button.setText("&Remove Selected") ;
-		button.addSelectionListener(new SelectionAdapter() {
+		fButtonRemoveSelected = new Button(group,SWT.PUSH) ;
+		fButtonRemoveSelected.setText("&Remove Selected") ;
+		fButtonRemoveSelected.addSelectionListener(new SelectionAdapter() {
 			@SuppressWarnings("unchecked")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -223,7 +215,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
                     item = (Tuple<SVDBDeclCacheItem,ISVDBIndex>) selection.getFirstElement() ;
                     if(fPkgMap.containsKey(item.first())) {
                     	fPackagesRight.remove(item.first()) ;
-                    	if(fShowPackages) {
+                    	if(fSelectPackages) {
 							fPackagesLeft.put(item.first(),item) ;
                         }
                     }
@@ -242,56 +234,33 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		group.setLayout(new RowLayout(SWT.VERTICAL));
 		
 		/**
-		 * Check Button to show Packages
+		 * Check Button to enable package selection
 		 */
 		final Button buttonShowPackages = new Button(group, SWT.CHECK) ;
-		buttonShowPackages.setText("Show &Packages") ;
-		buttonShowPackages.setSelection(fShowPackages);
+		buttonShowPackages.setText("Select &Packages") ;
+		buttonShowPackages.setSelection(fSelectPackages);
 		buttonShowPackages.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				fShowPackages = buttonShowPackages.getSelection() ;
+				fSelectPackages = buttonShowPackages.getSelection() ;
 				updatePackagesLeft();
 				fLeftList .getViewer().setInput(fPackagesLeft) ;
+				updateButtonEnables() ;
 				updatePageComplete() ;
 			}
 		}) ;
 		
 
-		/**
-		 * Check Button to show modules
-		 */
-		final Button buttonShowModules = new Button(group, SWT.CHECK) ;
-		buttonShowModules.setText("Show &Modules") ;
-		buttonShowModules.setSelection(fShowModules);
-		buttonShowModules.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fShowModules = buttonShowModules.getSelection() ;
-				updatePackagesLeft();
-				fLeftList .getViewer().setInput(fPackagesLeft) ;
-				updatePageComplete() ;
-			}
-		}) ;
-		
 
-		/**
-		 * Check Button to show programs
-		 */
-		final Button buttonShowProgs = new Button(group, SWT.CHECK) ;
-		buttonShowProgs.setText("Show &Programs") ;
-		buttonShowProgs.setSelection(fShowPrograms);
-		buttonShowProgs.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				fShowPrograms = buttonShowProgs.getSelection() ;
-				updatePackagesLeft();
-				fLeftList .getViewer().setInput(fPackagesLeft) ;
-				updatePageComplete() ;
-			}
-		}) ;
-		
+	}
 
+	protected void updateButtonEnables() {
+		
+		fButtonAddAll.setEnabled(fSelectPackages);
+		fButtonClearAll.setEnabled(fSelectPackages);
+		fButtonAddSelected.setEnabled(fSelectPackages);
+		fButtonRemoveSelected.setEnabled(fSelectPackages);
+		
 	}
 
 	private void createLabel(Composite container) {
@@ -408,7 +377,11 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	}
 	
 	protected void updatePageComplete() {
-		setPageComplete(hasSelection()) ;
+		if(fSelectPackages) {
+			setPageComplete(hasSelection()) ;
+		} else {
+			setPageComplete(true) ;
+		}
 	}
 
 }

@@ -77,12 +77,21 @@ public class DocModelFactory {
 			gatherPackageContentFromDeclCache(cfg, model) ; // fixme: this is incorrectly named... it gathers modules and programs as well
 //			gatherModProgContentFromDeclCache(cfg, model) ;
 			assignSymbolsTheirDocFiles(cfg, model) ;
+			if(cfg.fPackagesSelected) {
+				pruneDocTopicsNotUnderUserSelectedScope(cfg, model) ;
+			}
 			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString(), e);
 		}
 		return model ;
+	}
+
+	private void pruneDocTopicsNotUnderUserSelectedScope(
+			DocGenConfig cfg,
+			DocModel model) {
+		model.pruneUnsedFiles();
 	}
 
 	/**
@@ -102,6 +111,7 @@ public class DocModelFactory {
 						String.format("Found symbol's(%s) docFile(%s)",
 								symbol,
 								file)) ;
+				docFile.markAsUsed(); // Ensure it doesn't get "pruned" 
 				entry.setDocFile(docFile) ;
 			}
 		}
@@ -268,13 +278,11 @@ public class DocModelFactory {
 	private void gatherSymbols(DocGenConfig cfg, DocModel model) {
 		
 		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
-		
-//		for(SVDBDeclCacheItem item: cfg.getPkgSet())
 
 		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
+			
 			SVDBDeclCacheItem item = pkgTuple.first() ;
 			if(item.getType() == SVDBItemType.PackageDecl) {
-//				SVDBDeclCacheItem pkgDeclCacheItem = item ;
 				ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
 				SymbolTableEntry pkgSTE = 
 						SymbolTableEntry.createPkgEntry(item.getName(), pkgSvdbIndex, item.getFilename(), item) ;
@@ -282,7 +290,7 @@ public class DocModelFactory {
 				gatherSymbolsFromPackage(cfg, model, item, pkgSvdbIndex) ;
 			}
 			if(    item.getType() == SVDBItemType.ProgramDecl 
-			    || item.getType() == SVDBItemType.ModuleDecl  ) {
+			    || item.getType() == SVDBItemType.ModuleDecl  ) {  // todo: also spin through interfaces
 				
 				SymbolTableEntry ent = 
 						SymbolTableEntry.createModProgEntry(
