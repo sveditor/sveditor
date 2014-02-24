@@ -12,22 +12,15 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.tests.index.libIndex.WSArgFileIndexChanges;
-import net.sf.sveditor.core.tests.index.libIndex.WSLibIndexFileChanges;
-import net.sf.sveditor.core.tests.index.src_collection.SrcCollectionBasics;
 import net.sf.sveditor.core.tests.objects.ObjectsTests;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -36,12 +29,11 @@ public class IndexTests extends TestSuite {
 	
 	public static Test suite() {
 		TestSuite suite = new TestSuite("IndexTests");
-		suite.addTest(new TestSuite(WSLibIndexFileChanges.class));
-		suite.addTest(new TestSuite(WSArgFileIndexChanges.class));
-		suite.addTest(new TestSuite(SrcCollectionBasics.class));
+//		suite.addTest(new TestSuite(WSLibIndexFileChanges.class));
+//		suite.addTest(new TestSuite(WSArgFileIndexChanges.class));
+//		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestBuiltinIndex.class));
 		suite.addTest(new TestSuite(TestDeclCache.class));
-		suite.addTest(new TestSuite(SrcCollectionBasics.class));
 		suite.addTest(new TestSuite(TestIndexMissingIncludeDefine.class));
 		suite.addTest(new TestSuite(TestGlobalDefine.class));
 		suite.addTest(new TestSuite(TestVmmBasics.class));
@@ -49,6 +41,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestUvmBasics.class));
 		suite.addTest(new TestSuite(TestIndexParse.class));
 		suite.addTest(new TestSuite(TestArgFileIndex.class));
+		suite.addTest(new TestSuite(TestArgFileIndexErrors.class));
 		suite.addTest(new TestSuite(TestArgFileParseAPI.class));
 		suite.addTest(new TestSuite(TestIndexPersistance.class));
 		suite.addTest(new TestSuite(TestOpencoresProjects.class));
@@ -59,7 +52,8 @@ public class IndexTests extends TestSuite {
 		
 		return suite;
 	}
-	
+
+	/*
 	public static List<SVDBMarker> getErrorsWarnings(ISVDBIndexIterator index_it) {
 		ISVDBItemIterator it = index_it.getItemIterator(new NullProgressMonitor());
 		List<SVDBMarker> ret = new ArrayList<SVDBMarker>();
@@ -73,6 +67,7 @@ public class IndexTests extends TestSuite {
 		
 		return ret;
 	}
+	 */
 	
 	public static void assertContains(ISVDBIndexIterator index_it, String name, SVDBItemType type) {
 		List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(new NullProgressMonitor(), name, 

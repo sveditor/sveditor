@@ -13,25 +13,13 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
@@ -55,47 +43,9 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 				fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", "org.ovmworld.ovm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
 		
-		ISVDBItemIterator index_it = index_mgr.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		ISVDBItemBase ovm_component=null, ovm_sequence=null;
-		SVDBFile current_file = null;
-		
-		while (index_it.hasNext()) {
-			ISVDBItemBase it = index_it.nextItem();
-			String name = SVDBItem.getName(it);
-			log.debug("" + it.getType() + " " + name);
-			
-			if (it.getType() == SVDBItemType.File) {
-				current_file = (SVDBFile)it;
-			} else if (it.getType() == SVDBItemType.Marker) {
-				markers.add((SVDBMarker)it);
-			} else if (it.getType() == SVDBItemType.ClassDecl) {
-				if (name.equals("ovm_component")) {
-					ovm_component = it;
-				} else if (name.equals("ovm_sequence")) {
-					ovm_sequence = it;
-				}
-			} else if (it.getType() == SVDBItemType.MacroDef) {
-			} else if (SVDBStmt.isType(it, SVDBItemType.VarDeclStmt)) {
-				SVDBVarDeclStmt v = (SVDBVarDeclStmt)it;
-				if (v.getParent() == null) {
-					log.debug("Current file is: " + current_file.getFilePath());
-					log.debug("    Lineno: " + v.getLocation().getLine());
-				}
-				SVDBVarDeclItem vi = (SVDBVarDeclItem)v.getChildren().iterator().next();
-				assertNotNull("Variable " + vi.getName() + " has null parent", v.getParent());
-				assertNotNull("Variable " + SVDBItem.getName(v.getParent()) + "." +
-						name + " has a null TypeInfo", v.getTypeInfo());
-			}
-		}
-		
-		for (SVDBMarker m : markers) {
-			log.debug("[ERROR] " + m.getMessage());
-		}
-		
-		assertEquals("Check that no errors were found", 0, markers.size());
-		assertNotNull("Check found ovm_sequence", ovm_sequence);
-		assertNotNull("Check found ovm_component", ovm_component);
+		IndexTestUtils.assertNoErrWarn(fLog, index_mgr);
+		IndexTestUtils.assertFileHasElements(fLog, index_mgr, 
+				"ovm_sequence", "ovm_component");
 		index_mgr.dispose();
 		LogFactory.removeLogHandle(log);
 	}
@@ -118,24 +68,9 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
+		index.loadIndex(new NullProgressMonitor());
 		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (tmp_it.getType() == SVDBItemType.Marker) {
-				SVDBMarker m = (SVDBMarker)tmp_it;
-				if (m.getMarkerType() == MarkerType.Error) {
-					errors.add(m);
-				}
-			}
-		}
-		
-		for (SVDBMarker m : errors) {
-			log.debug("[ERROR] " + m.getMessage());
-		}
-		assertEquals("No errors", 0, errors.size());
+		IndexTestUtils.assertNoErrWarn(fLog, index);
 		
 		index.dispose();
 		TestUtils.deleteProject(p);

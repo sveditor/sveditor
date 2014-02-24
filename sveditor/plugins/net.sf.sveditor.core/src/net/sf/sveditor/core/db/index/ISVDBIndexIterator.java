@@ -14,13 +14,12 @@ package net.sf.sveditor.core.db.index;
 
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-
 
 public interface ISVDBIndexIterator extends 
-	ISVDBDeclCache, 
+	ISVDBDeclCache,
+	ISVDBMarkerFinder,
 	ISVDBIncludeFilesFinder,
-	ISVDBIndexOperationRunner, 
+	ISVDBIndexOperationRunner,
 	ISVDBIndexFileStructProvider,
 	ISVDBRefFinder {
 
@@ -30,8 +29,8 @@ public interface ISVDBIndexIterator extends
 	 * 
 	 * @param monitor
 	 * @return
-	 */
 	@Deprecated
 	ISVDBItemIterator 		getItemIterator(IProgressMonitor monitor);
+	 */
 
 }

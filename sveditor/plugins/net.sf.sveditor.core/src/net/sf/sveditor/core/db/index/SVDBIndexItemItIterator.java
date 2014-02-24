@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * @author ballance
  *
  */
-class SVDBIndexItemItIterator implements ISVDBItemIterator {
+class SVDBIndexItemItIterator /* implements ISVDBItemIterator */ {
 	
 	private Iterator<ISVDBIndexIterator>		fIterator;
 	private ISVDBItemIterator					fCurrent;
@@ -35,6 +35,7 @@ class SVDBIndexItemItIterator implements ISVDBItemIterator {
 		fMonitor = monitor;
 	}
 
+	/*
 	public boolean hasNext(SVDBItemType... type_list) {
 		while (fCurrent != null || fIterator.hasNext()) {
 			
@@ -72,4 +73,5 @@ class SVDBIndexItemItIterator implements ISVDBItemIterator {
 		
 		return ret;
 	}
+	 */
 }

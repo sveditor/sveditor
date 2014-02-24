@@ -13,18 +13,14 @@
 package net.sf.sveditor.core.tests.index.persistence;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -41,7 +37,6 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 	 * and checking whether the changed timestamp is detected on reload
 	 */
 	public void testTimestampChangeDetected() {
-		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -53,23 +48,9 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 		
 		// Now, reset the registry
 		reinitializeIndexRegistry();
@@ -99,23 +80,9 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
+		index.loadIndex(new NullProgressMonitor());
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
-		log.debug("target_it=" + target_it);
-		
-		assertNotNull("located class1_1", target_it);
-		assertEquals("class1_1", SVDBItem.getName(target_it));
-		LogFactory.removeLogHandle(log);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1_1");
 	}
 
 	/**
@@ -134,23 +101,9 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
 				SVDBLibPathIndexFactory.TYPE, null);
+		index.loadIndex(new NullProgressMonitor());
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			log.debug("tmp_it=" + SVDBItem.getName(tmp_it));
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 		
 		// Now, reset the registry
 		reinitializeIndexRegistry();
@@ -181,20 +134,9 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv",
 				SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
+		index.loadIndex(new NullProgressMonitor());
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
-		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", SVDBItem.getName(target_it));
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1_2");
 	}
 
 }

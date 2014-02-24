@@ -64,7 +64,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				"GENERIC", path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class2 = null;
 		ISVDBItemBase class3 = null;
@@ -122,7 +122,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class2 = null;
 		ISVDBItemBase class3 = null;
@@ -190,7 +190,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase top=null, top_t=null, sub=null;
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class3 = null;
@@ -261,7 +261,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase top=null, top_t=null, sub=null;
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class3 = null;
@@ -330,7 +330,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class2 = null;
 		ISVDBItemBase class3 = null;
@@ -381,7 +381,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class2 = null;
 		ISVDBItemBase class3 = null;
@@ -436,7 +436,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class2 = null;
 		ISVDBItemBase class3 = null;
@@ -491,7 +491,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				project_dir.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase top=null, top_t=null, sub=null;
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class3 = null;
@@ -590,7 +590,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		index.setGlobalDefine("TEST_MODE", "1");
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			ISVDBItemBase it_t = it.nextItem();
 			log.debug("it_t: " + it_t.getType() + " " + SVDBItem.getName(it_t));
@@ -632,7 +632,7 @@ public class SrcCollectionBasics extends SVCoreTestCaseBase {
 				path.getName(), path.getAbsolutePath(), 
 				SVDBSourceCollectionIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
+		ISVDBItemIterator it = null; // index.getItemIterator(new NullProgressMonitor());
 		ISVDBItemBase class1 = null;
 		ISVDBItemBase class2 = null;
 		ISVDBItemBase class3 = null;

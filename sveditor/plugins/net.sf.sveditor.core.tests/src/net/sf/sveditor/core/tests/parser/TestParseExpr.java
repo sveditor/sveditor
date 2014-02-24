@@ -115,6 +115,28 @@ public class TestParseExpr extends TestCase {
 				new String[] {"my_class", "my_func"});
 	}
 
+	public void testAssociativeArrayFieldInit() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class;\n" +
+			"	static my_enum field[my_id_t] = {KEY : VAL};\n" +
+			"endclass\n"
+			;
+		runTest(getName(), content,
+				new String[] {"my_class"});
+	}
+
+	public void testAssociativeArrayFieldInit2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class;\n" +
+			"	static my_enum field[my_id_t] = {KEY1 : VAL1, KEY2 : VAL2, KEY3 : VAL3};\n" +
+			"endclass\n"
+			;
+		runTest(getName(), content,
+				new String[] {"my_class"});
+	}
+	
 	public void testStringEmbeddedBackslashes() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =

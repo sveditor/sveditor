@@ -278,44 +278,44 @@ public class DocModelFactory {
 	private void gatherSymbols(DocGenConfig cfg, DocModel model) {
 		
 		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
+		if (cfg.getPkgSet() != null) {
+			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
 
-		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
-			
-			SVDBDeclCacheItem item = pkgTuple.first() ;
-			if(item.getType() == SVDBItemType.PackageDecl) {
-				ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
-				SymbolTableEntry pkgSTE = 
-						SymbolTableEntry.createPkgEntry(item.getName(), pkgSvdbIndex, item.getFilename(), item) ;
-				model.getSymbolTable().addSymbol(pkgSTE) ;
-				gatherSymbolsFromPackage(cfg, model, item, pkgSvdbIndex) ;
-			}
-			if(    item.getType() == SVDBItemType.ProgramDecl 
-			    || item.getType() == SVDBItemType.ModuleDecl  ) {  // todo: also spin through interfaces
-				
-				SymbolTableEntry ent = 
-						SymbolTableEntry.createModProgEntry(
-								item.getName(), 
-								item.getFilename(),
-								item);
-				model.getSymbolTable().addSymbol(ent);
-				gatherSymbolsFromModuleProgram(cfg, model, item);
-				
-				
-			}
+				SVDBDeclCacheItem item = pkgTuple.first() ;
+				if(item.getType() == SVDBItemType.PackageDecl) {
+					ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
+					SymbolTableEntry pkgSTE = 
+							SymbolTableEntry.createPkgEntry(item.getName(), pkgSvdbIndex, item.getFilename(), item) ;
+					model.getSymbolTable().addSymbol(pkgSTE) ;
+					gatherSymbolsFromPackage(cfg, model, item, pkgSvdbIndex) ;
+				}
+				if(    item.getType() == SVDBItemType.ProgramDecl 
+						|| item.getType() == SVDBItemType.ModuleDecl  ) {  // todo: also spin through interfaces
 
-//			if(pkgTuple.first().getType() == SVDBItemType.ModuleDecl) {
-//				SVDBDeclCacheItem item = pkgTuple
-//				SymbolTableEntry ent = 
-//						SymbolTableEntry.createModProgEntry(
-//								mod_prog.getName(), 
-//								mod_prog.getFilename(),
-//								mod_prog);
-//				model.getSymbolTable().addSymbol(ent);
-//				gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
-//			}
-			
+					SymbolTableEntry ent = 
+							SymbolTableEntry.createModProgEntry(
+									item.getName(), 
+									item.getFilename(),
+									item);
+					model.getSymbolTable().addSymbol(ent);
+					gatherSymbolsFromModuleProgram(cfg, model, item);
+
+
+				}
+
+				//			if(pkgTuple.first().getType() == SVDBItemType.ModuleDecl) {
+				//				SVDBDeclCacheItem item = pkgTuple
+				//				SymbolTableEntry ent = 
+				//						SymbolTableEntry.createModProgEntry(
+				//								mod_prog.getName(), 
+				//								mod_prog.getFilename(),
+				//								mod_prog);
+				//				model.getSymbolTable().addSymbol(ent);
+				//				gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+				//			}
+			}
 		}
-			
+
 			
 //		for (SVDBDeclCacheItem mod_prog : cfg.getModulePrograms()) {
 //			SymbolTableEntry ent = 

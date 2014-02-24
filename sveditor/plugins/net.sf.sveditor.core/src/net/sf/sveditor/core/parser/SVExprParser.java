@@ -27,6 +27,8 @@ import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignmentPatternExpr;
 import net.sf.sveditor.core.db.expr.SVDBAssignmentPatternRepeatExpr;
+import net.sf.sveditor.core.db.expr.SVDBAssociativeArrayAssignExpr;
+import net.sf.sveditor.core.db.expr.SVDBAssociativeArrayElemAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
 import net.sf.sveditor.core.db.expr.SVDBCastExpr;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr;
@@ -69,6 +71,7 @@ public class SVExprParser extends SVParserBase {
 	private Stack<Boolean>					fEventExpr;
 	private Stack<Boolean>					fAssertionExpr;
 	private Stack<Boolean>					fArglistExpr;
+	private Stack<Boolean>					fForeachLoopvarExpr;
 	private boolean							fEnableNameMappedPrimary = false;
 	
 	public SVExprParser(ISVParser parser) {
@@ -79,6 +82,8 @@ public class SVExprParser extends SVParserBase {
 		fEventExpr.push(false);
 		fArglistExpr = new Stack<Boolean>();
 		fArglistExpr.push(false);
+		fForeachLoopvarExpr = new Stack<Boolean>();
+		fForeachLoopvarExpr.push(false);
 //		fExprDump = new SVExprDump(System.out);
 	}
 	
@@ -437,6 +442,16 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public SVDBExpr foreach_loopvar() throws SVParseException {
+		
+		try {
+			fForeachLoopvarExpr.push(true);
+			return variable_lvalue();
+		} finally {
+			if (fForeachLoopvarExpr.size() > 0) {
+				fForeachLoopvarExpr.pop();
+			}
+		}
+		/*
 		SVDBForeachLoopvarExpr loopvar = new SVDBForeachLoopvarExpr();
 		
 		loopvar.setId(hierarchical_identifier());
@@ -453,6 +468,7 @@ public class SVExprParser extends SVParserBase {
 		fLexer.readOperator("]");
 	
 		return loopvar;
+		 */
 	}
 	
 	public SVDBExpr const_or_range_expression() throws SVParseException {
@@ -992,7 +1008,7 @@ public class SVExprParser extends SVParserBase {
 		} else if (fLexer.peekOperator("'")) {
 			return assignment_pattern_expr();
 		}
-		
+
 		SVDBExpr a = primary();
 		
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
@@ -1345,18 +1361,42 @@ public class SVExprParser extends SVParserBase {
 					fLexer.readOperator("}");
 					expr = ret;
 				} else {
-					if (fDebugEn) {debug("concatenation");}
-					SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
-					ret.getElements().add(expr0);
+					
+					if (fLexer.peekOperator(",")) {
+						if (fDebugEn) {debug("concatenation");}
+						SVDBConcatenationExpr ret = new SVDBConcatenationExpr();
+						ret.getElements().add(expr0);
 
-					while (fLexer.peekOperator(",")) {
+						while (fLexer.peekOperator(",")) {
+							fLexer.eatToken();
+							ret.getElements().add(expression());
+						}
+						
+						expr = ret;
+					} else if (fLexer.peekOperator(":")) {
+						SVDBAssociativeArrayAssignExpr ret = new SVDBAssociativeArrayAssignExpr();
+						
+						// Initial
+						SVDBAssociativeArrayElemAssignExpr elem = new SVDBAssociativeArrayElemAssignExpr();
+						elem.setKey(expr0);
 						fLexer.eatToken();
-						ret.getElements().add(expression());
+						elem.setValue(expression());
+						ret.addElement(elem);
+						
+						while (fLexer.peekOperator(",")) {
+							fLexer.eatToken();
+							
+							elem = new SVDBAssociativeArrayElemAssignExpr();
+							elem.setKey(expression());
+							fLexer.readOperator(":");
+							elem.setValue(expression());
+							ret.addElement(elem);
+						}
+						
 					}
 
 					fLexer.readOperator("}");
 
-					expr = ret;
 				}
 			} finally {
 //				fEnableNameMappedPrimary = false;
@@ -1504,16 +1544,33 @@ public class SVExprParser extends SVParserBase {
 		// TODO: keyword class`
 		
 		if (fLexer.peekOperator("[")) {
+			SVDBExpr ret = null;
 			if (fDebugEn) {debug("primary() -- operator " + fLexer.peek());}
 			// '[' expression ']'
 			fLexer.eatToken();
+			
 			SVDBExpr low = expression();
 			SVDBExpr high = null;
-			
+
 			// TODO: should probably preserve array-bounds method
 			if (fLexer.peekOperator(":", "+:", "-:")) {
 				fLexer.eatToken();
 				high = expression();
+				ret = new SVDBArrayAccessExpr(expr, low, high);
+			} else if (fForeachLoopvarExpr.peek() && fLexer.peekOperator(",")) {
+				// multi-variable foreach index expression
+				SVDBForeachLoopvarExpr loopvar = new SVDBForeachLoopvarExpr();
+				loopvar.setId(expr);
+			
+				loopvar.addLoopVar(low);
+				do {
+					fLexer.consumeToken();
+					loopvar.addLoopVar(idExpr());
+				} while (fLexer.peekOperator(","));
+
+				ret = loopvar;
+			} else {
+				ret = new SVDBArrayAccessExpr(expr, low, high);
 			}
 			
 			fLexer.readOperator("]");
@@ -1521,7 +1578,7 @@ public class SVExprParser extends SVParserBase {
 				error("array expr == null");
 			}
 			if (fDebugEn) {debug("<-- selector()");}
-			return new SVDBArrayAccessExpr(expr, low, high);
+			return ret; 
 		}
 		
 		error("Unexpected token \"" + fLexer.getImage() + "\"");

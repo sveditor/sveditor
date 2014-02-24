@@ -522,7 +522,7 @@ public class TestParseBehavioralStmts extends TestCase {
 	}
 
 	public void testAssertWithBlockBodyStmt() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 				"`define RPT_GET_FUNC_NAME(mesid) \\\n" +
 				"  begin\\\n" +

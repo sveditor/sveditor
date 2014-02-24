@@ -17,9 +17,9 @@ import java.util.List;
 
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,10 +43,6 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		fIndexIteratorList.add(it);
 	}
 
-	public ISVDBItemIterator getItemIterator(IProgressMonitor monitor) {
-		return new SVDBIndexItemItIterator(fIndexIteratorList.iterator(), monitor);
-	}
-
 	public List<SVDBFilePath> getFilePath(String path) {
 		List<SVDBFilePath> ret = new ArrayList<SVDBFilePath>();
 		
@@ -65,6 +61,20 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 			ret.addAll(tmp);
 		}
 		return ret;
+	}
+	
+	public List<SVDBMarker> getMarkers(String path) {
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			List<SVDBMarker> m = index_it.getMarkers(path);
+			
+			if (m != null) {
+				markers.addAll(m);
+			}
+		}
+		
+		return markers;
 	}
 	
 	public void findReferences(

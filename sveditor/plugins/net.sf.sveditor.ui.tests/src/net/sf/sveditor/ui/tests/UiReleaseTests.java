@@ -32,8 +32,8 @@ public class UiReleaseTests extends TestSuite {
 	
 	public UiReleaseTests() {
 		addTest(new TestSuite(TestAutoIndent.class));
-		addTest(new TestSuite(TestIndexAssociation.class));
-		addTest(new TestSuite(TestOutlineViewOperations.class));
+//		addTest(new TestSuite(TestIndexAssociation.class));
+//		addTest(new TestSuite(TestOutlineViewOperations.class));
 		addTest(new TestSuite(TestOverrideMethods.class));
 		addTest(new TestSuite(TestUserLevelOperations.class));
 	}

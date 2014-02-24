@@ -53,7 +53,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		fRebuildCount++;
 	}
 
-	public void testWSArgFileIndex() {
+	public void disabled_testWSArgFileIndex() {
 		SVCorePlugin.getDefault().enableDebug(false);
 // 		SVCorePlugin.getDefault().setDebugLevel(0);
 		LogHandle log = LogFactory.getLogHandle("testWSArgFileIndex");

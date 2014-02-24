@@ -88,7 +88,9 @@ public class SVConstraintParser extends SVParserBase {
 				int brace_balance = 0;
 				fTmpTokenList.clear();
 				// Scan forward to the first ';' ',' or brace
-				while ((tok = fLexer.peek()) != null && !fLexer.peekOperator(";", ",")) {
+				while ((tok = fLexer.peek()) != null && 
+						!fLexer.peekOperator(";", ",") &&
+						!fLexer.peekKeyword("if", "else", "foreach", "inside")) {
 					if (tok.equals("{")) {
 						brace_balance++;
 					} else if (tok.equals("}")) {
@@ -101,11 +103,22 @@ public class SVConstraintParser extends SVParserBase {
 						break;
 					}
 				}
-			
+
+				/*
 				if (fLexer.peekOperator(",") ||
 						(brace_balance == 0 && fLexer.peekOperator(";"))) {
+				 */
+				if ((brace_balance == 1 && fLexer.peekOperator(",")) ||
+						(brace_balance == 0 && fLexer.peekOperator(";"))) {
 					// Yes, very likely a concat
+					if (fDebugEn) {
+						debug("Likely concatenation: tok=" + fLexer.peek() + " brace_balance=" + brace_balance);
+					}
 					is_concat = true;
+				} else {
+					if (fDebugEn) {
+						debug("Not concatenation: tok=" + fLexer.peek() + " brace_balance=" + brace_balance);
+					}
 				}
 				fLexer.ungetToken(fTmpTokenList);
 			}

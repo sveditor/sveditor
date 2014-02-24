@@ -26,7 +26,6 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
@@ -80,17 +79,10 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",
 					SVDBLibPathIndexFactory.TYPE, null);
 
-			ISVDBItemIterator it = target_index.getItemIterator(new NullProgressMonitor());
 			ISVDBFileSystemProvider fs_provider = 
 				((SVDBLibIndex)target_index).getFileSystemProvider();
-			
-			SVDBFile file = null;
-			while (it.hasNext()) {
-				ISVDBItemBase it_t = it.nextItem();
-				if (SVDBItem.getName(it_t).endsWith("pkg_rel_path_include.sv")) {
-					file = (SVDBFile)it_t;
-				}
-			}
+
+			SVDBFile file = target_index.findFile("${workspace_loc}/subdir2/pkg_rel_path_include.sv");
 			
 			InputStream in = fs_provider.openStream("${workspace_loc}/subdir2/pkg_rel_path_include.sv");
 			String content = SVCoreTestsPlugin.readStream(in);
@@ -114,7 +106,7 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 	// Using an old technique that isn't valid anymore
 	public void fixme_testOpenMacroDef() {
 		String testname = "testOpenMacroDef";
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String doc =
 			"`define MY_MACRO foo\n" +		// 1

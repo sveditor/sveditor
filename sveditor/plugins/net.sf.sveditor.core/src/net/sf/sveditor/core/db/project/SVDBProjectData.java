@@ -167,7 +167,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 						svproject.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 					} catch (CoreException ex) {}
 				}
-				e.printStackTrace();
+				fLog.debug("Failed to read .svproject", e);
 			}
 		}
 	

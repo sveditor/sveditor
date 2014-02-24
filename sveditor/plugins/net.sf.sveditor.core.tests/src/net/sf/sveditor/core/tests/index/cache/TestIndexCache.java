@@ -26,13 +26,10 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCacheOld;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
@@ -216,10 +213,12 @@ public class TestIndexCache extends TestCase {
 		end = System.currentTimeMillis();
 		log.debug("First Iteration 1: " + (end-start) + "ms");
 
+		/*
 		it = index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			it.nextItem();
 		}
+		 */
 		index.dispose();
 		end = System.currentTimeMillis();
 		
@@ -295,10 +294,12 @@ public class TestIndexCache extends TestCase {
 		end = System.currentTimeMillis();
 		log.debug("First Iteration 1: " + (end-start) + "ms");
 
+		/*
 		it = index.getItemIterator(new NullProgressMonitor());
 		while (it.hasNext()) {
 			it.nextItem();
 		}
+		 */
 		index.dispose();
 		end = System.currentTimeMillis();
 		

@@ -15,7 +15,6 @@ package net.sf.sveditor.core.tests.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,26 +22,16 @@ import java.util.Map;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
-import net.sf.sveditor.core.db.stmt.SVDBStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
@@ -73,7 +62,9 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
-		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
+		list_file_conent.append("+define+QUESTA\n");
+		list_file_conent.append(
+				"+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "test.sv\n") ;		
 		
@@ -104,6 +95,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
+		list_file_conent.append("+define+QUESTA\n");
 		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "test.sv\n") ;		
@@ -133,6 +125,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
+		list_file_conent.append("+define+QUESTA\n");
 		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "test.sv\n") ;		
@@ -162,7 +155,9 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
-		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
+		list_file_conent.append(
+				"+define+QUESTA\n" +
+				"+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "component.sv\n") ;		
 		
@@ -191,6 +186,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
+		list_file_conent.append("+define+QUESTA\n");
 		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "top.sv\n") ;		
@@ -219,6 +215,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
+		list_file_conent.append("+define+QUESTA\n");
 		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "top.sv\n") ;		
@@ -251,6 +248,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		StringBuilder list_file_conent = new StringBuilder();
 		
+		list_file_conent.append("+define+QUESTA\n");
 		list_file_conent.append("+incdir+"+uvm_dir.toString()+"/src\n" +
 								uvm_pkg.toString()+"\n" +
 		                        "interface.sv\n") ;		
@@ -403,7 +401,6 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 								 HashMap<String,HashSet<String>> requiredPkgDecls) {
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(testName);
 		
 		if(requiredClasses != null) {
 			requiredClasses.add("uvm_component") ;
@@ -412,6 +409,8 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 			requiredClasses.add("uvm_sequencer") ;
 			requiredClasses.add("uvm_agent") ;
 			requiredClasses.add("uvm_transaction") ;
+		} else {
+			requiredClasses = new HashSet<String>();
 		}
 		
 		testDir.mkdirs();
@@ -442,9 +441,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 			assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
 		}
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();
-		
+		/*
 		while (it.hasNext()) {
 			ISVDBItemBase item = it.nextItem();
 			if (item.getType() == SVDBItemType.Marker) {
@@ -464,7 +461,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 						vi.getName() + " has a null TypeInfo", v.getTypeInfo());
 			}
 		}
-		
+	
 		if(requiredPkgDecls != null) {
 			for(String requiredPkgName: requiredPkgDecls.keySet()) {
 				log.debug("Searching for required package: " + requiredPkgName);
@@ -508,13 +505,13 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 				}
 			}
 		}
+		 */
 		
-		for (SVDBMarker m : errors) {
-			log.error("[ERROR] " + m.getMessage());
-		}
-		
-		assertEquals("Check that no errors were found", 0, errors.size());
-		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, 
+				requiredClasses.toArray(new String[requiredClasses.size()]));
+
+		/*
 		if(requiredClasses != null) {
 			for(String className : requiredClasses) {
 				log.error("[ERROR] " + "Class \"" + className + "\" not found") ;
@@ -534,12 +531,8 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		assertEquals("Not all package decls found",0, unfoundDecls) ;
 		
 		
-		for (SVDBMarker m : errors) {
-			log.error("[ERROR] " + m.getMessage());
-		}
-		assertEquals("No errors", 0, errors.size());
-		
 		LogFactory.removeLogHandle(log);
+		 */
 	}
 
 }

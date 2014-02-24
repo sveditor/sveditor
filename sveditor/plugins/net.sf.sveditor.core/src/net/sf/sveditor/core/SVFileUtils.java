@@ -15,6 +15,7 @@ package net.sf.sveditor.core;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -665,6 +666,18 @@ public class SVFileUtils {
 		}
 		
 		return f;
+	}
+	
+	public static String readInput(File path) {
+		try {
+			FileInputStream in = new FileInputStream(path);
+			String ret = readInput(in);
+			in.close();
+		
+			return ret;
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public static String readInput(InputStream in) {

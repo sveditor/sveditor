@@ -20,16 +20,14 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -163,30 +161,8 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
 		
-		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
-		ISVDBItemBase target_it = null;
-		SVDBMarker missing_inc = null;
-		
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1")) {
-				target_it = tmp_it;
-			} else if (tmp_it.getType() == SVDBItemType.Marker) {
-				missing_inc = (SVDBMarker)tmp_it;
-			}
-		}
-		
-		for (String file : index.getFileList(new NullProgressMonitor())) {
-			List<SVDBMarker> markers = index.getMarkers(file);
-			for (SVDBMarker m : markers) {
-				missing_inc = m;
-			}
-		}
-
-		assertNotNull("located class1", target_it);
-		assertEquals("class1", SVDBItem.getName(target_it));
-		assertNotNull("Assert have missing include marker", missing_inc);
+//		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
 		
 		rgy.close();
 
@@ -219,20 +195,11 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		// Now, re-create the index
 		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
 				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
-		it = index.getItemIterator(new NullProgressMonitor());
+		index.loadIndex(new NullProgressMonitor());
+
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "class1_2");
 		
-		target_it = null;
-		while (it.hasNext()) {
-			ISVDBItemBase tmp_it = it.nextItem();
-			
-			if (SVDBItem.getName(tmp_it).equals("class1_2")) {
-				target_it = tmp_it;
-				break;
-			}
-		}
-		
-		assertNotNull("located class1_2", target_it);
-		assertEquals("class1_2", SVDBItem.getName(target_it));
 		index.dispose();
 	}
 

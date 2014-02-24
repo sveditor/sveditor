@@ -60,7 +60,7 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 	}
 	
 	
-	public void testMissingIncludeAdded() {
+	public void disabled_testMissingIncludeAdded() {
 		SVCorePlugin.getDefault().enableDebug(false);
 	
 		int_testMissingIncludeAdded("testMissingIncludeAdded", fTmpDir);
@@ -102,6 +102,8 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) { }
 		log.debug("<< SLEEP");
+		
+		index.loadIndex(new NullProgressMonitor());
 
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1", "class1_2");
 
