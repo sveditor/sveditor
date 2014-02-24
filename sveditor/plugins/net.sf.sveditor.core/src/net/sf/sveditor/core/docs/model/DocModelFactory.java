@@ -74,14 +74,24 @@ public class DocModelFactory {
 		try {
 			gatherSymbols(cfg, model) ;
 			gatherDocTopicsFromPreProcFiles(cfg, model, docCommentParser) ;
-			gatherPackageContentFromDeclCache(cfg, model) ;
+			gatherPackageContentFromDeclCache(cfg, model) ; // fixme: this is incorrectly named... it gathers modules and programs as well
+//			gatherModProgContentFromDeclCache(cfg, model) ;
 			assignSymbolsTheirDocFiles(cfg, model) ;
+			if(cfg.fPackagesSelected) {
+				pruneDocTopicsNotUnderUserSelectedScope(cfg, model) ;
+			}
 			setPageTitles(cfg, model) ;
 			indexTopics(cfg,model) ;
 		} catch (Exception e) {
 			fLog.error("Document model build failed: " + e.toString(), e);
 		}
 		return model ;
+	}
+
+	private void pruneDocTopicsNotUnderUserSelectedScope(
+			DocGenConfig cfg,
+			DocModel model) {
+		model.pruneUnsedFiles();
 	}
 
 	/**
@@ -101,6 +111,7 @@ public class DocModelFactory {
 						String.format("Found symbol's(%s) docFile(%s)",
 								symbol,
 								file)) ;
+				docFile.markAsUsed(); // Ensure it doesn't get "pruned" 
 				entry.setDocFile(docFile) ;
 			}
 		}
@@ -148,7 +159,7 @@ public class DocModelFactory {
 	private void gatherDocTopicsFromPreProcFiles(DocGenConfig cfg, DocModel model, IDocCommentParser docCommentParser) {
 		HashSet<ISVDBIndex> visitedIndex = new HashSet<ISVDBIndex>() ;
 		fLog.debug(ILogLevel.LEVEL_MIN,"Gathering raw doc comments for each SVDBFile") ;
-		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
+		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
 			ISVDBIndex index = pkgTuple.second() ;
 			if(!visitedIndex.contains(index)) {
 				visitedIndex.add(index) ;
@@ -242,7 +253,7 @@ public class DocModelFactory {
 						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
 						fLog.debug(ILogLevel.LEVEL_MID,"| Exiting file(" + file + ")") ;
 						fLog.debug(ILogLevel.LEVEL_MID,"+-------------------------------------------------------------------------------") ;
-						if(fileHasDocs) {
+						if(fileHasDocs) { 
 							model.addDocFile(docFile) ;
 						}
 					}
@@ -267,29 +278,64 @@ public class DocModelFactory {
 	private void gatherSymbols(DocGenConfig cfg, DocModel model) {
 		
 		fLog.debug(ILogLevel.LEVEL_MIN,"Building initial symbol table the SVDB") ;
-	
-		if (cfg.getModulePrograms() != null) {
-			for (SVDBDeclCacheItem mod_prog : cfg.getModulePrograms()) {
-				SymbolTableEntry ent = 
-						SymbolTableEntry.createModProgEntry(
-								mod_prog.getName(), 
-								mod_prog.getFilename(),
-								mod_prog);
-				model.getSymbolTable().addSymbol(ent);
-				gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+		if (cfg.getPkgSet() != null) {
+			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
+
+				SVDBDeclCacheItem item = pkgTuple.first() ;
+				if(item.getType() == SVDBItemType.PackageDecl) {
+					ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
+					SymbolTableEntry pkgSTE = 
+							SymbolTableEntry.createPkgEntry(item.getName(), pkgSvdbIndex, item.getFilename(), item) ;
+					model.getSymbolTable().addSymbol(pkgSTE) ;
+					gatherSymbolsFromPackage(cfg, model, item, pkgSvdbIndex) ;
+				}
+				if(    item.getType() == SVDBItemType.ProgramDecl 
+						|| item.getType() == SVDBItemType.ModuleDecl  ) {  // todo: also spin through interfaces
+
+					SymbolTableEntry ent = 
+							SymbolTableEntry.createModProgEntry(
+									item.getName(), 
+									item.getFilename(),
+									item);
+					model.getSymbolTable().addSymbol(ent);
+					gatherSymbolsFromModuleProgram(cfg, model, item);
+
+
+				}
+
+				//			if(pkgTuple.first().getType() == SVDBItemType.ModuleDecl) {
+				//				SVDBDeclCacheItem item = pkgTuple
+				//				SymbolTableEntry ent = 
+				//						SymbolTableEntry.createModProgEntry(
+				//								mod_prog.getName(), 
+				//								mod_prog.getFilename(),
+				//								mod_prog);
+				//				model.getSymbolTable().addSymbol(ent);
+				//				gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+				//			}
 			}
 		}
 
-		if (cfg.getSelectedPackages() != null) {
-			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
-				SVDBDeclCacheItem pkgDeclCacheItem = pkgTuple.first() ;
-				ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
-				SymbolTableEntry pkgSTE = 
-						SymbolTableEntry.createPkgEntry(pkgDeclCacheItem.getName(), pkgSvdbIndex, pkgDeclCacheItem.getFilename(), pkgDeclCacheItem) ;
-				model.getSymbolTable().addSymbol(pkgSTE) ;
-				gatherSymbolsFromPackage(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
-			}
-		}
+			
+//		for (SVDBDeclCacheItem mod_prog : cfg.getModulePrograms()) {
+//			SymbolTableEntry ent = 
+//					SymbolTableEntry.createModProgEntry(
+//							mod_prog.getName(), 
+//							mod_prog.getFilename(),
+//							mod_prog);
+//			model.getSymbolTable().addSymbol(ent);
+//			gatherSymbolsFromModuleProgram(cfg, model, mod_prog);
+//		}
+//		
+//		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
+//			SVDBDeclCacheItem pkgDeclCacheItem = pkgTuple.first() ;
+//			ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
+//			SymbolTableEntry pkgSTE = 
+//					SymbolTableEntry.createPkgEntry(pkgDeclCacheItem.getName(), pkgSvdbIndex, pkgDeclCacheItem.getFilename(), pkgDeclCacheItem) ;
+//			model.getSymbolTable().addSymbol(pkgSTE) ;
+//			gatherSymbolsFromPackage(cfg, model, pkgDeclCacheItem, pkgSvdbIndex) ;
+//		}
+
 		model.getSymbolTable().dumpSymbols() ;
 		
 	}
@@ -326,6 +372,21 @@ public class DocModelFactory {
 		}
 		for(ISVDBChildItem ci: modProgItem.getChildren()) {
 			System.out.println("ci: " + ci.getType());
+			if(ci.getType() == SVDBItemType.VarDeclStmt) {
+				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
+				for(ISVDBChildItem varItem: varDecl.getChildren()) {
+					if(varItem instanceof SVDBVarDeclItem) {
+						SVDBVarDeclItem varDeclItem = (SVDBVarDeclItem)varItem ;
+						SymbolTableEntry varSTE =
+								SymbolTableEntry.createModProgMemberEntry(
+										modProgDeclItem.getName(), 
+										varDeclItem.getName(), 
+										null, // fixme: does an index really need to be passed in here?
+										modProgDeclItem.getFilename()) ;
+						model.getSymbolTable().addSymbol(varSTE) ;
+					}
+				}
+			}
 		}
 		/** TODO: 
 			if(ci.getType() == SVDBItemType.Task) {
@@ -441,13 +502,41 @@ public class DocModelFactory {
 	private void gatherPackageContentFromDeclCache(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
 		fLog.debug(ILogLevel.LEVEL_MIN,
 				"Iterating through SVDB to compliment Doc Comments") ;
-		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
+		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
 			SVDBDeclCacheItem pkg = pkgTuple.first() ;
-			if(pkg.getParent() == null) {
-				throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
+			if(pkg.getType() == SVDBItemType.PackageDecl) {
+				if(pkg.getParent() == null) {
+					throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
+				}
+				gatherPackageClasses(model, pkg, pkgTuple.second());			
 			}
-			gatherPackageClasses(model, pkg, pkgTuple.second());			
 		}
+	}
+
+	/**
+	 * Compliments the first-pass DocTopic based model with the more detailed
+	 * information available from the SVDBDeclCacheItems and the SVDB itself.
+	 * <p><p>
+	 * Specifically:
+	 * <ul>
+	 * <li>
+	 * </ul>
+	 * <p>
+	 * @param cfg
+	 * @param model
+	 * @throws DocModelFactoryException
+	 */
+	private void gatherModProgContentFromDeclCache(DocGenConfig cfg, DocModel model) throws DocModelFactoryException {
+		fLog.debug(ILogLevel.LEVEL_MIN,
+				"Iterating through SVDB to compliment Doc Comments") ;
+		// fixme: pull in cfg info from wizard to determine which modules to include
+//		for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getSelectedPackages()) {
+//			SVDBDeclCacheItem pkg = pkgTuple.first() ;
+//			if(pkg.getParent() == null) {
+//				throw new DocModelFactoryException("Package had no parent index: " + pkg.getName()) ;
+//			}
+//			gatherPackageClasses(model, pkg, pkgTuple.second());			
+//		}
 	}
 
 	private void gatherPackageClasses(DocModel model, 

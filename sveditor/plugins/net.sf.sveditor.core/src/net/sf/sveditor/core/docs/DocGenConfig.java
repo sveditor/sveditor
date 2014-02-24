@@ -12,7 +12,7 @@
 package net.sf.sveditor.core.docs;
 
 import java.io.File;
-import java.util.Set;
+import java.util.Map;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -20,25 +20,13 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class DocGenConfig {
 	
-	private Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> 	fPackages ;
-	private Set<SVDBDeclCacheItem>						fModulePrograms;
+	private Map<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem, ISVDBIndex>> fPkgSet ;
+
 	private File 										outputDir ;
+
 	private boolean 									includeUndocumentedPkgsInPkgIndex = true ;
 
-	public Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> getSelectedPackages() {
-		return fPackages;
-	}
-	public void setSelectedPackages(Set<Tuple<SVDBDeclCacheItem,ISVDBIndex>> fPackages) {
-		this.fPackages = fPackages ;
-	}
-	
-	public void setModulePrograms(Set<SVDBDeclCacheItem> mod_programs) {
-		fModulePrograms = mod_programs;
-	}
-	
-	public Set<SVDBDeclCacheItem> getModulePrograms() {
-		return fModulePrograms;
-	}
+	public boolean	fPackagesSelected = false ;
 	
 	public void setOutputDir(File outputDir) {
 		this.outputDir = outputDir ;
@@ -53,6 +41,12 @@ public class DocGenConfig {
 	public void setIncludeUndocumentedPkgsInPkgIndex(
 			boolean includeUndocumentedPkgsInPkgIndex) {
 		this.includeUndocumentedPkgsInPkgIndex = includeUndocumentedPkgsInPkgIndex;
+	}
+	public Map<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem, ISVDBIndex>> getPkgSet() {
+		return fPkgSet;
+	}
+	public void setPkgSet(Map<SVDBDeclCacheItem, Tuple<SVDBDeclCacheItem, ISVDBIndex>> map) {
+		this.fPkgSet = map;
 	}
 
 }

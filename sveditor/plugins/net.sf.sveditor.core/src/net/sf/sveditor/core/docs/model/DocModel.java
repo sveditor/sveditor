@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +71,20 @@ public class DocModel {
 		docTopicManager = new DocTopicManager() ;
 		indexMap = new HashMap<String, DocIndex>() ;
 		fSymbolTable = new SymbolTable() ;
+	}
+	
+	/**
+	 * Deletes all docFiles not markes as "Used"
+	 * by a call to "markAsUsed".
+	 */
+	public void pruneUnsedFiles() {
+		Iterator<String> it = docFiles.keySet().iterator() ;
+		while(it.hasNext()) {
+			String key = it.next() ;
+		   if(!docFiles.get(key).fHasUsedSymbol){
+			   it.remove() ;
+		   }
+		}
 	}
 
 	/**
