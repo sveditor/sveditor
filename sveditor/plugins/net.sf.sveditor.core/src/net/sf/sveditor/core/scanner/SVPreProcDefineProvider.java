@@ -463,7 +463,6 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 				if (ch2 == '/') {
 					while ((ch = scanner.get_ch()) != -1 && ch != '\n') { }
 					ch = scanner.skipWhite(ch);
-					System.out.println("post-slc: " + (char)ch);
 				} else if (ch2 == '*') {
 					int c1=-1, c2=-1;
 					while ((ch = scanner.get_ch()) != -1) {
@@ -474,7 +473,6 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 						c2 = ch;
 					}
 					ch = scanner.skipWhite(ch);
-					System.out.println("post-mlc: " + (char)ch);
 				} else {
 					scanner.unget_ch(ch2);
 				}

@@ -184,18 +184,34 @@ public class SVDBProjectManager implements
 			}
 		}
 	}
-	
 	public void rebuildProject(IProgressMonitor monitor, IProject p) {
+		rebuildProject(monitor, p, false);
+	}
+	
+	public void rebuildProject(IProgressMonitor monitor, IProject p, boolean wait_for_refresh) {
 		
 		if (!isSveProject(p)) {
 			// This is likely an auto-build occurring in the middle of import
 			fLog.debug("rebuildProject: cancel due to !isSveProject");
 			return;
 		}
-		
+	
 		if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
-			fLog.debug("rebuildProject: cancel due to RefreshJob running");
-			return;
+			if (wait_for_refresh) {
+				do {
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException e) {}
+				} while (SVDBRefreshDoneJobWrapper.isRefreshRunning() &&
+						!monitor.isCanceled());
+				
+				if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
+					return;
+				}
+			} else {
+				fLog.debug("rebuildProject: cancel due to RefreshJob running");
+				return;
+			}
 		}
 		
 		synchronized (fDelayedOpList) {

@@ -828,7 +828,7 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 
 	public void testIfConcatConstraint2() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class pkt;\n" +
 			"	rand bit one_beat;\n" +
@@ -860,7 +860,62 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		runTest(testname, content, new String[] {"my_class"});
 	}
-
+	
+	public void testDistConstraint_1() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"class my_class;\n" +
+			"	constraint c_corrupted_preamble {\n" +
+			"		if (use_preamble_err == TRUE) {\n" +
+            "			mac_frm.preamble.preamble_data[0] dist {8'h55 := 10, 8'hAA := 1, 8'h56 := 1, 8'h54 := 1, 8'hD5 := 1};\n" +
+            "			foreach (mac_frm.preamble.preamble_data[i]) {\n" +
+            "		    	if (i == mac_frm.preamble.len - 1) {\n" +
+            "        			(mac_frm.preamble.preamble_data[0] == 8'h55) -> \n" +
+            "           			mac_frm.preamble.preamble_data[i] dist {8'h55 := 1, 8'h56 := 1, 8'hAA := 1, 8'hFD := 1, 8'h54 := 1, 8'hD5 := 10};\n" +
+            "       			(mac_frm.preamble.preamble_data[0] != 8'h55) -> \n" +
+            "           			mac_frm.preamble.preamble_data[i] == 8'hD5;\n" +
+            "   			} else if (i != 0) { }\n" +
+            "			}\n" +
+            "		}\n" +
+            "	}\n" +
+            "endclass\n" 
+            ;
+		runTest(getName(), content, new String[] {"my_class"});
+	}
+	
+	public void testPotentialConcatConstraint() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"class my_class;\n" +
+			"	constraint c_byte_len {  pif_xfer_data.size() == byte_len;\n" +
+            "                 byte_len > 0; byte_len <= 12'hfff; \n" +
+            "                 if( (pif_xfer_type == PIF_XFR_SINGLE_RD) || (pif_xfer_type == PIF_XFR_SINGLE_WR) )\n" +
+            "                 {\n" +
+            "                     if(EXT_DATA_WIDTH == 32) \n" +
+            "                     {\n" +
+            "                         byte_len inside {1,2,4}; \n" +
+            "                     }\n" +
+            "                     else if(EXT_DATA_WIDTH == 64) \n" +
+            "                     {\n" +
+            "                         byte_len inside {1,2,4,8};\n" +
+            "                     }\n" +
+            "                     else if(EXT_DATA_WIDTH == 128) \n" +
+            "                     {\n" +
+            "                         byte_len inside {1,2,4,8,16};\n" +
+            "                     }\n" +
+            "                 }           \n" +
+            "                 else\n" +
+            "                 {\n" +
+            "                     byte_len == pif_xfer_length * (EXT_DATA_WIDTH/8);\n" +
+            "                 }\n" +
+            "             }\n" +
+            "endclass\n"
+            ;
+		
+		
+		runTest(getName(), content, new String[] {"my_class"});
+	}
+	
 	public void testSoftConstraint() {
 		String testname = "testExternConstraint";
 		String content = 

@@ -1831,6 +1831,9 @@ public class SVDBArgFileIndex2 implements
 		}
 		
 		if (build_data.isMFCU()) {
+			if (fDebugEn) {
+				fLog.debug("calculateIncomingMacros: Collecting from previous root files");
+			}
 			// Determine the index in the root files
 			SVDBFileTree root_ft = findRootFileTree(build_data, path);
 		
@@ -1846,6 +1849,9 @@ public class SVDBArgFileIndex2 implements
 					fLog.error("Failed to find FileTree for root_path: " + root_file_path);
 					continue;
 				}
+				if (fDebugEn) {
+					fLog.debug("calculateIncomingMacros: Collecting from previous root file " + root_file_path);
+				}
 				for (int j=root_ft.getIncludedFileTreeList().size(); j>=0; j--) {
 					SVDBFileTreeMacroList ml = root_ft.fMacroSetList.get(j);
 					
@@ -1857,7 +1863,7 @@ public class SVDBArgFileIndex2 implements
 					
 					if (j < root_ft.getIncludedFileTreeList().size()) {
 						SVDBFileTree inc_ft = root_ft.getIncludedFileTreeList().get(j);
-						collectRootFileTreeMacros(all_defs, root_ft);
+						collectRootFileTreeMacros(all_defs, inc_ft);
 					}
 				}
 			}

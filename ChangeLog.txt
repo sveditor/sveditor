@@ -7,6 +7,10 @@
   
 - #(nobug) - Correct a parse bug involving hierarchical foreach loop variables
 
+- #(nobug) - Correct an issue with locating macros defined in previous files
+  when live-parsing a file that was processed in MFCU mode
+  
+
 ------------------------------------------------------------------------------
 -- 1.5.3 Release --
 

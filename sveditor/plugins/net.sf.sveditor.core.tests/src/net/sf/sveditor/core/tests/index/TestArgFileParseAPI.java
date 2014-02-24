@@ -67,7 +67,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		pdata.setProjectFileWrapper(fw, true);
 		
 		// Build the project
-		pmgr.rebuildProject(new NullProgressMonitor(), p);
+		pmgr.rebuildProject(new NullProgressMonitor(), p, true);
 		
 		pdata.getProjectIndexMgr().parse(new NullProgressMonitor(), 
 				new StringInputStream(my_class1_svh), 
@@ -83,7 +83,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 				p.getFile("missing_inc.f"));		
 		
 		// Re-build the project
-		pmgr.rebuildProject(new NullProgressMonitor(), p);
+		pmgr.rebuildProject(new NullProgressMonitor(), p, true);
 	
 		// Re-parse the file
 		markers.clear();
@@ -229,6 +229,190 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 				new StringInputStream(cls1), 
 				"${workspace_loc}/" + pname + "/cls1.svh",
 				markers);
+		
+		assertNotNull(ret);
+		
+		assertEquals(0, markers.size());
+	}
+	
+	public void testMFCUProtectedMacrosLocated() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(true);
+
+		String pname = "package_macros";
+
+		File pdir = new File(fTmpDir, pname);
+		assertTrue(pdir.mkdirs());
+		
+		IProject p = TestUtils.createProject(pname, pdir);
+		addProject(p);
+		
+		TestUtils.copy(
+				"`ifndef MACROS_SVH\n" +
+				"`define MACROS_SVH\n" +
+				"`define MY_MACRO(p)\n" +
+				"`endif\n",
+				p.getFile("macros.svh"));
+
+		String cls1 = 
+				"class cls1;\n" +
+				"	`MY_MACRO(bar)\n" +
+				"	virtual function func();\n" +
+				"		int x;\n" +
+				"	endfunction\n" +
+				"endclass\n";
+		TestUtils.copy(
+				cls1,
+				p.getFile("cls1.svh"));
+		
+		TestUtils.copy(
+				"package pkg_1;\n" +
+				"	`include \"macros.svh\"\n" +
+				"	`include \"cls1.svh\"\n" +
+				"endpackage\n",
+				p.getFile("pkg_1.sv"));
+		
+		String cls2 = 
+				"class cls2;\n" +
+				"	`MY_MACRO(bar)\n" +
+				"	virtual function func();\n" +
+				"		int x;\n" +
+				"	endfunction\n" +
+				"endclass\n";
+		TestUtils.copy(
+				cls1,
+				p.getFile("cls2.svh"));
+		
+		TestUtils.copy(
+				"package pkg_2;\n" +
+				"	`include \"macros.svh\"\n" +
+				"	`include \"cls2.svh\"\n" +
+				"endpackage\n",
+				p.getFile("pkg_2.sv"));
+		
+		TestUtils.copy(
+				"-mfcu\n" +
+				"pkg_1.sv\n" +
+				"pkg_2.sv\n",
+				p.getFile("list.f"));
+	
+		// Setup the project
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		
+		SVDBProjectData pdata = pmgr.getProjectData(p);
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/list.f");
+		
+		pdata.setProjectFileWrapper(fw, true);
+		
+		// Build the project
+		pmgr.rebuildProject(new NullProgressMonitor(), p);
+	
+		fLog.debug("--> Parsing cls2.svh");
+		Tuple<SVDBFile, SVDBFile> ret = 
+				pdata.getProjectIndexMgr().parse(new NullProgressMonitor(), 
+				new StringInputStream(cls2), 
+				"${workspace_loc}/" + pname + "/cls2.svh",
+				markers);
+		fLog.debug("<-- Parsing cls2.svh");
+		
+		assertNotNull(ret);
+		
+		assertEquals(0, markers.size());
+	}	
+
+	public void testMFCUProtectedMacrosLocated_2_argfiles() throws CoreException {
+		SVCorePlugin.getDefault().enableDebug(true);
+
+		String pname = "package_macros";
+
+		File pdir = new File(fTmpDir, pname);
+		assertTrue(pdir.mkdirs());
+		
+		IProject p = TestUtils.createProject(pname, pdir);
+		addProject(p);
+		
+		TestUtils.copy(
+				"`ifndef MACROS_SVH\n" +
+				"`define MACROS_SVH\n" +
+				"`define MY_MACRO(p)\n" +
+				"`endif\n",
+				p.getFile("macros.svh"));
+
+		String cls1 = 
+				"class cls1;\n" +
+				"	`MY_MACRO(bar)\n" +
+				"	virtual function func();\n" +
+				"		int x;\n" +
+				"	endfunction\n" +
+				"endclass\n";
+		TestUtils.copy(
+				cls1,
+				p.getFile("cls1.svh"));
+		
+		TestUtils.copy(
+				"package pkg_1;\n" +
+				"	`include \"macros.svh\"\n" +
+				"	`include \"cls1.svh\"\n" +
+				"endpackage\n",
+				p.getFile("pkg_1.sv"));
+		
+		String cls2 = 
+				"class cls2;\n" +
+				"	`MY_MACRO(bar)\n" +
+				"	virtual function func();\n" +
+				"		int x;\n" +
+				"	endfunction\n" +
+				"endclass\n";
+		TestUtils.copy(
+				cls1,
+				p.getFile("cls2.svh"));
+		
+		TestUtils.copy(
+				"package pkg_2;\n" +
+				"	`include \"macros.svh\"\n" +
+				"	`include \"cls2.svh\"\n" +
+				"endpackage\n",
+				p.getFile("pkg_2.sv"));
+		
+		TestUtils.copy(
+				"-mfcu\n" +
+				"pkg_1.sv\n",
+				p.getFile("pkg_1.f"));
+		
+		TestUtils.copy(
+				"pkg_2.sv\n",
+				p.getFile("pkg_2.f"));
+		
+		TestUtils.copy(
+				"-f pkg_1.f\n" +
+				"-f pkg_2.f\n",
+				p.getFile("list.f"));
+	
+		// Setup the project
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		
+		SVDBProjectData pdata = pmgr.getProjectData(p);
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/list.f");
+		
+		pdata.setProjectFileWrapper(fw, true);
+		
+		// Build the project
+		pmgr.rebuildProject(new NullProgressMonitor(), p);
+	
+		fLog.debug("--> Parsing cls2.svh");
+		Tuple<SVDBFile, SVDBFile> ret = 
+				pdata.getProjectIndexMgr().parse(new NullProgressMonitor(), 
+				new StringInputStream(cls2), 
+				"${workspace_loc}/" + pname + "/cls2.svh",
+				markers);
+		fLog.debug("<-- Parsing cls2.svh");
 		
 		assertNotNull(ret);
 		

@@ -8,10 +8,7 @@ import java.util.Random;
 import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
@@ -380,7 +377,8 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 
 		IndexTestUtils.assertFileHasElements(index, "cls2");
 	}
-	
+
+	/*
 	private void print(String ind, ISVDBChildParent parent) {
 		System.out.println(ind + parent.getType() + " " + SVDBItem.getName(parent));
 	
@@ -393,6 +391,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 			}
 		}
 	}
+	 */
 
 	public void testParseUltraSPARC() {
 //		SVCorePlugin.getDefault().setTestDebugLevel(2);
@@ -490,7 +489,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		index.loadIndex(new NullProgressMonitor());
 		end = System.currentTimeMillis();
 
-		SVDBFileIndexCacheMgr mgr = (SVDBFileIndexCacheMgr)fCacheMgr;
+/*		SVDBFileIndexCacheMgr mgr = (SVDBFileIndexCacheMgr)fCacheMgr; */
 		SVDBFileIndexCache cache = (SVDBFileIndexCache)index.getCache();
 		
 		IDBWriter writer = new SVDBPersistenceRW();

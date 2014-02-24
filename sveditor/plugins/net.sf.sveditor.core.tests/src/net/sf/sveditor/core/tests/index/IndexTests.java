@@ -12,22 +12,15 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.tests.index.libIndex.WSArgFileIndexChanges;
-import net.sf.sveditor.core.tests.index.libIndex.WSLibIndexFileChanges;
-import net.sf.sveditor.core.tests.index.src_collection.SrcCollectionBasics;
 import net.sf.sveditor.core.tests.objects.ObjectsTests;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -48,6 +41,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestUvmBasics.class));
 		suite.addTest(new TestSuite(TestIndexParse.class));
 		suite.addTest(new TestSuite(TestArgFileIndex.class));
+		suite.addTest(new TestSuite(TestArgFileIndexErrors.class));
 		suite.addTest(new TestSuite(TestArgFileParseAPI.class));
 		suite.addTest(new TestSuite(TestIndexPersistance.class));
 		suite.addTest(new TestSuite(TestOpencoresProjects.class));
