@@ -16,8 +16,8 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -28,8 +28,10 @@ import net.sf.sveditor.core.db.expr.SVDBAssignExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFieldAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
+import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
 import net.sf.sveditor.core.db.stmt.ISVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
+import net.sf.sveditor.core.db.stmt.SVDBAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBCaseItem;
 import net.sf.sveditor.core.db.stmt.SVDBCaseStmt;
@@ -48,22 +50,22 @@ import net.sf.sveditor.core.db.stmt.SVDBWaitStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
 
 public class SVDBFileRefFinder {
-	protected SVDBFile					fFile;
-	protected Stack<ISVDBChildItem>		fScopeStack;
+//	protected SVDBFile					fFile;
+	protected Stack<ISVDBItemBase>		fScopeStack;
 	protected ISVDBRefFinderVisitor		fRefVisitor;
 	
 	public SVDBFileRefFinder() {
-		fScopeStack = new Stack<ISVDBChildItem>();
+		fScopeStack = new Stack<ISVDBItemBase>();
 	}
 	
 	public void setRefVisitor(ISVDBRefFinderVisitor v) {
 		fRefVisitor = v;
 	}
 
-	public void visitFile(SVDBFile file) {
-		fFile 		= file;
-		fScopeStack.push(fFile);
-		visitChildParent(fFile);
+	public void visit(ISVDBChildParent item) {
+		fScopeStack.clear();
+		fScopeStack.push(item);
+		visitChildParent(item);
 		fScopeStack.pop();
 	}
 	
@@ -74,6 +76,8 @@ public class SVDBFileRefFinder {
 	}
 	
 	protected void visitChild(ISVDBChildItem c) {
+//		System.out.println("visitChild: " + c);
+		try {
 		fScopeStack.push(c);
 		if (c instanceof SVDBStmt) {
 			visitStmt((SVDBStmt)c);
@@ -120,26 +124,28 @@ public class SVDBFileRefFinder {
 				visitChildParent((ISVDBChildParent)c);
 			}
 		}
-		
-		fScopeStack.pop();
+		} finally {
+			fScopeStack.pop();
+		}
 	}
 	
 	protected void visitStmt(SVDBStmt stmt) {
 		if (stmt == null) {
 			return;
 		}
+		
+//		System.out.println("visitStmt: " + stmt);
+	
+		try {
+			fScopeStack.push(stmt);
 		switch (stmt.getType()) {
 			case ActionBlockStmt: {
 				SVDBActionBlockStmt action_blk = (SVDBActionBlockStmt)stmt;
 				if (action_blk.getStmt() != null) {
-					fScopeStack.push(action_blk.getStmt());
 					visitStmt(action_blk.getStmt());
-					fScopeStack.pop();
 				}
 				if (action_blk.getElseStmt() != null) {
-					fScopeStack.push(action_blk.getElseStmt());
 					visitStmt(action_blk.getElseStmt());
-					fScopeStack.pop();
 				}
 				} break;
 				
@@ -155,6 +161,9 @@ public class SVDBFileRefFinder {
 				
 			case AssignStmt: {
 				// TODO:
+				SVDBAssignStmt assign_stmt = (SVDBAssignStmt)stmt;
+				visitExpr(assign_stmt.getLHS());
+				visitExpr(assign_stmt.getRHS());
 				} break;
 				
 				/*
@@ -224,9 +233,8 @@ public class SVDBFileRefFinder {
 				
 				case ExprStmt: {
 					SVDBExprStmt expr_stmt = (SVDBExprStmt)stmt;
-					fScopeStack.push(expr_stmt);
+//					System.out.println("ExprStmt: " + expr_stmt.getExpr());
 					visitExpr(expr_stmt.getExpr());
-					fScopeStack.pop();
 					} break;
 				
 				/*
@@ -333,6 +341,9 @@ public class SVDBFileRefFinder {
 				visitStmt(b_stmt.getBody());
 			}
 		}
+		} finally {
+			fScopeStack.pop();
+		}
 	}
 	
 	protected void visitExpr(SVDBExpr expr) {
@@ -340,7 +351,10 @@ public class SVDBFileRefFinder {
 		if (expr == null) {
 			return;
 		}
-		
+//		System.out.println("visitExpr: " + expr);
+	
+		try {
+			fScopeStack.push(expr);
 		switch (expr.getType()) {
 		/*
 		ArrayAccessExpr,
@@ -389,7 +403,20 @@ public class SVDBFileRefFinder {
 		RandomizeCallExpr,
 		RangeDollarBoundExpr,
 		RangeExpr,
-		TFCallExpr,
+		 */
+			case TFCallExpr: {
+				SVDBTFCallExpr tf_call_expr = (SVDBTFCallExpr)expr;
+				visitRef(tf_call_expr.getLocation(), SVDBRefType.FieldReference, tf_call_expr.getName());
+				/* TODO:
+				fScopeStack.push(tf_call_expr);
+				try {
+					tf_call_expr.getArgs()
+				} finally {
+					fScopeStack.pop();
+				}
+				 */
+			} break;
+		/*
 		UnaryExpr,
 		TypeExpr,
 		NameMappedExpr,
@@ -410,6 +437,9 @@ public class SVDBFileRefFinder {
 			default: {
 				break;
 			}
+		}
+		} finally {
+			fScopeStack.pop();
 		}
 	}
 	

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBLocation;
 
 /**
@@ -42,16 +42,6 @@ public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 		fReferences = ref_map;
 	}
 
-	/*
-	public Set<RefType> getRefTypeSet() {
-		return fReferences.keySet();
-	}
-	
-	public Set<String> getRefSet(RefType type) {
-		return fReferences.get(type);
-	}
-	 */
-	
 	public Map<String, List<Integer>> getReferences() {
 		return fReferences;
 	}
@@ -59,8 +49,21 @@ public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 	public void visitRef(
 			SVDBLocation 			loc,
 			SVDBRefType 			type,
-			Stack<ISVDBChildItem>	scope_stack,
+			Stack<ISVDBItemBase>	scope_stack,
 			String 					name) {
+		
+//		System.out.println("visitRef: " + loc + " " + type + " " + name);
+		
+		if (loc == null) {
+			// Step up the stack to find the last location
+			for (int i=scope_stack.size()-1; i>=0; i--) {
+				if (scope_stack.get(i).getLocation() != null) {
+					loc = scope_stack.get(i).getLocation();
+					break;
+				}
+			}
+		}
+		
 		switch (type) {
 			case FieldReference: {
 				addRef(loc, name);
@@ -78,6 +81,7 @@ public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 	}
 	
 	private void addRef(SVDBLocation loc, String name) {
+//		System.out.println("addRef: " + loc + " " + name);
 		if (loc != null) {
 			int file_id = loc.getFileId();
 			List<Integer> file_list = fReferences.get(name);

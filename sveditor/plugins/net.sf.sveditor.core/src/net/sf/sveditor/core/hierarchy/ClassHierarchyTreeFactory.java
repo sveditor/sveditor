@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,8 +14,13 @@ package net.sf.sveditor.core.hierarchy;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.ops.SVDBFindClassExtensionsOp;
 import net.sf.sveditor.core.db.refs.SVDBSubClassRefFinder;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
 
@@ -51,18 +56,30 @@ public class ClassHierarchyTreeFactory {
 		}
 		
 		// Now, build down the hierarchy
-		build_sub(target);
+		try {
+			build_sub(target);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		return target;
 	}
 	
 	private void build_sub(HierarchyTreeNode parent) {
-		List<SVDBClassDecl> sub_classes = SVDBSubClassRefFinder.find(fIndexIt, parent.getName());
+		if (parent.getItemDecl().getType() != SVDBItemType.ClassDecl) {
+			return;
+		}
 		
-		for (SVDBClassDecl s : sub_classes) {
-			HierarchyTreeNode sn = new HierarchyTreeNode(parent, s.getName(), s);
-			parent.addChild(sn);
-			build_sub(sn);
+		List<SVDBDeclCacheItem> sub_classes = SVDBFindClassExtensionsOp.execOp(
+				new NullProgressMonitor(), fIndexIt, (SVDBClassDecl)parent.getItemDecl());
+		
+		for (SVDBDeclCacheItem s : sub_classes) {
+			if (s.getSVDBItem() instanceof SVDBClassDecl) {
+				HierarchyTreeNode sn = new HierarchyTreeNode(
+						parent, s.getName(), (SVDBClassDecl)s.getSVDBItem());
+				parent.addChild(sn);
+				build_sub(sn);
+			}
 		}
 	}
 

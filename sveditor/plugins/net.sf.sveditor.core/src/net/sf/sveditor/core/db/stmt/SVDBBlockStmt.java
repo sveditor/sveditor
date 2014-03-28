@@ -28,7 +28,7 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 	public ISVDBChildItem			fParent;
 	
 	public List<ISVDBItemBase>		fItems;
-	public SVDBLocation			fEndLocation;
+	public SVDBLocation				fEndLocation;
 	public String					fBlockName;
 	
 	public SVDBBlockStmt() {

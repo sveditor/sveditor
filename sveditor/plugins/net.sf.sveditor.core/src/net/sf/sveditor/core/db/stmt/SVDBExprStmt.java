@@ -24,6 +24,7 @@ public class SVDBExprStmt extends SVDBStmt {
 	
 	public SVDBExprStmt(SVDBExpr expr) {
 		super(SVDBItemType.ExprStmt);
+		fExpr = expr;
 	}
 	
 	public SVDBExpr getExpr() {

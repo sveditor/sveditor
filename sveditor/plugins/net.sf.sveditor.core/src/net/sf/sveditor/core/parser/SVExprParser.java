@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1202,7 +1202,8 @@ public class SVExprParser extends SVParserBase {
 				if (fDebugEn) {
 					debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				}
-				String id = fLexer.eatToken();
+				SVToken id_tok = fLexer.consumeToken();
+				String id = id_tok.getImage();
 				
 				if (fLexer.peekOperator("(*")) {
 					fParsers.attrParser().parse(null);
@@ -1239,7 +1240,7 @@ public class SVExprParser extends SVParserBase {
 					if (id.equals("randomize")) {
 						ret = randomize_call(null);
 					} else if (fLexer.peekOperator("(")) {
-						ret = tf_args_call(null, id);
+						ret = tf_args_call(null, id_tok);
 					} else {
 						ret = tf_noargs_with_call(null, id);
 					}
@@ -1492,7 +1493,7 @@ public class SVExprParser extends SVParserBase {
 					if (id.equals("randomize")) {
 						return randomize_call(expr);
 					} else if (fLexer.peekOperator("(")){
-						return tf_args_call(expr, id);
+						return tf_args_call(expr, id_tok);
 					} else {
 						return tf_noargs_with_call(expr, id);
 					}
@@ -1611,8 +1612,9 @@ public class SVExprParser extends SVParserBase {
 		return rand_call;
 	}
 	
-	private SVDBTFCallExpr tf_args_call(SVDBExpr target, String id) throws SVParseException {
-		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id, arguments());	
+	private SVDBTFCallExpr tf_args_call(SVDBExpr target, SVToken id) throws SVParseException {
+		SVDBTFCallExpr tf = new SVDBTFCallExpr(target, id.getImage(), arguments());	
+		tf.setLocation(id.getStartLocation());
 		
 		if (fLexer.peekKeyword("with")) {
 			fLexer.eatToken();

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -244,7 +244,11 @@ public class SVEditor extends TextEditor
 
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
+			long start, end;
 			IDocument doc;
+			
+			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.GetDocument");
+			start = System.currentTimeMillis();
 			IEditorInput ed_in = getEditorInput();
 			if (fDocument != null) {
 				doc = fDocument;
@@ -261,13 +265,21 @@ public class SVEditor extends TextEditor
 			}
 			
 			StringInputStream sin = new StringInputStream(doc.get());
+			end = System.currentTimeMillis();
+			fLog.debug(LEVEL_MID, "<-- UpdateSVDBFile.GetDocument: " + (end-start));
+			
 			List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-			fLog.debug("--> re-parse file");
+			
+			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.Re-parse file");
+			start = System.currentTimeMillis();
 			Tuple<SVDBFile, SVDBFile> new_in = fFileIndexParser.parse(
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
-			fLog.debug("<-- re-parse file");
+			end = System.currentTimeMillis();
+			fLog.debug(LEVEL_MID, "<-- UpdateSVDBFile.Re-parse file: " + (end-start));
 		
+			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.Re-incorporate content");
+			start = System.currentTimeMillis();
 			if (new_in != null) {
 				fSVDBFile = new_in.second();
 				fSVDBFilePP = new_in.first();
@@ -285,6 +297,8 @@ public class SVEditor extends TextEditor
 			if (fOutline != null) {
 				fOutline.refresh();
 			}
+			end = System.currentTimeMillis();
+			fLog.debug(LEVEL_MID, "<-- UpdateSVDBFile.Re-incorporate content: " + (end-start));
 			
 			synchronized (SVEditor.this) {
 				fUpdateSVDBFileJob = null;

@@ -22,7 +22,7 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
 import net.sf.sveditor.core.db.refs.SVDBFindReferencesOp;
 import net.sf.sveditor.core.db.refs.SVDBRefMayContainVisitor;
-import net.sf.sveditor.core.db.refs.SVDBRefSearchByNameSpec;
+import net.sf.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 
@@ -70,7 +70,7 @@ public class DesignHierarchyContentProviderBase {
 
 					pdata.getProjectIndexMgr().execOp(
 							new NullProgressMonitor(),
-							new SVDBFindReferencesOp(new SVDBRefSearchByNameSpec(
+							new SVDBFindReferencesOp(new SVDBRefSearchSpecModIfcRefsByName(
 											module_it.getName(), 
 											NameMatchType.MayContain), visitor),
 									false);

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -267,6 +267,11 @@ public class SVExprUtils {
 	
 	protected boolean expr_to_string(PrintStream ps, SVDBExpr expr) {
 		boolean ret = false;
+		
+		if (expr == null) {
+			return ret;
+		}
+		
 		switch (expr.getType()) {
 			case ArrayAccessExpr: ret = array_access(ps, (SVDBArrayAccessExpr)expr); break;
 			case AssignExpr: ret = assign(ps, (SVDBAssignExpr)expr); break;

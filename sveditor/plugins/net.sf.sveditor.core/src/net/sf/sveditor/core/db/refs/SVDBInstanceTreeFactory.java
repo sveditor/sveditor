@@ -29,7 +29,7 @@ public class SVDBInstanceTreeFactory {
 	
 	private void build(SVDBInstanceTreeNode parent, String typename) {
 		SVDBRefCollectorVisitor visitor = new SVDBRefCollectorVisitor();
-		SVDBRefSearchByNameSpec ref_spec = new SVDBRefSearchByNameSpec(typename);
+		SVDBRefSearchSpecModIfcRefsByName ref_spec = new SVDBRefSearchSpecModIfcRefsByName(typename);
 		
 		fIndexIt.execOp(new NullProgressMonitor(), 
 				new SVDBFindReferencesOp(ref_spec, visitor), false);
