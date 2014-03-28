@@ -197,6 +197,7 @@ public class SVDBProjectManager implements
 		}
 	
 		if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
+			/*
 			if (wait_for_refresh) {
 				do {
 					try {
@@ -209,9 +210,10 @@ public class SVDBProjectManager implements
 					return;
 				}
 			} else {
+			 */
 				fLog.debug("rebuildProject: cancel due to RefreshJob running");
 				return;
-			}
+//			}
 		}
 		
 		synchronized (fDelayedOpList) {
