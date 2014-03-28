@@ -76,6 +76,7 @@ public class TestClassRefs extends SVCoreTestCaseBase {
 
 	public void testFindUVMComponentExtensions() {
 		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().setDebugLevel(LEVEL_MIN);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, getName());
@@ -104,9 +105,13 @@ public class TestClassRefs extends SVCoreTestCaseBase {
 		
 		assertEquals(1, items.size());
 	
+		long start = System.currentTimeMillis();
 		List<SVDBDeclCacheItem> extensions = SVDBFindClassExtensionsOp.execOp(
 				new NullProgressMonitor(), 
 				index, (SVDBClassDecl)items.get(0).getSVDBItem());
+		long end = System.currentTimeMillis();
+		
+		fLog.debug(LEVEL_MIN, "Extension finding time: " + (end-start));
 		
 		assertEquals(17, extensions.size());
 	}

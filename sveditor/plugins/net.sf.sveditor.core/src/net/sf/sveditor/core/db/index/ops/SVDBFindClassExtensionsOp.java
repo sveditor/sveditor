@@ -1,7 +1,9 @@
 package net.sf.sveditor.core.db.index.ops;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -21,16 +23,19 @@ public class SVDBFindClassExtensionsOp implements ISVDBIndexOperation, ISVDBRefV
 	private SVDBClassDecl					fCls;
 	private String							fClsName;
 	private List<SVDBDeclCacheItem>			fExtensions;
+	private Set<String>						fFoundSet;
 	
 	public SVDBFindClassExtensionsOp(SVDBClassDecl cls) {
 		fCls = cls;
 		fClsName = cls.getName();
 		fExtensions = new ArrayList<SVDBDeclCacheItem>();
+		fFoundSet = new HashSet<String>();
 	}
 	
 	public SVDBFindClassExtensionsOp(String cls) {
 		fClsName = cls;
 		fExtensions = new ArrayList<SVDBDeclCacheItem>();
+		fFoundSet = new HashSet<String>();
 	}
 
 	@Override
@@ -50,7 +55,9 @@ public class SVDBFindClassExtensionsOp implements ISVDBIndexOperation, ISVDBRefV
 			if (cls.getSuperClass() != null && 
 					cls.getSuperClass().getName() != null &&
 					cls.getSuperClass().getName().equals(fClsName)) {
-				fExtensions.add(new SVDBContainerDeclCacheItem(cls));
+				if (fFoundSet.add(cls.getName())) {
+					fExtensions.add(new SVDBContainerDeclCacheItem(cls));
+				}
 			}
 		}
 	}
@@ -60,6 +67,17 @@ public class SVDBFindClassExtensionsOp implements ISVDBIndexOperation, ISVDBRefV
 			ISVDBIndexOperationRunner 	index,
 			SVDBClassDecl				cls) {
 		SVDBFindClassExtensionsOp op = new SVDBFindClassExtensionsOp(cls);
+		
+		index.execOp(monitor, op, false);
+		
+		return op.fExtensions;
+	}
+	
+	public static List<SVDBDeclCacheItem> execOp(
+			IProgressMonitor			monitor,
+			ISVDBIndexOperationRunner 	index,
+			String						name) {
+		SVDBFindClassExtensionsOp op = new SVDBFindClassExtensionsOp(name);
 		
 		index.execOp(monitor, op, false);
 		
