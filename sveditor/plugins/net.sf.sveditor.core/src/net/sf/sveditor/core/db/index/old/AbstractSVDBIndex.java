@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,10 +72,9 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
-import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
+import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
-import net.sf.sveditor.core.db.refs.SVDBRefFinder;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
@@ -2549,10 +2548,6 @@ public abstract class AbstractSVDBIndex implements
 			IProgressMonitor monitor, SVDBRefCacheItem item) {
 		ensureIndexState(monitor, IndexState_AllFilesParsed);
 		
-		SVDBRefFinder finder = new SVDBRefFinder(item.getRefType(), item.getRefName());
-	
-		SVDBFile file = findFile(item.getFilename());
-
 		/*
 		if(file != null) {
 			return finder.find_refs(file);

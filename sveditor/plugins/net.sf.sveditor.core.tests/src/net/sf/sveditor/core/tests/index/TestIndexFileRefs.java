@@ -33,7 +33,7 @@ import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
 import net.sf.sveditor.core.db.refs.SVDBRefItem;
-import net.sf.sveditor.core.db.refs.SVDBRefSearchByNameSpec;
+import net.sf.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 import net.sf.sveditor.core.log.LogFactory;
@@ -172,7 +172,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 			SVDBRefCollectorVisitor visitor = new SVDBRefCollectorVisitor();
 			
 			index.findReferences(new NullProgressMonitor(), 
-					new SVDBRefSearchByNameSpec(module.getName()), 
+					new SVDBRefSearchSpecModIfcRefsByName(module.getName()), 
 					visitor);
 			
 			if (visitor.getItemList().size() == 0) {

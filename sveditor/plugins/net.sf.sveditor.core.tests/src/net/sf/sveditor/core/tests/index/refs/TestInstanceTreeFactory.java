@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.refs.SVDBInstanceTreeFactory;
 import net.sf.sveditor.core.db.refs.SVDBInstanceTreeNode;
 import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
-import net.sf.sveditor.core.db.refs.SVDBRefSearchByNameSpec;
+import net.sf.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 import net.sf.sveditor.core.tests.IndexTestUtils;

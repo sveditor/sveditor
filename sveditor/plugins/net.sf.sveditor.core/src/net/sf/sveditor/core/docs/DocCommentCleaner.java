@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,7 @@
  ****************************************************************************
  * Original Natural Docs License:
  *
- *	This file is part of Natural Docs, which is Copyright (c) 2003-2010 Greg Valure
+ *	This file is part of Natural Docs, which is Copyright (c) 2003-2014 Greg Valure
  *	Natural Docs is licensed under version 3 of the GNU Affero General Public License (AGPL)
  *	Refer to License.txt for the complete details
  *	

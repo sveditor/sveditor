@@ -1,8 +1,10 @@
 package net.sf.sveditor.core.db.refs;
 
-import java.util.Set;
+import java.util.Stack;
 
-import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBLocation;
+
 
 public interface ISVDBRefSearchSpec {
 	
@@ -15,7 +17,20 @@ public interface ISVDBRefSearchSpec {
 	NameMatchType getNameMatchType();
 	
 	String getName();
-	
-	Set<SVDBItemType> getTypes();
 
+	/**
+	 * Check whether a given reference matches the spec
+	 * 
+	 * @param loc
+	 * @param type
+	 * @param scope
+	 * @param name
+	 * @return
+	 */
+	boolean matches(
+			SVDBLocation 			loc, 
+			SVDBRefType 			type, 
+			Stack<ISVDBItemBase> 	scope, 
+			String 					name);
+	
 }

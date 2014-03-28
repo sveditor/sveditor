@@ -9,6 +9,7 @@ public class IndexRefTests extends TestSuite {
 		TestSuite suite = new TestSuite("IndexRefTests");
 		
 		suite.addTest(new TestSuite(TestInstanceTreeFactory.class));
+		suite.addTest(new TestSuite(TestClassRefs.class));
 		
 		return suite;
 	}

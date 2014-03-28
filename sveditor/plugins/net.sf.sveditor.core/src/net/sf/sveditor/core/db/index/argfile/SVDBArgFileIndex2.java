@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,9 +91,7 @@ import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
 import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.refs.SVDBFileRefFinder;
-import net.sf.sveditor.core.db.refs.SVDBRefFinder;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
-import net.sf.sveditor.core.db.refs.SVDBRefType;
+import net.sf.sveditor.core.db.refs.SVDBRefMatcher;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -2295,7 +2293,7 @@ public class SVDBArgFileIndex2 implements
 		SVDBFileRefFinder finder = new SVDBFileRefFinder();
 		finder.setRefVisitor(collector);
 		
-		finder.visitFile(file);
+		finder.visit(file);
 
 		/*
 		System.out.println("--> cacheReferences " + file.getFilePath());
@@ -2352,7 +2350,7 @@ public class SVDBArgFileIndex2 implements
 	public void findReferences(
 			IProgressMonitor 		monitor,
 			ISVDBRefSearchSpec		ref_spec,
-			ISVDBRefVisitor			ref_matcher) {
+			ISVDBRefVisitor			ref_visitor) {
 		checkInIndexOp("findReferences");
 
 		Map<String, List<Integer>> ref_map = fBuildData.fIndexCacheData.getReferenceCacheMap();
@@ -2364,23 +2362,19 @@ public class SVDBArgFileIndex2 implements
 
 				for (Integer file_id : file_list) {
 					String filename = fBuildData.mapFileIdToPath(file_id);
-					SVDBFile file = fBuildData.getCache().getFile(new NullProgressMonitor(), filename);
-
+					SVDBFile file = findFile(new NullProgressMonitor(), filename);
+					
 					if (file != null) {
-						SVDBRefFinder visitor = new SVDBRefFinder(SVDBRefType.TypeReference, ref_spec.getName());
+						SVDBRefMatcher ref_matcher = new SVDBRefMatcher(ref_spec, ref_visitor);
 						SVDBFileRefFinder finder = new SVDBFileRefFinder();
-						finder.setRefVisitor(visitor);
-						finder.visitFile(file);
-
-						for (SVDBRefItem it : visitor.getRefList()) {
-							ref_matcher.visitRef(ref_spec, it);
-						}
+						finder.setRefVisitor(ref_matcher);
+						finder.visit(file);
 					}
 				}
 			} else if (ref_spec.getNameMatchType() == NameMatchType.MayContain) {
 				// Caller is simply interested in whether there might be a match
 				if (file_list.size() > 0) {
-					ref_matcher.visitRef(ref_spec, null);
+					ref_visitor.visitRef(ref_spec, null);
 				}
 			}
 		}

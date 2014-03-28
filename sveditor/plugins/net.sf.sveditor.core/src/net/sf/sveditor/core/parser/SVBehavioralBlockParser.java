@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2010 Matthew Ballance and others.
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -718,7 +718,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fLexer.eatToken();
 		if (fLexer.peekOperator(":")) {
 			fLexer.eatToken();
-			fLexer.readId();
+			block.setBlockName(fLexer.readId());
 		}
 
 		try {
@@ -776,7 +776,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBLocation start = fLexer.getStartLocation();
 		String type_s = fLexer.eatToken();
 		CaseType type = null;
-		List<SVToken> token_l = new ArrayList<SVToken>();
+//		List<SVToken> token_l = new ArrayList<SVToken>();
 		boolean case_inside = false;
 		
 		if (type_s.equals("case")) {
