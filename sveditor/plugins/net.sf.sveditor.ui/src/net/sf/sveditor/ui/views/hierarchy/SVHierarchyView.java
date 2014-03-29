@@ -92,6 +92,7 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				new GridData(SWT.FILL, SWT.FILL, true, true));
 		fClassTree.setContentProvider(new HierarchyTreeContentProvider());
 		fClassTree.setLabelProvider(new HierarchyTreeLabelProvider());
+		fClassTree.setSorter(new SVHierarchyViewerSorter());
 		
 		// Propagate the class selection to the member list
 		fClassTree.addSelectionChangedListener(new ISelectionChangedListener() {

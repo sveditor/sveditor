@@ -1,6 +1,12 @@
 
 -- 1.5.5 Release --
 
+- #(enh) - Add initial support for finding class extension references
+
+- #(enh) - Enhance hierarchy view to show the classes that extend the 
+  subject class
+
+
 ------------------------------------------------------------------------------
 -- 1.5.4 Release --
 

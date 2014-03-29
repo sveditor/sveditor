@@ -12,6 +12,8 @@
 
 package net.sf.sveditor.ui.views.hierarchy;
 
+import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
+
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 
@@ -20,8 +22,15 @@ public class SVHierarchyViewerSorter extends ViewerSorter {
 
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
-		// TODO Auto-generated method stub
-		return super.compare(viewer, e1, e2);
+		if (e1 instanceof HierarchyTreeNode &&
+				e2 instanceof HierarchyTreeNode) {
+			HierarchyTreeNode h1 = (HierarchyTreeNode)e1;
+			HierarchyTreeNode h2 = (HierarchyTreeNode)e2;
+			
+			return h1.getName().compareTo(h2.getName());
+		} else {
+			return super.compare(viewer, e1, e2);
+		}
 	}
 	
 }
