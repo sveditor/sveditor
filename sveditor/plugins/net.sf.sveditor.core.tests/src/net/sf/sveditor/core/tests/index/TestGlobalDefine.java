@@ -67,6 +67,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		CoreReleaseTests.clearErrors();
 		
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
 
@@ -114,6 +115,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		
 		String pname = "project";
 		IProject project_dir = TestUtils.createProject(pname);
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
 		

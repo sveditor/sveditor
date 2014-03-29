@@ -103,6 +103,7 @@ public class TestProjectSettingChanges extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		IProject p = TestUtils.createProject("error_index");
+		addProject(p);
 		
 		String okay_argfile = 
 				"file1.sv\n"

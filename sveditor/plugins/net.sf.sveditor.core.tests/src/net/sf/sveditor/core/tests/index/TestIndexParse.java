@@ -67,6 +67,7 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 	
 	public void testWSLibIndexParse() {
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
 		
@@ -89,6 +90,7 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 
 	public void testWSArgFileIndexParse() {
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
 		
@@ -111,6 +113,7 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 
 	public void testWSSourceCollectionIndexParse() {
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
 		

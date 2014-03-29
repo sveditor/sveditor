@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestClassRefs extends SVCoreTestCaseBase {
 
-	public void testFindUVMComponentGetParent() {
+	public void disabled_testFindUVMComponentGetParent() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -116,7 +116,7 @@ public class TestClassRefs extends SVCoreTestCaseBase {
 		assertEquals(17, extensions.size());
 	}
 	
-	public void testFindDirectFieldMethodRef() {
+	public void disabled_testFindDirectFieldMethodRef() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File test_dir = new File(fTmpDir, getName());

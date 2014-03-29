@@ -14,15 +14,14 @@ package net.sf.sveditor.core.hierarchy;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.ops.SVDBFindClassExtensionsOp;
-import net.sf.sveditor.core.db.refs.SVDBSubClassRefFinder;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class ClassHierarchyTreeFactory {
 	private ISVDBIndexIterator				fIndexIt;

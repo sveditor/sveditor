@@ -455,6 +455,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
+		addProject(project_dir);
 		
 		String data_root = "/data/arg_file_multi_include_single_root/";
 		utils.copyBundleDirToWS(data_root, project_dir);
@@ -480,6 +481,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
+		addProject(project_dir);
 		
 		String data_root = "/data/arg_file_mixed_sv_vlog/";
 		utils.copyBundleDirToWS(data_root, project_dir);
@@ -505,6 +507,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
+		addProject(project_dir);
 		
 		String data_root = "/data/index/change_src_levels/";
 		utils.copyBundleDirToWS(data_root, project_dir);

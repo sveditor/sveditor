@@ -292,6 +292,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		utils.copyBundleDirToFS("/data/project_settings_proj1", fTmpDir);
 		
 		IProject project = TestUtils.importProject(new File(fTmpDir, "project_settings_proj1"));
+		addProject(project);
 		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		SVDBIndexCollection index_collection = null;
 		SVProjectFileWrapper fw;

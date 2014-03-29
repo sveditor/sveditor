@@ -53,7 +53,6 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 	implements ISVDBIndexChangeListener {
 	
 	private int						fIndexRebuilt;
-	private IProject				fProject;
 	private SVCorePlugin			fCorePlugin;
 
 	@Override
@@ -62,7 +61,6 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		
 		fCorePlugin = SVCorePlugin.getDefault();
 		
-		fProject = null;
 		SVCorePlugin.setTestMode();
 	}
 	
@@ -72,11 +70,6 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.close();
 
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
 		super.tearDown();
 	}
 	
@@ -95,7 +88,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);
 		File xbus = new File(test_dir, "ovm/examples/xbus");
 
-		fProject = TestUtils.createProject("xbus", xbus);
+		IProject project = TestUtils.createProject("xbus", xbus);
+		addProject(project);
 
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
@@ -165,7 +159,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		
 		assertTrue(test_proj.isDirectory());
 
-		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
+		IProject project = TestUtils.createProject(test_proj.getName(), test_proj);
+		addProject(project);
 //		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -259,7 +254,8 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		
 		assertTrue(test_proj.isDirectory());
 
-		fProject = TestUtils.createProject(test_proj.getName(), test_proj);
+		IProject project = TestUtils.createProject(test_proj.getName(), test_proj);
+		addProject(project);
 //		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
 
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -321,9 +317,10 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testWSArgFileTimestampChanged");
 		
-		fProject = TestUtils.createProject("project");
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", project);
 		
 		SVDBIndexRegistry rgy = fCorePlugin.getSVDBIndexRegistry();
 		rgy.init(fCacheFactory);
@@ -368,7 +365,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/class1_2.svh")));
+		TestUtils.copy(out, project.getFile(new Path("basic_lib_project/class1_2.svh")));
 
 		out = new ByteArrayOutputStream();
 		ps = new PrintStream(out);
@@ -377,7 +374,7 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		ps.flush();
 		
 		// Now, write back the file
-		TestUtils.copy(out, fProject.getFile(new Path("basic_lib_project/basic_lib.f")));
+		TestUtils.copy(out, project.getFile(new Path("basic_lib_project/basic_lib.f")));
 	
 		// This test checks that, on re-creation, timestamp changes are noticed
 		rgy.disposeIndex(index, "Index test");
@@ -402,9 +399,10 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		fProject = TestUtils.createProject("project");
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
 		
-		utils.copyBundleDirToWS("/data/basic_lib_project/", fProject);
+		utils.copyBundleDirToWS("/data/basic_lib_project/", project);
 		
 		fIndexRebuilt = 0;
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 

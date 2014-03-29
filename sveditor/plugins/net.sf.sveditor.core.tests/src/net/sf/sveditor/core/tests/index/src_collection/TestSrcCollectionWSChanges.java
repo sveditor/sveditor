@@ -41,6 +41,7 @@ public class TestSrcCollectionWSChanges extends SVCoreTestCaseBase
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 
 		utils.copyBundleDirToWS("/project_dir_src_collection_pkg/", project_dir);
 		
@@ -94,6 +95,7 @@ public class TestSrcCollectionWSChanges extends SVCoreTestCaseBase
 		
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 
 		utils.copyBundleDirToWS("/project_dir_src_collection_pkg/", project_dir);
 		
