@@ -59,6 +59,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 		
 		try {
 			IProject project_dir = TestUtils.createProject("project");
+			addProject(project_dir);
 
 			IFile file = project_dir.getFile("test.svh");
 			assertEquals("Ensure file doesn't exist", false, file.exists());
@@ -125,6 +126,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 		
 		try {
 			IProject project_dir = TestUtils.createProject("project");
+			addProject(project_dir);
 
 			IFile file = project_dir.getFile("test.svh");
 			assertEquals("Ensure file doesn't exist", false, file.exists());
@@ -188,6 +190,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 		
 		try {
 			IProject project_dir = TestUtils.createProject("project");
+			addProject(project_dir);
 
 			IFile file = project_dir.getFile("test.svh");
 			assertEquals("Ensure file doesn't exist", false, file.exists());

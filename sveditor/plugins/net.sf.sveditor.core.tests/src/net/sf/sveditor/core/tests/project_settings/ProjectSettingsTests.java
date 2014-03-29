@@ -29,12 +29,13 @@ public class ProjectSettingsTests extends SVCoreTestCaseBase {
 	 * specified for a project
 	 */
 	public void testSourceCollectionChange() {
-		IProject fProject = TestUtils.createProject("src_collection", fTmpDir);
+		IProject project = TestUtils.createProject("src_collection", fTmpDir);
+		addProject(project);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		utils.copyBundleDirToWS("/data/project_settings/src_collection_1", fProject);
+		utils.copyBundleDirToWS("/data/project_settings/src_collection_1", project);
 		
-		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVProjectFileWrapper fw;
 		SVDBSourceCollection sc;
@@ -70,13 +71,13 @@ public class ProjectSettingsTests extends SVCoreTestCaseBase {
 	 */
 	public void testSourceCollectionChangeIncExclExts() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		IProject fProject = TestUtils.createProject("src_collection", fTmpDir);
-		addProject(fProject);
+		IProject project = TestUtils.createProject("src_collection", fTmpDir);
+		addProject(project);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
-		utils.copyBundleDirToWS("/data/project_settings/src_collection_2", fProject);
+		utils.copyBundleDirToWS("/data/project_settings/src_collection_2", project);
 		
-		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(fProject);
+		SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVProjectFileWrapper fw;
 		SVDBSourceCollection sc;

@@ -42,6 +42,7 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
 		
@@ -95,6 +96,7 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		IProject project_dir = TestUtils.createProject("project");
+		addProject(project_dir);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", project_dir);
 		

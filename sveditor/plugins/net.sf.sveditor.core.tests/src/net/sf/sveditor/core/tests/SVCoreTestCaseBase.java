@@ -14,6 +14,9 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 	
@@ -33,6 +36,17 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		
 		if (SVCorePlugin.getDefault() != null) {
 			SVCorePlugin.getDefault().getResourceChangeListener().init();
+		}
+		
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		if (root.getProjects() != null) {
+			boolean pass = (root.getProjects().length == 0);
+			if (!pass) {
+				for (IProject p : root.getProjects()) {
+					p.delete(true, new NullProgressMonitor());
+				}
+			}
+			assertTrue("Workspace contains " + root.getProjects().length + " projects", pass);
 		}
 		
 		fProjectList = new ArrayList<IProject>();

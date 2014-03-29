@@ -14,14 +14,12 @@ package net.sf.sveditor.ui.tests.editor;
 
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBTypeInfoClassItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -226,7 +224,7 @@ public class TestOverrideMethods extends SVCoreTestCaseBase {
 
 		SVDBTypeInfoClassType ci = extension.getSuperClass();
 		for (ISVDBItemBase it : sve_tester.getSVDBFile().getChildren()) {
-			System.out.println("extension=" + ci.getName() + " it=" + SVDBItem.getName(it));
+			fLog.debug("extension=" + ci.getName() + " it=" + SVDBItem.getName(it));
 			if (SVDBItem.getName(it).equals(ci.getName())) {
 				base = (SVDBClassDecl)it;
 			}
