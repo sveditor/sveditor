@@ -300,21 +300,49 @@ public class SVDBArgFileIndexBuildData implements
 		} else if (!fFailedSearches.contains(incfile)) {
 			// Need to look a bit harder, then. Could be a include-relative path
 			String first_elem = SVFileUtils.getPathFirstElem(incfile);
-		
+			
 			// Search through all the leaf directories
-			for (int i=0; i<fResolvedIncDirs.size(); i++) {
-				if (fIncDirDirs.get(i).contains(first_elem)) {
+			if (incfile.contains("..")) {
+				// relative path
+				for (int i=0; i<fResolvedIncDirs.size(); i++) {
 					String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+					try_path = SVFileUtils.resolvePath(try_path, 
+							fResolvedIncDirs.get(i), fFileSystemProvider, true);
+					
 					InputStream in = fFileSystemProvider.openStream(try_path);
+					in = fFileSystemProvider.openStream(try_path);
 					
 					if (in != null) {
 						ret = new Tuple<String, InputStream>(try_path, in);
-						fIncludeMap.put(incfile, fResolvedIncDirs.get(i));
+						fIncludeMap.put(incfile, try_path);
 						break;
 					}
-				}
+				}				
+			} else {
+				for (int i=0; i<fResolvedIncDirs.size(); i++) {
+					if (fIncDirDirs.get(i).contains(first_elem)) {
+						String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+						InputStream in = fFileSystemProvider.openStream(try_path);
+						
+						if (in != null) {
+							ret = new Tuple<String, InputStream>(try_path, in);
+							fIncludeMap.put(incfile, try_path);
+							break;
+						} else {
+							try_path = SVFileUtils.resolvePath(try_path, 
+									fResolvedIncDirs.get(i), fFileSystemProvider, true);
+							in = fFileSystemProvider.openStream(try_path);
+							
+							if (in != null) {
+								ret = new Tuple<String, InputStream>(try_path, in);
+								fIncludeMap.put(incfile, try_path);
+								break;
+							}
+						}
+					}
+				}				
 			}
-	
+			
 			if (ret == null) {
 				fFailedSearches.add(incfile);
 			}

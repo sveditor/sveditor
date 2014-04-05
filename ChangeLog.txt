@@ -1,6 +1,10 @@
 
 -- 1.5.6 Release --
 
+- #(nobug) - Correct a bug involving relative include directives: 
+  `include "../../foo.svh"
+ 
+
 ------------------------------------------------------------------------------
 -- 1.5.5 Release --
 
