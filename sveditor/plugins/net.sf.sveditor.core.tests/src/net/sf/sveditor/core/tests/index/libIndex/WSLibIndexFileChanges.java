@@ -35,13 +35,9 @@ import org.eclipse.core.runtime.Path;
 
 public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 	
-	private IProject			project;
-
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		project = null;
 	}
 
 	@Override
@@ -49,13 +45,6 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
 		SVCorePlugin.getJobMgr().dispose();
 		
-		if (project != null) {
-			TestUtils.deleteProject(project);
-		}
-		
-		System.out.println("fTmpDir=" + fTmpDir);
-		System.out.println("exists: " + fTmpDir.exists());
-	
 		super.tearDown();
 	}
 	
@@ -70,7 +59,7 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		project = TestUtils.createProject("project");
+		IProject project = TestUtils.createProject("project");
 		addProject(project);
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", project);

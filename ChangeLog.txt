@@ -1,6 +1,9 @@
 
 -- 1.5.6 Release --
 
+- #(nobug) - Correct a parse bug involving binsof expressions with
+  bin indexes
+
 - #(nobug) - Correct a bug involving relative include directives: 
   `include "../../foo.svh"
  

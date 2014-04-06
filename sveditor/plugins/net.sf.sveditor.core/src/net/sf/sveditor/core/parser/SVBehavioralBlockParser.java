@@ -130,9 +130,10 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		SVDBLocation start = fLexer.getStartLocation();
 		
 		// Try for a declaration here
-		if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
+		if (decl_allowed &&
+				(fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 				fLexer.isIdentifier() || fLexer.peekKeyword(
-						"parameter", "localparam", "typedef","struct","union","enum","virtual")) {
+						"parameter", "localparam", "typedef","struct","union","enum","virtual"))) {
 //			boolean builtin_type = fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes);
 
 			if (fDebugEn) {debug(" -- possible variable declaration " + fLexer.peek());}

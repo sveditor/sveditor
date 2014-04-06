@@ -33,12 +33,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestCrossIndexReferences extends SVCoreTestCaseBase {
-	private List<IProject>		fProjects;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fProjects = new ArrayList<IProject>();
 		CoreReleaseTests.clearErrors();
 		
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
@@ -47,9 +45,6 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		for (IProject p : fProjects) {
-			TestUtils.deleteProject(p);
-		}
 		StringBuilder sb = new StringBuilder();
 		for (Exception err : CoreReleaseTests.getErrors()){
 			sb.append(err.getMessage() + " ");
@@ -64,12 +59,12 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		IProject p1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/index/arg_file_cross_index_ref/p1");
-		fProjects.add(p1);
+		addProject(p1);
 		
 		IProject p2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/index/arg_file_cross_index_ref/p2");
-		fProjects.add(p2);
+		addProject(p2);
 		
 		IProjectDescription p2_desc = p2.getDescription();
 		p2_desc.setReferencedProjects(new IProject[] {p1});
@@ -101,12 +96,12 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		IProject p1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/index/arg_file_cross_index_ref/p1");
-		fProjects.add(p1);
+		addProject(p1);
 		
 		IProject p2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/index/arg_file_cross_index_ref/p2");
-		fProjects.add(p2);
+		addProject(p2);
 		
 		IProjectDescription p2_desc = p2.getDescription();
 		p2_desc.setReferencedProjects(new IProject[] {p1});
@@ -141,12 +136,12 @@ public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 		IProject p1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/index/arg_file_cross_index_ref/p1");
-		fProjects.add(p1);
+		addProject(p1);
 		
 		IProject p2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/index/arg_file_cross_index_ref/p2");
-		fProjects.add(p2);
+		addProject(p2);
 		
 		IProjectDescription p2_desc = p2.getDescription();
 		p2_desc.setReferencedProjects(new IProject[] {p1});

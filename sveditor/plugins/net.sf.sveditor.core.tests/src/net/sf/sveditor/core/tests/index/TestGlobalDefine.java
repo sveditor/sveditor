@@ -12,15 +12,9 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.io.File;
-
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.project.SVDBPath;
@@ -34,7 +28,6 @@ import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -79,11 +72,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 				new SVDBPath("${workspace_loc}/project/basic_lib_global_defs/basic_lib_pkg.sv"));
 		p_data.setProjectFileWrapper(fw);
 	
-		try {
-			int_testGlobalDefine("testLibIndexGlobalDefine", p_data, null);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
+		int_testGlobalDefine("testLibIndexGlobalDefine", p_data, null);
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
@@ -126,11 +115,7 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 				"${workspace_loc}/project/basic_lib_global_defs", true));
 		p_data.setProjectFileWrapper(fw);
 		
-		try {
-			int_testGlobalDefine("testSourceCollectionIndexGlobalDefine", p_data, null);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
+		int_testGlobalDefine("testSourceCollectionIndexGlobalDefine", p_data, null);
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}

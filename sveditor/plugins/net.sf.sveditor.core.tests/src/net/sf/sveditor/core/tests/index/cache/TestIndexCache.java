@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -39,6 +38,7 @@ import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -47,32 +47,8 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestIndexCache extends TestCase {
+public class TestIndexCache extends SVCoreTestCaseBase {
 	
-	private File			fTmpDir;
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		SVCorePlugin.getJobMgr().dispose();
-		
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-			fProject = null;
-		}
-		
-		if (fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
 
 	/**
 	public void testFileCacheBasics() throws IOException {
@@ -149,7 +125,7 @@ public class TestIndexCache extends TestCase {
 	public void testFileCacheBasicsUVM() {
 		String testname = "testFileCacheBasicsUVM";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		final File db_dir = new File(fTmpDir, "db");
+		final File db_dir = new File(fTmpDir, "db2");
 		File test_dir = new File(fTmpDir, "test");
 		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
@@ -161,7 +137,8 @@ public class TestIndexCache extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm = new File(test_dir, "uvm");
 		
-		fProject = TestUtils.createProject("uvm", uvm);
+		IProject project = TestUtils.createProject("uvm", uvm);
+		addProject(project);
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
@@ -257,20 +234,18 @@ public class TestIndexCache extends TestCase {
 	public void testFileCacheUVMDumpLoadBug() throws IOException, DBFormatException, DBWriteException {
 		String testname = "testFileCacheUVMDumpLoadBug";
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		final File db_dir = new File(fTmpDir, "db");
 		File test_dir = new File(fTmpDir, "test");
 		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
-		
-		assertTrue(db_dir.mkdirs());
 		assertTrue(test_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm = new File(test_dir, "uvm");
 		
-		fProject = TestUtils.createProject("uvm", uvm);
+		IProject project = TestUtils.createProject("uvm", uvm);
+		addProject(project);
 
 		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
 		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);

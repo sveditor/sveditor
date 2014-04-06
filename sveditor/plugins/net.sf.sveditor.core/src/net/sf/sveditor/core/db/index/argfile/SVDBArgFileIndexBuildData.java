@@ -294,7 +294,7 @@ public class SVDBArgFileIndexBuildData implements
 		
 		if (fIncludeMap.containsKey(incfile)) {
 			// Already have a candidate
-			String path = fIncludeMap.get(incfile) + "/" + incfile;
+			String path = fIncludeMap.get(incfile);
 			InputStream in = fFileSystemProvider.openStream(path);
 			ret = new Tuple<String, InputStream>(path, in);
 		} else if (!fFailedSearches.contains(incfile)) {
@@ -310,37 +310,46 @@ public class SVDBArgFileIndexBuildData implements
 							fResolvedIncDirs.get(i), fFileSystemProvider, true);
 					
 					InputStream in = fFileSystemProvider.openStream(try_path);
-					in = fFileSystemProvider.openStream(try_path);
 					
 					if (in != null) {
 						ret = new Tuple<String, InputStream>(try_path, in);
 						fIncludeMap.put(incfile, try_path);
-						break;
 					}
 				}				
 			} else {
 				for (int i=0; i<fResolvedIncDirs.size(); i++) {
-					if (fIncDirDirs.get(i).contains(first_elem)) {
+					if (first_elem.equals(incfile)) {
 						String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
 						InputStream in = fFileSystemProvider.openStream(try_path);
-						
+					
 						if (in != null) {
 							ret = new Tuple<String, InputStream>(try_path, in);
 							fIncludeMap.put(incfile, try_path);
 							break;
-						} else {
-							try_path = SVFileUtils.resolvePath(try_path, 
-									fResolvedIncDirs.get(i), fFileSystemProvider, true);
-							in = fFileSystemProvider.openStream(try_path);
-							
+						}
+					} else {
+						if (fIncDirDirs.get(i).contains(first_elem)) {
+							String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+							InputStream in = fFileSystemProvider.openStream(try_path);
+						
 							if (in != null) {
 								ret = new Tuple<String, InputStream>(try_path, in);
 								fIncludeMap.put(incfile, try_path);
 								break;
+							} else {
+								try_path = SVFileUtils.resolvePath(try_path, 
+									fResolvedIncDirs.get(i), fFileSystemProvider, true);
+								in = fFileSystemProvider.openStream(try_path);
+							
+								if (in != null) {
+									ret = new Tuple<String, InputStream>(try_path, in);
+									fIncludeMap.put(incfile, try_path);
+									break;
+								}
 							}
 						}
 					}
-				}				
+				}
 			}
 			
 			if (ret == null) {
@@ -393,9 +402,9 @@ public class SVDBArgFileIndexBuildData implements
 					String leaf = SVFileUtils.getPathLeaf(fd);
 					inc_dir_files.add(leaf);
 					
-					if (!fIncludeMap.containsKey(leaf)) {
-						fIncludeMap.put(leaf, resolved_inc_dir);
-					}
+//					if (!fIncludeMap.containsKey(leaf)) {
+//						fIncludeMap.put(leaf, fd);
+//					}
 				}
 			}
 		}

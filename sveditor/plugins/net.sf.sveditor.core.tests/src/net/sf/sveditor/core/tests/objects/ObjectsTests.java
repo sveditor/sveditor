@@ -41,7 +41,6 @@ public class ObjectsTests extends SVCoreTestCaseBase {
 		return suite;
 	}
 
-	private IProject 				fp1, fp2 ;
 	private SVDBProjectData 		fp1_pdata, fp2_pdata ;
 	private SVProjectFileWrapper 	fp1_fwrapper, fp2_fwrapper ;
 	private ObjectsTreeNode 		fTopNode ;
@@ -62,13 +61,15 @@ public class ObjectsTests extends SVCoreTestCaseBase {
 		
 		// Projec p1
 		
-		fp1 = TestUtils.setupIndexWSProject(
+		IProject fp1 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p1", 
 				"/data/objects/p1");
+		addProject(fp1);
 		
-		fp2 = TestUtils.setupIndexWSProject(
+		IProject fp2 = TestUtils.setupIndexWSProject(
 				null, fTmpDir, "p2", 
 				"/data/objects/p2");
+		addProject(fp2);
 		
 		fp1_pdata = pmgr.getProjectData(fp1);
 		fp1_fwrapper = fp1_pdata.getProjectFileWrapper();
@@ -147,13 +148,6 @@ public class ObjectsTests extends SVCoreTestCaseBase {
 	protected void tearDown() throws Exception {
 		SVCorePlugin.getDefault().getSVDBIndexRegistry().close();
 		SVCorePlugin.getJobMgr().dispose();
-		
-		if (fp1 != null) {
-			TestUtils.deleteProject(fp1);
-		}
-		if (fp2 != null) {
-			TestUtils.deleteProject(fp2);
-		}
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 		

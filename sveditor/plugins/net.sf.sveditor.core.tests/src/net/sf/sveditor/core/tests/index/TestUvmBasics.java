@@ -438,7 +438,22 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 				}, true);
 		
 		for (SVDBDeclCacheItem it : items) {
-			assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+			if (!it.isFileTreeItem()) {
+				assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+			}
+		}
+		
+		for (SVDBDeclCacheItem it : items) {
+			if (it.isFileTreeItem()) {
+//				System.out.println("it=" + it.getName() + " file=" + it.getFilename());
+				if (it.getSVDBItem() == null) {
+					for (String path : index.getFileList(new NullProgressMonitor())) {
+						System.out.println("  path=" + path);
+					}
+					assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+				}
+				assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+			}
 		}
 		
 		/*
