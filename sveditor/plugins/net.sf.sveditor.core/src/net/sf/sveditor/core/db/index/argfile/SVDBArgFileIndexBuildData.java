@@ -318,36 +318,35 @@ public class SVDBArgFileIndexBuildData implements
 				}				
 			} else {
 				for (int i=0; i<fResolvedIncDirs.size(); i++) {
+					String try_path = null;
 					if (first_elem.equals(incfile)) {
-						String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+						try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+					} else {
+						if (fIncDirDirs.get(i).contains(first_elem)) {
+							try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+						}
+					}
+					
+					if (try_path != null) {
 						InputStream in = fFileSystemProvider.openStream(try_path);
 					
 						if (in != null) {
 							ret = new Tuple<String, InputStream>(try_path, in);
 							fIncludeMap.put(incfile, try_path);
-							break;
-						}
-					} else {
-						if (fIncDirDirs.get(i).contains(first_elem)) {
-							String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
-							InputStream in = fFileSystemProvider.openStream(try_path);
+						} else {
+							try_path = SVFileUtils.resolvePath(try_path, 
+								fResolvedIncDirs.get(i), fFileSystemProvider, true);
+							in = fFileSystemProvider.openStream(try_path);
 						
 							if (in != null) {
 								ret = new Tuple<String, InputStream>(try_path, in);
 								fIncludeMap.put(incfile, try_path);
-								break;
-							} else {
-								try_path = SVFileUtils.resolvePath(try_path, 
-									fResolvedIncDirs.get(i), fFileSystemProvider, true);
-								in = fFileSystemProvider.openStream(try_path);
-							
-								if (in != null) {
-									ret = new Tuple<String, InputStream>(try_path, in);
-									fIncludeMap.put(incfile, try_path);
-									break;
-								}
 							}
 						}
+					}
+					
+					if (ret != null) {
+						break;
 					}
 				}
 			}

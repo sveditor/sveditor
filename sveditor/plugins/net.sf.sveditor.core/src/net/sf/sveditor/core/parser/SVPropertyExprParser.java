@@ -104,8 +104,14 @@ public class SVPropertyExprParser extends SVParserBase {
 			
 			SVDBExpr p_expr = property_expr();
 			fLexer.readOperator(")");
+			
+			if (p_expr == null) {
+				error("Property expression is null");
+			}
 
-			debug("inner expr: " + p_expr.getClass().getName());
+			if (fDebugEn) {
+				debug("inner expr: " + p_expr.getClass().getName());
+			}
 
 			// Some ambiguity between sequence-match expression
 			// and a paren property expression

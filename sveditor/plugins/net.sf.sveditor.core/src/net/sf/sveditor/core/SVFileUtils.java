@@ -84,9 +84,33 @@ public class SVFileUtils {
 		int idx;
 		
 		if ((idx = path.indexOf('/', 1)) != -1) { // avoid leading '/'
-			if (path.length() > 0 && path.charAt(0) == '/') {
-				first = path.substring(1, idx);
+			int first_idx = path.indexOf('/');
+		
+			if (first_idx != -1) {
+				if (first_idx != idx) {
+					// There was a leading '/'
+					first = path.substring(1, idx);
+				} else {
+					// We caught the first '/' with our initial search.
+					// This happens with paths like ./foo
+					if (path.charAt(idx-1) == '.') {
+						// Yep
+						int next_idx = path.indexOf('/', idx+1);
+					
+						if (next_idx != -1) {
+							// up to there
+							first = path.substring(idx+1, next_idx);
+						} else {
+							// Take the remainder of the string
+							first = path.substring(idx+1);
+						}
+					} else {
+						// No, this is probably a path like: foo/bar.svh
+						first = path.substring(0, idx);
+					}
+				}
 			} else {
+				// There was no leading '/'
 				first = path.substring(0, idx);
 			}
 		} else if ((idx = path.indexOf('\\', 1)) != -1) {
