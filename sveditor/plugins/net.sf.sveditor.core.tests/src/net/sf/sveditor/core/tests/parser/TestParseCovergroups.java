@@ -84,4 +84,22 @@ public class TestParseCovergroups extends TestCase {
 			;
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"c","cg"});
 	}
+	
+	public void testIndexedBinsOf() throws SVParseException {
+	    SVCorePlugin.getDefault().enableDebug(false);
+	    String doc =
+	      "class c;\n" +
+	      " covergroup foobar;\n" +
+	      "   foo_cp : coverpoint (foo);\n" +
+	      "   foo2_cp : coverpoint foo2;\n" +
+	      "   foo_cross : cross foo_cp, foo2_cp {\n" +
+	      "		bins foo_val = binsof(foo_cp.foo[1]);\n" +
+	      "   }\n" +
+	      " endgroup\n" +
+	      "endclass\n"
+	      ;
+
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"c","foobar"});
+	}
+	
 }

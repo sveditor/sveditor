@@ -555,6 +555,19 @@ public class TestParseBehavioralStmts extends TestCase {
 
 		runTest(getName(), doc, new String[] {"foobar"});
 	}
+
+	public void testAmbiguousDeclarationIndexedArr() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+				"function void foo();\n" +
+				"	if (bar) begin\n" +
+				"		m_arr[count+:4] = 1;\n" +
+				"	end\n" +
+				"endfunction\n"
+			;
+
+		runTest(getName(), doc, new String[] {"foo"});
+	}
 	
 	private void runTest(
 			String			testname,

@@ -410,6 +410,14 @@ public class SVCovergroupParser extends SVParserBase {
 			bins_expr = new SVDBFieldAccessExpr(bins_expr, false, 
 					fParsers.exprParser().idExpr());
 		}
+		
+		if (fLexer.peekOperator("[")) {
+			// TODO: capture
+			fLexer.eatToken();
+			fParsers.exprParser().expression();
+			fLexer.readOperator("]");
+		}
+
 		if (not_expr != null) {
 			not_expr.setExpr(bins_expr);
 			select_c.setBinsExpr(not_expr);

@@ -807,22 +807,25 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public void error(SVParseException e) throws SVParseException {
-		fParseErrorCount++;
+		
+		if (!fDisableErrors) {
+			fParseErrorCount++;
 
-		error(e.getMessage(), e.getFilename(), e.getLineno(), e.getLinepos());
+			error(e.getMessage(), e.getFilename(), e.getLineno(), e.getLinepos());
 		
-		// Send the full error forward
-		String msg = e.getMessage() + " " + 
-				e.getFilename() + ":" + e.getLineno();
-		if (fDebugEn) {
-			fLog.debug("Parse Error: " + msg, e);
+			// Send the full error forward
+			String msg = e.getMessage() + " " + 
+					e.getFilename() + ":" + e.getLineno();
+			if (fDebugEn) {
+				fLog.debug("Parse Error: " + msg, e);
+			}
+		
+			if (error_limit_reached()) {
+				throw new SVAbortParseException();
+			}
+		
+			throw e;
 		}
-		
-		if (error_limit_reached()) {
-			throw new SVAbortParseException();
-		}
-		
-		throw e;
 	}
 	
 	public void disableErrors(boolean dis) {

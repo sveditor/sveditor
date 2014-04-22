@@ -81,7 +81,7 @@ public class EditorTestCaseBase extends TestCase {
 		SVCorePlugin.getJobMgr().dispose();
 		
 		for (IProject p : fProjects) {
-			TestUtils.deleteProject(p);
+			TestUtils.deleteProject(getName(), p);
 		}
 		
 		if (fTmpDir != null && fTmpDir.exists()) {

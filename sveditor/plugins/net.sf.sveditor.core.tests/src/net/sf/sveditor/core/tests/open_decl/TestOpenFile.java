@@ -44,22 +44,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOpenFile extends SVCoreTestCaseBase {
-	private IProject		fProject;
 	
-	protected void setUp() throws Exception {
-		super.setUp();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
-		}
-		
-		super.tearDown();
-	}
-
 	// Using an obsolete testing technique
 	public void fixme_testRelPathOpenDecl() throws IOException {
 		String testname = "testRelPathOpenDecl";
@@ -73,7 +58,8 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 			
 			File subdir2 = new File(fTmpDir, "pkg_rel_path_include/subdir1/subdir2");
 			
-			fProject = TestUtils.createProject("subdir2", subdir2);
+			IProject project = TestUtils.createProject("subdir2", subdir2);
+			addProject(project);
 			
 			ISVDBIndex target_index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",

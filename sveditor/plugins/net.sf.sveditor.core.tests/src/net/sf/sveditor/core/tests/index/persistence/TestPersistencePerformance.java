@@ -77,7 +77,7 @@ public class TestPersistencePerformance extends TestCase {
 		super.tearDown();
 		
 		if (fProject != null) {
-			TestUtils.deleteProject(fProject);
+			TestUtils.deleteProject(getName(), fProject);
 		}
 		if (fTmpDir != null && fTmpDir.exists()) {
 			TestUtils.delete(fTmpDir);

@@ -380,7 +380,7 @@ public class TestUtils {
 		return project;
 	}
 
-	public static void deleteProject(final IProject project_dir) {
+	public static void deleteProject(final String testname, final IProject project_dir) {
 		if (project_dir != null && project_dir.exists()) {
 			Job delete_job = new Job("Delete Project " + project_dir.getName()) {
 				
@@ -390,7 +390,7 @@ public class TestUtils {
 						project_dir.close(new NullProgressMonitor());
 						project_dir.delete(true, true, new NullProgressMonitor());
 					} catch (CoreException e) {
-						System.out.println("Failed to delete project: " + project_dir.getName());
+						System.out.println("Test: " + testname + " Failed to delete project: " + project_dir.getName());
 						e.printStackTrace();
 						TestCase.fail("Failed to delete project " + project_dir.getFullPath() + ": " +
 								e.getMessage());

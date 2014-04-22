@@ -106,7 +106,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle(getName());
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		IProject project = TestUtils.createProject("project");
 		addProject(project);
@@ -118,6 +118,56 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/arg_file_relative_include_directive/root/root.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "cls1", "cls2");
+
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testRelativeIncludeDirective2() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle(getName());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
+		
+		utils.copyBundleDirToWS("/data/arg_file_relative_include_directive2/", project);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/project/arg_file_relative_include_directive2/root.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(fLog, index, "cls1", "cls2");
+
+		LogFactory.removeLogHandle(log);
+	}
+
+	public void testRelativeIncludeDirective3() {
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		LogHandle log = LogFactory.getLogHandle(getName());
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		IProject project = TestUtils.createProject("project");
+		addProject(project);
+		
+		utils.copyBundleDirToWS("/data/arg_file_relative_include_directive3/", project);
+		
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+		
+		ISVDBIndex index = rgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/project/arg_file_relative_include_directive3/root.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		

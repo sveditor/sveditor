@@ -43,7 +43,11 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			boolean pass = (root.getProjects().length == 0);
 			if (!pass) {
 				for (IProject p : root.getProjects()) {
+					System.out.println("Test: " + getName() + " Project: " + p.getName() + " still exists");
 					p.delete(true, new NullProgressMonitor());
+					if (p.exists()) {
+						System.out.println("Test: " + getName() + " Error: failed to delete project " + p.getName());
+					}
 				}
 			}
 			assertTrue("Workspace contains " + root.getProjects().length + " projects", pass);
@@ -96,7 +100,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			}
 			
 			for (IProject p : fProjectList) {
-				TestUtils.deleteProject(p);
+				TestUtils.deleteProject(getName(), p);
 			}
 		} else {
 			fCacheFactory.dispose();

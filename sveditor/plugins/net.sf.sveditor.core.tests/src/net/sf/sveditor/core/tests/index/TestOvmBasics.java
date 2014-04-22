@@ -73,7 +73,6 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		IndexTestUtils.assertNoErrWarn(fLog, index);
 		
 		index.dispose();
-		TestUtils.deleteProject(p);
 		LogFactory.removeLogHandle(log);
 	}
 

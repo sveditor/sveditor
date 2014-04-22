@@ -81,11 +81,7 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 		String path = "${workspace_loc}" +
 			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
 		
-		try {
-			int_testIndexParse(index, path);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
+		int_testIndexParse(index, path);
 	}
 
 	public void testWSArgFileIndexParse() {
@@ -104,11 +100,7 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 		String path = "${workspace_loc}" +
 			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
 		
-		try {
-			int_testIndexParse(index, path);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
+		int_testIndexParse(index, path);
 	}
 
 	public void testWSSourceCollectionIndexParse() {
@@ -127,11 +119,7 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 		String path = "${workspace_loc}" +
 			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
 		
-		try {
-			int_testIndexParse(index, path);
-		} finally {
-			TestUtils.deleteProject(project_dir);
-		}
+		int_testIndexParse(index, path);
 	}
 
 	private void int_testIndexParse(ISVDBIndex index, String path) {
