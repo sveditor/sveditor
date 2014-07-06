@@ -69,6 +69,34 @@ public class TestLexer extends TestCase {
 		runTest(testname, content, new String[] {"c", "test"});
 	}
 
+	public void testEscapedIdentifier() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"module \\1ff ;\n" +
+			"	reg a, b, c, d, e;\n" +
+			"	reg f, g, h, i;\n" +
+			"endmodule\n";
+		
+		runTest(getName(), content, new String[] {"1ff", "a", "b", "d", "e"});
+	}
+	
+	public void testEscapedIdentifier_2() throws SVParseException {
+		String content =
+				"module tb;\n" +
+				"	wire a;\n" +
+				"	wire \\1w ; // <- this is ok\n" +
+				"	wire [1:0]\\2w ; // <- shows syntax error\n" +
+				"	wire [2:0] \\3w ; // <- shows syntax error\n" +
+				"	assign a = \\1w ; // <- shows syntax error\n" +
+				"\n" +
+				"	pullup r1 (\\1w ); // <- shows syntax error\n" + 
+				"endmodule\n";
+		
+		runTest(getName(), content, new String[] {
+			"1w", "2w", "3w"});
+				
+	}
+
 	public void EXP_FAIL_testUnDefinedMacroCallWithStatement() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testDefinedMacroCallWithStatement";
