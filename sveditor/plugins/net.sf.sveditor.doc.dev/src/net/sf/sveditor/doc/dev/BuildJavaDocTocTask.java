@@ -69,12 +69,12 @@ public class BuildJavaDocTocTask extends MatchingTask {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked","rawtypes"})
 	public void execute() throws BuildException {
 		for (FileSet fs : fFileSetList) {
-			Iterator<FileResource> fr_i = (Iterator<FileResource>)fs.iterator();
-			while (fr_i.hasNext()) {
-				FileResource fr = fr_i.next();
+			Iterator fs_i = fs.iterator();
+			while (fs_i.hasNext()) {
+				FileResource fr = (FileResource)fs_i.next();
 				String pkg_name = getPackageName(fr.getFile());
 				fPackageList.add(new PackageFileRef(fr.getFile(), pkg_name));
 			}

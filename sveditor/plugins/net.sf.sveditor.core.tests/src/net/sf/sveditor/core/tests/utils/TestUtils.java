@@ -300,7 +300,7 @@ public class TestUtils {
 		}
 	}
 	
-	public static void mkdir(IContainer c, String dir) {
+	public static IFolder mkdir(IContainer c, String dir) {
 		IFolder f = c.getFolder(new Path(dir));
 		
 		try {
@@ -308,6 +308,8 @@ public class TestUtils {
 		} catch (CoreException e) {
 			TestCase.fail("Failed to create directory \"" + dir + "\": " + e.getMessage());
 		}
+		
+		return f;
 	}
 	
 	public static IProject createProject(String name) {

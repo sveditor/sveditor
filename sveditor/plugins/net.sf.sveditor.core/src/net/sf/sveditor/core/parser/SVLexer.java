@@ -833,10 +833,12 @@ public class SVLexer extends SVToken {
 			}
 		} else if (ch == '\\') {
 			// Escaped identifier
+			fStringBuffer.setLength(0); // Clear '\' from buffer 
 			while ((ch = fScanner.get_ch()) != -1 && !Character.isWhitespace(ch)) {
 				append_ch(ch);
 			}
 			fScanner.unget_ch(ch);
+			fIsIdentifier = true;
 		}
 
 		if (fStringBuffer.length() == 0 && !fIsString) {
