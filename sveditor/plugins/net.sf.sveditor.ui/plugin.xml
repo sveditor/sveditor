@@ -1242,13 +1242,7 @@ end
             description="Always Flop Instantiation"
             name="always_ff">
          <pattern>
-         /**
- * Variable: ${flop}
- *
- * ${flop} description here.  
- * 
- */
-always_ff @(posedge ${clk} or negedge ${reset_n}) begin
+            always_ff @(posedge ${clk} or negedge ${reset_n}) begin
    if (!${reset_n})  begin
       ${flop} &lt;= 1'b0;
    end
@@ -1268,17 +1262,11 @@ end
             description="Always Latch Instantiation"
             name="always_latch">
          <pattern>
-         /**
- * Variable: ${latch}
- * 
- * ${latch} description here.  
- * 
- */
-always_latch begin
+            always_latch begin
    if (!${reset_n})  begin
       ${latch} &lt;= 1'b0;
    end
-   else if (${clk}) begin
+   else begin
       ${latch} &lt;= ${cursor};
    end
 end
@@ -1309,18 +1297,7 @@ end
             description="Function Instantiation"
             name="function">
          <pattern>
-         /**
- * Function: ${function_name}
- * 
- * This function ...
- * 
- * Parameters:
- * ${port_list}
- *
- * Returns:
- * ${return_type}
- */
-function ${return_type} ${function_name} (${port_list});
+            function ${return_type} ${function_name} (${port_list});
    ${cursor}
 endfunction
          </pattern>
@@ -1335,18 +1312,7 @@ endfunction
             description="Task Instantiation"
             name="task">
          <pattern>
-         /**
- * Task: ${task_name}
- * 
- * This task ...
- * 
- * Parameters:
- * ${port_list}
- *
- * Returns:
- * 
- */
-task ${task_name} (${port_list});
+            task ${task_name} (${port_list});
    ${cursor}
 endtask
          </pattern>
@@ -1508,10 +1474,7 @@ endcase
             description="Initial Block Instantiation"
             name="initial">
          <pattern>
-         /**
- * Initial block that ...
- */
-initial begin
+            initial begin
    ${cursor}
 end
          </pattern>
@@ -1526,10 +1489,7 @@ end
             description="Final Block Instantiation"
             name="final">
          <pattern>
-         /**
- * Final block that ...
- */
-final begin
+            final begin
    ${cursor}
 end
          </pattern>
