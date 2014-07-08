@@ -562,15 +562,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				fQualifiers = 0;
 			} else if (is_always(tok))  {
 				tok = indent_always();
-			} else if (tok.isId("initial") || tok.isId("final") || tok.isId("generate")) {
+			} else if (tok.isId("initial") || tok.isId("final")) {
 				tok = next_s();
 				tok = indent_block_or_statement(null, false);
-				// look for and consume endgenerate
-				if (tok.isId("endgenerate"))  {
-					tok = next_s();
-				}
-				
 				fQualifiers = 0;
+			} else if (tok.isId("generate")) {
+				tok = next_s();
+				tok = indent_generate();
 			} else if (tok.isId("covergroup")) {
 				tok = indent_covergroup();
 				fQualifiers = 0;
@@ -738,6 +736,40 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (fDebugEn) {
 			debug("--> indent_covergroup() next=" +
 				((tok != null)?tok.getImage():"null"));
+		}
+		
+		if (fTestMode) {
+			if (level != fIndentStack.size()) {
+				throw new RuntimeException("Indent stack out-of-sync: " + 
+						"entry=" + level + " exit=" + fIndentStack.size());
+			}
+		}
+		
+		return tok;
+	}
+	
+	private SVIndentToken indent_generate() {
+		int level = fIndentStack.size();
+		SVIndentToken tok = current_s();
+		
+		if (fDebugEn) {
+			debug("--> indent_generate()");
+		}
+		
+		while (tok != null) {
+			
+			if (tok.isId("endgenerate")) {
+				break;
+			} else {
+				tok = indent_block_or_statement(null, false);
+			}
+		}
+		
+		tok = next_s();
+		
+		if (fDebugEn) {
+			debug("--> indent_generate() next=" +
+					((tok != null)?tok.getImage():"null"));
 		}
 		
 		if (fTestMode) {

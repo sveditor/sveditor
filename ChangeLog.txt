@@ -2,6 +2,7 @@
 -- 1.5.7 Release --
 
 - #(325) - Correct handling of escaped identifiers
+- #(321) - Corrected indentation of generate blocks
 
 ------------------------------------------------------------------------------
 
