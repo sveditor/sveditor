@@ -757,6 +757,70 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testGenerate() {
+		LogHandle log = LogFactory.getLogHandle("testGenerate");
+		String content =
+			"module t;\n" +
+			"parameter a = 0;\n" +
+			"generate\n" +
+			"if(a == 0) begin\n" +
+			"// ...\n" +
+			"end\n" +
+			"if(a == 1) begin\n" +
+			"// ...\n" +
+			"end\n" +
+			"endgenerate\n" +
+			"generate\n" +
+			"begin:bob\n" +
+			"if(a == 0) begin\n" +
+			"// ...\n" +
+			"end\n" +
+			"if(a == 1) begin\n" +
+			"// ...\n" +
+			"end\n" +
+			"end\n" +
+			"endgenerate\n" +
+			"endmodule\n"
+			;
+		String expected =
+				"module t;\n" +
+				"	parameter a = 0;\n" +
+				"	generate\n" +
+				"		if(a == 0) begin\n" +
+				"			// ...\n" +
+				"		end\n" +
+				"		if(a == 1) begin\n" +
+				"			// ...\n" +
+				"		end\n" +
+				"	endgenerate\n" +
+				"	generate\n" +
+				"	begin:bob\n" +
+				"		if(a == 0) begin\n" +
+				"			// ...\n" +
+				"		end\n" +
+				"		if(a == 1) begin\n" +
+				"			// ...\n" +
+				"		end\n" +
+				"	end\n" +
+				"	endgenerate\n" +
+				"endmodule\n"
+				;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare("testGenerate", expected, result);
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testNewLineIf() {
 		LogHandle log = LogFactory.getLogHandle("testNewLineIf");
 		String content =

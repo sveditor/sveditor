@@ -35,6 +35,7 @@ my %hash_of_variables = (
 # Examples are compiled output, log files, synthesis output directories etc.
 my @ignored_directories = ("log", "directory_to_ignore");
 
+# Step 4 - Argument Files
 # Replace this with the list of files.f's that you have
 my @list_of_argument_files = ("\${CHIP}/sim/files.f");
 
