@@ -3,6 +3,7 @@
 
 - #(325) - Correct handling of escaped identifiers
 - #(321) - Corrected indentation of generate blocks
+- #(326) - Comments after assign statements incorrectly indented 
 
 ------------------------------------------------------------------------------
 
