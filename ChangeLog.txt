@@ -4,6 +4,8 @@
 - #(325) - Correct handling of escaped identifiers
 - #(321) - Corrected indentation of generate blocks
 - #(326) - Comments after assign statements incorrectly indented 
+- #(nobug) - Partially sorting out open & close brace indent on assign and other similar statements
+             - Formatting seems to work, but "un-indenting" a close brace has issues
 
 ------------------------------------------------------------------------------
 

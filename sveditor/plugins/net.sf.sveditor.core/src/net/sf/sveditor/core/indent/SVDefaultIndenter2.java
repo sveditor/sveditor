@@ -1064,11 +1064,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				//        )
 				//     );
 				// Indent on successive (
-				if (tok.isOp("(")) {
+				if (is_open_brace(tok)) {
 					start_of_scope(tok);
 				// Out-dent on successive )
-				} else if (tok.isOp(")")) {
-					leave_scope();
+				} else if (is_close_brace(tok)) {
+					leave_scope(tok);
 				}
 				tok = next_s();
 			}

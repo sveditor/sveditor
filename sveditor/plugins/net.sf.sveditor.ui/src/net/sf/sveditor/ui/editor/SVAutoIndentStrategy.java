@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Matthew Ballance - initial implementation
+ *	 Matthew Ballance - initial implementation
  ****************************************************************************/
 package net.sf.sveditor.ui.editor;
 
@@ -49,7 +49,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 
 	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
 		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
-		fLog.debug("    content=\"" + cmd.text + "\"");
+		fLog.debug("	content=\"" + cmd.text + "\"");
 
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
@@ -211,106 +211,106 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			 */
 			if (indent_newline) {
 				target_lineno++;
-   				fLog.debug("target_lineno=" + target_lineno);
+				fLog.debug("target_lineno=" + target_lineno);
 			}
 			indenter.setAdaptiveIndentEnd(target_lineno);
 			indenter.indent();
 
 			IRegion cmd_line = doc.getLineInformationOfOffset(cmd.offset);
 			String indent = null;
-    		if (indent_newline) {
-        		// Want the indent of the next line
-    			int line_offset = doc.getLineOfOffset(cmd.offset);
-    			indent = indenter.getLineIndent(line_offset+2);
-    		} else {
-    			// Want indent of this line
-    			indent = indenter.getLineIndent(doc.getLineOfOffset(cmd.offset)+1);
-    		}
-    		
-    		if (indent != null) {
-    			if (indent_newline) {
-    				fLog.debug("Indented Content:\n" +
-    						indenter.indent());
-    				fLog.debug("indent=\"" + indent + "\"");
-    				cmd.text += indent;
-    				// Increment the cmd.length by the amount of leading whitespace. This
-    				// causes the correct amount of leading whitespace (as determined by 
-    				// the indenter) to be added to the start of the line.
-    				// 
-    				// This case occurs when the user adds a new-line in the middle of
-    				// leading whitespace for the line.
-    				int idx = cmd.offset;
-    				while (idx < doc.getLength() && 
-    						(doc.getChar(idx) != '\r' && doc.getChar(idx) != '\n') &&
-    						Character.isWhitespace(doc.getChar(idx))) {
-    					cmd.length++;
-    					idx++;
-    				}
-    			} else {
-    				int n_ws_chars = 0;
-    				// replace any leading whitespace with the new indent
-    				while ((cmd_line.getOffset()+n_ws_chars) < doc.getLength() &&
-    						Character.isWhitespace(doc.getChar(cmd_line.getOffset()+n_ws_chars)) &&
-    						(doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\n' &&
-    								doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\r')) {
-    					n_ws_chars++;
-    				}
-    				
-    				// Only indent in certain cases:
-    				// - A closing brace decreases the indent
-    				// - The command text completes an end-keyword at the start of the
-    				//   line that decreases the indent
-    				if (cmd.text.equals("}") && (indent.length() < n_ws_chars)) {
-    					doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
-    					cmd.offset += (indent.length() - n_ws_chars);
-    				} else {
-    					int idx = cmd.offset-1, c;
-    					doc_str.setLength(0);
-    					doc_str.append(cmd.text);
-    					while (idx >= 0) {
-    						c = doc.getChar(idx);
-    						if (!Character.isWhitespace(c)) {
-    							doc_str.append((char)c);
-    							idx--;
-    						} else {
-    							break;
-    						}
-    					}
-    					doc_str.reverse();
-    					// unindent the following if typed
-    					if ((doc_str.toString().startsWith("end") ||
-    							doc_str.toString().equals("begin") ||
-    							doc_str.toString().equals("while") ||
-    							doc_str.toString().equals("join") ||
-    							doc_str.toString().equals("join_any") ||
-    							doc_str.toString().equals("join_none")) 
-    						&& (indent.length() < n_ws_chars)) {
-        					doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
-        					cmd.offset += (indent.length() - n_ws_chars);
-    					}
-    				}
-    			}
-    		}
+			if (indent_newline) {
+				// Want the indent of the next line
+				int line_offset = doc.getLineOfOffset(cmd.offset);
+				indent = indenter.getLineIndent(line_offset+2);
+			} else {
+				// Want indent of this line
+				indent = indenter.getLineIndent(doc.getLineOfOffset(cmd.offset)+1);
+			}
+			
+			if (indent != null) {
+				if (indent_newline) {
+					fLog.debug("Indented Content:\n" +
+							indenter.indent());
+					fLog.debug("indent=\"" + indent + "\"");
+					cmd.text += indent;
+					// Increment the cmd.length by the amount of leading whitespace. This
+					// causes the correct amount of leading whitespace (as determined by 
+					// the indenter) to be added to the start of the line.
+					// 
+					// This case occurs when the user adds a new-line in the middle of
+					// leading whitespace for the line.
+					int idx = cmd.offset;
+					while (idx < doc.getLength() && 
+							(doc.getChar(idx) != '\r' && doc.getChar(idx) != '\n') &&
+							Character.isWhitespace(doc.getChar(idx))) {
+						cmd.length++;
+						idx++;
+					}
+				} else {
+					int n_ws_chars = 0;
+					// replace any leading whitespace with the new indent
+					while ((cmd_line.getOffset()+n_ws_chars) < doc.getLength() &&
+							Character.isWhitespace(doc.getChar(cmd_line.getOffset()+n_ws_chars)) &&
+							(doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\n' &&
+									doc.getChar(cmd_line.getOffset()+n_ws_chars) != '\r')) {
+						n_ws_chars++;
+					}
+					
+					// Only indent in certain cases:
+					// - A closing brace decreases the indent
+					// - The command text completes an end-keyword at the start of the
+					//   line that decreases the indent
+					if ((cmd.text.equals("}") || cmd.text.equals(")")) && (indent.length() < n_ws_chars)) {
+						doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
+						cmd.offset += (indent.length() - n_ws_chars);
+					} else {
+						int idx = cmd.offset-1, c;
+						doc_str.setLength(0);
+						doc_str.append(cmd.text);
+						while (idx >= 0) {
+							c = doc.getChar(idx);
+							if (!Character.isWhitespace(c)) {
+								doc_str.append((char)c);
+								idx--;
+							} else {
+								break;
+							}
+						}
+						doc_str.reverse();
+						// unindent the following if typed
+						if ((doc_str.toString().startsWith("end") ||
+								doc_str.toString().equals("begin") ||
+								doc_str.toString().equals("while") ||
+								doc_str.toString().equals("join") ||
+								doc_str.toString().equals("join_any") ||
+								doc_str.toString().equals("join_none")) 
+							&& (indent.length() < n_ws_chars)) {
+							doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
+							cmd.offset += (indent.length() - n_ws_chars);
+						}
+					}
+				}
+			}
 			
 		} catch (BadLocationException e) {
 			fLog.error("Problem with auto-indent", e);
 		}
 	}
 	
-    public void customizeDocumentCommand(IDocument doc, DocumentCommand cmd) {
-    	if (!fAutoIndentEnabled) {
-    		return;
-    	}
-    	// Normally, cmd.text.length will be 1 (character typed). 
-    	// When tab==spaces, however, cmd.text will contain a 
-    	// series of spaces
-    	if (cmd.length == 0 && cmd.text.trim().length() <= 1) {
-    		// adding text
-    		indentOnKeypress(doc, cmd);
-    	} else if (cmd.text.length() > 1) {
-    		indentPastedContent(doc, cmd);
-    	}
-    }
+	public void customizeDocumentCommand(IDocument doc, DocumentCommand cmd) {
+		if (!fAutoIndentEnabled) {
+			return;
+		}
+		// Normally, cmd.text.length will be 1 (character typed). 
+		// When tab==spaces, however, cmd.text will contain a 
+		// series of spaces
+		if (cmd.length == 0 && cmd.text.trim().length() <= 1) {
+			// adding text
+			indentOnKeypress(doc, cmd);
+		} else if (cmd.text.length() > 1) {
+			indentPastedContent(doc, cmd);
+		}
+	}
 
 	private boolean isLineDelimiter(IDocument document, String text) {
 		String[] delimiters= document.getLegalLineDelimiters();
