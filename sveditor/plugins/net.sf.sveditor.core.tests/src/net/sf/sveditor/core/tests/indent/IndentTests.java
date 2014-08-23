@@ -637,12 +637,44 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"assign a = \n" +
 			"//comment2.1\n" +
 			"b;\n" +
+			"//comment2.2\n" +
+			"assign a = (\n" +
+			"//comment2.2.1\n" +
+			"b +\n" +
+			"//comment2.2.2\n" +
+			"(\n" +
+			"//comment2.2.3\n" +
+			"1 + 2\n" +
+			"//comment2.2.4\n" +
+			")\n" +
+			"//comment2.2.5\n" +
+			");\n" +
 			"//comment3\n" +
 			"submod sm1 (.a(a),\n" +
 			"//comment4\n" +
-			".b(b)\n" +
-			");\n" +
+			".b(b),\n" +
 			"//comment5\n" +
+			".c(\n" +
+			"//comment5.1\n" +
+			"c\n" +
+			"//comment5.2\n" +
+			"),\n" +
+			"//comment6\n" +
+			".d(\n" +
+			"//comment6.1\n" +
+			"(\n" +
+			"//comment6.2\n" +
+			"(\n" +
+			"//comment6.3\n" +
+			"d+1\n" +
+			"//comment6.4\n" +
+			")\n" +
+			"//comment6.5\n" +
+			")\n" +
+			"//comment6.6\n" +
+			")\n" +
+			");\n" +
+			"//comment7\n" +
 			"endmodule\n" 
 			;
 		String expected =
@@ -657,12 +689,44 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"	assign a = \n" + 
 			"		//comment2.1\n" +
 			"		b;\n" +
+			"	//comment2.2\n" +
+			"	assign a = (\n" +
+			"			//comment2.2.1\n" +
+			"			b +\n" +
+			"			//comment2.2.2\n" +
+			"			(\n" +
+			"				//comment2.2.3\n" +
+			"				1 + 2\n" +
+			"				//comment2.2.4\n" +
+			"			)\n" +
+			"			//comment2.2.5\n" +
+			"		);\n" +
 			"	//comment3\n" +
 			"	submod sm1 (.a(a),\n" +
 			"			//comment4\n" +
-			"			.b(b)\n" +
-			"			);\n" +
-			"	//comment5\n" +
+			"			.b(b),\n" +
+			"			//comment5\n" +
+			"			.c(\n" +
+			"				//comment5.1\n" +
+			"				c\n" +
+			"				//comment5.2\n" +
+			"			),\n" +
+			"			//comment6\n" +
+			"			.d(\n" +
+			"				//comment6.1\n" +
+			"				(\n" +
+			"					//comment6.2\n" +
+			"					(\n" +
+			"						//comment6.3\n" +
+			"						d+1\n" +
+			"						//comment6.4\n" +
+			"					)\n" +
+			"					//comment6.5\n" +
+			"				)\n" +
+			"				//comment6.6\n" +
+			"			)\n" +
+			"		);\n" +
+			"	//comment7\n" +
 			"endmodule\n" 
 			;
 		
