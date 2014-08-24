@@ -40,9 +40,18 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		if (root.getProjects() != null) {
-			boolean pass = (root.getProjects().length == 0);
+			boolean pass = true;
+			
+			if (root.getProjects().length > 0 && 
+					!root.getProjects()[0].getName().equals("RemoteSystemsTempFiles")) {
+				pass = false;
+			}
+			
 			if (!pass) {
 				for (IProject p : root.getProjects()) {
+					if (p.getName().equals("RemoteSystemsTempFiles")) {
+						continue;
+					}
 					System.out.println("Test: " + getName() + " Project: " + p.getName() + " still exists");
 					p.delete(true, new NullProgressMonitor());
 					if (p.exists()) {

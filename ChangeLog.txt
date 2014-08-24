@@ -2,7 +2,10 @@
 -- 1.5.7 Release --
 
 - #(325) - Correct handling of escaped identifiers
+
 - #(321) - Corrected indentation of generate blocks
+
+- #(nobug) - Correct a NPE in the StyledText label provider with assign statements
 
 ------------------------------------------------------------------------------
 

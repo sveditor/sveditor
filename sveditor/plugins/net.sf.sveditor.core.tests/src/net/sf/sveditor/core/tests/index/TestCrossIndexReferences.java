@@ -12,13 +12,9 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;

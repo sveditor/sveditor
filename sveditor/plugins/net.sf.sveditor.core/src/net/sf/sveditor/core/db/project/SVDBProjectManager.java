@@ -281,16 +281,23 @@ public class SVDBProjectManager implements
 	}
 
 	public void rebuildProject(
-			IProgressMonitor 					monitor, 
+			IProgressMonitor 					monitor,
 			IProject 							p,
 			List<SVDBIndexResourceChangeEvent> 	changes) {
 		boolean full_build = false;
 		boolean rebuild_workspace = false;
 		
+		if (!isSveProject(p)) {
+			// Likely an auto-build mid-import
+			return;
+		}
+		
 		for (Job j : Job.getJobManager().find(null)) {
-			System.out.println("Job: " + j.getName());
+			fLog.debug(LEVEL_MIN, "Job: " + j.getName());
 			if (j.getName().startsWith("Building work")) {
-				rebuild_workspace = true;
+				if (j.getThread() != Thread.currentThread()) {
+					rebuild_workspace = true;
+				}
 				break;
 			}
 		}
@@ -299,12 +306,6 @@ public class SVDBProjectManager implements
 			fLog.debug(LEVEL_MIN, "Skip due to rebuild workspace");
 			return;
 		}
-		
-		if (!isSveProject(p)) {
-			// Likely an auto-build mid-import
-			return;
-		}
-
 		
 		synchronized (fDelayedOpList) {
 			// A delayed op supercedes an incremental build

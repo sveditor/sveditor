@@ -164,6 +164,9 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 				"${workspace_loc}/" + pname + "/source.sv",
 				markers);
 		
+		assertNotNull(ret.first());
+		assertNotNull(ret.second());
+		
 		assertEquals(0, markers.size());
 	
 		OverrideTaskFuncFinder finder = new OverrideTaskFuncFinder();
@@ -236,7 +239,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 	}
 	
 	public void testMFCUProtectedMacrosLocated() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		String pname = "package_macros";
 
@@ -324,7 +327,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 	}	
 
 	public void testMFCUProtectedMacrosLocated_2_argfiles() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		String pname = "package_macros";
 
