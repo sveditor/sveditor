@@ -112,6 +112,8 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private static boolean					fEnableAsyncCacheClear;
 	private static List<String>				fPersistenceClassPkgList;
 	
+	private boolean							fEnableAutoBuild = false;
+	
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
@@ -272,6 +274,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public void setDebugLevel(int level) {
 		fDebugLevel = level;
 		LogFactory.getDefault().setLogLevel(null, fDebugLevel);
+	}
+	
+	public void setEnableAutoBuild(boolean en) {
+		fEnableAutoBuild = en;
+	}
+	
+	public boolean getEnableAutoBuild() {
+		return fEnableAutoBuild;
 	}
 	
 	public void setFileExtLanguageLevelOverride(boolean en) {

@@ -273,10 +273,19 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				if (assign.getAssignList().size() > 0) {
 					SVDBAssignItem assign_it = assign.getAssignList().get(0);
 					
-					ret = new StyledString(
-							assign_it.getLHS().toString() + 
-							" = " + 
-							assign_it.getRHS().toString());
+					String lhs = null;
+					String rhs = null;
+					
+					if (assign_it != null) {
+						if (assign_it.getLHS() != null) {
+							lhs = assign_it.getLHS().toString();
+						}
+						if (assign_it.getRHS() != null) {
+							rhs = assign_it.getRHS().toString();
+						}
+					}
+					
+					ret = new StyledString("" + lhs + " = " + rhs);
 				} else {
 					ret = new StyledString("assign");
 				}
