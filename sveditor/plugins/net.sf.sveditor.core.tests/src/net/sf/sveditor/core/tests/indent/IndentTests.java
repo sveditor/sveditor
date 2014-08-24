@@ -254,7 +254,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 
 			log.debug("Result:");
 			log.debug(result);
-			IndentComparator.compare("testBasicClass", expected, result);
+			IndentComparator.compare("testEmptyCaseStmt", expected, result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -295,7 +295,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		
 		log.debug("Result:");
 		log.debug(result);
-		IndentComparator.compare("testBasicClass", expected, result);
+		IndentComparator.compare("testInitialBlock", expected, result);
 		log.debug("<-- testInitialBlock");
 		
 		LogFactory.removeLogHandle(log);
@@ -464,6 +464,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"int a;\n" +
 			"int b;\n" +
 			"} s;\n" +
+			"// this is a comment\n" +
 			"logic b;\n" +
 			"endmodule\n"
 			;
@@ -473,6 +474,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"		int a;\n" +
 			"		int b;\n" +
 			"	} s;\n" +
+			"	// this is a comment\n" +
 			"	logic b;\n" +
 			"endmodule\n"
 			;
@@ -501,18 +503,24 @@ public class IndentTests extends SVCoreTestCaseBase {
 		String content =
 			"module t;\n" +
 			"typedef union {\n" +
+			"//comment1\n" +
 			"int a;\n" +
+			"//comment2\n" +
 			"int b;\n" +
 			"} foo_t;\n" +
+			"//comment3\n" +
 			"foo_t b;\n" +
 			"endmodule\n"
 			;
 		String expected =
 			"module t;\n" +
 			"	typedef union {\n" +
+			"		//comment1\n" +
 			"		int a;\n" +
+			"		//comment2\n" +
 			"		int b;\n" +
 			"	} foo_t;\n" +
+			"	//comment3\n" +
 			"	foo_t b;\n" +
 			"endmodule\n"
 			;
@@ -622,6 +630,51 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"logic a;\n" +
 			"logic b;\n" +
 			"\n" +
+			"//comment1\n" +
+			"assign a = b;\n" +
+			"\n" +
+			"//comment2\n" +
+			"assign a = \n" +
+			"//comment2.1\n" +
+			"b;\n" +
+			"//comment2.2\n" +
+			"assign a = (\n" +
+			"//comment2.2.1\n" +
+			"b +\n" +
+			"//comment2.2.2\n" +
+			"(\n" +
+			"//comment2.2.3\n" +
+			"1 + 2\n" +
+			"//comment2.2.4\n" +
+			")\n" +
+			"//comment2.2.5\n" +
+			");\n" +
+			"//comment3\n" +
+			"submod sm1 (.a(a),\n" +
+			"//comment4\n" +
+			".b(b),\n" +
+			"//comment5\n" +
+			".c(\n" +
+			"//comment5.1\n" +
+			"c\n" +
+			"//comment5.2\n" +
+			"),\n" +
+			"//comment6\n" +
+			".d(\n" +
+			"//comment6.1\n" +
+			"(\n" +
+			"//comment6.2\n" +
+			"(\n" +
+			"//comment6.3\n" +
+			"d+1\n" +
+			"//comment6.4\n" +
+			")\n" +
+			"//comment6.5\n" +
+			")\n" +
+			"//comment6.6\n" +
+			")\n" +
+			");\n" +
+			"//comment7\n" +
 			"endmodule\n" 
 			;
 		String expected =
@@ -629,6 +682,51 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"	logic a;\n" +
 			"	logic b;\n" +
 			"\n" +
+			"	//comment1\n" +
+			"	assign a = b;\n" +
+			"\n" +
+			"	//comment2\n" +
+			"	assign a = \n" + 
+			"		//comment2.1\n" +
+			"		b;\n" +
+			"	//comment2.2\n" +
+			"	assign a = (\n" +
+			"			//comment2.2.1\n" +
+			"			b +\n" +
+			"			//comment2.2.2\n" +
+			"			(\n" +
+			"				//comment2.2.3\n" +
+			"				1 + 2\n" +
+			"				//comment2.2.4\n" +
+			"			)\n" +
+			"			//comment2.2.5\n" +
+			"		);\n" +
+			"	//comment3\n" +
+			"	submod sm1 (.a(a),\n" +
+			"			//comment4\n" +
+			"			.b(b),\n" +
+			"			//comment5\n" +
+			"			.c(\n" +
+			"				//comment5.1\n" +
+			"				c\n" +
+			"				//comment5.2\n" +
+			"			),\n" +
+			"			//comment6\n" +
+			"			.d(\n" +
+			"				//comment6.1\n" +
+			"				(\n" +
+			"					//comment6.2\n" +
+			"					(\n" +
+			"						//comment6.3\n" +
+			"						d+1\n" +
+			"						//comment6.4\n" +
+			"					)\n" +
+			"					//comment6.5\n" +
+			"				)\n" +
+			"				//comment6.6\n" +
+			"			)\n" +
+			"		);\n" +
+			"	//comment7\n" +
 			"endmodule\n" 
 			;
 		
@@ -643,7 +741,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		
 		log.debug("Result:");
 		log.debug(result);
-		IndentComparator.compare("testBasicModuleWire", expected, result);
+		IndentComparator.compare("testBasicModuleComment", expected, result);
 		LogFactory.removeLogHandle(log);
 	}
 	
@@ -691,6 +789,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle("testIndentPostSingleComment");
 		String content =
 			"class foo;\n" +					// 1
+			"//comment1\n" +
 			"function void my_func();\n" +		// 2
 			"if (foobar) begin\n" +				// 3
 			"end else begin\n" +				// 4
@@ -698,10 +797,12 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"a.b = 5;\n" +						// 6
 			"end\n" +							// 7
 			"endfunction\n" +					// 8
+			"//comment2\n" +
 			"endclass\n" 						// 9
 			;
 		String expected =
 			"class foo;\n" +
+			"	//comment1\n" +
 			"	function void my_func();\n" +
 			"		if (foobar) begin\n" +
 			"		end else begin\n" +
@@ -709,6 +810,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"			a.b = 5;\n" +
 			"		end\n" +
 			"	endfunction\n" +
+			"	//comment2\n" +
 			"endclass\n" 
 			;
 		
@@ -731,14 +833,18 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle("testBasicModuleWire");
 		String content =
 			"module top;\n" +
+			"// comment1\n" +
 			"logic a;\n" +
 			"logic b;\n" +
+			"// comment2\n" +
 			"endmodule\n"
 			;
 		String expected =
 			"module top;\n" +
+			"	// comment1\n" +
 			"	logic a;\n" +
 			"	logic b;\n" +
+			"	// comment2\n" +
 			"endmodule\n"
 			;
 		
@@ -825,31 +931,53 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle("testNewLineIf");
 		String content =
 			"\n" +
+			"//comment0\n" +
 			"class class1 #(type T=int);\n" +
 			"\n" +
+			"//comment1\n" +
 			"function new();\n" +
+			"//comment2\n" +
 			"if (foo)\n" +
+			"//comment3\n" +
 			"foo = 5;\n" +
+			"//comment4\n" +
 			"else\n" +
+			"//comment5\n" +
 			"if (foo2) begin\n" +
+			"//comment6\n" +
 			"foo = 6;\n" +
+			"//comment7\n" +
 			"end\n" +
+			"//comment8\n" +
 			"endfunction\n" +
-			"endclass\n"
+			"//comment9\n" +
+			"endclass\n" +
+			"//comment10\n"
 			;
 		String expected =
 			"\n" +
+			"//comment0\n" +
 			"class class1 #(type T=int);\n" +
 			"\n" +
+			"	//comment1\n" +
 			"	function new();\n" +
+			"		//comment2\n" +
 			"		if (foo)\n" +
+			"			//comment3\n" +
 			"			foo = 5;\n" +
+			"		//comment4\n" +
 			"		else\n" +
+			"		//comment5\n" +
 			"		if (foo2) begin\n" +
+			"			//comment6\n" +
 			"			foo = 6;\n" +
+			"			//comment7\n" +
 			"		end\n" +
+			"		//comment8\n" +
 			"	endfunction\n" +
-			"endclass\n"
+			"	//comment9\n" +
+			"endclass\n" +
+			"//comment10\n"
 			;
 		
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -863,7 +991,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		
 		log.debug("Result:");
 		log.debug(result);
-		IndentComparator.compare("testBasicClass", expected, result);
+		IndentComparator.compare("testNewLineIf", expected, result);
 		LogFactory.removeLogHandle(log);
 	}
 

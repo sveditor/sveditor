@@ -4,6 +4,8 @@
 - #(325) - Correct handling of escaped identifiers
 
 - #(321) - Corrected indentation of generate blocks
+- #(326) - Comments after assign statements incorrectly indented 
+- #(nobug) - Sorting out open & close brace indent on assign and other similar statements
 
 - #(nobug) - Correct a NPE in the StyledText label provider with assign statements
 

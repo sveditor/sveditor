@@ -367,6 +367,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 			}
 		} else {
+			// No begin
 			enter_scope(tok);
 //			tok = indent_stmt(parent, true);
 			tok = indent_stmt(parent, false);
@@ -1010,7 +1011,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_block_or_statement(null, false);
 		} else if (tok.isId("assign")) {
 			tok = next_s();
-			tok = indent_block_or_statement(null, false);
+			tok = indent_block_or_statement(null, true);
 		} else if (tok.isId("typedef")) {
 			tok = indent_typedef();
 		} else if (tok.isId("while") || tok.isId("do") ||
@@ -1055,10 +1056,19 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						break;
 					}
 				}
-				if (tok.isOp("(")) {
+				// Check for and propery indent things that are in brackets
+				// for example
+				// assign a = (
+				//        b + (
+				//           (d + e)
+				//        )
+				//     );
+				// Indent on successive (
+				if (is_open_brace(tok)) {
 					start_of_scope(tok);
-				} else if (tok.isOp(")")) {
-					leave_scope();
+				// Out-dent on successive )
+				} else if (is_close_brace(tok)) {
+					leave_scope(tok);
 				}
 				tok = next_s();
 			}
