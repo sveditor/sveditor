@@ -159,6 +159,21 @@ public class TestUtils {
 			TestCase.fail("Failed to unpack zip file: " + e.getMessage());
 		}			
 	}
+	
+	public static String read(IFile file) {
+		String ret = null;
+		try {
+			InputStream in = file.getContents();
+			ret = readInput(in);
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
 			
 	
 	public static String readInput(InputStream in) {

@@ -75,16 +75,16 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		for (String filename : index.getFileList(new NullProgressMonitor())) {
 			SVDBFileRefCollector finder = new SVDBFileRefCollector();
 			SVDBFile file = index.findFile(filename);
-			System.out.println("[VISIT FILE] " + filename);
+			fLog.debug(LEVEL_MIN, "[VISIT FILE] " + filename);
 			// MSB: 
 //			finder.visitFile(file);
 			Map<String, List<Integer>> refs = finder.getReferences();
 	
 			/*
 			for (SVDBRefType t : SVDBRefType.values()) {
-				System.out.println("    TYPE: " + t);
+				fLog.debug(LEVEL_MIN, "    TYPE: " + t);
 				for (String n : ref.getRefSet(t)) {
-					System.out.println("        NAME: " + n);
+					fLog.debug(LEVEL_MIN, "        NAME: " + n);
 				}
 			}
 			 */
@@ -126,18 +126,18 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		
 		for (SVDBRefCacheItem item : refs) {
 			log.debug("Item: " + item.getFilename());
-//			System.out.println("Item: " + item.getFilename());
+//			fLog.debug(LEVEL_MIN, "Item: " + item.getFilename());
 			List<SVDBRefItem> ref_items = item.findReferences(new NullProgressMonitor());
 			for (SVDBRefItem ref_item : ref_items) {
-				System.out.println("ref_item: " + ref_item.getLeaf().getType() + " " + 
+				fLog.debug(LEVEL_MIN, "ref_item: " + ref_item.getLeaf().getType() + " " + 
 						SVDBItem.getName(ref_item.getLeaf()) + " in file: " + 
 						ref_item.getRoot().getFilePath());
 			}
 		}
 		long ref_find_end = System.currentTimeMillis();
 		
-		System.out.println("Index-build time: " + (index_build_end-index_build_start));
-		System.out.println("Ref-find time: " + (ref_find_end-ref_find_start));
+		fLog.debug(LEVEL_MIN, "Index-build time: " + (index_build_end-index_build_start));
+		fLog.debug(LEVEL_MIN, "Ref-find time: " + (ref_find_end-ref_find_start));
 		
 		LogFactory.removeLogHandle(log);
 	}
@@ -168,7 +168,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		
 		for (SVDBDeclCacheItem module : index.findGlobalScopeDecl(new NullProgressMonitor(), "", 
 				new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl))) {
-			System.out.println("module: " + module.getName());
+			fLog.debug(LEVEL_MIN, "module: " + module.getName());
 			SVDBRefCollectorVisitor visitor = new SVDBRefCollectorVisitor();
 			
 			index.findReferences(new NullProgressMonitor(), 
@@ -187,7 +187,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 	}
 	
 	private void dump_hierarchy(ISVDBIndexIterator index_it, SVDBModuleDecl m, String indent) {
-		System.out.println(indent + m.getName());
+		fLog.debug(LEVEL_MIN, indent + m.getName());
 		
 		for (ISVDBChildItem it : m.getChildren()) {
 			if (it.getType() == SVDBItemType.ModIfcInst) {

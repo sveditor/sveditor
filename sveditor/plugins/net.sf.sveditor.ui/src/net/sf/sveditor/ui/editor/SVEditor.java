@@ -272,6 +272,7 @@ public class SVEditor extends TextEditor
 			
 			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.Re-parse file");
 			start = System.currentTimeMillis();
+//			try { Thread.sleep(10000); } catch (InterruptedException e) {}
 			Tuple<SVDBFile, SVDBFile> new_in = fFileIndexParser.parse(
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
@@ -293,7 +294,7 @@ public class SVEditor extends TextEditor
 				applyFolding(fSVDBFile, fSVDBFilePP);
 				applyOverrideAnnotations(fSVDBFile);
 			}
-
+			
 			if (fOutline != null) {
 				fOutline.refresh();
 			}
@@ -301,11 +302,15 @@ public class SVEditor extends TextEditor
 			fLog.debug(LEVEL_MID, "<-- UpdateSVDBFile.Re-incorporate content: " + (end-start));
 			
 			synchronized (SVEditor.this) {
+				start = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.End ");
 				fUpdateSVDBFileJob = null;
 				fNeedUpdate = false;
 				if (fPendingUpdateSVDBFile) {
 					updateSVDBFile(fDocument, true);
 				}
+				end = System.currentTimeMillis();
+				fLog.debug(LEVEL_MID, "<-- UpdateSVDBFile.End: " + (end-start));
 			}
 			
 			return Status.OK_STATUS;

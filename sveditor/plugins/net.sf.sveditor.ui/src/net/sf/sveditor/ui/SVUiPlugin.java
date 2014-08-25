@@ -130,6 +130,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 			getPreferenceStore().addPropertyChangeListener(this);
 			SVCorePlugin.getDefault().setDebugLevel(getDebugLevel(
 					getPreferenceStore().getString(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)));
+			SVCorePlugin.getDefault().setEnableAutoBuild(getPreferenceStore().getBoolean(
+					SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
 			SVCorePlugin.getDefault().getSVDBIndexRegistry().setEnableAutoRebuild(
 					getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX));
 			SVCorePlugin.getDefault().setFileExtLanguageLevelOverride(
@@ -259,6 +261,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_LEVEL_S)) {
 			SVCorePlugin.getDefault().setDebugLevel(getDebugLevel((String)event.getNewValue()));
+		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX)) {
+			SVCorePlugin.getDefault().setEnableAutoBuild((Boolean)event.getNewValue());
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_DEBUG_CONSOLE_S)) {
 			synchronized (fLogMessageQueue) {
 				fDebugConsole = (Boolean)event.getNewValue();

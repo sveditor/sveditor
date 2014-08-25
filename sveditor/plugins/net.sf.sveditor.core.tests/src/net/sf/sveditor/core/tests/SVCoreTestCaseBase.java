@@ -47,6 +47,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 				}
 			}
 			boolean pass = (projects.size() == 0);
+			
 			if (!pass) {
 				for (IProject p : projects) {
 					System.out.println("Test: " + getName() + " Project: " + p.getName() + " still exists");
