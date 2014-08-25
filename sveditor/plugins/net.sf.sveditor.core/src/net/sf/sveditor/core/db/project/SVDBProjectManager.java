@@ -184,16 +184,16 @@ public class SVDBProjectManager implements
 			}
 		}
 	}
-	public void rebuildProject(IProgressMonitor monitor, IProject p) {
-		rebuildProject(monitor, p, false);
+	public boolean rebuildProject(IProgressMonitor monitor, IProject p) {
+		return rebuildProject(monitor, p, false);
 	}
 	
-	public void rebuildProject(IProgressMonitor monitor, IProject p, boolean wait_for_refresh) {
+	public boolean rebuildProject(IProgressMonitor monitor, IProject p, boolean wait_for_refresh) {
 		
 		if (!isSveProject(p)) {
 			// This is likely an auto-build occurring in the middle of import
 			fLog.debug("rebuildProject: cancel due to !isSveProject");
-			return;
+			return false;
 		}
 	
 		if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
@@ -212,7 +212,7 @@ public class SVDBProjectManager implements
 			} else {
 			 */
 				fLog.debug("rebuildProject: cancel due to RefreshJob running");
-				return;
+				return false;
 //			}
 		}
 		
@@ -263,6 +263,8 @@ public class SVDBProjectManager implements
 
 		} else {
 			System.out.println("ProjectData null");
+			monitor.done();
+			return false;
 		}
 
 		// Fire one more time to catch requests that 
@@ -278,6 +280,8 @@ public class SVDBProjectManager implements
 		synchronized (fBuildActiveProjects) {
 			fBuildActiveProjects.remove(p);
 		}
+		
+		return true;
 	}
 
 	public void rebuildProject(

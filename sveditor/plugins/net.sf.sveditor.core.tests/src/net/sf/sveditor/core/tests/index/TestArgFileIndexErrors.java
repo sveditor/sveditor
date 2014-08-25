@@ -46,7 +46,9 @@ public class TestArgFileIndexErrors extends SVCoreTestCaseBase {
 		fw.addArgFilePath("${workspace_loc}/" + testname + "/file1.f");
 		pdata.setProjectFileWrapper(fw);
 		
-		pmgr.rebuildProject(new NullProgressMonitor(), project_dir, true);
+		boolean build_ok = pmgr.rebuildProject(new NullProgressMonitor(), project_dir, true);
+		
+		assertTrue(build_ok);
 		
 		IMarker markers[] = project_dir.findMarkers(IMarker.PROBLEM, true, LEVEL_MAX);
 		

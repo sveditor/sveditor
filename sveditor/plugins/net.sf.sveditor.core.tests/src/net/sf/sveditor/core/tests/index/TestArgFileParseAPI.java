@@ -163,7 +163,8 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 				new StringInputStream(source), 
 				"${workspace_loc}/" + pname + "/source.sv",
 				markers);
-		
+	
+		assertNotNull(ret);
 		assertNotNull(ret.first());
 		assertNotNull(ret.second());
 		
