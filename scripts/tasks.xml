@@ -1,0 +1,18 @@
+
+<project>
+	<path id="wikitext.classpath">
+		<fileset dir="${eclipse.home}/plugins">
+			<include name="org.eclipse.mylyn.wikitext.*.jar"/>
+			<include name="com.google.guava_*.jar"/>
+		</fileset>
+	</path>
+
+	<taskdef classpathref="wikitext.classpath" 
+          resource="org/eclipse/mylyn/wikitext/core/ant/tasks.properties" />
+	
+	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+		<classpath path="${scripts.dir}/xmltask.jar"/>
+	</taskdef>
+
+</project>
+

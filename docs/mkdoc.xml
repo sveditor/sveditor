@@ -1,5 +1,6 @@
 <project>
 	<property name="srcdir" value="${basedir}"/>
+	<property name="scripts.dir" value="${basedir}/../scripts"/>
 	<property name="userguide.dir" value="${srcdir}/user_guide"/>
 	<property name="devguide.dir" value="${srcdir}/dev_guide"/>
 	<property name="tutorial.dir" value="${srcdir}/tutorial"/>
@@ -14,20 +15,8 @@
 	<import file="${srcdir}/userguide.xml"/>
 	<import file="${srcdir}/devguide.xml"/>
 	<import file="${srcdir}/tutorial.xml"/>
+	<import file="${scripts.dir}/tasks.xml"/>
 
-	<path id="wikitext.classpath">
-		<fileset dir="${eclipse.home}/plugins">
-			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
-		</fileset>
-	</path>
-	
-	<taskdef classpathref="wikitext.classpath" 
-      resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
-	
-	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
-		<classpath path="${basedir}/../scripts/xmltask.jar"/>
-	</taskdef>
-	
 	<target name="all" depends="mk_user_guide_pdf,mk_user_guide_html"/>
 	
 	<target name="mk_user_guide_pdf">

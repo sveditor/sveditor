@@ -7,9 +7,8 @@
 	</path>
 
 	<property name="docs.dir" value="${basedir}/../../../docs"/>
+	<property name="scripts.dir" value="${basedir}/../../../scripts"/>
 
-	<taskdef classpathref="wikitext.classpath" resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
-	
 	<target name="post.compile">
 		<antcall target="docs"/>
 	</target>
@@ -21,29 +20,6 @@
 	</target>
 
 	<target name="docs">
-<!--
-		<taskdef name="assemble_toc" 
-			classname="net.sf.sveditor.doc.user.tasks.AssembleTocTask">
-			<classpath path="${basedir}/bin"/>
-			<classpath path="${basedir}/@dot"/>
-		</taskdef>
-		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
-					multipleOutputFiles="true"
-					navigationImages="true"
-					overwrite="true"
-					helpPrefix="preparing_sv_project"
-					file="${basedir}/preparing_sv_project/preparing_sv_project.mediawiki"/>
-		<wikitext-to-eclipse-help markupLanguage="MediaWiki" 
-					multipleOutputFiles="true"
-					navigationImages="true"
-					overwrite="true"
-					helpPrefix="editing_sv_files"
-					file="${basedir}/editing_sv_files/editing_sv_files.mediawiki"/>
-		<assemble_toc files="${basedir}/preparing_sv_project/preparing_sv_project-toc.xml,
-							${basedir}/editing_sv_files/editing_sv_files-toc.xml"
-			output="${basedir}/toc.xml" label="SVEditor User Guide">
-		</assemble_toc>
-  -->
 		<ant antfile="${docs.dir}/mkhelp.xml" 
 			target="mk_user_guide_help">
 			<property name="srcdir" value="${docs.dir}"/>

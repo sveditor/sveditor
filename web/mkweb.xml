@@ -2,24 +2,13 @@
 	<property name="srcdir" value="${basedir}"/>
 	<property name="web.dir" value="${srcdir}"/>
 	<property name="tmpdir" value="${basedir}/output"/>
+	<property name="scripts.dir" value="${basedir}/../scripts"/>
 	<property name="output.dir" value="${basedir}"/>
 	<property name="docbook.xhtml.xsl" 
 		value="/usr/share/xml/docbook/stylesheet/docbook-xsl-ns/xhtml-1_1/docbook.xsl"/>
 
 	<import file="${srcdir}/web.xml"/>
-
-	<path id="wikitext.classpath">
-		<fileset dir="${eclipse.home}/plugins">
-			<include name="org.eclipse.mylyn.wikitext.*core*.jar"/>
-		</fileset>
-	</path>
-	
-	<taskdef classpathref="wikitext.classpath" 
-      resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
-	
-	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
-		<classpath path="${basedir}/../scripts/xmltask.jar"/>
-	</taskdef>
+	<import file="${scripts.dir}/tasks.xml"/>
 
 	<macrodef name="mkhtml">
 		<attribute name="docfile"/>
@@ -50,6 +39,11 @@
 			<replace dir="@{output.dir}" value="">
 				<include name="*.html"/>
 				<replacetoken> xmlns="http://www.w3.org/1999/xhtml"</replacetoken>
+			</replace>
+
+			<replace dir="@{output.dir}" value=".zip">
+				<include name="*.html"/>
+				<replacetoken>.zip.html</replacetoken>
 			</replace>
 
 			<replaceregexp flags="g" 
@@ -137,7 +131,7 @@
 
 		<copy todir="${output.dir}/html/tutorial">
 			<fileset dir="${output.dir}/tutorial_html" 
-				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
+				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png,**/*.zip"/>
 		</copy>
 		
 		<copy todir="${output.dir}/html/dev_guide">
@@ -221,6 +215,7 @@
 			style="${srcdir}/templates/style.xml"
 			layout="${srcdir}/templates/layout.xml"
 			output.dir="${output.dir}/tutorial_html"/>
+
 	</target>
 
 	<target name="mk_web_dev_guide">
