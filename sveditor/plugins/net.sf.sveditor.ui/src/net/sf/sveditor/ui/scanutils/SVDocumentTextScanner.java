@@ -33,6 +33,18 @@ public class SVDocumentTextScanner extends SVDocumentTextScannerBase {
 	
 	public SVDocumentTextScanner(
 			IDocument 				doc,
+			String					partitioning,
+			String					comment_partitions[],
+			String					name,
+			int						offset,
+			boolean 				scan_fwd,
+			boolean					skip_comments) {
+		super(doc, partitioning, comment_partitions,
+				name, offset, scan_fwd, skip_comments);
+	}
+	
+	public SVDocumentTextScanner(
+			IDocument 				doc,
 			int						offset) {
 		this(doc, "", offset, true, false);
 	}

@@ -36,6 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 
@@ -393,6 +394,8 @@ public class TestUtils {
 			e.printStackTrace();
 			throw new RuntimeException("Failed to create project: " + e.getMessage());
 		}
+		
+		SVProjectNature.ensureHasSvProjectNature(project);
 		
 		return project;
 	}

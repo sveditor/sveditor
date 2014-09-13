@@ -7,9 +7,11 @@ import java.util.List;
 import net.sf.sveditor.core.BundleUtils;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
@@ -19,6 +21,8 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
+import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -79,6 +83,13 @@ public class TestIncrementalIndex extends SVCoreTestCaseBase implements ISVDBInd
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {}
+		
+		List<SVDBDeclCacheItem> result;
+		
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "pkg1_cls3", 
+				new SVDBFindByNameMatcher());
+		assertEquals(0, result.size());
 	
 		// Create a new class
 		TestUtils.copy(
@@ -108,21 +119,13 @@ public class TestIncrementalIndex extends SVCoreTestCaseBase implements ISVDBInd
 			}
 		}
 		
-		System.out.println("m_index_update=" + m_index_update);
-		/*
-		List<SVDBIndexResourceChangeEvent> changes = new ArrayList<SVDBIndexResourceChangeEvent>();
-		changes.add(new SVDBIndexResourceChangeEvent(Type.CHANGE, project_path + "/pkg1.sv"));
-		
-		ISVDBIndexChangePlan plan;
-		
-		plan = index.createIndexChangePlan(null);
-		System.out.println("plan=" + plan);
-		
-		plan = index.createIndexChangePlan(changes);
-		System.out.println("plan=" + plan);
-		
-		index.execIndexChangePlan(new NullProgressMonitor(), plan);
-		 */
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), "pkg1_cls3", 
+				new SVDBFindByNameMatcher());
+		assertEquals(1, result.size());
+	
+		ISVDBItemBase it = result.get(0).getSVDBItem();
+		assertNotNull(it);
 	}
 	
 	public void testIncFileChange_1() {
