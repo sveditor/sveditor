@@ -145,6 +145,76 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 	
+	public void testAssertStmt() {
+		LogHandle log = LogFactory.getLogHandle("testAssertStmt");
+		String content =
+						"\n" +
+						"module t; // Comment.\n" +
+						"task t();\n" +
+						"assert (this.foo.randomize ()); // Single line assertion\n" +
+						"assert (this.foo.randomize ())  // assert-else\n" +
+						"else \n" +
+						"$display (\"Fail\");\n" +
+						"assert (a==1) // assert pass message fail message\n" +
+						"begin\n" +
+						"$display (\"Pass\");\n" +
+						"end\n" +
+						"else\n" +
+						"$display (\"Fail\");\n" +
+						"if (1)	begin\n" +
+						"thing = 1;\n" +
+						"end\n" +
+						"else\n" +
+						"begin\n" +
+						"thing = 2;\n" +
+						"end\n" +
+						"endtask\n" +
+						"//comment1\n" +
+						"assign a = b;\n" +
+						"endmodule\n"
+			;
+		String expected =
+						"\n" +
+						"module t; // Comment.\n" +
+						"	task t();\n" +
+						"		assert (this.foo.randomize ()); // Single line assertion\n" +
+						"		assert (this.foo.randomize ())  // assert-else\n" +
+						"		else \n" +
+						"			$display (\"Fail\");\n" +
+						"		assert (a==1) // assert pass message fail message\n" +
+						"		begin\n" +
+						"			$display (\"Pass\");\n" +
+						"		end\n" +
+						"		else\n" +
+						"			$display (\"Fail\");\n" +
+						"		if (1)	begin\n" +
+						"			thing = 1;\n" +
+						"		end\n" +
+						"		else\n" +
+						"		begin\n" +
+						"			thing = 2;\n" +
+						"		end\n" +
+						"	endtask\n" +
+						"	//comment1\n" +
+						"	assign a = b;\n" +
+						"endmodule\n"
+						;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare("testAssertStmt", expected, result);
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testBasicCoverpoint_2() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =

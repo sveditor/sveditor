@@ -294,6 +294,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 		if (tok.isOp("(")) {
 			tok = consume_expression();
+			if (tok.isOp(";"))  {
+				tok = next_s();
+				leave_scope (tok);
+				return tok;
+			}
 		} else {
 			//System.out.println("[ERROR] unsure what happened - tok=" + 
 			// tok.getImage());
@@ -304,6 +309,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isId("else")) {
 			leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
 //			start_of_scope(tok);
+		}
+		else  {
+			tok = indent_if_stmts(null);
 		}
 		if (tok.isId("else")) {
 			// Insert a dummy scope to prevent the token following the 'else'

@@ -40,18 +40,16 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		if (root.getProjects() != null) {
-			boolean pass = true;
-			
-			if (root.getProjects().length > 0 && 
-					!root.getProjects()[0].getName().equals("RemoteSystemsTempFiles")) {
-				pass = false;
+			List<IProject> projects = new ArrayList<IProject>();
+			for (IProject p : root.getProjects()) {
+				if (!p.getName().equals("RemoteSystemsTempFiles")) {
+					projects.add(p);
+				}
 			}
+			boolean pass = (projects.size() == 0);
 			
 			if (!pass) {
-				for (IProject p : root.getProjects()) {
-					if (p.getName().equals("RemoteSystemsTempFiles")) {
-						continue;
-					}
+				for (IProject p : projects) {
 					System.out.println("Test: " + getName() + " Project: " + p.getName() + " still exists");
 					p.delete(true, new NullProgressMonitor());
 					if (p.exists()) {
@@ -59,7 +57,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 					}
 				}
 			}
-			assertTrue("Workspace contains " + root.getProjects().length + " projects", pass);
+			assertTrue("Workspace contains " + projects.size() + " projects", pass);
 		}
 		
 		fProjectList = new ArrayList<IProject>();
