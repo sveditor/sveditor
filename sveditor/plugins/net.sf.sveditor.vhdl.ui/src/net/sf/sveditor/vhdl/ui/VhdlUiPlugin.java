@@ -1,5 +1,8 @@
 package net.sf.sveditor.vhdl.ui;
 
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -13,6 +16,8 @@ public class VhdlUiPlugin extends AbstractUIPlugin {
 
 	// The shared instance
 	private static VhdlUiPlugin plugin;
+	
+	private ResourceBundle						fResources;
 	
 	/**
 	 * The constructor
@@ -45,6 +50,17 @@ public class VhdlUiPlugin extends AbstractUIPlugin {
 	 */
 	public static VhdlUiPlugin getDefault() {
 		return plugin;
+	}
+	
+	public ResourceBundle getResources() {
+		if (fResources == null) {
+			try {
+				fResources = ResourceBundle.getBundle(PLUGIN_ID + ".VhdlUiResources");
+			} catch (MissingResourceException e) {
+				e.printStackTrace();
+			}
+		}
+		return fResources;
 	}
 
 }

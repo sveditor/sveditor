@@ -515,7 +515,15 @@ public class SVDBArgFileIndex2 implements
 				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
 				Map<String, List<SVDBDeclCacheItem>> new_decl_cache = build_data.getDeclCacheMap();
 				
-					
+				// Register any new files
+				fLog.debug("fBuildData.NumSrcFiles=" + fBuildData.getNumSrcFiles() + " build_data.NumSrcFiles=" + 
+						build_data.getNumSrcFiles());
+				for (int i=fBuildData.getNumSrcFiles()+1; i<=build_data.getNumSrcFiles(); i++) {
+					String path = build_data.mapFileIdToPath(i);
+					int new_id = fBuildData.mapFilePathToId(path, true);
+					fLog.debug("Add new src file: " + path + " id=" + new_id);
+				}
+			
 				for (String path : plan.getFileList()) {
 					monitor.subTask("Merge " + path);
 					SVDBFileTree     ft      = cache.getFileTree(new NullProgressMonitor(), path, false);

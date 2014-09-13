@@ -22,5 +22,51 @@
             contentTypeId="net.sf.sveditor.vhdl.core.vhdl">
       </participant>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="net.sf.sveditor.vhdl.ui.AddBlockComment"
+            contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+/">
+      </key>
+      <key
+            commandId="net.sf.sveditor.vhdl.ui.AddBlockComment"
+            contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+/">
+      </key>
+      <key
+            commandId="net.sf.sveditor.vhdl.ui.RemoveBlockComment"
+            contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+\">
+      </key>
+      <key
+            commandId="net.sf.sveditor.vhdl.ui.RemoveBlockComment"
+            contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+\">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
+            name="VHDLEditor Context"
+            parentId="org.eclipse.ui.textEditorScope">
+      </context>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="net.sf.sveditor.vhdl.ui.AddBlockComment"
+            name="Add Block Comment">
+      </command>
+      <command
+            id="net.sf.sveditor.vhdl.ui.RemoveBlockComment"
+            name="Remove Block Comment">
+      </command>
+   </extension>
+   
 </plugin>

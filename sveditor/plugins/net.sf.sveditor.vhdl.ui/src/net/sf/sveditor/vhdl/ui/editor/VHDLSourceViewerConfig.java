@@ -1,5 +1,7 @@
 package net.sf.sveditor.vhdl.ui.editor;
 
+import net.sf.sveditor.ui.editor.SVEditorColors;
+
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
@@ -74,16 +76,16 @@ public class VHDLSourceViewerConfig extends SourceViewerConfiguration {
 		
 		scanner = new BufferedRuleBasedScanner(1);
 		scanner.setDefaultReturnToken(new Token(new TextAttribute(
-				fEditor.getColor(VHDLEditorColors.getColor(VHDLEditorColors.COMMENT)),
-				null, VHDLEditorColors.getStyle(VHDLEditorColors.COMMENT))));
+				SVEditorColors.getColor(SVEditorColors.SINGLE_LINE_COMMENT),
+				null, SVEditorColors.getStyle(SVEditorColors.SINGLE_LINE_COMMENT))));
 		dr = new DefaultDamagerRepairer(scanner);
 		r.setDamager(dr, VHD_COMMENT);
 		r.setRepairer(dr, VHD_COMMENT);
 
 		scanner = new BufferedRuleBasedScanner(1);
 		scanner.setDefaultReturnToken(new Token(new TextAttribute(
-				fEditor.getColor(VHDLEditorColors.getColor(VHDLEditorColors.STRING)),
-				null, VHDLEditorColors.getStyle(VHDLEditorColors.STRING))));
+				SVEditorColors.getColor(SVEditorColors.STRING),
+				null, SVEditorColors.getStyle(SVEditorColors.STRING))));
 		dr = new DefaultDamagerRepairer(scanner);
 		r.setDamager(dr, VHD_STRING);
 		r.setRepairer(dr, VHD_STRING);

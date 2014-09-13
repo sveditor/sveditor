@@ -63,6 +63,10 @@ public class SVDBArgFileIndexBuildData implements
 		fFailedSearches = new HashSet<String>();		
 	}
 	
+	public int getNumSrcFiles() {
+		return fIndexCacheData.fSrcFileList.size();
+	}
+	
 	void apply(SVDBArgFileIndexBuildData build_data) {
 		ISVDBIndexCache old_cache = fCache;
 //		ISVDBIndexCacheMgr old_cache_mgr = fCacheMgr;
@@ -174,7 +178,6 @@ public class SVDBArgFileIndexBuildData implements
 	}
 	
 	
-
 	// FileMapper API
 	public int mapFilePathToId(String path, boolean add) {
 		int idx = (fIndexCacheData.fSrcFileList.indexOf(path)+1);
@@ -187,7 +190,7 @@ public class SVDBArgFileIndexBuildData implements
 		
 		return idx;		
 	}
-
+	
 	public String mapFileIdToPath(int id) {
 		if (id > 0 && id <= fIndexCacheData.fSrcFileList.size()) {
 			return fIndexCacheData.fSrcFileList.get(id-1);
