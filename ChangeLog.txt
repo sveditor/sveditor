@@ -4,6 +4,11 @@
 
 - #(327) Indenter issue with assert statements
 
+- #(enh) Add basic VHDL editing support
+  - Keyword, comment, and string coloring
+  - Block comment/un-comment (CTRL+/ ; CTRL+\)
+  - Matching-brace highlighting
+
 ------------------------------------------------------------------------------
 
 -- 1.5.7 Release --
