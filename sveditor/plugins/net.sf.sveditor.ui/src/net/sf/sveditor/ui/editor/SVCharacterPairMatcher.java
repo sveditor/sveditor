@@ -22,16 +22,32 @@ import org.eclipse.jface.text.source.ICharacterPairMatcher;
 
 public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 	
-	private final static char fPairs[] = {
-		'{', '}',
-		'<', '>',
-		'[', ']',
-		'(', ')'
-	};
+	private final char fPairs[];
 	
 	private int							fStartPos;
 	private int							fEndPos;
 	private int							fAnchor;
+	private String						fPartitioning = SVDocumentPartitions.SV_PARTITIONING;
+	private String						fCommentPartitions[] = {
+			SVDocumentPartitions.SV_MULTILINE_COMMENT,
+			SVDocumentPartitions.SV_SINGLELINE_COMMENT
+	};
+	
+	
+	public SVCharacterPairMatcher() {
+		fPairs = new char[] {
+		'{', '}',
+		'<', '>',
+		'[', ']',
+		'(', ')'
+		};
+	}
+	
+	public SVCharacterPairMatcher(char pairs[], String partitioning, String comment_partitions[]) {
+		fPairs = pairs;
+		fPartitioning = partitioning;
+		fCommentPartitions = comment_partitions;
+	}
 
 	public void clear() {}
 
@@ -44,7 +60,7 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 	}
 
 	public IRegion match(IDocument document, int offset) {
-		IBIDITextScanner scanner = new SVDocumentTextScanner(document, "", offset, true, true);
+		IBIDITextScanner scanner = new SVDocumentTextScanner(document, fPartitioning, fCommentPartitions, "", offset, true, true);
 		
 		if ((document == null) || (offset < 0)) {
 			

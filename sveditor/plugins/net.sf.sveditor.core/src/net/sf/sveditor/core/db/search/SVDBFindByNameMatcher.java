@@ -4,7 +4,8 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBFindByNameMatcher implements ISVDBFindNameMatcher {
-	private SVDBItemType				fTypes[];
+	private SVDBItemType						fTypes[];
+	private static SVDBFindByNameMatcher		fDefault = null;
 	
 	public SVDBFindByNameMatcher(SVDBItemType ... types) {
 		fTypes = types;
@@ -16,6 +17,13 @@ public class SVDBFindByNameMatcher implements ISVDBFindNameMatcher {
 		} else {
 			return (it.getType().isElemOf(fTypes) && it.getName().equals(name));
 		}
+	}
+	
+	public static SVDBFindByNameMatcher getDefault() { 
+		if (fDefault == null) {
+			fDefault = new SVDBFindByNameMatcher();
+		}
+		return fDefault;
 	}
 
 }

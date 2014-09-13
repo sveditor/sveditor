@@ -39,7 +39,6 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.information.IInformationPresenter;
 import org.eclipse.jface.text.information.IInformationProvider;
@@ -54,18 +53,12 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.ISourceViewerExtension4;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
-import org.eclipse.ui.internal.editors.text.EditorsPlugin;
-import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
-import org.eclipse.ui.internal.texteditor.spelling.SpellingEngineRegistry;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
-import org.eclipse.ui.texteditor.spelling.SpellingEngineDescriptor;
-import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 	private SVEditor				fEditor;

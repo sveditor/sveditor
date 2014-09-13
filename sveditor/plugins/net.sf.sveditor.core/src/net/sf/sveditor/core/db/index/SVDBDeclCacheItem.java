@@ -112,11 +112,16 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 			
 			if (file != null) {
 				ret = findSVDBItem(file);
+				
+				if (ret == null) {
+					System.out.println("Error: Failed to find item in file");
+				}
 			} else {
-//				System.out.println("File is null");
+				System.out.println("Error: File is null " + fFileName);
 			}
 		} else {
 			// FIXME: should we also warn or generate an error here?
+			System.out.println("Error: parent is null");
 		}
 		
 		return ret;
