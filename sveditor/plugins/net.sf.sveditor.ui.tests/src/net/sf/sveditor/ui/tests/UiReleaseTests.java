@@ -12,9 +12,6 @@
 
 package net.sf.sveditor.ui.tests;
 
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
-
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
@@ -22,11 +19,13 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
-import net.sf.sveditor.ui.tests.editor.TestIndexAssociation;
-import net.sf.sveditor.ui.tests.editor.TestOutlineViewOperations;
 import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
 import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
-import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
+import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
+import net.sf.sveditor.vhdl.ui.tests.VhdlUiReleaseTests;
+
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
 
 public class UiReleaseTests extends TestSuite {
 	
@@ -36,6 +35,8 @@ public class UiReleaseTests extends TestSuite {
 //		addTest(new TestSuite(TestOutlineViewOperations.class));
 		addTest(new TestSuite(TestOverrideMethods.class));
 		addTest(new TestSuite(TestUserLevelOperations.class));
+		
+		addTest(VhdlUiReleaseTests.suite());
 	}
 	
 	@Override

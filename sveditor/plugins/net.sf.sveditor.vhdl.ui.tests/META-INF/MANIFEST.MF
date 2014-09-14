@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VHDL UI Tests
+Bundle-SymbolicName: net.sf.sveditor.vhdl.ui.tests
+Bundle-Version: 1.2.3
+Bundle-Activator: net.sf.sveditor.vhdl.ui.tests.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ net.sf.sveditor.core,
+ org.junit,
+ net.sf.sveditor.ui.tests.utils,
+ org.eclipse.jface.text,
+ net.sf.sveditor.vhdl.core,
+ net.sf.sveditor.vhdl.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: net.sf.sveditor.vhdl.ui.tests

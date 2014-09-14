@@ -138,7 +138,7 @@
 			<fileset dir="${output.dir}/dev_guide_html" 
 				includes="**/*.html,**/*.gif,**/*.jpg,**/*.png"/>
 		</copy>
-	
+
 		<delete dir="${output.dir}/user_guide_html"/>
 		<delete dir="${output.dir}/tutorial_html"/>
 		<delete dir="${output.dir}/dev_guide_html"/>

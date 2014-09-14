@@ -174,3 +174,4 @@ These can be configured in the Verilog Properties as follows:
 It is reasonably easy to automate the generation of the project files used by eclipse to work on your project and save having to go through all the steps above each time you create a new user area / switch projects.  
 
 Please refer to the [[automating_project_setup| Automating Project Setup]] page for more details.
+

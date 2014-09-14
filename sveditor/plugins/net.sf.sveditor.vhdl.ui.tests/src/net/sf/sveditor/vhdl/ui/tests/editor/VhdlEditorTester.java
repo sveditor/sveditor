@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.editor;
+package net.sf.sveditor.vhdl.ui.tests.editor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,23 +23,23 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.ui.editor.ISVEditor;
-import net.sf.sveditor.ui.tests.UiReleaseTests;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
+import net.sf.sveditor.vhdl.ui.tests.VhdlUiReleaseTests;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.commands.ICommandService;
 
-public class SVEditorTester implements ISVEditor {
+public class VhdlEditorTester {
 	private IDocument				fDoc;
 	private AutoEditTester			fAutoEditTester;
 	private ISVDBIndexIterator		fIndexIt;
 	private SVDBFile				fSVDBFile;
 	private ITextSelection			fTextSel;
 	
-	public SVEditorTester(
+	public VhdlEditorTester(
 			AutoEditTester			auto_ed,
 			ISVDBIndexIterator		index_it,
 			SVDBFile				file) {
@@ -49,17 +49,17 @@ public class SVEditorTester implements ISVEditor {
 		fTextSel    	= null;
 	}
 
-	public SVEditorTester(String doc, String filename, ISVDBIndexCacheMgr cache_mgr) throws BadLocationException {
-		fAutoEditTester = UiReleaseTests.createAutoEditTester();
+	public VhdlEditorTester(String doc, String filename, ISVDBIndexCacheMgr cache_mgr) throws BadLocationException {
+		fAutoEditTester = VhdlUiReleaseTests.createAutoEditTester();
 		fAutoEditTester.setContent(doc);
 
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		fSVDBFile = factory.parse(new StringInputStream(doc), filename, markers);
+//		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+//		fSVDBFile = factory.parse(new StringInputStream(doc), filename, markers);
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
-		fIndexIt = new FileIndexIterator(fSVDBFile, cache);
+//		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
+//		fIndexIt = new FileIndexIterator(fSVDBFile, cache);
 	}
 
 	public IDocument getDocument() {

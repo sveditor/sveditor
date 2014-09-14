@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.ui.tests.UiReleaseTests;
-import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
+import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.jface.text.BadLocationException;
 

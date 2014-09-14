@@ -2,8 +2,6 @@
 
 SVEditor provides many methods for navigating across the project source.
 
-__TOC__
-
 == Project Explorer ==
 
 The ''Project Explorer'' view is one of the most basic views in Eclipse.  This view allows you to browse through your code as though you are in a regular file system browser.  If you loose the view, it can be re-opened at ''Window>Show View>Other>General>Project Explorer''.

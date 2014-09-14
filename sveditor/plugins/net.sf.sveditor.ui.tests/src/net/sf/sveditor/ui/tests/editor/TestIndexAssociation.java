@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.BadLocationException;
 
-public class TestIndexAssociation extends EditorTestCaseBase {
+public class TestIndexAssociation extends SVEditorTestCaseBase {
 
 	public void disabled_testBuiltinAvailableInShadow_WS() throws CoreException, InterruptedException, BadLocationException {
 		SVCorePlugin.getDefault().enableDebug(false);

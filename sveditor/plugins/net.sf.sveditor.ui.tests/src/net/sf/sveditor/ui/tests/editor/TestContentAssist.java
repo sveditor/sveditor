@@ -18,7 +18,7 @@ import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.SVSourceViewerConfiguration;
-import net.sf.sveditor.ui.tests.editor.utils.AutoEditTester;
+import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -28,7 +28,7 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 
-public class TestContentAssist extends EditorTestCaseBase {
+public class TestContentAssist extends SVEditorTestCaseBase {
 
 	public void testContentAssistBuiltinShadow() throws CoreException, InterruptedException, BadLocationException {
 		SVCorePlugin.getDefault().enableDebug(false);

@@ -44,7 +44,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-public class TestOutlineViewOperations extends EditorTestCaseBase {
+public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 	
 	public void disabled_testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
 		String testname = "testOutlineViewSelectionPreservation_1";
