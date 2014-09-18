@@ -1266,7 +1266,7 @@ end
    if (!${reset_n})  begin
       ${latch} &lt;= 1'b0;
    end
-   else begin
+   else if (${clock}) begin
       ${latch} &lt;= ${cursor};
    end
 end
