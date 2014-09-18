@@ -95,7 +95,15 @@ public class SelNextWordAction extends TextEditorAction {
 		if (offset >= len) {
 			offset = len-1;
 		}
-	
-		sv.setSelectedRange(start_offset, Math.abs(offset-start_offset));
+		
+		sv.setSelectedRange(start_offset, offset-start_offset);
+		/*
+		if (offset < start_offset) {
+			sv.setSelectedRange(offset, 0);
+			sv.setSelectedRange(offset, (start_offset-offset));
+		} else {
+			sv.setSelectedRange(start_offset, Math.abs(offset-start_offset));
+		}
+		 */
 	}
 }

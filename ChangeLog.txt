@@ -9,6 +9,9 @@
 
 - #(329) - Interim solution to this bug. Class-type template parameters 
   are now treated as string-type parameters and can be edited 
+  
+- #(331) - Correct select-next-word behavior when using this action to
+  reduce the size of an existing selection
    
 ------------------------------------------------------------------------------
 

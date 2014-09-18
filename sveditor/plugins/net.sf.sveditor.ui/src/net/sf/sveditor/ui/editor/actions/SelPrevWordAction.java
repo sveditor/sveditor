@@ -95,7 +95,7 @@ public class SelPrevWordAction extends TextEditorAction {
 			offset = 0;
 		}
 		offset++;
-		
+	
 		sv.setSelectedRange(start_offset, offset-start_offset);
 	}
 }
