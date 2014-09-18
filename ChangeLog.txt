@@ -7,6 +7,9 @@
 - #(nobug) - Change implementation of CTRL+/ for VHDL editor to be 
   'Toggle Comment' rather than just 'Add Comment'
 
+- #(329) - Interim solution to this bug. Class-type template parameters 
+  are now treated as string-type parameters and can be edited 
+   
 ------------------------------------------------------------------------------
 
 -- 1.5.8 Release --

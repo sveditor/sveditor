@@ -302,7 +302,9 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 										new String[p.getValues().size()]));
 						return fComboBoxCellEditor;
 					}
-					
+			
+					// TODO: implement more-appropriate editor for class-type parameter
+					case ParameterType_Class:
 					case ParameterType_Id: {
 						return fTextCellEditor;
 					}
@@ -348,11 +350,13 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 				
 						return new Integer(val_idx);
 					}
-					
+
+					// TODO: provide a specific editor for class-type parameters
+					case ParameterType_Class:
 					case ParameterType_Id: {
 						return p.getValue();
 					}
-					
+
 					case ParameterType_Int: {
 						return p.getValue();
 					}
@@ -373,7 +377,9 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 						int val_idx = (Integer)value;
 						p.setValue(p.getValues().get(val_idx));
 					} break;
-						
+				
+					// TODO: provide specific implementation for class
+					case ParameterType_Class:
 					case ParameterType_Int:
 					case ParameterType_Id:
 						p.setValue((String)value);
