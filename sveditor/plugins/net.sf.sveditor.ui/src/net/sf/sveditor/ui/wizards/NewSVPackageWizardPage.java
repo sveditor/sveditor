@@ -18,8 +18,8 @@ import org.eclipse.swt.widgets.Composite;
 public class NewSVPackageWizardPage extends AbstractNewSVItemFileWizardPage {
 	
 	public NewSVPackageWizardPage() {
-		super("New SystemVerilog Interface", "SystemVerilog Interface", 
-				"Create a new SystemVerilog interface");
+		super("New SystemVerilog Package", "SystemVerilog Package", 
+				"Create a new SystemVerilog package");
 		fFileExt = ".sv";
 	}
 	

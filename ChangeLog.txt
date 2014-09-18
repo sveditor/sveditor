@@ -1,3 +1,12 @@
+
+-- 1.5.9 Release --
+
+- #(330) - Correct naming on 'New Package' wizard. The wizard was previously
+  titled 'New Interface' due to a cut/paste error
+  
+- #(nobug) - Change implementation of CTRL+/ for VHDL editor to be 
+  'Toggle Comment' rather than just 'Add Comment'
+
 ------------------------------------------------------------------------------
 
 -- 1.5.8 Release --

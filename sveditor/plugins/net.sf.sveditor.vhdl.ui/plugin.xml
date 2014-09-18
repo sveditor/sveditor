@@ -31,7 +31,7 @@
             sequence="SHIFT+CTRL+/">
       </key>
       <key
-            commandId="net.sf.sveditor.vhdl.ui.AddBlockComment"
+            commandId="net.sf.sveditor.vhdl.ui.ToggleComment"
             contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+/">
@@ -41,12 +41,6 @@
             contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+\">
-      </key>
-      <key
-            commandId="net.sf.sveditor.vhdl.ui.RemoveBlockComment"
-            contextId="net.sf.sveditor.vhdl.ui.vhdlEditorContext"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+\">
       </key>
    </extension>
    <extension
@@ -62,6 +56,10 @@
       <command
             id="net.sf.sveditor.vhdl.ui.AddBlockComment"
             name="Add Block Comment">
+      </command>
+      <command
+            id="net.sf.sveditor.vhdl.ui.ToggleComment"
+            name="Toggle Comment">
       </command>
       <command
             id="net.sf.sveditor.vhdl.ui.RemoveBlockComment"

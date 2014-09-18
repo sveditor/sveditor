@@ -88,7 +88,9 @@ public class EditorTestCaseBase extends TestCase {
 	}
 	
 	protected void addEditor(ITextEditor editor) {
-		fEditors.add(editor);
+		if (!fEditors.contains(editor)) {
+			fEditors.add(editor);
+		}
 	}
 
 	private void cleanupWorkspace() throws CoreException {

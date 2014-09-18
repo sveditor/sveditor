@@ -1,12 +1,14 @@
 package net.sf.sveditor.vhdl.ui.editor;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVCharacterPairMatcher;
 import net.sf.sveditor.vhdl.ui.VhdlUiPlugin;
 import net.sf.sveditor.vhdl.ui.editor.actions.AddBlockCommentAction;
 import net.sf.sveditor.vhdl.ui.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.vhdl.ui.editor.actions.ToggleCommentAction;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
@@ -87,13 +89,47 @@ public class VHDLEditor extends TextEditor {
 		add_block_comment.setEnabled(true);
 		setAction(VhdlUiPlugin.PLUGIN_ID + ".AddBlockComment", add_block_comment);
 		
+		ToggleCommentAction toggle_comment = new ToggleCommentAction(
+				bundle, "ToggleComment.", this);
+		toggle_comment.setActionDefinitionId(VhdlUiPlugin.PLUGIN_ID + ".ToggleComment");
+		toggle_comment.setEnabled(true);
+		setAction(VhdlUiPlugin.PLUGIN_ID + ".ToggleComment", toggle_comment);
+		
 		RemoveBlockCommentAction remove_block_comment = new RemoveBlockCommentAction(
 				bundle, "RemoveBlockComment.", this);
 		remove_block_comment.setActionDefinitionId(VhdlUiPlugin.PLUGIN_ID + ".RemoveBlockComment");
 		remove_block_comment.setEnabled(true);
-		setAction(SVUiPlugin.PLUGIN_ID + ".svRemoveBlockCommentAction", remove_block_comment);
+		setAction(VhdlUiPlugin.PLUGIN_ID + ".RemoveBlockCommentAction", remove_block_comment);
 	}
-	
+
+	public void setSelection(int start, int end, boolean set_cursor) {
+		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+		
+		// Lineno is used as an offset
+		if (start > 0) {
+			start--;
+		}
+		
+		if (end == -1) {
+			end = start;
+		}
+		try {
+			int offset    = doc.getLineOffset(start);
+			int last_line = doc.getLineOfOffset(doc.getLength()-1);
+			
+			if (end > last_line) {
+				end = last_line;
+			}
+			int offset_e = doc.getLineOffset(end);
+			setHighlightRange(offset, (offset_e-offset), false);
+			if (set_cursor) {
+				getSourceViewer().getTextWidget().setCaretOffset(offset);
+			}
+			selectAndReveal(offset, 0, offset, (offset_e-offset));
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+	}
 	
 
 }

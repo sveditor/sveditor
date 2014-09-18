@@ -38,8 +38,13 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			SVCorePlugin.getDefault().getResourceChangeListener().init();
 		}
 		
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		if (root.getProjects() != null) {
+		IWorkspaceRoot root = null;
+		
+		try {
+			root = ResourcesPlugin.getWorkspace().getRoot();
+		} catch (IllegalStateException e) {}
+		
+		if (root != null && root.getProjects() != null) {
 			List<IProject> projects = new ArrayList<IProject>();
 			for (IProject p : root.getProjects()) {
 				if (!p.getName().equals("RemoteSystemsTempFiles")) {

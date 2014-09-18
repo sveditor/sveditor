@@ -167,12 +167,14 @@ public abstract class BlockCommentAction extends TextEditorAction {
 			return;
 			
 		ITextEditor editor= getTextEditor();
-		if (editor == null || !ensureEditable(editor))
+		if (editor == null || !ensureEditable(editor)) {
 			return;
+		}
 			
 		ITextSelection selection= getCurrentSelection();
-		if (!isValidSelection(selection))
+		if (!isValidSelection(selection)) {
 			return;
+		}
 		
 		if (!validateEditorInputState())
 			return;

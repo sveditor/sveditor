@@ -35,6 +35,8 @@ import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVLexer;
+import net.sf.sveditor.core.parser.SVToken;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
@@ -243,7 +245,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		TestUtils.unpackZipToFS(uvm_zip, fTmpDir);
 
-		TestIndexCacheFactory factory = fCacheFactory;
+//		TestIndexCacheFactory factory = fCacheFactory;
 	
 		File uvm = new File(fTmpDir, "uvm");
 		File uvm_pkg = new File(uvm, "src/uvm_pkg.sv");
@@ -264,7 +266,19 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		SVDBIndexStats stats = new SVDBIndexStats();
 		pp.setIndexStats(stats);
 		
-		pp.preprocess();
+		SVPreProcOutput pp_out = pp.preprocess();
+		
+		SVLexer l = new SVLexer();
+		l.init(null, pp_out);
+		
+		long start = System.currentTimeMillis();
+		int tcount = 0;
+		while (l.eatToken() != null) {
+			tcount++;
+		}
+		long end = System.currentTimeMillis();
+		
+		System.out.println("Processed " + tcount + " tokens in " + (end-start) + "ms");
 
 		System.out.println("Index Stats:\n" + stats.toString());
 	}	
