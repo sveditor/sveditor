@@ -35,6 +35,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IPathVariableChangeEvent;
 import org.eclipse.core.resources.IPathVariableChangeListener;
 import org.eclipse.core.resources.IPathVariableManager;
@@ -382,6 +383,16 @@ public class SVDBProjectManager implements
 		}
 		
 		return ret;
+	}
+	
+	public static boolean isSVProject(IProject p) {
+		if (p.isAccessible() && p.isOpen()) {
+			IFile svproject = p.getFile(".svproject");
+			if (svproject.exists() && svproject.isAccessible()) {
+				return true;
+			}
+		} 
+		return false;
 	}
 	
 	public boolean isManagedProject(IProject proj) {

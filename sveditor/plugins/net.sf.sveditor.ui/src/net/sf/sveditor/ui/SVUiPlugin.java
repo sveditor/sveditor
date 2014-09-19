@@ -361,17 +361,22 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 	
 	public static Image getImage(String resource) {
+		return getImage(SVUiPlugin.PLUGIN_ID, resource);
+	}
+	
+	public static Image getImage(String bundle, String resource) {
 		SVUiPlugin p = getDefault();
 		Image ret = null;
 		
 		if (!p.fImageMap.containsKey(resource)) {
 			// Try to load it
 			ret = SVUiPlugin.imageDescriptorFromPlugin(
-					SVUiPlugin.PLUGIN_ID, resource).createImage();
+					bundle, resource).createImage();
 			p.fImageMap.put(resource, ret);
 		}
 		
 		return p.fImageMap.get(resource);
+		
 	}
 
 	public static ImageDescriptor getImageDescriptor(String resource) {

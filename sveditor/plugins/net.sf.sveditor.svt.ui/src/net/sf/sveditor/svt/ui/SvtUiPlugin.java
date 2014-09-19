@@ -9,6 +9,9 @@ import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.XMLTransformUtils;
+import net.sf.sveditor.core.db.project.SVDBPath;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
 import net.sf.sveditor.svt.core.templates.IExternalTemplatePathProvider;
 import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
@@ -16,6 +19,9 @@ import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -99,6 +105,32 @@ public class SvtUiPlugin extends AbstractUIPlugin
 	private void update_template_paths() {
 		IPreferenceStore pstore = SVUiPlugin.getDefault().getPreferenceStore();
 		fTemplatePaths = parse_paths(pstore.getString(P_SV_TEMPLATE_PATHS));
+		
+		// Add in any project-specific template paths
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (IProject p : root.getProjects()) {
+			if (!p.isAccessible() || !p.isOpen()) {
+				continue;
+			}
+			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+			SVDBProjectData pdata = pmgr.getProjectData(p);
+
+			for (SVDBPath tpath : pdata.getProjectFileWrapper().getTemplatePaths()) {
+				String path = tpath.getPath();
+				
+				if (path.startsWith("${project_loc}")) {
+					if (path.equals("${project_loc}")) {
+						path = "${workspace_loc}/" + p.getName();
+					} else {
+						path = "${workspace_loc}/" + p.getName() + "/" + path.substring("${project_loc}".length());
+					}
+				}
+				
+				if (!fTemplatePaths.contains(path)) {
+					fTemplatePaths.add(path);
+				}
+			}
+		}
 	}
 	
 	private static List<String> parse_paths(String stringList) {

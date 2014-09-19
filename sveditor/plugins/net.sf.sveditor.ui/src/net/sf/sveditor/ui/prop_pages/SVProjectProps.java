@@ -65,6 +65,7 @@ public class SVProjectProps extends PropertyPage implements
 //		fPropertyPages.add(new LibraryPathsPage(p));
 		fPropertyPages.add(new ArgumentFilePathsPage(p));
 		fPropertyPages.add(new GlobalDefinesPage(p));
+		fPropertyPages.add(new TemplatePathsPage(p));
 		fPropertyPages.add(new PluginLibPrefsPage());
 //		fPropertyPages.add(new DeprecatedPropertiesPage(p));
 		

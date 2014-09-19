@@ -32,7 +32,7 @@ public class TemplateRegistry implements ILogLevel {
 	private List<TemplateInfo>						fTemplates;
 	private Map<String, List<TemplateInfo>>			fCategoryMap;
 	private List<IExternalTemplatePathProvider>		fPathProviders;
-	private boolean								fLoadExtPoints;
+	private boolean									fLoadExtPoints;
 	
 	static {
 		fLog = LogFactory.getLogHandle("MethodologyTemplateRegistry");
@@ -124,7 +124,6 @@ public class TemplateRegistry implements ILogLevel {
 		
 		if (fPathProviders.size() > 0) {
 			for (IExternalTemplatePathProvider p : fPathProviders) {
-//				System.out.println("PathProvider: " + p);
 				for (String path : p.getExternalTemplatePath()) {
 					fLog.debug(LEVEL_MID, "Processing path \"" + path + "\"");
 					if (path.startsWith("${workspace_loc}")) {

@@ -45,17 +45,19 @@ public class SVProjectFileWrapper {
 	private List<SVDBPath>				fArgFilePaths;
 	private List<SVDBSourceCollection>	fSourceCollections;
 	private List<SVDBPath>				fProjectReferences;
+	private List<SVDBPath>				fProjectTemplatePaths;
 	
 	public SVProjectFileWrapper() {
 		
-		fGlobalDefines		= new ArrayList<Tuple<String,String>>();
-		fIncludePaths 		= new ArrayList<SVDBPath>();
-		fLibraryPaths       = new ArrayList<SVDBPath>();
-		fBuildPaths 		= new ArrayList<SVDBPath>();
-		fPluginPaths 		= new ArrayList<SVDBPath>();
-		fArgFilePaths		= new ArrayList<SVDBPath>();
-		fSourceCollections 	= new ArrayList<SVDBSourceCollection>();
-		fProjectReferences	= new ArrayList<SVDBPath>();
+		fGlobalDefines			= new ArrayList<Tuple<String,String>>();
+		fIncludePaths 			= new ArrayList<SVDBPath>();
+		fLibraryPaths   	    = new ArrayList<SVDBPath>();
+		fBuildPaths 			= new ArrayList<SVDBPath>();
+		fPluginPaths 			= new ArrayList<SVDBPath>();
+		fArgFilePaths			= new ArrayList<SVDBPath>();
+		fSourceCollections 		= new ArrayList<SVDBSourceCollection>();
+		fProjectReferences		= new ArrayList<SVDBPath>();
+		fProjectTemplatePaths 	= new ArrayList<SVDBPath>();
 		
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
 		DocumentBuilder b = null;
@@ -71,14 +73,15 @@ public class SVProjectFileWrapper {
 	}
 	
 	public SVProjectFileWrapper(InputStream in) throws Exception {
-		fGlobalDefines		= new ArrayList<Tuple<String,String>>();
-		fIncludePaths 		= new ArrayList<SVDBPath>();
-		fLibraryPaths       = new ArrayList<SVDBPath>();
-		fBuildPaths 		= new ArrayList<SVDBPath>();
-		fPluginPaths 		= new ArrayList<SVDBPath>();
-		fArgFilePaths		= new ArrayList<SVDBPath>();
-		fSourceCollections 	= new ArrayList<SVDBSourceCollection>();
-		fProjectReferences	= new ArrayList<SVDBPath>();
+		fGlobalDefines			= new ArrayList<Tuple<String,String>>();
+		fIncludePaths 			= new ArrayList<SVDBPath>();
+		fLibraryPaths       	= new ArrayList<SVDBPath>();
+		fBuildPaths 			= new ArrayList<SVDBPath>();
+		fPluginPaths 			= new ArrayList<SVDBPath>();
+		fArgFilePaths			= new ArrayList<SVDBPath>();
+		fSourceCollections 		= new ArrayList<SVDBSourceCollection>();
+		fProjectReferences		= new ArrayList<SVDBPath>();
+		fProjectTemplatePaths 	= new ArrayList<SVDBPath>();
 		
 		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
 		DocumentBuilder b = f.newDocumentBuilder();
@@ -111,6 +114,7 @@ public class SVProjectFileWrapper {
 		change |= init_source_collections(svproject, "sourceCollections", 
 				"sourceCollection", fSourceCollections);
 		change |= init_paths(svproject, "projectRefs", "projectRef", fProjectReferences);
+		change |= init_paths(svproject, "templatePaths", "templatePath", fProjectTemplatePaths);
 		
 		return change;
 	}
@@ -293,6 +297,7 @@ public class SVProjectFileWrapper {
 		marshall_paths(svproject, "argFilePaths", "argFilePath", fArgFilePaths);
 		marshall_source_collections(svproject, fSourceCollections);
 		marshall_paths(svproject, "projectRefs", "projectRef", fProjectReferences);
+		marshall_paths(svproject, "templatePaths", "templatePath", fProjectTemplatePaths);
 	}
 	
 	private void marshall_paths(
@@ -463,6 +468,19 @@ public class SVProjectFileWrapper {
 		fProjectReferences.add(p);
 	}
 	
+	public List<SVDBPath> getTemplatePaths() {
+		return fProjectTemplatePaths;
+	}
+	
+	public void addTemplatePath(String path) {
+		SVDBPath p = new SVDBPath(path);
+		fProjectTemplatePaths.add(p);
+	}
+	
+	public void addTemplatePath(SVDBPath p) {
+		fProjectTemplatePaths.add(p);
+	}
+	
 	public void toStream(OutputStream out) {
 		SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
 		// Transformer t = null;
@@ -512,6 +530,7 @@ public class SVProjectFileWrapper {
 		fArgFilePaths.clear();
 		fProjectReferences.clear();
 		fSourceCollections.clear();
+		fProjectTemplatePaths.clear();
 		fBuildPaths.clear();
 		fGlobalDefines.clear();
 		
@@ -537,6 +556,10 @@ public class SVProjectFileWrapper {
 		
 		for (SVDBPath p : fw.getProjectRefs()) {
 			fProjectReferences.add(p.duplicate());
+		}
+		
+		for (SVDBPath p : fw.getTemplatePaths()) {
+			fProjectTemplatePaths.add(p.duplicate());
 		}
 		
 		for (SVDBPath p : fw.fBuildPaths) {
@@ -591,13 +614,22 @@ public class SVProjectFileWrapper {
 					return false;
 				}
 			}
-
+			
 			if (fSourceCollections.size() != p.fSourceCollections.size()) {
 				return false;
 			}
 			
 			for (int i=0; i<fSourceCollections.size(); i++) {
 				if (!p.fSourceCollections.get(i).equals(fSourceCollections.get(i))) {
+					return false;
+				}
+			}
+			
+			if (p.fProjectTemplatePaths.size() != fProjectTemplatePaths.size()) {
+				return false;
+			}
+			for (int i=0; i<fProjectTemplatePaths.size(); i++) {
+				if (!p.fProjectTemplatePaths.get(i).equals(fProjectTemplatePaths.get(i))) {
 					return false;
 				}
 			}
