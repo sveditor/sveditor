@@ -36,6 +36,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 
 public abstract class BlockCommentAction extends TextEditorAction {
 
+	boolean isAddBlockComment;
 	/**
 	 * Creates a new instance.
 	 * @param bundle
@@ -44,6 +45,11 @@ public abstract class BlockCommentAction extends TextEditorAction {
 	 */
 	public BlockCommentAction(ResourceBundle bundle, String prefix, ITextEditor editor) {
 		super(bundle, prefix, editor);
+		// This class is instantiated twice, once for AddBlockComment, once for RemoveBlockComment
+		// AddBlockComment needs to know if there is a valid selection, before adding a block comment,
+		// RemoveBlockComment doesn't need this test.
+		isAddBlockComment = prefix.equals("AddBlockComment.");		
+
 	}
 	
 	/**
@@ -170,7 +176,8 @@ public abstract class BlockCommentAction extends TextEditorAction {
 			return;
 			
 		ITextSelection selection= getCurrentSelection();
-		if (!isValidSelection(selection))
+		// Add Block comment needs a valid selection, else do nothing
+		if (isAddBlockComment && (!isValidSelection(selection))) 
 			return;
 		
 		if (!validateEditorInputState())
