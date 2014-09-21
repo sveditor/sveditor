@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
@@ -117,14 +118,9 @@ public class SvtUiPlugin extends AbstractUIPlugin
 
 			for (SVDBPath tpath : pdata.getProjectFileWrapper().getTemplatePaths()) {
 				String path = tpath.getPath();
-				
-				if (path.startsWith("${project_loc}")) {
-					if (path.equals("${project_loc}")) {
-						path = "${workspace_loc}/" + p.getName();
-					} else {
-						path = "${workspace_loc}/" + p.getName() + "/" + path.substring("${project_loc}".length());
-					}
-				}
+			
+				// Expand any variables
+				path = SVFileUtils.expandVars(path, p.getName(), true);
 				
 				if (!fTemplatePaths.contains(path)) {
 					fTemplatePaths.add(path);
