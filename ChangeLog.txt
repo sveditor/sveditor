@@ -12,6 +12,9 @@
   
 - #(331) - Correct select-next-word behavior when using this action to
   reduce the size of an existing selection
+  
+- #(enh 31) - Allow projects to specify template paths via the project
+  properties dialog. 
    
 ------------------------------------------------------------------------------
 
