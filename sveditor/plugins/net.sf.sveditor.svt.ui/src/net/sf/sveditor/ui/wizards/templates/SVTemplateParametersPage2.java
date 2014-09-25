@@ -5,6 +5,7 @@ import net.sf.sveditor.svt.core.templates.TemplateParameterBase;
 import net.sf.sveditor.svt.core.templates.TemplateParameterSet;
 import net.sf.sveditor.ui.doc.NDText;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -19,11 +20,19 @@ public class SVTemplateParametersPage2 extends WizardPage {
 	private TemplateParametersTreeViewer		fParametersTree;
 	private NDText								fParameterInfo;
 	private TemplateParameterSet				fParameterSet;
+	private IProject							fProject;
 	
 	public SVTemplateParametersPage2() {
 		super("Parameters");
 		
 		setDescription("Specify parameter template values");
+	}
+	
+	public void setProject(IProject project) {
+		fProject = project;
+		if (fParametersTree != null) {
+			fParametersTree.setProject(fProject);
+		}
 	}
 	
 	@Override
@@ -70,6 +79,7 @@ public class SVTemplateParametersPage2 extends WizardPage {
 
 		fParametersTree = new TemplateParametersTreeViewer(sash);
 		fParametersTree.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		fParametersTree.setProject(fProject);
 		
 		fParameterInfo = new NDText(sash, SWT.BORDER+SWT.READ_ONLY+SWT.V_SCROLL+SWT.WRAP);
 		fParameterInfo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

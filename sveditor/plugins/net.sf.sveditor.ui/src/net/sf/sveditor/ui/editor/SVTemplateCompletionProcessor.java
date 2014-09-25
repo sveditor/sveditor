@@ -48,7 +48,7 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor
 	
 	private CompletionState						fState;
 	private SVEditor							fEditor;
-	private SVCompletionProcessor				fSubProcessor;
+	private SVEditorCompletionProcessor				fSubProcessor;
 	private IContentAssistantExtension2			fAssistant;
 
 	@SuppressWarnings("rawtypes")
@@ -63,7 +63,7 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor
 
 	public SVTemplateCompletionProcessor(SVEditor editor) {
 		fEditor = editor;
-		fSubProcessor = new SVCompletionProcessor(fEditor);
+		fSubProcessor = new SVEditorCompletionProcessor(fEditor);
 	}
 
 	@Override
@@ -87,8 +87,8 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor
 		}
 		
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
-		IBIDITextScanner scanner = SVCompletionProcessor.createScanner(viewer, offset);
-		Tuple<Integer, Integer> line_pos = SVCompletionProcessor.computeLineOffset(viewer, offset);
+		IBIDITextScanner scanner = SVEditorCompletionProcessor.createScanner(viewer, offset);
+		Tuple<Integer, Integer> line_pos = SVEditorCompletionProcessor.computeLineOffset(viewer, offset);
 		
 		if (line_pos == null) {
 			return new ICompletionProposal[0];

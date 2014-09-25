@@ -14,6 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogHandle;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
@@ -35,7 +38,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorExtension2;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-public abstract class BlockCommentAction extends TextEditorAction {
+public abstract class BlockCommentAction extends TextEditorAction implements ILogLevel {
+	protected LogHandle				fLog;
 
 	/**
 	 * Creates a new instance.
@@ -163,36 +167,49 @@ public abstract class BlockCommentAction extends TextEditorAction {
 	}
 
 	public void run() {
-		if (!isEnabled())
+		fLog.debug(LEVEL_MIN, "--> run");
+		if (!isEnabled()) {
+			fLog.debug(LEVEL_MIN, "Action not enabled");
 			return;
+		}
 			
 		ITextEditor editor= getTextEditor();
 		if (editor == null || !ensureEditable(editor)) {
+			fLog.debug(LEVEL_MIN, "editor null or not editable: " + editor);
 			return;
 		}
 			
 		ITextSelection selection= getCurrentSelection();
 		if (!isValidSelection(selection)) {
+			fLog.debug(LEVEL_MIN, "Selection invalid");
 			return;
 		}
 		
-		if (!validateEditorInputState())
+		if (!validateEditorInputState()) {
+			fLog.debug(LEVEL_MIN, "Failed to validate input state");
 			return;
+		}
 		
 		IDocumentProvider docProvider= editor.getDocumentProvider();
 		IEditorInput input= editor.getEditorInput();
-		if (docProvider == null || input == null)
+		if (docProvider == null || input == null) {
+			fLog.debug(LEVEL_MIN, "input or docProvider null: input=" + input + " docProvider=" + docProvider);
 			return;
+		}
 			
 		IDocument document= docProvider.getDocument(input);
-		if (document == null)
+		if (document == null) {
+			fLog.debug(LEVEL_MIN, "document null");
 			return;
+		}
 			
 		IDocumentExtension3 docExtension;
-		if (document instanceof IDocumentExtension3)
+		if (document instanceof IDocumentExtension3) {
 			docExtension= (IDocumentExtension3) document;
-		else
+		} else {
+			fLog.debug(LEVEL_MIN, "document not instanceOf DocumentExtension3");
 			return;
+		}
 		
 		IRewriteTarget target= (IRewriteTarget)editor.getAdapter(IRewriteTarget.class);
 		if (target != null) {
@@ -202,13 +219,17 @@ public abstract class BlockCommentAction extends TextEditorAction {
 		Edit.EditFactory factory= new Edit.EditFactory(document);
 		
 		try {
+			fLog.debug(LEVEL_MIN, "--> runInternal");
 			runInternal(selection, docExtension, factory);
+			fLog.debug(LEVEL_MIN, "<-- runInternal");
 	
 		} catch (BadLocationException e) {
 			// can happen on concurrent modification, deletion etc. of the document 
 			// -> don't complain, just bail out
+			fLog.debug(LEVEL_MIN, "BadLocationException", e);
 		} catch (BadPartitioningException e) {
 			// should not happen
+			fLog.debug(LEVEL_MIN, "BadPartitioningException", e);
 			Assert.isTrue(false, "bad partitioning");  //$NON-NLS-1$
 		} finally {
 			factory.release();
@@ -217,6 +238,8 @@ public abstract class BlockCommentAction extends TextEditorAction {
 				target.endCompoundChange();
 			}
 		}
+		
+		fLog.debug(LEVEL_MIN, "<-- run");
 	}
 
 	/**

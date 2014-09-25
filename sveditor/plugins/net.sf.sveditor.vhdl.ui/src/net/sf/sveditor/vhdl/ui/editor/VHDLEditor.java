@@ -1,6 +1,9 @@
 package net.sf.sveditor.vhdl.ui.editor;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.editor.SVCharacterPairMatcher;
 import net.sf.sveditor.vhdl.ui.VhdlUiPlugin;
 import net.sf.sveditor.vhdl.ui.editor.actions.AddBlockCommentAction;
@@ -18,10 +21,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.editors.text.TextEditor;
 
 
-public class VHDLEditor extends TextEditor {
+public class VHDLEditor extends TextEditor implements ILogLevel {
 	private VHDLCodeScanner				fCodeScanner;
 	private SVCharacterPairMatcher		fCharacterMatcher;
 	private MatchingCharacterPainter	fMatchingCharacterPainter;
+	private LogHandle					fLog = LogFactory.getLogHandle("VHDLEditor");
 
 	public VHDLEditor() {
 		fCharacterMatcher = new SVCharacterPairMatcher(new char[] {
@@ -73,12 +77,15 @@ public class VHDLEditor extends TextEditor {
 
 	@Override
 	protected void initializeKeyBindingScopes() {
+		fLog = LogFactory.getLogHandle("VHDLEditor");
+		fLog.debug(LEVEL_MIN, "initializeBindingScopes");
 		setKeyBindingScopes(new String[] {VhdlUiPlugin.PLUGIN_ID + ".vhdlEditorContext"});
 	}
 
 	@Override
 	protected void createActions() {
 		ResourceBundle bundle = VhdlUiPlugin.getDefault().getResources();
+		fLog.debug(LEVEL_MIN, "createActions");
 		
 		// TODO Auto-generated method stub
 		super.createActions();

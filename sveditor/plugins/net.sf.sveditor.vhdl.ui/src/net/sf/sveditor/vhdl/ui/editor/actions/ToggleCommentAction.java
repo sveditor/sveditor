@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.vhdl.ui.editor.VHDLDocumentPartitions;
 import net.sf.sveditor.vhdl.ui.editor.VHDLEditor;
 
@@ -26,10 +28,11 @@ import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITypedRegion;
 
-public class ToggleCommentAction extends BlockCommentAction {
+public class ToggleCommentAction extends BlockCommentAction implements ILogLevel {
 	
 	public ToggleCommentAction(ResourceBundle bundle, String prefix, VHDLEditor editor) {
 		super(bundle, prefix, editor);
+		fLog = LogFactory.getLogHandle("ToggleCommentAction");
 	}
 	
 	
@@ -42,6 +45,8 @@ public class ToggleCommentAction extends BlockCommentAction {
 		List<Edit> edits= new LinkedList<Edit>();
 		ITypedRegion partition;
 		IDocument doc = (IDocument)docExtension;
+		
+		fLog.debug(LEVEL_MIN, "runInternal: selection=" + selection);
 
 		int partEndOffset= selectionOffset;
 		
@@ -50,6 +55,7 @@ public class ToggleCommentAction extends BlockCommentAction {
 		
 		if (allCommented(selection, docExtension)) {
 			// Remove comments
+			fLog.debug(LEVEL_MIN, "allCommented: removing existing comments");
 			
 			do { // while (partition.getOffset() + partition.getLength() < selectionEndOffset) {
 				partition= docExtension.getPartition(VHDLDocumentPartitions.VHD_PARTITIONING, 
@@ -61,6 +67,7 @@ public class ToggleCommentAction extends BlockCommentAction {
 			} while (selectionEndOffset > partEndOffset);			
 		} else {
 			// Add comments
+			fLog.debug(LEVEL_MIN, "not allCommented: add new comments");
 			do { // while (partition.getOffset() + partition.getLength() < selectionEndOffset) {
 				partition= docExtension.getPartition(VHDLDocumentPartitions.VHD_PARTITIONING, 
 						partEndOffset, false);
@@ -85,23 +92,29 @@ public class ToggleCommentAction extends BlockCommentAction {
 		int partEndOffset = selection.getOffset();
 		int selectionEndOffset = selection.getOffset()+selection.getLength();
 		
+		fLog.debug(LEVEL_MIN, "--> allCommented: ");
+		
 		do {
 			try {
 				ITypedRegion partition= docExtension.getPartition(
 						VHDLDocumentPartitions.VHD_PARTITIONING, 
 						partEndOffset, false);
+				fLog.debug(LEVEL_MIN, "partition: " + partition.getType() + " " + partition.getOffset() + " " + partition.getLength());
 				partEndOffset = partition.getOffset()+partition.getLength();
 
 				if (partition.getType() != VHDLDocumentPartitions.VHD_COMMENT) {
 					all = false;
 				}
 			} catch (BadLocationException e) {
+				fLog.error("BadLocationException", e);
 				break;
 			} catch (BadPartitioningException e) {
+				fLog.error("BadPartitioningException", e);
 				break;
 			}
 		} while (selectionEndOffset > partEndOffset);
 		
+		fLog.debug(LEVEL_MIN, "<-- allCommented: " + all);
 		return all;
 	}
 

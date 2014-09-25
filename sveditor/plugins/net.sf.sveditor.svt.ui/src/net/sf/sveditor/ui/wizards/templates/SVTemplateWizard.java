@@ -33,6 +33,7 @@ import net.sf.sveditor.ui.SVUiPlugin;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -95,6 +96,16 @@ public class SVTemplateWizard extends BasicNewResourceWizard {
 		}
 		
 		if (next == fParametersPage) {
+			String src_folder_s = fNameFilesPage.getSourceFolder();
+			IProject src_project = null;
+			
+			if (src_folder_s != null) {
+				IContainer src_folder = SVFileUtils.getWorkspaceFolder(src_folder_s);
+				if (src_folder != null && src_folder.exists()) {
+					src_project = src_folder.getProject();
+				}
+			}
+			fParametersPage.setProject(src_project);
 			fParametersPage.setParameters(fTemplateSelectionPage.getTemplate().getParameters());
 			fParametersPage.setTemplateName(fTemplateSelectionPage.getTemplate().getName());
 		}

@@ -66,7 +66,7 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.swt.widgets.Display;
 
 
-public class SVCompletionProcessor extends AbstractCompletionProcessor 
+public class SVEditorCompletionProcessor extends AbstractCompletionProcessor 
 		implements IContentAssistProcessor {
 
 	private SVEditor 						fEditor;
@@ -79,7 +79,7 @@ public class SVCompletionProcessor extends AbstractCompletionProcessor
 	private List<ICompletionProposal>				fProposals = 
 		new ArrayList<ICompletionProposal>();
 
-	public SVCompletionProcessor(SVEditor editor) {
+	public SVEditorCompletionProcessor(SVEditor editor) {
 		fLog = LogFactory.getLogHandle("SVCompletionProcessor");
 		fEditor = editor;
 		fProposalUtils = new SVCompletionProposalUtils();

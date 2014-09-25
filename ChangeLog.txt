@@ -1,4 +1,12 @@
 
+-- 1.6.0 Release --
+
+- #(enh 31) - Allow projects to specify template paths via the project
+  properties dialog. 
+  
+- #(enh 329) - Add initial implementation of content assist for class-type
+  parameters in the template-instantiation wizard.
+
 -- 1.5.9 Release --
 
 - #(330) - Correct naming on 'New Package' wizard. The wizard was previously
@@ -12,10 +20,7 @@
   
 - #(331) - Correct select-next-word behavior when using this action to
   reduce the size of an existing selection
-  
-- #(enh 31) - Allow projects to specify template paths via the project
-  properties dialog. 
-   
+
 ------------------------------------------------------------------------------
 
 -- 1.5.8 Release --

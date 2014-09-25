@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.vhdl.ui.editor.VHDLDocumentPartitions;
 import net.sf.sveditor.vhdl.ui.editor.VHDLEditor;
 
@@ -28,6 +29,7 @@ public class RemoveBlockCommentAction extends BlockCommentAction {
 	
 	public RemoveBlockCommentAction(ResourceBundle bundle, String prefix, VHDLEditor editor) {
 		super(bundle, prefix, editor);
+		fLog = LogFactory.getLogHandle("RemoveBlockCommentAction");
 	}
 	
 	/*

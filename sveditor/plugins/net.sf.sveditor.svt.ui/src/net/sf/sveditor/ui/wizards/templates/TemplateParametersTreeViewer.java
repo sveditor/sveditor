@@ -12,6 +12,7 @@ import net.sf.sveditor.svt.core.templates.TemplateParameterSet;
 import net.sf.sveditor.svt.core.templates.TemplateParameterType;
 import net.sf.sveditor.svt.ui.SvtUiPlugin;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.layout.TreeColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -38,12 +39,21 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 	private List<ModifyListener>				fModifyListeners;
 	private TextCellEditor						fTextCellEditor;
 	private TextCellEditor						fIntCellEditor;
+	private SVClassCellEditor					fClassCellEditor;
 	private ComboBoxCellEditor					fComboBoxCellEditor;
 	private Composite							fRealParent;
+	private IProject							fProject;
 	
 	private TemplateParametersTreeViewer(Composite real_parent, int style) {
 		super(real_parent, style);
 		fRealParent = real_parent;
+	}
+	
+	public void setProject(IProject project) {
+		fProject = project;
+		if (fClassCellEditor != null) {
+			fClassCellEditor.setProject(fProject);
+		}
 	}
 	
 	public TemplateParametersTreeViewer(Composite parent) {
@@ -86,6 +96,8 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 		fRealParent.setLayout(layout);
 		
 		fTextCellEditor = new TextCellEditor(getTree());
+		fClassCellEditor = new SVClassCellEditor(getTree());
+		fClassCellEditor.setProject(fProject);
 		fIntCellEditor = new TextCellEditor(getTree());
 		fIntCellEditor.setValidator(new ICellEditorValidator() {
 			public String isValid(Object value) {
@@ -304,7 +316,10 @@ public class TemplateParametersTreeViewer extends TreeViewer {
 					}
 			
 					// TODO: implement more-appropriate editor for class-type parameter
-					case ParameterType_Class:
+					case ParameterType_Class: {
+						return fClassCellEditor;
+					}
+					
 					case ParameterType_Id: {
 						return fTextCellEditor;
 					}
