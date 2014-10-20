@@ -1014,8 +1014,12 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
 		while (fLexer.peekOperator("::", ".", "[")) {
 			SVToken t = fLexer.consumeToken();
-			// Don't move forward if this is likely to be an assertion sequence
-			if (fAssertionExpr.peek()) {
+			if (fLexer.peekOperator("*")) {
+				// This is a coverpoint transition expression
+				fLexer.ungetToken(t);
+				break;
+			} else if (fAssertionExpr.peek()) {
+				// Don't move forward if this is likely to be an assertion sequence
 				if (!fLexer.peekOperator()) {
 					fLexer.ungetToken(t);
 					a = selector(a);

@@ -1,9 +1,13 @@
 
 -- 1.6.1 Release --
+
 - #(nobug) Fixed always_latch default instantiation - added clk 
+
 - #(nobug) RemoveBlockComment (Ctrl+Shift+\) no longer needs to have 
   anything selected to operate.  As long as the cursor is in a block comment
   the comment will be removed.
+  
+- #(334) - Correct parse error involving transition-bin patterns
 
 -- 1.6.0 Release --
 

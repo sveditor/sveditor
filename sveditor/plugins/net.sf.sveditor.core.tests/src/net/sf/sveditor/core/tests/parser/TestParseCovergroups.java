@@ -84,6 +84,28 @@ public class TestParseCovergroups extends TestCase {
 			;
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"c","cg"});
 	}
+
+	public void testTransitionBins3() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"class c;\n" +
+			"	covergroup op_cov;\n" +
+			"		coverpoint op_set {\n" +
+			"			bins single_cycle[] = {[add_op : xor_op], rst_op,no_op};\n" +
+		    "			bins multi_cycle = {mul_op};\n" +
+		    "			bins opn_rst[] = ([add_op:mul_op] => rst_op);\n" +
+		    "			bins rst_opn[] = (rst_op => [add_op:mul_op]);\n" +
+		    "			bins sngl_mul[] = ([add_op:xor_op],no_op => mul_op);\n" +
+		    "			bins mul_sngl[] = (mul_op => [add_op:xor_op], no_op);\n" +
+		    "			bins twoops[] = ([add_op:mul_op] [* 2]);\n" +
+		    "			bins manymult = (mul_op [* 3:5]);\n" +
+		    "		}\n" +
+		    "	endgroup\n" +
+			"endclass\n"
+			;
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"c", "op_cov"});
+	}
 	
 	public void testIndexedBinsOf() throws SVParseException {
 	    SVCorePlugin.getDefault().enableDebug(false);
