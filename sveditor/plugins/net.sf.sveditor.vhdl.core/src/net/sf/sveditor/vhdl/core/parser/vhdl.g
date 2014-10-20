@@ -35,7 +35,7 @@ class VhdlParser extends Parser;
 
 options {
   	k=2;
-  	//buildAST=true;
+	buildAST=true;
 }
 
 {
@@ -1343,7 +1343,7 @@ voptions
 //}END parser
 
 //=====================================================================
-@SuppressWarnings("rawtypes")
+// @SuppressWarnings("rawtypes")
 class VhdlLexer extends Lexer;
 options {
 	k=2;

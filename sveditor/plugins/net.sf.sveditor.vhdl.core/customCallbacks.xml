@@ -15,7 +15,7 @@
 	
 	<target name="pre.@dot">
 		<echo message="Building ANTLR"/>
-		<java classname="antlr.Tool">
+		<java classname="antlr.Tool" failonerror="true">
 			<classpath path="${antlr_dir}/antlr.jar"/>
 			<arg value="-o"/>
 			<arg value="${basedir}/src/net/sf/sveditor/vhdl/core/parser"/>

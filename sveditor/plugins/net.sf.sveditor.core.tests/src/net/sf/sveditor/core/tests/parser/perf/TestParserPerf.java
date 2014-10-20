@@ -18,13 +18,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -35,6 +39,8 @@ import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVToken;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
@@ -252,8 +258,12 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		InputStream in = new FileInputStream(uvm_pkg);
 		
 		System.out.println("uvm_pkg: " + uvm_pkg.getAbsolutePath());
-		
-		Thread.sleep(4000);
+
+		/*
+		System.out.println("--> Sleeping");
+		Thread.sleep(10000);
+		System.out.println("<-- Sleeping");
+		 */
 
 		SVPathPreProcIncFileProvider inc_provider = new SVPathPreProcIncFileProvider(
 				new SVDBFSFileSystemProvider());
@@ -265,20 +275,37 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 	
 		SVDBIndexStats stats = new SVDBIndexStats();
 		pp.setIndexStats(stats);
-		
+	
+		long pp_start = System.currentTimeMillis();
 		SVPreProcOutput pp_out = pp.preprocess();
+		long pp_end = System.currentTimeMillis();
+		System.out.println("Pre-Process: " + (pp_end-pp_start));
+
+		if (true) {
+		return;
+		}
+		
+		SVPreProcOutput pp_out_parse = pp_out.duplicate();
 		
 		SVLexer l = new SVLexer();
 		l.init(null, pp_out);
 		
-		long start = System.currentTimeMillis();
+		long lex_start = System.currentTimeMillis();
 		int tcount = 0;
 		while (l.eatToken() != null) {
 			tcount++;
 		}
-		long end = System.currentTimeMillis();
+		long lex_end = System.currentTimeMillis();
 		
-		System.out.println("Processed " + tcount + " tokens in " + (end-start) + "ms");
+		System.out.println("Processed " + tcount + " tokens in " + (lex_end-lex_start) + "ms");
+	
+		ParserSVDBFileFactory ff = new ParserSVDBFileFactory();
+		List<SVDBMarker> m = new ArrayList<SVDBMarker>();
+		long parse_start = System.currentTimeMillis();
+		ff.parse(SVLanguageLevel.SystemVerilog, pp_out_parse, "", m);
+		long parse_end = System.currentTimeMillis();
+		System.out.println("Parse: " + (parse_end-parse_start));
+		
 
 		System.out.println("Index Stats:\n" + stats.toString());
 	}	

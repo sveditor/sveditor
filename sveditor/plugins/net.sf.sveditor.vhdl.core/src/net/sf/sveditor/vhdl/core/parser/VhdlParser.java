@@ -15,6 +15,11 @@ import antlr.MismatchedTokenException;
 import antlr.SemanticException;
 import antlr.ParserSharedInputState;
 import antlr.collections.impl.BitSet;
+import antlr.collections.AST;
+import java.util.Hashtable;
+import antlr.ASTFactory;
+import antlr.ASTPair;
+import antlr.collections.impl.ASTArray;
 
 public class VhdlParser extends antlr.LLkParser       implements VhdlParserTokenTypes
  {
@@ -38,6 +43,8 @@ public class VhdlParser extends antlr.LLkParser       implements VhdlParserToken
 protected VhdlParser(TokenBuffer tokenBuf, int k) {
   super(tokenBuf,k);
   tokenNames = _tokenNames;
+  buildTokenTypeASTClassMap();
+  astFactory = new ASTFactory(getTokenTypeToASTClassMap());
 }
 
 public VhdlParser(TokenBuffer tokenBuf) {
@@ -47,6 +54,8 @@ public VhdlParser(TokenBuffer tokenBuf) {
 protected VhdlParser(TokenStream lexer, int k) {
   super(lexer,k);
   tokenNames = _tokenNames;
+  buildTokenTypeASTClassMap();
+  astFactory = new ASTFactory(getTokenTypeToASTClassMap());
 }
 
 public VhdlParser(TokenStream lexer) {
@@ -56,21 +65,30 @@ public VhdlParser(TokenStream lexer) {
 public VhdlParser(ParserSharedInputState state) {
   super(state,2);
   tokenNames = _tokenNames;
+  buildTokenTypeASTClassMap();
+  astFactory = new ASTFactory(getTokenTypeToASTClassMap());
 }
 
 	public final void abstract_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST abstract_literal_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case DECIMAL_LITERAL:
 			{
 				decimal_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				abstract_literal_AST = (AST)currentAST.root;
 				break;
 			}
 			case BASED_LITERAL:
 			{
 				based_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				abstract_literal_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -87,13 +105,21 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = abstract_literal_AST;
 	}
 	
 	public final void decimal_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST decimal_literal_AST = null;
 		
 		try {      // for error handling
+			AST tmp1_AST = null;
+			tmp1_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp1_AST);
 			match(DECIMAL_LITERAL);
+			decimal_literal_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -103,13 +129,21 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = decimal_literal_AST;
 	}
 	
 	public final void based_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST based_literal_AST = null;
 		
 		try {      // for error handling
+			AST tmp2_AST = null;
+			tmp2_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp2_AST);
 			match(BASED_LITERAL);
+			based_literal_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -119,14 +153,23 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = based_literal_AST;
 	}
 	
 	public final void access_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST access_type_definition_AST = null;
 		
 		try {      // for error handling
+			AST tmp3_AST = null;
+			tmp3_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp3_AST);
 			match(K_ACCESS);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			access_type_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -136,13 +179,18 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = access_type_definition_AST;
 	}
 	
 	public final void subtype_indication() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subtype_indication_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case BASIC_IDENTIFIER:
@@ -150,6 +198,7 @@ public VhdlParser(ParserSharedInputState state) {
 			case STRING_LITERAL:
 			{
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -220,6 +269,7 @@ public VhdlParser(ParserSharedInputState state) {
 			case K_RANGE:
 			{
 				constraint();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -282,6 +332,7 @@ public VhdlParser(ParserSharedInputState state) {
 			}
 			}
 			}
+			subtype_indication_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -291,10 +342,14 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = subtype_indication_AST;
 	}
 	
 	public final void actual_designator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST actual_designator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -314,11 +369,17 @@ public VhdlParser(ParserSharedInputState state) {
 			case STRING_LITERAL:
 			{
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
+				actual_designator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OPEN:
 			{
+				AST tmp4_AST = null;
+				tmp4_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp4_AST);
 				match(K_OPEN);
+				actual_designator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -335,19 +396,26 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = actual_designator_AST;
 	}
 	
 	public final void expression() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST expression_AST = null;
 		
 		try {      // for error handling
 			relation();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop245:
 			do {
 				if (((LA(1) >= K_AND && LA(1) <= K_XNOR))) {
 					logical_op();
+					astFactory.addASTChild(currentAST, returnAST);
 					relation();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop245;
@@ -355,6 +423,7 @@ public VhdlParser(ParserSharedInputState state) {
 				
 			} while (true);
 			}
+			expression_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -364,13 +433,19 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = expression_AST;
 	}
 	
 	public final void actual_parameter_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST actual_parameter_part_AST = null;
 		
 		try {      // for error handling
 			association_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			actual_parameter_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -380,19 +455,28 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = actual_parameter_part_AST;
 	}
 	
 	public final void association_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST association_list_AST = null;
 		
 		try {      // for error handling
 			association_element();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop43:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp5_AST = null;
+					tmp5_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp5_AST);
 					match(COMMA);
 					association_element();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop43;
@@ -400,6 +484,7 @@ public VhdlParser(ParserSharedInputState state) {
 				
 			} while (true);
 			}
+			association_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -409,10 +494,14 @@ public VhdlParser(ParserSharedInputState state) {
 			  throw ex;
 			}
 		}
+		returnAST = association_list_AST;
 	}
 	
 	public final void actual_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST actual_part_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched7 = false;
@@ -434,12 +523,23 @@ inputState.guessing--;
 			}
 			if ( synPredMatched7 ) {
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp6_AST = null;
+				tmp6_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp6_AST);
 				match(LPAREN);
 				actual_designator();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp7_AST = null;
+				tmp7_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp7_AST);
 				match(RPAREN);
+				actual_part_AST = (AST)currentAST.root;
 			}
 			else if ((_tokenSet_7.member(LA(1))) && (_tokenSet_8.member(LA(2)))) {
 				actual_designator();
+				astFactory.addASTChild(currentAST, returnAST);
+				actual_part_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -454,11 +554,15 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = actual_part_AST;
 	}
 	
 	public final Token  name() throws RecognitionException, TokenStreamException {
 		Token tok;
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST name_AST = null;
 			StringBuilder smplName = null;
 			Token first = null;
 			tok = null;
@@ -471,6 +575,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				tok=simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				if ( inputState.guessing==0 ) {
 					smplName = new StringBuilder(tok.getText()); first=tok;
 				}
@@ -479,6 +584,7 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				operator_symbol();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			default:
@@ -495,8 +601,12 @@ inputState.guessing--;
 					switch ( LA(1)) {
 					case DOT:
 					{
+						AST tmp8_AST = null;
+						tmp8_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp8_AST);
 						match(DOT);
 						tok=suffix();
+						astFactory.addASTChild(currentAST, returnAST);
 						if ( inputState.guessing==0 ) {
 								if ((tok != null) && (null != smplName)) {
 													smplName.append('.').append(tok.getText());
@@ -507,8 +617,12 @@ inputState.guessing--;
 					}
 					case TIC:
 					{
+						AST tmp9_AST = null;
+						tmp9_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp9_AST);
 						match(TIC);
 						aggregate();
+						astFactory.addASTChild(currentAST, returnAST);
 						break;
 					}
 					case TIC_SIMPLE_NAME:
@@ -519,6 +633,7 @@ inputState.guessing--;
 						case LBRACK:
 						{
 							signature();
+							astFactory.addASTChild(currentAST, returnAST);
 							break;
 						}
 						case TIC_SIMPLE_NAME:
@@ -532,6 +647,7 @@ inputState.guessing--;
 						}
 						}
 						tic_attribute_designator();
+						astFactory.addASTChild(currentAST, returnAST);
 						break;
 					}
 					default:
@@ -567,14 +683,22 @@ inputState.guessing--;
 inputState.guessing--;
 						}
 						if ( synPredMatched357 ) {
+							AST tmp10_AST = null;
+							tmp10_AST = astFactory.create(LT(1));
+							astFactory.addASTChild(currentAST, tmp10_AST);
 							match(LPAREN);
 							expression();
+							astFactory.addASTChild(currentAST, returnAST);
 							{
 							_loop359:
 							do {
 								if ((LA(1)==COMMA)) {
+									AST tmp11_AST = null;
+									tmp11_AST = astFactory.create(LT(1));
+									astFactory.addASTChild(currentAST, tmp11_AST);
 									match(COMMA);
 									expression();
+									astFactory.addASTChild(currentAST, returnAST);
 								}
 								else {
 									break _loop359;
@@ -582,6 +706,9 @@ inputState.guessing--;
 								
 							} while (true);
 							}
+							AST tmp12_AST = null;
+							tmp12_AST = astFactory.create(LT(1));
+							astFactory.addASTChild(currentAST, tmp12_AST);
 							match(RPAREN);
 						}
 						else {
@@ -604,13 +731,27 @@ inputState.guessing--;
 inputState.guessing--;
 							}
 							if ( synPredMatched361 ) {
+								AST tmp13_AST = null;
+								tmp13_AST = astFactory.create(LT(1));
+								astFactory.addASTChild(currentAST, tmp13_AST);
 								match(LPAREN);
 								actual_parameter_part();
+								astFactory.addASTChild(currentAST, returnAST);
+								AST tmp14_AST = null;
+								tmp14_AST = astFactory.create(LT(1));
+								astFactory.addASTChild(currentAST, tmp14_AST);
 								match(RPAREN);
 							}
 							else if ((LA(1)==LPAREN) && (_tokenSet_10.member(LA(2)))) {
+								AST tmp15_AST = null;
+								tmp15_AST = astFactory.create(LT(1));
+								astFactory.addASTChild(currentAST, tmp15_AST);
 								match(LPAREN);
 								discrete_range();
+								astFactory.addASTChild(currentAST, returnAST);
+								AST tmp16_AST = null;
+								tmp16_AST = astFactory.create(LT(1));
+								astFactory.addASTChild(currentAST, tmp16_AST);
 								match(RPAREN);
 							}
 						else {
@@ -632,6 +773,7 @@ inputState.guessing--;
 							}
 						
 				}
+				name_AST = (AST)currentAST.root;
 			}
 			catch (RecognitionException ex) {
 				if (inputState.guessing==0) {
@@ -641,27 +783,43 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = name_AST;
 			return tok;
 		}
 		
 	public final void adding_operator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST adding_operator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case PLUS:
 			{
+				AST tmp17_AST = null;
+				tmp17_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp17_AST);
 				match(PLUS);
+				adding_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case MINUS:
 			{
+				AST tmp18_AST = null;
+				tmp18_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp18_AST);
 				match(MINUS);
+				adding_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case AND:
 			{
+				AST tmp19_AST = null;
+				tmp19_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp19_AST);
 				match(AND);
+				adding_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -678,20 +836,32 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = adding_operator_AST;
 	}
 	
 	public final void aggregate() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST aggregate_AST = null;
 		
 		try {      // for error handling
+			AST tmp20_AST = null;
+			tmp20_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp20_AST);
 			match(LPAREN);
 			element_association();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop11:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp21_AST = null;
+					tmp21_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp21_AST);
 					match(COMMA);
 					element_association();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop11;
@@ -699,7 +869,11 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp22_AST = null;
+			tmp22_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp22_AST);
 			match(RPAREN);
+			aggregate_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -709,10 +883,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = aggregate_AST;
 	}
 	
 	public final void element_association() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST element_association_AST = null;
 		
 		try {      // for error handling
 			{
@@ -735,6 +913,10 @@ inputState.guessing--;
 			}
 			if ( synPredMatched192 ) {
 				choices();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp23_AST = null;
+				tmp23_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp23_AST);
 				match(EQGRT);
 			}
 			else if ((_tokenSet_10.member(LA(1))) && (_tokenSet_8.member(LA(2)))) {
@@ -745,6 +927,8 @@ inputState.guessing--;
 			
 			}
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			element_association_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -754,20 +938,32 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = element_association_AST;
 	}
 	
 	public final void alias_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST alias_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp24_AST = null;
+			tmp24_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp24_AST);
 			match(K_ALIAS);
 			alias_designator();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case COLON:
 			{
+				AST tmp25_AST = null;
+				tmp25_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp25_AST);
 				match(COLON);
 				subtype_indication();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_IS:
@@ -780,13 +976,18 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp26_AST = null;
+			tmp26_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp26_AST);
 			match(K_IS);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LBRACK:
 			{
 				signature();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -799,7 +1000,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp27_AST = null;
+			tmp27_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp27_AST);
 			match(SEMI);
+			alias_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -809,10 +1014,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = alias_declaration_AST;
 	}
 	
 	public final void alias_designator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST alias_designator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -820,16 +1029,22 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				identifier();
+				astFactory.addASTChild(currentAST, returnAST);
+				alias_designator_AST = (AST)currentAST.root;
 				break;
 			}
 			case CHARACTER_LITERAL:
 			{
 				character_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				alias_designator_AST = (AST)currentAST.root;
 				break;
 			}
 			case STRING_LITERAL:
 			{
 				operator_symbol();
+				astFactory.addASTChild(currentAST, returnAST);
+				alias_designator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -846,12 +1061,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = alias_designator_AST;
 	}
 	
 	public final void signature() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST signature_AST = null;
 		
 		try {      // for error handling
+			AST tmp28_AST = null;
+			tmp28_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp28_AST);
 			match(LBRACK);
 			{
 			switch ( LA(1)) {
@@ -860,12 +1082,17 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				_loop548:
 				do {
 					if ((LA(1)==COMMA)) {
+						AST tmp29_AST = null;
+						tmp29_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp29_AST);
 						match(COMMA);
 						name();
+						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
 						break _loop548;
@@ -890,8 +1117,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_RETURN:
 			{
+				AST tmp30_AST = null;
+				tmp30_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp30_AST);
 				match(K_RETURN);
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case RBRACK:
@@ -904,7 +1135,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp31_AST = null;
+			tmp31_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp31_AST);
 			match(RBRACK);
+			signature_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -914,13 +1149,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = signature_AST;
 	}
 	
 	public final Token  identifier() throws RecognitionException, TokenStreamException {
 		Token tok;
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST identifier_AST = null;
 		Token  id = null;
+		AST id_AST = null;
 		Token  id2 = null;
+		AST id2_AST = null;
 		tok=null;
 		
 		try {      // for error handling
@@ -928,19 +1169,25 @@ inputState.guessing--;
 			case BASIC_IDENTIFIER:
 			{
 				id = LT(1);
+				id_AST = astFactory.create(id);
+				astFactory.addASTChild(currentAST, id_AST);
 				match(BASIC_IDENTIFIER);
 				if ( inputState.guessing==0 ) {
 					tok=id;
 				}
+				identifier_AST = (AST)currentAST.root;
 				break;
 			}
 			case EXTENDED_IDENTIFIER:
 			{
 				id2 = LT(1);
+				id2_AST = astFactory.create(id2);
+				astFactory.addASTChild(currentAST, id2_AST);
 				match(EXTENDED_IDENTIFIER);
 				if ( inputState.guessing==0 ) {
 					tok=id2;
 				}
+				identifier_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -957,14 +1204,22 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = identifier_AST;
 		return tok;
 	}
 	
 	public final void character_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST character_literal_AST = null;
 		
 		try {      // for error handling
+			AST tmp32_AST = null;
+			tmp32_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp32_AST);
 			match(CHARACTER_LITERAL);
+			character_literal_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -974,13 +1229,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = character_literal_AST;
 	}
 	
 	public final void operator_symbol() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST operator_symbol_AST = null;
 		
 		try {      // for error handling
 			string_literal();
+			astFactory.addASTChild(currentAST, returnAST);
+			operator_symbol_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -990,12 +1251,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = operator_symbol_AST;
 	}
 	
 	public final void allocator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST allocator_AST = null;
 		
 		try {      // for error handling
+			AST tmp33_AST = null;
+			tmp33_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp33_AST);
 			match(K_NEW);
 			{
 			boolean synPredMatched19 = false;
@@ -1016,15 +1284,18 @@ inputState.guessing--;
 			}
 			if ( synPredMatched19 ) {
 				subtype_indication();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER||LA(1)==STRING_LITERAL) && (_tokenSet_6.member(LA(2)))) {
 				qualified_expression();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
 			}
 			
 			}
+			allocator_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1034,13 +1305,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = allocator_AST;
 	}
 	
 	public final void qualified_expression() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST qualified_expression_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp34_AST = null;
+			tmp34_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp34_AST);
 			match(TIC);
 			{
 			boolean synPredMatched463 = false;
@@ -1061,10 +1340,18 @@ inputState.guessing--;
 			}
 			if ( synPredMatched463 ) {
 				aggregate();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((LA(1)==LPAREN) && (_tokenSet_10.member(LA(2)))) {
+				AST tmp35_AST = null;
+				tmp35_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp35_AST);
 				match(LPAREN);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp36_AST = null;
+				tmp36_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp36_AST);
 				match(RPAREN);
 			}
 			else {
@@ -1072,6 +1359,7 @@ inputState.guessing--;
 			}
 			
 			}
+			qualified_expression_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1081,25 +1369,51 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = qualified_expression_AST;
 	}
 	
 	public final void architecture_body() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST architecture_body_AST = null;
 		
 		try {      // for error handling
+			AST tmp37_AST = null;
+			tmp37_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp37_AST);
 			match(K_ARCHITECTURE);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp38_AST = null;
+			tmp38_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp38_AST);
 			match(K_OF);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp39_AST = null;
+			tmp39_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp39_AST);
 			match(K_IS);
 			architecture_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp40_AST = null;
+			tmp40_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp40_AST);
 			match(K_BEGIN);
 			architecture_statement_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp41_AST = null;
+			tmp41_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp41_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
 			case K_ARCHITECTURE:
 			{
+				AST tmp42_AST = null;
+				tmp42_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp42_AST);
 				match(K_ARCHITECTURE);
 				break;
 			}
@@ -1121,6 +1435,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -1133,7 +1448,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp43_AST = null;
+			tmp43_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp43_AST);
 			match(SEMI);
+			architecture_body_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1143,10 +1462,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = architecture_body_AST;
 	}
 	
 	public final void architecture_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST architecture_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -1154,6 +1477,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_22.member(LA(1)))) {
 					block_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop25;
@@ -1161,6 +1485,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			architecture_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1170,10 +1495,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = architecture_declarative_part_AST;
 	}
 	
 	public final void architecture_statement_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST architecture_statement_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -1181,6 +1510,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_24.member(LA(1)))) {
 					concurrent_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop28;
@@ -1188,6 +1518,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			architecture_statement_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1197,15 +1528,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = architecture_statement_part_AST;
 	}
 	
 	public final Token  simple_name() throws RecognitionException, TokenStreamException {
 		Token tok;
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST simple_name_AST = null;
 		tok=null;
 		
 		try {      // for error handling
 			tok=identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			simple_name_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1215,68 +1552,94 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = simple_name_AST;
 		return tok;
 	}
 	
 	public final void block_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SIGNAL:
 			{
 				signal_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_COMPONENT:
 			{
 				component_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FOR:
 			{
 				configuration_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_DISCONNECT:
 			{
 				disconnection_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -1298,9 +1661,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched62 ) {
 					subprogram_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					block_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2)))) {
 					subprogram_body();
+					astFactory.addASTChild(currentAST, returnAST);
+					block_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched64 = false;
@@ -1321,9 +1688,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched64 ) {
 						attribute_specification();
+						astFactory.addASTChild(currentAST, returnAST);
+						block_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_ATTRIBUTE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						attribute_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						block_declarative_item_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched66 = false;
@@ -1346,9 +1717,13 @@ inputState.guessing--;
 						}
 						if ( synPredMatched66 ) {
 							group_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							block_declarative_item_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 							group_template_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							block_declarative_item_AST = (AST)currentAST.root;
 						}
 					else {
 						throw new NoViableAltException(LT(1), getFilename());
@@ -1363,10 +1738,14 @@ inputState.guessing--;
 					  throw ex;
 					}
 				}
+				returnAST = block_declarative_item_AST;
 			}
 			
 	public final void concurrent_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST concurrent_statement_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched129 = false;
@@ -1387,6 +1766,8 @@ inputState.guessing--;
 			}
 			if ( synPredMatched129 ) {
 				block_statement();
+				astFactory.addASTChild(currentAST, returnAST);
+				concurrent_statement_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched131 = false;
@@ -1407,6 +1788,8 @@ inputState.guessing--;
 				}
 				if ( synPredMatched131 ) {
 					process_statement();
+					astFactory.addASTChild(currentAST, returnAST);
+					concurrent_statement_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched133 = false;
@@ -1427,6 +1810,8 @@ inputState.guessing--;
 					}
 					if ( synPredMatched133 ) {
 						concurrent_procedure_call_statement();
+						astFactory.addASTChild(currentAST, returnAST);
+						concurrent_statement_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched135 = false;
@@ -1447,6 +1832,8 @@ inputState.guessing--;
 						}
 						if ( synPredMatched135 ) {
 							concurrent_assertion_statement();
+							astFactory.addASTChild(currentAST, returnAST);
+							concurrent_statement_AST = (AST)currentAST.root;
 						}
 						else {
 							boolean synPredMatched137 = false;
@@ -1467,6 +1854,8 @@ inputState.guessing--;
 							}
 							if ( synPredMatched137 ) {
 								concurrent_signal_assignment_statement();
+								astFactory.addASTChild(currentAST, returnAST);
+								concurrent_statement_AST = (AST)currentAST.root;
 							}
 							else {
 								boolean synPredMatched139 = false;
@@ -1487,9 +1876,13 @@ inputState.guessing--;
 								}
 								if ( synPredMatched139 ) {
 									component_instantiation_statement();
+									astFactory.addASTChild(currentAST, returnAST);
+									concurrent_statement_AST = (AST)currentAST.root;
 								}
 								else if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER) && (LA(2)==COLON)) {
 									generate_statement();
+									astFactory.addASTChild(currentAST, returnAST);
+									concurrent_statement_AST = (AST)currentAST.root;
 								}
 								else {
 									throw new NoViableAltException(LT(1), getFilename());
@@ -1504,10 +1897,14 @@ inputState.guessing--;
 								  throw ex;
 								}
 							}
+							returnAST = concurrent_statement_AST;
 						}
 						
 	public final void array_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST array_type_definition_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched31 = false;
@@ -1528,9 +1925,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched31 ) {
 				unconstrained_array_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				array_type_definition_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==K_ARRAY) && (LA(2)==LPAREN)) {
 				constrained_array_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				array_type_definition_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -1545,21 +1946,36 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = array_type_definition_AST;
 	}
 	
 	public final void unconstrained_array_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST unconstrained_array_definition_AST = null;
 		
 		try {      // for error handling
+			AST tmp44_AST = null;
+			tmp44_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp44_AST);
 			match(K_ARRAY);
+			AST tmp45_AST = null;
+			tmp45_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp45_AST);
 			match(LPAREN);
 			index_subtype_definition();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop594:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp46_AST = null;
+					tmp46_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp46_AST);
 					match(COMMA);
 					index_subtype_definition();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop594;
@@ -1567,9 +1983,17 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp47_AST = null;
+			tmp47_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp47_AST);
 			match(RPAREN);
+			AST tmp48_AST = null;
+			tmp48_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp48_AST);
 			match(K_OF);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			unconstrained_array_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1579,16 +2003,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = unconstrained_array_definition_AST;
 	}
 	
 	public final void constrained_array_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST constrained_array_definition_AST = null;
 		
 		try {      // for error handling
+			AST tmp49_AST = null;
+			tmp49_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp49_AST);
 			match(K_ARRAY);
 			index_constraint();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp50_AST = null;
+			tmp50_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp50_AST);
 			match(K_OF);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			constrained_array_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1598,20 +2035,32 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = constrained_array_definition_AST;
 	}
 	
 	public final void assertion() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST assertion_AST = null;
 		
 		try {      // for error handling
+			AST tmp51_AST = null;
+			tmp51_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp51_AST);
 			match(K_ASSERT);
 			condition();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_REPORT:
 			{
+				AST tmp52_AST = null;
+				tmp52_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp52_AST);
 				match(K_REPORT);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -1629,8 +2078,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_SEVERITY:
 			{
+				AST tmp53_AST = null;
+				tmp53_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp53_AST);
 				match(K_SEVERITY);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -1643,6 +2096,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			assertion_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1652,13 +2106,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = assertion_AST;
 	}
 	
 	public final void condition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST condition_AST = null;
 		
 		try {      // for error handling
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			condition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1668,10 +2128,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = condition_AST;
 	}
 	
 	public final void assertion_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST assertion_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -1680,6 +2144,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_ASSERT:
@@ -1693,7 +2158,12 @@ inputState.guessing--;
 			}
 			}
 			assertion();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp54_AST = null;
+			tmp54_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp54_AST);
 			match(SEMI);
+			assertion_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1703,14 +2173,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = assertion_statement_AST;
 	}
 	
 	public final void label_colon() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST label_colon_AST = null;
 		
 		try {      // for error handling
 			label();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp55_AST = null;
+			tmp55_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp55_AST);
 			match(COLON);
+			label_colon_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1720,10 +2199,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = label_colon_AST;
 	}
 	
 	public final void association_element() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST association_element_AST = null;
 		
 		try {      // for error handling
 			{
@@ -1746,6 +2229,10 @@ inputState.guessing--;
 			}
 			if ( synPredMatched40 ) {
 				formal_part();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp56_AST = null;
+				tmp56_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp56_AST);
 				match(EQGRT);
 			}
 			else if ((_tokenSet_7.member(LA(1))) && (_tokenSet_8.member(LA(2)))) {
@@ -1756,6 +2243,8 @@ inputState.guessing--;
 			
 			}
 			actual_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			association_element_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1765,19 +2254,31 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = association_element_AST;
 	}
 	
 	public final void formal_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST formal_part_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LPAREN:
 			{
+				AST tmp57_AST = null;
+				tmp57_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp57_AST);
 				match(LPAREN);
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp58_AST = null;
+				tmp58_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp58_AST);
 				match(RPAREN);
 				break;
 			}
@@ -1791,6 +2292,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			formal_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1800,17 +2302,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = formal_part_AST;
 	}
 	
 	public final void attribute_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST attribute_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp59_AST = null;
+			tmp59_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp59_AST);
 			match(K_ATTRIBUTE);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp60_AST = null;
+			tmp60_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp60_AST);
 			match(COLON);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp61_AST = null;
+			tmp61_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp61_AST);
 			match(SEMI);
+			attribute_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1820,13 +2338,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = attribute_declaration_AST;
 	}
 	
 	public final void attribute_designator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST attribute_designator_AST = null;
 		
 		try {      // for error handling
 			simple_name();
+			astFactory.addASTChild(currentAST, returnAST);
+			attribute_designator_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1836,13 +2360,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = attribute_designator_AST;
 	}
 	
 	public final void tic_attribute_designator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST tic_attribute_designator_AST = null;
 		
 		try {      // for error handling
+			AST tmp62_AST = null;
+			tmp62_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp62_AST);
 			match(TIC_SIMPLE_NAME);
+			tic_attribute_designator_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1852,19 +2384,39 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = tic_attribute_designator_AST;
 	}
 	
 	public final void attribute_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST attribute_specification_AST = null;
 		
 		try {      // for error handling
+			AST tmp63_AST = null;
+			tmp63_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp63_AST);
 			match(K_ATTRIBUTE);
 			attribute_designator();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp64_AST = null;
+			tmp64_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp64_AST);
 			match(K_OF);
 			entity_specification();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp65_AST = null;
+			tmp65_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp65_AST);
 			match(K_IS);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp66_AST = null;
+			tmp66_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp66_AST);
 			match(SEMI);
+			attribute_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1874,15 +2426,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = attribute_specification_AST;
 	}
 	
 	public final void entity_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_specification_AST = null;
 		
 		try {      // for error handling
 			entity_name_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp67_AST = null;
+			tmp67_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp67_AST);
 			match(COLON);
 			entity_class();
+			astFactory.addASTChild(currentAST, returnAST);
+			entity_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1892,13 +2454,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_specification_AST;
 	}
 	
 	public final void base_unit_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST base_unit_declaration_AST = null;
 		
 		try {      // for error handling
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			base_unit_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1908,18 +2476,26 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = base_unit_declaration_AST;
 	}
 	
 	public final void binding_indication() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST binding_indication_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_USE:
 			{
+				AST tmp68_AST = null;
+				tmp68_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp68_AST);
 				match(K_USE);
 				entity_aspect();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -1939,6 +2515,7 @@ inputState.guessing--;
 			case K_GENERIC:
 			{
 				generic_map_aspect();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -1957,6 +2534,7 @@ inputState.guessing--;
 			case K_PORT:
 			{
 				port_map_aspect();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -1969,6 +2547,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			binding_indication_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -1978,23 +2557,38 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = binding_indication_AST;
 	}
 	
 	public final void entity_aspect() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_aspect_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_ENTITY:
 			{
+				AST tmp69_AST = null;
+				tmp69_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp69_AST);
 				match(K_ENTITY);
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case LPAREN:
 				{
+					AST tmp70_AST = null;
+					tmp70_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp70_AST);
 					match(LPAREN);
 					identifier();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp71_AST = null;
+					tmp71_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp71_AST);
 					match(RPAREN);
 					break;
 				}
@@ -2010,17 +2604,27 @@ inputState.guessing--;
 				}
 				}
 				}
+				entity_aspect_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONFIGURATION:
 			{
+				AST tmp72_AST = null;
+				tmp72_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp72_AST);
 				match(K_CONFIGURATION);
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_aspect_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OPEN:
 			{
+				AST tmp73_AST = null;
+				tmp73_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp73_AST);
 				match(K_OPEN);
+				entity_aspect_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -2037,17 +2641,35 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_aspect_AST;
 	}
 	
 	public final void generic_map_aspect() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST generic_map_aspect_AST = null;
 		
 		try {      // for error handling
+			AST tmp74_AST = null;
+			tmp74_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp74_AST);
 			match(K_GENERIC);
+			AST tmp75_AST = null;
+			tmp75_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp75_AST);
 			match(K_MAP);
+			AST tmp76_AST = null;
+			tmp76_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp76_AST);
 			match(LPAREN);
 			association_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp77_AST = null;
+			tmp77_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp77_AST);
 			match(RPAREN);
+			generic_map_aspect_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2057,17 +2679,35 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = generic_map_aspect_AST;
 	}
 	
 	public final void port_map_aspect() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST port_map_aspect_AST = null;
 		
 		try {      // for error handling
+			AST tmp78_AST = null;
+			tmp78_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp78_AST);
 			match(K_PORT);
+			AST tmp79_AST = null;
+			tmp79_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp79_AST);
 			match(K_MAP);
+			AST tmp80_AST = null;
+			tmp80_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp80_AST);
 			match(LPAREN);
 			association_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp81_AST = null;
+			tmp81_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp81_AST);
 			match(RPAREN);
+			port_map_aspect_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2077,13 +2717,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = port_map_aspect_AST;
 	}
 	
 	public final void bit_string_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST bit_string_literal_AST = null;
 		
 		try {      // for error handling
+			AST tmp82_AST = null;
+			tmp82_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp82_AST);
 			match(BIT_STRING_LITERAL);
+			bit_string_literal_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2093,19 +2741,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = bit_string_literal_AST;
 	}
 	
 	public final void block_configuration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_configuration_AST = null;
 		
 		try {      // for error handling
+			AST tmp83_AST = null;
+			tmp83_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp83_AST);
 			match(K_FOR);
 			block_specification();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop57:
 			do {
 				if ((LA(1)==K_USE)) {
 					use_clause();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop57;
@@ -2118,6 +2775,7 @@ inputState.guessing--;
 			do {
 				if ((LA(1)==K_FOR)) {
 					configuration_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop59;
@@ -2125,9 +2783,19 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp84_AST = null;
+			tmp84_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp84_AST);
 			match(K_END);
+			AST tmp85_AST = null;
+			tmp85_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp85_AST);
 			match(K_FOR);
+			AST tmp86_AST = null;
+			tmp86_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp86_AST);
 			match(SEMI);
+			block_configuration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2137,10 +2805,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = block_configuration_AST;
 	}
 	
 	public final void block_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_specification_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched77 = false;
@@ -2162,12 +2834,23 @@ inputState.guessing--;
 			}
 			if ( synPredMatched77 ) {
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp87_AST = null;
+				tmp87_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp87_AST);
 				match(LPAREN);
 				index_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp88_AST = null;
+				tmp88_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp88_AST);
 				match(RPAREN);
+				block_specification_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER||LA(1)==STRING_LITERAL) && (_tokenSet_51.member(LA(2)))) {
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				block_specification_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -2182,20 +2865,32 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = block_specification_AST;
 	}
 	
 	public final void use_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST use_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp89_AST = null;
+			tmp89_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp89_AST);
 			match(K_USE);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop597:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp90_AST = null;
+					tmp90_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp90_AST);
 					match(COMMA);
 					name();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop597;
@@ -2203,7 +2898,11 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp91_AST = null;
+			tmp91_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp91_AST);
 			match(SEMI);
+			use_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2213,10 +2912,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = use_clause_AST;
 	}
 	
 	public final void configuration_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST configuration_item_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched161 = false;
@@ -2237,9 +2940,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched161 ) {
 				block_configuration();
+				astFactory.addASTChild(currentAST, returnAST);
+				configuration_item_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==K_FOR) && (_tokenSet_54.member(LA(2)))) {
 				component_configuration();
+				astFactory.addASTChild(currentAST, returnAST);
+				configuration_item_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -2254,14 +2961,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = configuration_item_AST;
 	}
 	
 	public final void subprogram_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_declaration_AST = null;
 		
 		try {      // for error handling
 			subprogram_specification();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp92_AST = null;
+			tmp92_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp92_AST);
 			match(SEMI);
+			subprogram_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2271,17 +2987,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subprogram_declaration_AST;
 	}
 	
 	public final void subprogram_body() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_body_AST = null;
 		
 		try {      // for error handling
 			subprogram_specification();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp93_AST = null;
+			tmp93_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp93_AST);
 			match(K_IS);
 			subprogram_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp94_AST = null;
+			tmp94_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp94_AST);
 			match(K_BEGIN);
 			subprogram_statement_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp95_AST = null;
+			tmp95_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp95_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
@@ -2289,6 +3021,7 @@ inputState.guessing--;
 			case K_FUNCTION:
 			{
 				subprogram_kind();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2311,6 +3044,7 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				designator();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2323,7 +3057,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp96_AST = null;
+			tmp96_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp96_AST);
 			match(SEMI);
+			subprogram_body_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2333,10 +3071,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subprogram_body_AST;
 	}
 	
 	public final void type_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST type_declaration_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched590 = false;
@@ -2357,9 +3099,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched590 ) {
 				full_type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_declaration_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==K_TYPE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 				incomplete_type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_declaration_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -2374,17 +3120,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = type_declaration_AST;
 	}
 	
 	public final void subtype_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subtype_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp97_AST = null;
+			tmp97_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp97_AST);
 			match(K_SUBTYPE);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp98_AST = null;
+			tmp98_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp98_AST);
 			match(K_IS);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp99_AST = null;
+			tmp99_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp99_AST);
 			match(SEMI);
+			subtype_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2394,22 +3156,38 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subtype_declaration_AST;
 	}
 	
 	public final void constant_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST constant_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp100_AST = null;
+			tmp100_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp100_AST);
 			match(K_CONSTANT);
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp101_AST = null;
+			tmp101_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp101_AST);
 			match(COLON);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case COLONEQ:
 			{
+				AST tmp102_AST = null;
+				tmp102_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp102_AST);
 				match(COLONEQ);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2422,7 +3200,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp103_AST = null;
+			tmp103_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp103_AST);
 			match(SEMI);
+			constant_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2432,22 +3214,35 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = constant_declaration_AST;
 	}
 	
 	public final void signal_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST signal_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp104_AST = null;
+			tmp104_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp104_AST);
 			match(K_SIGNAL);
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp105_AST = null;
+			tmp105_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp105_AST);
 			match(COLON);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_BUS:
 			case K_REGISTER:
 			{
 				signal_kind();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2465,8 +3260,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case COLONEQ:
 			{
+				AST tmp106_AST = null;
+				tmp106_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp106_AST);
 				match(COLONEQ);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2479,7 +3278,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp107_AST = null;
+			tmp107_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp107_AST);
 			match(SEMI);
+			signal_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2489,16 +3292,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = signal_declaration_AST;
 	}
 	
 	public final void variable_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST variable_declaration_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_SHARED:
 			{
+				AST tmp108_AST = null;
+				tmp108_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp108_AST);
 				match(K_SHARED);
 				break;
 			}
@@ -2512,16 +3322,28 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp109_AST = null;
+			tmp109_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp109_AST);
 			match(K_VARIABLE);
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp110_AST = null;
+			tmp110_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp110_AST);
 			match(COLON);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case COLONEQ:
 			{
+				AST tmp111_AST = null;
+				tmp111_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp111_AST);
 				match(COLONEQ);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2534,7 +3356,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp112_AST = null;
+			tmp112_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp112_AST);
 			match(SEMI);
+			variable_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2544,22 +3370,35 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = variable_declaration_AST;
 	}
 	
 	public final void file_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST file_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp113_AST = null;
+			tmp113_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp113_AST);
 			match(K_FILE);
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp114_AST = null;
+			tmp114_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp114_AST);
 			match(COLON);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_OPEN:
 			case K_IS:
 			{
 				file_open_information();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2572,7 +3411,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp115_AST = null;
+			tmp115_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp115_AST);
 			match(SEMI);
+			file_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2582,18 +3425,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = file_declaration_AST;
 	}
 	
 	public final void component_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST component_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp116_AST = null;
+			tmp116_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp116_AST);
 			match(K_COMPONENT);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_IS:
 			{
+				AST tmp117_AST = null;
+				tmp117_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp117_AST);
 				match(K_IS);
 				break;
 			}
@@ -2614,6 +3468,7 @@ inputState.guessing--;
 			case K_GENERIC:
 			{
 				generic_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_END:
@@ -2632,6 +3487,7 @@ inputState.guessing--;
 			case K_PORT:
 			{
 				port_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_END:
@@ -2644,7 +3500,13 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp118_AST = null;
+			tmp118_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp118_AST);
 			match(K_END);
+			AST tmp119_AST = null;
+			tmp119_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp119_AST);
 			match(K_COMPONENT);
 			{
 			switch ( LA(1)) {
@@ -2652,6 +3514,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -2664,7 +3527,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp120_AST = null;
+			tmp120_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp120_AST);
 			match(SEMI);
+			component_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2674,16 +3541,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = component_declaration_AST;
 	}
 	
 	public final void configuration_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST configuration_specification_AST = null;
 		
 		try {      // for error handling
+			AST tmp121_AST = null;
+			tmp121_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp121_AST);
 			match(K_FOR);
 			component_specification();
+			astFactory.addASTChild(currentAST, returnAST);
 			binding_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp122_AST = null;
+			tmp122_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp122_AST);
 			match(SEMI);
+			configuration_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2693,17 +3573,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = configuration_specification_AST;
 	}
 	
 	public final void disconnection_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST disconnection_specification_AST = null;
 		
 		try {      // for error handling
+			AST tmp123_AST = null;
+			tmp123_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp123_AST);
 			match(K_DISCONNECT);
 			guarded_signal_specification();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp124_AST = null;
+			tmp124_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp124_AST);
 			match(K_AFTER);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp125_AST = null;
+			tmp125_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp125_AST);
 			match(SEMI);
+			disconnection_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2713,20 +3609,43 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = disconnection_specification_AST;
 	}
 	
 	public final void group_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST group_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp126_AST = null;
+			tmp126_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp126_AST);
 			match(K_GROUP);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp127_AST = null;
+			tmp127_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp127_AST);
 			match(COLON);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp128_AST = null;
+			tmp128_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp128_AST);
 			match(LPAREN);
 			group_constituent_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp129_AST = null;
+			tmp129_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp129_AST);
 			match(RPAREN);
+			AST tmp130_AST = null;
+			tmp130_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp130_AST);
 			match(SEMI);
+			group_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2736,19 +3655,41 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = group_declaration_AST;
 	}
 	
 	public final void group_template_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST group_template_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp131_AST = null;
+			tmp131_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp131_AST);
 			match(K_GROUP);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp132_AST = null;
+			tmp132_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp132_AST);
 			match(K_IS);
+			AST tmp133_AST = null;
+			tmp133_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp133_AST);
 			match(LPAREN);
 			entity_class_entry_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp134_AST = null;
+			tmp134_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp134_AST);
 			match(RPAREN);
+			AST tmp135_AST = null;
+			tmp135_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp135_AST);
 			match(SEMI);
+			group_template_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2758,10 +3699,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = group_template_declaration_AST;
 	}
 	
 	public final void block_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -2769,6 +3714,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_22.member(LA(1)))) {
 					block_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop69;
@@ -2776,6 +3722,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			block_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2785,10 +3732,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = block_declarative_part_AST;
 	}
 	
 	public final void block_header() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_header_AST = null;
 		
 		try {      // for error handling
 			{
@@ -2796,11 +3747,16 @@ inputState.guessing--;
 			case K_GENERIC:
 			{
 				generic_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case K_GENERIC:
 				{
 					generic_map_aspect();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp136_AST = null;
+					tmp136_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp136_AST);
 					match(SEMI);
 					break;
 				}
@@ -2869,11 +3825,16 @@ inputState.guessing--;
 			case K_PORT:
 			{
 				port_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case K_PORT:
 				{
 					port_map_aspect();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp137_AST = null;
+					tmp137_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp137_AST);
 					match(SEMI);
 					break;
 				}
@@ -2935,6 +3896,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			block_header_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2944,17 +3906,35 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = block_header_AST;
 	}
 	
 	public final void generic_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST generic_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp138_AST = null;
+			tmp138_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp138_AST);
 			match(K_GENERIC);
+			AST tmp139_AST = null;
+			tmp139_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp139_AST);
 			match(LPAREN);
 			generic_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp140_AST = null;
+			tmp140_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp140_AST);
 			match(RPAREN);
+			AST tmp141_AST = null;
+			tmp141_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp141_AST);
 			match(SEMI);
+			generic_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2964,17 +3944,35 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = generic_clause_AST;
 	}
 	
 	public final void port_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST port_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp142_AST = null;
+			tmp142_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp142_AST);
 			match(K_PORT);
+			AST tmp143_AST = null;
+			tmp143_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp143_AST);
 			match(LPAREN);
 			port_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp144_AST = null;
+			tmp144_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp144_AST);
 			match(RPAREN);
+			AST tmp145_AST = null;
+			tmp145_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp145_AST);
 			match(SEMI);
+			port_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -2984,15 +3982,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = port_clause_AST;
 	}
 	
 	public final Token  label() throws RecognitionException, TokenStreamException {
 		Token tok;
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST label_AST = null;
 		tok=null;
 		
 		try {      // for error handling
 			tok=identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			label_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3002,11 +4006,15 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = label_AST;
 		return tok;
 	}
 	
 	public final void index_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST index_specification_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched296 = false;
@@ -3027,9 +4035,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched296 ) {
 				discrete_range();
+				astFactory.addASTChild(currentAST, returnAST);
+				index_specification_AST = (AST)currentAST.root;
 			}
 			else if ((_tokenSet_10.member(LA(1))) && (_tokenSet_59.member(LA(2)))) {
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
+				index_specification_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -3044,21 +4056,39 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = index_specification_AST;
 	}
 	
 	public final void block_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_statement_AST = null;
 		
 		try {      // for error handling
 			label();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp146_AST = null;
+			tmp146_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp146_AST);
 			match(COLON);
+			AST tmp147_AST = null;
+			tmp147_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp147_AST);
 			match(K_BLOCK);
 			{
 			switch ( LA(1)) {
 			case LPAREN:
 			{
+				AST tmp148_AST = null;
+				tmp148_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp148_AST);
 				match(LPAREN);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp149_AST = null;
+				tmp149_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp149_AST);
 				match(RPAREN);
 				break;
 			}
@@ -3097,6 +4127,9 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_IS:
 			{
+				AST tmp150_AST = null;
+				tmp150_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp150_AST);
 				match(K_IS);
 				break;
 			}
@@ -3131,10 +4164,22 @@ inputState.guessing--;
 			}
 			}
 			block_header();
+			astFactory.addASTChild(currentAST, returnAST);
 			block_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp151_AST = null;
+			tmp151_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp151_AST);
 			match(K_BEGIN);
 			block_statement_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp152_AST = null;
+			tmp152_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp152_AST);
 			match(K_END);
+			AST tmp153_AST = null;
+			tmp153_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp153_AST);
 			match(K_BLOCK);
 			{
 			switch ( LA(1)) {
@@ -3142,6 +4187,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -3154,7 +4200,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp154_AST = null;
+			tmp154_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp154_AST);
 			match(SEMI);
+			block_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3164,10 +4214,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = block_statement_AST;
 	}
 	
 	public final void block_statement_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST block_statement_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -3175,6 +4229,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_24.member(LA(1)))) {
 					concurrent_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop84;
@@ -3182,6 +4237,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			block_statement_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3191,10 +4247,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = block_statement_part_AST;
 	}
 	
 	public final void case_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST case_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -3203,6 +4263,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_CASE:
@@ -3215,8 +4276,15 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp155_AST = null;
+			tmp155_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp155_AST);
 			match(K_CASE);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp156_AST = null;
+			tmp156_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp156_AST);
 			match(K_IS);
 			{
 			int _cnt88=0;
@@ -3224,6 +4292,7 @@ inputState.guessing--;
 			do {
 				if ((LA(1)==K_WHEN)) {
 					case_statement_alternative();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					if ( _cnt88>=1 ) { break _loop88; } else {throw new NoViableAltException(LT(1), getFilename());}
@@ -3232,7 +4301,13 @@ inputState.guessing--;
 				_cnt88++;
 			} while (true);
 			}
+			AST tmp157_AST = null;
+			tmp157_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp157_AST);
 			match(K_END);
+			AST tmp158_AST = null;
+			tmp158_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp158_AST);
 			match(K_CASE);
 			{
 			switch ( LA(1)) {
@@ -3240,6 +4315,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -3252,7 +4328,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp159_AST = null;
+			tmp159_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp159_AST);
 			match(SEMI);
+			case_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3262,16 +4342,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = case_statement_AST;
 	}
 	
 	public final void case_statement_alternative() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST case_statement_alternative_AST = null;
 		
 		try {      // for error handling
+			AST tmp160_AST = null;
+			tmp160_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp160_AST);
 			match(K_WHEN);
 			choices();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp161_AST = null;
+			tmp161_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp161_AST);
 			match(EQGRT);
 			sequence_of_statements();
+			astFactory.addASTChild(currentAST, returnAST);
+			case_statement_alternative_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3281,19 +4374,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = case_statement_alternative_AST;
 	}
 	
 	public final void choices() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST choices_AST = null;
 		
 		try {      // for error handling
 			choice();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop99:
 			do {
 				if ((LA(1)==BAR)) {
+					AST tmp162_AST = null;
+					tmp162_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp162_AST);
 					match(BAR);
 					choice();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop99;
@@ -3301,6 +4403,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			choices_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3310,10 +4413,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = choices_AST;
 	}
 	
 	public final void sequence_of_statements() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST sequence_of_statements_AST = null;
 		
 		try {      // for error handling
 			{
@@ -3321,6 +4428,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_62.member(LA(1)))) {
 					sequential_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop496;
@@ -3328,6 +4436,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			sequence_of_statements_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3337,10 +4446,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = sequence_of_statements_AST;
 	}
 	
 	public final void choice() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST choice_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched94 = false;
@@ -3361,6 +4474,8 @@ inputState.guessing--;
 			}
 			if ( synPredMatched94 ) {
 				simple_expression();
+				astFactory.addASTChild(currentAST, returnAST);
+				choice_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched96 = false;
@@ -3381,12 +4496,20 @@ inputState.guessing--;
 				}
 				if ( synPredMatched96 ) {
 					simple_name();
+					astFactory.addASTChild(currentAST, returnAST);
+					choice_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_10.member(LA(1))) && (_tokenSet_66.member(LA(2)))) {
 					discrete_range();
+					astFactory.addASTChild(currentAST, returnAST);
+					choice_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==K_OTHERS)) {
+					AST tmp163_AST = null;
+					tmp163_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp163_AST);
 					match(K_OTHERS);
+					choice_AST = (AST)currentAST.root;
 				}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -3401,10 +4524,14 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = choice_AST;
 		}
 		
 	public final void simple_expression() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST simple_expression_AST = null;
 		
 		try {      // for error handling
 			{
@@ -3413,6 +4540,7 @@ inputState.guessing--;
 			case MINUS:
 			{
 				sign();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case LPAREN:
@@ -3437,12 +4565,15 @@ inputState.guessing--;
 			}
 			}
 			term();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop553:
 			do {
 				if (((LA(1) >= PLUS && LA(1) <= AND)) && (_tokenSet_12.member(LA(2)))) {
 					adding_operator();
+					astFactory.addASTChild(currentAST, returnAST);
 					term();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop553;
@@ -3450,6 +4581,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			simple_expression_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3459,10 +4591,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = simple_expression_AST;
 	}
 	
 	public final void discrete_range() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST discrete_range_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched188 = false;
@@ -3483,9 +4619,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched188 ) {
 				range();
+				astFactory.addASTChild(currentAST, returnAST);
+				discrete_range_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER||LA(1)==STRING_LITERAL) && (_tokenSet_68.member(LA(2)))) {
 				subtype_indication();
+				astFactory.addASTChild(currentAST, returnAST);
+				discrete_range_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -3500,14 +4640,22 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = discrete_range_AST;
 	}
 	
 	public final void component_configuration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST component_configuration_AST = null;
 		
 		try {      // for error handling
+			AST tmp164_AST = null;
+			tmp164_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp164_AST);
 			match(K_FOR);
 			component_specification();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case SEMI:
@@ -3516,6 +4664,10 @@ inputState.guessing--;
 			case K_PORT:
 			{
 				binding_indication();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp165_AST = null;
+				tmp165_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp165_AST);
 				match(SEMI);
 				break;
 			}
@@ -3535,6 +4687,7 @@ inputState.guessing--;
 			case K_FOR:
 			{
 				block_configuration();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_END:
@@ -3547,9 +4700,19 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp166_AST = null;
+			tmp166_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp166_AST);
 			match(K_END);
+			AST tmp167_AST = null;
+			tmp167_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp167_AST);
 			match(K_FOR);
+			AST tmp168_AST = null;
+			tmp168_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp168_AST);
 			match(SEMI);
+			component_configuration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3559,15 +4722,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = component_configuration_AST;
 	}
 	
 	public final void component_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST component_specification_AST = null;
 		
 		try {      // for error handling
 			instantiation_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp169_AST = null;
+			tmp169_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp169_AST);
 			match(COLON);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			component_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3577,16 +4750,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = component_specification_AST;
 	}
 	
 	public final void component_instantiation_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST component_instantiation_statement_AST = null;
 		Token instNm = null, refNm = null;
 		
 		try {      // for error handling
 			instNm=label();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp170_AST = null;
+			tmp170_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp170_AST);
 			match(COLON);
 			refNm=instantiated_unit();
+			astFactory.addASTChild(currentAST, returnAST);
 			if ( inputState.guessing==0 ) {
 				stTracker.addInstance(refNm, instNm);
 			}
@@ -3595,6 +4777,7 @@ inputState.guessing--;
 			case K_GENERIC:
 			{
 				generic_map_aspect();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -3613,6 +4796,7 @@ inputState.guessing--;
 			case K_PORT:
 			{
 				port_map_aspect();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -3625,7 +4809,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp171_AST = null;
+			tmp171_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp171_AST);
 			match(SEMI);
+			component_instantiation_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3635,11 +4823,15 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = component_instantiation_statement_AST;
 	}
 	
 	public final Token  instantiated_unit() throws RecognitionException, TokenStreamException {
 		Token tok;
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST instantiated_unit_AST = null;
 		tok=null;
 		
 		try {      // for error handling
@@ -3653,6 +4845,9 @@ inputState.guessing--;
 				switch ( LA(1)) {
 				case K_COMPONENT:
 				{
+					AST tmp172_AST = null;
+					tmp172_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp172_AST);
 					match(K_COMPONENT);
 					break;
 				}
@@ -3669,18 +4864,31 @@ inputState.guessing--;
 				}
 				}
 				tok=name();
+				astFactory.addASTChild(currentAST, returnAST);
+				instantiated_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ENTITY:
 			{
+				AST tmp173_AST = null;
+				tmp173_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp173_AST);
 				match(K_ENTITY);
 				tok=name();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case LPAREN:
 				{
+					AST tmp174_AST = null;
+					tmp174_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp174_AST);
 					match(LPAREN);
 					identifier();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp175_AST = null;
+					tmp175_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp175_AST);
 					match(RPAREN);
 					break;
 				}
@@ -3696,12 +4904,18 @@ inputState.guessing--;
 				}
 				}
 				}
+				instantiated_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONFIGURATION:
 			{
+				AST tmp176_AST = null;
+				tmp176_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp176_AST);
 				match(K_CONFIGURATION);
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				instantiated_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -3718,11 +4932,15 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = instantiated_unit_AST;
 		return tok;
 	}
 	
 	public final void instantiation_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST instantiation_list_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -3730,12 +4948,17 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				_loop303:
 				do {
 					if ((LA(1)==COMMA)) {
+						AST tmp177_AST = null;
+						tmp177_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp177_AST);
 						match(COMMA);
 						label();
+						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
 						break _loop303;
@@ -3743,16 +4966,25 @@ inputState.guessing--;
 					
 				} while (true);
 				}
+				instantiation_list_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OTHERS:
 			{
+				AST tmp178_AST = null;
+				tmp178_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp178_AST);
 				match(K_OTHERS);
+				instantiation_list_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALL:
 			{
+				AST tmp179_AST = null;
+				tmp179_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp179_AST);
 				match(K_ALL);
+				instantiation_list_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -3769,21 +5001,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = instantiation_list_AST;
 	}
 	
 	public final void composite_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST composite_type_definition_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_ARRAY:
 			{
 				array_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				composite_type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_RECORD:
 			{
 				record_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				composite_type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -3800,12 +5040,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = composite_type_definition_AST;
 	}
 	
 	public final void record_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST record_type_definition_AST = null;
 		
 		try {      // for error handling
+			AST tmp180_AST = null;
+			tmp180_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp180_AST);
 			match(K_RECORD);
 			{
 			int _cnt470=0;
@@ -3813,6 +5060,7 @@ inputState.guessing--;
 			do {
 				if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER)) {
 					element_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					if ( _cnt470>=1 ) { break _loop470; } else {throw new NoViableAltException(LT(1), getFilename());}
@@ -3821,7 +5069,13 @@ inputState.guessing--;
 				_cnt470++;
 			} while (true);
 			}
+			AST tmp181_AST = null;
+			tmp181_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp181_AST);
 			match(K_END);
+			AST tmp182_AST = null;
+			tmp182_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp182_AST);
 			match(K_RECORD);
 			{
 			switch ( LA(1)) {
@@ -3829,6 +5083,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -3841,6 +5096,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			record_type_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3850,10 +5106,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = record_type_definition_AST;
 	}
 	
 	public final void concurrent_assertion_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST concurrent_assertion_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -3862,6 +5122,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_ASSERT:
@@ -3879,6 +5140,9 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_POSTPONED:
 			{
+				AST tmp183_AST = null;
+				tmp183_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp183_AST);
 				match(K_POSTPONED);
 				break;
 			}
@@ -3893,7 +5157,12 @@ inputState.guessing--;
 			}
 			}
 			assertion();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp184_AST = null;
+			tmp184_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp184_AST);
 			match(SEMI);
+			concurrent_assertion_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -3903,10 +5172,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = concurrent_assertion_statement_AST;
 	}
 	
 	public final void concurrent_procedure_call_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST concurrent_procedure_call_statement_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched118 = false;
@@ -3927,10 +5200,14 @@ inputState.guessing--;
 			}
 			if ( synPredMatched118 ) {
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case K_POSTPONED:
 				{
+					AST tmp185_AST = null;
+					tmp185_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp185_AST);
 					match(K_POSTPONED);
 					break;
 				}
@@ -3947,13 +5224,21 @@ inputState.guessing--;
 				}
 				}
 				procedure_call();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp186_AST = null;
+				tmp186_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp186_AST);
 				match(SEMI);
+				concurrent_procedure_call_statement_AST = (AST)currentAST.root;
 			}
 			else if ((_tokenSet_32.member(LA(1))) && (_tokenSet_72.member(LA(2)))) {
 				{
 				switch ( LA(1)) {
 				case K_POSTPONED:
 				{
+					AST tmp187_AST = null;
+					tmp187_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp187_AST);
 					match(K_POSTPONED);
 					break;
 				}
@@ -3970,7 +5255,12 @@ inputState.guessing--;
 				}
 				}
 				procedure_call();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp188_AST = null;
+				tmp188_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp188_AST);
 				match(SEMI);
+				concurrent_procedure_call_statement_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -3985,19 +5275,31 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = concurrent_procedure_call_statement_AST;
 	}
 	
 	public final void procedure_call() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST procedure_call_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LPAREN:
 			{
+				AST tmp189_AST = null;
+				tmp189_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp189_AST);
 				match(LPAREN);
 				actual_parameter_part();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp190_AST = null;
+				tmp190_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp190_AST);
 				match(RPAREN);
 				break;
 			}
@@ -4011,6 +5313,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			procedure_call_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4020,10 +5323,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = procedure_call_AST;
 	}
 	
 	public final void concurrent_signal_assignment_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST concurrent_signal_assignment_statement_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched123 = false;
@@ -4044,10 +5351,14 @@ inputState.guessing--;
 			}
 			if ( synPredMatched123 ) {
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case K_POSTPONED:
 				{
+					AST tmp191_AST = null;
+					tmp191_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp191_AST);
 					match(K_POSTPONED);
 					break;
 				}
@@ -4066,12 +5377,17 @@ inputState.guessing--;
 				}
 				}
 				concurrent_signal_assignment_statement_2();
+				astFactory.addASTChild(currentAST, returnAST);
+				concurrent_signal_assignment_statement_AST = (AST)currentAST.root;
 			}
 			else if ((_tokenSet_36.member(LA(1))) && (_tokenSet_73.member(LA(2)))) {
 				{
 				switch ( LA(1)) {
 				case K_POSTPONED:
 				{
+					AST tmp192_AST = null;
+					tmp192_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp192_AST);
 					match(K_POSTPONED);
 					break;
 				}
@@ -4090,6 +5406,8 @@ inputState.guessing--;
 				}
 				}
 				concurrent_signal_assignment_statement_2();
+				astFactory.addASTChild(currentAST, returnAST);
+				concurrent_signal_assignment_statement_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -4104,10 +5422,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = concurrent_signal_assignment_statement_AST;
 	}
 	
 	public final void concurrent_signal_assignment_statement_2() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST concurrent_signal_assignment_statement_2_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -4117,11 +5439,15 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				conditional_signal_assignment();
+				astFactory.addASTChild(currentAST, returnAST);
+				concurrent_signal_assignment_statement_2_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_WITH:
 			{
 				selected_signal_assignment();
+				astFactory.addASTChild(currentAST, returnAST);
+				concurrent_signal_assignment_statement_2_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -4138,17 +5464,31 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = concurrent_signal_assignment_statement_2_AST;
 	}
 	
 	public final void conditional_signal_assignment() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST conditional_signal_assignment_AST = null;
 		
 		try {      // for error handling
 			target();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp193_AST = null;
+			tmp193_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp193_AST);
 			match(LSTEQ);
 			voptions();
+			astFactory.addASTChild(currentAST, returnAST);
 			conditional_waveforms();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp194_AST = null;
+			tmp194_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp194_AST);
 			match(SEMI);
+			conditional_signal_assignment_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4158,20 +5498,41 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = conditional_signal_assignment_AST;
 	}
 	
 	public final void selected_signal_assignment() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST selected_signal_assignment_AST = null;
 		
 		try {      // for error handling
+			AST tmp195_AST = null;
+			tmp195_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp195_AST);
 			match(K_WITH);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp196_AST = null;
+			tmp196_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp196_AST);
 			match(K_SELECT);
 			target();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp197_AST = null;
+			tmp197_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp197_AST);
 			match(LSTEQ);
 			voptions();
+			astFactory.addASTChild(currentAST, returnAST);
 			selected_waveforms();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp198_AST = null;
+			tmp198_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp198_AST);
 			match(SEMI);
+			selected_signal_assignment_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4181,10 +5542,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = selected_signal_assignment_AST;
 	}
 	
 	public final void process_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST process_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -4193,6 +5558,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_POSTPONED:
@@ -4210,6 +5576,9 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_POSTPONED:
 			{
+				AST tmp199_AST = null;
+				tmp199_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp199_AST);
 				match(K_POSTPONED);
 				break;
 			}
@@ -4223,13 +5592,23 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp200_AST = null;
+			tmp200_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp200_AST);
 			match(K_PROCESS);
 			{
 			switch ( LA(1)) {
 			case LPAREN:
 			{
+				AST tmp201_AST = null;
+				tmp201_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp201_AST);
 				match(LPAREN);
 				sensitivity_list();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp202_AST = null;
+				tmp202_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp202_AST);
 				match(RPAREN);
 				break;
 			}
@@ -4262,6 +5641,9 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_IS:
 			{
+				AST tmp203_AST = null;
+				tmp203_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp203_AST);
 				match(K_IS);
 				break;
 			}
@@ -4290,13 +5672,24 @@ inputState.guessing--;
 			}
 			}
 			process_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp204_AST = null;
+			tmp204_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp204_AST);
 			match(K_BEGIN);
 			process_statement_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp205_AST = null;
+			tmp205_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp205_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
 			case K_POSTPONED:
 			{
+				AST tmp206_AST = null;
+				tmp206_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp206_AST);
 				match(K_POSTPONED);
 				break;
 			}
@@ -4310,6 +5703,9 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp207_AST = null;
+			tmp207_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp207_AST);
 			match(K_PROCESS);
 			{
 			switch ( LA(1)) {
@@ -4317,6 +5713,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -4329,7 +5726,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp208_AST = null;
+			tmp208_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp208_AST);
 			match(SEMI);
+			process_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4339,15 +5740,27 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = process_statement_AST;
 	}
 	
 	public final void generate_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST generate_statement_AST = null;
 		
 		try {      // for error handling
 			label();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp209_AST = null;
+			tmp209_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp209_AST);
 			match(COLON);
 			generation_scheme();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp210_AST = null;
+			tmp210_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp210_AST);
 			match(K_GENERATE);
 			{
 			switch ( LA(1)) {
@@ -4376,6 +5789,7 @@ inputState.guessing--;
 				do {
 					if ((_tokenSet_22.member(LA(1)))) {
 						block_declarative_item();
+						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
 						break _loop265;
@@ -4383,6 +5797,9 @@ inputState.guessing--;
 					
 				} while (true);
 				}
+				AST tmp211_AST = null;
+				tmp211_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp211_AST);
 				match(K_BEGIN);
 				break;
 			}
@@ -4409,6 +5826,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_24.member(LA(1)))) {
 					concurrent_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop267;
@@ -4416,7 +5834,13 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp212_AST = null;
+			tmp212_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp212_AST);
 			match(K_END);
+			AST tmp213_AST = null;
+			tmp213_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp213_AST);
 			match(K_GENERATE);
 			{
 			switch ( LA(1)) {
@@ -4424,6 +5848,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -4436,7 +5861,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp214_AST = null;
+			tmp214_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp214_AST);
 			match(SEMI);
+			generate_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4446,14 +5875,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = generate_statement_AST;
 	}
 	
 	public final void condition_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST condition_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp215_AST = null;
+			tmp215_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp215_AST);
 			match(K_UNTIL);
 			condition();
+			astFactory.addASTChild(currentAST, returnAST);
+			condition_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4463,10 +5901,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = condition_clause_AST;
 	}
 	
 	public final void target() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST target_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -4475,11 +5917,15 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				target_AST = (AST)currentAST.root;
 				break;
 			}
 			case LPAREN:
 			{
 				aggregate();
+				astFactory.addASTChild(currentAST, returnAST);
+				target_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -4496,16 +5942,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = target_AST;
 	}
 	
 	public final void voptions() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST voptions_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_GUARDED:
 			{
+				AST tmp216_AST = null;
+				tmp216_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp216_AST);
 				match(K_GUARDED);
 				break;
 			}
@@ -4543,6 +5996,7 @@ inputState.guessing--;
 			case K_INERTIAL:
 			{
 				delay_mechanism();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case LPAREN:
@@ -4569,6 +6023,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			voptions_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4578,13 +6033,18 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = voptions_AST;
 	}
 	
 	public final void conditional_waveforms() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST conditional_waveforms_AST = null;
 		
 		try {      // for error handling
 			waveform();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			boolean synPredMatched146 = false;
 			if (((LA(1)==K_WHEN) && (_tokenSet_10.member(LA(2))))) {
@@ -4606,6 +6066,7 @@ inputState.guessing--;
 			}
 			if ( synPredMatched146 ) {
 				conditional_waveforms_2();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((LA(1)==SEMI||LA(1)==K_WHEN) && (_tokenSet_77.member(LA(2)))) {
 			}
@@ -4618,8 +6079,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_WHEN:
 			{
+				AST tmp217_AST = null;
+				tmp217_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp217_AST);
 				match(K_WHEN);
 				condition();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -4632,6 +6097,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			conditional_waveforms_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4641,10 +6107,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = conditional_waveforms_AST;
 	}
 	
 	public final void waveform() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST waveform_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -4664,12 +6134,17 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				waveform_element();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				_loop610:
 				do {
 					if ((LA(1)==COMMA)) {
+						AST tmp218_AST = null;
+						tmp218_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp218_AST);
 						match(COMMA);
 						waveform_element();
+						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
 						break _loop610;
@@ -4677,11 +6152,16 @@ inputState.guessing--;
 					
 				} while (true);
 				}
+				waveform_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_UNAFFECTED:
 			{
+				AST tmp219_AST = null;
+				tmp219_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp219_AST);
 				match(K_UNAFFECTED);
+				waveform_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -4698,16 +6178,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = waveform_AST;
 	}
 	
 	public final void conditional_waveforms_2() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST conditional_waveforms_2_AST = null;
 		
 		try {      // for error handling
+			AST tmp220_AST = null;
+			tmp220_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp220_AST);
 			match(K_WHEN);
 			condition();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp221_AST = null;
+			tmp221_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp221_AST);
 			match(K_ELSE);
 			waveform();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			boolean synPredMatched151 = false;
 			if (((LA(1)==K_WHEN) && (_tokenSet_10.member(LA(2))))) {
@@ -4729,6 +6221,7 @@ inputState.guessing--;
 			}
 			if ( synPredMatched151 ) {
 				conditional_waveforms_2();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((LA(1)==SEMI||LA(1)==K_WHEN) && (_tokenSet_77.member(LA(2)))) {
 			}
@@ -4737,6 +6230,7 @@ inputState.guessing--;
 			}
 			
 			}
+			conditional_waveforms_2_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4746,24 +6240,47 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = conditional_waveforms_2_AST;
 	}
 	
 	public final void configuration_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST configuration_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp222_AST = null;
+			tmp222_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp222_AST);
 			match(K_CONFIGURATION);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp223_AST = null;
+			tmp223_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp223_AST);
 			match(K_OF);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp224_AST = null;
+			tmp224_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp224_AST);
 			match(K_IS);
 			configuration_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
 			block_configuration();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp225_AST = null;
+			tmp225_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp225_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
 			case K_CONFIGURATION:
 			{
+				AST tmp226_AST = null;
+				tmp226_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp226_AST);
 				match(K_CONFIGURATION);
 				break;
 			}
@@ -4785,6 +6302,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -4797,7 +6315,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp227_AST = null;
+			tmp227_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp227_AST);
 			match(SEMI);
+			configuration_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4807,10 +6329,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = configuration_declaration_AST;
 	}
 	
 	public final void configuration_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST configuration_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -4818,6 +6344,7 @@ inputState.guessing--;
 			do {
 				if ((LA(1)==K_ATTRIBUTE||LA(1)==K_USE||LA(1)==K_GROUP)) {
 					configuration_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop158;
@@ -4825,6 +6352,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			configuration_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4834,26 +6362,36 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = configuration_declarative_part_AST;
 	}
 	
 	public final void configuration_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST configuration_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				configuration_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ATTRIBUTE:
 			{
 				attribute_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				configuration_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_GROUP:
 			{
 				group_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				configuration_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -4870,19 +6408,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = configuration_declarative_item_AST;
 	}
 	
 	public final void identifier_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST identifier_list_AST = null;
 		
 		try {      // for error handling
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop283:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp228_AST = null;
+					tmp228_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp228_AST);
 					match(COMMA);
 					identifier();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop283;
@@ -4890,6 +6437,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			identifier_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4899,20 +6447,32 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = identifier_list_AST;
 	}
 	
 	public final void index_constraint() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST index_constraint_AST = null;
 		
 		try {      // for error handling
+			AST tmp229_AST = null;
+			tmp229_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp229_AST);
 			match(LPAREN);
 			discrete_range();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop293:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp230_AST = null;
+					tmp230_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp230_AST);
 					match(COMMA);
 					discrete_range();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop293;
@@ -4920,7 +6480,11 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp231_AST = null;
+			tmp231_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp231_AST);
 			match(RPAREN);
+			index_constraint_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4930,21 +6494,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = index_constraint_AST;
 	}
 	
 	public final void constraint() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST constraint_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_RANGE:
 			{
 				range_constraint();
+				astFactory.addASTChild(currentAST, returnAST);
+				constraint_AST = (AST)currentAST.root;
 				break;
 			}
 			case LPAREN:
 			{
 				index_constraint();
+				astFactory.addASTChild(currentAST, returnAST);
+				constraint_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -4961,14 +6533,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = constraint_AST;
 	}
 	
 	public final void range_constraint() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST range_constraint_AST = null;
 		
 		try {      // for error handling
+			AST tmp232_AST = null;
+			tmp232_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp232_AST);
 			match(K_RANGE);
 			range();
+			astFactory.addASTChild(currentAST, returnAST);
+			range_constraint_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -4978,10 +6559,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = range_constraint_AST;
 	}
 	
 	public final void context_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST context_clause_AST = null;
 		
 		try {      // for error handling
 			{
@@ -4989,6 +6574,7 @@ inputState.guessing--;
 			do {
 				if ((LA(1)==K_USE||LA(1)==K_LIBRARY)) {
 					context_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop169;
@@ -4996,6 +6582,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			context_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5005,21 +6592,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = context_clause_AST;
 	}
 	
 	public final void context_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST context_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_LIBRARY:
 			{
 				library_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				context_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				context_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5036,15 +6631,27 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = context_item_AST;
 	}
 	
 	public final void library_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST library_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp233_AST = null;
+			tmp233_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp233_AST);
 			match(K_LIBRARY);
 			logical_name_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp234_AST = null;
+			tmp234_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp234_AST);
 			match(SEMI);
+			library_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5054,46 +6661,64 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = library_clause_AST;
 	}
 	
 	public final void declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST declaration_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ATTRIBUTE:
 			{
 				attribute_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_COMPONENT:
 			{
 				component_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ENTITY:
 			{
 				entity_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONFIGURATION:
 			{
 				configuration_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PROCEDURE:
@@ -5102,11 +6727,15 @@ inputState.guessing--;
 			case K_IMPURE:
 			{
 				subprogram_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PACKAGE:
 			{
 				package_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5128,9 +6757,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched174 ) {
 					object_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					declaration_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_85.member(LA(1))) && (_tokenSet_86.member(LA(2)))) {
 					interface_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					declaration_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched176 = false;
@@ -5153,9 +6786,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched176 ) {
 						group_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						declaration_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						group_template_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						declaration_AST = (AST)currentAST.root;
 					}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -5170,32 +6807,44 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = declaration_AST;
 		}
 		
 	public final void object_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST object_declaration_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				object_declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SIGNAL:
 			{
 				signal_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				object_declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				object_declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				object_declaration_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5212,10 +6861,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = object_declaration_AST;
 	}
 	
 	public final void interface_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_declaration_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched310 = false;
@@ -5236,6 +6889,8 @@ inputState.guessing--;
 			}
 			if ( synPredMatched310 ) {
 				interface_constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				interface_declaration_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched312 = false;
@@ -5256,12 +6911,18 @@ inputState.guessing--;
 				}
 				if ( synPredMatched312 ) {
 					interface_signal_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					interface_declaration_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==K_VARIABLE||LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER) && (_tokenSet_86.member(LA(2)))) {
 					interface_variable_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					interface_declaration_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==K_FILE)) {
 					interface_file_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					interface_declaration_AST = (AST)currentAST.root;
 				}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -5276,27 +6937,44 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = interface_declaration_AST;
 		}
 		
 	public final void entity_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_declaration_AST = null;
 		Token id = null;
 		
 		try {      // for error handling
+			AST tmp235_AST = null;
+			tmp235_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp235_AST);
 			match(K_ENTITY);
 			id=identifier();
+			astFactory.addASTChild(currentAST, returnAST);
 			if ( inputState.guessing==0 ) {
 				stTracker.beginEntityDecl(id);
 			}
+			AST tmp236_AST = null;
+			tmp236_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp236_AST);
 			match(K_IS);
 			entity_header();
+			astFactory.addASTChild(currentAST, returnAST);
 			entity_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_BEGIN:
 			{
+				AST tmp237_AST = null;
+				tmp237_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp237_AST);
 				match(K_BEGIN);
 				entity_statement_part();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_END:
@@ -5309,11 +6987,17 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp238_AST = null;
+			tmp238_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp238_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
 			case K_ENTITY:
 			{
+				AST tmp239_AST = null;
+				tmp239_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp239_AST);
 				match(K_ENTITY);
 				break;
 			}
@@ -5335,6 +7019,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -5347,10 +7032,14 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp240_AST = null;
+			tmp240_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp240_AST);
 			match(SEMI);
 			if ( inputState.guessing==0 ) {
 				stTracker.endEntityDecl();
 			}
+			entity_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5360,21 +7049,39 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_declaration_AST;
 	}
 	
 	public final void package_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST package_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp241_AST = null;
+			tmp241_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp241_AST);
 			match(K_PACKAGE);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp242_AST = null;
+			tmp242_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp242_AST);
 			match(K_IS);
 			package_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp243_AST = null;
+			tmp243_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp243_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
 			case K_PACKAGE:
 			{
+				AST tmp244_AST = null;
+				tmp244_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp244_AST);
 				match(K_PACKAGE);
 				break;
 			}
@@ -5396,6 +7103,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -5408,7 +7116,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp245_AST = null;
+			tmp245_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp245_AST);
 			match(SEMI);
+			package_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5418,16 +7130,24 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = package_declaration_AST;
 	}
 	
 	public final void delay_mechanism() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST delay_mechanism_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TRANSPORT:
 			{
+				AST tmp246_AST = null;
+				tmp246_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp246_AST);
 				match(K_TRANSPORT);
+				delay_mechanism_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_REJECT:
@@ -5437,8 +7157,12 @@ inputState.guessing--;
 				switch ( LA(1)) {
 				case K_REJECT:
 				{
+					AST tmp247_AST = null;
+					tmp247_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp247_AST);
 					match(K_REJECT);
 					expression();
+					astFactory.addASTChild(currentAST, returnAST);
 					break;
 				}
 				case K_INERTIAL:
@@ -5451,7 +7175,11 @@ inputState.guessing--;
 				}
 				}
 				}
+				AST tmp248_AST = null;
+				tmp248_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp248_AST);
 				match(K_INERTIAL);
+				delay_mechanism_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5468,10 +7196,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = delay_mechanism_AST;
 	}
 	
 	public final void design_file() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST design_file_AST = null;
 		
 		try {      // for error handling
 			{
@@ -5480,6 +7212,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_83.member(LA(1)))) {
 					design_unit();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					if ( _cnt181>=1 ) { break _loop181; } else {throw new NoViableAltException(LT(1), getFilename());}
@@ -5488,6 +7221,7 @@ inputState.guessing--;
 				_cnt181++;
 			} while (true);
 			}
+			design_file_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5497,14 +7231,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = design_file_AST;
 	}
 	
 	public final void design_unit() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST design_unit_AST = null;
 		
 		try {      // for error handling
 			context_clause();
+			astFactory.addASTChild(currentAST, returnAST);
 			library_unit();
+			astFactory.addASTChild(currentAST, returnAST);
+			design_unit_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5514,10 +7255,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = design_unit_AST;
 	}
 	
 	public final void library_unit() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST library_unit_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched333 = false;
@@ -5554,9 +7299,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched333 ) {
 				secondary_unit();
+				astFactory.addASTChild(currentAST, returnAST);
+				library_unit_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==K_CONFIGURATION||LA(1)==K_ENTITY||LA(1)==K_PACKAGE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 				primary_unit();
+				astFactory.addASTChild(currentAST, returnAST);
+				library_unit_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -5571,10 +7320,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = library_unit_AST;
 	}
 	
 	public final void designator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST designator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -5582,11 +7335,15 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				identifier();
+				astFactory.addASTChild(currentAST, returnAST);
+				designator_AST = (AST)currentAST.root;
 				break;
 			}
 			case STRING_LITERAL:
 			{
 				operator_symbol();
+				astFactory.addASTChild(currentAST, returnAST);
+				designator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5603,21 +7360,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = designator_AST;
 	}
 	
 	public final void direction() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST direction_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TO:
 			{
+				AST tmp249_AST = null;
+				tmp249_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp249_AST);
 				match(K_TO);
+				direction_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_DOWNTO:
 			{
+				AST tmp250_AST = null;
+				tmp250_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp250_AST);
 				match(K_DOWNTO);
+				direction_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5634,15 +7403,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = direction_AST;
 	}
 	
 	public final void guarded_signal_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST guarded_signal_specification_AST = null;
 		
 		try {      // for error handling
 			signal_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp251_AST = null;
+			tmp251_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp251_AST);
 			match(COLON);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			guarded_signal_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5652,10 +7431,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = guarded_signal_specification_AST;
 	}
 	
 	public final void range() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST range_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched466 = false;
@@ -5678,11 +7461,17 @@ inputState.guessing--;
 			}
 			if ( synPredMatched466 ) {
 				simple_expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				direction();
+				astFactory.addASTChild(currentAST, returnAST);
 				simple_expression();
+				astFactory.addASTChild(currentAST, returnAST);
+				range_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER||LA(1)==STRING_LITERAL) && (_tokenSet_92.member(LA(2)))) {
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				range_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -5697,16 +7486,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = range_AST;
 	}
 	
 	public final void element_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST element_declaration_AST = null;
 		
 		try {      // for error handling
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp252_AST = null;
+			tmp252_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp252_AST);
 			match(COLON);
 			element_subtype_definition();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp253_AST = null;
+			tmp253_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp253_AST);
 			match(SEMI);
+			element_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5716,13 +7518,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = element_declaration_AST;
 	}
 	
 	public final void element_subtype_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST element_subtype_definition_AST = null;
 		
 		try {      // for error handling
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			element_subtype_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5732,86 +7540,150 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = element_subtype_definition_AST;
 	}
 	
 	public final void entity_class() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_class_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_ENTITY:
 			{
+				AST tmp254_AST = null;
+				tmp254_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp254_AST);
 				match(K_ENTITY);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PROCEDURE:
 			{
+				AST tmp255_AST = null;
+				tmp255_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp255_AST);
 				match(K_PROCEDURE);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_TYPE:
 			{
+				AST tmp256_AST = null;
+				tmp256_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp256_AST);
 				match(K_TYPE);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SIGNAL:
 			{
+				AST tmp257_AST = null;
+				tmp257_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp257_AST);
 				match(K_SIGNAL);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_LABEL:
 			{
+				AST tmp258_AST = null;
+				tmp258_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp258_AST);
 				match(K_LABEL);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ARCHITECTURE:
 			{
+				AST tmp259_AST = null;
+				tmp259_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp259_AST);
 				match(K_ARCHITECTURE);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FUNCTION:
 			{
+				AST tmp260_AST = null;
+				tmp260_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp260_AST);
 				match(K_FUNCTION);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
+				AST tmp261_AST = null;
+				tmp261_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp261_AST);
 				match(K_SUBTYPE);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			{
+				AST tmp262_AST = null;
+				tmp262_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp262_AST);
 				match(K_VARIABLE);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_LITERAL:
 			{
+				AST tmp263_AST = null;
+				tmp263_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp263_AST);
 				match(K_LITERAL);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONFIGURATION:
 			{
+				AST tmp264_AST = null;
+				tmp264_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp264_AST);
 				match(K_CONFIGURATION);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PACKAGE:
 			{
+				AST tmp265_AST = null;
+				tmp265_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp265_AST);
 				match(K_PACKAGE);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
+				AST tmp266_AST = null;
+				tmp266_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp266_AST);
 				match(K_CONSTANT);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_COMPONENT:
 			{
+				AST tmp267_AST = null;
+				tmp267_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp267_AST);
 				match(K_COMPONENT);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_UNITS:
 			{
+				AST tmp268_AST = null;
+				tmp268_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp268_AST);
 				match(K_UNITS);
+				entity_class_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -5828,17 +7700,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_class_AST;
 	}
 	
 	public final void entity_class_entry() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_class_entry_AST = null;
 		
 		try {      // for error handling
 			entity_class();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LSTGRT:
 			{
+				AST tmp269_AST = null;
+				tmp269_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp269_AST);
 				match(LSTGRT);
 				break;
 			}
@@ -5853,6 +7733,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			entity_class_entry_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5862,19 +7743,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_class_entry_AST;
 	}
 	
 	public final void entity_class_entry_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_class_entry_list_AST = null;
 		
 		try {      // for error handling
 			entity_class_entry();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop202:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp270_AST = null;
+					tmp270_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp270_AST);
 					match(COMMA);
 					entity_class_entry();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop202;
@@ -5882,6 +7772,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			entity_class_entry_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5891,10 +7782,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_class_entry_list_AST;
 	}
 	
 	public final void entity_header() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_header_AST = null;
 		
 		try {      // for error handling
 			{
@@ -5902,6 +7797,7 @@ inputState.guessing--;
 			case K_GENERIC:
 			{
 				generic_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_ALIAS:
@@ -5937,6 +7833,7 @@ inputState.guessing--;
 			case K_PORT:
 			{
 				port_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_ALIAS:
@@ -5966,6 +7863,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			entity_header_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -5975,10 +7873,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_header_AST;
 	}
 	
 	public final void entity_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -5986,6 +7888,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_95.member(LA(1)))) {
 					entity_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop216;
@@ -5993,6 +7896,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			entity_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6002,10 +7906,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_declarative_part_AST;
 	}
 	
 	public final void entity_statement_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_statement_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -6013,6 +7921,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_97.member(LA(1)))) {
 					entity_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop233;
@@ -6020,6 +7929,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			entity_statement_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6029,57 +7939,79 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_statement_part_AST;
 	}
 	
 	public final void entity_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SIGNAL:
 			{
 				signal_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_DISCONNECT:
 			{
 				disconnection_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -6101,9 +8033,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched209 ) {
 					subprogram_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					entity_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2)))) {
 					subprogram_body();
+					astFactory.addASTChild(currentAST, returnAST);
+					entity_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched211 = false;
@@ -6124,9 +8060,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched211 ) {
 						attribute_specification();
+						astFactory.addASTChild(currentAST, returnAST);
+						entity_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_ATTRIBUTE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						attribute_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						entity_declarative_item_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched213 = false;
@@ -6149,9 +8089,13 @@ inputState.guessing--;
 						}
 						if ( synPredMatched213 ) {
 							group_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							entity_declarative_item_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 							group_template_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							entity_declarative_item_AST = (AST)currentAST.root;
 						}
 					else {
 						throw new NoViableAltException(LT(1), getFilename());
@@ -6166,18 +8110,24 @@ inputState.guessing--;
 					  throw ex;
 					}
 				}
+				returnAST = entity_declarative_item_AST;
 			}
 			
 	public final void entity_designator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_designator_AST = null;
 		
 		try {      // for error handling
 			entity_tag();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LBRACK:
 			{
 				signature();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case COMMA:
@@ -6191,6 +8141,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			entity_designator_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6200,10 +8151,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_designator_AST;
 	}
 	
 	public final void entity_tag() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_tag_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -6211,16 +8166,22 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_tag_AST = (AST)currentAST.root;
 				break;
 			}
 			case CHARACTER_LITERAL:
 			{
 				character_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_tag_AST = (AST)currentAST.root;
 				break;
 			}
 			case STRING_LITERAL:
 			{
 				operator_symbol();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_tag_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -6237,10 +8198,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_tag_AST;
 	}
 	
 	public final void entity_name_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_name_list_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -6250,12 +8215,17 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				entity_designator();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				_loop224:
 				do {
 					if ((LA(1)==COMMA)) {
+						AST tmp271_AST = null;
+						tmp271_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp271_AST);
 						match(COMMA);
 						entity_designator();
+						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
 						break _loop224;
@@ -6263,16 +8233,25 @@ inputState.guessing--;
 					
 				} while (true);
 				}
+				entity_name_list_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OTHERS:
 			{
+				AST tmp272_AST = null;
+				tmp272_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp272_AST);
 				match(K_OTHERS);
+				entity_name_list_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALL:
 			{
+				AST tmp273_AST = null;
+				tmp273_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp273_AST);
 				match(K_ALL);
+				entity_name_list_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -6289,10 +8268,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = entity_name_list_AST;
 	}
 	
 	public final void entity_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST entity_statement_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched228 = false;
@@ -6313,6 +8296,8 @@ inputState.guessing--;
 			}
 			if ( synPredMatched228 ) {
 				concurrent_assertion_statement();
+				astFactory.addASTChild(currentAST, returnAST);
+				entity_statement_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched230 = false;
@@ -6333,9 +8318,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched230 ) {
 					concurrent_procedure_call_statement();
+					astFactory.addASTChild(currentAST, returnAST);
+					entity_statement_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_30.member(LA(1))) && (_tokenSet_31.member(LA(2)))) {
 					process_statement();
+					astFactory.addASTChild(currentAST, returnAST);
+					entity_statement_AST = (AST)currentAST.root;
 				}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -6350,10 +8339,14 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = entity_statement_AST;
 		}
 		
 	public final void enumeration_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST enumeration_literal_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -6361,11 +8354,15 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				identifier();
+				astFactory.addASTChild(currentAST, returnAST);
+				enumeration_literal_AST = (AST)currentAST.root;
 				break;
 			}
 			case CHARACTER_LITERAL:
 			{
 				character_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				enumeration_literal_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -6382,20 +8379,32 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = enumeration_literal_AST;
 	}
 	
 	public final void enumeration_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST enumeration_type_definition_AST = null;
 		
 		try {      // for error handling
+			AST tmp274_AST = null;
+			tmp274_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp274_AST);
 			match(LPAREN);
 			enumeration_literal();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop238:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp275_AST = null;
+					tmp275_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp275_AST);
 					match(COMMA);
 					enumeration_literal();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop238;
@@ -6403,7 +8412,11 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			AST tmp276_AST = null;
+			tmp276_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp276_AST);
 			match(RPAREN);
+			enumeration_type_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6413,10 +8426,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = enumeration_type_definition_AST;
 	}
 	
 	public final void exit_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST exit_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -6425,6 +8442,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_EXIT:
@@ -6437,6 +8455,9 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp277_AST = null;
+			tmp277_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp277_AST);
 			match(K_EXIT);
 			{
 			switch ( LA(1)) {
@@ -6444,6 +8465,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -6461,8 +8483,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_WHEN:
 			{
+				AST tmp278_AST = null;
+				tmp278_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp278_AST);
 				match(K_WHEN);
 				condition();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -6475,7 +8501,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp279_AST = null;
+			tmp279_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp279_AST);
 			match(SEMI);
+			exit_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6485,13 +8515,18 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = exit_statement_AST;
 	}
 	
 	public final void relation() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST relation_AST = null;
 		
 		try {      // for error handling
 			shift_expression();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LSTEQ:
@@ -6502,7 +8537,9 @@ inputState.guessing--;
 			case GRTEQ:
 			{
 				relational_operator();
+				astFactory.addASTChild(currentAST, returnAST);
 				shift_expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -6536,6 +8573,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			relation_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6545,41 +8583,69 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = relation_AST;
 	}
 	
 	public final void logical_op() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST logical_op_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_AND:
 			{
+				AST tmp280_AST = null;
+				tmp280_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp280_AST);
 				match(K_AND);
+				logical_op_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OR:
 			{
+				AST tmp281_AST = null;
+				tmp281_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp281_AST);
 				match(K_OR);
+				logical_op_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_XOR:
 			{
+				AST tmp282_AST = null;
+				tmp282_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp282_AST);
 				match(K_XOR);
+				logical_op_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NAND:
 			{
+				AST tmp283_AST = null;
+				tmp283_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp283_AST);
 				match(K_NAND);
+				logical_op_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NOR:
 			{
+				AST tmp284_AST = null;
+				tmp284_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp284_AST);
 				match(K_NOR);
+				logical_op_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_XNOR:
 			{
+				AST tmp285_AST = null;
+				tmp285_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp285_AST);
 				match(K_XNOR);
+				logical_op_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -6596,10 +8662,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = logical_op_AST;
 	}
 	
 	public final void factor() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST factor_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -6615,10 +8685,15 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				primary();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				if ((LA(1)==STAR2) && (_tokenSet_102.member(LA(2)))) {
+					AST tmp286_AST = null;
+					tmp286_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp286_AST);
 					match(STAR2);
 					primary();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else if ((_tokenSet_2.member(LA(1))) && (_tokenSet_103.member(LA(2)))) {
 				}
@@ -6627,18 +8702,29 @@ inputState.guessing--;
 				}
 				
 				}
+				factor_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ABS:
 			{
+				AST tmp287_AST = null;
+				tmp287_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp287_AST);
 				match(K_ABS);
 				primary();
+				astFactory.addASTChild(currentAST, returnAST);
+				factor_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NOT:
 			{
+				AST tmp288_AST = null;
+				tmp288_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp288_AST);
 				match(K_NOT);
 				primary();
+				astFactory.addASTChild(currentAST, returnAST);
+				factor_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -6655,10 +8741,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = factor_AST;
 	}
 	
 	public final void primary() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST primary_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched407 = false;
@@ -6679,6 +8769,8 @@ inputState.guessing--;
 			}
 			if ( synPredMatched407 ) {
 				function_call();
+				astFactory.addASTChild(currentAST, returnAST);
+				primary_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched410 = false;
@@ -6717,11 +8809,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched410 ) {
 					name();
+					astFactory.addASTChild(currentAST, returnAST);
 					{
 					switch ( LA(1)) {
 					case LBRACK:
 					{
 						signature();
+						astFactory.addASTChild(currentAST, returnAST);
 						break;
 					}
 					case TIC_SIMPLE_NAME:
@@ -6735,6 +8829,8 @@ inputState.guessing--;
 					}
 					}
 					tic_attribute_designator();
+					astFactory.addASTChild(currentAST, returnAST);
+					primary_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched413 = false;
@@ -6756,6 +8852,8 @@ inputState.guessing--;
 					}
 					if ( synPredMatched413 ) {
 						qualified_expression();
+						astFactory.addASTChild(currentAST, returnAST);
+						primary_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched415 = false;
@@ -6777,18 +8875,32 @@ inputState.guessing--;
 inputState.guessing--;
 						}
 						if ( synPredMatched415 ) {
+							AST tmp289_AST = null;
+							tmp289_AST = astFactory.create(LT(1));
+							astFactory.addASTChild(currentAST, tmp289_AST);
 							match(LPAREN);
 							expression();
+							astFactory.addASTChild(currentAST, returnAST);
+							AST tmp290_AST = null;
+							tmp290_AST = astFactory.create(LT(1));
+							astFactory.addASTChild(currentAST, tmp290_AST);
 							match(RPAREN);
+							primary_AST = (AST)currentAST.root;
 						}
 						else if ((_tokenSet_104.member(LA(1))) && (_tokenSet_105.member(LA(2)))) {
 							literal();
+							astFactory.addASTChild(currentAST, returnAST);
+							primary_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==K_NEW)) {
 							allocator();
+							astFactory.addASTChild(currentAST, returnAST);
+							primary_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==LPAREN) && (_tokenSet_14.member(LA(2)))) {
 							aggregate();
+							astFactory.addASTChild(currentAST, returnAST);
+							primary_AST = (AST)currentAST.root;
 						}
 						else {
 							throw new NoViableAltException(LT(1), getFilename());
@@ -6803,18 +8915,26 @@ inputState.guessing--;
 						  throw ex;
 						}
 					}
+					returnAST = primary_AST;
 				}
 				
 	public final void file_open_information() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST file_open_information_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_OPEN:
 			{
+				AST tmp291_AST = null;
+				tmp291_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp291_AST);
 				match(K_OPEN);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_IS:
@@ -6827,8 +8947,13 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp292_AST = null;
+			tmp292_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp292_AST);
 			match(K_IS);
 			file_logical_name();
+			astFactory.addASTChild(currentAST, returnAST);
+			file_open_information_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6838,13 +8963,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = file_open_information_AST;
 	}
 	
 	public final void file_logical_name() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST file_logical_name_AST = null;
 		
 		try {      // for error handling
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			file_logical_name_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6854,15 +8985,27 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = file_logical_name_AST;
 	}
 	
 	public final void file_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST file_type_definition_AST = null;
 		
 		try {      // for error handling
+			AST tmp293_AST = null;
+			tmp293_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp293_AST);
 			match(K_FILE);
+			AST tmp294_AST = null;
+			tmp294_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp294_AST);
 			match(K_OF);
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			file_type_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6872,13 +9015,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = file_type_definition_AST;
 	}
 	
 	public final void floating_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST floating_type_definition_AST = null;
 		
 		try {      // for error handling
 			range_constraint();
+			astFactory.addASTChild(currentAST, returnAST);
+			floating_type_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6888,13 +9037,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = floating_type_definition_AST;
 	}
 	
 	public final void formal_parameter_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST formal_parameter_list_AST = null;
 		
 		try {      // for error handling
 			interface_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			formal_parameter_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6904,19 +9059,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = formal_parameter_list_AST;
 	}
 	
 	public final void interface_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_list_AST = null;
 		
 		try {      // for error handling
 			interface_element();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop317:
 			do {
 				if ((LA(1)==SEMI)) {
+					AST tmp295_AST = null;
+					tmp295_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp295_AST);
 					match(SEMI);
 					interface_element();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop317;
@@ -6924,6 +9088,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			interface_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6933,17 +9098,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = interface_list_AST;
 	}
 	
 	public final void full_type_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST full_type_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp296_AST = null;
+			tmp296_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp296_AST);
 			match(K_TYPE);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp297_AST = null;
+			tmp297_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp297_AST);
 			match(K_IS);
 			type_definition();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp298_AST = null;
+			tmp298_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp298_AST);
 			match(SEMI);
+			full_type_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -6953,10 +9134,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = full_type_declaration_AST;
 	}
 	
 	public final void type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST type_definition_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -6964,27 +9149,37 @@ inputState.guessing--;
 			case K_RANGE:
 			{
 				scalar_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ARRAY:
 			case K_RECORD:
 			{
 				composite_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ACCESS:
 			{
 				access_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PROTECTED:
 			{
 				protected_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				type_definition_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7001,19 +9196,31 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = type_definition_AST;
 	}
 	
 	public final void function_call() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST function_call_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case LPAREN:
 			{
+				AST tmp299_AST = null;
+				tmp299_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp299_AST);
 				match(LPAREN);
 				actual_parameter_part();
+				astFactory.addASTChild(currentAST, returnAST);
+				AST tmp300_AST = null;
+				tmp300_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp300_AST);
 				match(RPAREN);
 				break;
 			}
@@ -7077,6 +9284,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			function_call_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7086,23 +9294,37 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = function_call_AST;
 	}
 	
 	public final void generation_scheme() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST generation_scheme_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_FOR:
 			{
+				AST tmp301_AST = null;
+				tmp301_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp301_AST);
 				match(K_FOR);
 				parameter_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				generation_scheme_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_IF:
 			{
+				AST tmp302_AST = null;
+				tmp302_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp302_AST);
 				match(K_IF);
 				condition();
+				astFactory.addASTChild(currentAST, returnAST);
+				generation_scheme_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7119,15 +9341,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = generation_scheme_AST;
 	}
 	
 	public final void parameter_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST parameter_specification_AST = null;
 		
 		try {      // for error handling
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp303_AST = null;
+			tmp303_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp303_AST);
 			match(K_IN);
 			discrete_range();
+			astFactory.addASTChild(currentAST, returnAST);
+			parameter_specification_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7137,13 +9369,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = parameter_specification_AST;
 	}
 	
 	public final void generic_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST generic_list_AST = null;
 		
 		try {      // for error handling
 			interface_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			generic_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7153,10 +9391,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = generic_list_AST;
 	}
 	
 	public final void group_constituent() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST group_constituent_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -7165,11 +9407,15 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				group_constituent_AST = (AST)currentAST.root;
 				break;
 			}
 			case CHARACTER_LITERAL:
 			{
 				character_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				group_constituent_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7186,19 +9432,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = group_constituent_AST;
 	}
 	
 	public final void group_constituent_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST group_constituent_list_AST = null;
 		
 		try {      // for error handling
 			group_constituent();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop276:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp304_AST = null;
+					tmp304_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp304_AST);
 					match(COMMA);
 					group_constituent();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop276;
@@ -7206,6 +9461,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			group_constituent_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7215,10 +9471,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = group_constituent_list_AST;
 	}
 	
 	public final void signal_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST signal_list_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -7227,12 +9487,17 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				_loop544:
 				do {
 					if ((LA(1)==COMMA)) {
+						AST tmp305_AST = null;
+						tmp305_AST = astFactory.create(LT(1));
+						astFactory.addASTChild(currentAST, tmp305_AST);
 						match(COMMA);
 						name();
+						astFactory.addASTChild(currentAST, returnAST);
 					}
 					else {
 						break _loop544;
@@ -7240,16 +9505,25 @@ inputState.guessing--;
 					
 				} while (true);
 				}
+				signal_list_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OTHERS:
 			{
+				AST tmp306_AST = null;
+				tmp306_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp306_AST);
 				match(K_OTHERS);
+				signal_list_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALL:
 			{
+				AST tmp307_AST = null;
+				tmp307_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp307_AST);
 				match(K_ALL);
+				signal_list_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7266,10 +9540,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = signal_list_AST;
 	}
 	
 	public final void if_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST if_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -7278,6 +9556,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_IF:
@@ -7290,18 +9569,34 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp308_AST = null;
+			tmp308_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp308_AST);
 			match(K_IF);
 			condition();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp309_AST = null;
+			tmp309_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp309_AST);
 			match(K_THEN);
 			sequence_of_statements();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop287:
 			do {
 				if ((LA(1)==K_ELSIF)) {
+					AST tmp310_AST = null;
+					tmp310_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp310_AST);
 					match(K_ELSIF);
 					condition();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp311_AST = null;
+					tmp311_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp311_AST);
 					match(K_THEN);
 					sequence_of_statements();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop287;
@@ -7313,8 +9608,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_ELSE:
 			{
+				AST tmp312_AST = null;
+				tmp312_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp312_AST);
 				match(K_ELSE);
 				sequence_of_statements();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_END:
@@ -7327,7 +9626,13 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp313_AST = null;
+			tmp313_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp313_AST);
 			match(K_END);
+			AST tmp314_AST = null;
+			tmp314_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp314_AST);
 			match(K_IF);
 			{
 			switch ( LA(1)) {
@@ -7335,6 +9640,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -7347,7 +9653,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp315_AST = null;
+			tmp315_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp315_AST);
 			match(SEMI);
+			if_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7357,15 +9667,27 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = if_statement_AST;
 	}
 	
 	public final void incomplete_type_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST incomplete_type_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp316_AST = null;
+			tmp316_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp316_AST);
 			match(K_TYPE);
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp317_AST = null;
+			tmp317_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp317_AST);
 			match(SEMI);
+			incomplete_type_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7375,15 +9697,27 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = incomplete_type_declaration_AST;
 	}
 	
 	public final void index_subtype_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST index_subtype_definition_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp318_AST = null;
+			tmp318_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp318_AST);
 			match(K_RANGE);
+			AST tmp319_AST = null;
+			tmp319_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp319_AST);
 			match(LSTGRT);
+			index_subtype_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7393,16 +9727,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = index_subtype_definition_AST;
 	}
 	
 	public final void interface_constant_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_constant_declaration_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_CONSTANT:
 			{
+				AST tmp320_AST = null;
+				tmp320_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp320_AST);
 				match(K_CONSTANT);
 				break;
 			}
@@ -7418,11 +9759,18 @@ inputState.guessing--;
 			}
 			}
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp321_AST = null;
+			tmp321_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp321_AST);
 			match(COLON);
 			{
 			switch ( LA(1)) {
 			case K_IN:
 			{
+				AST tmp322_AST = null;
+				tmp322_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp322_AST);
 				match(K_IN);
 				break;
 			}
@@ -7439,12 +9787,17 @@ inputState.guessing--;
 			}
 			}
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case COLONEQ:
 			{
+				AST tmp323_AST = null;
+				tmp323_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp323_AST);
 				match(COLONEQ);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -7459,6 +9812,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			interface_constant_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7468,16 +9822,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = interface_constant_declaration_AST;
 	}
 	
 	public final void interface_signal_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_signal_declaration_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_SIGNAL:
 			{
+				AST tmp324_AST = null;
+				tmp324_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp324_AST);
 				match(K_SIGNAL);
 				break;
 			}
@@ -7493,6 +9854,10 @@ inputState.guessing--;
 			}
 			}
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp325_AST = null;
+			tmp325_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp325_AST);
 			match(COLON);
 			{
 			switch ( LA(1)) {
@@ -7503,6 +9868,7 @@ inputState.guessing--;
 			case K_LINKAGE:
 			{
 				mode();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case BASIC_IDENTIFIER:
@@ -7518,10 +9884,14 @@ inputState.guessing--;
 			}
 			}
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_BUS:
 			{
+				AST tmp326_AST = null;
+				tmp326_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp326_AST);
 				match(K_BUS);
 				break;
 			}
@@ -7542,8 +9912,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case COLONEQ:
 			{
+				AST tmp327_AST = null;
+				tmp327_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp327_AST);
 				match(COLONEQ);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -7558,6 +9932,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			interface_signal_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7567,16 +9942,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = interface_signal_declaration_AST;
 	}
 	
 	public final void interface_variable_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_variable_declaration_AST = null;
 		
 		try {      // for error handling
 			{
 			switch ( LA(1)) {
 			case K_VARIABLE:
 			{
+				AST tmp328_AST = null;
+				tmp328_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp328_AST);
 				match(K_VARIABLE);
 				break;
 			}
@@ -7592,6 +9974,10 @@ inputState.guessing--;
 			}
 			}
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp329_AST = null;
+			tmp329_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp329_AST);
 			match(COLON);
 			{
 			switch ( LA(1)) {
@@ -7602,6 +9988,7 @@ inputState.guessing--;
 			case K_LINKAGE:
 			{
 				mode();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case BASIC_IDENTIFIER:
@@ -7617,12 +10004,17 @@ inputState.guessing--;
 			}
 			}
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case COLONEQ:
 			{
+				AST tmp330_AST = null;
+				tmp330_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp330_AST);
 				match(COLONEQ);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -7637,6 +10029,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			interface_variable_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7646,16 +10039,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = interface_variable_declaration_AST;
 	}
 	
 	public final void interface_file_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_file_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp331_AST = null;
+			tmp331_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp331_AST);
 			match(K_FILE);
 			identifier_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp332_AST = null;
+			tmp332_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp332_AST);
 			match(COLON);
 			subtype_indication();
+			astFactory.addASTChild(currentAST, returnAST);
+			interface_file_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7665,13 +10071,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = interface_file_declaration_AST;
 	}
 	
 	public final void interface_element() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST interface_element_AST = null;
 		
 		try {      // for error handling
 			interface_declaration();
+			astFactory.addASTChild(currentAST, returnAST);
+			interface_element_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7681,36 +10093,60 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = interface_element_AST;
 	}
 	
 	public final void mode() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST mode_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_IN:
 			{
+				AST tmp333_AST = null;
+				tmp333_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp333_AST);
 				match(K_IN);
+				mode_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OUT:
 			{
+				AST tmp334_AST = null;
+				tmp334_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp334_AST);
 				match(K_OUT);
+				mode_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_INOUT:
 			{
+				AST tmp335_AST = null;
+				tmp335_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp335_AST);
 				match(K_INOUT);
+				mode_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_BUFFER:
 			{
+				AST tmp336_AST = null;
+				tmp336_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp336_AST);
 				match(K_BUFFER);
+				mode_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_LINKAGE:
 			{
+				AST tmp337_AST = null;
+				tmp337_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp337_AST);
 				match(K_LINKAGE);
+				mode_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7727,23 +10163,37 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = mode_AST;
 	}
 	
 	public final void iteration_scheme() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST iteration_scheme_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_WHILE:
 			{
+				AST tmp338_AST = null;
+				tmp338_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp338_AST);
 				match(K_WHILE);
 				condition();
+				astFactory.addASTChild(currentAST, returnAST);
+				iteration_scheme_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FOR:
 			{
+				AST tmp339_AST = null;
+				tmp339_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp339_AST);
 				match(K_FOR);
 				parameter_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				iteration_scheme_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7760,19 +10210,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = iteration_scheme_AST;
 	}
 	
 	public final void logical_name_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST logical_name_list_AST = null;
 		
 		try {      // for error handling
 			logical_name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop340:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp340_AST = null;
+					tmp340_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp340_AST);
 					match(COMMA);
 					logical_name();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop340;
@@ -7780,6 +10239,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			logical_name_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7789,21 +10249,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = logical_name_list_AST;
 	}
 	
 	public final void secondary_unit() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST secondary_unit_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_ARCHITECTURE:
 			{
 				architecture_body();
+				astFactory.addASTChild(currentAST, returnAST);
+				secondary_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PACKAGE:
 			{
 				package_body();
+				astFactory.addASTChild(currentAST, returnAST);
+				secondary_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7820,26 +10288,36 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = secondary_unit_AST;
 	}
 	
 	public final void primary_unit() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST primary_unit_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_ENTITY:
 			{
 				entity_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				primary_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONFIGURATION:
 			{
 				configuration_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				primary_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_PACKAGE:
 			{
 				package_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				primary_unit_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7856,21 +10334,31 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = primary_unit_AST;
 	}
 	
 	public final void literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST literal_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case BIT_STRING_LITERAL:
 			{
 				bit_string_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				literal_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NULL:
 			{
+				AST tmp341_AST = null;
+				tmp341_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp341_AST);
 				match(K_NULL);
+				literal_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -7892,12 +10380,18 @@ inputState.guessing--;
 				}
 				if ( synPredMatched336 ) {
 					numeric_literal();
+					astFactory.addASTChild(currentAST, returnAST);
+					literal_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==CHARACTER_LITERAL||LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER) && (_tokenSet_2.member(LA(2)))) {
 					enumeration_literal();
+					astFactory.addASTChild(currentAST, returnAST);
+					literal_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==STRING_LITERAL) && (_tokenSet_2.member(LA(2)))) {
 					string_literal();
+					astFactory.addASTChild(currentAST, returnAST);
+					literal_AST = (AST)currentAST.root;
 				}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -7912,10 +10406,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = literal_AST;
 	}
 	
 	public final void numeric_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST numeric_literal_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched371 = false;
@@ -7936,9 +10434,13 @@ inputState.guessing--;
 			}
 			if ( synPredMatched371 ) {
 				abstract_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				numeric_literal_AST = (AST)currentAST.root;
 			}
 			else if ((_tokenSet_111.member(LA(1))) && (_tokenSet_105.member(LA(2)))) {
 				physical_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				numeric_literal_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -7953,13 +10455,21 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = numeric_literal_AST;
 	}
 	
 	public final void string_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST string_literal_AST = null;
 		
 		try {      // for error handling
+			AST tmp342_AST = null;
+			tmp342_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp342_AST);
 			match(STRING_LITERAL);
+			string_literal_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7969,13 +10479,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = string_literal_AST;
 	}
 	
 	public final void logical_name() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST logical_name_AST = null;
 		
 		try {      // for error handling
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			logical_name_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -7985,41 +10501,69 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = logical_name_AST;
 	}
 	
 	public final void logical_operator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST logical_operator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_AND:
 			{
+				AST tmp343_AST = null;
+				tmp343_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp343_AST);
 				match(K_AND);
+				logical_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_OR:
 			{
+				AST tmp344_AST = null;
+				tmp344_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp344_AST);
 				match(K_OR);
+				logical_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NAND:
 			{
+				AST tmp345_AST = null;
+				tmp345_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp345_AST);
 				match(K_NAND);
+				logical_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NOR:
 			{
+				AST tmp346_AST = null;
+				tmp346_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp346_AST);
 				match(K_NOR);
+				logical_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_XOR:
 			{
+				AST tmp347_AST = null;
+				tmp347_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp347_AST);
 				match(K_XOR);
+				logical_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_XNOR:
 			{
+				AST tmp348_AST = null;
+				tmp348_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp348_AST);
 				match(K_XNOR);
+				logical_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8036,10 +10580,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = logical_operator_AST;
 	}
 	
 	public final void loop_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST loop_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8048,6 +10596,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_FOR:
@@ -8068,6 +10617,7 @@ inputState.guessing--;
 			case K_WHILE:
 			{
 				iteration_scheme();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_LOOP:
@@ -8080,9 +10630,19 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp349_AST = null;
+			tmp349_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp349_AST);
 			match(K_LOOP);
 			sequence_of_statements();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp350_AST = null;
+			tmp350_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp350_AST);
 			match(K_END);
+			AST tmp351_AST = null;
+			tmp351_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp351_AST);
 			match(K_LOOP);
 			{
 			switch ( LA(1)) {
@@ -8090,6 +10650,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -8102,7 +10663,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp352_AST = null;
+			tmp352_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp352_AST);
 			match(SEMI);
+			loop_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8112,26 +10677,42 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = loop_statement_AST;
 	}
 	
 	public final void miscellaneous_operator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST miscellaneous_operator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case STAR2:
 			{
+				AST tmp353_AST = null;
+				tmp353_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp353_AST);
 				match(STAR2);
+				miscellaneous_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ABS:
 			{
+				AST tmp354_AST = null;
+				tmp354_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp354_AST);
 				match(K_ABS);
+				miscellaneous_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_NOT:
 			{
+				AST tmp355_AST = null;
+				tmp355_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp355_AST);
 				match(K_NOT);
+				miscellaneous_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8148,31 +10729,51 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = miscellaneous_operator_AST;
 	}
 	
 	public final void multiplying_operator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST multiplying_operator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case STAR:
 			{
+				AST tmp356_AST = null;
+				tmp356_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp356_AST);
 				match(STAR);
+				multiplying_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case SLASH:
 			{
+				AST tmp357_AST = null;
+				tmp357_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp357_AST);
 				match(SLASH);
+				multiplying_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_MOD:
 			{
+				AST tmp358_AST = null;
+				tmp358_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp358_AST);
 				match(K_MOD);
+				multiplying_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_REM:
 			{
+				AST tmp359_AST = null;
+				tmp359_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp359_AST);
 				match(K_REM);
+				multiplying_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8189,11 +10790,15 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = multiplying_operator_AST;
 	}
 	
 	public final Token  suffix() throws RecognitionException, TokenStreamException {
 		Token tok;
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST suffix_AST = null;
 		tok=null;
 		
 		try {      // for error handling
@@ -8202,21 +10807,31 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				tok=simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
+				suffix_AST = (AST)currentAST.root;
 				break;
 			}
 			case CHARACTER_LITERAL:
 			{
 				character_literal();
+				astFactory.addASTChild(currentAST, returnAST);
+				suffix_AST = (AST)currentAST.root;
 				break;
 			}
 			case STRING_LITERAL:
 			{
 				operator_symbol();
+				astFactory.addASTChild(currentAST, returnAST);
+				suffix_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALL:
 			{
+				AST tmp360_AST = null;
+				tmp360_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp360_AST);
 				match(K_ALL);
+				suffix_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8233,11 +10848,15 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = suffix_AST;
 		return tok;
 	}
 	
 	public final void next_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST next_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8246,6 +10865,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_NEXT:
@@ -8258,6 +10878,9 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp361_AST = null;
+			tmp361_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp361_AST);
 			match(K_NEXT);
 			{
 			switch ( LA(1)) {
@@ -8265,6 +10888,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -8282,8 +10906,12 @@ inputState.guessing--;
 			switch ( LA(1)) {
 			case K_WHEN:
 			{
+				AST tmp362_AST = null;
+				tmp362_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp362_AST);
 				match(K_WHEN);
 				condition();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -8296,7 +10924,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp363_AST = null;
+			tmp363_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp363_AST);
 			match(SEMI);
+			next_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8306,10 +10938,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = next_statement_AST;
 	}
 	
 	public final void null_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST null_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8318,6 +10954,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_NULL:
@@ -8330,8 +10967,15 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp364_AST = null;
+			tmp364_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp364_AST);
 			match(K_NULL);
+			AST tmp365_AST = null;
+			tmp365_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp365_AST);
 			match(SEMI);
+			null_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8341,10 +10985,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = null_statement_AST;
 	}
 	
 	public final void physical_literal() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST physical_literal_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8353,6 +11001,7 @@ inputState.guessing--;
 			case DECIMAL_LITERAL:
 			{
 				abstract_literal();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case BASIC_IDENTIFIER:
@@ -8368,6 +11017,8 @@ inputState.guessing--;
 			}
 			}
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
+			physical_literal_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8377,23 +11028,47 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = physical_literal_AST;
 	}
 	
 	public final void package_body() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST package_body_AST = null;
 		
 		try {      // for error handling
+			AST tmp366_AST = null;
+			tmp366_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp366_AST);
 			match(K_PACKAGE);
+			AST tmp367_AST = null;
+			tmp367_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp367_AST);
 			match(K_BODY);
 			simple_name();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp368_AST = null;
+			tmp368_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp368_AST);
 			match(K_IS);
 			package_body_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp369_AST = null;
+			tmp369_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp369_AST);
 			match(K_END);
 			{
 			switch ( LA(1)) {
 			case K_PACKAGE:
 			{
+				AST tmp370_AST = null;
+				tmp370_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp370_AST);
 				match(K_PACKAGE);
+				AST tmp371_AST = null;
+				tmp371_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp371_AST);
 				match(K_BODY);
 				break;
 			}
@@ -8415,6 +11090,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -8427,7 +11103,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp372_AST = null;
+			tmp372_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp372_AST);
 			match(SEMI);
+			package_body_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8437,10 +11117,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = package_body_AST;
 	}
 	
 	public final void package_body_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST package_body_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8448,6 +11132,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_113.member(LA(1)))) {
 					package_body_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop384;
@@ -8455,6 +11140,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			package_body_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8464,47 +11150,65 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = package_body_declarative_part_AST;
 	}
 	
 	public final void package_body_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST package_body_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8526,9 +11230,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched379 ) {
 					subprogram_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					package_body_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2)))) {
 					subprogram_body();
+					astFactory.addASTChild(currentAST, returnAST);
+					package_body_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched381 = false;
@@ -8551,9 +11259,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched381 ) {
 						group_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						package_body_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						group_template_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						package_body_declarative_item_AST = (AST)currentAST.root;
 					}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -8568,10 +11280,14 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = package_body_declarative_item_AST;
 		}
 		
 	public final void package_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST package_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8579,6 +11295,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_115.member(LA(1)))) {
 					package_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop395;
@@ -8586,6 +11303,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			package_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8595,10 +11313,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = package_declarative_part_AST;
 	}
 	
 	public final void package_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST package_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -8608,57 +11330,79 @@ inputState.guessing--;
 			case K_IMPURE:
 			{
 				subprogram_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SIGNAL:
 			{
 				signal_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_COMPONENT:
 			{
 				component_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_DISCONNECT:
 			{
 				disconnection_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				package_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8680,9 +11424,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched390 ) {
 					attribute_specification();
+					astFactory.addASTChild(currentAST, returnAST);
+					package_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==K_ATTRIBUTE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 					attribute_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					package_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched392 = false;
@@ -8705,9 +11453,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched392 ) {
 						group_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						package_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						group_template_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						package_declarative_item_AST = (AST)currentAST.root;
 					}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -8722,21 +11474,31 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = package_declarative_item_AST;
 		}
 		
 	public final void physical_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST physical_type_definition_AST = null;
 		
 		try {      // for error handling
 			range_constraint();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp373_AST = null;
+			tmp373_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp373_AST);
 			match(K_UNITS);
 			base_unit_declaration();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case BASIC_IDENTIFIER:
 			case EXTENDED_IDENTIFIER:
 			{
 				secondary_unit_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_END:
@@ -8749,7 +11511,13 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp374_AST = null;
+			tmp374_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp374_AST);
 			match(K_END);
+			AST tmp375_AST = null;
+			tmp375_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp375_AST);
 			match(K_UNITS);
 			{
 			switch ( LA(1)) {
@@ -8757,6 +11525,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -8769,6 +11538,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			physical_type_definition_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8778,16 +11548,29 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = physical_type_definition_AST;
 	}
 	
 	public final void secondary_unit_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST secondary_unit_declaration_AST = null;
 		
 		try {      // for error handling
 			identifier();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp376_AST = null;
+			tmp376_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp376_AST);
 			match(EQ);
 			physical_literal();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp377_AST = null;
+			tmp377_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp377_AST);
 			match(SEMI);
+			secondary_unit_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8797,13 +11580,19 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = secondary_unit_declaration_AST;
 	}
 	
 	public final void port_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST port_list_AST = null;
 		
 		try {      // for error handling
 			interface_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			port_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8813,15 +11602,20 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = port_list_AST;
 	}
 	
 	public final void procedure_call_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST procedure_call_statement_AST = null;
 		
 		try {      // for error handling
 			{
 			if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER) && (LA(2)==COLON)) {
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER||LA(1)==STRING_LITERAL) && (_tokenSet_117.member(LA(2)))) {
 			}
@@ -8831,7 +11625,12 @@ inputState.guessing--;
 			
 			}
 			procedure_call();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp378_AST = null;
+			tmp378_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp378_AST);
 			match(SEMI);
+			procedure_call_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8841,47 +11640,65 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = procedure_call_statement_AST;
 	}
 	
 	public final void process_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST process_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				process_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -8903,9 +11720,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched423 ) {
 					subprogram_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					process_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2)))) {
 					subprogram_body();
+					astFactory.addASTChild(currentAST, returnAST);
+					process_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched425 = false;
@@ -8926,9 +11747,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched425 ) {
 						attribute_specification();
+						astFactory.addASTChild(currentAST, returnAST);
+						process_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_ATTRIBUTE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						attribute_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						process_declarative_item_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched427 = false;
@@ -8951,9 +11776,13 @@ inputState.guessing--;
 						}
 						if ( synPredMatched427 ) {
 							group_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							process_declarative_item_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 							group_template_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							process_declarative_item_AST = (AST)currentAST.root;
 						}
 					else {
 						throw new NoViableAltException(LT(1), getFilename());
@@ -8968,10 +11797,14 @@ inputState.guessing--;
 					  throw ex;
 					}
 				}
+				returnAST = process_declarative_item_AST;
 			}
 			
 	public final void process_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST process_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -8979,6 +11812,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_119.member(LA(1)))) {
 					process_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop430;
@@ -8986,6 +11820,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			process_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -8995,19 +11830,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = process_declarative_part_AST;
 	}
 	
 	public final void sensitivity_list() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST sensitivity_list_AST = null;
 		
 		try {      // for error handling
 			name();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop493:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp379_AST = null;
+					tmp379_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp379_AST);
 					match(COMMA);
 					name();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop493;
@@ -9015,6 +11859,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			sensitivity_list_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9024,10 +11869,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = sensitivity_list_AST;
 	}
 	
 	public final void process_statement_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST process_statement_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -9035,6 +11884,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_62.member(LA(1)))) {
 					sequential_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop440;
@@ -9042,6 +11892,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			process_statement_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9051,10 +11902,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = process_statement_part_AST;
 	}
 	
 	public final void sequential_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST sequential_statement_AST = null;
 		
 		try {      // for error handling
 			boolean synPredMatched500 = false;
@@ -9093,6 +11948,8 @@ inputState.guessing--;
 			}
 			if ( synPredMatched500 ) {
 				wait_statement();
+				astFactory.addASTChild(currentAST, returnAST);
+				sequential_statement_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched503 = false;
@@ -9131,6 +11988,8 @@ inputState.guessing--;
 				}
 				if ( synPredMatched503 ) {
 					assertion_statement();
+					astFactory.addASTChild(currentAST, returnAST);
+					sequential_statement_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched506 = false;
@@ -9169,6 +12028,8 @@ inputState.guessing--;
 					}
 					if ( synPredMatched506 ) {
 						report_statement();
+						astFactory.addASTChild(currentAST, returnAST);
+						sequential_statement_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched509 = false;
@@ -9207,6 +12068,8 @@ inputState.guessing--;
 						}
 						if ( synPredMatched509 ) {
 							if_statement();
+							astFactory.addASTChild(currentAST, returnAST);
+							sequential_statement_AST = (AST)currentAST.root;
 						}
 						else {
 							boolean synPredMatched512 = false;
@@ -9245,6 +12108,8 @@ inputState.guessing--;
 							}
 							if ( synPredMatched512 ) {
 								case_statement();
+								astFactory.addASTChild(currentAST, returnAST);
+								sequential_statement_AST = (AST)currentAST.root;
 							}
 							else {
 								boolean synPredMatched515 = false;
@@ -9283,6 +12148,8 @@ inputState.guessing--;
 								}
 								if ( synPredMatched515 ) {
 									next_statement();
+									astFactory.addASTChild(currentAST, returnAST);
+									sequential_statement_AST = (AST)currentAST.root;
 								}
 								else {
 									boolean synPredMatched518 = false;
@@ -9321,6 +12188,8 @@ inputState.guessing--;
 									}
 									if ( synPredMatched518 ) {
 										exit_statement();
+										astFactory.addASTChild(currentAST, returnAST);
+										sequential_statement_AST = (AST)currentAST.root;
 									}
 									else {
 										boolean synPredMatched521 = false;
@@ -9359,6 +12228,8 @@ inputState.guessing--;
 										}
 										if ( synPredMatched521 ) {
 											return_statement();
+											astFactory.addASTChild(currentAST, returnAST);
+											sequential_statement_AST = (AST)currentAST.root;
 										}
 										else {
 											boolean synPredMatched524 = false;
@@ -9397,6 +12268,8 @@ inputState.guessing--;
 											}
 											if ( synPredMatched524 ) {
 												null_statement();
+												astFactory.addASTChild(currentAST, returnAST);
+												sequential_statement_AST = (AST)currentAST.root;
 											}
 											else {
 												boolean synPredMatched526 = false;
@@ -9417,6 +12290,8 @@ inputState.guessing--;
 												}
 												if ( synPredMatched526 ) {
 													loop_statement();
+													astFactory.addASTChild(currentAST, returnAST);
+													sequential_statement_AST = (AST)currentAST.root;
 												}
 												else {
 													boolean synPredMatched528 = false;
@@ -9437,6 +12312,8 @@ inputState.guessing--;
 													}
 													if ( synPredMatched528 ) {
 														procedure_call_statement();
+														astFactory.addASTChild(currentAST, returnAST);
+														sequential_statement_AST = (AST)currentAST.root;
 													}
 													else {
 														boolean synPredMatched530 = false;
@@ -9457,9 +12334,13 @@ inputState.guessing--;
 														}
 														if ( synPredMatched530 ) {
 															variable_assignment_statement();
+															astFactory.addASTChild(currentAST, returnAST);
+															sequential_statement_AST = (AST)currentAST.root;
 														}
 														else if ((_tokenSet_128.member(LA(1))) && (_tokenSet_130.member(LA(2)))) {
 															signal_assignment_statement();
+															astFactory.addASTChild(currentAST, returnAST);
+															sequential_statement_AST = (AST)currentAST.root;
 														}
 														else {
 															throw new NoViableAltException(LT(1), getFilename());
@@ -9474,17 +12355,37 @@ inputState.guessing--;
 														  throw ex;
 														}
 													}
+													returnAST = sequential_statement_AST;
 												}
 												
 	public final void protected_type_body() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_body_AST = null;
 		
 		try {      // for error handling
+			AST tmp380_AST = null;
+			tmp380_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp380_AST);
 			match(K_PROTECTED);
+			AST tmp381_AST = null;
+			tmp381_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp381_AST);
 			match(K_BODY);
 			protected_type_body_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp382_AST = null;
+			tmp382_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp382_AST);
 			match(K_END);
+			AST tmp383_AST = null;
+			tmp383_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp383_AST);
 			match(K_PROTECTED);
+			AST tmp384_AST = null;
+			tmp384_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp384_AST);
 			match(K_BODY);
 			{
 			switch ( LA(1)) {
@@ -9492,6 +12393,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -9504,6 +12406,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			protected_type_body_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9513,10 +12416,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = protected_type_body_AST;
 	}
 	
 	public final void protected_type_body_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_body_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -9524,6 +12431,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_119.member(LA(1)))) {
 					protected_type_body_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop452;
@@ -9531,6 +12439,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			protected_type_body_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9540,47 +12449,65 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = protected_type_body_declarative_part_AST;
 	}
 	
 	public final void protected_type_body_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_body_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -9602,9 +12529,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched445 ) {
 					subprogram_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2)))) {
 					subprogram_body();
+					astFactory.addASTChild(currentAST, returnAST);
+					protected_type_body_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched447 = false;
@@ -9625,9 +12556,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched447 ) {
 						attribute_specification();
+						astFactory.addASTChild(currentAST, returnAST);
+						protected_type_body_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_ATTRIBUTE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						attribute_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						protected_type_body_declarative_item_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched449 = false;
@@ -9650,9 +12585,13 @@ inputState.guessing--;
 						}
 						if ( synPredMatched449 ) {
 							group_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							protected_type_body_declarative_item_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 							group_template_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							protected_type_body_declarative_item_AST = (AST)currentAST.root;
 						}
 					else {
 						throw new NoViableAltException(LT(1), getFilename());
@@ -9667,15 +12606,29 @@ inputState.guessing--;
 					  throw ex;
 					}
 				}
+				returnAST = protected_type_body_declarative_item_AST;
 			}
 			
 	public final void protected_type_declaration() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_declaration_AST = null;
 		
 		try {      // for error handling
+			AST tmp385_AST = null;
+			tmp385_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp385_AST);
 			match(K_PROTECTED);
 			protected_type_declarative_part();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp386_AST = null;
+			tmp386_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp386_AST);
 			match(K_END);
+			AST tmp387_AST = null;
+			tmp387_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp387_AST);
 			match(K_PROTECTED);
 			{
 			switch ( LA(1)) {
@@ -9683,6 +12636,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				simple_name();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -9695,6 +12649,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			protected_type_declaration_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9704,10 +12659,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = protected_type_declaration_AST;
 	}
 	
 	public final void protected_type_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -9715,6 +12674,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_132.member(LA(1)))) {
 					protected_type_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop458;
@@ -9722,6 +12682,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			protected_type_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9731,10 +12692,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = protected_type_declarative_part_AST;
 	}
 	
 	public final void protected_type_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
@@ -9744,16 +12709,22 @@ inputState.guessing--;
 			case K_IMPURE:
 			{
 				subprogram_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ATTRIBUTE:
 			{
 				attribute_specification();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -9770,23 +12741,38 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = protected_type_declarative_item_AST;
 	}
 	
 	public final void subprogram_specification() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_specification_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_PROCEDURE:
 			{
+				AST tmp388_AST = null;
+				tmp388_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp388_AST);
 				match(K_PROCEDURE);
 				designator();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case LPAREN:
 				{
+					AST tmp389_AST = null;
+					tmp389_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp389_AST);
 					match(LPAREN);
 					formal_parameter_list();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp390_AST = null;
+					tmp390_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp390_AST);
 					match(RPAREN);
 					break;
 				}
@@ -9808,6 +12794,7 @@ inputState.guessing--;
 				}
 				}
 				}
+				subprogram_specification_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FUNCTION:
@@ -9818,11 +12805,17 @@ inputState.guessing--;
 				switch ( LA(1)) {
 				case K_PURE:
 				{
+					AST tmp391_AST = null;
+					tmp391_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp391_AST);
 					match(K_PURE);
 					break;
 				}
 				case K_IMPURE:
 				{
+					AST tmp392_AST = null;
+					tmp392_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp392_AST);
 					match(K_IMPURE);
 					break;
 				}
@@ -9836,14 +12829,25 @@ inputState.guessing--;
 				}
 				}
 				}
+				AST tmp393_AST = null;
+				tmp393_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp393_AST);
 				match(K_FUNCTION);
 				designator();
+				astFactory.addASTChild(currentAST, returnAST);
 				{
 				switch ( LA(1)) {
 				case LPAREN:
 				{
+					AST tmp394_AST = null;
+					tmp394_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp394_AST);
 					match(LPAREN);
 					formal_parameter_list();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp395_AST = null;
+					tmp395_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp395_AST);
 					match(RPAREN);
 					break;
 				}
@@ -9857,8 +12861,13 @@ inputState.guessing--;
 				}
 				}
 				}
+				AST tmp396_AST = null;
+				tmp396_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp396_AST);
 				match(K_RETURN);
 				name();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_specification_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -9875,17 +12884,25 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subprogram_specification_AST;
 	}
 	
 	public final void protected_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST protected_type_definition_AST = null;
 		
 		try {      // for error handling
 			if ((LA(1)==K_PROTECTED) && (_tokenSet_133.member(LA(2)))) {
 				protected_type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_definition_AST = (AST)currentAST.root;
 			}
 			else if ((LA(1)==K_PROTECTED) && (LA(2)==K_BODY)) {
 				protected_type_body();
+				astFactory.addASTChild(currentAST, returnAST);
+				protected_type_definition_AST = (AST)currentAST.root;
 			}
 			else {
 				throw new NoViableAltException(LT(1), getFilename());
@@ -9900,13 +12917,18 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = protected_type_definition_AST;
 	}
 	
 	public final void shift_expression() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST shift_expression_AST = null;
 		
 		try {      // for error handling
 			simple_expression();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_SLL:
@@ -9917,7 +12939,9 @@ inputState.guessing--;
 			case K_ROR:
 			{
 				shift_operator();
+				astFactory.addASTChild(currentAST, returnAST);
 				simple_expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case EOF:
@@ -9957,6 +12981,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			shift_expression_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -9966,41 +12991,69 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = shift_expression_AST;
 	}
 	
 	public final void relational_operator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST relational_operator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case EQ:
 			{
+				AST tmp397_AST = null;
+				tmp397_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp397_AST);
 				match(EQ);
+				relational_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case SLASHEQ:
 			{
+				AST tmp398_AST = null;
+				tmp398_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp398_AST);
 				match(SLASHEQ);
+				relational_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case LST:
 			{
+				AST tmp399_AST = null;
+				tmp399_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp399_AST);
 				match(LST);
+				relational_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case LSTEQ:
 			{
+				AST tmp400_AST = null;
+				tmp400_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp400_AST);
 				match(LSTEQ);
+				relational_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case GRT:
 			{
+				AST tmp401_AST = null;
+				tmp401_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp401_AST);
 				match(GRT);
+				relational_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case GRTEQ:
 			{
+				AST tmp402_AST = null;
+				tmp402_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp402_AST);
 				match(GRTEQ);
+				relational_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -10017,10 +13070,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = relational_operator_AST;
 	}
 	
 	public final void report_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST report_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -10029,6 +13086,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_REPORT:
@@ -10041,14 +13099,22 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp403_AST = null;
+			tmp403_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp403_AST);
 			match(K_REPORT);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_SEVERITY:
 			{
+				AST tmp404_AST = null;
+				tmp404_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp404_AST);
 				match(K_SEVERITY);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -10061,7 +13127,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp405_AST = null;
+			tmp405_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp405_AST);
 			match(SEMI);
+			report_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10071,10 +13141,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = report_statement_AST;
 	}
 	
 	public final void return_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST return_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -10083,6 +13157,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_RETURN:
@@ -10095,6 +13170,9 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp406_AST = null;
+			tmp406_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp406_AST);
 			match(K_RETURN);
 			{
 			switch ( LA(1)) {
@@ -10114,6 +13192,7 @@ inputState.guessing--;
 			case STRING_LITERAL:
 			{
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -10126,7 +13205,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp407_AST = null;
+			tmp407_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp407_AST);
 			match(SEMI);
+			return_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10136,14 +13219,20 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = return_statement_AST;
 	}
 	
 	public final void scalar_type_definition() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST scalar_type_definition_AST = null;
 		
 		try {      // for error handling
 			if ((LA(1)==LPAREN)) {
 				enumeration_type_definition();
+				astFactory.addASTChild(currentAST, returnAST);
+				scalar_type_definition_AST = (AST)currentAST.root;
 			}
 			else {
 				boolean synPredMatched483 = false;
@@ -10164,9 +13253,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched483 ) {
 					range_constraint();
+					astFactory.addASTChild(currentAST, returnAST);
+					scalar_type_definition_AST = (AST)currentAST.root;
 				}
 				else if ((LA(1)==K_RANGE) && (_tokenSet_10.member(LA(2)))) {
 					physical_type_definition();
+					astFactory.addASTChild(currentAST, returnAST);
+					scalar_type_definition_AST = (AST)currentAST.root;
 				}
 				else {
 					throw new NoViableAltException(LT(1), getFilename());
@@ -10181,23 +13274,40 @@ inputState.guessing--;
 				  throw ex;
 				}
 			}
+			returnAST = scalar_type_definition_AST;
 		}
 		
 	public final void selected_waveforms() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST selected_waveforms_AST = null;
 		
 		try {      // for error handling
 			waveform();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp408_AST = null;
+			tmp408_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp408_AST);
 			match(K_WHEN);
 			choices();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop489:
 			do {
 				if ((LA(1)==COMMA)) {
+					AST tmp409_AST = null;
+					tmp409_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp409_AST);
 					match(COMMA);
 					waveform();
+					astFactory.addASTChild(currentAST, returnAST);
+					AST tmp410_AST = null;
+					tmp410_AST = astFactory.create(LT(1));
+					astFactory.addASTChild(currentAST, tmp410_AST);
 					match(K_WHEN);
 					choices();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop489;
@@ -10205,6 +13315,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			selected_waveforms_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10214,14 +13325,23 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = selected_waveforms_AST;
 	}
 	
 	public final void sensitivity_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST sensitivity_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp411_AST = null;
+			tmp411_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp411_AST);
 			match(K_ON);
 			sensitivity_list();
+			astFactory.addASTChild(currentAST, returnAST);
+			sensitivity_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10231,10 +13351,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = sensitivity_clause_AST;
 	}
 	
 	public final void wait_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST wait_statement_AST = null;
 		
 		try {      // for error handling
 			{
@@ -10243,6 +13367,7 @@ inputState.guessing--;
 			case EXTENDED_IDENTIFIER:
 			{
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case K_WAIT:
@@ -10255,12 +13380,16 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp412_AST = null;
+			tmp412_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp412_AST);
 			match(K_WAIT);
 			{
 			switch ( LA(1)) {
 			case K_ON:
 			{
 				sensitivity_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -10280,6 +13409,7 @@ inputState.guessing--;
 			case K_UNTIL:
 			{
 				condition_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -10298,6 +13428,7 @@ inputState.guessing--;
 			case K_FOR:
 			{
 				timeout_clause();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case SEMI:
@@ -10310,7 +13441,11 @@ inputState.guessing--;
 			}
 			}
 			}
+			AST tmp413_AST = null;
+			tmp413_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp413_AST);
 			match(SEMI);
+			wait_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10320,15 +13455,20 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = wait_statement_AST;
 	}
 	
 	public final void variable_assignment_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST variable_assignment_statement_AST = null;
 		
 		try {      // for error handling
 			{
 			if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER) && (LA(2)==COLON)) {
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((_tokenSet_128.member(LA(1))) && (_tokenSet_137.member(LA(2)))) {
 			}
@@ -10338,9 +13478,18 @@ inputState.guessing--;
 			
 			}
 			target();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp414_AST = null;
+			tmp414_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp414_AST);
 			match(COLONEQ);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp415_AST = null;
+			tmp415_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp415_AST);
 			match(SEMI);
+			variable_assignment_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10350,15 +13499,20 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = variable_assignment_statement_AST;
 	}
 	
 	public final void signal_assignment_statement() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST signal_assignment_statement_AST = null;
 		
 		try {      // for error handling
 			{
 			if ((LA(1)==BASIC_IDENTIFIER||LA(1)==EXTENDED_IDENTIFIER) && (LA(2)==COLON)) {
 				label_colon();
+				astFactory.addASTChild(currentAST, returnAST);
 			}
 			else if ((_tokenSet_128.member(LA(1))) && (_tokenSet_138.member(LA(2)))) {
 			}
@@ -10368,6 +13522,10 @@ inputState.guessing--;
 			
 			}
 			target();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp416_AST = null;
+			tmp416_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp416_AST);
 			match(LSTEQ);
 			{
 			switch ( LA(1)) {
@@ -10376,6 +13534,7 @@ inputState.guessing--;
 			case K_INERTIAL:
 			{
 				delay_mechanism();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case LPAREN:
@@ -10403,7 +13562,12 @@ inputState.guessing--;
 			}
 			}
 			waveform();
+			astFactory.addASTChild(currentAST, returnAST);
+			AST tmp417_AST = null;
+			tmp417_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp417_AST);
 			match(SEMI);
+			signal_assignment_statement_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10413,41 +13577,69 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = signal_assignment_statement_AST;
 	}
 	
 	public final void shift_operator() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST shift_operator_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_SLL:
 			{
+				AST tmp418_AST = null;
+				tmp418_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp418_AST);
 				match(K_SLL);
+				shift_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SRL:
 			{
+				AST tmp419_AST = null;
+				tmp419_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp419_AST);
 				match(K_SRL);
+				shift_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SLA:
 			{
+				AST tmp420_AST = null;
+				tmp420_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp420_AST);
 				match(K_SLA);
+				shift_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SRA:
 			{
+				AST tmp421_AST = null;
+				tmp421_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp421_AST);
 				match(K_SRA);
+				shift_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ROL:
 			{
+				AST tmp422_AST = null;
+				tmp422_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp422_AST);
 				match(K_ROL);
+				shift_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ROR:
 			{
+				AST tmp423_AST = null;
+				tmp423_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp423_AST);
 				match(K_ROR);
+				shift_operator_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -10464,21 +13656,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = shift_operator_AST;
 	}
 	
 	public final void sign() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST sign_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case PLUS:
 			{
+				AST tmp424_AST = null;
+				tmp424_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp424_AST);
 				match(PLUS);
+				sign_AST = (AST)currentAST.root;
 				break;
 			}
 			case MINUS:
 			{
+				AST tmp425_AST = null;
+				tmp425_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp425_AST);
 				match(MINUS);
+				sign_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -10495,21 +13699,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = sign_AST;
 	}
 	
 	public final void signal_kind() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST signal_kind_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_REGISTER:
 			{
+				AST tmp426_AST = null;
+				tmp426_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp426_AST);
 				match(K_REGISTER);
+				signal_kind_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_BUS:
 			{
+				AST tmp427_AST = null;
+				tmp427_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp427_AST);
 				match(K_BUS);
+				signal_kind_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -10526,19 +13742,26 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = signal_kind_AST;
 	}
 	
 	public final void term() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST term_AST = null;
 		
 		try {      // for error handling
 			factor();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			_loop586:
 			do {
 				if (((LA(1) >= STAR && LA(1) <= K_REM)) && (_tokenSet_12.member(LA(2)))) {
 					multiplying_operator();
+					astFactory.addASTChild(currentAST, returnAST);
 					factor();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop586;
@@ -10546,6 +13769,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			term_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10555,10 +13779,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = term_AST;
 	}
 	
 	public final void subprogram_declarative_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_declarative_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -10566,6 +13794,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_119.member(LA(1)))) {
 					subprogram_declarative_item();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop569;
@@ -10573,6 +13802,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			subprogram_declarative_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10582,10 +13812,14 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subprogram_declarative_part_AST;
 	}
 	
 	public final void subprogram_statement_part() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_statement_part_AST = null;
 		
 		try {      // for error handling
 			{
@@ -10593,6 +13827,7 @@ inputState.guessing--;
 			do {
 				if ((_tokenSet_62.member(LA(1)))) {
 					sequential_statement();
+					astFactory.addASTChild(currentAST, returnAST);
 				}
 				else {
 					break _loop577;
@@ -10600,6 +13835,7 @@ inputState.guessing--;
 				
 			} while (true);
 			}
+			subprogram_statement_part_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10609,21 +13845,33 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subprogram_statement_part_AST;
 	}
 	
 	public final void subprogram_kind() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_kind_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_PROCEDURE:
 			{
+				AST tmp428_AST = null;
+				tmp428_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp428_AST);
 				match(K_PROCEDURE);
+				subprogram_kind_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FUNCTION:
 			{
+				AST tmp429_AST = null;
+				tmp429_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp429_AST);
 				match(K_FUNCTION);
+				subprogram_kind_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -10640,47 +13888,65 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = subprogram_kind_AST;
 	}
 	
 	public final void subprogram_declarative_item() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST subprogram_declarative_item_AST = null;
 		
 		try {      // for error handling
 			switch ( LA(1)) {
 			case K_TYPE:
 			{
 				type_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_SUBTYPE:
 			{
 				subtype_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_CONSTANT:
 			{
 				constant_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_VARIABLE:
 			case K_SHARED:
 			{
 				variable_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_FILE:
 			{
 				file_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_ALIAS:
 			{
 				alias_declaration();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			case K_USE:
 			{
 				use_clause();
+				astFactory.addASTChild(currentAST, returnAST);
+				subprogram_declarative_item_AST = (AST)currentAST.root;
 				break;
 			}
 			default:
@@ -10702,9 +13968,13 @@ inputState.guessing--;
 				}
 				if ( synPredMatched562 ) {
 					subprogram_declaration();
+					astFactory.addASTChild(currentAST, returnAST);
+					subprogram_declarative_item_AST = (AST)currentAST.root;
 				}
 				else if ((_tokenSet_27.member(LA(1))) && (_tokenSet_28.member(LA(2)))) {
 					subprogram_body();
+					astFactory.addASTChild(currentAST, returnAST);
+					subprogram_declarative_item_AST = (AST)currentAST.root;
 				}
 				else {
 					boolean synPredMatched564 = false;
@@ -10725,9 +13995,13 @@ inputState.guessing--;
 					}
 					if ( synPredMatched564 ) {
 						attribute_specification();
+						astFactory.addASTChild(currentAST, returnAST);
+						subprogram_declarative_item_AST = (AST)currentAST.root;
 					}
 					else if ((LA(1)==K_ATTRIBUTE) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 						attribute_declaration();
+						astFactory.addASTChild(currentAST, returnAST);
+						subprogram_declarative_item_AST = (AST)currentAST.root;
 					}
 					else {
 						boolean synPredMatched566 = false;
@@ -10750,9 +14024,13 @@ inputState.guessing--;
 						}
 						if ( synPredMatched566 ) {
 							group_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							subprogram_declarative_item_AST = (AST)currentAST.root;
 						}
 						else if ((LA(1)==K_GROUP) && (LA(2)==BASIC_IDENTIFIER||LA(2)==EXTENDED_IDENTIFIER)) {
 							group_template_declaration();
+							astFactory.addASTChild(currentAST, returnAST);
+							subprogram_declarative_item_AST = (AST)currentAST.root;
 						}
 					else {
 						throw new NoViableAltException(LT(1), getFilename());
@@ -10767,14 +14045,23 @@ inputState.guessing--;
 					  throw ex;
 					}
 				}
+				returnAST = subprogram_declarative_item_AST;
 			}
 			
 	public final void timeout_clause() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST timeout_clause_AST = null;
 		
 		try {      // for error handling
+			AST tmp430_AST = null;
+			tmp430_AST = astFactory.create(LT(1));
+			astFactory.addASTChild(currentAST, tmp430_AST);
 			match(K_FOR);
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
+			timeout_clause_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10784,19 +14071,28 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = timeout_clause_AST;
 	}
 	
 	public final void waveform_element() throws RecognitionException, TokenStreamException {
 		
+		returnAST = null;
+		ASTPair currentAST = new ASTPair();
+		AST waveform_element_AST = null;
 		
 		try {      // for error handling
 			expression();
+			astFactory.addASTChild(currentAST, returnAST);
 			{
 			switch ( LA(1)) {
 			case K_AFTER:
 			{
+				AST tmp431_AST = null;
+				tmp431_AST = astFactory.create(LT(1));
+				astFactory.addASTChild(currentAST, tmp431_AST);
 				match(K_AFTER);
 				expression();
+				astFactory.addASTChild(currentAST, returnAST);
 				break;
 			}
 			case COMMA:
@@ -10811,6 +14107,7 @@ inputState.guessing--;
 			}
 			}
 			}
+			waveform_element_AST = (AST)currentAST.root;
 		}
 		catch (RecognitionException ex) {
 			if (inputState.guessing==0) {
@@ -10820,6 +14117,7 @@ inputState.guessing--;
 			  throw ex;
 			}
 		}
+		returnAST = waveform_element_AST;
 	}
 	
 	
@@ -10989,6 +14287,10 @@ inputState.guessing--;
 		"LOWER_CASE_LETTER",
 		"LETTER",
 		"INTEGER"
+	};
+	
+	protected void buildTokenTypeASTClassMap() {
+		tokenTypeToASTClassMap=null;
 	};
 	
 	private static final long[] mk_tokenSet_0() {

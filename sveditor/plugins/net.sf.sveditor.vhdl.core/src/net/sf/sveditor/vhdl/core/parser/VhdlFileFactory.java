@@ -2,9 +2,12 @@ package net.sf.sveditor.vhdl.core.parser;
 
 import java.io.InputStream;
 
+import org.eclipse.swt.internal.C;
+
+import net.sf.sveditor.core.db.SVDBFile;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
-import net.sf.sveditor.core.db.SVDBFile;
+import antlr.collections.AST;
 
 public class VhdlFileFactory {
 	
@@ -18,6 +21,13 @@ public class VhdlFileFactory {
 
 			try {
 				p.design_file();
+				AST ast = p.getAST();
+				System.out.println("ast=" + ast + " ast.child=" + ast.getNumberOfChildren());
+				System.out.println("  sib=" + ast.getNextSibling());
+				for (AST c = ast.getNextSibling(); c != null; c = c.getNextSibling()) {
+					System.out.println("c=" + c);
+				}
+
 			} catch (TokenStreamException e) {
 				e.printStackTrace();
 			} catch (RecognitionException e) {

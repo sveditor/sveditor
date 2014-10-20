@@ -8,8 +8,11 @@ public class TestVhdlArgFileIndexBasics extends VhdlCoreTestCase {
 	
 	public void testBasicParse() {
 		String input = 
-				"entity foo is\n" +
-				"end entity;\n"
+				"package pkg is\n" +
+				"  type rec_type is record\n" +
+				"    addr : std_logic_vector(15 downto 0);\n" +
+				"  end record;\n" +
+				"end package;\n"
 				;
 		
 		VhdlFileFactory f = new VhdlFileFactory();
