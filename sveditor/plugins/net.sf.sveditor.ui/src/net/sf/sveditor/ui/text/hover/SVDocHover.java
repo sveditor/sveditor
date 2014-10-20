@@ -16,7 +16,6 @@ package net.sf.sveditor.ui.text.hover;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.doc.HTML2TextReader;
 import net.sf.sveditor.ui.editor.SVColorManager;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -63,11 +61,8 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Drawable;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -88,149 +83,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		log = LogFactory.getLogHandle("SVDocHover") ;
 	}
 
-//	/**
-//	 * Action to go back to the previous input in the hover control.
-//	 *
-//	 * @since 3.4
-//	 */
-//	private static final class BackAction extends Action {
-//		private final BrowserInformationControl fInfoControl;
-//
-//		public BackAction(BrowserInformationControl infoControl) {
-//			fInfoControl= infoControl;
-//			setText(SVHoverMessages.JavadocHover_back);
-//			ISharedImages images= PlatformUI.getWorkbench().getSharedImages();
-//			setImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_BACK));
-//			setDisabledImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_BACK_DISABLED));
-//
-//			update();
-//		}
-//
-//		@Override
-//		public void run() {
-//			BrowserInformationControlInput previous= (BrowserInformationControlInput) fInfoControl.getInput().getPrevious();
-//			if (previous != null) {
-//				fInfoControl.setInput(previous);
-//			}
-//		}
-//
-//		public void update() {
-//			BrowserInformationControlInput current= fInfoControl.getInput();
-//
-//			if (current != null && current.getPrevious() != null) {
-//				BrowserInput previous= current.getPrevious();
-//				setToolTipText(Messages.format(SVHoverMessages.JavadocHover_back_toElement_toolTip, BasicElementLabels.getJavaElementName(previous.getInputName())));
-//				setEnabled(true);
-//			} else {
-//				setToolTipText(SVHoverMessages.JavadocHover_back);
-//				setEnabled(false);
-//			}
-//		}
-//	}
-
-//	/**
-//	 * Action to go forward to the next input in the hover control.
-//	 *
-//	 * @since 3.4
-//	 */
-//	private static final class ForwardAction extends Action {
-//		private final BrowserInformationControl fInfoControl;
-//
-//		public ForwardAction(BrowserInformationControl infoControl) {
-//			fInfoControl= infoControl;
-//			setText(SVHoverMessages.JavadocHover_forward);
-//			ISharedImages images= PlatformUI.getWorkbench().getSharedImages();
-//			setImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD));
-//			setDisabledImageDescriptor(images.getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD_DISABLED));
-//
-//			update();
-//		}
-//
-//		@Override
-//		public void run() {
-//			BrowserInformationControlInput next= (BrowserInformationControlInput) fInfoControl.getInput().getNext();
-//			if (next != null) {
-//				fInfoControl.setInput(next);
-//			}
-//		}
-//
-//		public void update() {
-//			BrowserInformationControlInput current= fInfoControl.getInput();
-//
-//			if (current != null && current.getNext() != null) {
-//				setToolTipText(Messages.format(SVHoverMessages.JavadocHover_forward_toElement_toolTip, BasicElementLabels.getJavaElementName(current.getNext().getInputName())));
-//				setEnabled(true);
-//			} else {
-//				setToolTipText(SVHoverMessages.JavadocHover_forward_toolTip);
-//				setEnabled(false);
-//			}
-//		}
-//	}
-
-//	/**
-//	 * Action that shows the current hover contents in the Javadoc view.
-//	 *
-//	 * @since 3.4
-//	 */
-//	private static final class ShowInJavadocViewAction extends Action {
-//		private final BrowserInformationControl fInfoControl;
-//
-//		public ShowInJavadocViewAction(BrowserInformationControl infoControl) {
-//			fInfoControl= infoControl;
-//			setText(SVHoverMessages.JavadocHover_showInJavadoc);
-//			setImageDescriptor(JavaPluginImages.DESC_OBJS_JAVADOCTAG); //TODO: better image
-//		}
-//
-//		/*
-//		 * @see org.eclipse.jface.action.Action#run()
-//		 */
-//		@Override
-//		public void run() {
-//			JavadocBrowserInformationControlInput infoInput= (JavadocBrowserInformationControlInput) fInfoControl.getInput(); //TODO: check cast
-//			fInfoControl.notifyDelayedInputChange(null);
-//			fInfoControl.dispose(); //FIXME: should have protocol to hide, rather than dispose
-//			try {
-//				JavadocView view= (JavadocView) JavaPlugin.getActivePage().showView(JavaUI.ID_JAVADOC_VIEW);
-//				view.setInput(infoInput);
-//			} catch (PartInitException e) {
-//				JavaPlugin.log(e);
-//			}
-//		}
-//	}
-
-//	/**
-//	 * Action that opens the current hover input element.
-//	 *
-//	 * @since 3.4
-//	 */
-//	private static final class OpenDeclarationAction extends Action {
-//		private final BrowserInformationControl fInfoControl;
-//
-//		public OpenDeclarationAction(BrowserInformationControl infoControl) {
-//			fInfoControl= infoControl;
-//			setText(SVHoverMessages.JavadocHover_openDeclaration);
-//			JavaPluginImages.setLocalImageDescriptors(this, "goto_input.gif"); //$NON-NLS-1$ //TODO: better images
-//		}
-//
-//		/*
-//		 * @see org.eclipse.jface.action.Action#run()
-//		 */
-//		@Override
-//		public void run() {
-//			JavadocBrowserInformationControlInput infoInput= (JavadocBrowserInformationControlInput) fInfoControl.getInput(); //TODO: check cast
-//			fInfoControl.notifyDelayedInputChange(null);
-//			fInfoControl.dispose(); //FIXME: should have protocol to hide, rather than dispose
-//
-//			try {
-//				//FIXME: add hover location to editor navigation history?
-//				JavaUI.openInEditor(infoInput.getElement());
-//			} catch (PartInitException e) {
-//				JavaPlugin.log(e);
-//			} catch (JavaModelException e) {
-//				JavaPlugin.log(e);
-//			}
-//		}
-//	}
 
 
 	/**
@@ -263,54 +115,12 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			if (BrowserInformationControl.isAvailable(parent) &&
 					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
 				ToolBarManager tbm= new ToolBarManager(SWT.FLAT);
-//				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
-//				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tbm);
+
 				BrowserInformationControl iControl= new BrowserInformationControl(parent, JFaceResources.getTextFont().toString(), tbm);
 
-//				final BackAction backAction= new BackAction(iControl);
-//				backAction.setEnabled(false);
-//				tbm.add(backAction);
-//				final ForwardAction forwardAction= new ForwardAction(iControl);
-//				tbm.add(forwardAction);
-//				forwardAction.setEnabled(false);
-//
-//				final ShowInJavadocViewAction showInJavadocViewAction= new ShowInJavadocViewAction(iControl);
-//				tbm.add(showInJavadocViewAction);
-//				final OpenDeclarationAction openDeclarationAction= new OpenDeclarationAction(iControl);
-//				tbm.add(openDeclarationAction);
-
-//				final SimpleSelectionProvider selectionProvider= new SimpleSelectionProvider();
-//				if (fSite != null) {
-//					OpenAttachedJavadocAction openAttachedJavadocAction= new OpenAttachedJavadocAction(fSite);
-//					openAttachedJavadocAction.setSpecialSelectionProvider(selectionProvider);
-//					openAttachedJavadocAction.setImageDescriptor(JavaPluginImages.DESC_ELCL_OPEN_BROWSER);
-//					openAttachedJavadocAction.setDisabledImageDescriptor(JavaPluginImages.DESC_DLCL_OPEN_BROWSER);
-//					selectionProvider.addSelectionChangedListener(openAttachedJavadocAction);
-//					selectionProvider.setSelection(new StructuredSelection());
-//					tbm.add(openAttachedJavadocAction);
-//				}
-
-//				IInputChangedListener inputChangeListener= new IInputChangedListener() {
-//					public void inputChanged(Object newInput) {
-//						backAction.update();
-//						forwardAction.update();
-//						if (newInput == null) {
-//							selectionProvider.setSelection(new StructuredSelection());
-//						} else if (newInput instanceof BrowserInformationControlInput) {
-//							BrowserInformationControlInput input= (BrowserInformationControlInput) newInput;
-//							Object inputElement= input.getInputElement();
-//							selectionProvider.setSelection(new StructuredSelection(inputElement));
-//							boolean isJavaElementInput= inputElement instanceof IJavaElement;
-//							showInJavadocViewAction.setEnabled(isJavaElementInput);
-//							openDeclarationAction.setEnabled(isJavaElementInput);
-//						}
-//					}
-//				};
-//				iControl.addInputChangeListener(inputChangeListener);
 
 				tbm.update(true);
 
-//				addLinkListener(iControl);
 				return iControl;
 
 			} else {
@@ -356,15 +166,12 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		@Override
 		public IInformationControl doCreateInformationControl(Shell parent) {
 			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
-//			String tooltipAffordanceString= fAdditionalInfoAffordance ? JavaPlugin.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
 			Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
 			Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));
 			if (BrowserInformationControl.isAvailable(parent) &&
 					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
-//				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
-//				BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tooltipAffordanceString) {
 				BrowserInformationControl iControl= new BrowserInformationControl(parent, "", "todo") {
 					/*
 					 * @see org.eclipse.jface.text.IInformationControlExtension5#getInformationPresenterControlCreator()
@@ -376,83 +183,14 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 				};
 				iControl.setBackgroundColor(bg_color);
 				iControl.setForegroundColor(fg_color);
-//				addLinkListener(iControl);
 				return iControl;
 			} else {
-//				return new DefaultInformationControl(parent, tooltipAffordanceString);
 				DefaultInformationControl hover = new SVDefaultInformationControl(
 						parent, "todo", bg_color, fg_color);
 				return hover;
 			}
 		}
 		
-		private static class SVDocInformationPresenter implements DefaultInformationControl.IInformationPresenter, DefaultInformationControl.IInformationPresenterExtension {
-
-			public String updatePresentation(Drawable drawable,
-					String hoverInfo, TextPresentation presentation,
-					int maxWidth, int maxHeight) {
-				HTML2TextReader rdr = new HTML2TextReader(
-						new StringReader(hoverInfo), presentation);
-				String ret = hoverInfo;
-				
-				try {
-					ret = rdr.getString();
-					rdr.close();
-				} catch (IOException e) {}
-
-				return ret;									
-			}
-
-			public String updatePresentation(Display display, String hoverInfo,
-					TextPresentation presentation, int maxWidth, int maxHeight) {
-				// TODO Auto-generated method stub
-				HTML2TextReader rdr = new HTML2TextReader(
-						new StringReader(hoverInfo), presentation);
-				String ret = hoverInfo;
-				
-				try {
-					ret = rdr.getString();
-					rdr.close();
-				} catch (IOException e) {}				
-				
-				return ret;									
-			}
-		}
-
-		private final class SVDefaultInformationControl extends DefaultInformationControl 
-			implements IInformationControlCreator {
-			IInformationControlCreator		fCreator;
-			Color							fBgColor;
-			Color							fFgColor;
-			
-			public SVDefaultInformationControl(
-					Shell 			parent, 
-					String 			msg,
-					Color			bg_color,
-					Color			fg_color) {
-				super(parent, msg, new SVDocInformationPresenter());
-				setBackgroundColor(bg_color);
-				setForegroundColor(fg_color);
-				fBgColor = bg_color;
-				fFgColor = fg_color;
-			}
-
-			@Override
-			public IInformationControlCreator getInformationPresenterControlCreator() {
-				fCreator = super.getInformationPresenterControlCreator();
-				return this;
-			}
-
-			public IInformationControl createInformationControl(Shell parent) {
-				IInformationControl c = fCreator.createInformationControl(parent);
-				if (c instanceof DefaultInformationControl) {
-					((DefaultInformationControl)c).setBackgroundColor(fBgColor);
-					((DefaultInformationControl)c).setForegroundColor(fFgColor);
-				}
-				return c;
-			}
-		}
-
 		/*
 		 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractReusableInformationControlCreator#canReuse(org.eclipse.jface.text.IInformationControl)
 		 */
@@ -470,13 +208,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			return true;
 		}
 	}
-
-//	private static final long LABEL_FLAGS=  JavaElementLabels.ALL_FULLY_QUALIFIED
-//		| JavaElementLabels.M_PRE_RETURNTYPE | JavaElementLabels.M_PARAMETER_ANNOTATIONS | JavaElementLabels.M_PARAMETER_TYPES | JavaElementLabels.M_PARAMETER_NAMES | JavaElementLabels.M_EXCEPTIONS
-//		| JavaElementLabels.F_PRE_TYPE_SIGNATURE | JavaElementLabels.M_PRE_TYPE_PARAMETERS | JavaElementLabels.T_TYPE_PARAMETERS
-//		| JavaElementLabels.USE_RESOLVED;
-//	private static final long LOCAL_VARIABLE_FLAGS= LABEL_FLAGS & ~JavaElementLabels.F_FULLY_QUALIFIED | JavaElementLabels.F_POST_QUALIFIED;
-//	private static final long TYPE_PARAMETER_FLAGS= LABEL_FLAGS | JavaElementLabels.TP_POST_QUALIFIED;
 
 	/**
 	 * The style sheet (css).
@@ -527,68 +258,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			fHoverControlCreator= new HoverControlCreator(getInformationPresenterControlCreator());
 		return fHoverControlCreator;
 	}
-
-//	private static void addLinkListener(final BrowserInformationControl control) {
-//		control.addLocationListener(JavaElementLinks.createLocationListener(new JavaElementLinks.ILinkHandler() {
-//			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleJavadocViewLink(org.eclipse.jdt.core.IJavaElement)
-//			 */
-//			public void handleJavadocViewLink(IJavaElement linkTarget) {
-//				control.notifyDelayedInputChange(null);
-//				control.setVisible(false);
-//				control.dispose(); //FIXME: should have protocol to hide, rather than dispose
-//				try {
-//					JavadocView view= (JavadocView) JavaPlugin.getActivePage().showView(JavaUI.ID_JAVADOC_VIEW);
-//					view.setInput(linkTarget);
-//				} catch (PartInitException e) {
-//					JavaPlugin.log(e);
-//				}
-//			}
-//
-//			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleInlineJavadocLink(org.eclipse.jdt.core.IJavaElement)
-//			 */
-//			public void handleInlineJavadocLink(IJavaElement linkTarget) {
-//				JavadocBrowserInformationControlInput hoverInfo= getHoverInfo(new IJavaElement[] { linkTarget }, null, null, (JavadocBrowserInformationControlInput) control.getInput());
-//				if (control.hasDelayedInputChangeListener())
-//					control.notifyDelayedInputChange(hoverInfo);
-//				else
-//					control.setInput(hoverInfo);
-//			}
-//
-//			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleDeclarationLink(org.eclipse.jdt.core.IJavaElement)
-//			 */
-//			public void handleDeclarationLink(IJavaElement linkTarget) {
-//				control.notifyDelayedInputChange(null);
-//				control.dispose(); //FIXME: should have protocol to hide, rather than dispose
-//				try {
-//					//FIXME: add hover location to editor navigation history?
-//					JavaUI.openInEditor(linkTarget);
-//				} catch (PartInitException e) {
-//					JavaPlugin.log(e);
-//				} catch (JavaModelException e) {
-//					JavaPlugin.log(e);
-//				}
-//			}
-//
-//			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleExternalLink(java.net.URL, org.eclipse.swt.widgets.Display)
-//			 */
-//			public boolean handleExternalLink(URL url, Display display) {
-//				control.notifyDelayedInputChange(null);
-//				control.dispose(); //FIXME: should have protocol to hide, rather than dispose
-//
-//				// Open attached Javadoc links
-//				OpenBrowserUtil.open(url, display);
-//
-//				return true;
-//			}
-//
-//			public void handleTextSet() {
-//			}
-//		}));
-//	}
 
 	/**
 	 * @deprecated see {@link org.eclipse.jface.text.ITextHover#getHoverInfo(ITextViewer, IRegion)}
@@ -789,60 +458,4 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		return null;
 	}
 
-//	public static void addImageAndLabel(StringBuffer buf, IJavaElement element, String imageSrcPath, int imageWidth, int imageHeight, String label, int labelLeft, int labelTop) {
-//		buf.append("<div style='word-wrap: break-word; position: relative; "); //$NON-NLS-1$
-//		
-//		if (imageSrcPath != null) {
-//			buf.append("margin-left: ").append(labelLeft).append("px; "); //$NON-NLS-1$ //$NON-NLS-2$
-//			buf.append("padding-top: ").append(labelTop).append("px; "); //$NON-NLS-1$ //$NON-NLS-2$
-//		}
-//
-//		buf.append("'>"); //$NON-NLS-1$
-//		if (imageSrcPath != null) {
-//			if (element != null) {
-//				try {
-//					String uri= JavaElementLinks.createURI(JavaElementLinks.OPEN_LINK_SCHEME, element);
-//					buf.append("<a href='").append(uri).append("'>");  //$NON-NLS-1$//$NON-NLS-2$
-//				} catch (URISyntaxException e) {
-//					element= null; // no link
-//				}
-//			}
-//			StringBuffer imageStyle= new StringBuffer("border:none; position: absolute; "); //$NON-NLS-1$
-//			imageStyle.append("width: ").append(imageWidth).append("px; "); //$NON-NLS-1$ //$NON-NLS-2$
-//			imageStyle.append("height: ").append(imageHeight).append("px; "); //$NON-NLS-1$ //$NON-NLS-2$
-//			imageStyle.append("left: ").append(- labelLeft - 1).append("px; "); //$NON-NLS-1$ //$NON-NLS-2$
-//
-//			// hack for broken transparent PNG support in IE 6, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=223900 :
-//			buf.append("<!--[if lte IE 6]><![if gte IE 5.5]>\n"); //$NON-NLS-1$
-//			String tooltip= element == null ? "" : "alt='" + SVHoverMessages.JavadocHover_openDeclaration + "' "; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//			buf.append("<span ").append(tooltip).append("style=\"").append(imageStyle). //$NON-NLS-1$ //$NON-NLS-2$
-//					append("filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='").append(imageSrcPath).append("')\"></span>\n"); //$NON-NLS-1$ //$NON-NLS-2$
-//			buf.append("<![endif]><![endif]-->\n"); //$NON-NLS-1$
-//
-//			buf.append("<!--[if !IE]>-->\n"); //$NON-NLS-1$
-//			buf.append("<img ").append(tooltip).append("style='").append(imageStyle).append("' src='").append(imageSrcPath).append("'/>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-//			buf.append("<!--<![endif]-->\n"); //$NON-NLS-1$
-//			buf.append("<!--[if gte IE 7]>\n"); //$NON-NLS-1$
-//			buf.append("<img ").append(tooltip).append("style='").append(imageStyle).append("' src='").append(imageSrcPath).append("'/>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-//			buf.append("<![endif]-->\n"); //$NON-NLS-1$
-//			if (element != null) {
-//				buf.append("</a>"); //$NON-NLS-1$
-//			}
-//		}
-//		
-//		buf.append(label);
-//		
-//		buf.append("</div>"); //$NON-NLS-1$
-//	}
-
-
-
-
-//
-//	private static StringBuffer addLink(StringBuffer buf, String uri, String label) {
-//		return buf.append(JavaElementLinks.createLink(uri, label));
-//	}
-		
-
-		
 }

@@ -9,6 +9,10 @@
   
 - #(334) - Correct parse error involving transition-bin patterns
 
+- #(335) - Update content assist to use the same information provider that
+  the 'hover' in the editor uses. This supports more HTML markup (such as 
+  fixed-size fonts) than does the Eclipse default.
+
 -- 1.6.0 Release --
 
 - #(enh 31) - Allow projects to specify template paths via the project
