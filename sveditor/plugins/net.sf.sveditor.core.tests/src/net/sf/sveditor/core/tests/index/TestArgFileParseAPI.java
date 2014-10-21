@@ -64,7 +64,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		
 		fw.addArgFilePath("${project_loc}/missing_inc.f");
 		
-		pdata.setProjectFileWrapper(fw, true);
+		TestUtils.setProjectFileWrapper(pdata, fw);
 		
 		// Build the project
 		pmgr.rebuildProject(new NullProgressMonitor(), p, true);
@@ -152,9 +152,9 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
 		
 		fw.addArgFilePath("${project_loc}/list.f");
-		
-		pdata.setProjectFileWrapper(fw, true);
-		
+	
+		TestUtils.setProjectFileWrapper(pdata, fw);
+
 		// Build the project
 		pmgr.rebuildProject(new NullProgressMonitor(), p);
 		
@@ -223,7 +223,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		
 		fw.addArgFilePath("${project_loc}/list.f");
 		
-		pdata.setProjectFileWrapper(fw, true);
+		TestUtils.setProjectFileWrapper(pdata, fw);
 		
 		// Build the project
 		pmgr.rebuildProject(new NullProgressMonitor(), p);
@@ -309,7 +309,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		
 		fw.addArgFilePath("${project_loc}/list.f");
 		
-		pdata.setProjectFileWrapper(fw, true);
+		TestUtils.setProjectFileWrapper(pdata, fw);
 		
 		// Build the project
 		pmgr.rebuildProject(new NullProgressMonitor(), p);
@@ -405,7 +405,7 @@ public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 		
 		fw.addArgFilePath("${project_loc}/list.f");
 		
-		pdata.setProjectFileWrapper(fw, true);
+		TestUtils.setProjectFileWrapper(pdata, fw);
 		
 		// Build the project
 		pmgr.rebuildProject(new NullProgressMonitor(), p);

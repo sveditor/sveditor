@@ -38,6 +38,8 @@ import java.util.zip.ZipInputStream;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 
 import org.eclipse.core.resources.IContainer;
@@ -613,5 +615,14 @@ public class TestUtils {
 		}
 		
 		return ret;
+	}
+	
+	public static void setProjectFileWrapper(SVDBProjectData pdata, SVProjectFileWrapper fw) {
+		pdata.setProjectFileWrapper(fw, true);
+		
+		// Sleep to ensure settings are propagated
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {}
 	}
 }
