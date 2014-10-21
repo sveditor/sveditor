@@ -7,6 +7,9 @@
   anything selected to operate.  As long as the cursor is in a block comment
   the comment will be removed.
   
+- #(333) - Correct a bug involving auto-comment completion and files with
+  mixed line endings. 
+  
 - #(334) - Correct parse error involving transition-bin patterns
 
 - #(335) - Update content assist to use the same information provider that
@@ -34,6 +37,7 @@
   
 - #(331) - Correct select-next-word behavior when using this action to
   reduce the size of an existing selection
+  
 
 ------------------------------------------------------------------------------
 
