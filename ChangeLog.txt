@@ -1,4 +1,7 @@
 
+-- 1.6.2 Release --
+
+------------------------------------------------------------------------------
 -- 1.6.1 Release --
 
 - #(nobug) Fixed always_latch default instantiation - added clk 
