@@ -13,6 +13,8 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
 import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
@@ -49,7 +50,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexFileRefs extends SVCoreTestCaseBase {
 
-	public void testUVMIncludeRefs() {
+	public void testUVMIncludeRefs() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testXbusExample");
@@ -62,12 +63,17 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
+		File uvm_f = new File(uvm_src, "uvm.f");
+		
+		PrintStream ps = new PrintStream(uvm_f);
+		ps.println("uvm_pkg.sv");
+		ps.close();
 		
 		IProject project = TestUtils.createProject("uvm", uvm_src);
 		addProject(project);
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/uvm/uvm.f", SVDBArgFileIndexFactory.TYPE, null);
 		index.setGlobalDefine("QUESTA", "");
 		
 		IndexTestUtils.assertNoErrWarn(log, index);
@@ -111,7 +117,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		addProject(project);
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBArgFileIndexFactory.TYPE, null);
 		index.setGlobalDefine("QUESTA", "");
 		
 		long index_build_start = System.currentTimeMillis();

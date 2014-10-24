@@ -28,7 +28,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -264,26 +263,33 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 
 	}				
 
-	public void testUVMIncludeRefs() {
+	public void testUVMIncludeRefs() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		LogHandle log = LogFactory.getLogHandle("testXbusExample");
 		
 		File test_dir = new File(fTmpDir, "testXbusExample");
-		if (test_dir.exists()) {
-			TestUtils.delete(test_dir);
-		}
-		test_dir.mkdirs();
+		assertTrue(test_dir.mkdirs());
 		
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm_src = new File(test_dir, "uvm/src");
 		
+		PrintStream ps = new PrintStream(new File(uvm_src, "uvm.f"));
+		ps.println("+incdir+.");
+		ps.println("uvm_pkg.sv");
+		ps.close();
+		
 		IProject project = TestUtils.createProject("uvm", uvm_src);
 		addProject(project);
 		
+		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/uvm/uvm.f", SVDBArgFileIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
 		index.setGlobalDefine("QUESTA", "");
+		
+		index.loadIndex(new NullProgressMonitor());
+		
 		
 		IndexTestUtils.assertNoErrWarn(log, index);
 		

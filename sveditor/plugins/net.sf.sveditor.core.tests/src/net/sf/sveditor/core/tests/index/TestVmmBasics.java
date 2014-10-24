@@ -73,6 +73,7 @@ public class TestVmmBasics extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", "${workspace_loc}/ethernet/ethernet.f",
 				SVDBArgFileIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertNoErrWarn(fLog, index);

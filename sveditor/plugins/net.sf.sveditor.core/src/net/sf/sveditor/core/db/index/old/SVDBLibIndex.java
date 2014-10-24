@@ -37,7 +37,7 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 
 
 	public String getTypeID() {
-		return SVDBLibPathIndexFactory.TYPE;
+		return "SVDBLibPathIndexFactory.TYPE";
 	}
 	
 	@Override

@@ -29,14 +29,10 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.fileset.SVFileSet;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-import org.eclipse.core.internal.resources.ResourceException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -349,23 +345,9 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			}
 		}
 		
-		// Add library paths
-		args.clear();
-		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
-		for (SVDBPath path : fw.getLibraryPaths()) {
-			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, expandPath(path.getPath()),
-					SVDBLibPathIndexFactory.TYPE, args);
-			
-			if (index != null) {
-				sc.addLibraryPath(index);
-			} else {
-				fLog.error(
-						"failed to create library index \"" +
-						path.getPath() + "\"");
-			}
-		}
-		
+//		args.clear();
+//		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
+
 		// Add argument-file paths
 		args.clear();
 		args.put(ISVDBIndexFactory.KEY_GlobalDefineMap, define_map);
@@ -380,32 +362,6 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 				fLog.error(
 						"failed to create arg-file index \"" +
 						path.getPath() + "\"");
-			}
-		}
-		
-		// Add source collection paths
-		for (SVDBSourceCollection srcc : fw.getSourceCollections()) {
-			SVDBIndexConfig params = new SVDBIndexConfig();
-
-			SVFileSet fs = new SVFileSet(srcc.getBaseLocation());
-			for (String incl : srcc.getIncludes()) {
-				fs.addInclude(incl);
-			}
-			for (String excl : srcc.getExcludes()) {
-				fs.addExclude(excl);
-			}
-			params.put(SVDBSourceCollectionIndexFactory.FILESET, fs);
-			
-			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-					fProjectName, expandPath(srcc.getBaseLocation()),
-					SVDBSourceCollectionIndexFactory.TYPE, params);
-			
-			if (index != null) {
-				sc.addSourceCollection(index);
-			} else {
-				fLog.error(
-						"failed to create source-collection index " +
-						"\"" + srcc.getBaseLocation() + "\"");
 			}
 		}
 		

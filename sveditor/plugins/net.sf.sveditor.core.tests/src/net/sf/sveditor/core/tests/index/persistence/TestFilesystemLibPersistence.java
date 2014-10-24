@@ -23,11 +23,10 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -64,18 +63,16 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		
 		File project_dir = new File(fTmpDir, "project_dir");
 		
-		if (project_dir.exists()) {
-			TestUtils.delete(project_dir);
-		}
+		assertTrue(project_dir.mkdirs());
 		
 		utils.copyBundleDirToFS("/data/basic_lib_project/", project_dir);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
+		File path = new File(project_dir, "basic_lib_project/basic_lib.f");
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				path.getAbsolutePath(), SVDBArgFileIndexFactory.TYPE, null);
 		
-		File path = new File(project_dir, "basic_lib_project/basic_lib_pkg.sv");
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
+		index.loadIndex(new NullProgressMonitor());
 	
 		List<SVDBDeclCacheItem> result = index.findGlobalScopeDecl(
 				new NullProgressMonitor(), "class1", 
@@ -88,7 +85,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		assertNotNull("located class1", target_it);
 		assertEquals("class1", SVDBItem.getName(target_it));
 		
-		rgy.close();
+//		rgy.close();
 
 		// Now, reset the registry
 		reinitializeIndexRegistry();
@@ -116,9 +113,12 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		TestUtils.copy(out, new File(project_dir, "basic_lib_project/class1.svh"));
 		
 		// Now, re-create the index
-		index = rgy.findCreateIndex(new NullProgressMonitor(),
+		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 				"GENERIC", path.getAbsolutePath(), 
-				SVDBLibPathIndexFactory.TYPE, null);
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		index.init(new NullProgressMonitor(), null);
+		index.loadIndex(new NullProgressMonitor());
 		
 		result = index.findGlobalScopeDecl(
 				new NullProgressMonitor(), "class1_1", 
@@ -137,73 +137,5 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
-	/**
-	 * Tests FileSystemLib persistence by adding a file, saving the database,
-	 * and checking whether the changed file list is detected on reload
-	 */
-	public void testFSLibIndexFilelistChangeDetected() {
-		SVCorePlugin.getDefault().enableDebug(false);
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle("testFSLibIndexFilelistChangeDetected");
-		
-		File project_dir = new File(fTmpDir, "project_dir");
-		
-		if (project_dir.exists()) {
-			project_dir.delete();
-		}
-		
-		utils.copyBundleDirToFS("/data/basic_lib_missing_inc/", project_dir);
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-		
-		File path = new File(project_dir, "basic_lib_missing_inc/basic_lib_pkg.sv");
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
-		
-//		IndexTestUtils.assertNoErrWarn(fLog, index);
-		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
-		
-		rgy.close();
-
-		log.debug("** RESET **");
-		// Now, reset the registry
-		reinitializeIndexRegistry();
-		
-		// Sleep to ensure that the timestamp is different
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-
-		// Change class1.svh
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(out);
-		
-		ps.println("\n\n");
-		ps.println("class class1_2;\n");
-		ps.println("\n");
-		ps.println("endclass\n\n");
-		ps.flush();
-		
-		// Now, write back the file
-		log.debug("** Create class1_2.svh **");
-		TestUtils.copy(out, new File(project_dir, "basic_lib_missing_inc/class1_2.svh"));
-		
-		// Now, re-create the index
-		index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				path.getAbsolutePath(), SVDBLibPathIndexFactory.TYPE, null);
-		index.loadIndex(new NullProgressMonitor());
-
-		IndexTestUtils.assertNoErrWarn(fLog, index);
-		IndexTestUtils.assertFileHasElements(fLog, index, "class1_2");
-		
-		index.dispose();
-	}
-
-	
-	
 
 }

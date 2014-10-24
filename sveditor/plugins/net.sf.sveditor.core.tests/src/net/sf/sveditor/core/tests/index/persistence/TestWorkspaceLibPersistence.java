@@ -17,7 +17,7 @@ import java.io.PrintStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
@@ -47,8 +47,10 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		utils.copyBundleDirToWS("/data/basic_lib_project/", project_dir);
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
+		
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
@@ -79,8 +81,10 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		
 		// Now, re-create the index
 		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/project/basic_lib_project/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/project/basic_lib_project/basic_lib.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
+		
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1_1");
@@ -101,8 +105,10 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", project_dir);
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
+		
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1");
@@ -134,8 +140,10 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 		
 		// Now, re-create the index
 		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv",
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
+		
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1_2");

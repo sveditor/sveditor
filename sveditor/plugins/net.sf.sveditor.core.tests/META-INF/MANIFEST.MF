@@ -19,6 +19,5 @@ Export-Package: net.sf.sveditor.core.tests,
  net.sf.sveditor.core.tests.index,
  net.sf.sveditor.core.tests.index.libIndex,
  net.sf.sveditor.core.tests.index.persistence,
- net.sf.sveditor.core.tests.index.src_collection,
  net.sf.sveditor.core.tests.scanner,
  net.sf.sveditor.core.tests.utils

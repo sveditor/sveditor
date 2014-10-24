@@ -13,7 +13,9 @@
 package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -131,7 +132,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void testWSLibIndex() {
+	public void testWSLibIndex() throws IOException {
 		CoreReleaseTests.clearErrors();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testWSLibIndex");
@@ -142,6 +143,10 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		
 		utils.unpackBundleZipToFS("/ovm.zip", test_dir);		
 		File ovm = new File(test_dir, "ovm");
+		
+		PrintStream ps = new PrintStream(new File(ovm, "src/ovm.f"));
+		ps.println("ovm_pkg.sv");
+		ps.close();
 		
 		IProject p = TestUtils.createProject("ovm", ovm);
 		SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
@@ -155,12 +160,12 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		log.debug(">==== PASS 1 ====");
 		// Create the index
 		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "ovm",
-				"${workspace_loc}/ovm/src/ovm_pkg.sv",
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/ovm/src/ovm.f",
+				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
 		
-		in = ((SVDBLibIndex)index).getFileSystemProvider().openStream(path);
+		in = index.getFileSystemProvider().openStream(path);
 		
 		List<SVDBMarker> errors = new ArrayList<SVDBMarker>();		
 		file = index.parse(new NullProgressMonitor(), in, path, errors).second();
@@ -180,8 +185,8 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		reinitializeIndexRegistry();
 		
 		index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
-				"ovm", "${workspace_loc}/ovm/src/ovm_pkg.sv",
-				SVDBLibPathIndexFactory.TYPE, null);
+				"ovm", "${workspace_loc}/ovm/src/ovm.f",
+				SVDBArgFileIndexFactory.TYPE, null);
 		index.addChangeListener(this);
 		fRebuildCount=0;
 

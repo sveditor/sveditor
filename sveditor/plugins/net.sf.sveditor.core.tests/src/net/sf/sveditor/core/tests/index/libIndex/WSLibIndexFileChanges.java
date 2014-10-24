@@ -18,9 +18,8 @@ import java.io.PrintStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
@@ -64,11 +63,12 @@ public class WSLibIndexFileChanges extends SVCoreTestCaseBase {
 		
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc/", project);
 		
-		SVDBIndexRegistry rgy = fIndexRgy;
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
+				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
 		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				"${workspace_loc}/project/basic_lib_missing_inc/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+		index.init(new NullProgressMonitor(), null);
+		
 		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 
 		IndexTestUtils.assertFileHasElements(fLog, index, "class1");

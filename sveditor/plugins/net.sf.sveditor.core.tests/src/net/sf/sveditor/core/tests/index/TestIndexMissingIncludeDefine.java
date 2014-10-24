@@ -12,26 +12,21 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SaveMarkersFileSystemProvider;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -60,8 +55,8 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 		utils.copyBundleDirToWS("/data/basic_lib_missing_inc_def/", project_dir);
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				"${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/project/basic_lib_missing_inc_def/pkg.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
 		
 		int_TestMissingIncludeDefine(index, "${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 3);
 	}
@@ -80,23 +75,6 @@ public class TestIndexMissingIncludeDefine extends SVCoreTestCaseBase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		
 		int_TestMissingIncludeDefine(index, "${workspace_loc}/project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 2);
-	}
-
-	public void testWSSourceCollectionMissingIncludeDefine() {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		
-		SVCorePlugin.getDefault().enableDebug(false);
-		
-		IProject project_dir = TestUtils.createProject("ws_sc_project");
-		addProject(project_dir);
-		
-		utils.copyBundleDirToWS("/data/basic_lib_missing_inc_def/", project_dir);
-		
-		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC", 
-				"${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def",
-				SVDBSourceCollectionIndexFactory.TYPE, null);
-		
-		int_TestMissingIncludeDefine(index, "${workspace_loc}/ws_sc_project/basic_lib_missing_inc_def/basic_lib_pkg.sv", 1);
 	}
 
 	public void int_TestMissingIncludeDefine(

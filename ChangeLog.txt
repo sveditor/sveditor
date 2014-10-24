@@ -1,6 +1,10 @@
 
 -- 1.6.2 Release --
 
+- #(nobug) - Correct a bug in recursive-inclusion handling
+
+
+
 ------------------------------------------------------------------------------
 -- 1.6.1 Release --
 

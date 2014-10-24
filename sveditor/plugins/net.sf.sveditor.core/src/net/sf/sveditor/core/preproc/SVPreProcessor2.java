@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.preproc;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -549,21 +550,49 @@ public class SVPreProcessor2 extends AbstractTextScanner
 								fLog.debug("Switching from file " + 
 										curr_in.getFileName() + " to " + in.first());
 							}
+							
 							// TODO: Add tracking data for new file
 							
-							// Find the root file path
-							String rootfile = fInputStack.get(0).getFileName();
-							fIncFileProvider.addCachedIncFile(in.first(), rootfile);
+							// Believe it or not, some recursive inclusion is functional...
+							int recursive_include_count = 0;
 							
-							SVDBInclude svdb_inc = new SVDBInclude(inc);
-							svdb_inc.setLocation(new SVDBLocation(
-									scan_loc.getFileId(), 
-									scan_loc.getLineNo(),
-									scan_loc.getLinePos()));
+							if (fFileList.contains(in.first())) {
+								for (int i=0; i<fInputStack.size(); i++) {
+									if (fInputStack.get(i).getFileName().equals(in.first())) {
+										recursive_include_count++;
+									}
+								}
+							}
 							
-							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
-							
-							enter_file(in.first(), in.second());
+							if (recursive_include_count < 10) {
+								// Find the root file path
+								String rootfile = fInputStack.get(0).getFileName();
+								fIncFileProvider.addCachedIncFile(in.first(), rootfile);
+
+								SVDBInclude svdb_inc = new SVDBInclude(inc);
+								svdb_inc.setLocation(new SVDBLocation(
+										scan_loc.getFileId(), 
+										scan_loc.getLineNo(),
+										scan_loc.getLinePos()));
+
+								curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
+
+								enter_file(in.first(), in.second());
+							} else {
+								// Recursive include and have exceeded the limit
+								SVDBLocation location = new SVDBLocation(
+										scan_loc.getFileId(), scan_loc.getLineNo(), 
+										scan_loc.getLinePos());
+								
+								SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+										MarkerKind.MissingInclude,
+										"Recursive inclusion of file " + inc);
+								m.setLocation(location);
+								curr_in.getFileTree().fMarkers.add(m);
+								try {
+									in.second().close();
+								} catch (IOException e) {}
+							}
 						} else {
 							SVDBLocation location = new SVDBLocation(
 									scan_loc.getFileId(), scan_loc.getLineNo(), 
@@ -733,7 +762,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	}
 	
 	private void enter_file(String filename, InputStream in) {
-		
 		if (!fFileList.contains(filename)) {
 			fFileList.add(filename);
 		} else {

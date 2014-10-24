@@ -25,11 +25,11 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.SVDBDirFS;
 import net.sf.sveditor.core.db.index.cache.SVDBFileIndexCacheOld;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -182,7 +182,7 @@ public class TestIndexCache extends SVCoreTestCaseBase {
 		index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/src/uvm_pkg.sv",
-				SVDBLibPathIndexFactory.TYPE, null);
+				SVDBArgFileIndexFactory.TYPE, null);
 
 		Iterable<String> l_1 = index.getFileList(new NullProgressMonitor());
 		/* SVDBFile f1_1 = */index.findFile(l_1.iterator().next());
@@ -205,8 +205,11 @@ public class TestIndexCache extends SVCoreTestCaseBase {
 		start = System.currentTimeMillis();
 		index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/uvm/uvm_pkg.sv",
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/uvm/uvm.f",
+				SVDBArgFileIndexFactory.TYPE, null);
+		
+		index.init(new NullProgressMonitor(), null);
+		index.loadIndex(new NullProgressMonitor());
 
 		/*
 		Set<String> l = index.getFileList(new NullProgressMonitor());
@@ -244,6 +247,12 @@ public class TestIndexCache extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File uvm = new File(test_dir, "uvm");
 		
+		TestUtils.copy(
+				"+incdir+.\n" +
+				"+define+QUESTA\n" +
+				"uvm_pkg.sv\n",
+				new File(uvm, "src/uvm.f"));
+		
 		IProject project = TestUtils.createProject("uvm", uvm);
 		addProject(project);
 
@@ -260,8 +269,8 @@ public class TestIndexCache extends SVCoreTestCaseBase {
 		start = System.currentTimeMillis();
 		index = rgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/uvm/src/uvm_pkg.sv",
-				SVDBLibPathIndexFactory.TYPE, null);
+				"${workspace_loc}/uvm/src/uvm.f",
+				SVDBArgFileIndexFactory.TYPE, null);
 
 		Iterable<String> l_1 = index.getFileList(new NullProgressMonitor());
 		/*SVDBFile f1_1 = */index.findFile(l_1.iterator().next());

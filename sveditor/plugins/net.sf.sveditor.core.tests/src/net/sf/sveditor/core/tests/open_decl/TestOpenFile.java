@@ -26,9 +26,9 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
@@ -63,7 +63,7 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 			
 			ISVDBIndex target_index = fIndexRgy.findCreateIndex(new NullProgressMonitor(),
 					"subdir2", "${workspace_loc}/subdir2/pkg_rel_path_include.sv",
-					SVDBLibPathIndexFactory.TYPE, null);
+					SVDBArgFileIndexFactory.TYPE, null);
 
 			ISVDBFileSystemProvider fs_provider = 
 				((SVDBLibIndex)target_index).getFileSystemProvider();

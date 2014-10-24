@@ -21,8 +21,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBLibPathIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBSourceCollectionIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
@@ -73,10 +71,9 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 		
 		SVCorePlugin.getDefault().getProjMgr().init();
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
-				"${workspace_loc}/project/project_dir/basic_lib_pkg.sv", 
-				SVDBLibPathIndexFactory.TYPE, null);
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "project", 
+				"${workspace_loc}/project/project_dir/testbench.f", 
+				SVDBArgFileIndexFactory.TYPE, null);
 
 		String path = "${workspace_loc}" +
 			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
@@ -96,25 +93,6 @@ public class TestIndexParse extends SVCoreTestCaseBase {
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
 				"${workspace_loc}/project/project_dir/testbench.f", 
 				SVDBArgFileIndexFactory.TYPE, null);
-
-		String path = "${workspace_loc}" +
-			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
-		
-		int_testIndexParse(index, path);
-	}
-
-	public void testWSSourceCollectionIndexParse() {
-		IProject project_dir = TestUtils.createProject("project");
-		addProject(project_dir);
-		
-		fUtils.copyBundleDirToWS("/project_dir/", project_dir);
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		SVCorePlugin.getDefault().getProjMgr().init();
-		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "project", 
-				"${workspace_loc}/project/project_dir", 
-				SVDBSourceCollectionIndexFactory.TYPE, null);
 
 		String path = "${workspace_loc}" +
 			project_dir.getFile(new Path("project_dir/class1.svh")).getFullPath().toOSString();
