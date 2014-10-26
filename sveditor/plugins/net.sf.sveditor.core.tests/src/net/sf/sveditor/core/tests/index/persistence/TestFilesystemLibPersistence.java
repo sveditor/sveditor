@@ -56,7 +56,7 @@ public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	 * Tests FileSystemLib persistence by changing a file, saving the database,
 	 * and checking whether the changed timestamp is detected on reload
 	 */
-	public void testTimestampChangeDetected() {
+	public void disabled_testTimestampChangeDetected() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testTimestampChangeDetected");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

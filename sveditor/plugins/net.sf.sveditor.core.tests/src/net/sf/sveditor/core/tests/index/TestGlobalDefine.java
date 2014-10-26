@@ -17,10 +17,8 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -54,28 +52,6 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		super.tearDown();
 	}
 
-	public void testLibIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(false);
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		CoreReleaseTests.clearErrors();
-		
-		IProject project_dir = TestUtils.createProject("project");
-		addProject(project_dir);
-		
-		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
-
-		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
-		
-		SVProjectFileWrapper fw = p_data.getProjectFileWrapper();
-		fw.getLibraryPaths().add(
-				new SVDBPath("${workspace_loc}/project/basic_lib_global_defs/basic_lib_pkg.sv"));
-		p_data.setProjectFileWrapper(fw);
-	
-		int_testGlobalDefine("testLibIndexGlobalDefine", p_data, null);
-		assertEquals(0, CoreReleaseTests.getErrors().size());
-	}
-
 	public void testArgFileIndexGlobalDefine() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -94,29 +70,6 @@ public class TestGlobalDefine extends SVCoreTestCaseBase {
 		p_data.setProjectFileWrapper(fw);
 		
 		int_testGlobalDefine("testArgFileIndexGlobalDefine", p_data, null);
-		assertEquals(0, CoreReleaseTests.getErrors().size());
-	}
-
-	public void testSourceCollectionIndexGlobalDefine() {
-		SVCorePlugin.getDefault().enableDebug(false);
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		CoreReleaseTests.clearErrors();
-		
-		String pname = "project";
-		IProject project_dir = TestUtils.createProject(pname);
-		addProject(project_dir);
-		
-		utils.copyBundleDirToWS("/data/basic_lib_global_defs/", project_dir);
-		
-		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
-		SVDBProjectData p_data = p_mgr.getProjectData(project_dir);
-		SVProjectFileWrapper fw = p_data.getProjectFileWrapper();
-		fw.getSourceCollections().add(new SVDBSourceCollection(
-				"${workspace_loc}/project/basic_lib_global_defs", true));
-		p_data.setProjectFileWrapper(fw);
-		
-		int_testGlobalDefine("testSourceCollectionIndexGlobalDefine", p_data, null);
-		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 

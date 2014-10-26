@@ -109,7 +109,8 @@ public class TestOpencoresProjects extends SVCoreTestCaseBase {
 		assertNoErrors(log, project_index);
 		
 		// force index loading
-		project_index.loadIndex(new NullProgressMonitor());
+		p_mgr.rebuildProject(new NullProgressMonitor(), project);
+//		project_index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertNoErrWarn(log, project_index);
 		

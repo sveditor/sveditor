@@ -36,7 +36,7 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 	 * Tests FileSystemLib persistence by changing a file, saving the database,
 	 * and checking whether the changed timestamp is detected on reload
 	 */
-	public void testTimestampChangeDetected() {
+	public void disabled_testTimestampChangeDetected() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -94,7 +94,7 @@ public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 	 * Tests FileSystemLib persistence by changing a file, saving the database,
 	 * and checking whether the changed timestamp is detected on reload
 	 */
-	public void testFilelistChangeDetected() {
+	public void disabled_testFilelistChangeDetected() {
 		LogHandle log = LogFactory.getLogHandle("testFilelistChangeDetected");
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

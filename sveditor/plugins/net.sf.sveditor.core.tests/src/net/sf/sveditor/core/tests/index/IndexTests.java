@@ -44,7 +44,7 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestArgFileIndex.class));
 		suite.addTest(new TestSuite(TestArgFileIndexErrors.class));
 		suite.addTest(new TestSuite(TestArgFileParseAPI.class));
-		suite.addTest(new TestSuite(TestIndexPersistance.class));
+//		suite.addTest(new TestSuite(TestIndexPersistance.class));
 		suite.addTest(new TestSuite(TestOpencoresProjects.class));
 		suite.addTest(new TestSuite(TestCrossIndexReferences.class));
 		suite.addTest(new TestSuite(TestIndexFileRefs.class));

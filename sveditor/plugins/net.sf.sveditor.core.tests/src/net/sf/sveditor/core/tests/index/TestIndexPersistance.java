@@ -132,7 +132,7 @@ public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBInd
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void testWSLibIndex() throws IOException {
+	public void disabled_testWSLibIndex() throws IOException {
 		CoreReleaseTests.clearErrors();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testWSLibIndex");
