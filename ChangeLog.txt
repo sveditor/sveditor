@@ -3,7 +3,12 @@
 
 - #(nobug) - Correct a bug in recursive-inclusion handling
 
+- #(nobug) - Correct a spurious exception thrown when checking an invalid
+  include path
+  
+- #(336) - Correct a parse bug involving cycle delay (eg ##1)
 
+- #(enh - 93) - Add support for auto-folding tasks and functions
 
 ------------------------------------------------------------------------------
 -- 1.6.1 Release --

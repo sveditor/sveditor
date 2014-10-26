@@ -683,6 +683,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		}
 	}
 	
+	public static void clearenv() {
+		fLocalEnvMap.clear();
+	}
+	
 	public static ISVArgFileVariableProvider getVariableProvider(IProject project) {
 		SVArgFileVariableProviderList ret = new SVArgFileVariableProviderList();
 		

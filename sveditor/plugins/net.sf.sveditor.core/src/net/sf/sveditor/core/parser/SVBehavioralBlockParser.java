@@ -163,7 +163,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 				if (fDebugEn) {debug(" -- variable declaration 2 " + fLexer.peek());}
 
-				if (fLexer.peekOperator("::","#", "[") || fLexer.peekId()) {
+				if (fLexer.peekOperator("::","#", "##", "[") || fLexer.peekId()) {
 					boolean retry_as_statement = false;
 					// Likely to be a declaration. Let's read a type
 					fLexer.ungetToken(tok);
@@ -388,7 +388,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 						event_stmt.setExpr(parsers().exprParser().event_expression());
 						event_trigger.setDelayOrEventControl(event_stmt);
 					}
-				} else if (fLexer.peekOperator("#")) {
+				} else if (fLexer.peekOperator("#", "##")) {
 					// Delay
 					SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
 					
@@ -414,7 +414,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 			// statement_or_null
 			statement_int(event_stmt, decl_allowed, ansi_decl, consume_terminator);
-		} else if (fLexer.peekOperator("#")) {
+		} else if (fLexer.peekOperator("#", "##")) {
 			SVDBDelayControlStmt delay_stmt = new SVDBDelayControlStmt();
 			
 			delay_stmt.setExpr(fParsers.exprParser().delay_expr(2));
@@ -552,7 +552,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			assign_stmt.setLHS(lvalue);
 			assign_stmt.setOp(op);
 			
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator("#", "##")) {
 				assign_stmt.setDelayExpr(fParsers.exprParser().delay_expr(2));
 			} else if (fLexer.peekOperator("@")) {
 				assign_stmt.setDelayExpr(fParsers.exprParser().clocking_event());

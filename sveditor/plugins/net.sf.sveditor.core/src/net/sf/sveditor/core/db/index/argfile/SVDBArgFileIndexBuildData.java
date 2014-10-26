@@ -19,6 +19,8 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 
@@ -34,6 +36,7 @@ public class SVDBArgFileIndexBuildData implements
 	Set<String>									fFileDirs;
 	Set<String>									fMissingIncludes;
 	SVDBIndexStats								fIndexStats;
+	LogHandle									fLog = LogFactory.getLogHandle("SVDBArgFileIndexBuildData");
 	private static boolean						fEnableIncludeCache = true;
 	
 	// Map of leaf file to resolved include directory
@@ -306,11 +309,14 @@ public class SVDBArgFileIndexBuildData implements
 			
 			// Search through all the leaf directories
 			if (incfile.contains("..")) {
+				fLog.debug("findIncFile: " + incfile);
 				// relative path
 				for (int i=0; i<fResolvedIncDirs.size(); i++) {
 					String try_path = fResolvedIncDirs.get(i) + "/" + incfile;
+					fLog.debug("  Resolve Path: " + try_path);
 					try_path = SVFileUtils.resolvePath(try_path, 
 							fResolvedIncDirs.get(i), fFileSystemProvider, true);
+					fLog.debug("  Resolved Path: " + try_path);
 					
 					InputStream in = fFileSystemProvider.openStream(try_path);
 					
@@ -389,6 +395,8 @@ public class SVDBArgFileIndexBuildData implements
 	private void addIncDir(String inc_dir) {
 		String resolved_inc_dir = SVFileUtils.resolvePath(
 				inc_dir, inc_dir, fFileSystemProvider, true);
+		
+		fLog.debug("addIncDir: " + inc_dir + " => " + resolved_inc_dir);
 		
 		Set<String> inc_dir_files = new HashSet<String>();
 		Set<String> inc_dir_dirs = new HashSet<String>();

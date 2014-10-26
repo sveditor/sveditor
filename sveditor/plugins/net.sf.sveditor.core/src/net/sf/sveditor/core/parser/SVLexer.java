@@ -48,7 +48,7 @@ public class SVLexer extends SVToken {
 	private boolean 				fIsDelayControl;
 
 	private StringBuilder 			fStringBuffer;
-	private static final boolean 	fDebugEn = false;
+	private static final boolean 	fDebugEn = true;
 	private boolean 				fEOF;
 
 	private StringBuilder			fCaptureBuffer;

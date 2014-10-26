@@ -73,6 +73,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_FOLDING_INIT_MODULES							= FOLDING_SETTINGS + "initFoldModules";
 	public static final String P_FOLDING_INIT_INTERFACES						= FOLDING_SETTINGS + "initFoldInterfaces";
 	public static final String P_FOLDING_INIT_CLASSES							= FOLDING_SETTINGS + "initFoldClasses";
+	public static final String P_FOLDING_INIT_TF								= FOLDING_SETTINGS + "initFoldTasksFunctions";
 	public static final String P_FOLDING_INIT_UNPROCESSED						= FOLDING_SETTINGS + "initFoldUnprocessed";
 	
 	public static final Set<String> P_FOLDING_PREFS;
@@ -84,6 +85,7 @@ public class SVEditorPrefsConstants {
 		P_FOLDING_PREFS.add(P_FOLDING_INIT_MODULES);
 		P_FOLDING_PREFS.add(P_FOLDING_INIT_INTERFACES);
 		P_FOLDING_PREFS.add(P_FOLDING_INIT_UNPROCESSED);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_TF);
 	};
 	
 	// SV Template Paths

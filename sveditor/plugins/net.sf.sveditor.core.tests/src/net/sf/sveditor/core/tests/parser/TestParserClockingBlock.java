@@ -121,4 +121,35 @@ public class TestParserClockingBlock extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "my_if");
 	}	
 
+	public void testClockingWaitCycle() {
+		String testname = getName();
+		String doc = 
+			"interface my_if (\n" +
+			"	input       clk,\n" +
+			"	input       reset,\n" +
+			"	inout [1:0] cmd_val,\n" +
+			"	inout       wr_ptr_init\n" +
+			");\n" +
+			"	clocking my_cb @(posedge clk);\n" +
+//			"		default input #1step output #0;\n" +
+			"		input cmd_val;\n" +
+			"		input reset;\n" +
+			"		input wr_ptr_init;\n" +
+			"	endclocking\n" +
+			"\n" +
+			"\n" +
+			"	initial begin\n" +
+			"		##0;\n" +
+			"	end\n" +
+			"\n" +
+			"\n" +
+			"endinterface\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "my_if");
+	}
 }

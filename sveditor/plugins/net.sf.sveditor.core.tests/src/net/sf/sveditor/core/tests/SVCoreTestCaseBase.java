@@ -3,6 +3,7 @@ package net.sf.sveditor.core.tests;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
@@ -33,7 +34,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 	@Override
 	protected void setUp() throws Exception {
 		SVCorePlugin.setTestMode();
-		
+	
 		if (SVCorePlugin.getDefault() != null) {
 			SVCorePlugin.getDefault().getResourceChangeListener().init();
 		}
@@ -92,6 +93,11 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 
 	@Override
 	protected void tearDown() throws Exception {
+		
+		// Restore environment
+		SVCorePlugin.clearenv();
+		
+		
 		// Stop any active jobs first
 		if (SVCorePlugin.getDefault() != null) {
 			SVCorePlugin.getDefault().getIndexBuilder().dispose();

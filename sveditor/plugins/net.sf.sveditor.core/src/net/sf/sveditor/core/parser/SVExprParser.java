@@ -246,7 +246,7 @@ public class SVExprParser extends SVParserBase {
 		if ((max_delays != 2) && (max_delays != 3))  {
 			error ("delay_expr - should have either 2 or 3 as arguments");
 		}
-		fLexer.readOperator("#");
+		fLexer.readOperator("#", "##");
 		if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
 			expr = fParsers.exprParser().expression();

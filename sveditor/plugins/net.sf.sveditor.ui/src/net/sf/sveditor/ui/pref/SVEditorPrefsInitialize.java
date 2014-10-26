@@ -100,6 +100,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_MODULES, false);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_INTERFACES, false);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_CLASSES, false);
+		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_TF, false);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED, true);
 		
 		

@@ -17,7 +17,7 @@ public class SVOperators {
 		// operators
 		",", ";", ".", ".*", "'", "->", "->>", "-->", "#", "##", "@", "@@", "(*", "*)",
 		// Assertion operators
-		"=>", "|=>", "|->", "#-#", "#=#", "##",
+		"=>", "|=>", "|->", "#-#", "#=#", 
 		"--", "++"};
 
 	public static final String AllOperators[];

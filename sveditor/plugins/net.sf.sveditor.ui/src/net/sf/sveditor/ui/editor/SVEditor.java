@@ -1406,6 +1406,11 @@ public class SVEditor extends TextEditor
 									case InterfaceDecl:
 										fold_default = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_INTERFACES);
 										break;
+										
+									case Task:
+									case Function:
+										fold_default = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_TF);
+										break;
 									default:
 										break;
 									}

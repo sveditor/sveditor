@@ -323,27 +323,32 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			path = path.substring("${workspace_loc}".length());
 			
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			
-			IFile file = root.getFile(new Path(path));
-			if (!file.exists()) {
-				return null;
-			}
-			
-			for (int i=0; i<2; i++) {
-				try {
-					ret = file.getContents();
-					break;
-				} catch (CoreException e) {
-					// Often times, we can just refresh the resource to avoid
-					// an indexing failure
-					if (i == 0 && e.getMessage().contains("out of sync")) {
-						try {
-							file.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
-						} catch (CoreException e2) {}
-					} else {
-						e.printStackTrace();
+
+			try {
+				IFile file = root.getFile(new Path(path));
+				if (!file.exists()) {
+					return null;
+				}
+
+				for (int i=0; i<2; i++) {
+					try {
+						ret = file.getContents();
+						break;
+					} catch (CoreException e) {
+						// Often times, we can just refresh the resource to avoid
+						// an indexing failure
+						if (i == 0 && e.getMessage().contains("out of sync")) {
+							try {
+								file.getParent().refreshLocal(IResource.DEPTH_INFINITE, null);
+							} catch (CoreException e2) {}
+						} else {
+							e.printStackTrace();
+						}
 					}
 				}
+			} catch (IllegalArgumentException e) {
+				// Ensure this doesn't propagate up
+//				fLog.error("Badly-formed path: " + path, e);
 			}
 		} else {
 			try {

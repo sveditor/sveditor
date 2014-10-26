@@ -36,6 +36,8 @@ public class SVEditorFoldingPrefsPage extends FieldEditorPreferencePage implemen
 				"Interfaces", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_MODULES, 
 				"Modules", g));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_TF, 
+				"Tasks/Functions", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED, 
 				"Unprocessed Regions", g));
 		
