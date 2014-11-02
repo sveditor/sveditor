@@ -37,6 +37,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
+import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
@@ -460,7 +461,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		
 		fLexer.readKeyword("bind");
 		
-		bind.setTargetTypeName(fParsers.exprParser().hierarchical_identifier());
+		bind.setTargetTypeName(fParsers.exprParser().variable_lvalue());
+		
 		parent.addChildItem(bind);
 		
 		if (fLexer.peekOperator(":")) {

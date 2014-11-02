@@ -7,6 +7,7 @@
 
 - #(339) - Correct a constraint-block parse error.
 
+- #(342) - Correct a parse error involving binding to an arrayed module instance
 
 
 ------------------------------------------------------------------------------

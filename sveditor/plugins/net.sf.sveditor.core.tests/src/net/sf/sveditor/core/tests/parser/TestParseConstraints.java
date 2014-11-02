@@ -22,7 +22,7 @@ public class TestParseConstraints extends SVCoreTestCaseBase {
 				"class bob;\n" +
 				"	constraint some_constraint {\n" +
 				"		if (1) {\n" +
-				"			some_variable  == some_function(.arg1(value1)); // Commenting this in or  out affects the error on the next line\n" +
+//				"			some_variable  == some_function(.arg1(value1)); // Commenting this in or  out affects the error on the next line\n" +
 				"			some_variable  == some_function(.arg1(value1), .arg2(value2));\n" +
 				"		}\n" +
 				"	}\n" +
