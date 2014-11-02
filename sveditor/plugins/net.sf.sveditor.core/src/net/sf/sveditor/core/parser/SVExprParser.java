@@ -728,17 +728,7 @@ public class SVExprParser extends SVParserBase {
 			SVDBExpr rhs = assignmentExpression();
 			a = new SVDBAssignExpr(a, op, rhs);
 		} else if (fLexer.peekKeyword("inside")) {
-			fLexer.eatToken();
-			SVDBInsideExpr inside = new SVDBInsideExpr(a);
-
-			if (fLexer.peekId() &&
-					getConfig().allowInsideQWithoutBraces()) {
-				inside.getValueRangeList().add(idExpr());
-			} else {
-				open_range_list(inside.getValueRangeList());
-			}
-			
-			a = inside;
+			a = parseInsideExpr(a);
 			
 			if (fLexer.peekOperator(SVOperators.fBinaryOps)) {
 				a = new SVDBBinaryExpr(a, fLexer.eatToken(), expression());
@@ -747,6 +737,20 @@ public class SVExprParser extends SVParserBase {
 
 		if (fDebugEn) {debug("<-- assignmentExpression() " + fLexer.peek());}
 		return a;
+	}
+	
+	private SVDBExpr parseInsideExpr(SVDBExpr lhs) throws SVParseException {
+		fLexer.readKeyword("inside");
+		SVDBInsideExpr inside = new SVDBInsideExpr(lhs);
+
+		if (fLexer.peekId() &&
+				getConfig().allowInsideQWithoutBraces()) {
+			inside.getValueRangeList().add(idExpr());
+		} else {
+			open_range_list(inside.getValueRangeList());
+		}
+
+		return inside;
 	}
 	
 	public void open_range_list(List<SVDBExpr> list) throws SVParseException {

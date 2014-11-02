@@ -90,6 +90,7 @@ public class SVConstraintParser extends SVParserBase {
 				// Scan forward to the first ';' ',' or brace
 				while ((tok = fLexer.peek()) != null && 
 						!fLexer.peekOperator(";", ",") &&
+						!fLexer.peekOperator(SVOperators.ComparisonAssignOps) &&
 						!fLexer.peekKeyword("if", "else", "foreach", "inside")) {
 					if (tok.equals("{")) {
 						brace_balance++;
