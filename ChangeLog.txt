@@ -1,7 +1,13 @@
 
 -- 1.6.3 Release --
 
+- #(337) - Update the SV Template Descriptor editor to properly work with
+  read-only files and revision-control plug-ins. Now, if a file is read-only,
+  the user will be prompted. 
+
 - #(339) - Correct a constraint-block parse error.
+
+
 
 ------------------------------------------------------------------------------
 -- 1.6.2 Release --

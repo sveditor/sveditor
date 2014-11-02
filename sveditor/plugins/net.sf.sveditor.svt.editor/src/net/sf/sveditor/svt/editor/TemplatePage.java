@@ -39,6 +39,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -121,13 +123,18 @@ public class TemplatePage extends FormPage {
 	private Text						fCategoryName;
 	private Text						fCategoryDescription;
 
-	private boolean					fControlModify;
-	private boolean					fIsDirty;
+	private boolean						fControlModify;
+	private boolean						fIsDirty;
+	private boolean						fIsReadOnly = false;
 	
 	private Map<Object, String>			fAttrMap;
 	private Map	<Object, String>		fElemMap;
+	private SVTEditor					fSvtEditor;
 	
-	private static List<String>		fTypeNames;
+	private List<Text>					fTextFields;
+	private List<Button>				fButtons;
+	
+	private static List<String>			fTypeNames;
 	
 	static {
 		fTypeNames = new ArrayList<String>();
@@ -140,8 +147,24 @@ public class TemplatePage extends FormPage {
 	public TemplatePage(SVTEditor editor) {
 		super(editor, "id", "Template Definitions");
 		
+		fSvtEditor = editor;
+		
 		fAttrMap = new HashMap<Object, String>();
 		fElemMap = new HashMap<Object, String>();
+		
+		fTextFields = new ArrayList<Text>();
+		fButtons = new ArrayList<Button>();
+	}
+	
+	public void setReadOnlyState(boolean ro) {
+		fIsReadOnly = ro;
+		
+		for (Button b : fButtons) {
+			b.setEnabled(!ro);
+		}
+		for (Text t : fTextFields) {
+			t.setEnabled(!ro);
+		}
 	}
 
 	@Override
@@ -233,29 +256,34 @@ public class TemplatePage extends FormPage {
 		
 		fAddParameterButton = tk.createButton(fParameterButtons, "Add Parameter", SWT.PUSH);
 		fAddParameterButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fAddParameterButton.addSelectionListener(selectionListener);
+		initButton(fAddParameterButton);
 		fAddParameterGroupButton = tk.createButton(fParameterButtons, "Add Group", SWT.PUSH);
 		fAddParameterGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fAddParameterGroupButton.addSelectionListener(selectionListener);
+		initButton(fAddParameterGroupButton);
 		fRemoveParameterButton = tk.createButton(fParameterButtons, "Remove", SWT.PUSH);
 		fRemoveParameterButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fRemoveParameterButton.addSelectionListener(selectionListener);
+		initButton(fRemoveParameterButton);
 		fMoveParameterUpButton = tk.createButton(fParameterButtons, "Up", SWT.PUSH);
 		fMoveParameterUpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fMoveParameterUpButton.addSelectionListener(selectionListener);
+		initButton(fMoveParameterUpButton);
 		fMoveParameterDownButton = tk.createButton(fParameterButtons, "Down", SWT.PUSH);
 		fMoveParameterDownButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fMoveParameterDownButton.addSelectionListener(selectionListener);
+		initButton(fMoveParameterDownButton);
 		
 		// Create the default buttons
 		fDefaultButtons = tk.createComposite(bb);
 		fDefaultButtons.setLayout(new GridLayout());
 		fAddButton = tk.createButton(fDefaultButtons, "Add", SWT.PUSH);
 		fAddButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fAddButton.addSelectionListener(selectionListener);
+		initButton(fAddButton);
 		fRemoveButton = tk.createButton(fDefaultButtons, "Remove", SWT.PUSH);
 		fRemoveButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		fRemoveButton.addSelectionListener(selectionListener);
+		initButton(fRemoveButton);
+	}
+	
+	private void initButton(Button button) {
+		button.addSelectionListener(selectionListener);
+		fButtons.add(button);
 	}
 	
 	private void setDetailsPane(Composite p) {
@@ -281,16 +309,14 @@ public class TemplatePage extends FormPage {
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateName.setLayoutData(gd);
-		fTemplateName.addModifyListener(modifyListener);
-		fAttrMap.put(fTemplateName, "name");
+		addTextListeners(fTemplateName, "name");
 		
 		tk.createLabel(c, "Id:");
 		fTemplateId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateId.setLayoutData(gd);
-		fTemplateId.addModifyListener(modifyListener);
-		fAttrMap.put(fTemplateId, "id");
+		addTextListeners(fTemplateId, "id");
 		
 		tk.createLabel(c, "Category:");
 		fTemplateCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
@@ -298,8 +324,7 @@ public class TemplatePage extends FormPage {
 		// TODO:
 		gd.horizontalSpan = 2;
 		fTemplateCategoryId.setLayoutData(gd);
-		fTemplateCategoryId.addModifyListener(modifyListener);
-		fAttrMap.put(fTemplateCategoryId, "category");
+		addTextListeners(fTemplateCategoryId, "category");
 		/** TODO:
 		fTemplateCategoryBrowse = tk.createButton(c, "Browse...", SWT.PUSH);
 		fTemplateCategoryBrowse.addSelectionListener(selectionListener);
@@ -314,12 +339,20 @@ public class TemplatePage extends FormPage {
 		g.setLayout(new GridLayout());
 		fTemplateDescription = tk.createText(g, "", 
 				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
-		fTemplateDescription.addModifyListener(modifyListener);
+		addTextListeners(fTemplateDescription, "description");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		fTemplateDescription.setLayoutData(gd);
-		fElemMap.put(fTemplateDescription, "description");
 		
 		return c;
+	}
+	
+	private void addTextListeners(Text text, String id) {
+		text.addModifyListener(modifyListener);
+		text.addVerifyListener(verifyListener);
+		
+		fAttrMap.put(text, id);
+		
+		fTextFields.add(text);
 	}
 
 	private Composite createParameterDetailsPane(
@@ -511,8 +544,8 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void setTemplateContext(Element template) {
-		fAddButton.setEnabled(true);
-		fRemoveButton.setEnabled(true);
+		fAddButton.setEnabled(!fIsReadOnly);
+		fRemoveButton.setEnabled(!fIsReadOnly);
 		
 		// 
 		fActiveElement = template;
@@ -532,8 +565,8 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void setFileContext(Element file) {
-		fAddButton.setEnabled(true);
-		fRemoveButton.setEnabled(true);
+		fAddButton.setEnabled(!fIsReadOnly);
+		fRemoveButton.setEnabled(!fIsReadOnly);
 
 		fActiveElement = file;
 		
@@ -549,8 +582,8 @@ public class TemplatePage extends FormPage {
 	}
 
 	private void setParameterContext(Element file) {
-		fAddButton.setEnabled(true);
-		fRemoveButton.setEnabled(true);
+		fAddButton.setEnabled(!fIsReadOnly);
+		fRemoveButton.setEnabled(!fIsReadOnly);
 
 		fActiveElement = file;
 		
@@ -575,9 +608,9 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private void setParameterGroupContext(Element file) {
-		fAddParameterButton.setEnabled(true);
-		fAddParameterGroupButton.setEnabled(true);
-		fRemoveParameterButton.setEnabled(true);
+		fAddParameterButton.setEnabled(!fIsReadOnly);
+		fAddParameterGroupButton.setEnabled(!fIsReadOnly);
+		fRemoveParameterButton.setEnabled(!fIsReadOnly);
 		// TODO: Up/Down
 
 		fActiveElement = file;
@@ -628,8 +661,8 @@ public class TemplatePage extends FormPage {
 	}
 
 	private void setCategoryContext(Element category) {
-		fAddButton.setEnabled(true);
-		fRemoveButton.setEnabled(true);
+		fAddButton.setEnabled(!fIsReadOnly);
+		fRemoveButton.setEnabled(!fIsReadOnly);
 
 		fActiveElement = category;
 		
@@ -1074,6 +1107,11 @@ public class TemplatePage extends FormPage {
 		public void widgetDefaultSelected(SelectionEvent e) {}
 		
 		public void widgetSelected(SelectionEvent e) {
+			if (!fSvtEditor.validateIsEditable()) {
+				e.doit = false;
+				return;
+			}
+			
 			if (e.widget == fAddButton) {
 				addElement();
 			} else if (e.widget == fRemoveButton) {
@@ -1147,7 +1185,7 @@ public class TemplatePage extends FormPage {
 			} else if (ss.getFirstElement() instanceof String) {
 				String e = (String)ss.getFirstElement();
 				
-				fAddButton.setEnabled(true);
+				fAddButton.setEnabled(!fIsReadOnly);
 				fRemoveButton.setEnabled(false);
 				setDetailsPane(fNoDetailsPane);
 				setButtonsPane(fDefaultButtons);
@@ -1158,12 +1196,12 @@ public class TemplatePage extends FormPage {
 				fActiveElement = e;
 				if (e.getNodeName().equals("sv_template") ||
 						e.getNodeName().equals("files")) {
-					fAddButton.setEnabled(true);
+					fAddButton.setEnabled(!fIsReadOnly);
 					fRemoveButton.setEnabled(false);
 					setDetailsPane(fNoDetailsPane);
 					setButtonsPane(fDefaultButtons);
 				} else if (e.getNodeName().equals("parameters")) {
-					fAddButton.setEnabled(true);
+					fAddButton.setEnabled(!fIsReadOnly);
 					fRemoveButton.setEnabled(false);
 					setDetailsPane(fNoDetailsPane);
 					setButtonsPane(fParameterButtons);
@@ -1179,6 +1217,18 @@ public class TemplatePage extends FormPage {
 					setCategoryContext(e);
 				} else {
 					// ??
+				}
+			}
+		}
+	};
+	
+	private VerifyListener verifyListener = new VerifyListener() {
+		
+		public void verifyText(VerifyEvent e) {
+			// TODO Auto-generated method stub
+			if (!fControlModify) {
+				if (!fSvtEditor.validateIsEditable()) {
+					e.doit = false;
 				}
 			}
 		}
@@ -1322,6 +1372,10 @@ public class TemplatePage extends FormPage {
 			}
 			
 			if (operation != DND.DROP_MOVE) {
+				return false;
+			}
+			
+			if (!fSvtEditor.validateIsEditable()) {
 				return false;
 			}
 			
