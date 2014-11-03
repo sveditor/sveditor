@@ -64,6 +64,36 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, 
 				new String[] {"test"});
 	}
+	
+	public void testPropertyRepetitionSuffix() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module top ();\n" +
+			"	ap_property: assert property (\n" +
+			"	@(posedge clk)\n" +
+			"	($rose (restart) ##1 @ (some_sig == 1'b0)) |=> (interrupt == 1'b0)[*4]\n" +
+			"	);\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
+	
+	public void testPropertyParenArrayIndex() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module top ();\n" +
+			"	logic clk, signala, signalb;\n" +
+			"	property some_prop (addr,exp_val);\n" +
+			"	@(negedge clk)\n" +
+			"	signala |=> (signala[(5)] == 1'b1) \n" +
+			"		##1 signalb;\n" +
+			"	endproperty:  some_prop\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
 
 	public void testPropertyIfStmt() throws SVParseException {
 		String testname = getName();

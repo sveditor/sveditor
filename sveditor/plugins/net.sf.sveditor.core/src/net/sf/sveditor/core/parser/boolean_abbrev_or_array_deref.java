@@ -36,9 +36,9 @@ import net.sf.sveditor.core.db.expr.SVDBSequenceMatchItemExpr;
 import net.sf.sveditor.core.db.expr.SVDBSequenceRepetitionExpr;
 import net.sf.sveditor.core.db.expr.SVDBUnaryExpr;
 
-public class SVPropertyExprParser extends SVParserBase {
+public class boolean_abbrev_or_array_deref extends SVParserBase {
 	
-	public SVPropertyExprParser(ISVParser parser) {
+	public boolean_abbrev_or_array_deref(ISVParser parser) {
 		super(parser);
 	}
 	
@@ -393,7 +393,8 @@ public class SVPropertyExprParser extends SVParserBase {
 	private SVDBExpr boolean_abbrev() throws SVParseException {
 		SVDBSequenceRepetitionExpr expr = new SVDBSequenceRepetitionExpr();
 		expr.setLocation(fLexer.getStartLocation());
-		
+		SVDBExpr ret = expr;
+
 		fLexer.readOperator("[");
 		if (fLexer.peekOperator("*")) {
 			fLexer.eatToken();
@@ -413,9 +414,12 @@ public class SVPropertyExprParser extends SVParserBase {
 			fLexer.eatToken();
 			expr.setRepType("->");
 			expr.setExpr(fParsers.exprParser().const_or_range_expression());
+		} else {
+			// Just an array dereference
+			ret = fParsers.exprParser().expression();
 		}
 		fLexer.readOperator("]");
-		return expr;
+		return ret;
 	}
 
 	private SVDBExpr expression_or_dist() throws SVParseException {

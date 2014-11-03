@@ -47,7 +47,7 @@ public class SVParsers {
 	private SVModIfcBodyItemParser				fModIfcBodyItemParser;
 	private SVConstraintParser					fConstraintParser;
 	private SVAttributeParser					fAttrParser;
-	private SVPropertyExprParser				fPropertyExprParser;
+	private boolean_abbrev_or_array_deref				fPropertyExprParser;
 	private SVSequenceParser					fSequenceParser;
 	private SVPropertyParser					fPropertyParser;
 	private SVConfigParser						fConfigParser;
@@ -90,7 +90,7 @@ public class SVParsers {
 		fModIfcBodyItemParser = new SVModIfcBodyItemParser(fSVParser);
 		fConstraintParser = new SVConstraintParser(fSVParser);
 		fAttrParser = new SVAttributeParser(fSVParser);
-		fPropertyExprParser = new SVPropertyExprParser(fSVParser);
+		fPropertyExprParser = new boolean_abbrev_or_array_deref(fSVParser);
 		fSequenceParser = new SVSequenceParser(fSVParser);
 		fPropertyParser = new SVPropertyParser(fSVParser);
 		fConfigParser = new SVConfigParser(fSVParser);
@@ -196,7 +196,7 @@ public class SVParsers {
 		return fAttrParser;
 	}
 
-	public SVPropertyExprParser propertyExprParser() {
+	public boolean_abbrev_or_array_deref propertyExprParser() {
 		return fPropertyExprParser;
 	}
 

@@ -9,6 +9,8 @@
 
 - #(342) - Correct a parse error involving binding to an arrayed module instance
 
+- #(338) - Correct a parse error involving array-element references in a property
+
 
 ------------------------------------------------------------------------------
 -- 1.6.2 Release --
