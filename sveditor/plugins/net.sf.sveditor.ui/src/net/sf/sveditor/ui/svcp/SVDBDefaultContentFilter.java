@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
+import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -86,7 +87,11 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		// normal variable declarations (wire, logic etc)
 		// genvars
 		else if ((hide_variable_declarations == true) && (
-					(element instanceof SVDBVarDeclItem)) 
+					(element instanceof SVDBVarDeclItem) ||
+					// For some reason Parameters are type of SVDBVarDecItem, so going to include defparams here
+					// to keep things consistent.
+					// Parameters should probably fall under 'defines though
+					(element instanceof SVDBDefParamItem))		
 				){
 			return false;
 		}

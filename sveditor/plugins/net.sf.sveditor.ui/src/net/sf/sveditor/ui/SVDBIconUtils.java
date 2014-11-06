@@ -39,6 +39,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.ConfigDecl, CONFIG_OBJ);
 		fImgDescMap.put(SVDBItemType.ClassDecl, CLASS_OBJ);
 		fImgDescMap.put(SVDBItemType.MacroDef, DEFINE_OBJ);
+		fImgDescMap.put(SVDBItemType.DefParamItem, FIELD_PUB_OBJ);
 		fImgDescMap.put(SVDBItemType.Include, INCLUDE_OBJ);
 		fImgDescMap.put(SVDBItemType.PackageDecl, PACKAGE_OBJ);
 		fImgDescMap.put(SVDBItemType.TypeInfoStruct, STRUCT_OBJ);

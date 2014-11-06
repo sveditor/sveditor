@@ -3,6 +3,8 @@
 
 - #(343) - Correct an issue where statements with an always_comb were being
   displayed in the outline view.
+  
+- #(347) - Outline View: defparams not behaving correctly
 
 ------------------------------------------------------------------------------
 -- 1.6.3 Release --
