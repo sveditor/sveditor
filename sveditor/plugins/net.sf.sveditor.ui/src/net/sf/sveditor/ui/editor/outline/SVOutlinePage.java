@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -39,10 +40,13 @@ import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
+import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;
@@ -85,10 +89,12 @@ public class SVOutlinePage extends ContentOutlinePage
 	private Action                     ToggleCoverPointGroupCross;
 	private Action                     ToggleConstraints;
 	private Action                     ToggleSort;
+	private Action						fEnableEditorLinking;
 	private SVDBDefaultContentFilter	DefaultContentFilter;
 	private ViewerComparator			ViewerComapartor;
 	private LogHandle					fLog;
-	private boolean					fDebugEn;
+	private boolean						fDebugEn;
+	private boolean						fLinkWithEditor = true;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -98,6 +104,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		fLog = LogFactory.getLogHandle("SVOutlinePage");
 		fDebugEn = fLog.isEnabled();
+		
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
@@ -181,6 +188,34 @@ public class SVOutlinePage extends ContentOutlinePage
 			fLog.debug("clearIgnoreSelectionChange");
 		}
 		fIgnoreSelectionChange = false;
+	}
+	
+	public void updateCursorLocation(int offset) {
+		IDocument doc = fEditor.getDocument();
+		
+		int line = -1;
+		try {
+			line = doc.getLineOfOffset(offset);
+		} catch (BadLocationException e) { }
+		
+		if (line != -1 && fLinkWithEditor) {
+			line++;
+			// Find element corresponding to line
+			
+			ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(
+					fEditor.getSVDBFile(), line,
+					SVTreeContentProvider.fDoNotRecurseScopes,
+					SVTreeContentProvider.fExpandInLineItems,
+					SVTreeContentProvider.fIgnoreItems
+					);
+			
+			if (it != null) {
+				fIgnoreSelectionChange = true;
+				getTreeViewer().reveal(it);
+				getTreeViewer().setSelection(new StructuredSelection(it));
+				fIgnoreSelectionChange = false;
+			}
+		}
 	}
 
 	
@@ -708,5 +743,20 @@ public class SVOutlinePage extends ContentOutlinePage
 		ToggleCoverPointGroupCross.setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS));
 		ToggleConstraints         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_CONSTRAINTS));
 		ToggleVariables           .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
+	
+		fEnableEditorLinking = new Action("Link with Editor", Action.AS_CHECK_BOX) {
+			public void run() {
+				fLinkWithEditor = isChecked();
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(
+						SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS, 
+						isChecked());
+			}
+		};
+		fEnableEditorLinking.setImageDescriptor(SVUiPlugin.getImageDescriptor("/icons/eview16/synced.gif"));
+		fEnableEditorLinking.setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(
+						SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
+		pageSite.getActionBars().getMenuManager().add(fEnableEditorLinking);
 	}
 }
+
+

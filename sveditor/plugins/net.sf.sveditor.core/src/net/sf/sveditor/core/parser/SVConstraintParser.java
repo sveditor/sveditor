@@ -60,6 +60,7 @@ public class SVConstraintParser extends SVParserBase {
 					c.addChildItem(constraint_set_item());
 				}
 
+				c.setEndLocation(fLexer.getStartLocation());
 				fLexer.readOperator("}");
 			}
 		} finally {

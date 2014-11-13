@@ -121,6 +121,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CaretEvent;
+import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -145,7 +147,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
 			ISVDBIndexChangeListener, IResourceChangeListener,
-			IPartListener {
+			IPartListener, CaretListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -192,6 +194,9 @@ public class SVEditor extends TextEditor
 	private boolean							fInitialFolding = true;
 	private int								fReparseDelay;
 	private boolean							fIncrReparseEn = false;
+	
+	private boolean							fCaretMovedArmed = false;
+	private boolean							fCaretMovedArmed2 = false;
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -954,9 +959,35 @@ public class SVEditor extends TextEditor
 		/**
 		 * Add semantic highlighting
 		 */
-		
+	
+		getSourceViewer().getTextWidget().addCaretListener(this);
 	}
 	
+	private Runnable fCaretMovedRunnable = new Runnable() {
+		
+		@Override
+		public void run() {
+			if (fCaretMovedArmed2) {
+				fCaretMovedArmed2 = false;
+			} else {
+				if (fOutline != null) {
+					fOutline.updateCursorLocation(getSourceViewer().getTextWidget().getCaretOffset());
+				}
+				fCaretMovedArmed = false;
+				fCaretMovedArmed2 = false;
+			}
+		}
+	};
+	
+	@Override
+	public void caretMoved(CaretEvent event) {
+		if (!fCaretMovedArmed) {
+			Display.getDefault().timerExec(500, fCaretMovedRunnable);
+		} else {
+			fCaretMovedArmed2 = true;
+		}
+	}
+
 	@Override
 	protected ISourceViewer createSourceViewer(
 			Composite 			parent,

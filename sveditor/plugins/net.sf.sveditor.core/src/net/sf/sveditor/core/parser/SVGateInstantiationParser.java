@@ -163,10 +163,12 @@ public class SVGateInstantiationParser extends SVParserBase {
 		}
 
 		item = new SVDBModIfcInst(type);
+		item.setLocation(start);
 		
 		// Now, a series of switch instances
 		while (fLexer.peek() != null) {
 			String name = ""; 
+			start = fLexer.getStartLocation();
 			if (fLexer.peekId()) {
 				name = fLexer.eatToken();
 			}
@@ -216,7 +218,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 //		else {
 //			error("[Internal Error] gate-type " + fLexer.peek() + " not recognized");
 //		}
-		
+
 		fLexer.readOperator(";");
 
 		parent.addChildItem(item);
