@@ -1,4 +1,7 @@
 
+-- 1.6.5 Release --
+
+------------------------------------------------------------------------------
 -- 1.6.4 Release --
 
 - #(343) - Correct an issue where statements with an always_comb were being
