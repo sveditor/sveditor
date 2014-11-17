@@ -78,6 +78,22 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] {"top"});
 	}
+
+	public void testPropertyParenExpr() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module top ();\n" +
+			"	property somep_property;\n" +
+			"		@(posedge clk) disable iff (rst)\n" +
+			"			a\n" +
+			"			|-> \n" +
+			"			(a) [*0:$] !b;    // Braces around 'a' cause parser error\n" +
+			"	endproperty\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
 	
 	public void testPropertyParenArrayIndex() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);

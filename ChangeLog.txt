@@ -3,6 +3,12 @@
 
 - #(343) - Correct an issue where statements with an always_comb were being
   displayed in the outline view.
+  
+- #(345) - Correct parse bug involving path-dependent specify-block paths
+
+- #(346) - Correct parse bug involving path-dependent specify-block paths
+
+- #(enh - 92) - Implement linking between editor and outline view. 
 
 ------------------------------------------------------------------------------
 -- 1.6.3 Release --
