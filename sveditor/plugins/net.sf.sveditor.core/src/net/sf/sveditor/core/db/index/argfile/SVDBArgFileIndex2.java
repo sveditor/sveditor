@@ -1844,32 +1844,35 @@ public class SVDBArgFileIndex2 implements
 			SVDBFileTree root_ft = findRootFileTree(build_data, path);
 		
 			List<String> root_files = build_data.getRootFileList();
-			int root_idx = root_files.indexOf(root_ft.getFilePath());
 			
-			// Step back through the root files and add in macro state
-			for (int i=root_idx-1; i>=0; i--) {
-				String root_file_path = root_files.get(i);
-				root_ft = findRootFileTree(build_data, root_file_path);
-				
-				if (root_ft == null) {
-					fLog.error("Failed to find FileTree for root_path: " + root_file_path);
-					continue;
-				}
-				if (fDebugEn) {
-					fLog.debug("calculateIncomingMacros: Collecting from previous root file " + root_file_path);
-				}
-				for (int j=root_ft.getIncludedFileTreeList().size(); j>=0; j--) {
-					SVDBFileTreeMacroList ml = root_ft.fMacroSetList.get(j);
-					
-					for (SVDBMacroDef m : ml.getMacroList()) {
-						if (!all_defs.containsKey(m.getName())) {
-							all_defs.put(m.getName(), m);
-						}
+			if (root_ft != null && root_files != null) {
+				int root_idx = root_files.indexOf(root_ft.getFilePath());
+
+				// Step back through the root files and add in macro state
+				for (int i=root_idx-1; i>=0; i--) {
+					String root_file_path = root_files.get(i);
+					root_ft = findRootFileTree(build_data, root_file_path);
+
+					if (root_ft == null) {
+						fLog.error("Failed to find FileTree for root_path: " + root_file_path);
+						continue;
 					}
-					
-					if (j < root_ft.getIncludedFileTreeList().size()) {
-						SVDBFileTree inc_ft = root_ft.getIncludedFileTreeList().get(j);
-						collectRootFileTreeMacros(all_defs, inc_ft);
+					if (fDebugEn) {
+						fLog.debug("calculateIncomingMacros: Collecting from previous root file " + root_file_path);
+					}
+					for (int j=root_ft.getIncludedFileTreeList().size(); j>=0; j--) {
+						SVDBFileTreeMacroList ml = root_ft.fMacroSetList.get(j);
+
+						for (SVDBMacroDef m : ml.getMacroList()) {
+							if (!all_defs.containsKey(m.getName())) {
+								all_defs.put(m.getName(), m);
+							}
+						}
+
+						if (j < root_ft.getIncludedFileTreeList().size()) {
+							SVDBFileTree inc_ft = root_ft.getIncludedFileTreeList().get(j);
+							collectRootFileTreeMacros(all_defs, inc_ft);
+						}
 					}
 				}
 			}

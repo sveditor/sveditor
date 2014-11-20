@@ -1,6 +1,8 @@
 
 -- 1.6.5 Release --
 
+- #(349) - Trial bug-fix for interoperability issue with revision-control plugins
+
 ------------------------------------------------------------------------------
 -- 1.6.4 Release --
 

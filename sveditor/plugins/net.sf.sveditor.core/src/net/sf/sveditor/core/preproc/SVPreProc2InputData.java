@@ -151,7 +151,7 @@ public class SVPreProc2InputData {
 			fFileTree.fReferencedMacros.put(macro, null);
 		} else {
 			fFileTree.fReferencedMacros.put(macro, def.getDef());
-		}		
+		}
 	}
 	
 	void update_unprocessed_region(ScanLocation scan_loc, boolean enabled_pre, boolean enabled_post) {
