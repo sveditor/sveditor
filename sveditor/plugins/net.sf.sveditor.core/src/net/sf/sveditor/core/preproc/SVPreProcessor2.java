@@ -744,7 +744,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						SVPreProc2InputData in = new SVPreProc2InputData(
 								this, new StringInputStream(exp), 
 								"ANONYMOUS", fInputCurr.getFileId(), false);
-						in.setFileTree(new SVDBFileTree(new SVDBFile("ANONYMOUS")));
 						fInputStack.push(in);
 						fInputCurr = in;
 					} catch (Exception e) {

@@ -131,7 +131,14 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				 */
 				ret = match_expr;
 			} else {
-				ret = new SVDBParenExpr(p_expr);
+				SVDBSequenceMatchItemExpr match_expr = new SVDBSequenceMatchItemExpr();
+				match_expr.setExpr(p_expr);
+				
+				if (fLexer.peekOperator("[")) {
+					match_expr.setSequenceAbbrev(sequence_abbrev());
+				}
+				
+//				ret = new SVDBParenExpr(p_expr);
 				if (fDebugEn) {debug("  post SVDBParenExpr: " + fLexer.peek());}
 			}
 		} else if (fLexer.peekKeyword("not")) {
@@ -291,12 +298,13 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			expr = clk_expr;
 		} else if (fLexer.peekOperator("(")) {
 			// ( sequence_expr {, sequence_match_item} ) [sequence_abbrev]
-			// (expression) [dist
+			// (expression) [dist]
 			if (fDebugEn) {
 				debug("entering sequence_expr {...}");
 			}
 			SVDBSequenceMatchItemExpr match_expr = new SVDBSequenceMatchItemExpr();
-			
+
+			if (fDebugEn) { debug("  --> sequence_expr enter paren"); }
 			fLexer.readOperator("(");
 			match_expr.setExpr(sequence_expr());
 			while (fLexer.peekOperator(",")) {
@@ -304,6 +312,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				match_expr.addMatchItemExpr(sequence_match_item());
 			}
 			fLexer.readOperator(")");
+			if (fDebugEn) { debug("  <-- sequence_expr enter paren"); }
 			
 			if (fLexer.peekOperator("[")) {
 				match_expr.setSequenceAbbrev(sequence_abbrev());
@@ -323,6 +332,9 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			}
 			fLexer.readOperator(")");
 			expr = first_match;
+		} else if (fLexer.peekOperator(")")) {
+			// fall through
+			if (fDebugEn) { debug(" -- Operator == ) ; fall through"); }
 		} else {
 			//   expression_or_dist [boolean_abbrev]
 			// | expression_or_dist throughout sequence_expr 

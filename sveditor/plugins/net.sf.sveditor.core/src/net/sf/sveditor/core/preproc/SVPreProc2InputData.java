@@ -146,11 +146,13 @@ public class SVPreProc2InputData {
 	}
 	
 	void addReferencedMacro(String macro, SVDBMacroDef def) {
-		fFileTree.fReferencedMacros.remove(macro);
-		if (def == null) {
-			fFileTree.fReferencedMacros.put(macro, null);
-		} else {
-			fFileTree.fReferencedMacros.put(macro, def.getDef());
+		if (fFileTree != null) {
+			fFileTree.fReferencedMacros.remove(macro);
+			if (def == null) {
+				fFileTree.fReferencedMacros.put(macro, null);
+			} else {
+				fFileTree.fReferencedMacros.put(macro, def.getDef());
+			}
 		}
 	}
 	
@@ -170,7 +172,7 @@ public class SVPreProc2InputData {
 			SVDBUnprocessedRegion r = fUnprocessedRegion;
 			fUnprocessedRegion = null;
 		
-			if (r != null) {
+			if (r != null && fFileTree != null) {
 				r.setEndLocation(loc);
 				fFileTree.getSVDBFile().addChildItem(r);
 			}
@@ -185,7 +187,9 @@ public class SVPreProc2InputData {
 			SVDBLocation loc = new SVDBLocation(scan_loc.getFileId(), 
 					scan_loc.getLineNo(), scan_loc.getLinePos());
 			fUnprocessedRegion.setEndLocation(loc);
-			fFileTree.getSVDBFile().addChildItem(fUnprocessedRegion);
+			if (fFileTree != null) {
+				fFileTree.getSVDBFile().addChildItem(fUnprocessedRegion);
+			}
 		}
 		
 		close();
