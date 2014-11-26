@@ -95,6 +95,8 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		// 0 means don't bother splitting the parameters across lines
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE, 1);
 		
+		store.setDefault(SVEditorPrefsConstants.P_OUTLINE_LINK_WITH_EDITOR, true);
+		
 		// Initialize folding parameters
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_ENABLE, true);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_MODULES, false);
@@ -102,6 +104,8 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_CLASSES, false);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_TF, false);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED, true);
+		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_HEADER_COMMENTS, true);
+		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_BLOCK_COMMENTS, false);
 		
 		
 		/**
