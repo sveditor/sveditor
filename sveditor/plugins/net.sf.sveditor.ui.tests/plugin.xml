@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="net.sf.sveditor.core.tests.releaseTests">
+      <releaseTestSuite
+            class="net.sf.sveditor.ui.tests.UiReleaseTests">
+      </releaseTestSuite>
+   </extension>
+
+</plugin>
