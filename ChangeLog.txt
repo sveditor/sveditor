@@ -5,6 +5,10 @@
 
 - #(enh - 89) - Add support for folding block comments
 
+- #(344) - Correct property parse bug
+
+- #(340) - Correct property parse bug
+
 ------------------------------------------------------------------------------
 -- 1.6.5 Release --
 
