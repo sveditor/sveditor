@@ -1,4 +1,7 @@
 
+-- 1.6.7 Release --
+
+------------------------------------------------------------------------------
 -- 1.6.6 Release --
 
 - #(enh - 94) - Support reordering templates and files within the template editor
