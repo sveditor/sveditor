@@ -3,7 +3,8 @@
 
 - #(enh - 95) - Add support for opening the declaration of an element by 
   double-clicking in the Outline view
- 
+
+- #(355) - Correct attribute-parse bug when attributes are applied to module ports 
   
 
 ------------------------------------------------------------------------------

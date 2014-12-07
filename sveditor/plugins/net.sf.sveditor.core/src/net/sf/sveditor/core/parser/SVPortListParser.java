@@ -34,6 +34,7 @@ public class SVPortListParser extends SVParserBase {
 		boolean is_ansi = false;
 		
 		fLexer.readOperator("(");
+
 		
 		if (fLexer.peekOperator(".*")) {
 			fLexer.eatToken();
@@ -49,6 +50,13 @@ public class SVPortListParser extends SVParserBase {
 		
 		while (true) {
 			SVDBLocation it_start = fLexer.getStartLocation();
+			// Catch per-port attributes
+			try {
+				if (fLexer.peekOperator("(*")) {
+					fParsers.attrParser().parse(null);
+				}
+			} catch (SVParseException e) {}
+			
 			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
 				String dir_s = fLexer.eatToken();
 				is_ansi = true;
