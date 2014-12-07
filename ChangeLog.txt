@@ -1,6 +1,11 @@
 
 -- 1.6.7 Release --
 
+- #(enh - 95) - Add support for opening the declaration of an element by 
+  double-clicking in the Outline view
+ 
+  
+
 ------------------------------------------------------------------------------
 -- 1.6.6 Release --
 

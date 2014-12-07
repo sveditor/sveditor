@@ -26,14 +26,19 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -486,6 +491,41 @@ public class SVOutlinePage extends ContentOutlinePage
 								SVEditorUtil.openEditor(t.second());
 							} catch (PartInitException e) {
 								fLog.error("Failed to open editor", e);
+							}
+						}
+					} else if (sel.getFirstElement() != null && sel.getFirstElement() instanceof ISVDBItemBase) {
+						ISVDBItemBase it = (ISVDBItemBase)sel.getFirstElement();
+						String type_name = null;
+						
+						if (it.getType() == SVDBItemType.VarDeclItem) {
+							SVDBVarDeclItem inst_it = (SVDBVarDeclItem)it;
+							SVDBVarDeclStmt stmt = (SVDBVarDeclStmt)inst_it.getParent();
+							
+							if (stmt != null) {
+								type_name = stmt.getTypeName();
+							}
+						} else if (it.getType() == SVDBItemType.ModIfcInstItem) {
+							SVDBModIfcInstItem inst_it = (SVDBModIfcInstItem)it;
+							SVDBModIfcInst inst = (SVDBModIfcInst)inst_it.getParent();
+						
+							if (inst != null) {
+								type_name = inst.getTypeName();
+							}
+						}
+						
+						if (type_name != null) {
+							SVDBFindNamedModIfcClassIfc finder = 
+									new SVDBFindNamedModIfcClassIfc(fEditor.getIndexIterator());
+							List<ISVDBChildItem> result = finder.findItems(type_name);
+							
+							if (result != null && result.size() > 0) {
+								ISVDBChildItem target = result.get(0);
+						
+								try {
+									SVEditorUtil.openEditor(target);
+								} catch (PartInitException e) {
+									fLog.error("Failed to open editor", e);
+								}
 							}
 						}
 					}
