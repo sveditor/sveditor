@@ -326,5 +326,77 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testModulePort() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module m(\n" +					// 1
+			"	input		clk_i,\n" +
+			"	input		rst_n\n" +
+			");\n" +
+			"\n" +							// 5	
+			"	always @(posedge clk_i) begin\n" +
+			"	end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "m");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("posedge");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+"posedge cl".length());
+
+		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
+		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		int lineno = 6;
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, lineno, scanner, target_index);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
+		assertEquals("clk_i", SVDBItem.getName(ret.get(0).first()));
+		assertNotNull(ret.get(0).first().getLocation());
+		assertEquals(2, ret.get(0).first().getLocation().getLine());
+	}
+	
+	public void testModulePort_2() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module m(\n" +					// 1
+			"	input		clk_i,\n" +
+			"	input		rst_n\n" +
+			");\n" +
+			"\n" +							// 5	
+			"	always @(posedge clk_i) begin\n" +
+			"		rst_n <= 0;\n" +
+			"	end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "m");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("rst_n <=");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+1);
+
+		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
+		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		int lineno = 6;
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, lineno, scanner, target_index);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
+		assertEquals("rst_n", SVDBItem.getName(ret.get(0).first()));
+		assertNotNull(ret.get(0).first().getLocation());
+		assertEquals(3, ret.get(0).first().getLocation().getLine());
+	}	
 }
 
