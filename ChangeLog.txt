@@ -4,6 +4,8 @@
 - #(enh - 95) - Add support for opening the declaration of an element by 
   double-clicking in the Outline view
   
+- #(352) - Correct incorrect indentation after a randomize with {} block
+  
 - #(353) - Correct a bug when performing the Open Declaration operation on a
   module port. Location information was not being applied to module ports
 
