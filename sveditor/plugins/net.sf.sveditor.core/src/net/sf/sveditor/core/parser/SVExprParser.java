@@ -168,18 +168,28 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {
 			debug("--> module_path_expression() " + fLexer.peek());
 		}
+		
+		if (fLexer.peekOperator("(")) {
+			fLexer.readOperator("(");
+			module_path_expression();
+			fLexer.readOperator(")");
+		} 
+		
 		if (fLexer.peekOperator(fUnaryModulePathOperators)) {
 			fLexer.eatToken();
 			module_path_primary();
-		} 
+		} else {
+			module_path_primary();
+		}
 		
 		if (fLexer.peekOperator(fBinaryModulePathOperators)) {
 			String op = fLexer.eatToken();
+			if (fDebugEn) {
+				debug("  op=" + op);
+			}
 			module_path_expression();
 		}
-		
-		module_path_primary();
-			
+	
 		if (fDebugEn) {
 			debug("<-- module_path_expression() " + fLexer.peek());
 		}
@@ -209,8 +219,7 @@ public class SVExprParser extends SVParserBase {
 			}
 		} else if (fLexer.peekOperator("(")) {
 			// module_path_mintypmax_expression
-			// TODO:
-			error("module_path_mintypmax_expression unsupported");
+			ret = delay_or_specify_delay_expr(false, 3); 
 		}
 		return ret;
 	}
@@ -240,13 +249,19 @@ public class SVExprParser extends SVParserBase {
 	// #(min_delay:typ_delay:max_delay)
 	// There are two delay types, delay 2 and delay 3.  The difference between them is that delay 2 has Rise and Fall, where delay 3 has rise, fall and tristate times
 	public SVDBExpr delay_expr(int max_delays) throws SVParseException {
+		return delay_or_specify_delay_expr(true, max_delays);
+	}
+	
+	public SVDBExpr delay_or_specify_delay_expr(boolean delay_expr, int max_delays) throws SVParseException {
 		SVDBExpr expr = null;
 		if (fDebugEn) {debug("--> delay_expr - " + fLexer.peek());}
 
 		if ((max_delays != 2) && (max_delays != 3))  {
 			error ("delay_expr - should have either 2 or 3 as arguments");
 		}
-		fLexer.readOperator("#", "##");
+		if (delay_expr) {
+			fLexer.readOperator("#", "##");
+		}
 		if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
 			expr = fParsers.exprParser().expression();

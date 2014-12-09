@@ -84,6 +84,8 @@ public class TemplatePage extends FormPage {
 	private Composite					fDefaultButtons;
 	private Button						fAddButton;
 	private Button						fRemoveButton;
+	private Button						fUpButton;
+	private Button						fDownButton;
 	
 	private StackLayout					fStackLayout;
 	private Composite					fDetailsPaneParent;
@@ -279,6 +281,15 @@ public class TemplatePage extends FormPage {
 		fRemoveButton = tk.createButton(fDefaultButtons, "Remove", SWT.PUSH);
 		fRemoveButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fRemoveButton);
+		
+		fUpButton = tk.createButton(fDefaultButtons, "Up", SWT.PUSH);
+		fUpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		initButton(fUpButton);
+		
+		fDownButton = tk.createButton(fDefaultButtons, "Down", SWT.PUSH);
+		fDownButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		initButton(fDownButton);
+		
 	}
 	
 	private void initButton(Button button) {
@@ -546,6 +557,8 @@ public class TemplatePage extends FormPage {
 	private void setTemplateContext(Element template) {
 		fAddButton.setEnabled(!fIsReadOnly);
 		fRemoveButton.setEnabled(!fIsReadOnly);
+	
+		updateUpDownButtonState();
 		
 		// 
 		fActiveElement = template;
@@ -564,6 +577,52 @@ public class TemplatePage extends FormPage {
 		setButtonsPane(fDefaultButtons);
 	}
 	
+	private void updateUpDownButtonState() {
+		IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
+
+		boolean up_en   = !fIsReadOnly;
+		boolean down_en = !fIsReadOnly;
+		
+		up_en &= (sel.size() == 1);
+		down_en &= (sel.size() == 1);
+		
+		if (sel.size() == 1) {
+			Element template = (Element)sel.getFirstElement();
+			Node prev_sib = getPrevSiblingElement(template);
+			Node next_sib = getNextSiblingElement(template);
+
+			up_en   &= (prev_sib != null);
+			down_en &= (next_sib != null);
+		}
+		
+		fUpButton.setEnabled(up_en);
+		fDownButton.setEnabled(down_en);
+	}
+	
+	private int indexOf(NodeList node_list, Node node) {
+		int ret = -1;
+		Node n;
+		
+		for (int i=0; (n = node_list.item(i)) != null; i++) {
+			if (n == node) {
+				ret = i;
+				break;
+			}
+		}
+		
+		return ret;
+	}
+	
+	private int numElems(NodeList node_list) {
+		int ret = 0;
+		
+		for (int i=0; node_list.item(i) != null; i++) {
+			ret++;
+		}
+		
+		return ret;
+	}
+	
 	private void setFileContext(Element file) {
 		fAddButton.setEnabled(!fIsReadOnly);
 		fRemoveButton.setEnabled(!fIsReadOnly);
@@ -571,6 +630,8 @@ public class TemplatePage extends FormPage {
 		fActiveElement = file;
 		
 		fControlModify = true;
+		
+		updateUpDownButtonState();
 		
 		fFileName.setText(getAttribute(fActiveElement, "name"));
 		fTemplatePath.setText(getAttribute(fActiveElement, "template"));
@@ -580,14 +641,16 @@ public class TemplatePage extends FormPage {
 		setDetailsPane(fFileDetailsPane);
 		setButtonsPane(fDefaultButtons);
 	}
-
-	private void setParameterContext(Element file) {
+	
+	private void setParameterContext(Element parameter) {
 		fAddButton.setEnabled(!fIsReadOnly);
 		fRemoveButton.setEnabled(!fIsReadOnly);
 
-		fActiveElement = file;
+		fActiveElement = parameter;
 		
 		fControlModify = true;
+		
+		updateParameterUpDownButtons();
 		
 		fParameterName.setText(getAttribute(fActiveElement, "name"));
 		fParameterType.select(getTypeIndex(getAttribute(fActiveElement, "type")));
@@ -605,6 +668,24 @@ public class TemplatePage extends FormPage {
 
 		setDetailsPane(fParameterDetailsPane);
 		setButtonsPane(fParameterButtons);
+	}
+	
+	private void updateParameterUpDownButtons() {
+		IStructuredSelection sel = (IStructuredSelection)fTreeViewer.getSelection();
+		boolean up_en = (sel.size() == 1);
+		boolean down_en = (sel.size() == 1);
+		
+		if (sel.size() == 1) {
+			Element el = (Element)sel.getFirstElement();
+			Node next_n = getNextSiblingElement(el);
+			Node prev_n = getPrevSiblingElement(el);
+	
+			up_en 	&= (prev_n != null);
+			down_en &= (next_n != null);
+		}
+		
+		fMoveParameterDownButton.setEnabled(down_en);
+		fMoveParameterUpButton.setEnabled(up_en);
 	}
 	
 	private void setParameterGroupContext(Element file) {
@@ -799,7 +880,15 @@ public class TemplatePage extends FormPage {
 			}
 			
 			if (dlg.open() == Window.OK) {
-				List<String> paths = dlg.getSelectedFiles();
+				List<String> paths_i = dlg.getSelectedFiles();
+				List<String> paths = new ArrayList<String>();
+				
+				for (String path : paths_i) {
+					if (!paths.contains(path)) {
+						paths.add(path);
+					}
+				}
+				
 				Element first_elem = null;
 				
 				for (String path : paths) {
@@ -858,6 +947,51 @@ public class TemplatePage extends FormPage {
 		
 		fIsDirty = true;
 		getEditor().editorDirtyStateChanged();
+	}
+	
+	private void moveTemplateUp() {
+		List<Node> sel_nodes = getSelectedNodes();
+
+		if (sel_nodes.size() > 0) {
+			Node prev_node = getPrevSiblingElement(sel_nodes.get(sel_nodes.size()-1));
+			Node parent = sel_nodes.get(0).getParentNode();
+			
+			unlinkNodes(sel_nodes);
+			
+			if (prev_node == null) {
+				insertNodesInside(parent, sel_nodes);
+			} else {
+				insertNodesBefore(prev_node, sel_nodes);
+			}
+			fIsDirty = true;
+			fTreeViewer.refresh();
+			getEditor().editorDirtyStateChanged();
+			
+			updateUpDownButtonState();
+		}
+	}
+	
+	private void moveTemplateDown() {
+		List<Node> sel_nodes = getSelectedNodes();
+	
+		if (sel_nodes.size() > 0) {
+			Node next_node = getNextSiblingElement(sel_nodes.get(sel_nodes.size()-1));
+			Node parent = sel_nodes.get(0).getParentNode();
+			
+			unlinkNodes(sel_nodes);
+			
+			if (next_node == null) {
+				insertNodesInside(parent, sel_nodes);
+			} else {
+				insertNodesAfter(next_node, sel_nodes);
+			}
+			
+			fIsDirty = true;
+			fTreeViewer.refresh();
+			getEditor().editorDirtyStateChanged();
+			
+			updateUpDownButtonState();
+		}
 	}
 	
 	private void addParameter() {
@@ -977,36 +1111,33 @@ public class TemplatePage extends FormPage {
 		
 		if (sel_nodes.size() > 0) {
 			// TODO: need to detect when we have a heterogeneous selection
-			Node next_node = getNextSiblingElement(sel_nodes.get(sel_nodes.size()-1));
+			Node prev_node = getPrevSiblingElement(sel_nodes.get(sel_nodes.size()-1));
 			Node parent = sel_nodes.get(0).getParentNode();
 			
 			unlinkNodes(sel_nodes);
 			
-			if (next_node == null) {
+			if (prev_node == null) {
 				// Append these elements to the end of the parent
 				insertNodesInside(parent, sel_nodes);
 			} else {
 				// Insert before the next node
-				insertNodesBefore(next_node, sel_nodes);
+				insertNodesBefore(prev_node, sel_nodes);
 			}
 			
 			fIsDirty = true;
 			fTreeViewer.refresh();
 			getEditor().editorDirtyStateChanged();
+			updateParameterUpDownButtons();
 		}
 	}
 	
 	private void moveParameterDown() {
 		List<Node> sel_nodes = getSelectedNodes();
 		
-//		System.out.println("moveParameterDown: " + sel_nodes.size());
-		
 		if (sel_nodes.size() > 0) {
 			// TODO: need to detect when we have a heterogeneous selection
 			Node next_node = getNextSiblingElement(sel_nodes.get(sel_nodes.size()-1));
 			Node parent = sel_nodes.get(0).getParentNode();
-			
-//			System.out.println("next_node=" + next_node);
 			
 			unlinkNodes(sel_nodes);
 			
@@ -1021,6 +1152,7 @@ public class TemplatePage extends FormPage {
 			fIsDirty = true;
 			fTreeViewer.refresh();
 			getEditor().editorDirtyStateChanged();
+			updateParameterUpDownButtons();
 		}		
 	}
 	
@@ -1056,16 +1188,17 @@ public class TemplatePage extends FormPage {
 	}
 	
 	private Node getNextSiblingElement(Node n) {
-		while ((n = n.getNextSibling()) != null &&
-				!(n instanceof Element)) { 
+		while ((n = n.getNextSibling()) != null && 
+				!(n instanceof Element)) {
 		}
 		
 		return n;
 	}
 
 	private Node getPrevSiblingElement(Node n) {
-		while ((n = n.getNextSibling()) != null &&
-				!(n instanceof Element)) { }
+		while ((n = n.getPreviousSibling()) != null && 
+				!(n instanceof Element)) {
+		}
 		
 		return n;
 	}
@@ -1116,6 +1249,10 @@ public class TemplatePage extends FormPage {
 				addElement();
 			} else if (e.widget == fRemoveButton) {
 				removeElement();
+			} else if (e.widget == fUpButton) {
+				moveTemplateUp();
+			} else if (e.widget == fDownButton) {
+				moveTemplateDown();
 			} else if (e.widget == fAddParameterButton) {
 				addParameter();
 			} else if (e.widget == fAddParameterGroupButton) {
@@ -1187,6 +1324,8 @@ public class TemplatePage extends FormPage {
 				
 				fAddButton.setEnabled(!fIsReadOnly);
 				fRemoveButton.setEnabled(false);
+				fUpButton.setEnabled(false);
+				fDownButton.setEnabled(false);
 				setDetailsPane(fNoDetailsPane);
 				setButtonsPane(fDefaultButtons);
 				
@@ -1198,6 +1337,8 @@ public class TemplatePage extends FormPage {
 						e.getNodeName().equals("files")) {
 					fAddButton.setEnabled(!fIsReadOnly);
 					fRemoveButton.setEnabled(false);
+					fUpButton.setEnabled(false);
+					fDownButton.setEnabled(false);
 					setDetailsPane(fNoDetailsPane);
 					setButtonsPane(fDefaultButtons);
 				} else if (e.getNodeName().equals("parameters")) {
@@ -1379,7 +1520,6 @@ public class TemplatePage extends FormPage {
 				return false;
 			}
 			
-//			System.out.println("validateDrop: " + target + " " + operation + " " + transferType);
 			// TODO Auto-generated method stub
 			return true;
 		}

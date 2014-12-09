@@ -29,9 +29,9 @@ import org.eclipse.jface.viewers.Viewer;
 
 public class SVTreeContentProvider implements ITreeContentProvider {
 	
-	private static final Set<SVDBItemType>		fDoNotRecurseScopes;
-	private static final Set<SVDBItemType>		fExpandInLineItems;
-	private static final Set<SVDBItemType>		fIgnoreItems;
+	public static final Set<SVDBItemType>		fDoNotRecurseScopes;
+	public static final Set<SVDBItemType>		fExpandInLineItems;
+	public static final Set<SVDBItemType>		fIgnoreItems;
 	private ISVDBChildParent					fRoot;
 	
 	static {

@@ -95,12 +95,15 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
+import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.information.IInformationPresenter;
 import org.eclipse.jface.text.source.Annotation;
@@ -121,6 +124,8 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CaretEvent;
+import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -145,7 +150,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
 			ISVDBIndexChangeListener, IResourceChangeListener,
-			IPartListener {
+			IPartListener, CaretListener {
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -192,6 +197,9 @@ public class SVEditor extends TextEditor
 	private boolean							fInitialFolding = true;
 	private int								fReparseDelay;
 	private boolean							fIncrReparseEn = false;
+	
+	private boolean							fCaretMovedArmed = false;
+	private boolean							fCaretMovedArmed2 = false;
 	
 	public ISVDBIndex getSVDBIndex() {
 		return fSVDBIndex ;
@@ -954,9 +962,35 @@ public class SVEditor extends TextEditor
 		/**
 		 * Add semantic highlighting
 		 */
-		
+	
+		getSourceViewer().getTextWidget().addCaretListener(this);
 	}
 	
+	private Runnable fCaretMovedRunnable = new Runnable() {
+		
+		@Override
+		public void run() {
+			if (fCaretMovedArmed2) {
+				fCaretMovedArmed2 = false;
+			} else {
+				if (fOutline != null) {
+					fOutline.updateCursorLocation(getSourceViewer().getTextWidget().getCaretOffset());
+				}
+				fCaretMovedArmed = false;
+				fCaretMovedArmed2 = false;
+			}
+		}
+	};
+	
+	@Override
+	public void caretMoved(CaretEvent event) {
+		if (!fCaretMovedArmed) {
+			Display.getDefault().timerExec(500, fCaretMovedRunnable);
+		} else {
+			fCaretMovedArmed2 = true;
+		}
+	}
+
 	@Override
 	protected ISourceViewer createSourceViewer(
 			Composite 			parent,
@@ -1230,7 +1264,7 @@ public class SVEditor extends TextEditor
 			}			
 		}
 	}
-
+	
 	@SuppressWarnings("rawtypes")
 	private Annotation [] computeDifferences(ProjectionAnnotationModel model, List<Tuple<Position, Boolean>> regions) {
 		List<Annotation> deletions = new ArrayList<Annotation>();
@@ -1286,9 +1320,11 @@ public class SVEditor extends TextEditor
 				new ArrayList<Tuple<Position,Boolean>>();
 		HashMap<ProjectionAnnotation, Position> newAnnotations = new HashMap<ProjectionAnnotation, Position>();
 		
-		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
-		
 		IDocument doc = getDocument();
+		
+		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
+		collectMultiLineCommentFoldingRegions(doc, positions);
+		
 		for (ISVDBChildItem ci : file_pp.getChildren()) {
 			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
 				SVDBUnprocessedRegion ur = (SVDBUnprocessedRegion)ci;
@@ -1325,6 +1361,8 @@ public class SVEditor extends TextEditor
 				}
 			}
 		}
+		
+		// Add folding regions for 
 	
 		Annotation deletions[] = computeDifferences(ann_model, positions);
 		
@@ -1430,6 +1468,71 @@ public class SVEditor extends TextEditor
 				}
 			}
 		}
+	}
+	
+	private void collectMultiLineCommentFoldingRegions(
+			IDocument 						doc,
+			List<Tuple<Position,Boolean>>	positions) {
+
+		if (doc instanceof IDocumentExtension3) {
+			IDocumentExtension3 doc_ext = (IDocumentExtension3)doc;
+			boolean is_first_region = true;
+			
+			for (int offset=0; offset<doc.getLength(); ) {
+				ITypedRegion r = null;
+
+				try {
+					r = doc_ext.getPartition(
+							SVDocumentPartitions.SV_PARTITIONING, offset, false);
+				} catch (BadPartitioningException e) {
+					e.printStackTrace();
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
+
+				if (r != null) {
+					boolean init_folded = false;
+				
+					// Look for a header comment
+					if (fInitialFolding) {
+						if (is_first_region && !r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT)) {
+							// Check to see if the first partition is just whitespace
+							is_first_region = isPartitionAllWhitespace(doc, r);
+						}
+					}
+					
+					if (r.getType().equals(SVDocumentPartitions.SV_MULTILINE_COMMENT)) {
+						if (fInitialFolding) {
+							if (is_first_region) {
+								init_folded = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_HEADER_COMMENTS);
+							} else {
+								init_folded = getFoldingPref(SVEditorPrefsConstants.P_FOLDING_INIT_BLOCK_COMMENTS);
+							}
+							is_first_region = false;
+						}
+
+						positions.add(new Tuple<Position, Boolean>(
+								new Position(r.getOffset(), r.getLength()), init_folded));
+					}
+					offset += r.getLength();
+				} else {
+					offset++;
+				}
+			}
+		}
+	}
+	
+	private boolean isPartitionAllWhitespace(IDocument doc, ITypedRegion r) {
+		for (int i=0; i<r.getLength(); i++) {
+			try {
+				int ch = doc.getChar(r.getOffset()+i);
+				if (!Character.isWhitespace(ch)) {
+					return false;
+				}
+			} catch (BadLocationException e) {}
+		}
+	
+		return true;
 	}
 	
 	private void clearUnprocessedRegionAnnotations() {

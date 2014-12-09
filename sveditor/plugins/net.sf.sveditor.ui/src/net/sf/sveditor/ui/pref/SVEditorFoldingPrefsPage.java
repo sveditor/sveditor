@@ -40,6 +40,10 @@ public class SVEditorFoldingPrefsPage extends FieldEditorPreferencePage implemen
 				"Tasks/Functions", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED, 
 				"Unprocessed Regions", g));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_HEADER_COMMENTS, 
+				"Header Comments", g));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_BLOCK_COMMENTS,
+				"Block Comments", g));
 		
 	}
 

@@ -1052,7 +1052,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				enter_scope (tok);
 			}
 			boolean do_next = true;
-			while (!tok.isOp(";")) {
+			int brace_level = 0;
+			while (!tok.isOp(";") || brace_level > 0) {
 				if (parent != null) {
 					if ((parent.equals("begin") && tok.isId("end")) ||
 						tok.isId("end" + parent)) {
@@ -1074,9 +1075,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				// Indent on successive (
 				if (is_open_brace(tok)) {
 					start_of_scope(tok);
+					brace_level++;
 				// Out-dent on successive )
 				} else if (is_close_brace(tok)) {
 					leave_scope(tok);
+					brace_level--;
 				}
 				tok = next_s();
 			}

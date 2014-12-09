@@ -72,4 +72,32 @@ public class TestParseSpecify extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"delay"});
 	}
 
+	public void testSpecifyBlock_CondMinTyp() throws SVParseException {
+		String testname = "testSpecifyBlock";
+		String doc = 
+				"module delay;\n" +
+				"	specify\n" +
+				"		if ((a == 1'b0) && (b == 1'b1))\n" +
+				"			(clk => q)=(1.000, 1.000);\n" +
+				"	endspecify\n" +
+				"endmodule\n"
+				;
+		SVCorePlugin.getDefault().enableDebug(false);
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"delay"});
+	}
+	
+	public void testSpecifyBlock_CondMinTyp_1() throws SVParseException {
+		String testname = "testSpecifyBlock";
+		String doc = 
+				"module delay;\n" +
+				"	specify\n" +
+				"		if (a == 1'b0)\n" +
+				"			(clk => q)=(1.000, 1.000);\n" +
+				"	endspecify\n" +
+				"endmodule\n"
+				;
+		SVCorePlugin.getDefault().enableDebug(false);
+		ParserTests.runTestStrDoc(testname, doc, new String[] {"delay"});
+	}
+	
 }

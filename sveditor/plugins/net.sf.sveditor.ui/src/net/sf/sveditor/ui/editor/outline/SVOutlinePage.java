@@ -26,23 +26,32 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
+import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;
@@ -85,10 +94,12 @@ public class SVOutlinePage extends ContentOutlinePage
 	private Action                     ToggleCoverPointGroupCross;
 	private Action                     ToggleConstraints;
 	private Action                     ToggleSort;
+	private Action						fEnableEditorLinking;
 	private SVDBDefaultContentFilter	DefaultContentFilter;
 	private ViewerComparator			ViewerComapartor;
 	private LogHandle					fLog;
-	private boolean					fDebugEn;
+	private boolean						fDebugEn;
+	private boolean						fLinkWithEditor = true;
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
@@ -98,6 +109,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		
 		fLog = LogFactory.getLogHandle("SVOutlinePage");
 		fDebugEn = fLog.isEnabled();
+		
 	}
 	
 	public void logLevelChanged(ILogHandle handle) {
@@ -181,6 +193,34 @@ public class SVOutlinePage extends ContentOutlinePage
 			fLog.debug("clearIgnoreSelectionChange");
 		}
 		fIgnoreSelectionChange = false;
+	}
+	
+	public void updateCursorLocation(int offset) {
+		IDocument doc = fEditor.getDocument();
+		
+		int line = -1;
+		try {
+			line = doc.getLineOfOffset(offset);
+		} catch (BadLocationException e) { }
+		
+		if (line != -1 && fLinkWithEditor) {
+			line++;
+			// Find element corresponding to line
+			
+			ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(
+					fEditor.getSVDBFile(), line,
+					SVTreeContentProvider.fDoNotRecurseScopes,
+					SVTreeContentProvider.fExpandInLineItems,
+					SVTreeContentProvider.fIgnoreItems
+					);
+			
+			if (it != null) {
+				fIgnoreSelectionChange = true;
+				getTreeViewer().reveal(it);
+				getTreeViewer().setSelection(new StructuredSelection(it));
+				fIgnoreSelectionChange = false;
+			}
+		}
 	}
 
 	
@@ -453,6 +493,41 @@ public class SVOutlinePage extends ContentOutlinePage
 								fLog.error("Failed to open editor", e);
 							}
 						}
+					} else if (sel.getFirstElement() != null && sel.getFirstElement() instanceof ISVDBItemBase) {
+						ISVDBItemBase it = (ISVDBItemBase)sel.getFirstElement();
+						String type_name = null;
+						
+						if (it.getType() == SVDBItemType.VarDeclItem) {
+							SVDBVarDeclItem inst_it = (SVDBVarDeclItem)it;
+							SVDBVarDeclStmt stmt = (SVDBVarDeclStmt)inst_it.getParent();
+							
+							if (stmt != null) {
+								type_name = stmt.getTypeName();
+							}
+						} else if (it.getType() == SVDBItemType.ModIfcInstItem) {
+							SVDBModIfcInstItem inst_it = (SVDBModIfcInstItem)it;
+							SVDBModIfcInst inst = (SVDBModIfcInst)inst_it.getParent();
+						
+							if (inst != null) {
+								type_name = inst.getTypeName();
+							}
+						}
+						
+						if (type_name != null) {
+							SVDBFindNamedModIfcClassIfc finder = 
+									new SVDBFindNamedModIfcClassIfc(fEditor.getIndexIterator());
+							List<ISVDBChildItem> result = finder.findItems(type_name);
+							
+							if (result != null && result.size() > 0) {
+								ISVDBChildItem target = result.get(0);
+						
+								try {
+									SVEditorUtil.openEditor(target);
+								} catch (PartInitException e) {
+									fLog.error("Failed to open editor", e);
+								}
+							}
+						}
 					}
 				}
 			};
@@ -708,5 +783,20 @@ public class SVOutlinePage extends ContentOutlinePage
 		ToggleCoverPointGroupCross.setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS));
 		ToggleConstraints         .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_CONSTRAINTS));
 		ToggleVariables           .setChecked(ps.getBoolean(SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
+	
+		fEnableEditorLinking = new Action("Link with Editor", Action.AS_CHECK_BOX) {
+			public void run() {
+				fLinkWithEditor = isChecked();
+				SVUiPlugin.getDefault().getPreferenceStore().setValue(
+						SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS, 
+						isChecked());
+			}
+		};
+		fEnableEditorLinking.setImageDescriptor(SVUiPlugin.getImageDescriptor("/icons/eview16/synced.gif"));
+		fEnableEditorLinking.setChecked(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(
+						SVEditorPrefsConstants.P_OUTLINE_SHOW_SIGNAL_DECLARATIONS));
+		pageSite.getActionBars().getMenuManager().add(fEnableEditorLinking);
 	}
 }
+
+

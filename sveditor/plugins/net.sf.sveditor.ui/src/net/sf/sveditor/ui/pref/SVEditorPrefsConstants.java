@@ -75,6 +75,8 @@ public class SVEditorPrefsConstants {
 	public static final String P_FOLDING_INIT_CLASSES							= FOLDING_SETTINGS + "initFoldClasses";
 	public static final String P_FOLDING_INIT_TF								= FOLDING_SETTINGS + "initFoldTasksFunctions";
 	public static final String P_FOLDING_INIT_UNPROCESSED						= FOLDING_SETTINGS + "initFoldUnprocessed";
+	public static final String P_FOLDING_INIT_HEADER_COMMENTS					= FOLDING_SETTINGS + "initFoldHeaderComments";
+	public static final String P_FOLDING_INIT_BLOCK_COMMENTS					= FOLDING_SETTINGS + "initFoldBlockComments";
 	
 	public static final Set<String> P_FOLDING_PREFS;
 	
@@ -86,6 +88,8 @@ public class SVEditorPrefsConstants {
 		P_FOLDING_PREFS.add(P_FOLDING_INIT_INTERFACES);
 		P_FOLDING_PREFS.add(P_FOLDING_INIT_UNPROCESSED);
 		P_FOLDING_PREFS.add(P_FOLDING_INIT_TF);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_HEADER_COMMENTS);
+		P_FOLDING_PREFS.add(P_FOLDING_INIT_BLOCK_COMMENTS);
 	};
 	
 	// SV Template Paths
@@ -107,6 +111,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_OUTLINE_SHOW_COVER_POINT_GROUP_CROSS           	= OUTLINE_SETTINGS + "outlineShowCoverPointGroupCross";
 	public static final String P_OUTLINE_SHOW_CONSTRAINTS                       	= OUTLINE_SETTINGS + "outlineShowConstraints";
 	public static final String P_OUTLINE_SORT                                   	= OUTLINE_SETTINGS + "outlineSort";
+	public static final String P_OUTLINE_LINK_WITH_EDITOR               			= OUTLINE_SETTINGS + "linkWithEditor";
 
 	// Code Style Preferences
 	public static final String P_SV_CODE_STYLE_PREFS								= INDEX_SETTINGS + "codeStylePrefs";

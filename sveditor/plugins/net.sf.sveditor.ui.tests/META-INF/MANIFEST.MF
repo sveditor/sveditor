@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SVEditor UI Tests
-Bundle-SymbolicName: net.sf.sveditor.ui.tests
+Bundle-SymbolicName: net.sf.sveditor.ui.tests;singleton:=true
 Bundle-Version: 1.2.3
 Bundle-Activator: net.sf.sveditor.ui.tests.UiTestsPlugin
 Require-Bundle: org.junit,

@@ -1464,6 +1464,78 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testRandomizeWith() {
+		String ref =
+		"class foo;\n" +
+		"	virtual function void build_phase(uvm_phase phase);\n" +
+		"		this.randomize(random_int) with\n" +
+		"			{ random_int > 0;\n" +
+		"				random_int<100;\n" +
+		"			};\n" +
+		"		this.randomize(random_int) with\n" +
+		"			{ random_int > 0;\n" +
+		"				random_int<100;\n" +
+		"			};\n" +
+		"	endfunction\n" +
+		"endclass\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		fLog.debug("Ref:\n" + ref);
+		fLog.debug("====");
+		fLog.debug("Result:\n" + result);
+		fLog.debug("====");
+		
+		IndentComparator.compare(fLog, getName(), ref, result);
+	}
+
+	public void testAssertRandomizeWith() {
+		String ref =
+		"class foo;\n" +
+		"	virtual function void build_phase(uvm_phase phase);\n" +
+		"		assert(this.randomize(random_int) with\n" +
+		"			{ random_int > 0;\n" +
+		"				random_int<100;\n" +
+		"			});\n" +
+		"		assert(this.randomize(random_int) with\n" +
+		"			{ random_int > 0;\n" +
+		"				random_int<100;\n" +
+		"			});\n" +
+		"	endfunction\n" +
+		"endclass\n"
+		;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		fLog.debug("Ref:\n" + ref);
+		fLog.debug("====");
+		fLog.debug("Result:\n" + result);
+		fLog.debug("====");
+		
+		IndentComparator.compare(fLog, getName(), ref, result);
+	}
+	
 	public void testPreProcIndent() {
 		String testname = "testPreProcIndent";
 		String ref =

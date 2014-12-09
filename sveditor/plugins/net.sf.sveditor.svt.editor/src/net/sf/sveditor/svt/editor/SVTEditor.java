@@ -37,7 +37,6 @@ import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
@@ -62,11 +61,14 @@ public class SVTEditor extends FormEditor implements IResourceChangeListener {
 	@Override
 	public void dispose() {
 		super.dispose();
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 	}
 
 	public void resourceChanged(IResourceChangeEvent event) {
+		
 		if (!(getEditorInput() instanceof FileEditorInput)) {
+			return;
+		} else if (event == null || event.getDelta() == null) {
+			fIsStateValidationEnabled = true;
 			return;
 		}
 		
@@ -134,7 +136,6 @@ public class SVTEditor extends FormEditor implements IResourceChangeListener {
 		
 		if (getEditorInput() instanceof FileEditorInput) {
 			// Only register listener if we're working in the workspace
-//			System.out.println("Add resource listener");
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 		}
 		
@@ -227,6 +228,8 @@ public class SVTEditor extends FormEditor implements IResourceChangeListener {
 		if (fIsStateValidationEnabled) {
 			IEditorInput in = getEditorInput();
 			
+			fLog.debug("validateIsEditable: input=" + in.getClass().getName());
+			
 			if (in instanceof IURIEditorInput) {
 				if (in instanceof FileEditorInput) {
 					// IFile
@@ -236,7 +239,10 @@ public class SVTEditor extends FormEditor implements IResourceChangeListener {
 					IStatus stat = ResourcesPlugin.getWorkspace().validateEdit(
 							new IFile [] {file}, getSite().getShell());
 					
-					fIsReadOnly = (stat == null || stat != Status.OK_STATUS);
+					fLog.debug("validateIsEditable stat=" + stat);
+					fLog.debug("validateIsEditable stat.severity=" + ((stat != null)?stat.getSeverity():"null"));
+					
+					fIsReadOnly = (stat == null || (stat.getSeverity() != Status.OK));
 				} else {
 					// Filesystem path
 					File file = new File(((IURIEditorInput)in).getURI().getPath());

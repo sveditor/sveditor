@@ -1,15 +1,53 @@
 
--- 1.6.4 Release --
-
-- #(343) - Correct an issue where statements with an always_comb were being
-  displayed in the outline view.
-  
+-- 1.6.8 Release --
 - #(347) - Outline View: defparams not behaving correctly
 
 - #(322) Unhandled Exception: Unhandled expr in expr_to_string: NameMappedExp
       Didn't fix this one, but hid the exception.  Outline view won't look 
       complete, but basic data is there incase it is needed
       TODO still in code, item not marked as fixed in bug tracker
+
+------------------------------------------------------------------------------
+-- 1.6.7 Release --
+
+- #(enh - 95) - Add support for opening the declaration of an element by 
+  double-clicking in the Outline view
+  
+- #(352) - Correct incorrect indentation after a randomize with {} block
+  
+- #(353) - Correct a bug when performing the Open Declaration operation on a
+  module port. Location information was not being applied to module ports
+
+- #(355) - Correct attribute-parse bug when attributes are applied to module ports 
+
+
+------------------------------------------------------------------------------
+-- 1.6.6 Release --
+
+- #(enh - 94) - Support reordering templates and files within the template editor
+
+- #(enh - 89) - Add support for folding block comments
+
+- #(344) - Correct property parse bug
+
+- #(340) - Correct property parse bug
+
+------------------------------------------------------------------------------
+-- 1.6.5 Release --
+
+- #(349) - Trial bug-fix for interoperability issue with revision-control plugins
+
+------------------------------------------------------------------------------
+-- 1.6.4 Release --
+
+- #(343) - Correct an issue where statements with an always_comb were being
+  displayed in the outline view.
+  
+- #(345) - Correct parse bug involving path-dependent specify-block paths
+
+- #(346) - Correct parse bug involving path-dependent specify-block paths
+
+- #(enh - 92) - Implement linking between editor and outline view. 
 
 ------------------------------------------------------------------------------
 -- 1.6.3 Release --

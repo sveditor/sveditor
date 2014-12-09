@@ -65,14 +65,44 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"test"});
 	}
 	
+	public void testPropertyParenSeq() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module top ();\n" +
+			"	ap_property: assert property (\n" +
+			"	@(posedge clk)\n" +
+			"	($rose (restart) ##1 @ (some_sig == 1'b0)) |=> (interrupt == 1'b1)\n" +
+			"	);\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
+	
 	public void testPropertyRepetitionSuffix() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top ();\n" +
 			"	ap_property: assert property (\n" +
 			"	@(posedge clk)\n" +
 			"	($rose (restart) ##1 @ (some_sig == 1'b0)) |=> (interrupt == 1'b0)[*4]\n" +
 			"	);\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
+
+	public void testPropertyParenExpr() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module top ();\n" +
+			"	property somep_property;\n" +
+			"		@(posedge clk) disable iff (rst)\n" +
+			"			a\n" +
+			"			|-> \n" +
+			"			(a) [*0:$] !b;    // Braces around 'a' cause parser error\n" +
+			"	endproperty\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
