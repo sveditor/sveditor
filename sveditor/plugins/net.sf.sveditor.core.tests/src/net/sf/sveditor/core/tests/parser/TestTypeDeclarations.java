@@ -105,6 +105,7 @@ public class TestTypeDeclarations extends TestCase {
 			"class t;\n" + 
 			"	int str_int_map1[string] = '{default:null};\n" +
 			"	int str_int_map2[string] = '{\"A\":5, \"B\":6};\n" +
+			"   integer tab [string][string] = '{\"group1\": '{\"Peter\":20, \"Paul\":22}, \"group2\":'{\"Mary\":23, default:-1 }};\n" +
 			"endclass\n"
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -112,7 +113,7 @@ public class TestTypeDeclarations extends TestCase {
 
 		SVDBTestUtils.assertNoErrWarn(file);
 
-		SVDBTestUtils.assertFileHasElements(file, "t", "str_int_map1", "str_int_map2");
+		SVDBTestUtils.assertFileHasElements(file, "t", "str_int_map1", "str_int_map2", "tab");
 	}
 	
 	protected void testTypeCastInFunction(String castExpresson) {
