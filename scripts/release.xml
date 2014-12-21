@@ -6,18 +6,20 @@
 	<property file="${basedir}/../etc/sveditor.info"/>
     <property file="${basedir}/../etc/sveditor_${version_type}.info"/>
 	<property file="${basedir}/build.properties"/>
+	
+	<condition property="is_release">
+		<equals arg1="${version_type}" arg2="release"/>
+	</condition>
 
 	<property name="sf_frs_url" value="${env.SF_USERNAME},sveditor@frs.sourceforge.net"/>
 	<property name="sf_web_url" value="${env.SF_USERNAME},sveditor@web.sourceforge.net"/>
-	
-	<condition property="sf_update_url"
-		value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update_testing"
-		else="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update">
-		<equals arg1="${version_type}" arg2="testing"/>
-	</condition>
-	
+
+	<property name="sf_update_url" value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/${web_update_dir}"/>
+
+	<!--
 	<property name="sf_update_url" 
          value="${env.SF_USERNAME},sveditor@web.sourceforge.net:htdocs/update"/>
+      -->
 
 	<property name="rlsdir" value="${basedir}/../release"/>
 	<property name="srcdir" value="${basedir}/../sveditor"/>
@@ -84,7 +86,27 @@
 			<arg value="${sf_frs_url}:${sveditor_dir}/${frs_update_site_dir}/${feature.version}/plugins"/>
 		</exec>
 
-		<!-- Now, copy the release archive -->
+		<!-- Now, copy the release archive (only if in release mode) -->
+		<antcall target="upload_release_files"/>
+
+		<!-- Finally, update the SVEditor Update Site -->
+		<echo file="${sftp_cmds}">
+			-mkdir ${web_update_dir}
+			cd ${web_update_dir}
+			put content.jar
+			put artifacts.jar
+		</echo>
+		<exec executable="sftp" dir="${rlsdir}">
+			<arg value="-b"/>
+			<arg value="${sftp_cmds}"/>
+			<arg value="${sf_web_url}:htdocs"/>
+		</exec>
+		
+		<delete file="${sftp_cmds}"/>
+	</target>
+	
+	<target name="upload_release_files" if="is_release">
+		<!-- Now, copy the release archive (only if in release mode) -->
 		<echo file="${sftp_cmds}">
 			put sveditor-${feature.version}.jar
 		</echo>
@@ -110,14 +132,7 @@
 			<arg value="-b"/>
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
-		</exec>
-
-		<!-- Finally, update the SVEditor Update Site -->
-		<exec executable="scp" dir="${rlsdir}">
-			<arg value="content.jar"/>
-			<arg value="artifacts.jar"/>
-			<arg value="${sf_update_url}"/>
-		</exec>
+		</exec>		
 	</target>
 
 	<target name="mk_rn">

@@ -27,6 +27,8 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -47,6 +49,9 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	// Specifies whether this item is actually located in the FileTree view of the file.
 	// This will be the case for pre-processor items
 	public boolean						fIsFileTreeItem;
+
+	@SVDBDoNotSaveAttr
+	private static LogHandle			fLog;
 	
 	public SVDBDeclCacheItem() {
 	}
@@ -114,14 +119,29 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 				ret = findSVDBItem(file);
 				
 				if (ret == null) {
-					System.out.println("Error: Failed to find item in file");
+					if (fLog == null) {
+						fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
+					}
+					fLog.error("Error: Failed to find item name=" + fName + 
+							" type=" + fType + " in file=" + fFileName + 
+							" (isFileTreeItem=" + fIsFileTreeItem + ")");
 				}
 			} else {
-				System.out.println("Error: File is null " + fFileName);
+				if (fLog == null) {
+					fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
+				}
+				fLog.error("Error: Failed to file=" + fFileName + " in cache " +
+						"while looking for item name=" + fName + " type=" + 
+						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")");
 			}
 		} else {
 			// FIXME: should we also warn or generate an error here?
-			System.out.println("Error: parent is null");
+			if (fLog == null) {
+				fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
+			}
+			fLog.error("Error: 'parent' is null while looking for item " +
+					"name=" + fName + " type=" + fType + " in file=" + fFileName +
+					" (isFileTreeItem=" + fIsFileTreeItem + ")");
 		}
 		
 		return ret;

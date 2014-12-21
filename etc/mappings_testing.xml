@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mappings size='3'>
+  <rule filter='(&amp; (classifier=osgi.bundle))' output='https://sourceforge.net/projects/sveditor/files/update_site_testing/1.2.3/plugins/${id}_${version}.jar/download'/>
+  <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+  <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='https://sourceforge.net/projects/sveditor/files/update_site_testing/1.2.3/features/${id}_${version}.jar/download'/>
+</mappings>
+
