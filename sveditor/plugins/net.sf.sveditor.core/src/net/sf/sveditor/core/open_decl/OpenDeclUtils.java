@@ -18,7 +18,6 @@ import java.util.List;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -26,7 +25,6 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.expr_utils.SVContentAssistExprVisitor;
@@ -48,7 +46,9 @@ public class OpenDeclUtils {
 			int					line,
 			IBIDITextScanner	scanner,
 			ISVDBIndexIterator	index_it) {
-		List<OpenDeclResult> result = openDecl(file, line, scanner, index_it);
+		Tuple<SVExprContext, ISVDBScopeItem> context_scope = getContextScope(file, line, scanner);
+		
+		List<OpenDeclResult> result = openDecl(context_scope.first(), context_scope.second(), index_it);
 		
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
 		for (OpenDeclResult r : result) {
@@ -58,24 +58,21 @@ public class OpenDeclUtils {
 		return ret;
 	}
 	
-	public static List<OpenDeclResult> openDecl(
+	public static Tuple<SVExprContext, ISVDBScopeItem> getContextScope(
 			SVDBFile			file,
 			int					line,
-			IBIDITextScanner	scanner,
-			ISVDBIndexIterator	index_it) {
-		LogHandle log = LogFactory.getLogHandle("OpenDeclaration");
+			IBIDITextScanner	scanner) {
+		LogHandle log = LogFactory.getLogHandle("getContextScope");
+		
 		SVExprScanner			expr_scanner = new SVExprScanner();
-		SVDBFile 				inc_file = null;
-		
-		log.debug(ILogLevel.LEVEL_MID, "openDecl: " + file.getFilePath() + ":" + line);
-		
+		log.debug(ILogLevel.LEVEL_MID, "getContextScope: " + file.getFilePath() + ":" + line);
 		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
 		
 		log.debug("Expression Context: root=" + expr_ctxt.fRoot +
 				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
 		
 		ISVDBScopeItem active_scope = SVDBSearchUtils.findActiveScope(file, line);
-		
+
 		if (active_scope != null) {
 			log.debug(ILogLevel.LEVEL_MID, "active_scope:");
 			ISVDBChildItem i = active_scope;
@@ -94,6 +91,20 @@ public class OpenDeclUtils {
 			log.debug(ILogLevel.LEVEL_MID, "active_scope: null");
 		}
 
+		return new Tuple<SVExprContext, ISVDBScopeItem>(expr_ctxt, active_scope);
+	}
+
+	
+	public static List<OpenDeclResult> openDecl(
+			SVExprContext		expr_ctxt,
+			ISVDBScopeItem		active_scope,
+			ISVDBIndexIterator	index_it) {
+		LogHandle log = LogFactory.getLogHandle("OpenDeclaration");
+		SVDBFile 				inc_file = null;
+		
+		log.debug("Expression Context: root=" + expr_ctxt.fRoot +
+				" trigger=" + expr_ctxt.fTrigger + " leaf=" + expr_ctxt.fLeaf);
+		
 		List<OpenDeclResult> ret = new ArrayList<OpenDeclResult>();
 
 		// If this is an include lookup, then use a different matching strategy

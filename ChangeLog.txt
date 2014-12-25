@@ -1,7 +1,12 @@
 
 -- 1.6.8 Release --
 
-- #(nobug) - Enhance debug logging 
+- #(nobug) - Enhance debug logging for declaration-lookup failures
+
+- #(enh) - Add NaturalDoc support for the Macro keyword. This allows macros 
+  to be documented
+  
+- #(enh) 
 
 ------------------------------------------------------------------------------
 -- 1.6.7 Release --

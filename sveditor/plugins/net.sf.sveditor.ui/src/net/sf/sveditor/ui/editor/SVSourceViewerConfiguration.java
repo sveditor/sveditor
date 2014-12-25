@@ -25,13 +25,13 @@ import net.sf.sveditor.ui.text.OutlineInformationControl;
 import net.sf.sveditor.ui.text.SVEditorProvider;
 import net.sf.sveditor.ui.text.SVElementProvider;
 import net.sf.sveditor.ui.text.hover.ISVEditorTextHover;
-import net.sf.sveditor.ui.text.hover.SVDefaultInformationControl;
 import net.sf.sveditor.ui.text.hover.SVDocHover;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.AbstractInformationControlManager;
+import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
@@ -121,29 +121,14 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
 				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
-			
-				SVDefaultInformationControl c = new SVDefaultInformationControl(parent, "todo", bg_color, fg_color);
+
+				DefaultInformationControl c = new DefaultInformationControl(parent, EditorsUI.getTooltipAffordanceString());
+				c.setBackgroundColor(bg_color);
+				c.setForegroundColor(fg_color);
 
 				return c;
 			}
 		};
-	/*	
-		return new IInformationControlCreator() {
-			public IInformationControl createInformationControl(Shell parent) {
-				IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
-				Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
-						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
-				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
-						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
-				
-				DefaultInformationControl c = new DefaultInformationControl(parent, true);
-				c.setBackgroundColor(bg_color);
-				c.setForegroundColor(fg_color);
-				
-				return c;
-			}
-		};
-		*/
 	}		
 	
 	@Override

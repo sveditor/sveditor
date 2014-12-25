@@ -17,8 +17,6 @@ import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.actions.SelectionConverter;
 import net.sf.sveditor.ui.text.SVWordFinder;
 
-import org.eclipse.swt.widgets.Shell;
-
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
@@ -26,27 +24,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextHoverExtension2;
 import org.eclipse.jface.text.ITextViewer;
-
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-
 import org.eclipse.ui.editors.text.EditorsUI;
-
-/*
-
-import org.eclipse.jdt.core.ICodeAssist;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaModelException;
-
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jdt.ui.text.java.hover.IJavaEditorTextHover;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.javaeditor.IClassFileEditorInput;
-import org.eclipse.jdt.internal.ui.javaeditor.WorkingCopyManager;
-import org.eclipse.jdt.internal.ui.text.JavaWordFinder;
-
-*/
 
 /**
  * Abstract class for providing hover information for Java elements.
@@ -88,9 +68,9 @@ public abstract class AbstractSVEditorTextHover implements ISVEditorTextHover, I
     /*
 	 * @see org.eclipse.jface.text.ITextHoverExtension2#getHoverInfo2(org.eclipse.jface.text.ITextViewer, org.eclipse.jface.text.IRegion)
 	 */
-	public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
-		return getHoverInfo(textViewer, hoverRegion);
-	}
+//	public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
+//		return getHoverInfo(textViewer, hoverRegion);
+//	}
 
 	/*
 	 * @see ITextHover#getHoverRegion(ITextViewer, int)
@@ -153,13 +133,13 @@ public abstract class AbstractSVEditorTextHover implements ISVEditorTextHover, I
 	 * @see ITextHoverExtension#getHoverControlCreator()
 	 * @since 3.0
 	 */
-	public IInformationControlCreator getHoverControlCreator() {
-		return new IInformationControlCreator() {
-			public IInformationControl createInformationControl(Shell parent) {
-				return new DefaultInformationControl(parent, EditorsUI.getTooltipAffordanceString());
-			}
-		};
-	}
+//	public IInformationControlCreator getHoverControlCreator() {
+//		return new IInformationControlCreator() {
+//			public IInformationControl createInformationControl(Shell parent) {
+//				return new DefaultInformationControl(parent, EditorsUI.getTooltipAffordanceString());
+//			}
+//		};
+//	}
 
 	/**
 	 * Delegate method for {@link JavaInformationProvider#getInformationPresenterControlCreator()}
@@ -167,13 +147,13 @@ public abstract class AbstractSVEditorTextHover implements ISVEditorTextHover, I
 	 * @return the information control creator or null if none is available
 	 * @since 3.4
 	 */
-	public IInformationControlCreator getInformationPresenterControlCreator() {
-		return new IInformationControlCreator() {
-			public IInformationControl createInformationControl(Shell shell) {
-				return new DefaultInformationControl(shell, true);
-			}
-		};
-	}
+//	public IInformationControlCreator getInformationPresenterControlCreator() {
+//		return new IInformationControlCreator() {
+//			public IInformationControl createInformationControl(Shell shell) {
+//				return new DefaultInformationControl(shell, true);
+//			}
+//		};
+//	}
 
 //	protected ITypeRoot getEditorInputJavaElement() {
 //		IEditorPart editor= getEditor();

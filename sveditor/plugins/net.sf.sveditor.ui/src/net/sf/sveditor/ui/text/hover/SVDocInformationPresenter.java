@@ -12,9 +12,12 @@ import org.eclipse.swt.widgets.Display;
 
 public class SVDocInformationPresenter implements DefaultInformationControl.IInformationPresenter, DefaultInformationControl.IInformationPresenterExtension {
 
-	public String updatePresentation(Drawable drawable,
-			String hoverInfo, TextPresentation presentation,
-			int maxWidth, int maxHeight) {
+	public String updatePresentation(
+			Drawable 			drawable,
+			String 				hoverInfo, 
+			TextPresentation 	presentation,
+			int 				maxWidth, 
+			int 				maxHeight) {
 		HTML2TextReader rdr = new HTML2TextReader(
 				new StringReader(hoverInfo), presentation);
 		String ret = hoverInfo;
@@ -29,6 +32,7 @@ public class SVDocInformationPresenter implements DefaultInformationControl.IInf
 
 	public String updatePresentation(Display display, String hoverInfo,
 			TextPresentation presentation, int maxWidth, int maxHeight) {
+		System.out.println("updatePresentation(2)");
 		// TODO Auto-generated method stub
 		HTML2TextReader rdr = new HTML2TextReader(
 				new StringReader(hoverInfo), presentation);

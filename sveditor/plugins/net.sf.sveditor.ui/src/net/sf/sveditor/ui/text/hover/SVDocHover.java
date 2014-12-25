@@ -23,6 +23,7 @@ import java.util.List;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -34,40 +35,33 @@ import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.docs.IDocTopicManager;
 import net.sf.sveditor.core.docs.html.HTMLFromNDMarkup;
 import net.sf.sveditor.core.docs.model.DocTopic;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.open_decl.OpenDeclResult;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.SVColorManager;
 import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.IInformationControlExtension4;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchSite;
 import org.osgi.framework.Bundle;
+
+import com.sun.xml.internal.fastinfoset.AbstractResourceBundle;
 
 
 /**
@@ -86,135 +80,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 
 
 	/**
-	 * Presenter control creator.
-	 *
-	 * @since 3.3
-	 */
-	public static final class PresenterControlCreator extends AbstractReusableInformationControlCreator {
-
-		private IWorkbenchSite fSite;
-
-		/**
-		 * Creates a new PresenterControlCreator.
-		 * 
-		 * @param site the site or <code>null</code> if none
-		 * @since 3.6
-		 */
-		public PresenterControlCreator(IWorkbenchSite site) {
-			fSite= site;
-		}
-
-		/*
-		 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractReusableInformationControlCreator#doCreateInformationControl(org.eclipse.swt.widgets.Shell)
-		 */
-		@Override
-		public IInformationControl doCreateInformationControl(Shell parent) {
-			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
-			
-			// Use the browser widget if available and the user enables it
-			if (BrowserInformationControl.isAvailable(parent) &&
-					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
-				ToolBarManager tbm= new ToolBarManager(SWT.FLAT);
-
-				BrowserInformationControl iControl= new BrowserInformationControl(parent, JFaceResources.getTextFont().toString(), tbm);
-
-
-				tbm.update(true);
-
-				return iControl;
-
-			} else {
-				return new DefaultInformationControl(parent, true);
-			}
-		}
-	}
-
-
-	/**
-	 * Hover control creator.
-	 *
-	 */
-	public static final class HoverControlCreator extends AbstractReusableInformationControlCreator {
-		/**
-		 * The information presenter control creator.
-		 */
-		private final IInformationControlCreator fInformationPresenterControlCreator;
-		/**
-		 * <code>true</code> to use the additional info affordance, <code>false</code> to use the hover affordance.
-		 */
-		private final boolean fAdditionalInfoAffordance;
-
-		/**
-		 * @param informationPresenterControlCreator control creator for enriched hover
-		 */
-		public HoverControlCreator(IInformationControlCreator informationPresenterControlCreator) {
-			this(informationPresenterControlCreator, false);
-		}
-
-		/**
-		 * @param informationPresenterControlCreator control creator for enriched hover
-		 * @param additionalInfoAffordance <code>true</code> to use the additional info affordance, <code>false</code> to use the hover affordance
-		 */
-		public HoverControlCreator(IInformationControlCreator informationPresenterControlCreator, boolean additionalInfoAffordance) {
-			fInformationPresenterControlCreator= informationPresenterControlCreator;
-			fAdditionalInfoAffordance= additionalInfoAffordance;
-		}
-
-		/*
-		 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractReusableInformationControlCreator#doCreateInformationControl(org.eclipse.swt.widgets.Shell)
-		 */
-		@Override
-		public IInformationControl doCreateInformationControl(Shell parent) {
-			IPreferenceStore prefs = SVUiPlugin.getDefault().getChainedPrefs();
-			Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
-						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
-			Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
-						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));
-			if (BrowserInformationControl.isAvailable(parent) &&
-					prefs.getBoolean(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER)) {
-				BrowserInformationControl iControl= new BrowserInformationControl(parent, "", "todo") {
-					/*
-					 * @see org.eclipse.jface.text.IInformationControlExtension5#getInformationPresenterControlCreator()
-					 */
-					@Override
-					public IInformationControlCreator getInformationPresenterControlCreator() {
-						return fInformationPresenterControlCreator;
-					}
-				};
-				iControl.setBackgroundColor(bg_color);
-				iControl.setForegroundColor(fg_color);
-				return iControl;
-			} else {
-				DefaultInformationControl hover = new SVDefaultInformationControl(
-						parent, "todo", bg_color, fg_color);
-				return hover;
-			}
-		}
-		
-		/*
-		 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractReusableInformationControlCreator#canReuse(org.eclipse.jface.text.IInformationControl)
-		 */
-		@Override
-		public boolean canReuse(IInformationControl control) {
-			if (!super.canReuse(control))
-				return false;
-
-			if (control instanceof IInformationControlExtension4) {
-//				String tooltipAffordanceString= fAdditionalInfoAffordance ? JavaPlugin.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
-				String tooltipAffordanceString= "todo" ;
-				((IInformationControlExtension4)control).setStatusText(tooltipAffordanceString);
-			}
-
-			return true;
-		}
-	}
-
-	/**
-	 * The style sheet (css).
-	 */
-	private static String fgStyleSheet;
-
-	/**
 	 * The hover control creator.
 	 *
 	 */
@@ -225,14 +90,15 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 */
 	private IInformationControlCreator fPresenterControlCreator;
 
-	/*
-	 * @see org.eclipse.jdt.internal.ui.text.java.hover.AbstractJavaEditorTextHover#getInformationPresenterControlCreator()
-	 * @since 3.1
-	 */
-	@Override
 	public IInformationControlCreator getInformationPresenterControlCreator() {
-		if (fPresenterControlCreator == null)
-			fPresenterControlCreator= new PresenterControlCreator(getSite());
+		if (fPresenterControlCreator == null) {
+			fPresenterControlCreator = new AbstractReusableInformationControlCreator() {
+				@Override
+				protected IInformationControl doCreateInformationControl(Shell parent) {
+					return new SVHoverInformationControl(parent);
+				}
+			};
+		}
 		return fPresenterControlCreator;
 	}
 
@@ -254,8 +120,16 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 */
 	@Override
 	public IInformationControlCreator getHoverControlCreator() {
-		if (fHoverControlCreator == null)
-			fHoverControlCreator= new HoverControlCreator(getInformationPresenterControlCreator());
+		if (fHoverControlCreator == null) {
+			fHoverControlCreator = new AbstractReusableInformationControlCreator() {
+				
+				@Override
+				protected IInformationControl doCreateInformationControl(Shell parent) {
+					return new SVHoverInformationDisplay(parent, 
+							getInformationPresenterControlCreator());
+				}
+			};
+		}
 		return fHoverControlCreator;
 	}
 
@@ -263,8 +137,14 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 * @deprecated see {@link org.eclipse.jface.text.ITextHover#getHoverInfo(ITextViewer, IRegion)}
 	 */
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-		SVDocBrowserInformationControlInput info= (SVDocBrowserInformationControlInput) getHoverInfo2(textViewer, hoverRegion);
-		return info != null ? info.getHtml() : null;
+		Object info_o = getHoverInfo2(textViewer, hoverRegion);
+		
+		if (info_o != null && (info_o instanceof SVHoverInformationControlInput)) {
+			return ((SVHoverInformationControlInput)info_o).getContent();
+//			return ((SVHoverInformationControlInput)info_o).getHtml();
+		} else {
+			return null;
+		}
 	}
 
 	/*
@@ -272,43 +152,68 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 */
 	@Override
 	public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
-		return internalGetHoverInfo(textViewer, hoverRegion);
+		List<OpenDeclResult> items = null;
+		SVEditor editor = ((SVEditor)getEditor()) ;
+		IDocument doc = editor.getDocument() ;
+		
+		int offset = hoverRegion.getOffset() ;
+		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
+		scanner.setSkipComments(true) ;
+		
+		SVDBFile file = editor.getSVDBFile();
+		int line = -1;
+		
+		try {
+			line = doc.getLineOfOffset(hoverRegion.getOffset());
+		} catch (BadLocationException e) {
+			// Nothing to be done here
+			return null;
+		}
+		
+		SVHoverInformationControlInput ret = null;
+//		Tuple<ISVDBItemBase, SVDBFile>  target = findTarget(hoverRegion);
+		
+		Tuple<SVExprContext, ISVDBScopeItem> context_scope = OpenDeclUtils.getContextScope(
+				file, line, scanner);
+		SVExprContext ctxt = context_scope.first();
+		
+		System.out.println("context_scope: root=" + ctxt.fRoot + " leaf=" + ctxt.fLeaf + " trigger=" + ctxt.fTrigger);
+		
+//		System.out.println("target=" + target);
+		
+		items = OpenDeclUtils.openDecl(context_scope.first(), 
+				context_scope.second(), editor.getIndexIterator());
+		
+		if (items == null || items.size() == 0) {
+			return null;
+		}
+		OpenDeclResult result = items.get(0);
+		
+		ret = new SVHoverInformationControlInput(
+				result.getItem(), 
+				context_scope.second(), // active scope
+				editor.getIndexIterator());
+		SVHoverContentProvider cp = null;
+		
+		if ((cp = getNaturalDocHoverContent(result, hoverRegion)) != null) {
+			ret.setContentProvider(SVHoverInformationControlInput.CONTENT_DOC, cp);
+		}
+		
+		if ((cp = getDeclarationHoverContent(result, hoverRegion)) != null) {
+			ret.setContentProvider(SVHoverInformationControlInput.CONTENT_DECL, cp);
+		}
+		
+		if ((cp = getMacroExpansionHoverContent(ctxt, result, hoverRegion)) != null) {
+			
+		}
+
+		if (ret.size() > 0) {
+			return ret;
+		} else {
+			return null;
+		}
 	}
 
-	private SVDocBrowserInformationControlInput internalGetHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-		
-		Tuple<ISVDBItemBase, SVDBFile>  target = findTarget(hoverRegion) ;
-		
-		if(target == null)
-			return null ;
-
-		return getHoverInfo(target, hoverRegion, null);
-		
-	}
-	
-	private String genContent(List<DocTopic> topics) {
-		String res = "" ;
-		HTMLFromNDMarkup markupConverter = new HTMLFromNDMarkup() ;
-		for(DocTopic topic: topics) {
-			String html = "" ;
-			html = genContentForTopic(topic) ;
-			html = markupConverter.convertNDMarkupToHTML(null, topic, html, HTMLFromNDMarkup.NDMarkupToHTMLStyle.Tooltip) ;
-			res += html ;
-		}
-		return res ;
-	}		
-	
-	private String genContentForTopic(DocTopic topic) {
-		String res = "" ;
-		res += "<h4>" ;
-		res += topic.getTitle() ;
-		res += "</h4>" ;
-		res += topic.getBody() ;
-		for(DocTopic childTopic: topic.getChildren()) {
-			res += genContentForTopic(childTopic) ;
-		}
-		return res ;
-	}
 
 	/**
 	 * Computes the hover info.
@@ -319,17 +224,13 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 * @param previousInput the previous input, or <code>null</code>
 	 * @return the HTML hover info for the given element(s) or <code>null</code> if no information is available
 	 */
-	private SVDocBrowserInformationControlInput getHoverInfo(
-			Tuple<ISVDBItemBase, SVDBFile> 		target, 
-			IRegion 							hoverRegion, 
-			SVDocBrowserInformationControlInput previousInput) {
-		
-		StringBuffer buffer= new StringBuffer();
-		
-		ISVDBItemBase element = target.first() ;
+	private SVNaturalDocHoverContentProvider getNaturalDocHoverContent(
+			OpenDeclResult						target,
+			IRegion 							hoverRegion) {
+		ISVDBItemBase element = target.getItem();
 		
 		if(!(element instanceof ISVDBNamedItem )) {
-			return null ;
+			return null;
 		}
 		
 		ISVDBIndexIterator index_it = ((SVEditor)getEditor()).getSVDBIndex();
@@ -341,120 +242,38 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		if(docCom == null) {
 			log.debug(ILogLevel.LEVEL_MID,
 				String.format("Did not find doc comment for(%s)", SVDBItem.getName(element)));
-			return null ;
+			return null;
 		}
 		
-		List<DocTopic> docTopics = new ArrayList<DocTopic>() ;
-		
-		IDocTopicManager topicMgr = new DocTopicManager() ;
-		
-		IDocCommentParser docCommentParser = new DocCommentParser(topicMgr) ;
-		
-		log.debug(ILogLevel.LEVEL_MID, 
-				"+------------------------------------------------------------------") ;
-		log.debug(ILogLevel.LEVEL_MID, 
-				"| Raw Comment") ;
-		log.debug(ILogLevel.LEVEL_MID,
-				"| " + docCom.getRawComment()) ;
-		log.debug(ILogLevel.LEVEL_MID, 
-				"+------------------------------------------------------------------") ;
-			
-		docCommentParser.parse(docCom.getRawComment(), docTopics) ;
-		
-		buffer.append(genContent(docTopics)) ;
-
-		if (buffer.length() > 0) {
-			HTMLPrinter.insertPageProlog(buffer, 0, getStyleSheet());
-			HTMLPrinter.addPageEpilog(buffer);
-			
-			log.debug(ILogLevel.LEVEL_MID, 
-					"+------------------------------------------------------------------") ;
-			log.debug(ILogLevel.LEVEL_MID, 
-					"| HTML dump") ;
-			log.debug(ILogLevel.LEVEL_MID,
-					buffer.toString()) ;
-			log.debug(ILogLevel.LEVEL_MID, 
-					"+------------------------------------------------------------------") ;
-			log.debug(ILogLevel.LEVEL_MID, 
-					"+------------------------------------------------------------------") ;
-
-			return new SVDocBrowserInformationControlInput(previousInput, target, buffer.toString(), 0);
-		}
-
-		return null;
+		return new SVNaturalDocHoverContentProvider(docCom);
 	}
-
 	
-	protected Tuple<ISVDBItemBase, SVDBFile> findTarget(IRegion hoverRegion) {
-		SVEditor editor = ((SVEditor)getEditor()) ;
-		IDocument doc = editor.getDocument() ;
+	private SVDeclarationInfoHoverContentProvider getDeclarationHoverContent(
+			OpenDeclResult						target,
+			IRegion								hoverRegion) {
+		ISVDBItemBase element = target.getItem();
 		
-		int offset = hoverRegion.getOffset() ;
-		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
-		scanner.setSkipComments(true) ;
-		
-		List<Tuple<ISVDBItemBase, SVDBFile>> items = null ;
-		
-		try {
-			items = OpenDeclUtils.openDecl_2(
-					editor.getSVDBFile(),
-					doc.getLineOfOffset(hoverRegion.getOffset()),
-					scanner,
-					editor.getIndexIterator());
-		} catch (BadLocationException e) {
-			log.error("Received bogus hover region", e) ;
+		if (!(element instanceof ISVDBNamedItem)) {
+			return null;
 		}
-
-		if (items != null && items.size() > 0) {
-			return items.get(0);
+		
+		if (SVDeclarationInfoHoverContentProvider.SUPPORTED_TYPES.contains(element.getType())) {
+			return new SVDeclarationInfoHoverContentProvider();
 		} else {
-			return new Tuple<ISVDBItemBase, SVDBFile>(null, null);
+			return null;
 		}
-	}	
-
-
-
-	/**
-	 * Returns the SVDoc hover style sheet 
-	 * @return the updated style sheet
-	 */
-	private String getStyleSheet() {
-		if (fgStyleSheet == null)
-			fgStyleSheet= loadStyleSheet();
-		String css= fgStyleSheet;
-		return css;
 	}
-
-	/**
-	 * Loads and returns the SVDoc hover style sheet.
-	 * @return the style sheet, or <code>null</code> if unable to load
-	 */
-	private String loadStyleSheet() {
-		Bundle bundle= Platform.getBundle(SVUiPlugin.PLUGIN_ID) ;
-		URL styleSheetURL= bundle.getEntry("/SVDocHoverStyleSheet.css"); //$NON-NLS-1$
-		if (styleSheetURL != null) {
-			BufferedReader reader= null;
-			try {
-				reader= new BufferedReader(new InputStreamReader(styleSheetURL.openStream()));
-				StringBuffer buffer= new StringBuffer(1500);
-				String line= reader.readLine();
-				while (line != null) {
-					buffer.append(line);
-					buffer.append('\n');
-					line= reader.readLine();
-				}
-				return buffer.toString();
-			} catch (IOException ex) {
-				log.error("Exception while loading style sheet", ex) ;
-				return ""; //$NON-NLS-1$
-			} finally {
-				try {
-					if (reader != null)
-						reader.close();
-				} catch (IOException e) {
-				}
-			}
+	
+	private SVMacroExpansionHoverContentProvider getMacroExpansionHoverContent(
+			SVExprContext						ctxt,
+			OpenDeclResult						target,
+			IRegion								hoverRegion) {
+		
+		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
+				ctxt.fLeaf != null && target.getItem() != null) {
+			// Macro call
 		}
+		
 		return null;
 	}
 

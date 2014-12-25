@@ -23,6 +23,7 @@ public class DocTopicManager implements IDocTopicManager {
 	public static String TOPIC_GENERAL 		= "general";
 //	public static String TOPIC_GENERIC 		= "generic";
 	public static String TOPIC_GROUP 		= "group";
+	public static String TOPIC_MACRO		= "macro";
 	public static String TOPIC_MODULE 		= "module";
 	public static String TOPIC_CLASS 		= "class";
 	public static String TOPIC_CONSTRAINT	= "constraint";
@@ -67,12 +68,15 @@ public class DocTopicManager implements IDocTopicManager {
 		topicTypeMap.put(TOPIC_TASK, 		new DocTopicType(TOPIC_TASK,		"tasks",		ScopeType.NORMAL,	true,	false,				false)) ;
 		topicTypeMap.put(TOPIC_FUNCTION, 	new DocTopicType(TOPIC_FUNCTION,	"functions",	ScopeType.NORMAL,   true,	false,				false)) ;
 		topicTypeMap.put(TOPIC_VARIABLE, 	new DocTopicType(TOPIC_VARIABLE,	"variables",	ScopeType.NORMAL,   true,	false,				false)) ;
+		topicTypeMap.put(TOPIC_MACRO, 		new DocTopicType(TOPIC_MACRO,		"macros",		ScopeType.START,   	true,	true,				false)) ;
 		
 		registerKeywordForTopicType(TOPIC_GENERAL, 	"general", 		"") ;
 		
 		registerKeywordForTopicType(TOPIC_CLASS, 	"class", 		"classes") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"struct", 		"structs") ;
 		registerKeywordForTopicType(TOPIC_CLASS, 	"structure", 	"structures") ;
+		
+		registerKeywordForTopicType(TOPIC_MACRO, 	"macro", 		"macros");
 		
 		registerKeywordForTopicType(TOPIC_CONSTRAINT, 	"constraint", 		"constraints") ;
 		

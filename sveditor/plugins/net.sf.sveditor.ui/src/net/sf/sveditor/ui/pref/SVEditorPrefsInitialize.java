@@ -59,7 +59,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_OPERATORS_C, new RGB(0, 0, 0));
 		
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR, 
-				new RGB(0xFF,0xFF,0xC0));
+				new RGB(0xFF,0xFF,0xE1));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR, 
 				new RGB(0x00,0x00,0x00));
 

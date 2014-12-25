@@ -12,7 +12,9 @@
 
 package net.sf.sveditor.core.db;
 
-
+/**
+ * Base element
+ */
 public interface ISVDBItemBase {
 	
 	SVDBItemType getType();
