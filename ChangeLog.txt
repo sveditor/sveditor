@@ -1,4 +1,8 @@
 
+-- 1.6.9 Release --
+
+
+------------------------------------------------------------------------------
 -- 1.6.8 Release --
 - #(347) - Outline View: defparams not behaving correctly
 
