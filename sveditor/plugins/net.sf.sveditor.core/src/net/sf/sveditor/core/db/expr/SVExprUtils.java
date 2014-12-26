@@ -300,7 +300,9 @@ public class SVExprUtils {
 			case LiteralExpr: ret = literal(ps, (SVDBLiteralExpr)expr); break;
 			// TODO: MinTypMaxExpr
 			// TODO: NamedArgExpr
+			case NameMappedExpr:
 			// TODO: NameMappedExpr
+				break;
 			case NullExpr: 
 				ret = true;
 				ps.print("null");
