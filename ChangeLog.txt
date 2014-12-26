@@ -1,5 +1,11 @@
 
 -- 1.6.8 Release --
+- #(347) - Outline View: defparams not behaving correctly
+
+- #(322) Unhandled Exception: Unhandled expr in expr_to_string: NameMappedExp
+      Didn't fix this one, but hid the exception.  Outline view won't look 
+      complete, but basic data is there incase it is needed
+      TODO still in code, item not marked as fixed in bug tracker
 
 - #(nobug) - Enhance debug logging for declaration-lookup failures
 
