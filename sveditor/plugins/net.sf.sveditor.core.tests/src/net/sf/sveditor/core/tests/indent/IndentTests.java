@@ -1505,13 +1505,13 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"class foo;\n" +
 		"	virtual function void build_phase(uvm_phase phase);\n" +
 		"		assert(this.randomize(random_int) with\n" +
-		"			{ random_int > 0;\n" +
-		"				random_int<100;\n" +
-		"			});\n" +
+		"				{ random_int > 0;\n" +
+		"					random_int<100;\n" +
+		"				});\n" +
 		"		assert(this.randomize(random_int) with\n" +
-		"			{ random_int > 0;\n" +
-		"				random_int<100;\n" +
-		"			});\n" +
+		"				{ random_int > 0;\n" +
+		"					random_int<100;\n" +
+		"				});\n" +
 		"	endfunction\n" +
 		"endclass\n"
 		;

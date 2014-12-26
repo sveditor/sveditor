@@ -27,6 +27,8 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindDocComment;
 import net.sf.sveditor.core.docs.DocCommentParser;
@@ -177,10 +179,6 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 				file, line, scanner);
 		SVExprContext ctxt = context_scope.first();
 		
-		System.out.println("context_scope: root=" + ctxt.fRoot + " leaf=" + ctxt.fLeaf + " trigger=" + ctxt.fTrigger);
-		
-//		System.out.println("target=" + target);
-		
 		items = OpenDeclUtils.openDecl(context_scope.first(), 
 				context_scope.second(), editor.getIndexIterator());
 		
@@ -203,8 +201,8 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			ret.setContentProvider(SVHoverInformationControlInput.CONTENT_DECL, cp);
 		}
 		
-		if ((cp = getMacroExpansionHoverContent(ctxt, result, hoverRegion)) != null) {
-			
+		if ((cp = getMacroExpansionHoverContent(ctxt, line, result)) != null) {
+			ret.setContentProvider(SVHoverInformationControlInput.CONTENT_MACRO_EXP, cp);
 		}
 
 		if (ret.size() > 0) {
@@ -266,12 +264,35 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	
 	private SVMacroExpansionHoverContentProvider getMacroExpansionHoverContent(
 			SVExprContext						ctxt,
-			OpenDeclResult						target,
-			IRegion								hoverRegion) {
+			int									lineno,
+			OpenDeclResult						target) {
 		
 		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
-				ctxt.fLeaf != null && target.getItem() != null) {
+				ctxt.fLeaf != null && target.getItem() != null && 
+				target.getItem().getType() == SVDBItemType.MacroDef) {
+			SVEditor editor = ((SVEditor)getEditor()) ;
+			IDocument doc = editor.getDocument() ;
+
+//			int offset = hoverRegion.getOffset() ;
+			SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, ctxt.fStart);
+			scanner.setSkipComments(true);
+			scanner.setScanFwd(false);
+	
+			// Back up to get the trigger (`) char
+			scanner.get_ch();
+			
+			scanner.setScanFwd(true);
+			
 			// Macro call
+			SVDBMacroDef m = (SVDBMacroDef)target.getItem();
+			
+			String macro_call = OpenDeclUtils.extractMacroCall(scanner, 
+					(m.getParameters() != null && m.getParameters().size() > 0));
+			
+			if (macro_call != null) {
+				return new SVMacroExpansionHoverContentProvider(
+						editor, macro_call, lineno);
+			}
 		}
 		
 		return null;

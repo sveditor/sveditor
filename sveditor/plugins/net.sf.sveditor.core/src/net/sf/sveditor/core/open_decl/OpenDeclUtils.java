@@ -93,6 +93,67 @@ public class OpenDeclUtils {
 
 		return new Tuple<SVExprContext, ISVDBScopeItem>(expr_ctxt, active_scope);
 	}
+	
+	public static String extractMacroCall(IBIDITextScanner scanner, boolean has_params) {
+		long start = scanner.getPos();
+		long end;
+	
+		int ch = scanner.get_ch();
+		
+		if (ch != '`') {
+			return null; // not a macro call
+		}
+		
+		while ((ch = scanner.get_ch()) != -1 && Character.isWhitespace(ch)) {
+			// Skip whitespace
+		}
+		
+		if (ch == -1) {
+			return null;
+		}
+		
+		// Read the identifier
+		scanner.readIdentifier(ch);
+		
+		
+		if (has_params) {
+			while ((ch = scanner.get_ch()) != -1 && Character.isWhitespace(ch)) {
+				// Skip whitespace
+			}
+			
+			if (ch == '(') {
+				int matchLevel=1, last_ch = -1;
+				boolean in_string = false;
+
+				do {
+					ch = scanner.get_ch();
+
+					if (!in_string) {
+						if (ch == '(') {
+							matchLevel++;
+						} else if (ch == ')') {
+							matchLevel--;
+						} else if (ch == '\"' && last_ch != '\\') {
+							in_string = true;
+						}
+					} else if (ch == '\"' && last_ch != '\\') {
+						in_string = false;
+					}
+				} while (ch != -1 && matchLevel > 0);
+				
+				if (ch == -1) {
+					return null;
+				}
+			} else {
+				// Error, since we're missing parameters
+				return null;
+			}
+		}
+
+		end = scanner.getPos();
+		
+		return scanner.get_str(start, (int)(end-start));
+	}
 
 	
 	public static List<OpenDeclResult> openDecl(

@@ -41,7 +41,7 @@ public class SVHoverInformationControl extends DefaultInformationControl
 		Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 					prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));		
 		fToolbarMgr = getToolBarManager();
-	
+		
 		fShowDocAction = new Action("Show Doc", Action.AS_RADIO_BUTTON) {
 			public void run() {
 				setInformation(fInput.getContent(SVHoverInformationControlInput.CONTENT_DOC));

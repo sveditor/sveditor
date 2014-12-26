@@ -11,7 +11,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
@@ -154,7 +153,6 @@ public class SVDBFileOverrideIndex
 			String						name,
 			ISVDBFindNameMatcher		matcher) {
 		for (ISVDBChildItem item : scope.getChildren()) {
-			System.out.println("findDecl: item=" + SVDBItem.getName(item));
 			if (item.getType().isElemOf(SVDBItemType.PackageDecl,
 					SVDBItemType.Function, SVDBItemType.Task,
 					SVDBItemType.ClassDecl, SVDBItemType.ModuleDecl, 
@@ -190,7 +188,11 @@ public class SVDBFileOverrideIndex
 
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
 		if (item.getFilename().equals(fFile.getFilePath())) {
-			return fFile;
+			if (item.isFileTreeItem()) {
+				return fFilePP;
+			} else {
+				return fFile;
+			}
 		} else if (fSuperIterator != null) {
 			return fSuperIterator.getDeclFile(monitor, item);
 		} else {

@@ -6,7 +6,16 @@
 - #(enh) - Add NaturalDoc support for the Macro keyword. This allows macros 
   to be documented
   
-- #(enh) 
+- #(enh - 96) - Update the hover popup to show multiple pieces of information
+  about the element that the mouse is over. Now, hover will show documentation 
+  (if present), declaration information, and allow the user to see the 
+  expansion of macros
+  
+- #(351) - Correct a parse error involving an initialization expression for 
+  a multi-dimensional associative array.
+  
+- #(322) - Remove a misleading error message that occurs due to unhandled
+  expression elements in expression-to-string conversion
 
 ------------------------------------------------------------------------------
 -- 1.6.7 Release --

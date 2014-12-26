@@ -1009,6 +1009,10 @@ public class SVEditor extends TextEditor
 		return fSVDBFile;
 	}
 	
+	public SVDBFile getSVDBFilePP() {
+		return fSVDBFilePP;
+	}
+	
 	public List<SVDBFilePath> getSVDBFilePath() {
 		if (fSVDBIndex != null) {
 			return fSVDBIndex.getFilePath(fSVDBFilePath);

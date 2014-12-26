@@ -113,8 +113,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		ISVDBItemBase ret = null;
 		
 		if(fParent != null) {
-			SVDBFile file = (fIsFileTreeItem)?fParent.getDeclFilePP(new NullProgressMonitor(), this):
-					fParent.getDeclFile(new NullProgressMonitor(), this);
+			SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
 			
 			if (file != null) {
 				ret = findSVDBItem(file);
@@ -151,8 +150,6 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	private ISVDBItemBase findSVDBItem(ISVDBChildParent scope) {
 		
 		for (ISVDBChildItem c : scope.getChildren()) {
-			System.out.println("findSVDBItem: scope=" + SVDBItem.getName(scope) + " item=" + SVDBItem.getName(c));
-			
 			if (SVDBItem.getName(c).equals(fName) && c.getType() == getType()) {
 				return c;
 			} else if (getType() == SVDBItemType.TypeInfoEnumerator && 

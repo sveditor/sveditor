@@ -114,6 +114,20 @@ public class TestTypeDeclarations extends TestCase {
 
 		SVDBTestUtils.assertFileHasElements(file, "t", "str_int_map1", "str_int_map2");
 	}
+
+	public void testMultiDimAssociativeArrayInit() {
+		String content = 
+			"class t;\n" + 
+			"	integer tab [string][string] = '{\"group1\": '{\"Peter\":20, \"Paul\":22}, \"group2\": '{\"Mary\":23, default:-1}};\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, getName());
+
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		SVDBTestUtils.assertFileHasElements(file, "t", "tab");
+	}
 	
 	protected void testTypeCastInFunction(String castExpresson) {
 		String content = 

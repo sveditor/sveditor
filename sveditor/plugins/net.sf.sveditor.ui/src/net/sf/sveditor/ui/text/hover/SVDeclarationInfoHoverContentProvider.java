@@ -11,10 +11,14 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBProgramDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDeclarationInfoHoverContentProvider extends
 		SVHoverContentProvider {
@@ -28,10 +32,12 @@ public class SVDeclarationInfoHoverContentProvider extends
 		SUPPORTED_TYPES.add(SVDBItemType.InterfaceDecl);
 		SUPPORTED_TYPES.add(SVDBItemType.ModuleDecl);
 		SUPPORTED_TYPES.add(SVDBItemType.ProgramDecl);
+		SUPPORTED_TYPES.add(SVDBItemType.MacroDef);
 	}
 	
 	public SVDeclarationInfoHoverContentProvider() {
 		super(null);
+		fLog = LogFactory.getLogHandle("SVDeclarationInfoHoverContentProvider");
 	}
 
 	@Override
@@ -42,7 +48,7 @@ public class SVDeclarationInfoHoverContentProvider extends
 		}
 		
 		ISVDBItemBase item = input.getElement();
-		ISVDBScopeItem scope = input.getScope();
+//		ISVDBScopeItem scope = input.getScope();
 		
 		if (item.getType() == SVDBItemType.VarDeclItem) {
 			SVDBVarDeclItem var_item = (SVDBVarDeclItem)item;
@@ -59,6 +65,22 @@ public class SVDeclarationInfoHoverContentProvider extends
 			if (ci != null) {
 				sb.append(" - " + SVDBItem.getName(ci));
 			}
+		} else if (item.getType() == SVDBItemType.MacroDef) {
+			SVDBMacroDef d = (SVDBMacroDef)item;
+			sb.append("Macro " + d.getName());
+			if (d.getParameters() != null && d.getParameters().size() > 0) {
+				sb.append("(");
+				for (int i=0; i<d.getParameters().size(); i++) {
+					SVDBMacroDefParam p = d.getParameters().get(i);
+					sb.append(p.getName());
+					if (i+1 < d.getParameters().size()) {
+						sb.append(", ");
+					}
+				}
+				sb.append(")");
+			}
+			
+			sb.append(" : " + d.getDef());
 		} else if (item.getType() == SVDBItemType.ClassDecl) {
 			SVDBClassDecl cls = (SVDBClassDecl)item;
 			sb.append("Class " + cls.getName());

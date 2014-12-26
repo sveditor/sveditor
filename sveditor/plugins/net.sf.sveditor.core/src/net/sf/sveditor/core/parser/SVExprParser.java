@@ -72,7 +72,7 @@ public class SVExprParser extends SVParserBase {
 	private Stack<Boolean>					fAssertionExpr;
 	private Stack<Boolean>					fArglistExpr;
 	private Stack<Boolean>					fForeachLoopvarExpr;
-	private boolean							fEnableNameMappedPrimary = false;
+	private Stack<Boolean>					fEnableNameMappedPrimary;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -84,6 +84,8 @@ public class SVExprParser extends SVParserBase {
 		fArglistExpr.push(false);
 		fForeachLoopvarExpr = new Stack<Boolean>();
 		fForeachLoopvarExpr.push(false);
+		fEnableNameMappedPrimary = new Stack<Boolean>();
+		fEnableNameMappedPrimary.push(false);
 //		fExprDump = new SVExprDump(System.out);
 	}
 	
@@ -1086,7 +1088,7 @@ public class SVExprParser extends SVParserBase {
 		} else {
 
 			try {
-				fEnableNameMappedPrimary = true;
+				fEnableNameMappedPrimary.push(true);
 				// This could be an associative-array initialization statement
 				SVDBExpr expr1 = expression();
 				if (fLexer.peekOperator("{")) {
@@ -1144,7 +1146,7 @@ public class SVExprParser extends SVParserBase {
 				}
 				fLexer.readOperator("}");
 			} finally {
-				fEnableNameMappedPrimary = false;
+				fEnableNameMappedPrimary.pop();
 			}
 		}
 		return ret_top;
@@ -1197,7 +1199,7 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.isNumber()) {
 				if (fDebugEn) {debug("-- primary is a number");}
 				SVToken tmp = fLexer.consumeToken();
-				if (fEnableNameMappedPrimary && fLexer.peekOperator(":")) {
+				if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(":")) {
 					fLexer.eatToken();
 					ret = new SVDBNameMappedExpr(tmp.getImage(), expression());
 				} else {
@@ -1209,10 +1211,12 @@ public class SVExprParser extends SVParserBase {
 			} else if (fLexer.peekString()) {
 				if (fDebugEn) {debug("-- primary is a string");}
 				SVToken tmp = fLexer.consumeToken();
-				if (fEnableNameMappedPrimary && fLexer.peekOperator(":")) {
+				if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(":")) {
+					if (fDebugEn) {debug("-- primary is a name-mapped string");}
 					fLexer.eatToken();
 					ret = new SVDBNameMappedExpr(tmp.getImage(), expression());
 				} else {
+					if (fDebugEn) {debug("-- primary is a ordinary string");}
 					ret = new SVDBStringExpr(tmp.getImage());
 				}
 			} else if (fLexer.peekKeyword("null")) {
@@ -1279,7 +1283,7 @@ public class SVExprParser extends SVParserBase {
 					ret = new SVDBIdentifierExpr(fLexer.endCapture());
 				} else {
 					// ID or 'default'
-					if (fEnableNameMappedPrimary && fLexer.peekOperator(":")) {
+					if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(":")) {
 						fLexer.eatToken();
 						if (fDebugEn) {debug("    nameMappedExpr");}
 						ret = new SVDBNameMappedExpr(id, expression());

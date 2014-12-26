@@ -25,11 +25,6 @@ import net.sf.sveditor.ui.SVUiPlugin;
 
 public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {
 	private SVDBDocComment			fComment;
-	private LogHandle				fLog;
-	/**
-	 * The style sheet (css).
-	 */
-	private static String fgStyleSheet;	
 	
 	public SVNaturalDocHoverContentProvider(SVDBDocComment comment) {
 		super(null);
@@ -61,10 +56,6 @@ public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {
 			
 		docCommentParser.parse(fComment.getRawComment(), docTopics) ;
 		
-		for (DocTopic t : docTopics) {
-			System.out.println("Topic: " + t);
-		}
-		
 		buffer.append(genContent(docTopics)) ;
 
 		if (buffer.length() > 0) {
@@ -83,7 +74,6 @@ public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {
 					"+------------------------------------------------------------------") ;
 		}
 		fContent = buffer.toString();
-		System.out.println("Doc Content: " + fContent);
 
 //			SVHoverInformationControlInput ret = new SVHoverInformationControlInput(previousInput, target, buffer.toString(), 0);
 //			ret.setContentProvider(SVHoverInformationControlInput.CONTENT_DOC, 
@@ -94,49 +84,7 @@ public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {
 		return fContent;
 	}
 
-	/**
-	 * Returns the SVDoc hover style sheet 
-	 * @return the updated style sheet
-	 */
-	private String getStyleSheet() {
-		if (fgStyleSheet == null)
-			fgStyleSheet= loadStyleSheet();
-		String css= fgStyleSheet;
-		return css;
-	}
 
-	/**
-	 * Loads and returns the SVDoc hover style sheet.
-	 * @return the style sheet, or <code>null</code> if unable to load
-	 */
-	private String loadStyleSheet() {
-		Bundle bundle= Platform.getBundle(SVUiPlugin.PLUGIN_ID) ;
-		URL styleSheetURL= bundle.getEntry("/SVDocHoverStyleSheet.css"); //$NON-NLS-1$
-		if (styleSheetURL != null) {
-			BufferedReader reader= null;
-			try {
-				reader= new BufferedReader(new InputStreamReader(styleSheetURL.openStream()));
-				StringBuffer buffer= new StringBuffer(1500);
-				String line= reader.readLine();
-				while (line != null) {
-					buffer.append(line);
-					buffer.append('\n');
-					line= reader.readLine();
-				}
-				return buffer.toString();
-			} catch (IOException ex) {
-				fLog.error("Exception while loading style sheet", ex) ;
-				return ""; //$NON-NLS-1$
-			} finally {
-				try {
-					if (reader != null)
-						reader.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-		return null;
-	}
 	
 	private String genContent(List<DocTopic> topics) {
 		String res = "" ;

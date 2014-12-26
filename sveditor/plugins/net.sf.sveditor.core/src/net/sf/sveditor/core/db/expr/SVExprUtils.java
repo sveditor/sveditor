@@ -321,12 +321,12 @@ public class SVExprUtils {
 				ret = true;
 				ps.print("\"" + ((SVDBStringExpr)expr).getContent() + "\"");
 				break;
-			
+				
 			default:
 				try {
 					throw new Exception();
 				} catch (Exception e) {
-					fLog.error("Unhandled expr in expr_to_string: " + expr.getType(), e);
+					fLog.debug("Unhandled expr in expr_to_string: " + expr.getType(), e);
 				}
 				break;
 		}
