@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 public interface ISVDBFileSystemProvider {
@@ -53,7 +54,11 @@ public interface ISVDBFileSystemProvider {
 	
 	InputStream openStream(String path);
 	
+	OutputStream openStreamWrite(String path);
+	
 	void closeStream(InputStream in);
+	
+	void closeStream(OutputStream in);
 	
 	long getLastModifiedTime(String path);
 	

@@ -14,8 +14,10 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -315,6 +317,15 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			e.printStackTrace();
 		}
 	}
+	
+	public void closeStream(OutputStream out) {
+		try {
+			if (out != null) {
+				out.close();
+			}
+		} catch (IOException e) {
+		}
+	}
 
 	public InputStream openStream(String path) {
 		InputStream ret = null;
@@ -353,6 +364,30 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 		} else {
 			try {
 				ret = new FileInputStream(path);
+			} catch (IOException e) {}
+		}
+		
+		return ret;
+	}
+
+	public OutputStream openStreamWrite(String path) {
+		OutputStream ret = null;
+		
+		if (path.startsWith("${workspace_loc}")) {
+			path = path.substring("${workspace_loc}".length());
+			
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
+			try {
+				IFile file = root.getFile(new Path(path));
+				ret = new SVDBWSFileSystemOutputStream(file);
+			} catch (IllegalArgumentException e) {
+				// Ensure this doesn't propagate up
+//				fLog.error("Badly-formed path: " + path, e);
+			}
+		} else {
+			try {
+				ret = new FileOutputStream(path);
 			} catch (IOException e) {}
 		}
 		

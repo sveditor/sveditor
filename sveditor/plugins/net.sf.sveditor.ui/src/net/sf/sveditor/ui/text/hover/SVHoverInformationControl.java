@@ -5,22 +5,24 @@ import net.sf.sveditor.ui.editor.SVColorManager;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.DefaultInformationControl;
-import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IInformationControlExtension2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+/**
+ * This has a very very very very long description that is unlikely to fit in a hover box. Does it get wrapped? How about now? This is much much much longer now
+ * @author ballance
+ *
+ */
 public class SVHoverInformationControl extends DefaultInformationControl 
 		implements IInformationControlExtension2, KeyListener {
 	IInformationControlCreator						fCreator;
@@ -151,7 +153,6 @@ public class SVHoverInformationControl extends DefaultInformationControl
 			e.doit = false;
 		}
 		if (e.keyCode == SWT.TAB) {
-			System.out.println("TAB");
 			if (fInput != null) {
 				setInformation(fInput.next());
 			}

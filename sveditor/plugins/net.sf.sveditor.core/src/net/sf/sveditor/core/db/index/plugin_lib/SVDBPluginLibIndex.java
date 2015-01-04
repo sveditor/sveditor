@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index.plugin_lib;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,12 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 			in.close();
 		} catch (IOException e) {}
 	}
+	
+	public void closeStream(OutputStream out) {
+		try {
+			out.close();
+		} catch (IOException e) {}
+	}
 
 	public boolean fileExists(String path) {
  		if (path.startsWith("plugin:/")) {
@@ -160,6 +167,10 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 		}
 		
 		return ret;
+	}
+	
+	public OutputStream openStreamWrite(String path) {
+		return null;
 	}
 	
 	public long getLastModifiedTime(String file) {

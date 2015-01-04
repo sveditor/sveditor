@@ -321,6 +321,11 @@ public class SVOutlinePage extends ContentOutlinePage
 				// Find the corresponding path
 				lookupPath(fContent.getFile(), path.iterator(), target_path);
 			}
+	
+			// Null path items cause a failure in the TreePath constructor
+			if (target_path.contains(null)) {
+				continue;
+			}
 			
 			if (target_path.size() > 0) {
 				exp_tree_paths.add(new TreePath(target_path.toArray()));

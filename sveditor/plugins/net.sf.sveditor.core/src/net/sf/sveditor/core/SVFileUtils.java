@@ -86,6 +86,17 @@ public class SVFileUtils {
 		return leaf;
 	}
 	
+	public static String getPathExt(String path) {
+		String leaf = getPathLeaf(path);
+		int idx;
+		
+		if (leaf != null && (idx = leaf.lastIndexOf('.')) != -1) {
+			return leaf.substring(idx+1);
+		} else {
+			return null;
+		}
+	}
+	
 	public static String getPathFirstElem(String path) {
 		String first = path;
 		int idx;

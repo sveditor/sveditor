@@ -21,7 +21,7 @@ public class SVDocInformationPresenter implements DefaultInformationControl.IInf
 		HTML2TextReader rdr = new HTML2TextReader(
 				new StringReader(hoverInfo), presentation);
 		String ret = hoverInfo;
-		
+	
 		try {
 			ret = rdr.getString();
 			rdr.close();
@@ -30,9 +30,12 @@ public class SVDocInformationPresenter implements DefaultInformationControl.IInf
 		return ret;									
 	}
 
-	public String updatePresentation(Display display, String hoverInfo,
-			TextPresentation presentation, int maxWidth, int maxHeight) {
-		System.out.println("updatePresentation(2)");
+	public String updatePresentation(
+			Display display, 
+			String hoverInfo,
+			TextPresentation presentation, 
+			int maxWidth, 
+			int maxHeight) {
 		// TODO Auto-generated method stub
 		HTML2TextReader rdr = new HTML2TextReader(
 				new StringReader(hoverInfo), presentation);

@@ -215,6 +215,12 @@
             wizardId="net.sf.sveditor.ui.svMethodologyClassWizard">
          <enablement></enablement>
       </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVFilelist">
+         <enablement></enablement>
+      </commonWizard>
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"
@@ -750,6 +756,19 @@
             id="net.sf.sveditor.ui.newSVModuleWizard"
             name="SystemVerilog Module"
             project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="true"
+            category="net.sf.sveditor.ui.svNewWizards"
+            class="net.sf.sveditor.ui.wizards.new_filelist.NewFileListWizard"
+            hasPages="true"
+            icon="icons/eview16/configs.gif"
+            id="net.sf.sveditor.ui.newSVFilelist"
+            name="SystemVerilog Filelist"
+            project="false">
+         <description>
+            Creates a new SystemVerilog filelist (argument file). Provides the option to initialize this file from files discovered in user-specified directories
+         </description>
       </wizard>      
    </extension>
    <extension
@@ -1147,6 +1166,9 @@ endclass
             class="net.sf.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportWizard"
             id="net.sf.sveditor.ui.compilationArgWizard"
             name="Compilation Arguments">
+         <description>
+            Creates a filelist (argument file) by running a compilation command and capturing the paths and arguments specified to vendor tools such as vlog, ncvlog, and vcs
+         </description>
       </wizard>
       <wizard
             category="net.sf.sveditor.ui.importWizardCategory"

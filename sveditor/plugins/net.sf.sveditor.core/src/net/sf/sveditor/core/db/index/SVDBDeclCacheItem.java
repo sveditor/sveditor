@@ -122,26 +122,33 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 					if (fLog == null) {
 						fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
 					}
+					Exception e = null;
+					try { throw new Exception(); } catch (Exception e2) { e = e2; }
 					fLog.error("Error: Failed to find item name=" + fName + 
 							" type=" + fType + " in file=" + fFileName + 
-							" (isFileTreeItem=" + fIsFileTreeItem + ")");
+							" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 				}
 			} else {
 				if (fLog == null) {
 					fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
 				}
+				Exception e = null;
+				try { throw new Exception(); } catch (Exception e2) { e = e2; }
 				fLog.error("Error: Failed to file=" + fFileName + " in cache " +
 						"while looking for item name=" + fName + " type=" + 
-						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")");
+						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 			}
 		} else {
 			// FIXME: should we also warn or generate an error here?
 			if (fLog == null) {
 				fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
 			}
+			Exception e = null;
+			try { throw new Exception(); } catch (Exception e2) { e = e2; }
+			
 			fLog.error("Error: 'parent' is null while looking for item " +
 					"name=" + fName + " type=" + fType + " in file=" + fFileName +
-					" (isFileTreeItem=" + fIsFileTreeItem + ")");
+					" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 		}
 		
 		return ret;

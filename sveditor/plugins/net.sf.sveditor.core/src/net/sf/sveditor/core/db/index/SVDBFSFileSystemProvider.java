@@ -14,8 +14,10 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,12 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		} catch (IOException e) {}
 	}
 
+	public void closeStream(OutputStream out) {
+		try {
+			out.close();
+		} catch (IOException e) {}
+	}
+	
 	public boolean fileExists(String path) {
 		File f = new File(path);
 		return f.isFile();
@@ -83,6 +91,16 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 		return in;
 	}
 
+	public OutputStream openStreamWrite(String path) {
+		OutputStream out = null;
+		
+		try {
+			out = new FileOutputStream(path);
+		} catch (IOException e) { }
+		
+		return out;
+	}
+	
 	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {
 		// TODO Auto-generated method stub
 		

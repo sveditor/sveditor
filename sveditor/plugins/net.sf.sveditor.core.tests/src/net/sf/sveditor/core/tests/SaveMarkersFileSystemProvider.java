@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +66,10 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 	public void closeStream(InputStream in) {
 		fFSProvider.closeStream(in);
 	}
+	
+	public void closeStream(OutputStream out) {
+		fFSProvider.closeStream(out);
+	}
 
 	public void dispose() {
 		fFSProvider.dispose();
@@ -92,6 +97,10 @@ public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 
 	public InputStream openStream(String path) {
 		return fFSProvider.openStream(path);
+	}
+	
+	public OutputStream openStreamWrite(String path) {
+		return fFSProvider.openStreamWrite(path);
 	}
 
 	public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {

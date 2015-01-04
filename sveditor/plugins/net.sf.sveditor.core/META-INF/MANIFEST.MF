@@ -21,6 +21,7 @@ Eclipse-LazyStart: true
 Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.argcollector,
  net.sf.sveditor.core.argfile.content_assist,
+ net.sf.sveditor.core.argfile.creator,
  net.sf.sveditor.core.argfile.filter,
  net.sf.sveditor.core.argfile.open_decl,
  net.sf.sveditor.core.argfile.parser,

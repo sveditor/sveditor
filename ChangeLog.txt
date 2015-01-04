@@ -1,6 +1,8 @@
 
 -- 1.6.9 Release --
 
+- #(enh) - Add a New Filelist wizard that supports creating a new argument
+  file -- either completely blank or pre-populated with existing source paths
 
 ------------------------------------------------------------------------------
 -- 1.6.8 Release --

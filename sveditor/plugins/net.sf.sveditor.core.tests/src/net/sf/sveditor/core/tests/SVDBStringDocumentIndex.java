@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 					return null;
 				}
 			}
+			public OutputStream openStreamWrite(String path) { return null; }
 			public boolean fileExists(String path) {
 				return path.equals("ROOT");
 			}
@@ -50,6 +52,7 @@ public class SVDBStringDocumentIndex extends SVDBLibIndex {
 			public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
 			public void dispose() {}
 			public void closeStream(InputStream in) {}
+			public void closeStream(OutputStream out) {}
 			public void clearMarkers(String path) {}
 			public void addMarker(String path, String type, int lineno, String msg) {}
 			public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {}
