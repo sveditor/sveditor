@@ -1,4 +1,7 @@
 
+-- 1.7.0 Release --
+
+------------------------------------------------------------------------------
 -- 1.6.9 Release --
 
 - #(enh) - Add a New Filelist wizard that supports creating a new argument
