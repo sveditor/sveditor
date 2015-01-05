@@ -8,6 +8,8 @@ import net.sf.sveditor.ui.WorkspaceDirectoryTreeViewer;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -66,10 +68,21 @@ public class NewFileListWizardFirstPage extends WizardPage {
 	public void init(IStructuredSelection sel) {
 		fInitialSel = null;
 		if (sel != null && !sel.isEmpty()) {
-			if (sel.getFirstElement() instanceof IContainer) {
-				fInitialSel = (IContainer)sel.getFirstElement();
-			} else if (sel.getFirstElement() instanceof IFile) {
-				fInitialSel = ((IFile)sel.getFirstElement()).getParent();
+			Object r_obj = sel.getFirstElement();
+			IResource r = null;
+			
+			if (r_obj instanceof IResource) {
+				r = (IResource)r_obj;
+			} else if (r_obj instanceof IAdaptable) {
+				r = (IResource)((IAdaptable)r_obj).getAdapter(IResource.class);
+			}
+		
+			if (r != null) {
+				if (r instanceof IContainer) {
+					fInitialSel = (IContainer)sel.getFirstElement();
+				} else if (r instanceof IFile) {
+					fInitialSel = ((IFile)sel.getFirstElement()).getParent();
+				}
 			}
 		}
 		

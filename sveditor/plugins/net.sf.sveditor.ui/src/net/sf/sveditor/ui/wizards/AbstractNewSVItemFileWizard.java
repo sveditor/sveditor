@@ -21,6 +21,7 @@ import net.sf.sveditor.ui.SVEditorUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -46,9 +47,17 @@ abstract public class AbstractNewSVItemFileWizard extends BasicNewResourceWizard
 		
 		fPage = createPage();
 		Object sel = getSelection().getFirstElement();
-		if (sel != null && sel instanceof IResource) {
-			IResource r = (IResource)sel;
-			
+		IResource r = null;
+		
+		if (sel != null) {
+			if (sel instanceof IResource) {
+				r = (IResource)sel;
+			} else if (sel instanceof IAdaptable) {
+				r = (IResource)((IAdaptable)sel).getAdapter(IResource.class);
+			}
+		}
+		
+		if (r != null) {
 			if (!(r instanceof IContainer)) {
 				r = r.getParent();
 			}

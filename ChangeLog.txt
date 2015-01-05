@@ -1,6 +1,11 @@
 
 -- 1.7.0 Release --
 
+- #(nobug) - Correct an integration bug that could cause the new-XXX wizards, 
+  such as the New SV Class wizard to not properly populate the destination
+  directory field from the current selection. This occurred when the destination
+  folder was managed by the C/C++ Development Tools plug-ins.
+
 ------------------------------------------------------------------------------
 -- 1.6.9 Release --
 
