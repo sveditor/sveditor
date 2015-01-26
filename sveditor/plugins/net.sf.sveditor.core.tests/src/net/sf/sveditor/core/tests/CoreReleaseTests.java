@@ -35,6 +35,7 @@ import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 import net.sf.sveditor.core.tests.index.refs.IndexRefTests;
 import net.sf.sveditor.core.tests.job_mgr.JobMgrTests;
+import net.sf.sveditor.core.tests.logscanner.LogScannerTests;
 import net.sf.sveditor.core.tests.open_decl.OpenDeclTests;
 import net.sf.sveditor.core.tests.parser.ParserTests;
 import net.sf.sveditor.core.tests.preproc.PreProcTests;
@@ -85,6 +86,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(IndexTests.suite());
 //		addTest(IndexCacheTests.suite());
 		addTest(SrcGenTests.suite());
+		addTest(LogScannerTests.suite());
 		addTest(OpenDeclTests.suite());
 		addTest(PrimitivesTests.suite());
 		addTest(new TestSuite(FileSetTests.class));

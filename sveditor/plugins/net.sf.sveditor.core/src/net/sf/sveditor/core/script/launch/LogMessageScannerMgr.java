@@ -9,11 +9,17 @@ public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListene
 	private String							fWorkingDir;
 	private List<ILogMessageScanner>		fScanners;
 	private List<ScriptMessage>				fMessages;
+	private List<ILogMessageListener>		fMessageListeners;
 	
 	public LogMessageScannerMgr(String working_dir) {
 		fWorkingDir = working_dir;
 		fScanners = new ArrayList<ILogMessageScanner>();
 		fMessages = new ArrayList<ScriptMessage>();
+		fMessageListeners = new ArrayList<ILogMessageListener>();
+	}
+	
+	public void addMessageListener(ILogMessageListener l) {
+		fMessageListeners.add(l);
 	}
 	
 	public void addScanner(ILogMessageScanner scanner) {
@@ -41,7 +47,13 @@ public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListene
 
 	@Override
 	public void addMessage(ScriptMessage msg) {
-		fMessages.add(msg);
+		if (fMessageListeners.size() > 0) {
+			for (int i=0; i<fMessageListeners.size(); i++) {
+				fMessageListeners.get(i).message(msg);
+			}
+		} else {
+			fMessages.add(msg);
+		}
 	}
 
 	@Override

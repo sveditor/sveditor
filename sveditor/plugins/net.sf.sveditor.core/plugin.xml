@@ -105,7 +105,7 @@
    </extension>
    <extension
          id="problem"
-         name="SVEditor Problem Marker"
+         name="SVE Index Problem"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">
@@ -163,7 +163,7 @@
    </extension>
    <extension
          id="svScriptProblem"
-         name="SVEditor Script Marker"
+         name="SVE Script Problem"
          point="org.eclipse.core.resources.markers">
       <super
             type="org.eclipse.core.resources.problemmarker">
@@ -195,6 +195,40 @@
             name="Questa Log Scanner"
             type="general">
       </LogMessageScanner>
+      <LogMessageScanner
+            class="net.sf.sveditor.core.script.launch.VerilatorLogMessageScanner"
+            id="net.sf.sveditor.core.verilatorLogScanner"
+            name="Verilator Log Scanner"
+            type="build">
+      </LogMessageScanner>
+      <LogMessageScanner
+            class="net.sf.sveditor.core.script.launch.MakefileLogMessageScanner"
+            id="net.sf.sveditor.core.makeLogScanner"
+            name="Make Log Scanner"
+            type="build">
+      </LogMessageScanner>
+      <LogMessageScanner
+            class="net.sf.sveditor.core.script.launch.GccLogMessageScanner"
+            id="net.sf.sveditor.core.gccLogScanner"
+            name="GCC Log Scanner"
+            type="build">
+      </LogMessageScanner>
+   </extension>
+   <extension
+         id="svProblem"
+         name="SVE Script SV Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="net.sf.sveditor.core.svScriptProblem">
+      </super>
+   </extension>
+   <extension
+         id="gccProblem"
+         name="SVE Script GCC Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="net.sf.sveditor.core.svScriptProblem">
+      </super>
    </extension>
 
 

@@ -6,7 +6,8 @@ public class ScriptMessage {
 		Warning,
 		Error
 	}
-	
+
+	private String				fMarkerType;
 	private String				fMessage;
 	private String				fDescription;
 	private String				fPath;
@@ -22,6 +23,15 @@ public class ScriptMessage {
 		fLineno = lineno;
 		fMessage = message;
 		fType = type;
+		fMarkerType = null;
+	}
+	
+	public void setMarkerType(String type) {
+		fMarkerType = type;
+	}
+	
+	public String getMarkerType() {
+		return fMarkerType;
 	}
 	
 	public String getMessage() {

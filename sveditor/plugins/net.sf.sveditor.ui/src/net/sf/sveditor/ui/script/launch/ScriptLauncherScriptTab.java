@@ -5,6 +5,7 @@ import java.io.File;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.script.launch.BuildScriptLauncherConstants;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
+import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
@@ -21,10 +22,17 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
 public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab implements BuildScriptLauncherConstants {
+
+	private String								fScript;
+	private Text								fScriptText;
+	
+	private Button								fScriptBrowseWS;
+	private Button								fScriptBrowseFS;
 	
 	private String								fWorkingDir;
 	private Text								fWorkingDirText;
@@ -45,6 +53,25 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		Composite top = new Composite(parent, SWT.NONE);
 		top.setLayout(new GridLayout());
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		Group script_group = new Group(top, SWT.SHADOW_ETCHED_IN);
+		script_group.setText("Script");
+		script_group.setLayout(new GridLayout(2, false));
+		script_group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+		fScriptText = new Text(script_group, SWT.SINGLE+SWT.BORDER);
+		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		gd.horizontalSpan = 2;
+		fScriptText.setLayoutData(gd);
+		fScriptText.addModifyListener(modifyListener);
+		
+		fScriptBrowseWS = new Button(script_group, SWT.PUSH);
+		fScriptBrowseWS.setText("Browse Workspace...");
+		fScriptBrowseWS.addSelectionListener(scrSelectionListener);
+		
+		fScriptBrowseFS = new Button(script_group, SWT.PUSH);
+		fScriptBrowseFS.setText("Browse Filesystem...");
+		fScriptBrowseFS.addSelectionListener(scrSelectionListener);
 	
 		// Working Directory Group
 		Group wd_group = new Group(top, SWT.SHADOW_ETCHED_IN);
@@ -61,11 +88,11 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		
 		fWorkingDirBrowseWS = new Button(wd_group, SWT.PUSH);
 		fWorkingDirBrowseWS.setText("Browse Workspace...");
-		fWorkingDirBrowseWS.addSelectionListener(selectionListener);
+		fWorkingDirBrowseWS.addSelectionListener(wdSelectionListener);
 		
 		fWorkingDirBrowseFS = new Button(wd_group, SWT.PUSH);
 		fWorkingDirBrowseFS.setText("Browse Filesystem...");
-		fWorkingDirBrowseFS.addSelectionListener(selectionListener);
+		fWorkingDirBrowseFS.addSelectionListener(wdSelectionListener);
 		
 		// Script Arguments
 		Group args_group = new Group(top, SWT.SHADOW_ETCHED_IN);
@@ -76,7 +103,6 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		fArgumentsText = new Text(args_group, SWT.MULTI+SWT.BORDER);
 		fArgumentsText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fArgumentsText.addModifyListener(modifyListener);
-		
 		
 		setControl(top);
 	}
@@ -91,6 +117,9 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 	@Override
 	public void initializeFrom(ILaunchConfiguration configuration) {
 		try {
+			fScript = configuration.getAttribute(SCRIPT_LIST, "");
+			fScriptText.setText(fScript);
+			
 			fWorkingDir = configuration.getAttribute(WORKING_DIR, System.getProperty("user.dir"));
 			fWorkingDirText.setText(fWorkingDir);
 			
@@ -103,6 +132,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+		configuration.setAttribute(SCRIPT_LIST, fScript);
 		configuration.setAttribute(WORKING_DIR, fWorkingDir);
 		configuration.setAttribute(ARGUMENTS, fArguments);
 	}
@@ -121,7 +151,23 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 	public boolean isValid(ILaunchConfiguration launchConfig) {
 		setErrorMessage(null);
 		setMessage(null);
+	
+		String scr = fScriptText.getText();
 		
+		if (scr.trim().equals("")) {
+			if (getErrorMessage() == null) {
+				setErrorMessage("Must specify a script");
+			}
+		} else {
+			File script_f = SVFileUtils.getFile(scr.trim());
+			
+			if (!script_f.isFile()) {
+				if (getErrorMessage() == null) {
+					setErrorMessage("Script " + scr + " does not exist");
+				}
+			}
+		}
+
 		String wd = fWorkingDirText.getText();
 		if (wd.trim().equals("")) {
 			if (getErrorMessage() == null) {
@@ -150,6 +196,8 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 				fWorkingDir = fWorkingDirText.getText().trim();
 			} else if (src == fArgumentsText) {
 				fArguments = fArgumentsText.getText();
+			} else if (src == fScriptText) {
+				fScript = fScriptText.getText();
 			}
 		
 			setDirty(true);
@@ -157,7 +205,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		}
 	};
 	
-	private SelectionListener			selectionListener = new SelectionListener() {
+	private SelectionListener			wdSelectionListener = new SelectionListener() {
 		
 		@Override
 		public void widgetSelected(SelectionEvent e) {
@@ -180,5 +228,29 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) { }
 	};
+	
+	private SelectionListener			scrSelectionListener = new SelectionListener() {
+		
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			if (e.getSource() == fScriptBrowseWS) {
+				WorkspaceFileDialog dlg = new WorkspaceFileDialog(fScriptBrowseWS.getShell());
+				if (dlg.open() == Window.OK) {
+					fScriptText.setText("${workspace_loc}" + dlg.getPath());
+				}
+			} else if (e.getSource() == fScriptBrowseFS) {
+				FileDialog dlg = new FileDialog(fScriptBrowseFS.getShell());
+				
+				String path = dlg.open();
+				
+				if (path != null && !path.trim().equals("")) {
+					fScriptText.setText(path);
+				}
+			}
+		}
+		
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) { }
+	};	
 
 }

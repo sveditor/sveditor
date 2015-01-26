@@ -395,6 +395,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 		return fConsole;
 	}
 	
+	
 	public ContextTypeRegistry getContextTypeRegistry() {
 		if (fContextRegistry == null) {
 			fContextRegistry = new ContributionContextTypeRegistry();

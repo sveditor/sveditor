@@ -9,6 +9,7 @@ import net.sf.sveditor.core.ILineListener;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -53,6 +54,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		
 		fScannerMgr = new LogMessageScannerMgr(wd);
 
+
 		if (scanners != null && scanners.length() > 0) {
 			for (String id : scanners.split(",")) {
 				id = id.trim();
@@ -89,7 +91,65 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		root.deleteMarkers(SVScriptProblem.ID, true, IResource.DEPTH_INFINITE);
 	
 		File wd_f = SVFileUtils.getFile(wd);
+		
+		if (script.startsWith("${workspace_loc}")) {
+			script = SVFileUtils.getWorkspaceResource(script).getLocation().toOSString();
+		}
 		List<String> argv = parse_arguments(args_str);
+		
+		argv.add(0, script);
+	
+		for (int i=0; i<argv.size(); i++) {
+			String arg = argv.get(i);
+			
+			if (arg.startsWith("${workspace_loc}")) {
+				arg = SVFileUtils.getWorkspaceResource(arg).getLocation().toOSString();
+			}
+			
+			argv.set(i, arg);
+		}
+		
+		fScannerMgr.addMessageListener(new ILogMessageListener() {
+			
+			@Override
+			public void message(ScriptMessage msg) {
+				String path = msg.getPath();
+				IFile file[] = SVFileUtils.findWorkspaceFiles(path);
+
+				// Skip infos for now
+				if (msg.getType() != MessageType.Note) {
+					if (file != null && file.length > 0) {
+						for (IFile f : file) {
+							try {
+								String mt = msg.getMarkerType();
+								
+								if (mt == null) {
+									mt = SVScriptProblem.ID;
+								}
+								
+								IMarker m = f.createMarker(mt);
+								
+								switch (msg.getType()) {
+									case Error:
+										m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+										break;
+									case Warning:
+										m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+										break;
+									case Note:
+										m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+										break;
+								}
+								m.setAttribute(IMarker.LINE_NUMBER, msg.getLineno());
+								m.setAttribute(IMarker.MESSAGE, msg.getMessage());
+							} catch (CoreException e) {
+								//
+							}
+						}
+					}
+				}
+			}
+		});		
 		
 		try {
 			int code = runner.run(argv, null, wd_f);
@@ -101,37 +161,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			fLog.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
-		
-		// Create markers for any paths in the workspace
-		for (ScriptMessage msg : fScannerMgr.getMessages()) {
-			String path = msg.getPath();
-			IFile file[] = SVFileUtils.findWorkspaceFiles(path);
-			
-			// Skip infos for now
-			if (msg.getType() == MessageType.Note) {
-				continue;
-			}
-			
-			if (file != null && file.length > 0) {
-				for (IFile f : file) {
-					IMarker m = f.createMarker(SVScriptProblem.ID);
-					switch (msg.getType()) {
-						case Error:
-							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-							break;
-						case Warning:
-							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-							break;
-						case Note:
-							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
-							break;
-					}
-					m.setAttribute(IMarker.LINE_NUMBER, msg.getLineno());
-					m.setAttribute(IMarker.MESSAGE, msg.getMessage());
-				}
-			}
-		}
-		
+
 		// Finally, refresh if needed
 		IContainer f = SVFileUtils.findWorkspaceFolder(wd_f.getAbsolutePath());
 		if (f != null && f.exists()) {
