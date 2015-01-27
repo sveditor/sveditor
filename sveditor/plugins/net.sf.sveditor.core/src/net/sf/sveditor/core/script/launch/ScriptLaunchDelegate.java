@@ -2,6 +2,7 @@ package net.sf.sveditor.core.script.launch;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,6 @@ import net.sf.sveditor.core.ILineListener;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
-import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
@@ -19,11 +19,14 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.variables.IStringVariableManager;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
@@ -32,6 +35,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 	private List<ILogMessageScanner>			fScanners;
 	private LogMessageScannerMgr				fScannerMgr;
 	private LogHandle							fLog;
+	private PrintStream							fSaveOutput;
 
 	public ScriptLaunchDelegate() {
 		// TODO Auto-generated constructor stub
@@ -50,10 +54,10 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		String wd = configuration.getAttribute(BuildScriptLauncherConstants.WORKING_DIR, System.getProperty("user.dir"));
 		String args_str = configuration.getAttribute(BuildScriptLauncherConstants.ARGUMENTS, "");
 		String scanners = configuration.getAttribute(BuildScriptLauncherConstants.SCANNERS, "");
+		String save_output_file = configuration.getAttribute("org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE", (String)null);
 		ScriptMessageScannerRegistry rgy = new ScriptMessageScannerRegistry();
 		
 		fScannerMgr = new LogMessageScannerMgr(wd);
-
 
 		if (scanners != null && scanners.length() > 0) {
 			for (String id : scanners.split(",")) {
@@ -81,6 +85,19 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		}
 		
 		monitor.beginTask("Running " + script, 1000);
+		
+		if (save_output_file != null) {
+			try {
+				IStringVariableManager vman = VariablesPlugin.getDefault().getStringVariableManager();
+				save_output_file = vman.performStringSubstitution(save_output_file);
+			} catch (CoreException e) { 
+				save_output_file = null;
+			}
+			
+			if (save_output_file != null) {
+				
+			}
+		}
 	
 		ScriptRunner runner = new ScriptRunner();
 	
@@ -163,6 +180,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		}
 
 		// Finally, refresh if needed
+		// TODO: This should probably be optional
 		IContainer f = SVFileUtils.findWorkspaceFolder(wd_f.getAbsolutePath());
 		if (f != null && f.exists()) {
 			f.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
