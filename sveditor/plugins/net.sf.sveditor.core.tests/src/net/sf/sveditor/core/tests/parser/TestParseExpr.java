@@ -374,6 +374,19 @@ public class TestParseExpr extends TestCase {
 		runTest(getName(), content, new String[] {"c", "foo"});
 	}
 	
+	public void testSignedLiterals() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module top;\n" +
+			"	assign coeffs[0] = { 8'sd64, 8'sd0 , 8'sd0 , 8'sd0 , 8'sd0 , 8'sd0 , 8'sd0 , 8'sd0 };\n" +
+			"	initial begin\n" +
+			"		var1 <= var2 + 5'sd8;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		runTest(getName(), content, new String[] {"top"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

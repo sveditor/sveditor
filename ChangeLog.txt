@@ -4,6 +4,11 @@
 - #(enh) - Add support for matching-brace navigation. Positioning the cursor 
   on a bracket ( (), {}, [] ) or begin/end keyword and selecting
   CTRL+SHIFT+P moves the cursor to the matching bracket.
+  
+- #(359) - Correct a parse bug with sized, based, signed literals. 
+  Example: 8'sd128
+  
+ 
 
 ------------------------------------------------------------------------------
 -- 1.7.0 Release --

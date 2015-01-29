@@ -748,6 +748,7 @@ public class SVLexer extends SVToken {
 					// unbased_unsigned_literal
 					// nothing more to do
 					append_ch(ch2);
+					System.out.println("  isUnbasedUnsizedLiteralChar");
 				} else if (isBaseChar(ch2)) {
 					ch = readBasedNumber(ch2);
 					fScanner.unget_ch(ch);
@@ -1052,14 +1053,25 @@ public class SVLexer extends SVToken {
 
 			if (ch == '\'') {
 				int ch2 = fScanner.get_ch();
-				int ch2_l;
-				if ((ch2_l = Character.toLowerCase(ch2)) == 'o' ||
-						ch2_l == 'h' || ch2_l == 'b' || ch2_l == 'd') {
+				
+				if (ch2 == 's' || ch == 'S') {
 					append_ch(ch);
+					
+					append_ch(ch2);
+					ch2 = fScanner.get_ch();
+					if (!isBaseChar(ch2)) {
+						error("Unknown base digit " + (char)ch2);
+					}
+
 					ch = readBasedNumber(ch2);
 				} else {
-					// Likely an integer cast
-					fScanner.unget_ch(ch2);
+					if (isBaseChar(ch2)) {
+						append_ch(ch);
+						ch = readBasedNumber(ch2);
+					} else {
+						// Likely an integer cast
+						fScanner.unget_ch(ch2);
+					}
 				}
 			} else {
 				// Really just a decimal number. Insert the
