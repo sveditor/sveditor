@@ -12,9 +12,9 @@
 
 package net.sf.sveditor.core.tests.parser;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.parser.SVParseException; 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.parser.SVParseException;
 
 public class TestParseAssertions extends TestCase {
 	
@@ -263,6 +263,26 @@ public class TestParseAssertions extends TestCase {
 			"\n" +
 			"endmodule\n"
 			;
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"t"});
+	}
+	
+	/**
+	 * Generic testcase we can dump bug reports into
+	 * @throws SVParseException
+	 */
+	public void testBugList() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = getName();
+		String doc =
+				"module t;\n" +
+				"	// Bug #358 Nested brackets, in property returns \"null property\"\n" +
+				"	property some_prop ();\n" +
+				"		@(posedge clk)\n" +
+				"			$rose(write) |-> ((mode == 1'b1));\n" +
+				"	endproperty:some_prop\n" +
+				"endmodule\n"
+						;
 		ParserTests.runTestStrDoc(testname, doc, 
 				new String[] {"t"});
 	}
