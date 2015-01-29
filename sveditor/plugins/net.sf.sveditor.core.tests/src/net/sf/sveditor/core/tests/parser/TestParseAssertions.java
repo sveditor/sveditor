@@ -286,4 +286,20 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, 
 				new String[] {"t"});
 	}
+	
+	public void testPastExpression() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module top;\n" +
+			"	always @*\n" +
+			"	begin\n" +
+			"		if ($past(reset,1,,@(posedge i_tmr_clk))) begin\n" +
+			"			thing <= 1'b0;\n" +
+			"		end\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
 }

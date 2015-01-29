@@ -748,7 +748,6 @@ public class SVLexer extends SVToken {
 					// unbased_unsigned_literal
 					// nothing more to do
 					append_ch(ch2);
-					System.out.println("  isUnbasedUnsizedLiteralChar");
 				} else if (isBaseChar(ch2)) {
 					ch = readBasedNumber(ch2);
 					fScanner.unget_ch(ch);

@@ -7,7 +7,8 @@
   
 - #(359) - Correct a parse bug with sized, based, signed literals. 
   Example: 8'sd128
-  
+
+- #(360) - Correct a parse bug with specifying clocking events to the $past task  
  
 
 ------------------------------------------------------------------------------
