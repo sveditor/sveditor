@@ -384,6 +384,11 @@
             id="net.sf.sveditor.ui.open.super.method"
             name="Open Super Method">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.gotoMatchingBracket"
+            name="Goto Matching Bracket">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -458,6 +463,12 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+SHIFT+T">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.gotoMatchingBracket"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+P">
       </key>
    </extension>
    <extension

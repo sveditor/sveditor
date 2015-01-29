@@ -1,6 +1,10 @@
 
 -- 1.7.1 Release --
 
+- #(enh) - Add support for matching-brace navigation. Positioning the cursor 
+  on a bracket ( (), {}, [] ) or begin/end keyword and selecting
+  CTRL+SHIFT+P moves the cursor to the matching bracket.
+
 ------------------------------------------------------------------------------
 -- 1.7.0 Release --
 

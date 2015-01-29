@@ -63,6 +63,7 @@ import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
+import net.sf.sveditor.ui.editor.actions.GotoMatchingBracketAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
@@ -790,6 +791,11 @@ public class SVEditor extends TextEditor
 				bundle, "SelPrevWordAction.", this);
 		sel_pw_action.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
 		setAction(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS, sel_pw_action);
+		
+		GotoMatchingBracketAction goto_mb_action = new GotoMatchingBracketAction(
+				bundle, "GotoMatchingBracket.", this);
+		goto_mb_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".gotoMatchingBracket");
+		setAction(SVUiPlugin.PLUGIN_ID + ".gotoMatchingBracket", goto_mb_action);
 		
 		// Add annotation-action
 		SVRulerAnnotationAction action = new SVRulerAnnotationAction(bundle, 
