@@ -138,7 +138,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 					match_expr.setSequenceAbbrev(sequence_abbrev());
 				}
 				
-//				ret = new SVDBParenExpr(p_expr);
+				ret = match_expr;
 				if (fDebugEn) {debug("  post SVDBParenExpr: " + fLexer.peek());}
 			}
 		} else if (fLexer.peekKeyword("not")) {

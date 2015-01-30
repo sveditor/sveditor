@@ -13,6 +13,8 @@
 - #(enh) - Enhance the Questa log parser to support multi-line messages. 
   Multi-line messages typically result when an error occurs in a file that is
   included by another file.
+  
+- #(358) - Correct a property-parse bug involving parenthesized property expressions
  
 
 ------------------------------------------------------------------------------
