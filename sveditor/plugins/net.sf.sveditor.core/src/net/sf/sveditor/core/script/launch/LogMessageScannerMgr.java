@@ -4,8 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.ILineListener;
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
-public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListener {
+public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListener,
+		ILogLevel {
+	private LogHandle						fLog;
 	private String							fWorkingDir;
 	private List<ILogMessageScanner>		fScanners;
 	private List<ScriptMessage>				fMessages;
@@ -16,6 +21,7 @@ public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListene
 		fScanners = new ArrayList<ILogMessageScanner>();
 		fMessages = new ArrayList<ScriptMessage>();
 		fMessageListeners = new ArrayList<ILogMessageListener>();
+		fLog = LogFactory.getLogHandle("LogMessageScannerMgr");
 	}
 	
 	public void addMessageListener(ILogMessageListener l) {
@@ -47,6 +53,8 @@ public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListene
 
 	@Override
 	public void addMessage(ScriptMessage msg) {
+		fLog.debug(LEVEL_MID, "addMessage: " + msg.getMarkerType() + " " +
+				msg.getPath() + ":" + msg.getLineno() + " " + msg.getMessage());
 		if (fMessageListeners.size() > 0) {
 			for (int i=0; i<fMessageListeners.size(); i++) {
 				fMessageListeners.get(i).message(msg);
@@ -73,6 +81,14 @@ public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListene
 				if (!s.providesDirectory()) {
 					s.line(l);
 				}
+			}
+		}
+	}
+	
+	public void close() {
+		synchronized (fScanners) {
+			for (ILogMessageScanner s : fScanners) {
+				s.close();
 			}
 		}
 	}

@@ -67,6 +67,9 @@ public class MakefileLogMessageScanner implements ILogMessageScanner {
 		fPathStack.clear();
 		fPathStack.push(fMgr.getWorkingDirectory());
 	}
+	
+	@Override
+	public void close() { }
 
 	@Override
 	public boolean providesDirectory() {

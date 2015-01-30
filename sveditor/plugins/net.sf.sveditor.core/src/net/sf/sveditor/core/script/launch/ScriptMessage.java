@@ -26,6 +26,11 @@ public class ScriptMessage {
 		fMarkerType = null;
 	}
 	
+	public boolean isValid() {
+		return (fPath != null && fMessage != null &&
+				fLineno != -1);
+	}
+	
 	public void setMarkerType(String type) {
 		fMarkerType = type;
 	}
@@ -36,6 +41,10 @@ public class ScriptMessage {
 	
 	public String getMessage() {
 		return fMessage;
+	}
+	
+	public void setMessage(String msg) {
+		fMessage = msg;
 	}
 	
 	public void setDescription(String d) {
@@ -50,8 +59,16 @@ public class ScriptMessage {
 		return fPath;
 	}
 	
+	public void setPath(String path) {
+		fPath = path;
+	}
+	
 	public int getLineno() {
 		return fLineno;
+	}
+	
+	public void setLineno(int lineno) {
+		fLineno = lineno;
 	}
 	
 	public MessageType getType() {

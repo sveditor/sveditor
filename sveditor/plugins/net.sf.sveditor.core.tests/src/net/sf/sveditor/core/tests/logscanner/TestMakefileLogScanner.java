@@ -17,6 +17,7 @@ public class TestMakefileLogScanner extends SVCoreTestCaseBase {
 	
 	public void testBasicDirectoryChange() {
 		fScannerMgr.line("make: Entering directory '/scratch/other/foo'");
+		fScannerMgr.close();
 		
 		assertEquals("/scratch/other/foo", fScannerMgr.getWorkingDirectory());
 		
@@ -31,6 +32,7 @@ public class TestMakefileLogScanner extends SVCoreTestCaseBase {
 	
 	public void testBasicDirectoryChange2() {
 		fScannerMgr.line("make[1]: Entering directory '/scratch/other/foo'");
+		fScannerMgr.close();
 		
 		assertEquals("/scratch/other/foo", fScannerMgr.getWorkingDirectory());
 		

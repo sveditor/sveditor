@@ -68,6 +68,9 @@ public class VerilatorLogMessageScanner implements ILogMessageScanner {
 	public void init(ILogMessageScannerMgr mgr) {
 		fMgr = mgr;
 	}
+	
+	@Override
+	public void close() { }
 
 	@Override
 	public boolean providesDirectory() {

@@ -8,7 +8,11 @@
 - #(359) - Correct a parse bug with sized, based, signed literals. 
   Example: 8'sd128
 
-- #(360) - Correct a parse bug with specifying clocking events to the $past task  
+- #(360) - Correct a parse bug with specifying clocking events to the $past task
+
+- #(enh) - Enhance the Questa log parser to support multi-line messages. 
+  Multi-line messages typically result when an error occurs in a file that is
+  included by another file.
  
 
 ------------------------------------------------------------------------------

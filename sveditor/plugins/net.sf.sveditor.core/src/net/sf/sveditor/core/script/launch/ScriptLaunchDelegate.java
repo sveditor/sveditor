@@ -178,6 +178,9 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			fLog.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
+		
+		// Close down the listener
+		fScannerMgr.close();
 
 		// Finally, refresh if needed
 		// TODO: This should probably be optional

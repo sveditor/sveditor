@@ -10,11 +10,19 @@ import net.sf.sveditor.core.script.launch.ScriptMessage.MessageType;
 public class GccLogMessageScanner implements ILogMessageScanner {
 	private ILogMessageScannerMgr			fMgr;
 	private ISVDBFileSystemProvider			fFSProvider;
+	private ScriptMessage					fMultiLineMsg;
 	
 	public GccLogMessageScanner() {
 		fFSProvider = new SVDBFSFileSystemProvider();
 	}
-	
+
+	@Override
+	public void close() {
+		if (fMultiLineMsg != null) {
+			fMgr.addMessage(fMultiLineMsg);
+		}
+		fMultiLineMsg = null;
+	}
 
 	@Override
 	public void line(String l) {
