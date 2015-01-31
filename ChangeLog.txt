@@ -1,6 +1,9 @@
 
 -- 1.7.2 Release --
 
+- #(nobug) - Correct a bug in the SystemVerilog Template wizard. Now the 
+  destination folder is properly-populated when the selection is a CDT
+  project folder
 
 ------------------------------------------------------------------------------
 -- 1.7.1 Release --
