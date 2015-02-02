@@ -1634,6 +1634,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"specify\n" +
 			"if (someSig[0] == 1'b0)\n" +
 			"(CLK => Q[15])=(1.000, 1.000);\n" +
+			"if (someSig[0] == 1'b0)\n" +
+			"(CLK => Q[15])=(1.000, 1.000);\n" +
 			"endspecify\n" +
 			"endmodule\n"
 			;
@@ -1641,6 +1643,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 				"module m;\n" +
 				"\n" +
 				"	specify\n" +
+				"		if (someSig[0] == 1'b0)\n" +
+				"			(CLK => Q[15])=(1.000, 1.000);\n" +
 				"		if (someSig[0] == 1'b0)\n" +
 				"			(CLK => Q[15])=(1.000, 1.000);\n" +
 				"	endspecify\n" +
