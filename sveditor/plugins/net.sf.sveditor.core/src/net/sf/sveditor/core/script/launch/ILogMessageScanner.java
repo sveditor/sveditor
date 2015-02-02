@@ -13,4 +13,7 @@ public interface ILogMessageScanner extends ILineListener {
 	 */
 	boolean providesDirectory();
 
+	// Indicates the end of the log file
+	// Multi-line parsers can use this to propagate any trailing messages
+	void close();
 }

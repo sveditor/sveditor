@@ -1,5 +1,28 @@
 
+-- 1.7.2 Release --
+
+- #(nobug) - Correct a bug in the SystemVerilog Template wizard. Now the 
+  destination folder is properly-populated when the selection is a CDT
+  project folder
+
+------------------------------------------------------------------------------
 -- 1.7.1 Release --
+
+- #(enh) - Add support for matching-brace navigation. Positioning the cursor 
+  on a bracket ( (), {}, [] ) or begin/end keyword and selecting
+  CTRL+SHIFT+P moves the cursor to the matching bracket.
+  
+- #(359) - Correct a parse bug with sized, based, signed literals. 
+  Example: 8'sd128
+
+- #(360) - Correct a parse bug with specifying clocking events to the $past task
+
+- #(enh) - Enhance the Questa log parser to support multi-line messages. 
+  Multi-line messages typically result when an error occurs in a file that is
+  included by another file.
+  
+- #(358) - Correct a property-parse bug involving parenthesized property expressions
+ 
 
 ------------------------------------------------------------------------------
 -- 1.7.0 Release --

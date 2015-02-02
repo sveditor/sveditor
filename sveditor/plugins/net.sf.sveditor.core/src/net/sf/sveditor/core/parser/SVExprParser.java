@@ -405,6 +405,8 @@ public class SVExprParser extends SVParserBase {
 			expr.setTypeInfo(info);
 			
 			return expr;
+		} else if (fLexer.peekOperator("@")) {
+			return clocking_event();
 		} else {
 			return expression();
 		}

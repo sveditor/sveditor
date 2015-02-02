@@ -19,6 +19,7 @@ public class TestVerilatorLogScanner extends SVCoreTestCaseBase {
 	
 	public void testBasicWarningMessage() {
 		fScannerMgr.line("%Warning-WIDTH: /home/test/foo/test.sv:1: width is wrong");
+		fScannerMgr.close();
 		
 		assertEquals(1, fScannerMgr.getMessages().size());
 		ScriptMessage m = fScannerMgr.getMessages().get(0);

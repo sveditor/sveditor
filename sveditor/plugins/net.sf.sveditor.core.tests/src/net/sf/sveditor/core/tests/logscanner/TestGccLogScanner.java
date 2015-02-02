@@ -19,6 +19,7 @@ public class TestGccLogScanner extends SVCoreTestCaseBase {
 	
 	public void testBasics() {
 		fScannerMgr.line("/home/test/foo/test.cpp:1:10: error: compilation error");
+		fScannerMgr.close();
 		
 		assertEquals(1, fScannerMgr.getMessages().size());
 		ScriptMessage m = fScannerMgr.getMessages().get(0);
