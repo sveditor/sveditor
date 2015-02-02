@@ -1626,5 +1626,40 @@ public class IndentTests extends SVCoreTestCaseBase {
 		return ret;
 	}
 	 */
+	public void testSpecifyBlock() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module m;\n" +
+			"\n" +
+			"specify\n" +
+			"if (someSig[0] == 1'b0)\n" +
+			"(CLK => Q[15])=(1.000, 1.000);\n" +
+			"endspecify\n" +
+			"endmodule\n"
+			;
+		String expected =
+				"module m;\n" +
+				"\n" +
+				"	specify\n" +
+				"		if (someSig[0] == 1'b0)\n" +
+				"			(CLK => Q[15])=(1.000, 1.000);\n" +
+				"	endspecify\n" +
+				"endmodule\n"
+			;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}	
+
 
 }
