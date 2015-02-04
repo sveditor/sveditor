@@ -4,6 +4,11 @@
 - #(nobug) - Correct a bug in the SystemVerilog Template wizard. Now the 
   destination folder is properly-populated when the selection is a CDT
   project folder
+  
+- #(363) - Correct a parse bug involving a DPI import function with
+  an escaped C-identifier.
+  
+- #(364) - Correct a parse bug in an assertion goto-repetition expression 
 
 ------------------------------------------------------------------------------
 -- 1.7.1 Release --

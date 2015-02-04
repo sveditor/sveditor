@@ -1516,7 +1516,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"endclass\n"
 		;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));

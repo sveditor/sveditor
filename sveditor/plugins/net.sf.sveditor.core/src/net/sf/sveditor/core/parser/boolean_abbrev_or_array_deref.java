@@ -135,7 +135,8 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				match_expr.setExpr(p_expr);
 				
 				if (fLexer.peekOperator("[")) {
-					match_expr.setSequenceAbbrev(sequence_abbrev());
+//					match_expr.setSequenceAbbrev(sequence_abbrev());
+					match_expr.setSequenceAbbrev(boolean_abbrev());
 				}
 				
 				ret = match_expr;
@@ -315,7 +316,8 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			if (fDebugEn) { debug("  <-- sequence_expr enter paren"); }
 			
 			if (fLexer.peekOperator("[")) {
-				match_expr.setSequenceAbbrev(sequence_abbrev());
+//				match_expr.setSequenceAbbrev(sequence_abbrev());
+				match_expr.setSequenceAbbrev(boolean_abbrev());
 			}
 			expr = match_expr;
 		} else if (fLexer.peekKeyword("first_match")) {

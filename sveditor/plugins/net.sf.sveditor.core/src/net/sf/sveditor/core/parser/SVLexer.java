@@ -637,6 +637,7 @@ public class SVLexer extends SVToken {
 		fIsNumber = false;
 		fIsTime = false;
 		fIsIdentifier = false;
+		boolean escaped_id = false;
 		fIsKeyword = false;
 		fIsString = false;
 		boolean local_is_delay_ctrl = fIsDelayControl;
@@ -839,6 +840,7 @@ public class SVLexer extends SVToken {
 			}
 			fScanner.unget_ch(ch);
 			fIsIdentifier = true;
+			escaped_id = true;
 		}
 
 		if (fStringBuffer.length() == 0 && !fIsString) {
@@ -856,7 +858,7 @@ public class SVLexer extends SVToken {
 		} else {
 			fImage = fStringBuffer.toString();
 
-			if (fIsIdentifier) {
+			if (fIsIdentifier && !escaped_id) {
 				Set<String> kw = null;
 				
 				switch (fContext) {

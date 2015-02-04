@@ -44,7 +44,7 @@ public class TestProjectSettingsPathOptions extends SVCoreTestCaseBase {
 	
 	public void testWorkspaceRelFilesFSPath() throws CoreException, IOException {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		utils.copyBundleDirToFS("/data/project_settings_rel_inc_proj1", fTmpDir);
 		

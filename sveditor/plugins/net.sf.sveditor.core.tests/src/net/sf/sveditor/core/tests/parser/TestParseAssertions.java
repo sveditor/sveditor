@@ -302,4 +302,21 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "top" });
 	}
+	
+	public void testGotoRepetition() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"program test;\n" +
+			"	logic clk;\n" +
+			"	sequence s_error;\n" +
+			"	@(posedge clk)\n" +
+			"		( ( (!a || $rose(a)) && $fell(b) ))\n" +
+			"		##0 ( (!a || $rose(a)) &&\n" +
+			"			$fell(b) ) [->1];\n" +
+			"	endsequence\n" +
+			"endprogram\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "test" });
+	}
 }

@@ -29,7 +29,7 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		SVDBFile file = SVDBTestUtils.parse(
 				fLog, content, getName(), false);
 	
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 6);
 	
 		System.out.println("it=" + it);
@@ -67,7 +67,7 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		SVDBFile file = SVDBTestUtils.parse(
 				fLog, content, getName(), false);
 	
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 12);
 	
 		assertNotNull(it);
@@ -110,7 +110,7 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		SVDBFile file = SVDBTestUtils.parse(
 				fLog, content, getName(), false);
 	
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 12);
 	
 		assertNotNull(it);
@@ -153,7 +153,7 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		SVDBFile file = SVDBTestUtils.parse(
 				fLog, content, getName(), false);
 	
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 16);
 	
 		assertNotNull(it);
@@ -185,7 +185,7 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		SVDBFile file = SVDBTestUtils.parse(
 				fLog, content, getName(), false);
 	
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 8);
 	
 		assertNotNull(it);
