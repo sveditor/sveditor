@@ -10,6 +10,8 @@
   
 - #(364) - Correct a parse bug in an assertion goto-repetition expression 
 
+- #(361) - Correct a parse bug involving array references in a specify path
+
 ------------------------------------------------------------------------------
 -- 1.7.1 Release --
 

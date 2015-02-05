@@ -99,5 +99,17 @@ public class TestParseSpecify extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		ParserTests.runTestStrDoc(testname, doc, new String[] {"delay"});
 	}
-	
+
+	public void testSpecifyArrayIfCond() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module delay;\n" +
+				"	specify\n" +
+				"		if (thing[0] == 1'b0)\n" +
+				"			(CLK => Q[15])=(1.000, 1.000);\n" +
+				"	endspecify\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"delay"});
+	}
 }

@@ -208,6 +208,11 @@ public class SVExprParser extends SVParserBase {
 			// TODO: function_subroutine_call
 			if (fLexer.peekOperator("(")) {
 				error("function_subroutine_call unsupported");
+			} else if (fLexer.peekOperator("[")) {
+				fLexer.eatToken();
+				ret = new SVDBArrayAccessExpr(
+						ret, fParsers.exprParser().expression(), null);
+				fLexer.readOperator("]");
 			}
 		} else if (fLexer.peekOperator("{")) {
 			error("module_path_concatenation|module_path_multiple_concatenation unsupported");
@@ -222,7 +227,11 @@ public class SVExprParser extends SVParserBase {
 		} else if (fLexer.peekOperator("(")) {
 			// module_path_mintypmax_expression
 			ret = delay_or_specify_delay_expr(false, 3); 
+		} else {
+			error("Expecting [,{,(,ID,Number ; received " +
+					fLexer.peek());
 		}
+
 		return ret;
 	}
 
