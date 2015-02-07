@@ -227,10 +227,10 @@ public class SVExprParser extends SVParserBase {
 		} else if (fLexer.peekOperator("(")) {
 			// module_path_mintypmax_expression
 			ret = delay_or_specify_delay_expr(false, 3); 
-		} else {
+		} /* else {
 			error("Expecting [,{,(,ID,Number ; received " +
 					fLexer.peek());
-		}
+		} */
 
 		return ret;
 	}
