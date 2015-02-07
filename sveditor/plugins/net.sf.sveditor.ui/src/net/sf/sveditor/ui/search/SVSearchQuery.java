@@ -14,7 +14,6 @@ package net.sf.sveditor.ui.search;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBSearchEngine;
 import net.sf.sveditor.core.db.search.SVDBSearchSpecification;
@@ -76,9 +75,10 @@ public class SVSearchQuery implements ISearchQuery {
 	private void search(IProgressMonitor monitor) throws OperationCanceledException {
 		AbstractTextSearchResult result = (AbstractTextSearchResult) getSearchResult();
 		SVDBSearchEngine engine = new SVDBSearchEngine(fSearchContext);
-		List<ISVDBItemBase> results = engine.find(fSearchSpec, monitor);
+		List<Object> results = engine.find(fSearchSpec, monitor);
 		
-		for (ISVDBItemBase it : results) {
+		for (Object it : results) {
+			// TODO:
 			result.addMatch(new SVSearchMatch(it));
 		}
 	}

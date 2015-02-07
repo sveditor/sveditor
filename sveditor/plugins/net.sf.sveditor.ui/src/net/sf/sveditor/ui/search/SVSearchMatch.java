@@ -12,33 +12,12 @@
 
 package net.sf.sveditor.ui.search;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
-
 import org.eclipse.search.ui.text.Match;
 
 public class SVSearchMatch extends Match {
-	private SVDBFile				fFile;
 	
-	public SVSearchMatch(ISVDBItemBase item) {
+	public SVSearchMatch(Object item) {
 		super(item, 0, 0);
 	}
 	
-	public SVDBFile getFile() {
-		if (fFile == null) {
-			if (getElement() instanceof ISVDBChildItem) {
-				ISVDBChildItem it = (ISVDBChildItem)getElement();
-				while (it != null) {
-					if (it.getType() == SVDBItemType.File) {
-						fFile = (SVDBFile)it;
-						break;
-					}
-					it = it.getParent();
-				}
-			}
-		}
-		return fFile;
-	}
 }

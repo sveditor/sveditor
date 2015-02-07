@@ -40,6 +40,7 @@ public class SVDBSearchSpecification {
 			flags |= Pattern.CASE_INSENSITIVE;
 		}
 		if (!fRegExp) {
+			// Should reformat to accept '*' and '?'
 			flags |= Pattern.LITERAL;
 		}
 		

@@ -38,9 +38,18 @@ public class SVDBSearchEngine {
 	public SVDBSearchEngine(ISVDBIndexIterator search_ctxt) {
 		fSearchContext = search_ctxt;
 	}
-	
-	public synchronized List<ISVDBItemBase> find(SVDBSearchSpecification spec, IProgressMonitor monitor) {
-		List<ISVDBItemBase> ret = new ArrayList<ISVDBItemBase>();
+
+	/**
+	 * Searches for elements based on the search specification. Returns a list of 
+	 * matching elements. The returned list contains ISVDBItemBase and/or 
+	 * SVDBDeclCacheItem elements.
+	 * 
+	 * @param spec
+	 * @param monitor
+	 * @return
+	 */
+	public synchronized List<Object> find(SVDBSearchSpecification spec, IProgressMonitor monitor) {
+		List<Object> ret = new ArrayList<Object>();
 		
 		fProgressMonitor = monitor;
 		
@@ -95,43 +104,70 @@ public class SVDBSearchEngine {
 		return ret;
 	}
 
-	private void find_package_decl(List<ISVDBItemBase> items) {
+	private void find_package_decl(List<Object> items) {
 		List<SVDBDeclCacheItem> found = fSearchContext.findGlobalScopeDecl(
 				new NullProgressMonitor(), 
 				null, new SVDBFindByTypeMatcher(SVDBItemType.PackageDecl));
 
 		for (SVDBDeclCacheItem it : found) {
-			items.add(it.getSVDBItem());
+			items.add(it);
 		}
 	}
 	
-	private void find_package_refs(List<ISVDBItemBase> items) {
+	private void find_package_refs(List<Object> items) {
 //		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 
 		System.out.println("[ERROR] find_package_refs not supported");
 	}
 	
-	private void find_type_decl(List<ISVDBItemBase> items) {
-		List<SVDBDeclCacheItem> found = fSearchContext.findGlobalScopeDecl(
-				new NullProgressMonitor(), 
-				null, new SVDBFindByTypeMatcher(SVDBItemType.ClassDecl, 
-				SVDBItemType.TypedefStmt, SVDBItemType.ModuleDecl));
+	private void find_type_decl(List<Object> items) {
+		List<SVDBDeclCacheItem> found;
 		
-		for (SVDBDeclCacheItem it : found) {
-			ISVDBItemBase item = it.getSVDBItem();
+		if (!fSearchSpec.isRegExp()) {
+			found = fSearchContext.findGlobalScopeDecl(
+					new NullProgressMonitor(), 
+					fSearchSpec.getExpr(), 
+					new SVDBFindByNameMatcher(SVDBItemType.ClassDecl, 
+						SVDBItemType.TypedefStmt, SVDBItemType.ModuleDecl));
 			
-			if (item.getType() == SVDBItemType.TypedefStmt) {
-				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
-				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoStruct) {
-					continue;
+			for (SVDBDeclCacheItem it : found) {
+				if (it.getType() == SVDBItemType.TypedefStmt) {
+					ISVDBItemBase item = it.getSVDBItem();
+					SVDBTypedefStmt td = (SVDBTypedefStmt)item;
+					if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoStruct) {
+						continue;
+					}
+				} else {
+					items.add(it);
 				}
 			}
+		} else {
+			found = fSearchContext.findGlobalScopeDecl(
+					new NullProgressMonitor(), 
+					null,
+					new SVDBFindByTypeMatcher(SVDBItemType.ClassDecl, 
+						SVDBItemType.TypedefStmt, SVDBItemType.ModuleDecl));
 			
-			items.add(item);
+			for (SVDBDeclCacheItem it : found) {
+				if (fSearchSpec.match(it.getName())) {
+					
+					if (it.getType() == SVDBItemType.TypedefStmt) {
+						ISVDBItemBase item = it.getSVDBItem();
+						if (item == null) {
+							continue;
+						}
+						SVDBTypedefStmt td = (SVDBTypedefStmt)item;
+						if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoStruct) {
+							continue;
+						}
+					}
+					items.add(it);
+				}
+			}			
 		}
 	}
 	
-	private void find_type_refs(List<ISVDBItemBase> items) {
+	private void find_type_refs(List<Object> items) {
 		/** TODO:
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDeclStmt, SVDBItemType.ModIfcInst}; 
@@ -154,7 +190,7 @@ public class SVDBSearchEngine {
 		 */
 	}
 	
-	private void find_method_decl(List<ISVDBItemBase> items) {
+	private void find_method_decl(List<Object> items) {
 		/** TODO:
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.Function, SVDBItemType.Task};
@@ -174,11 +210,11 @@ public class SVDBSearchEngine {
 		 */
 	}
 	
-	private void find_method_refs(List<ISVDBItemBase> items) {
+	private void find_method_refs(List<Object> items) {
 		
 	}
 	
-	private void find_field_decl(List<ISVDBItemBase> items) {
+	private void find_field_decl(List<Object> items) {
 		/** TODO:
 		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
 		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.VarDeclStmt, SVDBItemType.ModIfcInst};
@@ -194,7 +230,7 @@ public class SVDBSearchEngine {
 		 */
 	}
 	
-	private void find_field_refs(List<ISVDBItemBase> items) {
+	private void find_field_refs(List<Object> items) {
 		
 	}
 }

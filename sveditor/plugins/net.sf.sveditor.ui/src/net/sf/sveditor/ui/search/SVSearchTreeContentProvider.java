@@ -147,8 +147,6 @@ public class SVSearchTreeContentProvider implements ITreeContentProvider {
 	public Object[] getElements(Object inputElement) {
 		Object[] children= getChildren(inputElement);
 		
-		System.out.println("getElements: " + children.length);
-
 		return children;
 	}
 

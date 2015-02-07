@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.search;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.runtime.IAdaptable;
@@ -67,8 +68,16 @@ public class SVSearchResultsPage extends AbstractTextSearchViewPage implements I
 			int currentOffset, 
 			int currentLength,
 			boolean activate) throws PartInitException {
+		ISVDBItemBase item = null;
+		
 		if (match.getElement() instanceof ISVDBItemBase) {
-			SVEditorUtil.openEditor((ISVDBItemBase)match.getElement());
+			item = (ISVDBItemBase)match.getElement();
+		} else if (match.getElement() instanceof SVDBDeclCacheItem) {
+			item = ((SVDBDeclCacheItem)match.getElement()).getSVDBItem();
+		}
+		
+		if (item != null) {
+			SVEditorUtil.openEditor(item);
 		}
 	}
 	

@@ -203,11 +203,23 @@ public class SVSearchPage extends DialogPage implements ISearchPage {
 	private ISearchQuery createQuery() {
 		// Determine the context
 		
+		boolean regexp = false;
+		String search_expr = fCurrentSearch.fSearchExpr.trim();
+		
+		if (search_expr.contains("*")) {
+			search_expr = search_expr.replaceAll("\\*", ".*");
+			regexp = true;
+		}
+		if (search_expr.contains("?")) {
+			search_expr = search_expr.replaceAll("\\?", ".?");
+			regexp = true;
+		}
+		
 		// Construct the search specification
 		SVDBSearchSpecification spec = new SVDBSearchSpecification(
-				fCurrentSearch.fSearchExpr.trim(),
+				search_expr,
 				fCurrentSearch.fCaseSensitive,
-				false);
+				regexp);
 		spec.setSearchType(fCurrentSearch.fSearchFor);
 		spec.setSearchUsage(fCurrentSearch.fLimitTo);
 		
