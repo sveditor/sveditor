@@ -575,6 +575,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = next_s();
 				tok = indent_block_or_statement(null, false);
 				fQualifiers = 0;
+			} else if (tok.isId("specify")) {
+				tok = indent_specify();
 			} else if (tok.isId("generate")) {
 				tok = next_s();
 				tok = indent_generate();
@@ -752,6 +754,103 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				throw new RuntimeException("Indent stack out-of-sync: " + 
 						"entry=" + level + " exit=" + fIndentStack.size());
 			}
+		}
+		
+		return tok;
+	}
+	
+	private SVIndentToken indent_specify() {
+		int level = fIndentStack.size();
+		SVIndentToken tok = current_s();
+		
+		if (fDebugEn) {
+			debug("--> indent_specify() tok=" + tok.getImage());
+		}
+	
+		start_of_scope(tok);
+		tok = next_s();
+		enter_scope(tok);
+		
+		while (tok != null) {
+			if (tok.isId("endspecify")) {
+				break;
+			} else {
+				tok = indent_specify_stmt();
+			}
+		}
+	
+		leave_scope(tok);
+		tok = next_s();
+		
+		if (fDebugEn) {
+			debug("--> indent_specify() next=" +
+					((tok != null)?tok.getImage():"null"));
+		}
+		
+		if (fTestMode) {
+			if (level != fIndentStack.size()) {
+				throw new RuntimeException("Indent stack out-of-sync: " + 
+						"entry=" + level + " exit=" + fIndentStack.size());
+			}
+		}
+		
+		return tok;		
+	}
+	
+	private SVIndentToken indent_specify_stmt() {
+		SVIndentToken tok = current_s();
+		
+		if (fDebugEn) {
+			debug("--> indent_specify_stmt tok=" + tok.getImage());
+		}
+		
+		if (tok.isId("if")) {
+			start_of_scope(tok);
+			
+			tok = next_s();
+			
+			if (tok.isOp("(")) {
+				tok = consume_expression();
+			} else {
+				return tok;
+			}
+			
+			tok = indent_specify_stmt();
+			
+			leave_scope(tok);
+		} else if (tok.isOp("(")) {
+			
+			tok = consume_expression();
+			
+			if (fDebugEn) {
+				debug(" -- post-consume_expression: tok=" + tok.getImage());
+			}
+			
+			if (tok.isOp("=")) {
+				tok = next_s();
+				
+				if (fDebugEn) {
+					debug(" -- post-=: tok=" + tok.getImage());
+				}
+				
+				if (tok.isOp("(")) {
+					tok = consume_expression();
+				}
+				
+				if (fDebugEn) {
+					debug(" -- post-consume_expression(2)=: tok=" + tok.getImage());
+				}
+				
+				if (tok.isOp(";")) {
+					tok = next_s();
+				}
+			} else {
+				tok = next_s();
+			}
+		}
+		
+		if (fDebugEn) {
+			debug("<-- indent_specify_stmt tok=" + tok.getImage());
 		}
 		
 		return tok;

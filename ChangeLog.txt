@@ -12,6 +12,8 @@
 
 - #(361) - Correct a parse bug involving array references in a specify path
 
+- #(362) - Correct indent behavior around specify blocks
+
 ------------------------------------------------------------------------------
 -- 1.7.1 Release --
 
