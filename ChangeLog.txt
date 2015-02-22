@@ -1,6 +1,8 @@
 
 -- 1.7.3 Release --
 
+- #(enh - 100) - Add log-parsing support for NCSim-produced messages
+
 ------------------------------------------------------------------------------
 -- 1.7.2 Release --
 

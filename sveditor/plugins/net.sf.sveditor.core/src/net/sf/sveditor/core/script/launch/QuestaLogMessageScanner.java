@@ -4,6 +4,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -35,14 +36,17 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 	private ScriptMessage					fMultiLineMsg;
 	private LogHandle						fLog;
 	private boolean							fDebugEn = false;
+	private SVDBWSFileSystemProvider		fFSProvider;
 	
 	public QuestaLogMessageScanner() {
 		fLog = LogFactory.getLogHandle("QuestaLogMessageScanner");
+		fLog.addLogLevelListener(this);
 	}
 	
 	@Override
 	public void init(ILogMessageScannerMgr mgr) {
 		fMgr = mgr;
+		fFSProvider = new SVDBWSFileSystemProvider();
 	}
 	
 	@Override
@@ -51,6 +55,8 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 			fMgr.addMessage(fMultiLineMsg);
 		}
 		fMultiLineMsg = null;
+		fFSProvider.dispose();
+		fFSProvider = null;
 	}
 
 	@Override
@@ -83,8 +89,10 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 				int ch = scanner.skipWhite(scanner.get_ch());
 				
 				if (ch != ':') {
+					if (fDebugEn) {
 					fLog.debug(LEVEL_MID, "Expecting ':' after path " + path_line.first() +
 							" received " + (char)ch + " instead");
+					}
 				}
 				
 				ch = scanner.skipWhite(scanner.get_ch());
@@ -136,9 +144,11 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 				ch = scanner.get_ch();
 				
 				if (ch != '*') {
+					if (fDebugEn) {
 					fLog.debug(LEVEL_MID, 
 							"Expecting second '*' for a 'while parsing' message. Received " +
 									(char)ch + " instead");
+					}
 				} else {
 					fMultiLineMsg = new ScriptMessage(null, -1, null, type);
 					fMultiLineMsg.setMarkerType(SVCorePlugin.PLUGIN_ID + ".svProblem");
@@ -167,7 +177,7 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 
 				if (path != null && lineno != -1) {
 					path = SVFileUtils.resolvePath(path, fMgr.getWorkingDirectory(), 
-							new SVDBFSFileSystemProvider(), false);
+							fFSProvider, false);
 
 					// Read the remainder of the line as the message
 					ch = scanner.skipWhite(scanner.get_ch());

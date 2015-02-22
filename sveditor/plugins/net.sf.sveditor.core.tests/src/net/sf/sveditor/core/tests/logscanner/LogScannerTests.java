@@ -10,6 +10,7 @@ public class LogScannerTests extends TestSuite {
 		ret.addTest(new TestSuite(TestQuestaLogScanner.class));
 		ret.addTest(new TestSuite(TestVerilatorLogScanner.class));
 		ret.addTest(new TestSuite(TestMakefileLogScanner.class));
+		ret.addTest(new TestSuite(TestNCSimLogScanner.class));
 		
 		return ret;
 	}

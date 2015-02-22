@@ -213,6 +213,12 @@
             name="GCC Log Scanner"
             type="build">
       </LogMessageScanner>
+      <LogMessageScanner
+            class="net.sf.sveditor.core.script.launch.NCSimLogMessageScanner"
+            id="net.sf.sveditor.core.ncsimLogScanner"
+            name="NCSim Log Scanner"
+            type="build">
+      </LogMessageScanner>
    </extension>
    <extension
          id="svProblem"

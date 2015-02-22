@@ -15,7 +15,10 @@ package net.sf.sveditor.core.db.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -191,23 +194,31 @@ public class SVDBSearchEngine {
 	}
 	
 	private void find_method_decl(List<Object> items) {
-		/** TODO:
-		ISVDBItemIterator iterator = fSearchContext.getItemIterator(fProgressMonitor);
-		SVDBItemType types[] = new SVDBItemType[] {SVDBItemType.Function, SVDBItemType.Task};
-		
-		while (iterator.hasNext(types)) {
-			ISVDBItemBase item = iterator.nextItem();
-			String name = SVDBItem.getName(item);
-			
-			// Trim away the scope
-			if (name.indexOf("::") != -1) {
-				name = name.substring(name.lastIndexOf("::")+2);
+		List<SVDBDeclCacheItem>	method_scopes = fSearchContext.findGlobalScopeDecl(
+					new NullProgressMonitor(), null,
+					new SVDBFindByTypeMatcher(
+							SVDBItemType.ClassDecl, 
+							SVDBItemType.ModuleDecl,
+							SVDBItemType.InterfaceDecl,
+							SVDBItemType.ProgramDecl,
+							SVDBItemType.PackageDecl));
+	
+		for (SVDBDeclCacheItem scope : method_scopes) {
+			ISVDBItemBase it_b = scope.getSVDBItem();
+			if (it_b == null) {
+				continue;
 			}
-			if (fSearchSpec.match(name)) {
-				items.add(item);
+			
+			ISVDBChildParent cp = (ISVDBChildParent)it_b;
+			for (ISVDBChildItem it : cp.getChildren()) {
+				if (it.getType() == SVDBItemType.Task ||
+						it.getType() == SVDBItemType.Function) {
+					if (fSearchSpec.match(SVDBItem.getName(it))) {
+						items.add(it);
+					}
+				}
 			}
 		}
-		 */
 	}
 	
 	private void find_method_refs(List<Object> items) {
