@@ -23,6 +23,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
@@ -55,7 +56,16 @@ public class IndexTestUtils {
 
 				for (String file : index.getFileList(new NullProgressMonitor())) {
 					List<SVDBMarker> markers = index.getMarkers(file);
-					for (SVDBMarker m : markers) {
+//					for (SVDBMarker m : markers) {
+					for (int i=0; i<markers.size(); i++) {
+						SVDBMarker m = markers.get(i);
+						
+						if (m.getMarkerType() == MarkerType.Task) {
+							markers.remove(i);
+							i--;
+							continue;
+						}
+
 						int fileid = -1, lineno = -1;
 						String filename = null;
 						
@@ -90,6 +100,14 @@ public class IndexTestUtils {
 			}
 			for (String file : index.getFileList(new NullProgressMonitor())) {
 				List<SVDBMarker> markers = index.getMarkers(file);
+				for (int i=0; i<markers.size(); i++) {
+					SVDBMarker m = markers.get(i);
+					if (m.getMarkerType() == MarkerType.Task) {
+						markers.remove(i);
+						i--;
+						continue;
+					}
+				}
 				TestCase.assertEquals("File " + file, 0, markers.size());
 			}
 		}

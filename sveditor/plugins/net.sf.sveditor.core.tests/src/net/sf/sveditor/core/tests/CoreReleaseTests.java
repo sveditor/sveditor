@@ -92,7 +92,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(PrimitivesTests.suite());
 		addTest(new TestSuite(FileSetTests.class));
 		addTest(SearchUtilsTests.suite());
-		addTest(SearchTests.suite());
+//		addTest(SearchTests.suite());
 		addTest(TemplateTests.suite());
 		addTest(HierarchyTests.suite());
 		addTest(DocsTests.suite());
