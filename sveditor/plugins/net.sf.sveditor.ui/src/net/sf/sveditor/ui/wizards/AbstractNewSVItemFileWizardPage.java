@@ -140,15 +140,7 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 		fName.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				setOption(NAME, fName.getText());
-				if (fFileNameDefault.getSelection()) {
-					fFileName.setEnabled(true);
-					if (!getOption(NAME, "").equals("")) {
-						fFileName.setText(getOption(NAME, "") + fFileExt);
-					} else {
-						fFileName.setText("");
-					}
-					fFileName.setEnabled(false);
-				}
+				updateFilename();
 				validate();
 			}
 		});
@@ -199,6 +191,18 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 		
 		setPageComplete(false);
 		setControl(c);
+	}
+	
+	protected void updateFilename() {
+		if (fFileNameDefault.getSelection()) {
+			fFileName.setEnabled(true);
+			if (!getOption(NAME, "").equals("")) {
+				fFileName.setText(getOption(NAME, "") + fFileExt);
+			} else {
+				fFileName.setText("");
+			}
+			fFileName.setEnabled(false);
+		}
 	}
 	
 	protected void validate() {

@@ -5,6 +5,9 @@
 
 - #(enh - 99) - Add support for 'TODO:' and 'FIXME:' task tags in comments
 
+- #(enh - 97) - Enhance 'New Module' wizard to explicitly support creation
+  of a 'Verilog' module (ie one whose file has a .v extension)
+
 
 ------------------------------------------------------------------------------
 -- 1.7.2 Release --

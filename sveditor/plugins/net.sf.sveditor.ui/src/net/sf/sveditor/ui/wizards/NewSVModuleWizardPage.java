@@ -13,7 +13,13 @@
 package net.sf.sveditor.ui.wizards;
 
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 
 public class NewSVModuleWizardPage extends AbstractNewSVItemFileWizardPage {
 	
@@ -25,6 +31,27 @@ public class NewSVModuleWizardPage extends AbstractNewSVItemFileWizardPage {
 	
 	@Override
 	protected void createCustomContent(Composite src_c) {
+		Composite c = new Composite(src_c, SWT.NONE);
+		c.setLayout(new GridLayout(2, false));
+		
+		Label l = new Label(c, SWT.NONE);
+		l.setText("Create Verilog Module:");
+		
+		final Button b = new Button(c, SWT.CHECK);
+		b.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (b.getSelection()) {
+					fFileExt = ".v";
+				} else {
+					fFileExt = ".sv";
+				}
+				updateFilename();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
 	}
-
 }
