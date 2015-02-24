@@ -21,6 +21,7 @@ public interface ISVDBFileSystemProvider {
 	String				MARKER_TYPE_ERROR   = "ERROR";
 	String				MARKER_TYPE_WARNING = "WARNING";
 	String				MARKER_TYPE_INFO    = "INFO";
+	String				MARKER_TYPE_TASK    = "TASK";
 	
 	String				PATHFMT_FILESYSTEM = "PATHFMT_FS";
 	String				PATHFMT_WORKSPACE  = "PATHFMT_WS";

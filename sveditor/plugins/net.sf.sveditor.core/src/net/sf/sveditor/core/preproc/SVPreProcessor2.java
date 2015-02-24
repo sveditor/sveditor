@@ -48,6 +48,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private boolean									fInComment;
 	private IDocCommentParser   					fDocCommentParser;
 	private ScanLocation							fCommentStart;
+	private Set<String>								fTaskTags;
 
 	// List of offset,file-id pairs
 	private List<SVPreProcOutput.FileChangeInfo>	fFileMap;
@@ -133,6 +134,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fLog = LogFactory.getLogHandle("SVPreProcessor2");
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
+		
+		fTaskTags = new HashSet<String>();
+		fTaskTags.add("TODO");
+		fTaskTags.add("FIXME");
 	
 		// Add the first file
 		enter_file(filename, input);
@@ -327,20 +332,38 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	}
 	
 	private void endComment() {
-		if(!fInComment) { return ; }
+		if(!fInComment) { 
+			return ; 
+		}
+		
 		fInComment = false ;
 		String comment = fCommentBuffer.toString() ;
-		String title = fDocCommentParser.isDocComment(comment) ;
-		if (title != null) {
+		Tuple<String,String> dc = fDocCommentParser.isDocComment(comment) ;
+		if (dc != null) {
+			String tag = dc.first();
+			String title = dc.second();
 			SVPreProc2InputData in = fInputCurr;
-			SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
 			SVDBLocation loc = new SVDBLocation(fCommentStart.getFileId(),  
 					fCommentStart.getLineNo(), fCommentStart.getLinePos());
-			doc_comment.setLocation(loc);
-			if (in.getFileTree() != null) {
-				in.getFileTree().getSVDBFile().addChildItem(doc_comment);
+			
+			if (fTaskTags.contains(tag)) {
+				// Actually a task marker
+				String msg = tag + ": " + comment;
+				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
+				m.setLocation(loc);
+				if (in.getFileTree() != null) {
+					in.getFileTree().fMarkers.add(m);
+				}
+			} else {
+				// Really a doc comment
+				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
+
+				doc_comment.setLocation(loc);
+				if (in.getFileTree() != null) {
+					in.getFileTree().getSVDBFile().addChildItem(doc_comment);
+				}
 			}
-		}		
+		} 
 	}
 	
 	private void handle_preproc_directive() {

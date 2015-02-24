@@ -157,10 +157,14 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			}
 
 			int severity;
+			String marker_type = SVMarkers.TYPE_PROBLEM;
 			if (type.equals(MARKER_TYPE_ERROR)) {
 				severity = IMarker.SEVERITY_ERROR;
 			} else if (type.equals(MARKER_TYPE_WARNING)) {
 				severity = IMarker.SEVERITY_WARNING;
+			} else if (type.equals(MARKER_TYPE_TASK)) {
+				severity = IMarker.SEVERITY_INFO;
+				marker_type = SVMarkers.TYPE_TASK;
 			} else {
 				severity = IMarker.SEVERITY_INFO;
 			}
@@ -171,7 +175,7 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 			}
 			 */
 			try {
-				IMarker marker = target.createMarker(SVMarkers.TYPE_PROBLEM);
+				IMarker marker = target.createMarker(marker_type);
 				marker.setAttribute(IMarker.SEVERITY, severity);
 				marker.setAttribute(IMarker.LINE_NUMBER, lineno);
 				marker.setAttribute(IMarker.MESSAGE, msg);

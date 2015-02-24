@@ -18,10 +18,12 @@ public class SVDBMarker extends SVDBItemBase {
 	public enum MarkerType {
 		Info,
 		Warning,
-		Error
+		Error,
+		Task
 	};
 	
 	public enum MarkerKind {
+		Info,
 		MissingInclude,
 		UndefinedMacro,
 		UnbalancedDirective,

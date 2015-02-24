@@ -82,6 +82,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
 	public static final String SV_BUILTIN_LIBRARY = "net.sf.sveditor.sv_builtin";
 	public static final String SV_PROBLEM = PLUGIN_ID + ".svProblem";
+	public static final String SV_TASK = PLUGIN_ID + ".task";
 
 	// The shared instance
 	private static SVCorePlugin 			fPlugin;

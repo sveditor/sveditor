@@ -13,11 +13,17 @@ package net.sf.sveditor.core.docs;
 
 import java.util.List;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.docs.model.DocTopic;
 
 public interface IDocCommentParser {
 
-	public String isDocComment(String comment) ;
+	/**
+	 * Returns a tuple <tag,title>
+	 * @param comment
+	 * @return
+	 */
+	public Tuple<String,String> isDocComment(String comment) ;
 	
 	public void parse(String comment, List<DocTopic> docTopics) ;
 	

@@ -78,18 +78,20 @@ public class DocCommentParser implements IDocCommentParser {
 	/* (non-Javadoc)
 	* @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
-	public String isDocComment(String comment) {
+	public Tuple<String, String> isDocComment(String comment) {
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
 		for(String line: lines) {
 			Matcher matcher = fPatternIsDocComment.matcher(line) ;
 			if(matcher.matches()) {
 				if(fDocTopics == null) {
-					return matcher.group(2);
+					return new Tuple<String, String>(matcher.group(1), matcher.group(2));
+//					return matcher.group(2);
 				}
 				String keyword = matcher.group(1).toLowerCase() ;
 				if(fDocTopics.getTopicType(keyword) != null) {
-					return matcher.group(2) ;
+					return new Tuple<String, String>(matcher.group(1), matcher.group(2));
+//					return matcher.group(2) ;
 				} 
 			}
 		}

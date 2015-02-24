@@ -3,6 +3,9 @@
 
 - #(enh - 100) - Add log-parsing support for NCSim-produced messages
 
+- #(enh - 99) - Add support for 'TODO:' and 'FIXME:' task tags in comments
+
+
 ------------------------------------------------------------------------------
 -- 1.7.2 Release --
 

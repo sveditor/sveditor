@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.index.ops;
 import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -66,6 +67,9 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 							break;
 						case Info:
 							type = ISVDBFileSystemProvider.MARKER_TYPE_INFO;
+							break;
+						case Task:
+							type = ISVDBFileSystemProvider.MARKER_TYPE_TASK;
 							break;
 					}
 					
