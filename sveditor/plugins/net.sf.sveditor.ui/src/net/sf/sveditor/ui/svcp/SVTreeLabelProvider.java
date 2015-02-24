@@ -37,10 +37,13 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
+import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
+import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -253,14 +256,15 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				SVDBAlwaysStmt always = (SVDBAlwaysStmt)it;
 				if (always.getBody() != null && always.getBody().getType() == SVDBItemType.EventControlStmt) {
 					SVDBEventControlStmt stmt = (SVDBEventControlStmt)always.getBody();
-					ret = new StyledString(stmt.getExpr().toString().trim());
+					ret = new StyledString(getBodyStmtText(
+							stmt.getExpr().toString().trim(), it));
 				} else {
-					ret = new StyledString("always");
+					ret = new StyledString(getBodyStmtText("always", it));
 				}
 			} else if (it.getType() == SVDBItemType.InitialStmt) {
-				ret = new StyledString("initial");
+				ret = new StyledString(getBodyStmtText("initial", it));
 			} else if (it.getType() == SVDBItemType.FinalStmt) {
-				ret = new StyledString("final");
+				ret = new StyledString(getBodyStmtText("final", it));
 			} else if (it.getType() == SVDBItemType.ImportItem) {
 				SVDBImportItem imp = (SVDBImportItem)it;
 				ret = new StyledString("import " + imp.getImport());
@@ -311,6 +315,19 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 		} else {
 			return new StyledString(element.toString());
 		}
+	}
+	
+	private String getBodyStmtText(String base, ISVDBItemBase it) {
+		if (it instanceof SVDBBodyStmt) {
+			SVDBBodyStmt stmt = (SVDBBodyStmt)it;
+			if (stmt.getBody() instanceof SVDBBlockStmt) {
+				SVDBBlockStmt block = (SVDBBlockStmt)stmt.getBody();
+				if (block.getBlockName() != null && !block.getBlockName().equals("")) {
+					return base + " : " + block.getBlockName();
+				}
+			}
+		}
+		return base;
 	}
 
 	@Override
