@@ -59,6 +59,9 @@ public class DocCommentParser implements IDocCommentParser {
 	private static Pattern fPatternIsDocComment = 
 			Pattern.compile(".*? *([a-z0-9 ]*[a-z0-9]): +(.*?) *$",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
 	
+	private static Pattern fPatternIsTaskTagComment =
+			Pattern.compile(".*? *([A-Z ]*[A-Z0-9]) +(.*?) *$", Pattern.DOTALL) ;
+	
 	private static Pattern fPatternCodeSectionEnd = 
 			Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
 	
@@ -78,21 +81,30 @@ public class DocCommentParser implements IDocCommentParser {
 	/* (non-Javadoc)
 	* @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
-	public Tuple<String, String> isDocComment(String comment) {
+	public CommentType isDocCommentOrTaskTag(String comment, Tuple<String, String> info) {
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
 		
 		for(String line: lines) {
 			Matcher matcher = fPatternIsDocComment.matcher(line) ;
+			Matcher task_matcher = fPatternIsTaskTagComment.matcher(line);
+			
 			if(matcher.matches()) {
 				if(fDocTopics == null) {
-					return new Tuple<String, String>(matcher.group(1), matcher.group(2));
-//					return matcher.group(2);
+					info.first(matcher.group(1));
+					info.second(matcher.group(2));
+					return CommentType.DocComment;
 				}
 				String keyword = matcher.group(1).toLowerCase() ;
 				if(fDocTopics.getTopicType(keyword) != null) {
-					return new Tuple<String, String>(matcher.group(1), matcher.group(2));
+					info.first(matcher.group(1));
+					info.second(matcher.group(2));
+					return CommentType.DocComment;
 //					return matcher.group(2) ;
 				} 
+			} else if (task_matcher.matches()) {
+				info.first(task_matcher.group(1));
+				info.second(task_matcher.group(2));
+				return CommentType.TaskTag;
 			}
 		}
 		

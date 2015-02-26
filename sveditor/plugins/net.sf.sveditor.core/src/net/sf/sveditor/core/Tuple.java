@@ -26,12 +26,20 @@ public class Tuple<T1, T2> {
 		return first;
 	}
 	
+	public void first(T1 first) {
+		this.first = first;
+	}
+	
 	public void setFirst(T1 f) {
 		first = f;
 	}
 	
 	public T2 second() {
 		return second;
+	}
+	
+	public void second(T2 second) {
+		this.second = second;
 	}
 	
 	public void setSecond(T2 s) {

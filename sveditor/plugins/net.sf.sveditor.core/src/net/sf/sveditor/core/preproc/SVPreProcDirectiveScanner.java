@@ -239,8 +239,11 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		if(!fInComment) { return ; }
 		fInComment = false ;
 		String comment = fCommentBuffer.toString() ;
-		Tuple<String, String> dc = fDocCommentParser.isDocComment(comment);
-		if(dc != null) { 
+//		Tuple<String, String> dc = fDocCommentParser.isDocCommentOrTaskTag(comment);
+		Tuple<String, String> dc = new Tuple<String, String>(null, null);
+		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc);
+		
+		if(type == IDocCommentParser.CommentType.DocComment) {
 			String title = dc.second();
 			if (fObserver != null) {
 				fLog.debug("Saving doc comment (title=" + title + "): " + comment);
