@@ -1665,5 +1665,35 @@ public class IndentTests extends SVCoreTestCaseBase {
 		IndentComparator.compare(getName(), expected, result);
 	}	
 
+	public void testSpecifySpecparam() {
+		String doc = 
+			"module a_module ( );\n" +
+			"specify\n" +
+			"specparam align     = 5; //\n" +
+			"endspecify\n" +
+			"endmodule\n"
+			;
+		
+		String expected = 
+			"module a_module ( );\n" +
+			"	specify\n" +
+			"		specparam align     = 5; //\n" +
+			"	endspecify\n" +
+			"endmodule\n"
+			;
+
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(doc));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}
 
 }

@@ -1529,4 +1529,14 @@ end
       </template>
    </extension>
 
+   <extension
+         point="org.eclipse.debug.core.launchDelegates">
+      <launchDelegate
+            delegate="net.sf.sveditor.ui.script.launch.ScriptLaunchDelegate"
+            id="net.sf.sveditor.core.buildScriptLaunchDelegate"
+            modes="run"
+            name="SVEditor Build Script"
+            type="net.sf.sveditor.core.buildScriptLaunchType">
+      </launchDelegate>
+   </extension>
 </plugin>

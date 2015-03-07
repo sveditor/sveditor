@@ -3,7 +3,6 @@ package net.sf.sveditor.core.script.launch;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -76,14 +75,22 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 		if (fMultiLineMsg != null) {
 			if (l.startsWith("** while")) {
 				// This is a continuation, but one we don't really care about
+				// TODO: add in hyperlinks
 			} else if (l.startsWith("** at")) {
 				// This is where the most-proximate message is
-				StringTextScanner scanner = new StringTextScanner(
-					l.substring("** at".length()));
-				
+				StringTextScanner scanner = new StringTextScanner(l);
+				scanner.seek("** at.".length());
+
+				int path_start = scanner.getOffset();
 				Tuple<String, Integer> path_line = parsePath(scanner);
 				fMultiLineMsg.setPath(path_line.first());
 				fMultiLineMsg.setLineno(path_line.second());
+				int path_end = scanner.getOffset();
+
+//				ScriptHyperlink link = new ScriptHyperlink(
+//						path_line.first(), path_start, (path_end-path_start));
+//				link.setLineno(path_line.second());
+//				fMgr.addHyperlink(link);
 			
 				// Assume this is ':'
 				int ch = scanner.skipWhite(scanner.get_ch());
@@ -118,10 +125,9 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 			}
 		} else if (l.startsWith("** Error:") || l.startsWith("** Error (")) {
 			// Likely a Questa error
-			StringTextScanner scanner = new StringTextScanner(
-					l.substring("** Error:".length()));
+			StringTextScanner scanner = new StringTextScanner(l);
+			scanner.seek("** Error:".length());
 			MessageType type = (l.startsWith("** Error"))?MessageType.Error:MessageType.Warning;
-			
 			
 			int colon_index = l.indexOf(':');
 			int paren_index = l.indexOf('(');
@@ -164,9 +170,16 @@ public class QuestaLogMessageScanner implements ILogMessageScanner, ILogLevelLis
 				ch = scanner.skipWhite(ch);
 				scanner.unget_ch(ch);
 
+				int path_start = scanner.getOffset();
 				Tuple<String, Integer> path_line = parsePath(scanner);
+				int path_end = scanner.getOffset();
 				String path = path_line.first();
 				int lineno = path_line.second();
+				
+//				ScriptHyperlink link = new ScriptHyperlink(
+//						path_line.first(), path_start, (path_end-path_start));
+//				link.setLineno(lineno);
+//				fMgr.addHyperlink(link);
 
 				ch = scanner.get_ch();
 

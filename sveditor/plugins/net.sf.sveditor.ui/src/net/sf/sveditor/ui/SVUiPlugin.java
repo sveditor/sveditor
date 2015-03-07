@@ -30,6 +30,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.SVParserConfig;
+import net.sf.sveditor.ui.console.SVEConsole;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.runtime.IStatus;
@@ -80,9 +81,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private static SVUiPlugin 					fPlugin;
 	private ResourceBundle						fResources;
 	private WeakHashMap<String, Image>			fImageMap;
-	private MessageConsole						fConsole;
-	private MessageConsoleStream				fStdoutStream;
-	private MessageConsoleStream				fStderrStream;
+	private SVEConsole							fConsole;
 	private ContributionContextTypeRegistry		fContextRegistry;
 	private TemplateStore						fTemplateStore;
 	private boolean								fDebugConsole;
@@ -384,12 +383,10 @@ public class SVUiPlugin extends AbstractUIPlugin
 				SVUiPlugin.PLUGIN_ID, resource);
 	}
 
-	public MessageConsole getConsole() {
+	public SVEConsole getConsole() {
 		
 		if (fConsole == null) {
-			fConsole = new MessageConsole("SVEditor", null);
-			ConsolePlugin.getDefault().getConsoleManager().addConsoles(
-					new IConsole[] { fConsole });
+			fConsole = SVEConsole.getConsole("SVEditor");
 		}
 		
 		return fConsole;
@@ -420,31 +417,11 @@ public class SVUiPlugin extends AbstractUIPlugin
 	}
 	
 	public MessageConsoleStream getStdoutStream() {
-		if (fStdoutStream == null) {
-			fStdoutStream = getConsole().newMessageStream();
-			fStdoutStream.setActivateOnWrite(false);
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					fStdoutStream.setColor(
-							Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
-				}
-			});
-		}
-		return fStdoutStream;
+		return getConsole().getStdout();
 	}
 
 	public MessageConsoleStream getStderrStream() {
-		if (fStderrStream == null) {
-			fStderrStream = getConsole().newMessageStream();
-			fStderrStream.setActivateOnWrite(false);
-			Display.getDefault().syncExec(new Runnable() {
-				public void run() {
-					fStderrStream.setColor(
-							Display.getDefault().getSystemColor(SWT.COLOR_RED));
-				}
-			});
-		}
-		return fStderrStream;
+		return getConsole().getStderr();
 	}
 
 	/**

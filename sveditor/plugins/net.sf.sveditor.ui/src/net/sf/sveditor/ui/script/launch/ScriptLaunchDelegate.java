@@ -1,4 +1,4 @@
-package net.sf.sveditor.core.script.launch;
+package net.sf.sveditor.ui.script.launch;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,19 +7,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.ILineListener;
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+import net.sf.sveditor.core.script.launch.BuildScriptLauncherConstants;
+import net.sf.sveditor.core.script.launch.ILogMessageListener;
+import net.sf.sveditor.core.script.launch.ILogMessageScanner;
+import net.sf.sveditor.core.script.launch.LogMessageScannerMgr;
+import net.sf.sveditor.core.script.launch.SVScriptProblem;
+import net.sf.sveditor.core.script.launch.ScriptHyperlink;
+import net.sf.sveditor.core.script.launch.ScriptMessage;
 import net.sf.sveditor.core.script.launch.ScriptMessage.MessageType;
+import net.sf.sveditor.core.script.launch.ScriptMessageScannerDescriptor;
+import net.sf.sveditor.core.script.launch.ScriptMessageScannerRegistry;
+import net.sf.sveditor.core.script.launch.ScriptRunner;
+import net.sf.sveditor.ui.console.SVEConsole;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -30,17 +39,30 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.debug.ui.console.FileLink;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 	private List<ILogMessageScanner>			fScanners;
 	private LogMessageScannerMgr				fScannerMgr;
 	private LogHandle							fLog;
 	private PrintStream							fSaveOutput;
+	private SVEConsole							fConsole;
+	private MessageConsoleStream				fStdout;
+	private MessageConsoleStream				fStderr;
+	private boolean								fUpdateScheduled;
+	private List<HyperlinkConsoleAction>		fUpdateHyperlinkQueue;
+	private int									fCurrentOffset;
+	private int									fSeparatorSize;
 
 	public ScriptLaunchDelegate() {
 		// TODO Auto-generated constructor stub
 		fScanners = new ArrayList<ILogMessageScanner>();
 		fLog = LogFactory.getLogHandle("ScriptLaunchDelegate");
+		fUpdateHyperlinkQueue = new ArrayList<HyperlinkConsoleAction>();
 	}
 
 	@Override
@@ -49,6 +71,18 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			String 					mode,
 			ILaunch 				launch, 
 			IProgressMonitor 		monitor) throws CoreException {
+		fConsole = SVEConsole.getConsole(configuration.getName());
+		
+		fConsole.activate();
+		fConsole.clearConsole();
+		
+		fConsole.getDocument().addDocumentListener(hyperlinkDocListener);
+		fSeparatorSize = System.getProperty("line.separator").length();
+
+		fStdout = fConsole.getStdout();
+		fStderr = fConsole.getStderr();
+		
+	
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		String script = configuration.getAttribute(BuildScriptLauncherConstants.SCRIPT_LIST, "");
 		String wd = configuration.getAttribute(BuildScriptLauncherConstants.WORKING_DIR, System.getProperty("user.dir"));
@@ -126,47 +160,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			argv.set(i, arg);
 		}
 		
-		fScannerMgr.addMessageListener(new ILogMessageListener() {
-			
-			@Override
-			public void message(ScriptMessage msg) {
-				String path = msg.getPath();
-				IFile file[] = SVFileUtils.findWorkspaceFiles(path);
-
-				// Skip infos for now
-				if (msg.getType() != MessageType.Note) {
-					if (file != null && file.length > 0) {
-						for (IFile f : file) {
-							try {
-								String mt = msg.getMarkerType();
-								
-								if (mt == null) {
-									mt = SVScriptProblem.ID;
-								}
-								
-								IMarker m = f.createMarker(mt);
-								
-								switch (msg.getType()) {
-									case Error:
-										m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-										break;
-									case Warning:
-										m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-										break;
-									case Note:
-										m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
-										break;
-								}
-								m.setAttribute(IMarker.LINE_NUMBER, msg.getLineno());
-								m.setAttribute(IMarker.MESSAGE, msg.getMessage());
-							} catch (CoreException e) {
-								//
-							}
-						}
-					}
-				}
-			}
-		});		
+		fScannerMgr.addMessageListener(msgScannerListener);
 		
 		try {
 			int code = runner.run(argv, null, wd_f);
@@ -192,6 +186,64 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		monitor.done();
 	}
 	
+	private ILogMessageListener msgScannerListener = new ILogMessageListener() {
+		
+		@Override
+		public void message(ScriptMessage msg) {
+			String path = msg.getPath();
+			IFile file[] = SVFileUtils.findWorkspaceFiles(path);
+
+			// Skip infos for now
+			if (msg.getType() != MessageType.Note) {
+				if (file != null && file.length > 0) {
+					for (IFile f : file) {
+						try {
+							String mt = msg.getMarkerType();
+							
+							if (mt == null) {
+								mt = SVScriptProblem.ID;
+							}
+							
+							IMarker m = f.createMarker(mt);
+							
+							switch (msg.getType()) {
+								case Error:
+									m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+									break;
+								case Warning:
+									m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+									break;
+								case Note:
+									m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+									break;
+							}
+							m.setAttribute(IMarker.LINE_NUMBER, msg.getLineno());
+							m.setAttribute(IMarker.MESSAGE, msg.getMessage());
+						} catch (CoreException e) {
+							//
+						}
+					}
+				}
+			}
+		}
+
+		@Override
+		public void hyperlink(ScriptHyperlink hyperlink) {
+			IFile path = SVFileUtils.findWorkspaceFile(hyperlink.getPath());
+			
+			if (path != null) {
+				HyperlinkConsoleAction la = new HyperlinkConsoleAction(
+						path, fCurrentOffset+hyperlink.getOffset()+1, 
+						hyperlink.getLength());
+				la.setLineno(hyperlink.getLineno());
+				synchronized (fUpdateHyperlinkQueue) { 
+					fUpdateHyperlinkQueue.add(la);
+				}
+			}
+		}			
+		
+	};
+	
 	private ILineListener				logMessageListener = new ILineListener() {
 		
 		@Override
@@ -203,25 +255,24 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 	};
 	
 	private ILineListener				stdoutLineListener = new ILineListener() {
-		
 		@Override
 		public void line(String l) {
-			ILineListener listener = SVCorePlugin.getDefault().getStdoutLineListener();
-			listener.line(l);
-		
-			logMessageListener.line(l);
+			synchronized (logMessageListener) {
+				fStdout.println(l);
+				logMessageListener.line(l);
+				fCurrentOffset += l.length()+fSeparatorSize;
+			}
 		}
 	};
 	
 	private ILineListener				stderrLineListener = new ILineListener() {
-		
 		@Override
 		public void line(String l) {
-			ILineListener listener = SVCorePlugin.getDefault().getStderrLineListener();
-			
-			listener.line(l);
-			
-			logMessageListener.line(l);
+			synchronized (logMessageListener) {
+				fStderr.println(l);
+				logMessageListener.line(l);
+				fCurrentOffset += l.length()+1;
+			}
 		}
 	};
 
@@ -243,5 +294,28 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		
 		return ret;
 	}
+	
+	private IDocumentListener hyperlinkDocListener = new IDocumentListener() {
+		
+		@Override
+		public void documentChanged(DocumentEvent event) {
+
+			while (fUpdateHyperlinkQueue.size() > 0) {
+				HyperlinkConsoleAction ca = fUpdateHyperlinkQueue.get(0);
+				if (ca.getLen()+ca.getPos() < event.getDocument().getLength()) {
+					FileLink link = new FileLink(ca.getPath(), null, -1, -1, ca.getLineno());
+					try {
+						fConsole.addHyperlink(link, ca.getPos(), ca.getLen());
+					} catch (BadLocationException e) { e.printStackTrace(); }
+					fUpdateHyperlinkQueue.remove(0);
+				} else {
+					break;
+				}
+			}
+		}
+		
+		@Override
+		public void documentAboutToBeChanged(DocumentEvent event) { }
+	};
 
 }

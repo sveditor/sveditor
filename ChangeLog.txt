@@ -1,6 +1,18 @@
 
 -- 1.7.4 Release --
 
+- #(367) - Correct an indenter bug with 'specify' blocks that caused the 
+  indenter to hang
+  
+- #(enh) - Recognize 'TODO' and 'FIXME' task tags (no colon) 
+
+- #(enh) - Propagate Debug/Run Console preferences to SVE console. This allows
+  the user to control font colors, as well as limit the amount of text saved 
+  the console
+
+- #(366) - Implemented console-size limits to address heap-overflow issue
+
+
 ------------------------------------------------------------------------------
 -- 1.7.3 Release --
 

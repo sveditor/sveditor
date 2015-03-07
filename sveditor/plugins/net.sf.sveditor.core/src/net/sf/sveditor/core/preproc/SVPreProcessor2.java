@@ -341,17 +341,24 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		String comment = fCommentBuffer.toString() ;
 		Tuple<String,String> dc = new Tuple<String, String>(null, null);
 		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc) ;
-		if (type != IDocCommentParser.CommentType.None) {
+		if (type != null && type != IDocCommentParser.CommentType.None) {
 			String tag = dc.first();
 			String title = dc.second();
 			SVPreProc2InputData in = fInputCurr;
 			SVDBLocation loc = new SVDBLocation(fCommentStart.getFileId(),  
 					fCommentStart.getLineNo(), fCommentStart.getLinePos());
 
-			if (type == IDocCommentParser.CommentType.TaskTag || fTaskTags.contains(tag)) {
+			if (type == IDocCommentParser.CommentType.TaskTag && fTaskTags.contains(tag)) {
 				// Actually a task marker
 //				String msg = tag + ": " + comment;
-				String msg = comment;
+				String msg = tag + " " + title;
+				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
+				m.setLocation(loc);
+				if (in.getFileTree() != null) {
+					in.getFileTree().fMarkers.add(m);
+				}
+			} else if (type == IDocCommentParser.CommentType.DocComment && fTaskTags.contains(tag)) {
+				String msg = tag + ": " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {

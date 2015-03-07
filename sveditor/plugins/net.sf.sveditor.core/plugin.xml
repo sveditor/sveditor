@@ -143,16 +143,7 @@
             value="true">
       </persistent>
    </extension>
-   <extension
-         point="org.eclipse.debug.core.launchDelegates">
-      <launchDelegate
-            delegate="net.sf.sveditor.core.script.launch.ScriptLaunchDelegate"
-            id="net.sf.sveditor.core.buildScriptLaunchDelegate"
-            modes="run"
-            name="SVEditor Build Script"
-            type="net.sf.sveditor.core.buildScriptLaunchType">
-      </launchDelegate>
-   </extension>
+
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType

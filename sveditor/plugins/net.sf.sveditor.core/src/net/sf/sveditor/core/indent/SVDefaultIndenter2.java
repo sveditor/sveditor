@@ -847,6 +847,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else {
 				tok = next_s();
 			}
+		} else {
+			// We must consume a token even if we don't know what we're indenting
+			while ((tok = next_s()) != null && !tok.isOp(";") &&
+					!tok.isId("endspecify")) {
+				;
+			}
 		}
 		
 		if (fDebugEn) {

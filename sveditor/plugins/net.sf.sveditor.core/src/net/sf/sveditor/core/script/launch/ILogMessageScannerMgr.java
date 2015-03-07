@@ -7,5 +7,7 @@ public interface ILogMessageScannerMgr {
 	String getWorkingDirectory();
 
 	void addMessage(ScriptMessage msg);
+	
+	void addHyperlink(ScriptHyperlink hyperlink);
 
 }

@@ -8,6 +8,18 @@ public class LogMessageScannerUtils {
 	public static String readPath(ITextScanner scanner, int ch) {
 		StringBuilder ret = new StringBuilder();
 		
+		// Handle Windows-style path
+		
+		if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+			ret.append((char)ch);
+			ch = scanner.get_ch();
+			
+			if (ch == ':') {
+				ret.append((char)ch);
+				ch = scanner.get_ch();
+			}
+		}
+		
 		while (ch == '\\' || ch == '/' || ch == '.' || ch == '-' ||
 				Character.isJavaIdentifierPart(ch)) {
 			ret.append((char)ch);

@@ -203,6 +203,12 @@ public class SVDBTestUtils {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = parse(log, language, content, filename, markers);
 		if (!exp_err) {
+			for (int i=0; i<markers.size(); i++) {
+				if (markers.get(i).getMarkerType() != SVDBMarker.MarkerType.Error) {
+					markers.remove(i);
+					i--;
+				}
+			}
 			TestCase.assertEquals("Unexpected errors", 0, markers.size());
 		}
 		return file;

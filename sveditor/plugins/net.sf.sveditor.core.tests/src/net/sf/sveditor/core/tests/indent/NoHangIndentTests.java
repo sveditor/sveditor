@@ -19,6 +19,7 @@ import java.util.Enumeration;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.LogFactory;
@@ -67,21 +68,41 @@ public class NoHangIndentTests extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 	
+	public void testSpecifySpecParamHang() {
+		String doc = 
+			"module a_module ( );\n" +
+			"	specify\n" +
+			"		specparam align     = 5         ; //\n" +
+			"	endspecify\n" +
+			"endmodule\n"
+			;
+		
+		assertTrue(noHangTestInt(doc));
+	}
+	
 	private boolean noHangTestInt(final URL url) {
-		boolean ret = true;
-		// System.out.println("URL: " + url.getPath());
-		InputStream in_t = null;
-		final Object monitor = new Object();
+		InputStream in = null;
 		
 		try {
-			in_t = url.openStream();
+			in = url.openStream();
 		} catch (Exception e) {
 			System.out.println("[ERROR] failed to open \"" + url.getPath() + "\"");
 			return false;
 		}
 		
-		final InputStream in = in_t;
-
+		return noHangTestInt(url.getPath(), in);
+	}
+	
+	private boolean noHangTestInt(String in) {
+		return noHangTestInt(null, new StringInputStream(in));
+	}
+	
+	
+	private boolean noHangTestInt(String name, final InputStream in) {
+		boolean ret = true;
+		// System.out.println("URL: " + url.getPath());
+		final Object monitor = new Object();
+		
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				StringBuilder sb = new StringBuilder();
@@ -113,7 +134,9 @@ public class NoHangIndentTests extends TestCase {
 			t.join(2000);
 			
 			if (t.isAlive()) {
-				System.out.println("FAILED: on file \"" + url.getPath() + "\"");
+				if (name != null) {
+					System.out.println("FAILED: on file \"" + name + "\"");
+				}
 				ret = false;
 				t.interrupt();
 			}

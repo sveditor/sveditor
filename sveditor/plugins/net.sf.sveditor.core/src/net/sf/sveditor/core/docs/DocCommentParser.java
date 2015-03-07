@@ -60,7 +60,7 @@ public class DocCommentParser implements IDocCommentParser {
 			Pattern.compile(".*? *([a-z0-9 ]*[a-z0-9]): +(.*?) *$",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
 	
 	private static Pattern fPatternIsTaskTagComment =
-			Pattern.compile(".*? *([A-Z ]*[A-Z0-9]) +(.*?) *$", Pattern.DOTALL) ;
+			Pattern.compile(".*?([A-Z][A-Z]*) +(.*?) *$", Pattern.DOTALL) ;
 	
 	private static Pattern fPatternCodeSectionEnd = 
 			Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
@@ -108,7 +108,7 @@ public class DocCommentParser implements IDocCommentParser {
 			}
 		}
 		
-		return null ;
+		return CommentType.None ;
 	}
 
 	/* (non-Javadoc)

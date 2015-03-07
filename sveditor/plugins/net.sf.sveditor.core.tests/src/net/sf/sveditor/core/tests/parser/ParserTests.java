@@ -63,6 +63,7 @@ public class ParserTests extends TestSuite {
 		s.addTest(new TestSuite(TestParseAttributes.class));
 		s.addTest(new TestSuite(TestParseBind.class));
 		s.addTest(new TestSuite(TestParseCovergroups.class));
+		s.addTest(new TestSuite(TestTaskTags.class));
 		
 		return s;
 	}

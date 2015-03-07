@@ -1904,6 +1904,19 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"top"});
 	}
 	
+	public void testSpecparamInSpecify() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module a_module ( );\n" +
+			"	specify\n" +
+			"		specparam align     = 5         ; //\n" +
+			"	endspecify\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"a_module"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,
