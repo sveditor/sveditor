@@ -34,16 +34,25 @@ public class GenericPathPatternMatcher implements IPatternMatchListener {
 			return;
 		}
 		
+		content = content.trim();
+		
 		int paren_idx=-1;
 		int colon_idx=-1;
 		int lineno=-1;
-		
+	
 		if (SVFileUtils.isWin()) {
 			content = content.replace('\\', '/');
-			if (content.length() >= 2 && 
+			
+			// Recognize MinGW-style paths: /c/foo/path
+			// Convert to Windows-type path: c:/foo/path
+			if (content.length() >= 3 && 
 					(content.charAt(0) == '/') &&
-					Character.isAlphabetic(1)) {
-				content = content.charAt(1) + ":" + content.substring(2);
+					(content.charAt(2) == '/')) {
+				int ch = Character.toLowerCase(content.charAt(1));
+				
+				if (ch >= 'a' && ch <= 'z') {
+					content = content.charAt(1) + ":" + content.substring(2);
+				}
 			}
 		}
 		
@@ -86,8 +95,10 @@ public class GenericPathPatternMatcher implements IPatternMatchListener {
 		}
 		
 		IFile file = SVFileUtils.findWorkspaceFile(content);
-		
-		if (file != null) {
+	
+		// Eclipse sometimes returns a file (that doesn't exist) for
+		// a directory path. We only want to hyperlink 'real' files.
+		if (file != null && file.exists()) {
 			FileLink link = new FileLink(file, null, -1, -1, lineno);
 			try {
 				fConsole.addHyperlink(link, event.getOffset(), content.length());
@@ -97,7 +108,7 @@ public class GenericPathPatternMatcher implements IPatternMatchListener {
 
 	@Override
 	public String getPattern() {
-		return "([a-zA-Z]:)?[/\\\\][^ ]+";
+		return "([a-zA-Z]:)?[/\\\\][^ \\t\\n\\r]+";
 	}
 
 	@Override
