@@ -33,7 +33,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		fEndCharMap.put(")", "(");
 		fEndCharMap.put("}", "{");
 		fEndCharMap.put("]", "[");
-		fBeginCharMap.put("end", "begin");
+		fEndCharMap.put("end", "begin");
 	}
 
 	@Override
@@ -50,20 +50,31 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		
 		try {
 			int ch = doc.getChar(offset);
-			String st_c = "" + ch;
+			
+			// If we have whitespace (or end of line) step back 1 character
+			// This will allow us to jump between begin & end with out moving the cursor
+			if ((ch == (int) ' ') || (ch == (int) '\t') || (ch == (int) '\r') || (ch == (int) '\n'))  {
+				offset --;
+				ch = doc.getChar(offset);
+			}
 		
+			// Convert this character to a string and start searching
+			String st_c = "" + (char) ch;
+			// Search for normal open brace ([{
 			if (fBeginCharMap.containsKey(st_c)) {
 				begin = true;
 				st = st_c;
 				en = fBeginCharMap.get(st_c);
 				offset++;
 				valid = true;
-			} else if (fEndCharMap.containsValue(st_c)) {
+			// Search for normal close brace (]}
+			} else if (fEndCharMap.containsKey(st_c)) {
 				begin = false;
 				st = st_c;
 				en = fEndCharMap.get(st_c);
 				valid = true;
 				offset--;
+			// Failing these, start searching for begin/end which means we have to build up words
 			} else {
 				// Scan the characters around the carat
 				int st_off = offset;
