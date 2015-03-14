@@ -1905,7 +1905,7 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 	
 	public void testSpecparamInSpecify() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module a_module ( );\n" +
 			"	specify\n" +

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="svScriptPatternMatchers" name="SV Script Pattern Matchers" schema="schema/svScriptPatternMatchers.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -1538,5 +1539,12 @@ end
             name="SVEditor Build Script"
             type="net.sf.sveditor.core.buildScriptLaunchType">
       </launchDelegate>
+   </extension>
+   <extension
+         point="net.sf.sveditor.ui.svScriptPatternMatchers">
+      <patternMatcher
+            class="net.sf.sveditor.ui.script.launch.GenericPathPatternMatcher"
+            name="Generic Path Matcher">
+      </patternMatcher>
    </extension>
 </plugin>

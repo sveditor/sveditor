@@ -419,7 +419,7 @@ public class TestParseBehavioralStmts extends TestCase {
 	}
 	
 	public void testArrayReduction() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module test;\n" +
 			"	initial begin\n" +

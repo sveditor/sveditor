@@ -17,7 +17,6 @@ import net.sf.sveditor.core.script.launch.ILogMessageListener;
 import net.sf.sveditor.core.script.launch.ILogMessageScanner;
 import net.sf.sveditor.core.script.launch.LogMessageScannerMgr;
 import net.sf.sveditor.core.script.launch.SVScriptProblem;
-import net.sf.sveditor.core.script.launch.ScriptHyperlink;
 import net.sf.sveditor.core.script.launch.ScriptMessage;
 import net.sf.sveditor.core.script.launch.ScriptMessage.MessageType;
 import net.sf.sveditor.core.script.launch.ScriptMessageScannerDescriptor;
@@ -39,10 +38,6 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
-import org.eclipse.debug.ui.console.FileLink;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.DocumentEvent;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
@@ -53,16 +48,11 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 	private SVEConsole							fConsole;
 	private MessageConsoleStream				fStdout;
 	private MessageConsoleStream				fStderr;
-	private boolean								fUpdateScheduled;
-	private List<HyperlinkConsoleAction>		fUpdateHyperlinkQueue;
-	private int									fCurrentOffset;
-	private int									fSeparatorSize;
 
 	public ScriptLaunchDelegate() {
 		// TODO Auto-generated constructor stub
 		fScanners = new ArrayList<ILogMessageScanner>();
 		fLog = LogFactory.getLogHandle("ScriptLaunchDelegate");
-		fUpdateHyperlinkQueue = new ArrayList<HyperlinkConsoleAction>();
 	}
 
 	@Override
@@ -76,12 +66,10 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		fConsole.activate();
 		fConsole.clearConsole();
 		
-		fConsole.getDocument().addDocumentListener(hyperlinkDocListener);
-		fSeparatorSize = System.getProperty("line.separator").length();
-
 		fStdout = fConsole.getStdout();
 		fStderr = fConsole.getStderr();
-		
+
+		ScriptConsolePatternMatcherFactory.addPatternMatchers(fConsole);
 	
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		String script = configuration.getAttribute(BuildScriptLauncherConstants.SCRIPT_LIST, "");
@@ -227,21 +215,6 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			}
 		}
 
-		@Override
-		public void hyperlink(ScriptHyperlink hyperlink) {
-			IFile path = SVFileUtils.findWorkspaceFile(hyperlink.getPath());
-			
-			if (path != null) {
-				HyperlinkConsoleAction la = new HyperlinkConsoleAction(
-						path, fCurrentOffset+hyperlink.getOffset()+1, 
-						hyperlink.getLength());
-				la.setLineno(hyperlink.getLineno());
-				synchronized (fUpdateHyperlinkQueue) { 
-					fUpdateHyperlinkQueue.add(la);
-				}
-			}
-		}			
-		
 	};
 	
 	private ILineListener				logMessageListener = new ILineListener() {
@@ -260,7 +233,6 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			synchronized (logMessageListener) {
 				fStdout.println(l);
 				logMessageListener.line(l);
-				fCurrentOffset += l.length()+fSeparatorSize;
 			}
 		}
 	};
@@ -271,7 +243,6 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			synchronized (logMessageListener) {
 				fStderr.println(l);
 				logMessageListener.line(l);
-				fCurrentOffset += l.length()+1;
 			}
 		}
 	};
@@ -295,27 +266,4 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		return ret;
 	}
 	
-	private IDocumentListener hyperlinkDocListener = new IDocumentListener() {
-		
-		@Override
-		public void documentChanged(DocumentEvent event) {
-
-			while (fUpdateHyperlinkQueue.size() > 0) {
-				HyperlinkConsoleAction ca = fUpdateHyperlinkQueue.get(0);
-				if (ca.getLen()+ca.getPos() < event.getDocument().getLength()) {
-					FileLink link = new FileLink(ca.getPath(), null, -1, -1, ca.getLineno());
-					try {
-						fConsole.addHyperlink(link, ca.getPos(), ca.getLen());
-					} catch (BadLocationException e) { e.printStackTrace(); }
-					fUpdateHyperlinkQueue.remove(0);
-				} else {
-					break;
-				}
-			}
-		}
-		
-		@Override
-		public void documentAboutToBeChanged(DocumentEvent event) { }
-	};
-
 }

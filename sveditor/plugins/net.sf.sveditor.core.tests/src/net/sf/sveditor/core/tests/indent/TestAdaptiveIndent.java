@@ -299,17 +299,17 @@ public class TestAdaptiveIndent extends TestCase {
 			" * my_component1.svh\n" +																// 2
 			" ****************************************************************************/\n" +	// 3
 			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
-			"`define INCLUDED_my_component1_svh\n" +												// 5
+			"	`define INCLUDED_my_component1_svh\n" +												// 5
 			"\n" +																					// 6
-			"class my_component1 extends ovm_component;\n" +										// 7
+			"	class my_component1 extends ovm_component;\n" +										// 7
 			"		\n" +																			// 8
-			"	function void foobar();\n" +														// 9
-			"		$psprintf(\"Hello World\\n Testing %d\\n\",\n" +								// 10
-			"				a, b, c);\n" +															// 11
-			"		if (foobar) begin\n" +															// 12
-			"			a = 6;\n" +																	// 13
-			"		end\n" +																		// 14
-			"	endfunction\n" +
+			"		function void foobar();\n" +														// 9
+			"			$psprintf(\"Hello World\\n Testing %d\\n\",\n" +								// 10
+			"					a, b, c);\n" +															// 11
+			"			if (foobar) begin\n" +															// 12
+			"				a = 6;\n" +																	// 13
+			"			end\n" +																		// 14
+			"		endfunction\n" +
 			"\n";
 		
 		LogHandle log = LogFactory.getLogHandle("testPostSysTfIfFull");

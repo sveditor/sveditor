@@ -4,6 +4,4 @@ public interface ILogMessageListener {
 	
 	void message(ScriptMessage msg);
 	
-	void hyperlink(ScriptHyperlink hyperlink);
-
 }

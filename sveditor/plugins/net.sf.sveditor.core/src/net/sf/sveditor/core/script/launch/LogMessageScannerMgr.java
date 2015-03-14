@@ -64,14 +64,6 @@ public class LogMessageScannerMgr implements ILogMessageScannerMgr, ILineListene
 		}
 	}
 	
-	public void addHyperlink(ScriptHyperlink hyperlink) {
-		synchronized (fMessageListeners) {
-			for (ILogMessageListener l : fMessageListeners) {
-				l.hyperlink(hyperlink);
-			}
-		}
-	}
-
 	@Override
 	public void line(String l) {
 		synchronized (fScanners) {

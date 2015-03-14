@@ -8,6 +8,4 @@ public interface ILogMessageScannerMgr {
 
 	void addMessage(ScriptMessage msg);
 	
-	void addHyperlink(ScriptHyperlink hyperlink);
-
 }

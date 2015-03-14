@@ -1,6 +1,9 @@
 
 -- 1.7.5 Release --
 
+- #(enh) - Enhance script-launcher console to identify and add insert
+  hyperlinks for file paths.
+
 -- 1.7.4 Release --
 
 - #(367) - Correct an indenter bug with 'specify' blocks that caused the 

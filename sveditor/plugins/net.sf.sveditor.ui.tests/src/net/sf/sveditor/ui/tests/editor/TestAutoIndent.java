@@ -48,6 +48,30 @@ public class TestAutoIndent extends TestCase {
 		IndentComparator.compare("testBasicIndent", expected, content);
 	}
 
+	public void testPreProc_1() throws BadLocationException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		
+		tester.type("\n");
+		tester.type("package foo;\n");
+		tester.type("`ifdef FOO\n");
+		tester.type("int a;\n");
+		tester.type("int b;\n");
+		
+		String content = tester.getContent();
+		
+		String expected = 
+			"\n" +
+			"package foo;\n" +
+			"\t`ifdef FOO\n" +
+			"\t\tint a;\n" +
+			"\t\tint b;\n"
+			;
+		
+		System.out.println("Result:\n" + content);
+		IndentComparator.compare(getName(), expected, content);
+	}
+	
 	public void testNoBlockIf() throws BadLocationException {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		SVCorePlugin.getDefault().enableDebug(false);

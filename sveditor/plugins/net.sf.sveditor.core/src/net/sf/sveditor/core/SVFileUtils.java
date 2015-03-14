@@ -71,6 +71,10 @@ public class SVFileUtils {
 		fLog.addLogLevelListener(fLogListener);
 	}
 	
+	public static boolean isWin() {
+		return fIsWinPlatform;
+	}
+	
 	public static String getPathParent(String path) {
 		String parent = new File(path).getParent();
 		
