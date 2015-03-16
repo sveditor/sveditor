@@ -1,12 +1,16 @@
 
 -- 1.7.5 Release --
 
+- #(369) - Indenter not properly handling `ifdef/?`endif
+
 - #(enh) - Enhance script-launcher console to identify and add insert
   hyperlinks for file paths.
 
 - #(nobug) Fixed issue with GotoMatchingBracket where "end" was searching forwards instead of backwards.
    - Also updated so that if your cursor is to the right of a closing brace (or end) the command will still
      work, allowing us to toggle between the two points without moving the cursor
+
+- #(368) 	Cursor position after fixing indentation /? formatting of file will now be maintainted on the current line
      
 -- 1.7.4 Release --
 

@@ -1544,7 +1544,39 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"	`include \"file1.svh\"\n" +
 		"	`include \"file2.svh\"\n" +
 		"	`include \"file3.svh\"\n" +
-		"endpackage\n"
+		"endpackage\n"+
+		"\n" +
+		"`ifndef INCLUDED_my_component1_svhn\n" +
+		"	module m ();\n" +
+		"		`ifdef ASDF // comment\n" +
+		"			// comment\n" +
+		"			assign a = b;\n" +
+		"		`else\n" +
+		"			// comment\n" +
+		"			assign c=d;\n" +
+		"	\n" +
+		"		`endif\n" +
+		"		initial\n" +
+		"		begin\n" +
+		"			`ifdef ASDF\n" +
+		"				// comment\n" +
+		"				a = b;\n" +
+		"				a = b;\n" +
+		"			`endif\n" +
+		"			\n" +
+		"		end\n" +
+		"		always @*\n" +
+		"		begin\n" +
+		"			`ifdef ASDF\n" +
+		"				// comment\n" +
+		"				a = b;\n" +
+		"				a = b;\n" +
+		"			`endif\n" +
+		"			\n" +
+		"		end\n" +
+		"	endmodule\n" +
+		"`endif				// comment\n" +
+		"// comment\n" 
 		;
 		
 		SVCorePlugin.getDefault().enableDebug(false);

@@ -182,7 +182,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// as a marker
 			if (indent_newline) {
 				fLog.debug("indent_newline");
-				doc_str.append("DUMMY=5;\n");
+				doc_str.append(" DUMMY=5;\n");
 			}
 			
 			if (doc.getLength() > (cmd.offset+cmd.length)) {
@@ -283,7 +283,10 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 								doc_str.toString().equals("while") ||
 								doc_str.toString().equals("join") ||
 								doc_str.toString().equals("join_any") ||
-								doc_str.toString().equals("join_none")) 
+								doc_str.toString().equals("join_none") ||
+								doc_str.toString().equals("`else") ||
+								doc_str.toString().equals("`endif")
+								) 
 							&& (indent.length() < n_ws_chars)) {
 							doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
 							cmd.offset += (indent.length() - n_ws_chars);
