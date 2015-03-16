@@ -47,7 +47,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private Stack<Tuple<String, Boolean>>	fIndentStack;
 	private List<SVIndentToken>				fTokenList;
 	private SVIndentToken					fCurrent;
-	private String							fCurrentIndent;
+	private String							fCurrentIndent = "";
 	private LogHandle						fLog;
 	private int								fQualifiers;
 	private static final boolean			fDebugEn = false;
@@ -57,6 +57,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private int								fAdaptiveIndentEnd;
 	private boolean							fTestMode;
+
+	private boolean							pref_IndentIfdef = true;		// TODO: Add this to the preferences
 
 	
 	static private Map<String, Integer>		fQualifierMap;
@@ -123,7 +125,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 	
 	public String indent() {
-		return indent(-1, -1);
+		String thing = indent (-1, -1);
+		return (thing);
 	}
 	
 	public String indent(int start_line, int end_line) {
@@ -1095,8 +1098,59 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 	
 	/**
-	 * This thing figures out what kind of statment we have to deal with, and calls
-	 * the appropriate indenter (if/for/case etc)
+	 * This routine will handle pre-processor directives as follows: 
+	 * - `ifdef, ifndef - indent 
+	 * - `else - un-indent, then re-indent 
+	 * - `endif - unindent 
+	 * 
+	 * The remaining directives in fPreProcDirectives will skip to end of line
+	 * 
+	 * @param parent
+	 * @return
+	 */
+	private SVIndentToken indent_preproc() {
+		SVIndentToken tok = fScanner.current();
+		
+		if (fDebugEn) {
+			debug("indent_preproc: " + tok.getImage() + " " + pref_IndentIfdef);
+		}
+		
+		// Test to see if we want the indenter to indent on ifdef's
+		if (pref_IndentIfdef)  {
+			if (tok.isId("`ifdef") || tok.isId("`ifndef")) {
+				start_of_scope (tok);
+				fTokenList.add(tok);
+				tok = skip_to_end_of_line();
+			} else if (tok.isId("`else")) {
+				leave_scope(tok);
+				fTokenList.add(tok);
+				tok = skip_to_end_of_line();
+				start_of_scope(tok);
+			} else if (tok.isId("`endif")) {
+				leave_scope(tok);
+				fTokenList.add(tok);
+				tok = skip_to_end_of_line();
+			}
+			// All other preprocessor directives run to end of line
+			else {
+				fTokenList.add(tok);
+				tok = skip_to_end_of_line();
+			}
+		}
+		// don't indent ifdef's ... just swallow this stuff
+		else {
+			fTokenList.add(tok);
+			tok = skip_to_end_of_line();
+		}
+
+		return (tok);
+
+	}
+
+	/**
+	 * This thing figures out what kind of statement we have to deal with, and
+	 * calls the appropriate indenter (if/for/case etc)
+	 * 
 	 * @param parent
 	 * @return
 	 */
@@ -1543,10 +1597,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private void set_indent(SVIndentToken tok, boolean implicit, boolean ok_to_reset_indent) {
 		if (tok.isStartLine()) {
+			// We handle blank lines, comments, and pre-processor tokens outside 
+			// of the normal indenter flow. Consequently, we the normal indenter
+			// flow must not interfere with these tokens
+			boolean is_exceptional_tok = 
+					(tok.isBlankLine() || tok.isComment() || tok.isPreProc());
+			
 			if (ok_to_reset_indent &&
 					isAdaptiveTraining(tok) && 
-					fIndentStack.peek().second() &&
-					!tok.isBlankLine() && !tok.isComment()) {
+					fIndentStack.peek().second() && !is_exceptional_tok) {
 				// If we are in the training period, the indent
 				// level is provisional, and this is not a blank
 				// line, then sample the indent
@@ -1663,47 +1722,35 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	
 	private SVIndentToken next() {
 		SVIndentToken tok = null;
-		
-		while ((tok = fScanner.next()) != null &&
-				(tok.getType() == SVIndentTokenType.BlankLine ||
-					tok.getType() == SVIndentTokenType.MultiLineComment ||
-					tok.getType() == SVIndentTokenType.SingleLineComment/* ||
-					(tok.isPreProc() && fPreProcDirectives.contains(tok.getImage()))*/)) {
-			if (tok.getType() == SVIndentTokenType.SingleLineComment)  {
+		boolean stay_in_while = true;
+		tok = fScanner.next();
+		// Loop here while we are working through comments & preprocessor elements (`xxx)
+		while (stay_in_while) {
+			if (tok == null) {
+				stay_in_while = false;
+			} else if (tok.getType() == SVIndentTokenType.SingleLineComment) {
+				stay_in_while = true;
 				set_indent(tok, true, true);
 				fTokenList.add(tok);
+				tok = fScanner.next();
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
+				stay_in_while = true;
 				indent_multi_line_comment(tok);
 				fTokenList.add(tok);
-// SGD - Removed this because because we want `include, ifdef etc. to match normal code instead of embedding on line 0
-// See bug #64 Indenter import `include
-//  I have just commented this code out, because I *think* this is where we need to put in `ifdef/`endif indentation
-//  in the future.
-//			} else if (tok.isPreProc() && !tok.isId("`include")) {
-//				// If this is a built-in directive, then place at the
-//				// beginning of the line
-//				Stack<Tuple<String, Boolean>> stack = fIndentStack;
-// 				fIndentStack = new Stack<Tuple<String,Boolean>>();
-//				push_indent_stack("", false);
-//				set_indent(tok, true);
-//				while (tok != null && !tok.isEndLine()) {
-//					//fTokenList.add(tok);
-//					fTokenList.add(tok);
-//					tok = fScanner.next();
-//					if (fDebugEn) {
-//						debug("pre-proc line: " + ((tok != null)?tok.getImage():"null"));
-//					}
-//				}
-//				
-//				if (tok != null) {
-//					fTokenList.add(tok);
-//				}
-//				fIndentStack = stack;
-			} else {
+				tok = fScanner.next();
+			} else if (tok.getType() == SVIndentTokenType.BlankLine) {
+				stay_in_while = true;
 				fTokenList.add(tok);
-			}
+				tok = fScanner.next();
+			} else if (fPreProcDirectives.contains(tok.getImage())) {
+				set_indent(tok, true, true);
+				stay_in_while = true;
+				tok = indent_preproc();
+			} else  {
+				stay_in_while = false;
+			} 
 		}
-		
+
 		if (tok != null) {
 			if (tok.isOp("(")) {
 				if (fNLeftParen == fNRightParen) {
@@ -1779,7 +1826,28 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		return (tok);				// return the last token in hierarchy
 	}
-	
+
+	/**
+	 * This function was written to replace next_s when we are expecting an
+	 * identifier with a hierarchy in it for example: top.bob = ... the function
+	 * will run past the ., and return bob
+	 * 
+	 * @return The identifier in the hierarchy
+	 */
+	private SVIndentToken skip_to_end_of_line() {
+		SVIndentToken tok = fScanner.current();
+		while (tok != null && !tok.isEndLine()) {
+			tok = fScanner.next();
+			if (tok != null) {
+				fTokenList.add(tok);
+			}
+		}
+		
+		tok = fScanner.next();
+		
+		return (tok);
+	}
+
 	private static String get_end_kw(String kw) {
 		if (kw.equals("covergroup")) {
 			return "endgroup";

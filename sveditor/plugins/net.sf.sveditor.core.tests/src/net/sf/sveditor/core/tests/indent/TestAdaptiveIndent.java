@@ -29,11 +29,11 @@ public class TestAdaptiveIndent extends TestCase {
 			" * my_component1.svh\n" +																// 2
 			" ****************************************************************************/\n" +	// 3
 			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
-			"`define INCLUDED_my_component1_svh\n" +												// 5
-			"\n" +																					// 6
-			"class my_component1 extends ovm_component;\n" +										// 7
+			"	`define INCLUDED_my_component1_svh\n" +												// 5
+			"	\n" +																				// 6
+			"	class my_component1 extends ovm_component;\n" +										// 7
 			"		\n" +																			// 8
-			"function void foobar();\n" +															// 9
+			"		function void foobar();\n" +													// 9
 			"a = 5;\n" +
 			"	endfunction\n" +
 			"\n";
@@ -42,13 +42,13 @@ public class TestAdaptiveIndent extends TestCase {
 			" * my_component1.svh\n" +																// 2
 			" ****************************************************************************/\n" +	// 3
 			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
-			"`define INCLUDED_my_component1_svh\n" +												// 5
-			"\n" +																					// 6
-			"class my_component1 extends ovm_component;\n" +										// 7
-			"\n" +																					// 8
-			"function void foobar();\n" +															// 9
-			"	a = 5;\n" +
-			"endfunction\n" +
+			"	`define INCLUDED_my_component1_svh\n" +												// 5
+			"	\n" +																				// 6
+			"	class my_component1 extends ovm_component;\n" +										// 7
+			"		\n" +																			// 8
+			"		function void foobar();\n" +													// 9
+			"			a = 5;\n" +
+			"		endfunction\n" +
 			"\n";
 		
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -189,33 +189,33 @@ public class TestAdaptiveIndent extends TestCase {
 			" * my_component1.svh\n" +																// 2
 			" ****************************************************************************/\n" +	// 3
 			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
-			"`define INCLUDED_my_component1_svh\n" +												// 5
-			"\n" +																					// 6
-			"class my_component1 extends ovm_component;\n" +										// 7
-			"		\n" +																			// 8
-			"function void foobar();\n" +															// 9
-			"	a = 6;\n" +																			// 10
+			"	`define INCLUDED_my_component1_svh\n" +												// 5
+			"	\n" +																					// 6
+			"	class my_component1 extends ovm_component;\n" +										// 7
+			"			\n" +																			// 8
+			"	function void foobar();\n" +															// 9
+			"		a = 6;\n" +																			// 10
 			"		if (foobar) begin\n" +															// 11
 			"a = 5;\n" +
 			"end\n" +
-			"	endfunction\n" +
+			"endfunction\n" +
 			"\n";
 		String expected =
 			"/****************************************************************************\n" +		// 1
 			" * my_component1.svh\n" +																// 2
 			" ****************************************************************************/\n" +	// 3
 			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
-			"`define INCLUDED_my_component1_svh\n" +												// 5
-			"\n" +																					// 6
-			"class my_component1 extends ovm_component;\n" +										// 7
-			"\n" +																					// 8
-			"function void foobar();\n" +															// 9
-			"	a = 6;\n" +
+			"	`define INCLUDED_my_component1_svh\n" +												// 5
+			"	\n" +																					// 6
+			"	class my_component1 extends ovm_component;\n" +										// 7
+			"	\n" +																					// 8
+			"	function void foobar();\n" +															// 9
+			"		a = 6;\n" +
 			"		if (foobar) begin\n" +															// 11
 			"			a = 5;\n" +																	// 12
 			"		end\n" +																		// 13
-			"endfunction\n" +																		// 14
-			"\n";
+			"	endfunction\n" +																		// 14
+			"	\n";
 		
 		LogHandle log = LogFactory.getLogHandle("testAdaptiveIf");
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -349,10 +349,10 @@ public class TestAdaptiveIndent extends TestCase {
 			" * my_component1.svh\n" +																// 2
 			" ****************************************************************************/\n" +	// 3
 			"`ifndef INCLUDED_my_component1_svh\n" +												// 4
-			"`define INCLUDED_my_component1_svh\n" +												// 5
-			"\n" +																					// 6
+			"	`define INCLUDED_my_component1_svh\n" +												// 5
+			"	\n" +																					// 6
 			"	class my_component1 extends ovm_component;\n" +										// 7
-			"		\n" +																			// 8
+			"	\n" +																			// 8
 			"		function void foobar();\n" +													// 9
 			"			a = 5;\n" +
 			"		endfunction\n" +

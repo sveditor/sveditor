@@ -1,6 +1,8 @@
 
 -- 1.7.5 Release --
 
+- #(369) - Indenter not properly handling `ifdef/?`endif
+
 - #(enh) - Enhance script-launcher console to identify and add insert
   hyperlinks for file paths.
 
