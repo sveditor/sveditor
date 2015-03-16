@@ -50,9 +50,11 @@ public class IndentAction extends TextEditorAction {
 	@Override
 	public void run() {
 		ITextSelection 	sel = getSelection();
+		ITextEditor te = getTextEditor();
 		IDocument 		doc = getTextEditor().getDocumentProvider().getDocument(
 				getTextEditor().getEditorInput());
 		int start_line, end_line;
+		int current_line;
 		boolean full_file = false;
 		
 		// Don't yet try to indent entire files
@@ -62,11 +64,13 @@ public class IndentAction extends TextEditorAction {
 
 		try {
 			if (full_file) {
-				start_line = doc.getLineOfOffset(0);
-				end_line = doc.getLineOfOffset(doc.getLength()-1);
+				start_line   = doc.getLineOfOffset(0);
+				end_line     = doc.getLineOfOffset(doc.getLength()-1);
+				current_line = doc.getLineOfOffset(sel.getOffset());		// Current line we are on
 			} else {
-				start_line = doc.getLineOfOffset(sel.getOffset());
-				end_line = doc.getLineOfOffset(sel.getOffset() + sel.getLength());
+				start_line   = doc.getLineOfOffset(sel.getOffset());
+				end_line     = doc.getLineOfOffset(sel.getOffset() + sel.getLength());
+				current_line = end_line;									// Current line we are on
 			}
 			
 			SVDocumentTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
@@ -95,6 +99,44 @@ public class IndentAction extends TextEditorAction {
 				doc.replace(doc.getLineOffset(start_line), length, str); 
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+			// Set the cursor at the line our cursor is on (or end of selection if this applies)
+			// Because we not doing anything to the line delimiters, we just need to make our way pass the appropriate number of 
+			// line delimiters and set the cursor location at this point
+			//
+			// There doesn't seem to be a way to directly go to the line number that I can find, so I am getting the line delimiter 
+			// N times, and then calculating the offset from that point in the scanner
+			//
+			// TODO: Matt, sorry about the TODO, but I have to believe there is a more elegant way of doing this, this is garbage code
+			text_scanner.seek(0);					// Start of doc
+			text_scanner.setSkipComments(false);	// Want to include comment lines here
+			int ch = -1;
+			// Loop till we get to the line the cursor was on at the start, current_line
+			for (int i=0; i<current_line; i++)  {
+				String line_delim = doc.getLineDelimiter(i);		// Find the current line delimiter
+				
+				// Scan across the line till we get to the end of the line
+				// The mess below should really be replaced with a search (line_delim) but can't find that either
+				int j = 0;	// index within line_delim
+				while ((ch = text_scanner.get_ch()) >= 0)  {
+					// Look for possibly 2 characters (\r\n)
+					if (ch == (int) line_delim.charAt(j))  {
+						j++;
+						if (j >= line_delim.length())  {
+							// Found them all... stop here!!! and move onto the next line
+							break;
+						}
+					}
+					// Not found, reset match index
+					else  {
+						j = 0;
+					}
+				}
+			}
+			
+			// Found location, go ahead and set the cursor there, with nothing selected
+			if (ch >= 0)  {
+				te.selectAndReveal((int) text_scanner.getPos(), 0);
 			}
 			
 			// System.out.println("Indent result=\n\"" + str + "\"");
