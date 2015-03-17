@@ -1529,6 +1529,53 @@ end
          </pattern>
       </template>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.module"
+            description="Module Instantiation"
+            name="module">
+         <pattern>
+            module ${module_name} #(
+            parameter ${parameter_name} = ${parameter_value}
+            ) 
+            (
+            	${port_list}
+            );
+endmodule
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.class"
+            description="Generic Class Instantiation"
+            name="class">
+         <pattern>
+            class ${class_name} extends ${base_class};
+endclass
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="net.sf.sveditor.ui.svTemplateContext"
+            id="net.sf.sveditor.ui.package"
+            description="Generic package Instantiation"
+            name="package">
+         <pattern>
+            package ${package_name};
+endpackage
+         </pattern>
+      </template>
+   </extension>
 
    <extension
          point="org.eclipse.debug.core.launchDelegates">

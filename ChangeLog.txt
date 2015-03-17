@@ -11,6 +11,9 @@
      work, allowing us to toggle between the two points without moving the cursor
 
 - #(368) 	Cursor position after fixing indentation /? formatting of file will now be maintainted on the current line
+
+- #(57) Content Assist Doesn't Show SystemVerilog Keyword
+        - Added module, package and class.
      
 -- 1.7.4 Release --
 
