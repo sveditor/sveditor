@@ -1546,5 +1546,9 @@ end
             class="net.sf.sveditor.ui.script.launch.GenericPathPatternMatcher"
             name="Generic Path Matcher">
       </patternMatcher>
+      <patternMatcher
+            class="net.sf.sveditor.ui.script.launch.GenericRelPathPatternMatcher"
+            name="Generic Relative Path Matcher">
+      </patternMatcher>
    </extension>
 </plugin>

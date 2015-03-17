@@ -69,7 +69,6 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		fStdout = fConsole.getStdout();
 		fStderr = fConsole.getStderr();
 
-		ScriptConsolePatternMatcherFactory.addPatternMatchers(fConsole);
 	
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		String script = configuration.getAttribute(BuildScriptLauncherConstants.SCRIPT_LIST, "");
@@ -80,6 +79,8 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		ScriptMessageScannerRegistry rgy = new ScriptMessageScannerRegistry();
 		
 		fScannerMgr = new LogMessageScannerMgr(wd);
+		
+		ScriptConsolePatternMatcherFactory.addPatternMatchers(fScannerMgr, fConsole);
 
 		if (scanners != null && scanners.length() > 0) {
 			for (String id : scanners.split(",")) {
@@ -153,9 +154,9 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		try {
 			int code = runner.run(argv, null, wd_f);
 			
-			if (code != 0) {
-				fLog.error("Command exited with non-zero code: " + code);
-			}
+//			if (code != 0) {
+//				fLog.error("Command exited with non-zero code: " + code);
+//			}
 		} catch (IOException e) {
 			fLog.error(e.getMessage(), e);
 			e.printStackTrace();

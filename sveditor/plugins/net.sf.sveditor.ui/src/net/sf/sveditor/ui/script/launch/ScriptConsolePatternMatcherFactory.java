@@ -9,12 +9,14 @@ import org.eclipse.ui.console.IPatternMatchListener;
 
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.script.launch.ILogMessageScanner;
+import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.console.SVEConsole;
 
 public class ScriptConsolePatternMatcherFactory {
 	
-	public static void addPatternMatchers(SVEConsole console) {
+	public static void addPatternMatchers(ILogMessageScannerMgr mgr, SVEConsole console) {
 		LogHandle log = LogFactory.getLogHandle("ScriptConsolePatternMatcherFactory");
 		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint(
 				SVUiPlugin.PLUGIN_ID, "svScriptPatternMatchers");
@@ -32,6 +34,10 @@ public class ScriptConsolePatternMatcherFactory {
 				if (!(obj instanceof IPatternMatchListener)) {
 					log.error("Class for " + ce.getAttribute("name") + " does not extend IPatternMatchListener");
 					continue;
+				}
+				
+				if (obj instanceof ILogMessageScanner) {
+					((ILogMessageScanner)obj).init(mgr);
 				}
 				
 				IPatternMatchListener l = (IPatternMatchListener)obj;
