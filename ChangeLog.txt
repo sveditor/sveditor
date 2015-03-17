@@ -1,4 +1,7 @@
 
+-- 1.7.6 Release --
+
+------------------------------------------------------------------------------
 -- 1.7.5 Release --
 
 - #(369) - Indenter not properly handling `ifdef/`endif
@@ -19,6 +22,7 @@
 - #(57) Content Assist Doesn't Show SystemVerilog Keyword
         - Added module, package and class.
      
+------------------------------------------------------------------------------
 -- 1.7.4 Release --
 
 - #(367) - Correct an indenter bug with 'specify' blocks that caused the 
