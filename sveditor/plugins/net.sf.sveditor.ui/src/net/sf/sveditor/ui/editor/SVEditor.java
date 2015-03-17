@@ -87,7 +87,9 @@ import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -100,6 +102,7 @@ import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
@@ -134,6 +137,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
@@ -375,6 +379,31 @@ public class SVEditor extends TextEditor
 				fFile = "plugin:" + uri.getPath();
 			} else {
 				fFile = uri.getPath();
+			}
+		} else if (input instanceof IStorageEditorInput) {
+			IStorageEditorInput si = (IStorageEditorInput)input;
+			IStorage s = null;
+			try {
+				s = si.getStorage();
+				fFile = s.getFullPath().toOSString();
+			} catch (CoreException e) {
+				fLog.error("Failed to get storage for IStorageEditorInput file", e);
+			}
+		}
+
+		/**
+		 * Confirm that the document has an associated partitioner. If not,
+		 * register the default SVEditor partitioner.
+		 * Tools, such as the EGit plug-in, can request that a specific 
+		 * editor be opened, but provide a filename that results in the
+		 * default partitioner not being applied.
+		 */
+		if (getDocument() instanceof IDocumentExtension3) {
+			IDocumentExtension3 docExt = (IDocumentExtension3)getDocument();
+			if (docExt.getPartitionings() == null || docExt.getPartitionings().length == 0) {
+				IDocumentPartitioner p = SVDocumentSetupParticipant.createPartitioner();
+				docExt.setDocumentPartitioner(SVDocumentPartitions.SV_PARTITIONING, p);
+				p.connect((IDocument)docExt);
 			}
 		}
 		
