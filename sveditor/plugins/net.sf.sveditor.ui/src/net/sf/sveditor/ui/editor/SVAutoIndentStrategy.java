@@ -182,7 +182,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// as a marker
 			if (indent_newline) {
 				fLog.debug("indent_newline");
-				doc_str.append(" DUMMY=5;\n");
+				doc_str.append("DUMMY=5;\n");
 			}
 			
 			if (doc.getLength() > (cmd.offset+cmd.length)) {
