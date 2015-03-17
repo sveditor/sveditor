@@ -15,6 +15,9 @@
 - #(103) - Correct an issue when using the Eclipse 'History' view to view an old revision of a file.
   The EGit implementation provided misleading filename information to Eclipse, which resulted in 
   the document being improperly configured.
+
+- #(57) Content Assist Doesn't Show SystemVerilog Keyword
+        - Added module, package and class.
      
 -- 1.7.4 Release --
 
