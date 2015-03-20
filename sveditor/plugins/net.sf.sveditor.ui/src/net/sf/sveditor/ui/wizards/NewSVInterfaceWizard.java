@@ -33,7 +33,7 @@ public class NewSVInterfaceWizard extends AbstractNewSVItemFileWizard {
 
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
-		NewInterfaceGenerator gen = new NewInterfaceGenerator();
+		NewInterfaceGenerator gen = new NewInterfaceGenerator(fTagProc);
 		
 		gen.generate(getIndexIterator(monitor), 
 				file_path,

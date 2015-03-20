@@ -1,4 +1,4 @@
-package net.sf.sveditor.svt.core.templates;
+package net.sf.sveditor.core.tagproc;
 
 public interface ITemplateParameterProvider {
 	

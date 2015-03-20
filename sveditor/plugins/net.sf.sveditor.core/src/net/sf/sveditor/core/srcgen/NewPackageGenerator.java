@@ -19,6 +19,7 @@ import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+import net.sf.sveditor.core.tagproc.TagProcessor;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -26,26 +27,27 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class NewPackageGenerator {
+	private TagProcessor		fTagProc;
+	
+	public NewPackageGenerator(TagProcessor proc) {
+		fTagProc = proc;
+	}
 	
 	public void generate(
 			ISVDBIndexIterator	index_it,
 			final IFile			file_path,
 			String				pkg_name,
 			IProgressMonitor	monitor) {
-		String subst_filename = "";
+		
+		fTagProc.setTag("filename", file_path.getName());
+		fTagProc.setTag("type", "Package");
 		
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
 		}
 		monitor.beginTask("Creating package", 100);
 		
-		subst_filename = SVCharacter.toSVIdentifier(file_path.getName());
-		
-		String template =
-			"/****************************************************************************\n" +
-			" * " + file_path.getName() + "\n" +
-			" ****************************************************************************/\n" +
-			"\n";
+		String template = "${file_header}\n";
 
 		template += "/**\n";
 		template += " * Package: " + pkg_name + "\n";
@@ -63,8 +65,9 @@ public class NewPackageGenerator {
 		template += "\n\n";
 		template += "endpackage\n";
 		
-		template += 
-			"\n";
+		template += "\n${file_footer}\n";
+		
+		template = fTagProc.process(template);
 
 		monitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(

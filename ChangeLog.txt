@@ -1,6 +1,15 @@
 
 -- 1.7.6 Release --
 
+- #(nobug) - Correct an issue with Open Declaration for included files.
+
+- #(354) - Update New Class/Interface/Module/Package wizards to use the
+  file_header/file_footer settings from the SV Template Properties page
+  
+- #(354a) - Correct an issue with multi-line template parameters on Windows. 
+  The '\r' character in line-endings introduced extraneous whitespace.
+
+
 ------------------------------------------------------------------------------
 -- 1.7.5 Release --
 

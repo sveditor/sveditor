@@ -10,5 +10,4 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: net.sf.sveditor.svt.core,
- net.sf.sveditor.svt.core.templates,
- net.sf.sveditor.svt.core.text
+ net.sf.sveditor.svt.core.templates

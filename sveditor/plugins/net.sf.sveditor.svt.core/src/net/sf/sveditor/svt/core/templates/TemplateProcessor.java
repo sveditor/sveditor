@@ -31,7 +31,8 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.InputStreamTextScanner;
-import net.sf.sveditor.svt.core.text.TagProcessor;
+import net.sf.sveditor.core.tagproc.TagProcessor;
+import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 
 public class TemplateProcessor {
 	private ITemplateFileCreator			fStreamProvider;

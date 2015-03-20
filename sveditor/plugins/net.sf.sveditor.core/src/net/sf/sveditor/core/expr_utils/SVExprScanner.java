@@ -137,7 +137,7 @@ public class SVExprScanner {
 			debug("string=\"" + ret.fLeaf + "\" next=\"" + (char)c + "\"");
 
 			if (SVCharacter.isSVIdentifierPart(c)) {
-				String id = new StringBuilder(scanner.readIdentifier(c)).reverse().toString();
+				String id = scanner.readIdentifier(c);
 				debug("id=\"" + id + "\"");
 				
 				c = scanner.skipWhite(scanner.get_ch());

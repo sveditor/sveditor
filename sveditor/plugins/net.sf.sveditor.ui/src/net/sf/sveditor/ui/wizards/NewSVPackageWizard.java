@@ -33,7 +33,7 @@ public class NewSVPackageWizard extends AbstractNewSVItemFileWizard {
 
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
-		NewPackageGenerator gen = new NewPackageGenerator();
+		NewPackageGenerator gen = new NewPackageGenerator(fTagProc);
 		
 		gen.generate(getIndexIterator(monitor), 
 				file_path,

@@ -13,10 +13,18 @@
 package net.sf.sveditor.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.tagproc.DynamicTemplateParameterProvider;
+import net.sf.sveditor.core.tagproc.TagProcessor;
+import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -25,6 +33,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.templates.TemplateTranslator;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
@@ -33,9 +43,31 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 abstract public class AbstractNewSVItemFileWizard extends BasicNewResourceWizard {
 //	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVClassWizard";
 	protected AbstractNewSVItemFileWizardPage		fPage;
+	protected TagProcessor							fTagProc;
+	protected TemplateParameterProvider				fTags;
+	protected StringBuilder							fTemplate;
 
 	public AbstractNewSVItemFileWizard() {
 		super();
+		fTemplate = new StringBuilder();
+		fTagProc = new TagProcessor();
+		fTags = new TemplateParameterProvider();
+		fTagProc.addParameterProvider(fTags);
+		IPreferenceStore prefs = SVUiPlugin.getDefault().getPreferenceStore();
+		Map<String, String>	props = null;
+		String params = prefs.getString(SVEditorPrefsConstants.P_SV_TEMPLATE_PROPERTIES);
+		
+		try {
+			props = XMLTransformUtils.xml2Map(params, "parameters", "parameter");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		if (props != null) {
+			fTagProc.addParameterProvider(new TemplateParameterProvider(props));
+		}
+		
+		fTagProc.addParameterProvider(new DynamicTemplateParameterProvider());
 	}
 	
 	abstract protected AbstractNewSVItemFileWizardPage createPage();

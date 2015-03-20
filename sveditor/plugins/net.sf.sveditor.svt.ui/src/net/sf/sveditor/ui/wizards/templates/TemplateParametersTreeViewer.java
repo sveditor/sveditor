@@ -3,7 +3,7 @@ package net.sf.sveditor.ui.wizards.templates;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
+import net.sf.sveditor.core.tagproc.ITemplateParameterProvider;
 import net.sf.sveditor.svt.core.templates.TemplateParameter;
 import net.sf.sveditor.svt.core.templates.TemplateParameterBase;
 import net.sf.sveditor.svt.core.templates.TemplateParameterComposite;

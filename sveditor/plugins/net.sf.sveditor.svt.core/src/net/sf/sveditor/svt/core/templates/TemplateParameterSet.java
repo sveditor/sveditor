@@ -3,6 +3,8 @@ package net.sf.sveditor.svt.core.templates;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
+
 public class TemplateParameterSet {
 	private List<TemplateParameterBase>				fParameters;
 	

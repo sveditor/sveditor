@@ -13,10 +13,10 @@ import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.tagproc.ITemplateParameterProvider;
+import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
 import net.sf.sveditor.svt.core.templates.IExternalTemplatePathProvider;
-import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
-import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 import net.sf.sveditor.ui.SVUiPlugin;
 

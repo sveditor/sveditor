@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.tagproc.DefaultTemplateParameterProvider;
+import net.sf.sveditor.core.tagproc.DynamicTemplateParameterProvider;
+import net.sf.sveditor.core.tagproc.TagProcessor;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
-import net.sf.sveditor.svt.core.templates.DefaultTemplateParameterProvider;
-import net.sf.sveditor.svt.core.templates.DynamicTemplateParameterProvider;
 import net.sf.sveditor.svt.core.templates.ITemplateFileCreator;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
-import net.sf.sveditor.svt.core.text.TagProcessor;
 import net.sf.sveditor.svt.ui.SvtUiPlugin;
 import net.sf.sveditor.ui.SVUiPlugin;
 

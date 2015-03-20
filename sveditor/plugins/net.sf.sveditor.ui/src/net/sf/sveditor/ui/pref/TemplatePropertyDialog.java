@@ -71,7 +71,8 @@ public class TemplatePropertyDialog extends Dialog {
 	}
 	
 	public String getValue() {
-		return fValueStr;
+		// We don't want to keep the '\r' in Windows preference values
+		return fValueStr.replaceAll("\r", "");
 	}
 	
 	private void validate() {

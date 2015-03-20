@@ -1,4 +1,5 @@
-package net.sf.sveditor.svt.core.templates;
+package net.sf.sveditor.core.tagproc;
+
 
 public class DefaultTemplateParameterProvider extends TemplateParameterProvider {
 	
@@ -15,12 +16,14 @@ public class DefaultTemplateParameterProvider extends TemplateParameterProvider 
 		super();
 
 		set_defaults();
-		
-		if (p.providesParameter(FILE_HEADER)) {
-			setTag(FILE_HEADER, p.getParameterValue(FILE_HEADER, null));
-		}
-		if (p.providesParameter(FILE_FOOTER)) {
-			setTag(FILE_HEADER, p.getParameterValue(FILE_FOOTER, null));
+	
+		if (p != null) {
+			if (p.providesParameter(FILE_HEADER)) {
+				setTag(FILE_HEADER, p.getParameterValue(FILE_HEADER, null));
+			}
+			if (p.providesParameter(FILE_FOOTER)) {
+				setTag(FILE_HEADER, p.getParameterValue(FILE_FOOTER, null));
+			}
 		}
 	}
 	

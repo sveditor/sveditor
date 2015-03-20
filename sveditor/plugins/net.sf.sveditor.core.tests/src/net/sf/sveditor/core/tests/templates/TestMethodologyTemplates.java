@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tagproc.TagProcessor;
+import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
@@ -31,10 +33,8 @@ import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
-import net.sf.sveditor.svt.core.templates.TemplateParameterProvider;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
 import net.sf.sveditor.svt.core.templates.TemplateRegistry;
-import net.sf.sveditor.svt.core.text.TagProcessor;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 

@@ -66,6 +66,7 @@ Export-Package: net.sf.sveditor.core,
  net.sf.sveditor.core.script.launch,
  net.sf.sveditor.core.srcgen,
  net.sf.sveditor.core.svf_scanner,
+ net.sf.sveditor.core.tagproc,
  net.sf.sveditor.core.utils,
  net.sf.sveditor.core.vhdl.parser
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

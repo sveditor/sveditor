@@ -33,7 +33,7 @@ public class NewSVModuleWizard extends AbstractNewSVItemFileWizard {
 
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
-		NewModuleGenerator gen = new NewModuleGenerator();
+		NewModuleGenerator gen = new NewModuleGenerator(fTagProc);
 		
 		gen.generate(getIndexIterator(monitor), 
 				file_path,

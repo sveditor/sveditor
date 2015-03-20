@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.svt.core.text;
+package net.sf.sveditor.core.tagproc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,13 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.svt.core.templates.ITemplateParameterProvider;
 
 public class TagProcessor {
+	private TemplateParameterProvider				fBase;
 	private List<ITemplateParameterProvider>		fProviders;
 	
 	public TagProcessor() {
+		fBase = new TemplateParameterProvider();
 		fProviders = new ArrayList<ITemplateParameterProvider>();
+		fProviders.add(fBase);
 	}
 	
 	public void addParameterProvider(ITemplateParameterProvider p) {
@@ -36,6 +38,10 @@ public class TagProcessor {
 
 	public void removeParameterProvider(ITemplateParameterProvider p) {
 		fProviders.remove(p);
+	}
+	
+	public void setTag(String tag, String value) {
+		fBase.setTag(tag, value);
 	}
 	
 	public String process(String in) {

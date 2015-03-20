@@ -21,6 +21,8 @@ import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
+import net.sf.sveditor.core.tagproc.DefaultTemplateParameterProvider;
+import net.sf.sveditor.core.tagproc.TagProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
@@ -32,6 +34,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestNewClassGen extends SVCoreTestCaseBase {
+	
+	private NewClassGenerator createNewClassGenerator() {
+		TagProcessor proc = new TagProcessor();
+		proc.addParameterProvider(new DefaultTemplateParameterProvider(null));
+		NewClassGenerator ret = new NewClassGenerator(proc);
+		
+		return ret;
+	}
 
 	public void testNewClassBasics() {
 		String expected =
@@ -54,7 +64,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"endclass\n" +
 			"\n"
 			;
-		NewClassGenerator gen = new NewClassGenerator();
+		NewClassGenerator gen = createNewClassGenerator();
 		LogHandle log = LogFactory.getLogHandle("testNewClassBasics");
 		
 		try {
@@ -121,7 +131,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"endclass\n" +
 			"\n"
 			;
-		NewClassGenerator gen = new NewClassGenerator();
+		NewClassGenerator gen = createNewClassGenerator();
 		LogHandle log = LogFactory.getLogHandle("testNewClassSuperCtor");
 		
 		try {
@@ -185,7 +195,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			"endclass\n" +
 			"\n"
 			;
-		NewClassGenerator gen = new NewClassGenerator();
+		NewClassGenerator gen = createNewClassGenerator();
 		LogHandle log = LogFactory.getLogHandle("testNewClassTemplateSuper");
 		
 		try {

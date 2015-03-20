@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.indent.ISVIndenter;
 import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
+import net.sf.sveditor.core.tagproc.TagProcessor;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -38,6 +39,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class NewClassGenerator {
 	
+	private TagProcessor			fTagProc;
+	
+	public NewClassGenerator(TagProcessor proc) {
+		fTagProc = proc;
+	}
+	
 	public void generate(
 			ISVDBIndexIterator	index_it,
 			final IFile			file_path,
@@ -45,7 +52,8 @@ public class NewClassGenerator {
 			String				superclass,
 			boolean				implement_new,
 			IProgressMonitor	monitor) {
-//		String subst_filename = "";
+		fTagProc.setTag("filename", file_path.getName());
+		fTagProc.setTag("type", "Class");
 		
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
@@ -54,15 +62,10 @@ public class NewClassGenerator {
 		
 //		subst_filename = SVCharacter.toSVIdentifier(file_path.getName());
 		
-		String template =
-			"/****************************************************************************\n" +
-			" * " + file_path.getName() + "\n" +
-			" ****************************************************************************/\n" +
-			"\n";
+		String template = "${file_header}\n";
 
-		template += "/**\n";
-		template += " * Class: " + clsname + "\n";
-		template += " * \n";
+		template += "/** Class: " + clsname + "\n";
+		template += " *\n";
 		template += " * TODO: Add class documentation\n";
 		template += " */\n";
 		template += "class " + clsname;
@@ -175,6 +178,10 @@ public class NewClassGenerator {
 		template += 
 			"\n";
 
+		template += "${file_footer}\n";
+		
+		template = fTagProc.process(template);
+		
 		monitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(template)));
