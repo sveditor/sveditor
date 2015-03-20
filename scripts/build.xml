@@ -135,6 +135,7 @@
             </filterset>
         </copy>
 
+<!--
         <copy todir="${basedir}/../archive_tmp/features">
             <fileset dir="${gef_zest}/eclipse/features">
                 <include name="**/*"/>
@@ -146,7 +147,6 @@
                 <include name="**/*"/>
             </fileset>
         </copy>
-<!--
   -->
 
         <!-- Create the P2 repository -->

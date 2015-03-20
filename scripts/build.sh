@@ -29,11 +29,14 @@ else
   eclipse=eclipse
 fi
 
+verbose=""
+#verbose="-verbose"
+
 
 $ECLIPSE_HOME/$eclipse \
     -nosplash -application org.eclipse.ant.core.antRunner \
     --launcher.suppressErrors \
     -buildfile build.xml      \
-    -verbose \
+    ${verbose} \
     -Dos=$os -Dws=$ws -Darch=x86_64 $extra_defs build
 
