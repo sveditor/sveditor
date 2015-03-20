@@ -19,6 +19,9 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 	private SVEditor				fEditor;
 	private Map<String, String>		fBeginCharMap;
 	private Map<String, String>		fEndCharMap;
+	// These fields are used to help derive the direction to search in if we have text selected (presumeably from the
+	// previous match that we are toggling between
+	private boolean					fLastSearchForward = false;
 	
 	public GotoMatchingBracketAction(ResourceBundle bundle, String prefix, SVEditor editor) {
 		super(bundle, prefix, editor);
@@ -27,21 +30,48 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		fBeginCharMap.put("(", ")");
 		fBeginCharMap.put("{", "}");
 		fBeginCharMap.put("[", "]");
-		fBeginCharMap.put("begin"   , "end"        );
-		fBeginCharMap.put("module"  , "endmodule"  );
-		fBeginCharMap.put("function", "endfunction");
-		fBeginCharMap.put("task",     "endtask"    );
-		fBeginCharMap.put("class"   , "endclass"   );
+		fBeginCharMap.put("begin"    , "end"        );
+		fBeginCharMap.put("module"   , "endmodule"  );
+		fBeginCharMap.put("function" , "endfunction");
+		fBeginCharMap.put("task"     , "endtask"    );
+		fBeginCharMap.put("class"    , "endclass"   );
+		fBeginCharMap.put("generate" , "endgenerate");
+		fBeginCharMap.put("package"  , "endpackage" );
+		fBeginCharMap.put("case"     , "endcase"     );
+		fBeginCharMap.put("clocking" , "endclocking" );
+		fBeginCharMap.put("config"   , "endconfig"   );
+		fBeginCharMap.put("group"    , "endgroup"    );
+		fBeginCharMap.put("interface", "endinterface");
+		fBeginCharMap.put("primitive", "endprimitive");
+		fBeginCharMap.put("program"  , "endprogram"  );
+		fBeginCharMap.put("property" , "endproperty" );
+		fBeginCharMap.put("specify"  , "endspecify"  );
+		fBeginCharMap.put("sequence" , "endsequence" );
+		fBeginCharMap.put("table"    , "endtable"    );
 		
 		fEndCharMap = new HashMap<String, String>();
 		fEndCharMap.put(")", "(");
 		fEndCharMap.put("}", "{");
 		fEndCharMap.put("]", "[");
 		fEndCharMap.put("end", "begin");
-		fEndCharMap.put("endmodule"  , "module"  );
-		fEndCharMap.put("endfunction", "function");
-		fEndCharMap.put("endtask",     "task"    );
-		fEndCharMap.put("endclass"   , "class"   );
+		fEndCharMap.put("endmodule"     , "module"  );
+		fEndCharMap.put("endfunction"   , "function");
+		fEndCharMap.put("endtask"       , "task"    );
+		fEndCharMap.put("endclass"      , "class"   );
+		fEndCharMap.put("endgenerate"   , "generate");
+		fEndCharMap.put("endpackage"    , "package" );
+		fEndCharMap.put("endcase"       , "case"     );
+		fEndCharMap.put("endclocking"   , "clocking" );
+		fEndCharMap.put("endconfig"     , "config"   );
+		fEndCharMap.put("endgroup"      , "group"    );
+		fEndCharMap.put("endinterface"  , "interface");
+		fEndCharMap.put("endprimitive"  , "primitive");
+		fEndCharMap.put("endprogram"    , "program"  );
+		fEndCharMap.put("endproperty"   , "property" );
+		fEndCharMap.put("endspecify"    , "specify"  );
+		fEndCharMap.put("endsequence"   , "sequence" );
+		fEndCharMap.put("endtable"      , "table"    );
+		
 	}
 
 	@Override
@@ -51,6 +81,11 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		ITextSelection tsel = (ITextSelection)fEditor.getSite().getSelectionProvider().getSelection();
 		
 		int offset = tsel.getOffset();
+		int len    = tsel.getLength();
+		// If we have text selected, and we last searched forward, move our cursor to the end of the selection
+		if ((len != 0) && (fLastSearchForward == true))  {
+			offset = offset+len;
+		}
 		// Check for end of file
 		if (offset >= doc.getLength())  {
 			offset = doc.getLength()-1;
@@ -59,6 +94,8 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		String st = null, en=null;
 		boolean begin = false;
 		boolean valid = false;
+		int start_pos = -1;
+		int end_pos   = -1;
 		
 		try {
 			int ch = doc.getChar(offset);
@@ -85,6 +122,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 				begin = true;
 				st = st_c;
 				en = fBeginCharMap.get(st_c);
+				start_pos = offset;
 				offset++;
 				valid = true;
 			// Search for normal close brace (]}
@@ -93,21 +131,23 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 				st = st_c;
 				en = fEndCharMap.get(st_c);
 				valid = true;
-				offset--;
+				start_pos = offset+1;
+				offset --;
 			// Search for normal open brace ([{
 			} else if (fBeginCharMap.containsKey(prev_st_c)) {
 				begin = true;
 				st = prev_st_c;
 				en = fBeginCharMap.get(prev_st_c);
-				offset++;
 				valid = true;
+				start_pos = offset-1;
 				// Search for normal close brace (]}
 			} else if (fEndCharMap.containsKey(prev_st_c)) {
 				begin = false;
 				st = prev_st_c;
 				en = fEndCharMap.get(prev_st_c);
 				valid = true;
-				offset--;
+				start_pos = offset;
+				offset -= 2;
 			// Failing these, start searching for begin/end which means we have to build up words
 			} else {
 				// Scan the characters around the carat
@@ -152,12 +192,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 						offset=en_off+1;
 						begin = true;
 						valid = true;
+						start_pos = offset;
 					} else if (fEndCharMap.containsKey(str)) {
 						st = str;
 						en = fEndCharMap.get(str);
 						offset=st_off-1;
 						begin = false;
 						valid = true;
+						start_pos = offset;
 					}
 				}
 			}
@@ -198,8 +240,20 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 					if (!begin) {
 						pos++;
 					}
+					end_pos = pos;
+					
+					int length = 0;
+					if ((start_pos != -1) && (end_pos != -1))  {
+						length = end_pos-start_pos;
+						sv.setSelectedRange(start_pos, length);
+//						sv.setSelectedRange(pos, 0);
+					}
+					else  {
+						sv.setSelectedRange(pos, 0);
+					}
 
-					sv.setSelectedRange(pos, 0);
+					sv.revealRange(pos, 0);
+					fLastSearchForward = begin;
 				}
 			}
 		} catch (BadLocationException e) { }

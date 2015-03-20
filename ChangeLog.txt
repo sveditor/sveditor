@@ -1,4 +1,12 @@
 
+-- 1.7.6 Release --
+- #(371) Bracket matching doesn't move cursor if off screen
+         - Fixed this item
+         - Also fixed lockup if your cursor was to the right of the close )
+         
+- #(enh - 105) Bracket matching - selection of text within brackets
+         - Implemented... easy enough to take out if not requested
+
 -- 1.7.5 Release --
 
 - #(369) - Indenter not properly handling `ifdef/?`endif
