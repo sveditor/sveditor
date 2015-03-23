@@ -245,6 +245,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 					int length = 0;
 					if ((start_pos != -1) && (end_pos != -1))  {
 						length = end_pos-start_pos;
+// MSB: disabling select-to-matching-brace for now
 						sv.setSelectedRange(start_pos, length);
 //						sv.setSelectedRange(pos, 0);
 					}

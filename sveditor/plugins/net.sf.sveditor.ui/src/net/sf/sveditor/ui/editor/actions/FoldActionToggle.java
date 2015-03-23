@@ -25,7 +25,18 @@ public class FoldActionToggle extends AbstractHandler implements IHandler {
 			ITextSelection tsel = sve.getTextSel();
 			
 			if (tsel != null) {
-				Iterator<Object> it = (Iterator<Object>)pm.getAnnotationIterator(tsel.getOffset(), tsel.getLength(), true, true);
+				Iterator<Object> it = null;
+				
+				// Try a couple of offsets in case we're just outside a fold region
+				int offset = tsel.getOffset();
+				for (int i=0; i<2; i++) {
+					it = (Iterator<Object>)pm.getAnnotationIterator(offset, tsel.getLength(), true, true);
+					if (it.hasNext()) {
+						break;
+					}
+					offset++;
+				}				
+
 				while (it.hasNext()) {
 					ProjectionAnnotation ann = (ProjectionAnnotation)it.next();
 					if (ann.isCollapsed()) {
