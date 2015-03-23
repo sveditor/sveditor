@@ -1344,6 +1344,10 @@ public class SVEditor extends TextEditor
 		return deletions.toArray(new Annotation[deletions.size()]);
 	}
 	
+	public ProjectionAnnotationModel getProjectionAnnotationModel() {
+		return ((ProjectionViewer)getSourceViewer()).getProjectionAnnotationModel();
+	}
+	
 	private void applyFolding(SVDBFile file, SVDBFile file_pp) {
 	    ProjectionViewer viewer =(ProjectionViewer)getSourceViewer();
 	    if (viewer == null) {

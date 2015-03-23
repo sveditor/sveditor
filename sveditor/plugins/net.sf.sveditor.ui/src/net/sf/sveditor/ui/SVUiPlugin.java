@@ -31,6 +31,7 @@ import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.ui.console.SVEConsole;
+import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.runtime.IStatus;
@@ -47,7 +48,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.MessageConsole;
@@ -167,6 +170,17 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 	public static Shell getActiveWorkbenchShell() {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
+	}
+	
+	public static SVEditor getActiveSVEditor() {
+		IWorkbenchWindow w = getDefault().getWorkbench().getActiveWorkbenchWindow();
+		IEditorPart p = w.getActivePage().getActiveEditor();
+		
+		if (p != null && p instanceof SVEditor) {
+			return (SVEditor)p;
+		} else {
+			return null;
+		}
 	}
 	
 	public static void log(Exception e) {
