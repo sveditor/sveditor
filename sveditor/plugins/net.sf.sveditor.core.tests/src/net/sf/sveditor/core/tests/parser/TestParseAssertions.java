@@ -69,9 +69,10 @@ public class TestParseAssertions extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top ();\n" +
+			"	parameter PARAM = 1;\n" +
 			"	ap_property: assert property (\n" +
 			"	@(posedge clk)\n" +
-			"	($rose (restart) ##1 @ (some_sig == 1'b0)) |=> (interrupt == 1'b1)\n" +
+			"	($rose (restart) ##1 @ (some_sig == 1'b0)) |=> (interrupt[(PARAM-1):0] == 1'b1)\n" +
 			"	);\n" +
 			"endmodule\n"
 			;
