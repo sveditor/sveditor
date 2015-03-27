@@ -19,6 +19,9 @@
 - #(enh - 79) Add shortcut-key support for collapsing/expanding folding
   regions. CTRL+NUMPAD_MINUS (default) collapses a folding region, while
   CTRL+NUMPAD_PLUS expands a folding region.
+  
+  #(374) Specify parsing +=>
+         - Added support for other -=>, +=>, -*>, +*> 
 
 ------------------------------------------------------------------------------
 -- 1.7.5 Release --
