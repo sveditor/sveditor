@@ -1010,6 +1010,30 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "eclipse_collapse");
 	}
+
+	public void testGenSubBeginEnd() {
+		String doc = 
+			"module bob ();\n" +
+			"	logic a, b;\n" +
+			"	genvar i;\n" +
+			"	generate\n" +
+			"	begin: gen1\n" +
+			"		for (i=0; i<3; i++) begin : thing\n" +
+			"			begin       // Apparently a begin/end here is allowed within a generate!?!?\n" +
+			"				assign a = b;\n" +
+			"			end         // Apparently a begin/end here is allowed within a generate!?!?\n" +
+			"		end\n" +
+			"	end\n" +
+			"	endgenerate\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "bob");
+	}
 	
 	public void testOutputPort() {
 		
