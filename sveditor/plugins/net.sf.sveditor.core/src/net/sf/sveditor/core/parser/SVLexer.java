@@ -792,12 +792,12 @@ public class SVLexer extends SVToken {
 			}
 			fIsOperator = true;
 		} else if (ch == '*') {
-			// Could be *, **, *=, or *)
+			// Could be *, **, *=, or *) or *>
 			ch2 = fScanner.get_ch();
 
 			if (ch2 == ')' && fInAttr) {
 				append_ch(')');
-			} else if (ch2 == '*' || ch2 == '=') {
+			} else if ((ch2 == '*') || (ch2 == '=') || (ch2 == '>')) {
 				append_ch(ch2);
 			} else {
 				fScanner.unget_ch(ch2);
