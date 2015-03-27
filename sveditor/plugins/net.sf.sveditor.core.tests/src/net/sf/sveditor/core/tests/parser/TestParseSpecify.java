@@ -34,6 +34,11 @@ public class TestParseSpecify extends TestCase {
 				"\n" +
 				" specify\n" +
 				" (in => out) = (600,600);\n" +
+				" (in +=> out) = (600,600);\n" +
+				" (in -=> out) = (600,600);\n" +
+				" (in1,in2  *> out      ) = (600,600); // multi-to-single\n" +
+				" (in      -*> out1,out2) = (600,600); // single-to-multi\n" +
+				" (in1,in2 +*> out1,out2) = (600,600); //multi-to-multi\n" +
 				" endspecify\n" +
 				"endmodule\n"
 				;
