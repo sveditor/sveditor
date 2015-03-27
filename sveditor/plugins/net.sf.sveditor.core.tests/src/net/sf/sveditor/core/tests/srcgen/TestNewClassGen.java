@@ -44,6 +44,7 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 	}
 
 	public void testNewClassBasics() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String expected =
 			"/****************************************************************************\n" +
 			" * test.svh\n" +

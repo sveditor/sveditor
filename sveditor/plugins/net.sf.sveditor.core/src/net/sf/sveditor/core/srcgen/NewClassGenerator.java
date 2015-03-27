@@ -64,8 +64,9 @@ public class NewClassGenerator {
 		
 		String template = "${file_header}\n";
 
-		template += "/** Class: " + clsname + "\n";
-		template += " *\n";
+		template += "/**\n";
+		template += " * Class: " + clsname + "\n";
+		template += " * \n";
 		template += " * TODO: Add class documentation\n";
 		template += " */\n";
 		template += "class " + clsname;

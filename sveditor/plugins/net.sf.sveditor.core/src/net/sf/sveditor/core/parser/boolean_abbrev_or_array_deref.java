@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
 import net.sf.sveditor.core.db.expr.SVDBCycleDelayExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -431,6 +432,14 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		} else {
 			// Just an array dereference
 			ret = fParsers.exprParser().expression();
+			
+			if (fLexer.peekOperator(":")) {
+				fLexer.eatToken();
+				ret = new SVDBArrayAccessExpr(null, ret, 
+						fParsers.exprParser().expression());
+			} else {
+				ret = new SVDBArrayAccessExpr(null, ret, null);
+			}
 		}
 		fLexer.readOperator("]");
 		return ret;

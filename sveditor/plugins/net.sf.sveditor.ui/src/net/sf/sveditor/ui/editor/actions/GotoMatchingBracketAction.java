@@ -83,13 +83,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		int offset = tsel.getOffset();
 		int len    = tsel.getLength();
 		// If we have text selected, and we last searched forward, move our cursor to the end of the selection
-		if ((len != 0) && (fLastSearchForward == true))  {
-			offset = offset+len;
-		}
+//		if ((len != 0) && (fLastSearchForward == true))  {
+		
 		// Check for end of file
 		if (offset >= doc.getLength())  {
 			offset = doc.getLength()-1;
 		}
+		// Save the original offset for later
+		int sel_offset = offset;
 		
 		String st = null, en=null;
 		boolean begin = false;
@@ -244,10 +245,22 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 					
 					int length = 0;
 					if ((start_pos != -1) && (end_pos != -1))  {
-						length = end_pos-start_pos;
-// MSB: disabling select-to-matching-brace for now
-//						sv.setSelectedRange(start_pos, length);
-						sv.setSelectedRange(pos, 0);
+						// If text was selected when the operation was triggered,
+						// extend the selection
+						if (len > 0) {
+							if (len != 0 && !begin) {
+								sel_offset += len;
+							}
+							if (sel_offset >= doc.getLength()) {
+								sel_offset = doc.getLength()-1;
+							}
+							
+							length = end_pos-sel_offset;
+							sv.setSelectedRange(sel_offset, length);
+						} else {
+							// Otherwise, just move the cursor
+							sv.setSelectedRange(pos, 0);
+						}
 					}
 					else  {
 						sv.setSelectedRange(pos, 0);

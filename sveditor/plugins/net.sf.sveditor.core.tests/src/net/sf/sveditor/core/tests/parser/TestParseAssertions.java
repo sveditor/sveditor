@@ -66,7 +66,7 @@ public class TestParseAssertions extends TestCase {
 	}
 	
 	public void testPropertyParenSeq() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"module top ();\n" +
 			"	parameter PARAM = 1;\n" +

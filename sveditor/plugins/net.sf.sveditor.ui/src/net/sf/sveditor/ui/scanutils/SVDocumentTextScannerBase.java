@@ -68,7 +68,7 @@ public class SVDocumentTextScannerBase
 	}
 	
 	public long getPos() {
-		return (long)fIdx;
+		return (long)((fIdx>0)?fIdx:0);
 	}
 	
 	public void seek(long pos) {

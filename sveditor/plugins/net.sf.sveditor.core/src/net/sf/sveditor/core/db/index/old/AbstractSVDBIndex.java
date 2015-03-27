@@ -2231,7 +2231,7 @@ public abstract class AbstractSVDBIndex implements
 					ft.getSVDBFile(),
 					true);
 		} else {
-			fLog.error("Failed to find fileTree for \"" + file.getFilePath() + "\"");
+//			fLog.error("Failed to find fileTree for \"" + file.getFilePath() + "\"");
 		}
 	}
 

@@ -111,4 +111,28 @@ public class TestParseSpecify extends TestCase {
 				;
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"delay"});
 	}
+	
+	public void testSpecifyPlusGE() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module delay;\n" +
+				"	specify\n" + 
+				"		(in +=> out ) = (0.0,0.0);\n" +
+				"	endspecify\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"delay"});
+	}
+
+	public void testSpecifyMinusGE() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module delay;\n" +
+				"	specify\n" + 
+				"		(in -=> out ) = (0.0,0.0);\n" +
+				"	endspecify\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"delay"});
+	}
 }
