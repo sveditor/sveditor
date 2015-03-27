@@ -134,6 +134,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 	
 	public void for_block(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("for");
+		boolean nested_begin = false;
 		
 		fLexer.readKeyword("for");
 		fLexer.readOperator("(");
@@ -161,8 +162,17 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fLexer.eatToken();
 				gen_blk.fName = "for: " + fLexer.readId();
 			}
+			// Can have a random begin / end around the contents of the code
+			if (fLexer.peekKeyword("begin"))  {
+				nested_begin = true;
+				fLexer.readKeyword("begin");
+			}
 			while (fLexer.peek() != null && !fLexer.peekKeyword("end")) {
 				fParsers.modIfcBodyItemParser().parse(gen_blk, "for");
+			}
+			// Get the end if it exists
+			if (nested_begin)  {
+				fLexer.readKeyword("end");
 			}
 			fLexer.readKeyword("end");
 			if (fLexer.peekOperator(":")) {
