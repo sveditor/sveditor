@@ -26,9 +26,12 @@ public class TestParseSpecify extends TestCase {
 	public void testSpecifyBlock() throws SVParseException {
 		String testname = "testSpecifyBlock";
 		String doc = 
-				"module delay (in, in1, in2, out, out1, out2);\n" +
-				"	input  in, in1, in2;\n" +
+				"module delay (in, in1, in2, out, out1, out2, out3, RD, CLK);\n" +
+				"	input  in, in1;\n" +
+				"	input [1:0] in2;\n" +
 				"	output out, out1, out2;\n" +
+				"	output [1:0] out3;\n" +
+				"	input RD, CLK;\n" +
 				"				\n" +
 				"	assign out = in;\n" +
 				"				\n" +
@@ -36,12 +39,13 @@ public class TestParseSpecify extends TestCase {
 				"		(in => out) = (600,600);\n" +
 				"		(in +=> out) = (600,600);\n" +
 				"		(in -=> out) = (600,600);\n" +
-				"		(in1,in2  *> out      ) = (600,600); // multi-to-single\n" +
+				"		(in1,in2[1]  *> out      ) = (600,600); // multi-to-single\n" +
 				"		(in1,in2  *> (out-:out2)) = (600,600); // multi-to-range\n" +
 				"		(in1,in2  *> (out+:out2)) = (600,600); // multi-to-range\n" +
 				"		(in1,in2  *> (out :out2)) = (600,600); // multi-to-range\n" +
 				"		(in      -*> out1,out2) = (600,600); // single-to-multi\n" +
 				"		(in1,in2 +*> out1,out2) = (600,600); //multi-to-multi\n" +
+				"		if (RD==1) (posedge CLK *> (out3[1]:out3[0])) = (600,600); //multi-to-multi\n" +
 				"	endspecify\n" +
 				"endmodule\n"
 				;

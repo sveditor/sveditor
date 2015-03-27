@@ -226,7 +226,6 @@ public class SVSpecifyBlockParser extends SVParserBase {
 	// TODO: store data
 	private void path_declaration() throws SVParseException {
 		int count=0;
-		boolean must_have_many_destinations = false;
 	
 		if (fDebugEn) {
 			debug("--> path_declaration " + fLexer.peek());
@@ -257,12 +256,8 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			fLexer.readOperator("*>", "-*>", "+*>");
 		} else {
 			// Single start point, one or many end-points
-			if (fLexer.peekOperator("=>", "-=>", "+=>"))  {
-				fLexer.readOperator("=>", "-=>", "+=>");
-			}  else  {
-				// Must have multiple end-points
-				fLexer.readOperator("*>", "-*>", "+*>");
-				must_have_many_destinations = true;
+			if (fLexer.peekOperator("=>", "-=>", "+=>", "*>", "-*>", "+*>"))  {
+				fLexer.readOperator("=>", "-=>", "+=>", "*>", "-*>", "+*>");
 			}
 		}
 		
@@ -277,11 +272,7 @@ public class SVSpecifyBlockParser extends SVParserBase {
 				debug("  loop2: " + fLexer.peek());
 			}
 			specify_inout_terminal_descriptor();
-			if (must_have_many_destinations)  {
-				fLexer.readOperator(",");
-				must_have_many_destinations = false;
-			}
-			else if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(",")) {
 				fLexer.eatToken();
 			} else {
 				break;
