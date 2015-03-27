@@ -23,6 +23,8 @@ public class SVOperators {
 		",", ";", ".", ".*", "'", "->", "->>", "-->", "#", "##", "@", "@@", "(*", "*)",
 		// Assertion operators
 		"=>", "|=>", "|->", "#-#", "#=#", 
+		// Specify Operators
+		/*"=>", already included*/ "+=>", "-=>", "*>", "-*>", "+*>",
 		"--", "++"};
 
 	public static final String AllOperators[];
