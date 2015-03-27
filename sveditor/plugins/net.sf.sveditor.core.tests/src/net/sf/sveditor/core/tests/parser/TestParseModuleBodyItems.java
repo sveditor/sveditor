@@ -966,12 +966,14 @@ public class TestParseModuleBodyItems extends TestCase {
 			"	genvar i;\n" +
 			"	generate\n" +
 			"	begin : my_gen_block\n" +
-			"	for (i=0; i<SIZE; i=i+1) begin:bitnum\n" +
-			"		assign bin[i] = ^gray[SIZE-1:i];\n" +
-			"		// i refers to the implicitly defined localparam whose\n" +
-			"		// value in each instance of the generate block is\n" +
-			"		// the value of the genvar when it was elaborated.\n" +
-			"	end\n" + // 12
+			"		for (i=0; i<SIZE; i=i+1) begin:bitnum\n" +
+			"			begin\n" +
+			"				assign bin[i] = ^gray[SIZE-1:i];\n" +
+			"				// i refers to the implicitly defined localparam whose\n" +
+			"				// value in each instance of the generate block is\n" +
+			"				// the value of the genvar when it was elaborated.\n" +
+			"			end\n" +
+			"		end\n" + // 12
 			"	end\n" +
 			"	endgenerate\n" +
 			"endmodule\n"
