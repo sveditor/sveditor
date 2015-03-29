@@ -21,7 +21,12 @@
   CTRL+NUMPAD_PLUS expands a folding region.
   
   #(374) Specify parsing +=>
-         - Added support for other -=>, +=>, -*>, +*> 
+         - Added support for other -=>, +=>, -*>, +*>
+         
+  #(375) Indenter not properly handling assert property directives
+    This has been improved.  Still choking on a label before assert property 
+    as in "ap_label: assert property (..."
+
 
 ------------------------------------------------------------------------------
 -- 1.7.5 Release --
