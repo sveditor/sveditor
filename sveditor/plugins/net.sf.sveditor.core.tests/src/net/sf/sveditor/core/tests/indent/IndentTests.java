@@ -31,6 +31,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite("IndentTests");
 		suite.addTest(new TestSuite(IndentTests.class));
+		suite.addTest(new TestSuite(TestIndentAssertions.class));
 		suite.addTest(new TestSuite(NoHangIndentTests.class));
 		suite.addTest(new TestSuite(TestIndentScanner.class));
 		suite.addTest(new TestSuite(TestAdaptiveIndent.class));
@@ -1737,26 +1738,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 	}	
 	
 	public void testPropertyAssert() {
-		String doc = 
-			"module bob ();\n" +
-			"logic thevar, clk, b;\n" +
-			"property p_property (somevar);\n" +
-			"@ (posedge clk)\n" +
-			"(b === 'h0);\n" +
-			"endproperty: p_property\n" +
-			"ap_thing: \n" +
-			"assert property (p_property (thevar)) \n" +
-			"begin\n" +
-			"a.sample ();\n" +
-			"end\n" +
-			"else\n" +
-			"begin\n" +
-			"$display (\"thing is \");\n" +
-			"end\n" +
-		    "\n" +
-			"endmodule\n"
-		    ;
-		
+		SVCorePlugin.getDefault().enableDebug(true);
 		String expected = 
 				"module bob ();\n" +
 				"	logic thevar, clk, b;\n" +
@@ -1778,18 +1760,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			    ;
 			;
 
-		SVIndentScanner scanner = new SVIndentScanner(
-				new StringTextScanner(doc));
-		
-		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
-		indenter.init(scanner);
-		indenter.setTestMode(true);
-		
-		String result = indenter.indent();
-		
-		fLog.debug("Result:");
-		fLog.debug(result);
-		IndentComparator.compare(getName(), expected, result);
+		runTest(getName(), fLog, expected);
 	}
 
 	public static void runTest(String name, LogHandle log, String doc) {
