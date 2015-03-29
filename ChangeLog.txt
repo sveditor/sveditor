@@ -1,4 +1,7 @@
 
+-- 1.7.7 Release --
+
+------------------------------------------------------------------------------
 -- 1.7.6 Release --
 
 - #(nobug) - Correct an issue with Open Declaration for included files.
