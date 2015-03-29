@@ -295,6 +295,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 		tok = next_s();
 
+		// Just swallow the property keyword
+		if (tok.isId("property")) {
+			tok = next_s();
+		}
 		if (tok.isOp("(")) {
 			tok = consume_expression();
 			if (tok.isOp(";"))  {
@@ -309,7 +313,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			return tok;
 		}
 
-		if (tok.isId("else")) {
+		if (tok.isId("begin")) {
+			tok = indent_if_stmts(null);
+		}
+		else if (tok.isId("else")) {
 			leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
 //			start_of_scope(tok);
 		}

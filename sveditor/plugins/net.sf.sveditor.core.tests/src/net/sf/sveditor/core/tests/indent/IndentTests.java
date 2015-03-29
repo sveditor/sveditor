@@ -1698,20 +1698,84 @@ public class IndentTests extends SVCoreTestCaseBase {
 	}	
 
 	public void testSpecifySpecparam() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+				"module m;\n" +
+						"\n" +
+						"specify\n" +
+						"if (someSig[0] == 1'b0)\n" +
+						"(CLK => Q[15])=(1.000, 1.000);\n" +
+						"if (someSig[0] == 1'b0)\n" +
+						"(CLK => Q[15])=(1.000, 1.000);\n" +
+						"endspecify\n" +
+						"endmodule\n"
+						;
+		String expected =
+				"module m;\n" +
+						"\n" +
+						"	specify\n" +
+						"		if (someSig[0] == 1'b0)\n" +
+						"			(CLK => Q[15])=(1.000, 1.000);\n" +
+						"		if (someSig[0] == 1'b0)\n" +
+						"			(CLK => Q[15])=(1.000, 1.000);\n" +
+						"	endspecify\n" +
+						"endmodule\n"
+						;
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}	
+	
+	public void testPropertyAssert() {
 		String doc = 
-			"module a_module ( );\n" +
-			"specify\n" +
-			"specparam align     = 5; //\n" +
-			"endspecify\n" +
+			"module bob ();\n" +
+			"logic thevar, clk, b;\n" +
+			"property p_property (somevar);\n" +
+			"@ (posedge clk)\n" +
+			"(b === 'h0);\n" +
+			"endproperty: p_property\n" +
+			"ap_thing: \n" +
+			"assert property (p_property (thevar)) \n" +
+			"begin\n" +
+			"a.sample ();\n" +
+			"end\n" +
+			"else\n" +
+			"begin\n" +
+			"$display (\"thing is \");\n" +
+			"end\n" +
+		    "\n" +
 			"endmodule\n"
-			;
+		    ;
 		
 		String expected = 
-			"module a_module ( );\n" +
-			"	specify\n" +
-			"		specparam align     = 5; //\n" +
-			"	endspecify\n" +
-			"endmodule\n"
+				"module bob ();\n" +
+				"	logic thevar, clk, b;\n" +
+				"	property p_property (somevar);\n" +
+				"		@ (posedge clk)\n" +
+				"				(b === 'h0);\n" +
+				"	endproperty: p_property\n" +
+				"	ap_thing: \n" +
+				"		assert property (p_property (thevar)) \n" +
+				"		begin\n" +
+				"			a.sample ();\n" +
+				"		end\n" +
+				"		else\n" +
+				"		begin\n" +
+				"			$display (\"thing is \");\n" +
+				"		end\n" +
+				 "\n" +
+				"endmodule\n"
+			    ;
 			;
 
 		SVIndentScanner scanner = new SVIndentScanner(
