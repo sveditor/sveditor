@@ -1601,7 +1601,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
-	private StringBuilder removeLeadingWS(String ref) {
+	private static StringBuilder removeLeadingWS(String ref) {
 		StringBuilder sb = new StringBuilder();
 		int i=0;
 		while (i < ref.length()) {
@@ -1728,4 +1728,22 @@ public class IndentTests extends SVCoreTestCaseBase {
 		IndentComparator.compare(getName(), expected, result);
 	}
 
+	public static void runTest(String name, LogHandle log, String doc) {
+		StringBuilder sb = removeLeadingWS(doc);
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+//		indenter.setAdaptiveIndent(true);
+//		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		log.debug("Ref:\n" + doc);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
+		
+		IndentComparator.compare(log, name, doc, result);		
+	}
 }
