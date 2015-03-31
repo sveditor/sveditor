@@ -215,6 +215,10 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		if (fLexer.peekKeyword("else")) {
 			fLexer.eatToken();
 			stmt.setElseExpr(property_expr());
+			// Else statement needs a trailing ';'... possible Modelsim parser error 
+			// See #(377) Parser error: ; at termination of else clause in else of property
+			if (fLexer.peekOperator(";"))
+				fLexer.readOperator(";");
 		}
 	
 		return stmt;

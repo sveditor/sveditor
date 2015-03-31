@@ -1,5 +1,6 @@
 
 -- 1.7.7 Release --
+- #(377) Parser error: ; at termination of else clause in else of property
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
