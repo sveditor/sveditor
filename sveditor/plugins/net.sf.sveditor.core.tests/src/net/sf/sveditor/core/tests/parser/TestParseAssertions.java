@@ -98,12 +98,22 @@ public class TestParseAssertions extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top ();\n" +
-			"	property somep_property;\n" +
-			"		@(posedge clk) disable iff (rst)\n" +
-			"			a\n" +
-			"			|-> \n" +
-			"			(a) [*0:$] !b;    // Braces around 'a' cause parser error\n" +
+			"	logic a, b, clk, reset, thevar, thing;\n" +
+			"	property p_prop ();\n" +
+			"		@(posedge clk)\n" +
+			"			disable iff(thevar)\n" +
+			"			if(b == 1'b1) \n" +
+			"				b == b\n" +
+			"			else\n" +
+			"				b == 0;  // Flagging ; as an error, expected endproperty\n" +
 			"	endproperty\n" +
+			"	cover property ( @(posedge clk)\n" +
+			"		disable iff (reset) \n" +
+			"			(thing !== '0))\n" +
+			"		begin  \n" +
+			"			$display (\"a message\");\n" +
+			"			$display (\"a message\");\n" +
+			"		end\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
