@@ -502,7 +502,7 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr const_or_range_expression() throws SVParseException {
 		if (fDebugEn) {debug("--> const_or_range_expression - " + fLexer.peek());}
 		SVDBExpr expr = expression();
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(":", "+:", "-:")) {
 			fLexer.eatToken();
 			expr = new SVDBRangeExpr(expr, expression());
 		}
@@ -818,7 +818,7 @@ public class SVExprParser extends SVParserBase {
 		fLexer.readOperator("[");
 		SVDBExpr left = expression();
 		SVDBExpr right;
-		fLexer.readOperator(":");
+		fLexer.readOperator(":", "-:", "+:");
 		if (fLexer.peekOperator("$")) {
 			fLexer.eatToken();
 			right = new SVDBRangeDollarBoundExpr();
@@ -1048,20 +1048,13 @@ public class SVExprParser extends SVParserBase {
 			SVToken t = fLexer.consumeToken();
 			if (fLexer.peekOperator("*")) {
 				// This is a coverpoint transition expression
+				// [*0:$] or something like this
 				fLexer.ungetToken(t);
 				break;
-			} else if (fAssertionExpr.peek()) {
-				// Don't move forward if this is likely to be an assertion sequence
-				if (!fLexer.peekOperator()) {
-					fLexer.ungetToken(t);
-					a = selector(a);
-				} else {
-					fLexer.ungetToken(t);
-					break;
-				}
 			} else {
-				fLexer.ungetToken(t);
-				a = selector(a);
+				// Must be an array
+				a = const_or_range_expression();
+				fLexer.readOperator("]");
 			}
 		}
 

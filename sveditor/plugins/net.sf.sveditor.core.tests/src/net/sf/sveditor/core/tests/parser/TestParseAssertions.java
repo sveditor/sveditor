@@ -139,6 +139,27 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"top"});
 	}
 
+	public void testPropertyArrayRange() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+				"module top ();\n" +
+						"	logic clk, signala, signalb;\n" +
+						"	property a_prop ();\n" +
+						"		@(posedge clk) \n" +
+						"			$rose(thing) |-> \n" +
+						"			(abus[(16*1)+:16]) == (abus);\n" +
+						"	endproperty\n" +
+						"	property a_prop ();\n" +
+						"		@(posedge clk) \n" +
+						"			$rose(thing) |-> \n" +
+						"			(abus[(16*1)-:16]) == (abus);\n" +
+						"	endproperty\n" +
+						"endmodule\n"
+						;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
+	
 	public void testPropertyIfStmt() throws SVParseException {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);

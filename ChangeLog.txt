@@ -2,7 +2,9 @@
 -- 1.7.7 Release --
 - #(380) Parser Error: cover property begin / end
 
-- #(379) Parser Error: Hierarcy / function call in property not being parsed correctly
+- #(379) Parser Error: Hierarchy / function call in property not being parsed correctly
+
+- #(381) Parser error: () in array range not parsed properly in properties
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
