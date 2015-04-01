@@ -79,8 +79,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, true);
 		
 		// Index Preferences
-		store.setDefault(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX, true);
-		store.setDefault(SVEditorPrefsConstants.P_ENABLE_SHADOW_INDEX, false);
+		store.setDefault(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_ENABLE, true);
 		store.setDefault(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY, 0);
 		
 		store.setDefault(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT, 0);
