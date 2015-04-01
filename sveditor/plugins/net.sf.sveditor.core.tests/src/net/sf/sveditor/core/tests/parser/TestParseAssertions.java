@@ -114,6 +114,9 @@ public class TestParseAssertions extends TestCase {
 			"			$display (\"a message\");\n" +
 			"			$display (\"a message\");\n" +
 			"		end\n" +
+			"	cover property ( @(posedge clk)\n" +
+			"			disable iff (reset) \n" +
+			"			(thing !== '0)) some_inst.thing.sample(thing2);\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 

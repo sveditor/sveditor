@@ -1,6 +1,8 @@
 
 -- 1.7.7 Release --
-- #(380) cover property begin / end
+- #(380) Parser Error: cover property begin / end
+
+- #(379) Parser Error: Hierarcy / function call in property not being parsed correctly
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
