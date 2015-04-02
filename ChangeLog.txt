@@ -21,6 +21,9 @@
   content is parsed only when the file is saved. This can improve the
   user experience with large files.
   
+- #(384) - Correct a parse issue with a property clocking_event after
+  a sequence_expr. 
+  
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --

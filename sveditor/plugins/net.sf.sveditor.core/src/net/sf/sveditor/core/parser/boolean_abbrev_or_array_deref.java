@@ -346,6 +346,13 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			if (fLexer.peekOperator("[")) {
 				// TODO: where to hang this?
 				SVDBExpr bool_abbrev = boolean_abbrev();
+			} else if (fLexer.peekOperator("@")) {
+				// Issue: #384 -- Appears a clocking event can follow an expression
+				// TODO: Connect
+				SVDBSequenceClockingExpr clk_expr = new SVDBSequenceClockingExpr();
+				clk_expr.setLocation(fLexer.getStartLocation());
+				clk_expr.setClockingExpr(fParsers.exprParser().clocking_event());
+//				clk_expr.setSequenceExpr(sequence_expr());
 			}/* else if (fLexer.peekKeyword("throughout")) {
 				fLexer.eatToken();
 				// TODO:

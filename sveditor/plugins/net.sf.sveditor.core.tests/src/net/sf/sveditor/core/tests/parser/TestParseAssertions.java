@@ -388,7 +388,20 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "top" });
 	}
-	
+
+	public void testConstPostImplicationOp() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc = 
+				"module top ();\n" +
+				"	property p_prop (bit a, bit clk);\n" +
+				"		@(posedge clk) disable iff (~a)\n" +
+				"			$rose(a) |-> 1'b1 @(posedge clk);\n" +
+				"	endproperty: p_prop\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
 	
 	public void testConstantAfterImplicationOp() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
