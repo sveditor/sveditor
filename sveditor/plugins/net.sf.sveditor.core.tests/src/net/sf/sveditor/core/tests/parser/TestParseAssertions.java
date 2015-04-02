@@ -403,4 +403,24 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "top" });
 	}
+
+	public void testIfAfterAt() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module top ();\n" +
+				"	logic [1:0] abus;\n" +
+				"	assert property (\n" +
+				"			@(abus[1])\n" +
+				"			1'b1 |->\n" +
+				"			@(posedge abus[1])\n" +
+				"			if(abus[1])\n" +
+				"			##[0:5] (abus[1] === 1'b1)\n" +
+				"			else\n" +
+				"			##[0:2](abus[1] === 1'b1)\n" +
+				"		);\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
 }
