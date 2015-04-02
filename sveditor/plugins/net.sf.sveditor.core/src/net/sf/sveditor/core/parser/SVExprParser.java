@@ -1045,18 +1045,37 @@ public class SVExprParser extends SVParserBase {
 		
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
 		while (fLexer.peekOperator("::", ".", "[")) {
-			SVToken t = fLexer.consumeToken();
-			if (fLexer.peekOperator("*")) {
-				// This is a coverpoint transition expression
-				// [*0:$] or something like this
-				fLexer.ungetToken(t);
-				break;
+			if (fLexer.peekOperator ("["))  {
+				
+				SVToken t = fLexer.consumeToken();
+				// Check for operators, if it is an operator, return as this is parsed elsewhere
+				// Property / Coverpoint Operators
+				// [*0:$]  or something like this - Consecutive repetition
+				// [=0:$]  or something like this - Non-Consecutive repetition
+				// [->0:$] or something like this - Goto repetition
+				if (fLexer.peekOperator("*", "->", "=")) {
+					fLexer.ungetToken(t);
+					break;
+				} 
+				// Must be an array - consume it here
+				else {
+					a = const_or_range_expression();
+					fLexer.readOperator("]");
+				}
+			} else if (fAssertionExpr.peek()) {
+				SVToken t = fLexer.consumeToken();
+				// Don't move forward if this is likely to be an assertion sequence
+				if (!fLexer.peekOperator()) {
+					fLexer.ungetToken(t);
+					a = selector(a);
+				} else {
+					fLexer.ungetToken(t);
+					break;
+				}
 			} else {
-				// Must be an array
-				a = const_or_range_expression();
-				fLexer.readOperator("]");
+				a = selector(a);
 			}
-		}
+}
 
 		if (fLexer.peekOperator("'")) {
 			SVToken tok = fLexer.consumeToken();

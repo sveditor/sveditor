@@ -133,6 +133,11 @@ public class TestParseAssertions extends TestCase {
 			"	signala |=> (signala[(5)] == 1'b1) \n" +
 			"		##1 signalb;\n" +
 			"	endproperty:  some_prop\n" +
+			"	property a_prop ();\n" +
+			"		@(posedge clk) \n" +
+			"			$rose(thing) |-> \n" +
+			"			(abus[(17):16]) == (abus);\n" +
+			"	endproperty\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
