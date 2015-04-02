@@ -359,4 +359,20 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "test" });
 	}
+	
+	
+	public void testSequenceIfElse() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+					"module top ();\n" +
+					"	sequence s_trig_seq (bit a, bit b, bit c, bit d);\n" +
+					"		(a==1) ?\n" +
+					"			(b==1) :\n" +
+					"			(c==1);\n" +
+					"	endsequence\n" +
+					"endmodule\n"
+					;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
 }
