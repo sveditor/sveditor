@@ -39,6 +39,7 @@ import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
 import net.sf.sveditor.core.db.index.old.InputStreamCopier;
+import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -127,6 +128,11 @@ public class SVDBTestUtils {
 				if (ii.getImport().equals(e)) {
 					return ii;
 				}
+			}
+		} else if (it.getType() == SVDBItemType.AssertStmt) {
+			SVDBAssertStmt asrt = (SVDBAssertStmt) it;
+			if (asrt.getName().equals(e))  {
+				return (asrt);
 			}
 		} else if (it instanceof ISVDBScopeItem) {
 			ISVDBItemBase t;

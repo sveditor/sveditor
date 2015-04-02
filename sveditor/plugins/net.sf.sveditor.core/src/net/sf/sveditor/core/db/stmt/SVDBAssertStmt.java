@@ -19,6 +19,7 @@ public class SVDBAssertStmt extends SVDBStmt {
 	public SVDBExpr				fExpr;
 	public SVDBExpr				fDelay;
 	public SVDBActionBlockStmt		fActionBlock;
+	public String				fName;
 	
 	public SVDBAssertStmt() {
 		this(SVDBItemType.AssertStmt);
@@ -51,5 +52,14 @@ public class SVDBAssertStmt extends SVDBStmt {
 	public SVDBActionBlockStmt getActionBlock() {
 		return fActionBlock;
 	}
+
+	public String getName() {
+		return fName;
+	}
+	
+	public void setName(String name) {
+		fName = name;
+	}
+	
 
 }

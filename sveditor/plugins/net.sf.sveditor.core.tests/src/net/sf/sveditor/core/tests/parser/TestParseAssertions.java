@@ -77,7 +77,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"/*, "ap_property" #388*/});
+				new String[] {"top", "ap_property"});
 	}
 	
 	public void testPropertyRepetitionSuffix() throws SVParseException {
@@ -91,7 +91,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"/*, "ap_property" #388*/});
+				new String[] {"top", "ap_property"});
 	}
 
 	public void testPropertyParenExpr() throws SVParseException {
@@ -192,7 +192,7 @@ public class TestParseAssertions extends TestCase {
 			;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"AssertionErrors", "p_example_1"/*, "a_example_1" #388*/});
+				new String[] {"AssertionErrors", "p_example_1", "a_example_1"});
 	}
 	
 
@@ -304,7 +304,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"t"/*, "ERROR_DEND_IS_UNKNOWN", "ERROR_DATA_IS_UNKNOWN" #388*/});
+				new String[] {"t", "ERROR_DEND_IS_UNKNOWN", "ERROR_DATA_IS_UNKNOWN"});
 	}
 	
 	/**

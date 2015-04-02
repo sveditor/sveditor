@@ -439,7 +439,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			// behavioral construct
 			error("Unexpected 'end' without matching 'begin'");
 		} else if (fLexer.peekKeyword("assert","assume","cover", "expect")) {
-			parsers().assertionParser().parse(parent);
+			parsers().assertionParser().parse(parent, "");
 		} else if (fLexer.peekKeyword("return")) {
 			if (fDebugEn) {
 				debug("return statement");
