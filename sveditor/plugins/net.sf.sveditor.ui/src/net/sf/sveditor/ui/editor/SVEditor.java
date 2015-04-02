@@ -353,14 +353,19 @@ public class SVEditor extends TextEditor
 	
 	protected void updateAutoIndexDelayPref() {
 		IPreferenceStore ps = SVUiPlugin.getDefault().getChainedPrefs();
-		
+
+		boolean en = ps.getBoolean(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_ENABLE);
 		int delay = ps.getInt(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY);
 		
 		if (delay == -1) {
-			fIncrReparseEn = false;
-		} else {
+			en = false;
+		}
+	
+		if (en) {
 			fIncrReparseEn = true;
 			fReparseDelay = delay;
+		} else {
+			fIncrReparseEn = false;
 		}
 	}
 
@@ -1706,7 +1711,8 @@ public class SVEditor extends TextEditor
 				
 				if (SVEditorPrefsConstants.P_FOLDING_PREFS.contains(event.getProperty())) {
 					updateFoldingPrefs();
-				} else if (event.getProperty().equals(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY)) {
+				} else if (event.getProperty().equals(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY) ||
+						event.getProperty().equals(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_ENABLE)) {
 					updateAutoIndexDelayPref();
 				}
 			}

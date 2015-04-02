@@ -8,7 +8,9 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -66,6 +68,13 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 		fLog.debug(LEVEL_MIN, "--> OpenProjectJob " + fProject.getName());
 		
 		fProjectMgr.startDelayedBuild(this);
+
+		IWorkspaceDescription desc = ResourcesPlugin.getWorkspace().getDescription();
+		
+		if (!desc.isAutoBuilding()) {
+			fLog.debug(LEVEL_MIN, "-- OpenProjectJob canceled -- AutoBuild disabled");
+			return Status.OK_STATUS;
+		}
 		
 		if (SVDBProjectManager.isSveProject(fProject)) {
 			

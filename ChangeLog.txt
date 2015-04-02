@@ -14,6 +14,19 @@
 
 - #(387) Parser error: Constraint error: Unknown suffix for expression }    
 
+- #(enh) - Modify project-import behavior when 'Project->Build Automatically" 
+  is disabled. Previously, SVE would perform an initial build of the project.
+  Now, the initial build is not performed. 
+
+- #(enh) - Update preferences for Editor Auto-Index. Now, there is an 
+  'Enable' preference button. When auto-index is disabled, the editor
+  content is parsed only when the file is saved. This can improve the
+  user experience with large files.
+  
+- #(384) - Correct a parse issue with a property clocking_event after
+  a sequence_expr. 
+  
+
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
 

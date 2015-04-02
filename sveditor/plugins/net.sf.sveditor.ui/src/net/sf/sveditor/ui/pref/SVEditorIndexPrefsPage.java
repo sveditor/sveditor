@@ -5,10 +5,16 @@ import net.sf.sveditor.ui.SVUiPlugin;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class SVEditorIndexPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+	private BooleanFieldEditor			fEditorAutoIndexEn;
+	private IntegerFieldEditor			fEditorAutoIndexDelay;
 	
 	public SVEditorIndexPrefsPage() {
 		super(GRID);
@@ -23,19 +29,49 @@ public class SVEditorIndexPrefsPage extends FieldEditorPreferencePage implements
 
 	@Override
 	protected void createFieldEditors() {
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_REBUILD_INDEX, 
-				"Enable Index Auto-Rebuild:", getFieldEditorParent()));
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_ENABLE_SHADOW_INDEX, 
-				"Enable Shadow Index:", getFieldEditorParent()));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_OVERRIDE_FILE_EXTENSION_LANGUAGE_LEVEL, 
-				"Override Language Level based on file extension. Treat all source as SystemVerilog:", 
+				"Override Language Level based on file extension. Treat all source as SystemVerilog", 
 				getFieldEditorParent()));
 		
-		IntegerFieldEditor fi = new IntegerFieldEditor(SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY, 
-				"Editor Auto-Index Delay (mS):", getFieldEditorParent());
-		fi.setValidRange(-1, Integer.MAX_VALUE);
-		addField(fi);
+		fEditorAutoIndexEn = new BooleanFieldEditor(
+				SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_ENABLE,
+				"Enable Editor Auto-Index", getFieldEditorParent());
+		addField(fEditorAutoIndexEn);
 		
+		fEditorAutoIndexDelay = new IntegerFieldEditor(
+				SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY, 
+				"Editor Auto-Index Delay (mS):", getFieldEditorParent());
+		fEditorAutoIndexDelay.setValidRange(0, Integer.MAX_VALUE);
+		addField(fEditorAutoIndexDelay);
 	}
 
+	@Override
+	protected void initialize() {
+		super.initialize();
+		fEditorAutoIndexDelay.setEnabled(
+				fEditorAutoIndexEn.getBooleanValue(),
+				getFieldEditorParent());
+	
+		final Button b = (Button)fEditorAutoIndexEn.getDescriptionControl(
+				getFieldEditorParent());
+		b.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				fEditorAutoIndexDelay.setEnabled(
+						b.getSelection(),
+						getFieldEditorParent());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) { }
+		});
+	}
+
+	@Override
+	protected void performDefaults() {
+		// TODO Auto-generated method stub
+		super.performDefaults();
+	}
+	
 }

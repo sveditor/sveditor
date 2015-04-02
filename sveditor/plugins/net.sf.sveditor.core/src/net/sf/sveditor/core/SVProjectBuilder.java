@@ -57,10 +57,6 @@ public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogL
 			case AUTO_BUILD:
 			case INCREMENTAL_BUILD: {
 				fLog.debug(LEVEL_MIN, "Auto/Incr Build: " + kind);
-				if (!SVCorePlugin.getDefault().getEnableAutoBuild()) {
-					fLog.debug(LEVEL_MIN, "  Auto/Incr Build disabled");
-					return null;
-				}
 				
 				final List<SVDBIndexResourceChangeEvent> changes = new ArrayList<SVDBIndexResourceChangeEvent>();
 				IResourceDelta delta = getDelta(p);
