@@ -10,7 +10,9 @@
 
 - #(382) Parse error: sequence ?:;
 
-- #(383) Parser error: Property Cycle delay (##) with an expression not parsed   
+- #(383) Parser error: Property Cycle delay (##) with an expression not parsed
+
+- #(387) Parser error: Constraint error: Unknown suffix for expression }    
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
