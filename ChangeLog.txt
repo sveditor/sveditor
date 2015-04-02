@@ -6,6 +6,8 @@
 
 - #(381) Parser error: () in array range not parsed properly in properties
 
+- #(378) Indenter error: Property if / else not correct 
+
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
 

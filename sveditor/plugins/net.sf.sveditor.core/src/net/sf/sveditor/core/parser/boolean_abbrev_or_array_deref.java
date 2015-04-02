@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
@@ -203,7 +204,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 	private SVDBExpr property_statement_if() throws SVParseException {
 		SVDBPropertyIfStmt stmt = new SVDBPropertyIfStmt();
 		stmt.setLocation(fLexer.getStartLocation());
-				
+		stmt.setType(SVDBItemType.PropertyIfStmt);
 		fLexer.readKeyword("if");
 		
 		fLexer.readOperator("(");
