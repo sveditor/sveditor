@@ -24,7 +24,6 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFirstMatchExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
-import net.sf.sveditor.core.db.expr.SVDBParenExpr;
 import net.sf.sveditor.core.db.expr.SVDBPropertyCaseItem;
 import net.sf.sveditor.core.db.expr.SVDBPropertyCaseStmt;
 import net.sf.sveditor.core.db.expr.SVDBPropertyIfStmt;
@@ -489,6 +488,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		SVDBCycleDelayExpr expr = new SVDBCycleDelayExpr();
 		expr.setLocation(fLexer.getStartLocation());
 		
+		// [cycle_delay_const_range_expression]
 		if (fLexer.peekOperator("[")) {
 			fLexer.eatToken();
 			if (fLexer.peekOperator("*","+")) {
@@ -506,6 +506,12 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				}
 			}
 			fLexer.readOperator("]");
+		}
+		// (constant_expression)
+		else if (fLexer.peekOperator("(")) {
+			fLexer.readOperator("(");
+			expr.setExpr(fParsers.exprParser().assert_expression());
+			fLexer.readOperator(")");
 		} else {
 			expr.setExpr(fParsers.exprParser().assert_expression());
 		}

@@ -375,4 +375,17 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "top" });
 	}
+	public void testCycleDelayConstantExpression() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module top (); \n" +
+				"	property p_prop (bit clk, bit a, bit b);\n" +
+				"		@(posedge clk) disable iff (a)\n" +
+				"				$rose(a) |-> ##(1) (a == b);\n" +
+				"	endproperty\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
 }

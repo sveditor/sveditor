@@ -8,7 +8,9 @@
 
 - #(378) Indenter error: Property if / else not correct
 
-- #(382) Parse error: sequence ?:;  
+- #(382) Parse error: sequence ?:;
+
+- #(383) Parser error: Property Cycle delay (##) with an expression not parsed   
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --
