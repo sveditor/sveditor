@@ -98,12 +98,25 @@ public class TestParseAssertions extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top ();\n" +
-			"	property somep_property;\n" +
-			"		@(posedge clk) disable iff (rst)\n" +
-			"			a\n" +
-			"			|-> \n" +
-			"			(a) [*0:$] !b;    // Braces around 'a' cause parser error\n" +
+			"	logic a, b, clk, reset, thevar, thing;\n" +
+			"	property p_prop ();\n" +
+			"		@(posedge clk)\n" +
+			"			disable iff(thevar)\n" +
+			"			if(b == 1'b1) \n" +
+			"				b == b\n" +
+			"			else\n" +
+			"				b == 0;  // Flagging ; as an error, expected endproperty\n" +
 			"	endproperty\n" +
+			"	cover property ( @(posedge clk)\n" +
+			"		disable iff (reset) \n" +
+			"			(thing !== '0))\n" +
+			"		begin  \n" +
+			"			$display (\"a message\");\n" +
+			"			$display (\"a message\");\n" +
+			"		end\n" +
+			"	cover property ( @(posedge clk)\n" +
+			"			disable iff (reset) \n" +
+			"			(thing !== '0)) some_inst.thing.sample(thing2);\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
@@ -120,12 +133,38 @@ public class TestParseAssertions extends TestCase {
 			"	signala |=> (signala[(5)] == 1'b1) \n" +
 			"		##1 signalb;\n" +
 			"	endproperty:  some_prop\n" +
+			"	property a_prop ();\n" +
+			"		@(posedge clk) \n" +
+			"			$rose(thing) |-> \n" +
+			"			(abus[(17):16]) == (abus);\n" +
+			"	endproperty\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] {"top"});
 	}
 
+	public void testPropertyArrayRange() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+				"module top ();\n" +
+						"	logic clk, signala, signalb;\n" +
+						"	property a_prop ();\n" +
+						"		@(posedge clk) \n" +
+						"			$rose(thing) |-> \n" +
+						"			(abus[(16*1)+:16]) == (abus);\n" +
+						"	endproperty\n" +
+						"	property a_prop ();\n" +
+						"		@(posedge clk) \n" +
+						"			$rose(thing) |-> \n" +
+						"			(abus[(16*1)-:16]) == (abus);\n" +
+						"	endproperty\n" +
+						"endmodule\n"
+						;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
+	
 	public void testPropertyIfStmt() throws SVParseException {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -319,5 +358,69 @@ public class TestParseAssertions extends TestCase {
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "test" });
+	}
+	
+	
+	public void testSequenceIfElse() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+					"module top ();\n" +
+					"	sequence s_trig_seq (bit a, bit b, bit c, bit d);\n" +
+					"		(a==1) ?\n" +
+					"			(b==1) :\n" +
+					"			(c==1);\n" +
+					"	endsequence\n" +
+					"endmodule\n"
+					;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
+	public void testCycleDelayConstantExpression() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module top (); \n" +
+				"	property p_prop (bit clk, bit a, bit b);\n" +
+				"		@(posedge clk) disable iff (a)\n" +
+				"				$rose(a) |-> ##(1) (a == b);\n" +
+				"	endproperty\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
+	
+	
+	public void testConstantAfterImplicationOp() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+					"module top ();\n" +
+					"	property p_prop (bit a, bit clk);\n" +
+					"		@(posedge clk) disable iff (~a)\n" +
+					"				$rose(a) |-> 1'b1 @(posedge clk);\n" +
+					"	endproperty: p_prop\n" +
+					"endmodule\n"
+					;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
+	}
+
+	public void testIfAfterAt() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module top ();\n" +
+				"	logic [1:0] abus;\n" +
+				"	assert property (\n" +
+				"			@(abus[1])\n" +
+				"			1'b1 |->\n" +
+				"			@(posedge abus[1])\n" +
+				"			if(abus[1])\n" +
+				"			##[0:5] (abus[1] === 1'b1)\n" +
+				"			else\n" +
+				"			##[0:2](abus[1] === 1'b1)\n" +
+				"		);\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "top" });
 	}
 }

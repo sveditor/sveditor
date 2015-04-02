@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
@@ -23,7 +24,6 @@ import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFirstMatchExpr;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
-import net.sf.sveditor.core.db.expr.SVDBParenExpr;
 import net.sf.sveditor.core.db.expr.SVDBPropertyCaseItem;
 import net.sf.sveditor.core.db.expr.SVDBPropertyCaseStmt;
 import net.sf.sveditor.core.db.expr.SVDBPropertyIfStmt;
@@ -203,7 +203,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 	private SVDBExpr property_statement_if() throws SVParseException {
 		SVDBPropertyIfStmt stmt = new SVDBPropertyIfStmt();
 		stmt.setLocation(fLexer.getStartLocation());
-				
+		stmt.setType(SVDBItemType.PropertyIfStmt);
 		fLexer.readKeyword("if");
 		
 		fLexer.readOperator("(");
@@ -488,6 +488,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		SVDBCycleDelayExpr expr = new SVDBCycleDelayExpr();
 		expr.setLocation(fLexer.getStartLocation());
 		
+		// [cycle_delay_const_range_expression]
 		if (fLexer.peekOperator("[")) {
 			fLexer.eatToken();
 			if (fLexer.peekOperator("*","+")) {
@@ -505,6 +506,12 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				}
 			}
 			fLexer.readOperator("]");
+		}
+		// (constant_expression)
+		else if (fLexer.peekOperator("(")) {
+			fLexer.readOperator("(");
+			expr.setExpr(fParsers.exprParser().assert_expression());
+			fLexer.readOperator(")");
 		} else {
 			expr.setExpr(fParsers.exprParser().assert_expression());
 		}

@@ -611,8 +611,22 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			stmt.setLocation(start);
 			parent.addChildItem(stmt);
 		} else {
-			fLexer.eatToken();
-			statement_int(parent, false, true, true);
+			// Check for begin / end
+			if (fLexer.peekKeyword("begin"))  {
+				fLexer.eatToken();
+				while (!fLexer.peekKeyword("end"))  {
+					statement_int(parent, false, true, true);
+				}
+				fLexer.readKeyword("end");
+			}
+			else  {
+				fLexer.eatToken();
+				// Check for hierarchy token and eat it if exists
+				if (fLexer.peekOperator("."))  {
+					fLexer.eatToken();
+				}
+				statement_int(parent, false, true, true);
+			}
 		}
 	}
 	
