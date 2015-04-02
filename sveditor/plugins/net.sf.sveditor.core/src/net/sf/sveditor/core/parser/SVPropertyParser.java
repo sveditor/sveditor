@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -65,7 +66,7 @@ public class SVPropertyParser extends SVParserBase {
 		fLexer.readKeyword("property");
 		
 		prop.setName(fLexer.readId());
-		
+		// Port List
 		if (fLexer.peekOperator("(")) {
 			fLexer.eatToken();
 			if (!fLexer.peekOperator(")")) {
@@ -89,6 +90,7 @@ public class SVPropertyParser extends SVParserBase {
 		// data declarations
 		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword("var") || fLexer.isIdentifier()) {
 			SVDBLocation start = fLexer.getStartLocation();
+			// Variable (logic, int unsigned etc)
 			if (fLexer.peekKeyword("var") || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
 				// Definitely a declaration
 				parsers().blockItemDeclParser().parse(prop, null, start);
@@ -174,6 +176,15 @@ public class SVPropertyParser extends SVParserBase {
 		}
 	}
 
+	/**
+	 * property_statement
+	 * 
+	 * This where the processing of the body of a property statement occurs
+	 * the @clocking , disable iff etc are done before this
+	 * 
+	 * @param prop
+	 * @throws SVParseException
+	 */
 	private void property_statement_spec(SVDBProperty prop) throws SVParseException {
 		if (fDebugEn) {
 			debug("--> property_statement_spec " + fLexer.peek());
@@ -181,6 +192,11 @@ public class SVPropertyParser extends SVParserBase {
 		SVDBExprStmt stmt = new SVDBExprStmt();
 		stmt.setLocation(fLexer.getStartLocation());
 		stmt.setExpr(fParsers.propertyExprParser().property_statement());
+		// If statements may or may not have a trailing semicolon, but will have one if it is
+		// here in the "root"
+		if (stmt.fExpr.getType() == SVDBItemType.PropertyIfStmt)  {
+			fLexer.readOperator(";");		
+		}
 		prop.addChildItem(stmt);
 				
 		if (fDebugEn) {

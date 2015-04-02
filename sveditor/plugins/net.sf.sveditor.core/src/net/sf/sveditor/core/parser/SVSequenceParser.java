@@ -23,7 +23,6 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.scanner.SVKeywords;
-
 public class SVSequenceParser extends SVParserBase {
 	
 	public SVSequenceParser(ISVParser parser) {
@@ -35,8 +34,10 @@ public class SVSequenceParser extends SVParserBase {
 		seq.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("sequence");
 		
+		// Sequence name
 		seq.setName(fLexer.readId());
 		
+		// Port list
 		if (fLexer.peekOperator("(")) {
 			// sequence_port_list
 			fLexer.eatToken();

@@ -502,7 +502,7 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr const_or_range_expression() throws SVParseException {
 		if (fDebugEn) {debug("--> const_or_range_expression - " + fLexer.peek());}
 		SVDBExpr expr = expression();
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(":", "+:", "-:")) {
 			fLexer.eatToken();
 			expr = new SVDBRangeExpr(expr, expression());
 		}
@@ -818,7 +818,7 @@ public class SVExprParser extends SVParserBase {
 		fLexer.readOperator("[");
 		SVDBExpr left = expression();
 		SVDBExpr right;
-		fLexer.readOperator(":");
+		fLexer.readOperator(":", "-:", "+:");
 		if (fLexer.peekOperator("$")) {
 			fLexer.eatToken();
 			right = new SVDBRangeDollarBoundExpr();
@@ -1045,12 +1045,25 @@ public class SVExprParser extends SVParserBase {
 		
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
 		while (fLexer.peekOperator("::", ".", "[")) {
-			SVToken t = fLexer.consumeToken();
-			if (fLexer.peekOperator("*")) {
-				// This is a coverpoint transition expression
-				fLexer.ungetToken(t);
-				break;
+			if (fLexer.peekOperator ("["))  {
+				
+				SVToken t = fLexer.consumeToken();
+				// Check for operators, if it is an operator, return as this is parsed elsewhere
+				// Property / Coverpoint Operators
+				// [*0:$]  or something like this - Consecutive repetition
+				// [=0:$]  or something like this - Non-Consecutive repetition
+				// [->0:$] or something like this - Goto repetition
+				if (fLexer.peekOperator("*", "->", "=")) {
+					fLexer.ungetToken(t);
+					break;
+				} 
+				// Must be an array - consume it here
+				else {
+					a = const_or_range_expression();
+					fLexer.readOperator("]");
+				}
 			} else if (fAssertionExpr.peek()) {
+				SVToken t = fLexer.consumeToken();
 				// Don't move forward if this is likely to be an assertion sequence
 				if (!fLexer.peekOperator()) {
 					fLexer.ungetToken(t);
@@ -1060,10 +1073,9 @@ public class SVExprParser extends SVParserBase {
 					break;
 				}
 			} else {
-				fLexer.ungetToken(t);
 				a = selector(a);
 			}
-		}
+}
 
 		if (fLexer.peekOperator("'")) {
 			SVToken tok = fLexer.consumeToken();
