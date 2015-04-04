@@ -37,13 +37,13 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
-import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -305,6 +305,10 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 						str += " = " + dp.getExpr().toString();
 					}
 				}
+				ret = new StyledString(str);
+			} else if (it.getType() == SVDBItemType.AssertStmt) {
+				SVDBAssertStmt asrt = (SVDBAssertStmt)it;
+				String str = "assert : " + asrt.getName();
 				ret = new StyledString(str);
 			}
 			

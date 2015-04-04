@@ -141,6 +141,9 @@ public class SVConstraintParser extends SVParserBase {
 					ret.addConstraintStmt(c_stmt);
 				}
 				fLexer.readOperator("}");
+				if (fLexer.peekOperator(";"))  {
+					fLexer.readOperator(";");		// Not documented in LRM that I can tell... Modelsim seens to need it though ... wrap this in an if (fLexer.peekOperator(";") {}?
+				}
 				if (fDebugEn) {debug("<-- constraint_set()");}
 				return ret;
 			}
@@ -186,6 +189,9 @@ public class SVConstraintParser extends SVParserBase {
 				fLexer.eatToken();
 				
 				ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true));
+			} else if (fLexer.peekOperator("}")) {
+				ret = new SVDBExprStmt(expr);
+				// Do nothing ... expecting this
 			} else {
 				error("Unknown suffix for expression: " + fLexer.getImage());
 			}

@@ -62,7 +62,7 @@ public class TestParseAssertions extends TestCase {
 			;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"test"});
+				new String[] {"test", "someprop"});
 	}
 	
 	public void testPropertyParenSeq() throws SVParseException {
@@ -77,7 +77,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"});
+				new String[] {"top", "ap_property"});
 	}
 	
 	public void testPropertyRepetitionSuffix() throws SVParseException {
@@ -91,7 +91,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"});
+				new String[] {"top", "ap_property"});
 	}
 
 	public void testPropertyParenExpr() throws SVParseException {
@@ -120,7 +120,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"});
+				new String[] {"top", "p_prop"});
 	}
 	
 	public void testPropertyParenArrayIndex() throws SVParseException {
@@ -141,7 +141,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"});
+				new String[] {"top", "some_prop", "a_prop"});
 	}
 
 	public void testPropertyArrayRange() throws SVParseException {
@@ -154,7 +154,7 @@ public class TestParseAssertions extends TestCase {
 						"			$rose(thing) |-> \n" +
 						"			(abus[(16*1)+:16]) == (abus);\n" +
 						"	endproperty\n" +
-						"	property a_prop ();\n" +
+						"	property a_prop2 ();\n" +
 						"		@(posedge clk) \n" +
 						"			$rose(thing) |-> \n" +
 						"			(abus[(16*1)-:16]) == (abus);\n" +
@@ -162,7 +162,7 @@ public class TestParseAssertions extends TestCase {
 						"endmodule\n"
 						;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top"});
+				new String[] {"top", "a_prop", "a_prop2"});
 	}
 	
 	public void testPropertyIfStmt() throws SVParseException {
@@ -192,7 +192,7 @@ public class TestParseAssertions extends TestCase {
 			;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"AssertionErrors"});
+				new String[] {"AssertionErrors", "p_example_1", "a_example_1"});
 	}
 	
 
@@ -215,7 +215,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"t"});
+				new String[] {"t", "p_delay"});
 	}
 	
 	public void testPropertyFirstMatch() throws SVParseException {
@@ -233,7 +233,7 @@ public class TestParseAssertions extends TestCase {
 			;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"test"});
+				new String[] {"test", "some_prop"});
 	}	
 
 	public void testPropertyZDelay() throws SVParseException {
@@ -251,7 +251,7 @@ public class TestParseAssertions extends TestCase {
 			;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"top"});
+				new String[] {"top", "some_prop"});
 	}
 	
 	public void testPropertyWithin() throws SVParseException {
@@ -268,7 +268,7 @@ public class TestParseAssertions extends TestCase {
 			;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"test"});
+				new String[] {"test", "some_prop"});
 	}
 	
 	
@@ -287,7 +287,7 @@ public class TestParseAssertions extends TestCase {
 		;
 
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"test"});
+				new String[] {"test", "some_prop"});
 	}
 	
 	public void testPropertyNot() throws SVParseException {
@@ -304,7 +304,7 @@ public class TestParseAssertions extends TestCase {
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"t"});
+				new String[] {"t", "ERROR_DEND_IS_UNKNOWN", "ERROR_DATA_IS_UNKNOWN"});
 	}
 	
 	/**
@@ -324,7 +324,7 @@ public class TestParseAssertions extends TestCase {
 				"endmodule\n"
 						;
 		ParserTests.runTestStrDoc(testname, doc, 
-				new String[] {"t"});
+				new String[] {"t", "some_prop"});
 	}
 	
 	public void testPastExpression() throws SVParseException {
@@ -357,7 +357,7 @@ public class TestParseAssertions extends TestCase {
 			"endprogram\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] { "test" });
+				new String[] { "test", "s_error" });
 	}
 	
 	
@@ -373,7 +373,7 @@ public class TestParseAssertions extends TestCase {
 					"endmodule\n"
 					;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] { "top" });
+				new String[] { "top", "s_trig_seq" });
 	}
 	public void testCycleDelayConstantExpression() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -386,7 +386,7 @@ public class TestParseAssertions extends TestCase {
 				"endmodule\n"
 				;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] { "top" });
+				new String[] { "top", "p_prop" });
 	}
 
 	public void testConstPostImplicationOp() throws SVParseException {
@@ -400,7 +400,7 @@ public class TestParseAssertions extends TestCase {
 				"endmodule\n"
 				;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] { "top" });
+				new String[] { "top", "p_prop" });
 	}
 	
 	public void testConstantAfterImplicationOp() throws SVParseException {
@@ -414,7 +414,7 @@ public class TestParseAssertions extends TestCase {
 					"endmodule\n"
 					;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] { "top" });
+				new String[] { "top", "p_prop" });
 	}
 
 	public void testIfAfterAt() throws SVParseException {

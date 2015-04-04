@@ -10,7 +10,9 @@
 
 - #(382) Parse error: sequence ?:;
 
-- #(383) Parser error: Property Cycle delay (##) with an expression not parsed   
+- #(383) Parser error: Property Cycle delay (##) with an expression not parsed
+
+- #(387) Parser error: Constraint error: Unknown suffix for expression }    
 
 - #(enh) - Modify project-import behavior when 'Project->Build Automatically" 
   is disabled. Previously, SVE would perform an initial build of the project.
@@ -23,6 +25,8 @@
   
 - #(384) - Correct a parse issue with a property clocking_event after
   a sequence_expr. 
+  
+- #(388) Assertion name not being captured / displayed in outline view
   
 
 ------------------------------------------------------------------------------

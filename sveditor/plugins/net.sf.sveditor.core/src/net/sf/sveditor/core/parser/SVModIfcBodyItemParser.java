@@ -85,7 +85,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		if (id.equals("function") || id.equals("task")) {
 			parsers().taskFuncParser().parse(parent, start, modifiers);
 		} else if (fLexer.peekKeyword("assert","assume","cover","restrict", "expect")) {
-			parsers().assertionParser().parse(parent);
+			parsers().assertionParser().parse(parent, "");
 		} else if (id.equals("property")) {
 			fParsers.propertyParser().property(parent);
 		} else if (fLexer.peekKeyword("generate", "for", "if", "case")) {
@@ -181,9 +181,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				SVToken tok = fLexer.consumeToken();
 				if (fLexer.peekOperator(":")) {
 					// Labeled assertion
-					// TODO: preserve label
+					String assertion_label = tok.getImage();
 					fLexer.eatToken();
-					parsers().assertionParser().parse(parent);
+					parsers().assertionParser().parse(parent, assertion_label);
 				} else {
 					fLexer.ungetToken(tok);
 					// likely a variable or module declaration

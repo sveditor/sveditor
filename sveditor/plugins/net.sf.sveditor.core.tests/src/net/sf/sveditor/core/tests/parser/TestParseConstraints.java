@@ -57,6 +57,20 @@ public class TestParseConstraints extends SVCoreTestCaseBase {
 		
 		runTest(doc, new String[] {"top", "some_const"});
 	}
+	public void testIfInside() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+				"class top;\n" +
+				"	int a, b;\n" +
+				"	constraint c_con {\n" +
+				"		if(a == b) {a inside {1,3}};\n" +
+				"			else {a inside {0,2}};\n" +
+				"		}\n" +
+				"endclass\n"
+				;
+		
+		runTest(doc, new String[] {"top", "c_con"});
+	}
 
 	private void runTest(
 			String			doc,
