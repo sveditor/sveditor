@@ -30,6 +30,9 @@
  
 - #(386) - Corrected a parse error involving a clocking_event property_expr
   statement. 
+  
+- #(375) - Add indenter support for labeled statements. A label is considered
+  to not increase the indent for follow-on statements
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --

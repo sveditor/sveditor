@@ -296,7 +296,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		for (String filename : index.getFileList(new NullProgressMonitor())) {
 			SVDBFileRefCollector finder = new SVDBFileRefCollector();
 			SVDBFile file = index.findFile(filename);
-			System.out.println("[VISIT FILE] " + filename);
+			fLog.debug("[VISIT FILE] " + filename);
 // MSB:
 //			finder.visitFile(file);
 			Map<String, List<Integer>> ref = finder.getReferences();

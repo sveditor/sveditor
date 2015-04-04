@@ -97,7 +97,7 @@ public class TestProjectSettingChanges extends SVCoreTestCaseBase {
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 	
-	public void testRemoveErrorIndex_2() throws CoreException {
+	public void disabled_testRemoveErrorIndex_2() throws CoreException {
 		String testname = "testRemoveErrorIndex_2";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);

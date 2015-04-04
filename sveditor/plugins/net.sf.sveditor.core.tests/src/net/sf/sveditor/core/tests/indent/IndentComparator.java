@@ -44,8 +44,8 @@ public class IndentComparator {
 				if (e.equals(r)) {
 					log.debug(lineno + " [OK]  \"" + r + "\"");
 				} else {
-					log.error(lineno + " [ERR] expected: \"" + e + "\"");
-					log.error(lineno + " [ERR] result  : \"" + r + "\"");
+					log.debug(lineno + " [ERR] expected: \"" + e + "\"");
+					log.debug(lineno + " [ERR] result  : \"" + r + "\"");
 					failures++;
 				}
 			} else {
@@ -54,8 +54,8 @@ public class IndentComparator {
 				} else if (r == null && e.equals("")) {
 					log.debug(lineno + " [OK]  \"" + e + "\" [Res==null]");
 				} else {
-					log.error(lineno + " [ERR] expected: \"" + e + "\"");
-					log.error(lineno + " [ERR] result  : \"" + r + "\"");
+					log.debug(lineno + " [ERR] expected: \"" + e + "\"");
+					log.debug(lineno + " [ERR] result  : \"" + r + "\"");
 					failures++;
 				}
 			}

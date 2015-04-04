@@ -188,7 +188,14 @@ public class SVDBProjectManager implements
 	public boolean rebuildProject(IProgressMonitor monitor, IProject p) {
 		return rebuildProject(monitor, p, false);
 	}
-	
+
+	/**
+	 * Note: 
+	 * @param monitor
+	 * @param p
+	 * @param wait_for_refresh
+	 * @return
+	 */
 	public boolean rebuildProject(IProgressMonitor monitor, IProject p, boolean wait_for_refresh) {
 		
 		if (!isSveProject(p)) {
@@ -198,23 +205,24 @@ public class SVDBProjectManager implements
 		}
 	
 		if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
-			/*
 			if (wait_for_refresh) {
 				do {
 					try {
-						Thread.sleep(250);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {}
 				} while (SVDBRefreshDoneJobWrapper.isRefreshRunning() &&
 						!monitor.isCanceled());
 				
 				if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
-					return;
+					// 
+					return false;
 				}
 			} else {
+			/*
 			 */
 				fLog.debug("rebuildProject: cancel due to RefreshJob running");
 				return false;
-//			}
+			}
 		}
 		
 		synchronized (fDelayedOpList) {
@@ -263,7 +271,7 @@ public class SVDBProjectManager implements
 			// Finally, update the markers
 
 		} else {
-			System.out.println("ProjectData null");
+			fLog.debug("ProjectData null");
 			monitor.done();
 			return false;
 		}

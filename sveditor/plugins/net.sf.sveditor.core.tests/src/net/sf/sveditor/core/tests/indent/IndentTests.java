@@ -32,6 +32,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 		TestSuite suite = new TestSuite("IndentTests");
 		suite.addTest(new TestSuite(IndentTests.class));
 		suite.addTest(new TestSuite(TestIndentAssertions.class));
+		suite.addTest(new TestSuite(TestIndentBehavioralStmts.class));
+		suite.addTest(new TestSuite(TestIndentConstraints.class));
 		suite.addTest(new TestSuite(NoHangIndentTests.class));
 		suite.addTest(new TestSuite(TestIndentScanner.class));
 		suite.addTest(new TestSuite(TestAdaptiveIndent.class));
@@ -998,73 +1000,6 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 	
-	public void testNewLineIf() {
-		LogHandle log = LogFactory.getLogHandle("testNewLineIf");
-		String content =
-			"\n" +
-			"//comment0\n" +
-			"class class1 #(type T=int);\n" +
-			"\n" +
-			"//comment1\n" +
-			"function new();\n" +
-			"//comment2\n" +
-			"if (foo)\n" +
-			"//comment3\n" +
-			"foo = 5;\n" +
-			"//comment4\n" +
-			"else\n" +
-			"//comment5\n" +
-			"if (foo2) begin\n" +
-			"//comment6\n" +
-			"foo = 6;\n" +
-			"//comment7\n" +
-			"end\n" +
-			"//comment8\n" +
-			"endfunction\n" +
-			"//comment9\n" +
-			"endclass\n" +
-			"//comment10\n"
-			;
-		String expected =
-			"\n" +
-			"//comment0\n" +
-			"class class1 #(type T=int);\n" +
-			"\n" +
-			"	//comment1\n" +
-			"	function new();\n" +
-			"		//comment2\n" +
-			"		if (foo)\n" +
-			"			//comment3\n" +
-			"			foo = 5;\n" +
-			"		//comment4\n" +
-			"		else\n" +
-			"		//comment5\n" +
-			"		if (foo2) begin\n" +
-			"			//comment6\n" +
-			"			foo = 6;\n" +
-			"			//comment7\n" +
-			"		end\n" +
-			"		//comment8\n" +
-			"	endfunction\n" +
-			"	//comment9\n" +
-			"endclass\n" +
-			"//comment10\n"
-			;
-		
-		SVIndentScanner scanner = new SVIndentScanner(
-				new StringTextScanner(content));
-		
-		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
-		indenter.init(scanner);
-		indenter.setTestMode(true);
-		
-		String result = indenter.indent();
-		
-		log.debug("Result:");
-		log.debug(result);
-		IndentComparator.compare("testNewLineIf", expected, result);
-		LogFactory.removeLogHandle(log);
-	}
 
 	public void testNoBlockIf() {
 		String content =
@@ -1501,41 +1436,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		IndentComparator.compare(fLog, getName(), ref, result);
 	}
 
-	public void testAssertRandomizeWith() {
-		String ref =
-		"class foo;\n" +
-		"	virtual function void build_phase(uvm_phase phase);\n" +
-		"		assert(this.randomize(random_int) with\n" +
-		"				{ random_int > 0;\n" +
-		"					random_int<100;\n" +
-		"				});\n" +
-		"		assert(this.randomize(random_int) with\n" +
-		"				{ random_int > 0;\n" +
-		"					random_int<100;\n" +
-		"				});\n" +
-		"	endfunction\n" +
-		"endclass\n"
-		;
-		
-		SVCorePlugin.getDefault().enableDebug(false);
-		
-		// Run the indenter over the reference source
-		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
-		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
-		indenter.init(scanner);
-		indenter.setTestMode(true);
-		
-		indenter.setAdaptiveIndent(true);
-		indenter.setAdaptiveIndentEnd(5);
-		String result = indenter.indent(-1, -1);
-		
-		fLog.debug("Ref:\n" + ref);
-		fLog.debug("====");
-		fLog.debug("Result:\n" + result);
-		fLog.debug("====");
-		
-		IndentComparator.compare(fLog, getName(), ref, result);
-	}
+
 	
 	public void testPreProcIndent() {
 		String testname = "testPreProcIndent";
@@ -1602,7 +1503,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
-	private static StringBuilder removeLeadingWS(String ref) {
+	public static StringBuilder removeLeadingWS(String ref) {
 		StringBuilder sb = new StringBuilder();
 		int i=0;
 		while (i < ref.length()) {
@@ -1737,31 +1638,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		IndentComparator.compare(getName(), expected, result);
 	}	
 	
-	public void testPropertyAssert() {
-		SVCorePlugin.getDefault().enableDebug(true);
-		String expected = 
-				"module bob ();\n" +
-				"	logic thevar, clk, b;\n" +
-				"	property p_property (somevar);\n" +
-				"		@ (posedge clk)\n" +
-				"				(b === 'h0);\n" +
-				"	endproperty: p_property\n" +
-				"	ap_thing: \n" +
-				"		assert property (p_property (thevar)) \n" +
-				"		begin\n" +
-				"			a.sample ();\n" +
-				"		end\n" +
-				"		else\n" +
-				"		begin\n" +
-				"			$display (\"thing is \");\n" +
-				"		end\n" +
-				 "\n" +
-				"endmodule\n"
-			    ;
-			;
 
-		runTest(getName(), fLog, expected);
-	}
 
 	public static void runTest(String name, LogHandle log, String doc) {
 		StringBuilder sb = removeLeadingWS(doc);

@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.SVToken;
 
 /**
  * 
@@ -181,6 +182,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		if (fTestMode) {
 			if (fIndentStack.size() != 1) {
+				debug("IndentStack size is " + 
+						fIndentStack.size() + " rather than 1");
 				throw new RuntimeException("IndentStack size is " + 
 						fIndentStack.size() + " rather than 1");
 			}
@@ -390,10 +393,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 //			tok = indent_stmt(parent, true);
 			tok = indent_stmt(parent, false);
 			leave_scope(tok);
+			
+			// Fixup the indent on any comments that came before 'tok'
+			fixupPreviousCommentIndent(tok);
 		}
 		
 		return tok;
 	}
+	
+
 	
 	private SVIndentToken indent_fork() {
 		SVIndentToken tok = current();
@@ -1192,69 +1200,65 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok.isId("repeat") || tok.isId("forever") ||
 				tok.isId("for") || tok.isId("foreach")) {
 			tok = indent_loop_stmt();
-		}
-		/*
-		else if (tok.isPreProc()) {
-			boolean do_indent = true;
-			// For now, just read the line. This could be a problem in some cases
-			while (!tok.isOp(";") && !tok.isEndLine()) {
-				tok = next_s();
-				if (do_indent) {
-					enter_scope(tok);
-					do_indent = false;
-				}
-			}
-			leave_scope();
-			tok = next_s();
-		}  */
-		else {
+		} else {
+			boolean is_label = false;
 			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
 			if (!parent_is_block)  {
-//				enter_scope(tok);
-				
 				tok = next_s(); // grab the next token, this was probably the first token of a new statement
 				// add the indent, so that if the statement runs over multi-lines, we get a bit of an indent here
-				start_of_scope (tok);
-				enter_scope (tok);
-			}
-			boolean do_next = true;
-			int brace_level = 0;
-			while (!tok.isOp(";") || brace_level > 0) {
-				if (parent != null) {
-					if ((parent.equals("begin") && tok.isId("end")) ||
-						tok.isId("end" + parent)) {
-						do_next = false;
-						break;
-					} else if (parent.equals("fork") && 
-							(tok.isId("join") || tok.isId("join_any") || tok.isId("join_none"))) {
-						do_next = false;
-						break;
-					}
+				if (tok.getImage().equals(":")) {
+					is_label = true;
 				}
-				// Check for and propery indent things that are in brackets
-				// for example
-				// assign a = (
-				//        b + (
-				//           (d + e)
-				//        )
-				//     );
-				// Indent on successive (
-				if (is_open_brace(tok)) {
-					start_of_scope(tok);
-					brace_level++;
-				// Out-dent on successive )
-				} else if (is_close_brace(tok)) {
-					leave_scope(tok);
-					brace_level--;
+
+				// Don't indent after a labeled statement
+				if (!is_label) {
+					start_of_scope (tok);
+					enter_scope (tok);
 				}
-				tok = next_s();
-			}
-			// Un-indent after we indented
-			if (!parent_is_block)  {
-				leave_scope (tok);
 			}
 			
-			if (do_next) {
+			if (!is_label) {
+				boolean do_next = true;
+				int brace_level = 0;
+				while (!tok.isOp(";") || brace_level > 0) {
+					if (parent != null) {
+						if ((parent.equals("begin") && tok.isId("end")) ||
+								tok.isId("end" + parent)) {
+							do_next = false;
+							break;
+						} else if (parent.equals("fork") && 
+								(tok.isId("join") || tok.isId("join_any") || tok.isId("join_none"))) {
+							do_next = false;
+							break;
+						}
+					}
+					// Check for and propery indent things that are in brackets
+					// for example
+					// assign a = (
+					//        b + (
+					//           (d + e)
+					//        )
+					//     );
+					// Indent on successive (
+					if (is_open_brace(tok)) {
+						start_of_scope(tok);
+						brace_level++;
+						// Out-dent on successive )
+					} else if (is_close_brace(tok)) {
+						leave_scope(tok);
+						brace_level--;
+					}
+					tok = next_s();
+				}
+				// Un-indent after we indented
+				if (!parent_is_block)  {
+					leave_scope (tok);
+				}
+
+				if (do_next) {
+					tok = next_s();
+				}
+			} else {
 				tok = next_s();
 			}
 		}
@@ -1702,10 +1706,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				// recursively call this function, checking for nested braces
 				tok = consume_expression();
 				// If we come back (will be on a brace, and we had just indented, 
-			}
-			// Allow for ()
-			else if (is_close_brace(tok)) {}
-			else  {
+			} else if (is_close_brace(tok)) {
+				// Allow for ()
+			} else  {
 				tok = next_s();
 			}
 		} while (!is_close_brace(tok) && search_for_close_brace);
@@ -1869,4 +1872,23 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 //			System.out.println("[INDENT] " + msg);
 		}
 	}
+
+	private void fixupPreviousCommentIndent(SVIndentToken tok) {
+		int i = fTokenList.size()-1;
+	
+		// Find the target token
+		while (i > 0 && fTokenList.get(i) != tok) {
+			i--;
+		}
+		
+		// Now, apply the indent of the token to any 
+		i--;
+		while (i > 0 && 
+				(fTokenList.get(i).getType() == SVIndentTokenType.SingleLineComment ||
+				fTokenList.get(i).getType() == SVIndentTokenType.MultiLineComment)) {
+			System.out.println("Change indent from \"" + fTokenList.get(i).getLeadingWS() + "\" to \"" + tok.getLeadingWS() + "\"");
+			fTokenList.get(i).setLeadingWS(tok.getLeadingWS());
+			i--;
+		}
+	}	
 }

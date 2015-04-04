@@ -81,13 +81,13 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			fHaveDotSvProject = true;
 		} else {
 			// Create defaults
-			Exception e = null;
-			try {
-				throw new Exception();
-			} catch (Exception ex) {
-				e = ex;
-			}
-			fLog.debug(".svproject does not exist", e);
+//			Exception e = null;
+//			try {
+//				throw new Exception();
+//			} catch (Exception ex) {
+//				e = ex;
+//			}
+			fLog.debug(".svproject does not exist");
 			wrapper = new SVProjectFileWrapper();
 			SVDBProjectManager.setupDefaultProjectFile(wrapper);
 			fHaveDotSvProject = false;

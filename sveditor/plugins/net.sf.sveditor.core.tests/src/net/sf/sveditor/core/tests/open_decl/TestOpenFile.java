@@ -94,7 +94,7 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 	}
 	
 	public void fixme_testOpenMacroDef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define MY_MACRO foo\n" +		// 1
 			"\n" +

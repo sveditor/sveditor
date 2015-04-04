@@ -15,6 +15,7 @@ package net.sf.sveditor.ui.tests.editor;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
+import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.ui.tests.UiReleaseTests;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
 
@@ -1231,26 +1232,26 @@ public void testIndentCase() throws BadLocationException {
 }
 // This test checks constraints
 public void testIndentConstraint() throws BadLocationException {
-	String input =
-			"class someclass;\n" +
-			"constraint clock {\n" +
-			"clk_cfg.period dist {\n" +
-			"[1:10  ] :/ 1,\n" +
-			"11       := 1,\n" +
-			"12       := 1,\n" +
-			"[13: 15] :/ 1\n" +
-			"};\n" +
-			"clk_cfg.jitter < (3 * 1000);\n" +
-			"}\n" +
-			"function void my_func;\n" +
-			"my_class cls1; \n" +
-			"assert(cls1.randomize() with {\n" +
-			"cls1.a == 2;\n" +
-			"})\n" +
-			"else $display (\"ERROR\");\n" +
-			"endfunction\n" +
-			"endclass\n"
-			;
+//	String input =
+//			"class someclass;\n" +
+//			"constraint clock {\n" +
+//			"clk_cfg.period dist {\n" +
+//			"[1:10  ] :/ 1,\n" +
+//			"11       := 1,\n" +
+//			"12       := 1,\n" +
+//			"[13: 15] :/ 1\n" +
+//			"};\n" +
+//			"clk_cfg.jitter < (3 * 1000);\n" +
+//			"}\n" +
+//			"function void my_func;\n" +
+//			"my_class cls1; \n" +
+//			"assert(cls1.randomize() with {\n" +
+//			"cls1.a == 2;\n" +
+//			"})\n" +
+//			"else $display (\"ERROR\");\n" +
+//			"endfunction\n" +
+//			"endclass\n"
+//			;
 
 	String expected =
 			"class someclass;\n" +
@@ -1273,6 +1274,8 @@ public void testIndentConstraint() throws BadLocationException {
 			"endclass\n"
 			;
 	
+	String input = IndentTests.removeLeadingWS(expected).toString();
+	
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 	tester.type(input);
 	String result_type = tester.getContent();
@@ -1280,6 +1283,8 @@ public void testIndentConstraint() throws BadLocationException {
 	IndentComparator.compare("testIndentConstraint - type", expected, result_type);
 	tester.paste(input);
 	String result_paste = tester.getContent();
+	
+	SVCorePlugin.getDefault().enableDebug(false);
 	
 	IndentComparator.compare("testIndentConstraint - paste", expected, result_paste);
 }

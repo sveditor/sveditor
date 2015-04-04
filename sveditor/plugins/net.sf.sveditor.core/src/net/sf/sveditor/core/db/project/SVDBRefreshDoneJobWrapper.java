@@ -1,5 +1,8 @@
 package net.sf.sveditor.core.db.project;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -39,14 +42,21 @@ public class SVDBRefreshDoneJobWrapper extends Job {
 	}
 	
 	public static boolean isRefreshRunning() {
+		LogHandle log = null;
 		IJobManager job_mgr = Job.getJobManager();
 		Job jobs[] = job_mgr.find(null);
 		boolean found = false;
 
 		for (Job j : jobs) {
-			if (j.getName().startsWith("Refresh")) {
+			String name = j.getName();
+			if (name.startsWith("Refresh") &&
+					!name.contains("view")) {
+				if (log == null) {
+					log = LogFactory.getLogHandle("SVDBRefreshDoneJobWrapper");
+				}
+				log.debug("Refresh Job: " + j.getName());
 				found = true;
-				break;
+//				break;
 			}
 		}
 
