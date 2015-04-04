@@ -26,8 +26,10 @@
 - #(384) - Correct a parse issue with a property clocking_event after
   a sequence_expr. 
   
-- #(388) Assertion name not being captured / displayed in outline view
-  
+- #(388) - Assertion name not being captured / displayed in outline view
+ 
+- #(386) - Corrected a parse error involving a clocking_event property_expr
+  statement. 
 
 ------------------------------------------------------------------------------
 -- 1.7.6 Release --

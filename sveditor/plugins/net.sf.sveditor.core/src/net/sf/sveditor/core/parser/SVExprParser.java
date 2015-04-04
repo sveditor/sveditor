@@ -565,7 +565,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> hierarchical_identifier - " + fLexer.peek());}
 		String id = fLexer.readIdOrKeyword();
 		
-		if (fLexer.peekOperator(".","::")) {
+		if (fLexer.peekOperator(".", "::")) {
 			ret = new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), false, 
 					hierarchical_identifier_int());
 		} else {
@@ -578,11 +578,11 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	private SVDBExpr hierarchical_identifier_int() throws SVParseException {
-		fLexer.readOperator(".","::");
+		fLexer.readOperator(".", "::");
 
 		String id = fLexer.readId();
 		
-		if (fLexer.peekOperator(".","::")) {
+		if (fLexer.peekOperator(".", "::")) {
 			return new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), 
 					false, hierarchical_identifier_int());
 		} else {
@@ -1045,25 +1045,30 @@ public class SVExprParser extends SVParserBase {
 		
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
 		while (fLexer.peekOperator("::", ".", "[")) {
-			if (fLexer.peekOperator ("["))  {
-				
-				SVToken t = fLexer.consumeToken();
-				// Check for operators, if it is an operator, return as this is parsed elsewhere
-				// Property / Coverpoint Operators
-				// [*0:$]  or something like this - Consecutive repetition
-				// [=0:$]  or something like this - Non-Consecutive repetition
-				// [->0:$] or something like this - Goto repetition
-				if (fLexer.peekOperator("*", "->", "=")) {
-					fLexer.ungetToken(t);
-					break;
-				} 
-				// Must be an array - consume it here
-				else {
-					a = const_or_range_expression();
-					fLexer.readOperator("]");
-				}
+//			if (fLexer.peekOperator ("["))  {
+//				
+//				SVToken t = fLexer.consumeToken();
+//				// Check for operators, if it is an operator, return as this is parsed elsewhere
+//				// Property / Coverpoint Operators
+//				// [*0:$]  or something like this - Consecutive repetition
+//				// [=0:$]  or something like this - Non-Consecutive repetition
+//				// [->0:$] or something like this - Goto repetition
+//				if (fLexer.peekOperator("*", "->", "=")) {
+//					fLexer.ungetToken(t);
+//					break;
+//				} 
+//				// Must be an array - consume it here
+//				else {
+//					a = const_or_range_expression();
+//					fLexer.readOperator("]");
+//				}
+			SVToken t = fLexer.consumeToken();
+			if (fLexer.peekOperator("*")) {
+				// This is a coverpoint transition expression
+				fLexer.ungetToken(t);
+				break;
 			} else if (fAssertionExpr.peek()) {
-				SVToken t = fLexer.consumeToken();
+//				SVToken t = fLexer.consumeToken();
 				// Don't move forward if this is likely to be an assertion sequence
 				if (!fLexer.peekOperator()) {
 					fLexer.ungetToken(t);
@@ -1073,6 +1078,7 @@ public class SVExprParser extends SVParserBase {
 					break;
 				}
 			} else {
+				fLexer.ungetToken(t);
 				a = selector(a);
 			}
 }
@@ -1248,7 +1254,7 @@ public class SVExprParser extends SVParserBase {
 				ret = new SVDBNullExpr();
 			} else if (fLexer.isIdentifier() || 
 					SVKeywords.isBuiltInType(fLexer.peek()) ||
-					fLexer.peekKeyword("new","default","local","const")) {
+					fLexer.peekKeyword("new", "default", "local", "const")) {
 				if (fDebugEn) {
 					debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				}
@@ -1300,7 +1306,7 @@ public class SVExprParser extends SVParserBase {
 						fLexer.peekKeyword("const")) {
 					fLexer.startCapture();
 					fLexer.eatToken();
-					if (fLexer.peekKeyword("signed","unsigned")) {
+					if (fLexer.peekKeyword("signed", "unsigned")) {
 						fLexer.eatToken();
 					}
 					ret = new SVDBIdentifierExpr(fLexer.endCapture());
@@ -1653,7 +1659,7 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.peekKeyword("with")) {
 				fLexer.eatToken();
 				// constraint block
-				rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true, false));
+				rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true, false, true));
 			}
 		} finally {
 			fAssertionExpr.pop();

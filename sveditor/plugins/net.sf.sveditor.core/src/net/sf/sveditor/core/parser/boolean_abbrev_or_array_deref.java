@@ -160,6 +160,9 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			// 
 		} else if (fLexer.peekKeyword("if","case")) {
 			ret = property_statement();
+		} else if (fLexer.peekOperator("@")) {
+			SVDBExpr clocking = fParsers.exprParser().clocking_event();
+			SVDBExpr property = property_expr();
 		} else {
 			// TODO: property_statement, property_instance, clocking_event
 			if (fDebugEn) { debug("  property_expr --> sequence_expr() " + fLexer.peek()); }
@@ -440,7 +443,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			// Just an array dereference
 			ret = fParsers.exprParser().expression();
 			
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(":", "+:", "-:")) {
 				fLexer.eatToken();
 				ret = new SVDBArrayAccessExpr(null, ret, 
 						fParsers.exprParser().expression());

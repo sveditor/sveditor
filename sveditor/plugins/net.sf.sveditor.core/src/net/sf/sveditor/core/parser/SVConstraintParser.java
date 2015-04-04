@@ -72,10 +72,11 @@ public class SVConstraintParser extends SVParserBase {
 	 * 
 	 * @param force_braces
 	 * @param check_for_concat -- check whether for "if () {concat}" case
+	 * @param top_level -- true if this is a top-level constraint set, such as the body of a constraint declaration
 	 * @return
 	 * @throws SVParseException
 	 */
-	public SVDBStmt constraint_set(boolean force_braces, boolean check_for_concat) throws SVParseException {
+	public SVDBStmt constraint_set(boolean force_braces, boolean check_for_concat, boolean top_level) throws SVParseException {
 		if (fDebugEn) {debug("--> constraint_set()");}
 		
 		if (force_braces || fLexer.peekOperator("{")) {
@@ -141,8 +142,9 @@ public class SVConstraintParser extends SVParserBase {
 					ret.addConstraintStmt(c_stmt);
 				}
 				fLexer.readOperator("}");
-				if (fLexer.peekOperator(";"))  {
-					fLexer.readOperator(";");		// Not documented in LRM that I can tell... Modelsim seens to need it though ... wrap this in an if (fLexer.peekOperator(";") {}?
+				if (!top_level && fLexer.peekOperator(";"))  {
+					// Not documented in LRM that I can tell... Modelsim seems to allow it though... wrap this in an if (fLexer.peekOperator(";") {}?				
+					fLexer.readOperator(";");		
 				}
 				if (fDebugEn) {debug("<-- constraint_set()");}
 				return ret;
@@ -188,7 +190,7 @@ public class SVConstraintParser extends SVParserBase {
 				if (fDebugEn) { debug("  implication"); }
 				fLexer.eatToken();
 				
-				ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true));
+				ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
 			} else if (fLexer.peekOperator("}")) {
 				ret = new SVDBExprStmt(expr);
 				// Do nothing ... expecting this
@@ -255,7 +257,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBExpr if_expr = fParsers.exprParser().expression();
 		fLexer.readOperator(")");
 		
-		SVDBStmt constraint = constraint_set(false, true);
+		SVDBStmt constraint = constraint_set(false, true, false);
 		
 		if (fLexer.peekKeyword("else")) {
 			SVDBStmt else_stmt;
@@ -263,7 +265,7 @@ public class SVConstraintParser extends SVParserBase {
 			if (fLexer.peekKeyword("if")) {
 				else_stmt = constraint_if_expression();
 			} else {
-				else_stmt = constraint_set(false, true);
+				else_stmt = constraint_set(false, true, false);
 			}
 			ret = new SVDBConstraintIfStmt(if_expr, constraint, else_stmt, true);
 		} else {
@@ -283,7 +285,7 @@ public class SVConstraintParser extends SVParserBase {
 		stmt.setExpr(fParsers.exprParser().foreach_loopvar());
 		fLexer.readOperator(")");
 		
-		stmt.setStmt(constraint_set(false, true));
+		stmt.setStmt(constraint_set(false, true, false));
 		
 		return stmt;
 	}

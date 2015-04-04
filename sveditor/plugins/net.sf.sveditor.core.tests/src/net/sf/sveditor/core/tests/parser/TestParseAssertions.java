@@ -66,7 +66,7 @@ public class TestParseAssertions extends TestCase {
 	}
 	
 	public void testPropertyParenSeq() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module top ();\n" +
 			"	parameter PARAM = 1;\n" +
@@ -390,7 +390,7 @@ public class TestParseAssertions extends TestCase {
 	}
 
 	public void testConstPostImplicationOp() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 				"module top ();\n" +
 				"	property p_prop (bit a, bit clk);\n" +
@@ -418,7 +418,7 @@ public class TestParseAssertions extends TestCase {
 	}
 
 	public void testIfAfterAt() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 				"module top ();\n" +
 				"	logic [1:0] abus;\n" +
