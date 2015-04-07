@@ -194,7 +194,8 @@ public class SVPropertyParser extends SVParserBase {
 		stmt.setExpr(fParsers.propertyExprParser().property_statement());
 		// If statements may or may not have a trailing semicolon, but will have one if it is
 		// here in the "root"
-		if (stmt.fExpr.getType() == SVDBItemType.PropertyIfStmt)  {
+		if (stmt.getExpr() != null && stmt.getExpr().getType() == SVDBItemType.PropertyIfStmt)  {
+//		if (stmt.getExpr().getType() == SVDBItemType.PropertyIfStmt)  {
 			fLexer.readOperator(";");		
 		}
 		prop.addChildItem(stmt);

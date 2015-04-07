@@ -50,6 +50,8 @@ import net.sf.sveditor.core.db.stmt.SVDBLabeledStmt;
 import net.sf.sveditor.core.db.stmt.SVDBNullStmt;
 import net.sf.sveditor.core.db.stmt.SVDBProceduralContAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBProceduralContAssignStmt.AssignType;
+import net.sf.sveditor.core.db.stmt.SVDBRandseqProdStmt;
+import net.sf.sveditor.core.db.stmt.SVDBRandseqStmt;
 import net.sf.sveditor.core.db.stmt.SVDBRepeatStmt;
 import net.sf.sveditor.core.db.stmt.SVDBReturnStmt;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
@@ -504,6 +506,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 				expression_stmt(start, parent, null, consume_terminator);
 			}
+		} else if (fLexer.peekKeyword("randsequence")) {
+			error("randsequence unsupported");
+//			randsequence_stmt(parent);
 		} else {
 			error("Unknown statement stem: " + fLexer.peek());
 		}
@@ -897,6 +902,73 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			case_stmt.addCaseItem(item);
 		}
 		fLexer.readKeyword("endcase");
+	}
+	
+	private void randsequence_stmt(ISVDBAddChildItem parent) throws SVParseException {
+		SVDBRandseqStmt stmt = new SVDBRandseqStmt();
+		stmt.setLocation(fLexer.getStartLocation());
+		fLexer.readKeyword("randsequence");
+		
+		fLexer.readOperator("(");
+		if (fLexer.peekId()) {
+			stmt.setName(fLexer.readId());
+		}
+		fLexer.readOperator(")");
+		
+		while (fLexer.peek() != null && !fLexer.peekKeyword("endsequence")) {
+			randsequence_production(stmt);
+			
+		}
+	}
+	
+	private void randsequence_production(SVDBRandseqStmt rs) throws SVParseException {
+		SVDBRandseqProdStmt stmt = new SVDBRandseqProdStmt();
+		stmt.setLocation(fLexer.getStartLocation());
+		
+		SVDBTypeInfo type = fParsers.dataTypeParser().data_type(0);
+		
+		if (fLexer.peekOperator("(", ":")) {
+			// The production identifier was provided, not the datatype
+			stmt.setName(type.getName());
+		} else {
+			stmt.setRetType(type);
+			stmt.setName(fLexer.readId());
+		}
+	
+		if (fLexer.peekKeyword("(")) {
+			// tf_port_list
+		}
+		
+		// rs_rule { | rs_rule }
+		// rs_rule ::= rs_production_list [ := weight_specification [rs_code_block]]
+		// rs_production_list 
+
+		while (fLexer.peek() != null) {
+			if (fLexer.peekKeyword("rand")) {
+				fLexer.readKeyword("rand");
+				fLexer.readKeyword("join");
+				if (fLexer.peekOperator("(")) {
+					fLexer.eatToken();
+					SVDBExpr expr = fParsers.exprParser().expression();
+					fLexer.readOperator(")");
+					
+					// production_item
+					String production_id = fLexer.readId();
+				
+					if (fLexer.peekOperator("(")) {
+						fLexer.eatToken();
+						// list_of_arguments
+						fLexer.readOperator(")");
+					}
+					
+				}
+			} else {
+				// rs_prod {rs_prod}
+			}
+		}
+		
+		fLexer.readKeyword(":");
+		
 	}
 	
 }

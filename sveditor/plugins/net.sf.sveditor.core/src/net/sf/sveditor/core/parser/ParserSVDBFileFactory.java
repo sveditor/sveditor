@@ -670,6 +670,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			e.printStackTrace();
 		} catch (SVAbortParseException e) {
 			// error limit exceeded
+		} catch (NullPointerException e) {
+			SVDBLocation loc = fLexer.getStartLocation();
+			String loc_s = "Unknown";
+			if (loc != null) {
+				loc_s = "" + getFilename(loc);
+				loc_s += ":" + loc.getLine();
+			}
+			fLog.error("Parser encountered a Null Pointer Exception at " + loc_s, e);
+			throw e;
 		}
 
 		if (fScopeStack.size() > 0

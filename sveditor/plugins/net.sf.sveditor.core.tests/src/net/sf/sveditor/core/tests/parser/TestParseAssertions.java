@@ -436,4 +436,20 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "top" });
 	}
+
+	public void testDisableIFF() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module m();\n" +
+				"	logic reset, clk;\n" +
+				"	property some_prop (logic [3:0] reg_bit) ;\n" +
+				"		disable iff (reset)\n" +
+				"			@(posedge clk)\n" +
+				"			$rose (reg_bit) |=> @(posedge clk) ##2 reg_bit;\n" +
+				"	endproperty: some_prop\n" +
+				"endmodule\n"
+				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "m" });
+	}
 }

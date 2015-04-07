@@ -19,6 +19,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVDBArrayAccessExpr;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
+import net.sf.sveditor.core.db.expr.SVDBClockedPropertyExpr;
+import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr;
 import net.sf.sveditor.core.db.expr.SVDBCycleDelayExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBFirstMatchExpr;
@@ -161,8 +163,10 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		} else if (fLexer.peekKeyword("if","case")) {
 			ret = property_statement();
 		} else if (fLexer.peekOperator("@")) {
-			SVDBExpr clocking = fParsers.exprParser().clocking_event();
-			SVDBExpr property = property_expr();
+			SVDBClockedPropertyExpr expr = new SVDBClockedPropertyExpr();
+			expr.setClockingExpr(fParsers.exprParser().clocking_event());
+			expr.setPropertyExpr(property_expr());
+			ret = expr;
 		} else {
 			// TODO: property_statement, property_instance, clocking_event
 			if (fDebugEn) { debug("  property_expr --> sequence_expr() " + fLexer.peek()); }
