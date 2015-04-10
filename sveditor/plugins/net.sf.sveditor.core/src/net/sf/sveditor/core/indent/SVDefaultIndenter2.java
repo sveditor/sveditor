@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVToken;
 
 /**
  * 
@@ -1135,16 +1134,18 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			if (tok.isId("`ifdef") || tok.isId("`ifndef")) {
 				start_of_scope (tok);
 				fTokenList.add(tok);
-				tok = skip_to_end_of_line();
+				fTokenList.add(fScanner.next());
+				tok = fScanner.next();		// Add the next token being checked for
+				
 			} else if (tok.isId("`else")) {
 				leave_scope(tok);
 				fTokenList.add(tok);
-				tok = skip_to_end_of_line();
+				tok = fScanner.next();		// Swallow ifdef/ifndef
 				start_of_scope(tok);
 			} else if (tok.isId("`endif")) {
 				leave_scope(tok);
 				fTokenList.add(tok);
-				tok = skip_to_end_of_line();
+				tok = fScanner.next();		// Swallow ifdef/ifndef
 			}
 			// All other preprocessor directives run to end of line
 			else {
@@ -1152,7 +1153,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = skip_to_end_of_line();
 			}
 		}
-		// don't indent ifdef's ... just swallow this stuff
+		// don't indent non-ifdef's ... just swallow this stuff
 		else {
 			fTokenList.add(tok);
 			tok = skip_to_end_of_line();
@@ -1838,11 +1839,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 
 	/**
-	 * This function was written to replace next_s when we are expecting an
-	 * identifier with a hierarchy in it for example: top.bob = ... the function
-	 * will run past the ., and return bob
+	 * This function was written to replace next_s we want to run through to the end of the line
+	 * and return at that point
 	 * 
-	 * @return The identifier in the hierarchy
+	 * @return First token on next line
 	 */
 	private SVIndentToken skip_to_end_of_line() {
 		SVIndentToken tok = fScanner.current();
@@ -1890,5 +1890,5 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			fTokenList.get(i).setLeadingWS(tok.getLeadingWS());
 			i--;
 		}
-	}	
+	}
 }
