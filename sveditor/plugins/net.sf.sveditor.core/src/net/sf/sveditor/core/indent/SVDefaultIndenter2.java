@@ -1134,7 +1134,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			if (tok.isId("`ifdef") || tok.isId("`ifndef")) {
 				start_of_scope (tok);
 				fTokenList.add(tok);
-				fTokenList.add(fScanner.next());
+				SVIndentToken n = fScanner.next();
+				if (n != null) {
+					fTokenList.add(n);
+				}
 				tok = fScanner.next();		// Add the next token being checked for
 				
 			} else if (tok.isId("`else")) {
