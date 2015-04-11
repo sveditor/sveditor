@@ -1446,7 +1446,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"	`include \"file1.svh\"\n" +
 		"	`include \"file2.svh\"\n" +
 		"	`include \"file3.svh\"\n" +
-		"endpackage\n"+
+		"endpackage\n" +
 		"\n" +
 		"`ifndef INCLUDED_my_component1_svhn\n" +
 		"	module m ();\n" +
@@ -1458,6 +1458,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"			assign c=d;\n" +
 		"	\n" +
 		"		`endif\n" +
+		"		`ifdef ASDF assign a = b; `else assign b = c; `endif\n" +
+		"		`ifdef ASDF assign a = b; /* comment */ `else assign b = c; /* comment */ `endif /* comment */ // comment\n" +
 		"		initial\n" +
 		"		begin\n" +
 		"			`ifdef ASDF\n" +

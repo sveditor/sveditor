@@ -3,6 +3,8 @@
 
 - #(390) - Corrected a NPE when parsing properties. Added more debug info as well.
 
+- #(391) Indenter issue with single line `ifdef 
+
 ------------------------------------------------------------------------------
 -- 1.7.7 Release --
 - #(380) Parser Error: cover property begin / end
