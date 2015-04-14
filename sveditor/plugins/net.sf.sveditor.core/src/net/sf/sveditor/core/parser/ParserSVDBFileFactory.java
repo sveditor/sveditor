@@ -151,13 +151,13 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				file_id = fFileMapper.mapFilePathToId(filename, false);
 			}
 			
-			marker.setLocation(new SVDBLocation(file_id, lineno, 0));
+			marker.setLocation(SVDBLocation.pack(file_id, lineno, 0));
 			fMarkers.add(marker);
 		}
 	}
 
 	private void top_level_item(ISVDBScopeItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		int modifiers = scan_qualifiers(false);
 
 		try {
@@ -541,7 +541,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			if (fFileMapper != null) {
 				file_id = fFileMapper.mapFilePathToId(filename, false);
 			}
-			marker.setLocation(new SVDBLocation(file_id, lineno, linepos));
+			marker.setLocation(SVDBLocation.pack(file_id, lineno, linepos));
 			fMarkers.add(marker);
 		}
 	}
@@ -671,7 +671,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} catch (SVAbortParseException e) {
 			// error limit exceeded
 		} catch (NullPointerException e) {
-			SVDBLocation loc = fLexer.getStartLocation();
+			SVDBLocation loc = new SVDBLocation(fLexer.getStartLocation());
 			String loc_s = "Unknown";
 			if (loc != null) {
 				loc_s = "" + getFilename(loc);
@@ -766,12 +766,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 	private void setLocation(ISVDBItemBase item) {
 		ScanLocation loc = getStmtLocation();
-		item.setLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(SVDBLocation.pack(-1, loc.getLineNo(), loc.getLinePos()));
 	}
 
 	private void setEndLocation(SVDBScopeItem item) {
 		ScanLocation loc = getStmtLocation();
-		item.setEndLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
+		item.setEndLocation(SVDBLocation.pack(-1, loc.getLineNo(), loc.getLinePos()));
 	}
 
 	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {
@@ -786,7 +786,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		if (def.getName() == null || def.getName().equals("")) {
 			// TODO: find filename
-			System.out.println("    <<UNKNOWN>> " + ":" + def.getLocation().getLine());
+			System.out.println("    <<UNKNOWN>> " + ":" + 
+					SVDBLocation.unpackLineno(def.getLocation()));
 		}
 
 		fScopeStack.peek().addItem(def);

@@ -22,7 +22,6 @@ import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -38,27 +37,27 @@ public class SVTaskFunctionParser extends SVParserBase {
 	}
 	
 	public void parse_method_decl(ISVDBScopeItem parent) throws SVParseException {
-		parse(parent, null, true, 0);
+		parse(parent, -1, true, 0);
 	}
 
 	public SVDBTask parse_method_decl() throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		parse(scope, null, true, 0);
+		parse(scope, -1, true, 0);
 		
 		return (SVDBTask)SVDBUtil.getFirstChildItem(scope);
 	}
 
 	// Enter on 'function'
-	public void parse(ISVDBAddChildItem parent, SVDBLocation start, int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, long start, int qualifiers) throws SVParseException {
 		parse(parent, start, false, qualifiers);
 	}
 	
-	private void parse(ISVDBAddChildItem parent, SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
+	private void parse(ISVDBAddChildItem parent, long start, boolean is_decl, int qualifiers) throws SVParseException {
 		SVDBTask func = null;
-		SVDBLocation end = null;
+		long end = -1;
 		String tf_name;
 		
-		if (start == null) {
+		if (start == -1) {
 			start = fLexer.getStartLocation();
 		}
 		
@@ -194,7 +193,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		}
 		
-		if (end == null) {
+		if (end == -1) {
 			end = fLexer.getStartLocation();
 		}
 		

@@ -385,7 +385,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			}
 		} else if (fLexer.peekKeyword("and","intersect","or","within","throughout") ||
 				fLexer.peekOperator(SVOperators.RelationalOps)) {
-			SVDBLocation start = fLexer.getStartLocation();
+			long start = fLexer.getStartLocation();
 			if (fDebugEn) {debug(" --> -- binary sequence_expr" + fLexer.peek());}
 			expr = new SVDBBinaryExpr(expr, fLexer.eatToken(), sequence_expr());
 			if (fDebugEn) {debug(" <-- -- binary sequence_expr" + fLexer.peek());}

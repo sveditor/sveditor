@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -26,17 +25,17 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 
-	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, long start) throws SVParseException {
 		parse(parent, type, start, true);
 	}
 
-	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start, boolean consume_terminator) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, long start, boolean consume_terminator) throws SVParseException {
 		
 		if (fLexer.peekKeyword("typedef")) {
 			parsers().dataTypeParser().typedef(parent);
 		} else {
 			String dir = null;
-			if (start == null) {
+			if (start == -1) {
 				start = fLexer.getStartLocation();
 			}
 			if (fLexer.peekKeyword("input","output","inout")) {
@@ -83,7 +82,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 				// Ensure we don't misinterpret a static reference
 				if (!fLexer.peekOperator("::")) {
 					while (fLexer.peek() != null) {
-						SVDBLocation it_start = fLexer.getStartLocation();
+						long it_start = fLexer.getStartLocation();
 						if (name == null) {
 							name = fLexer.readId();
 						}

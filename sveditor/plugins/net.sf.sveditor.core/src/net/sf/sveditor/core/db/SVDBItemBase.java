@@ -21,11 +21,11 @@ public class SVDBItemBase implements ISVDBItemBase {
 	@SVDBDoNotSaveAttr
 	public SVDBItemType			fType;
 	
-	public SVDBLocation			fLocation;
+	public long					fLocation;
 	
 	public SVDBItemBase(SVDBItemType type) {
 		fType = type;
-		fLocation = null;
+		fLocation = -1;
 	}
 	
 	public SVDBItemType getType() {
@@ -36,11 +36,11 @@ public class SVDBItemBase implements ISVDBItemBase {
 		fType = type;
 	}
 
-	public SVDBLocation getLocation() {
+	public long getLocation() {
 		return fLocation;
 	}
 
-	public void setLocation(SVDBLocation location) {
+	public void setLocation(long location) {
 		fLocation = location;
 	}
 
@@ -50,11 +50,7 @@ public class SVDBItemBase implements ISVDBItemBase {
 
 	public void init(ISVDBItemBase other) {
 		// Treat fType as immutable: fType = other.getType();
-		if (other.getLocation() != null) {
-			fLocation = other.getLocation().duplicate();
-		} else {
-			fLocation = null;
-		}
+		fLocation = other.getLocation();
 	}
 	
 	public boolean equals(Object obj) {
@@ -79,11 +75,7 @@ public class SVDBItemBase implements ISVDBItemBase {
 			}
 
 			if (full) {
-				if (fLocation == null || other.fLocation == null) {
-					ret &= (fLocation == other.fLocation);
-				} else {
-					ret &= other.fLocation.equals(fLocation);
-				}
+				ret &= (fLocation == other.fLocation);
 			}
 		}
 		

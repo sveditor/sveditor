@@ -26,7 +26,7 @@ public class SVAssertionParser extends SVParserBase {
 	}
 	
 	public SVDBAssertStmt parse(ISVDBAddChildItem parent, String assertion_label) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		
 		String assert_type = fLexer.readKeyword("assert", "assume", "cover", "expect");
 		SVDBAssertStmt assert_stmt;

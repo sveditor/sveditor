@@ -31,6 +31,13 @@ public class SVDBLocation {
 		fLine   = line;
 		fPos    = pos;
 	}
+	
+	public SVDBLocation(long location) {
+		// TODO: unpack
+		fFileId = unpackFileId(location);
+		fLine = unpackLineno(location);
+		fPos = unpackPos(location);
+	}
 
 	public SVDBLocation(SVDBLocation other) {
 		fFileId = other.fFileId;
@@ -74,5 +81,29 @@ public class SVDBLocation {
 	
 	public String toString() {
 		return fFileId + ":" + fLine;
+	}
+	
+	public static String toString(long location) {
+		return "TODO: " + location;
+	}
+	
+	public static long pack(int fileid, int lineno, int linepos) {
+		long ret = (fileid << 32);
+		ret |= (lineno & 0xFFFFFF) << 8;
+		ret |= linepos;
+		
+		return ret;
+	}
+	
+	public static int unpackFileId(long location) {
+		return (int)((location >> 32) & 0xFFFFFFFF);
+	}
+	
+	public static int unpackLineno(long location) {
+		return (int)((location >> 8) & 0xFFFFFF);
+	}
+	
+	public static int unpackPos(long location) {
+		return (int)(location & 0xFF);
 	}
 }

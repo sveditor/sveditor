@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
@@ -335,6 +336,10 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 	public ScanLocation getLocation() {
 		// Unnecessary
 		return new ScanLocation(fFileName, fLineno, 1);
+	}
+	
+	public long getLocationL() {
+		return SVDBLocation.pack(0, fLineno, 1);
 	}
 
 	/**

@@ -2,6 +2,7 @@ package net.sf.sveditor.core.argfile.parser;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
@@ -77,6 +78,26 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 		}
 		
 		return new ScanLocation("", fLineno, 1);
+	}
+
+	public long getLocationL() {
+		// Spin the line location forward if necessary
+		if (fIdx >= fNextLinePos) {
+			// Need to move forward
+			while (fLineIdx < fLineMap.size() &&
+					fLineMap.get(fLineIdx) < fIdx) {
+				fLineIdx++;
+				fLineno++;
+			}
+		
+			// Once we reach the last line, ensure we
+			// don't keep doing this
+			if (fLineIdx >= fLineMap.size()) {
+				fNextLinePos = Integer.MAX_VALUE;
+			}
+		}
+	
+		return SVDBLocation.pack(0, fLineno, 1);
 	}
 
 	public long getPos() {

@@ -167,7 +167,8 @@ public class SVLexer extends SVToken {
 		fIsOperator = tok.fIsOperator;
 		fIsString = tok.fIsString;
 		fIsTime = tok.fIsTime;
-		fStartLocation = tok.fStartLocation.duplicate();
+//		fStartLocation = tok.fStartLocation.duplicate();
+		fStartLocation = tok.fStartLocation;
 	}
 
 	public SVToken peekToken() {
@@ -707,9 +708,10 @@ public class SVLexer extends SVToken {
 		}
 
 		// TODO: should fix
-		ScanLocation loc = fScanner.getLocation();
-		fStartLocation = new SVDBLocation(loc.getFileId(), 
-				loc.getLineNo(), loc.getLinePos());
+//		ScanLocation loc = fScanner.getLocation();
+//		fStartLocation = new SVDBLocation(loc.getFileId(), 
+//				loc.getLineNo(), loc.getLinePos());
+		fStartLocation = fScanner.getLocationL();
 
 		if (ch == -1) {
 			fEOF = true;
@@ -849,7 +851,7 @@ public class SVLexer extends SVToken {
 			 * if (fEnableEOFException) { throw new EOFException(); }
 			 */
 			if (fDebugEn) {
-				debug("EOF - " + getStartLocation().toString());
+				debug("EOF - " + SVDBLocation.toString(getStartLocation()));
 			}
 			if (fDebugEn) {
 				fLog.debug("<-- next_token_int()");

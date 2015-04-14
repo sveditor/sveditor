@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -155,6 +156,10 @@ public class SVObfuscator {
 
 		public ScanLocation getLocation() {
 			return new ScanLocation(fFileName, fLineno, 0);
+		}
+		
+		public long getLocationL() {
+			return SVDBLocation.pack(0, fLineno, 0);
 		}
 
 		public void setStmtLocation(ScanLocation location) {

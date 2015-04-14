@@ -24,7 +24,8 @@ public class SVToken {
 	protected boolean						fIsIdentifier;
 	protected boolean						fIsKeyword;
 	protected boolean						fIsPath;
-	protected SVDBLocation					fStartLocation;
+//	protected SVDBLocation					fStartLocation;
+	protected long							fStartLocation;
 
 	public SVToken duplicate() {
 		SVToken ret = new SVToken();
@@ -36,7 +37,8 @@ public class SVToken {
 		ret.fIsIdentifier  = fIsIdentifier;
 		ret.fIsKeyword     = fIsKeyword;
 		ret.fIsPath        = fIsPath;
-		ret.fStartLocation = fStartLocation.duplicate();
+//		ret.fStartLocation = fStartLocation.duplicate();
+		ret.fStartLocation = fStartLocation;
 		
 		return ret;
 	}
@@ -90,7 +92,7 @@ public class SVToken {
 		return fImage;
 	}
 	
-	public SVDBLocation getStartLocation() {
+	public long getStartLocation() {
 		return fStartLocation;
 	}
 	

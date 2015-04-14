@@ -14,8 +14,8 @@ package net.sf.sveditor.core.db;
 
 public interface ISVDBEndLocation {
 
-	SVDBLocation getEndLocation();
+	long getEndLocation();
 	
-	void setEndLocation(SVDBLocation loc);
+	void setEndLocation(long loc);
 
 }

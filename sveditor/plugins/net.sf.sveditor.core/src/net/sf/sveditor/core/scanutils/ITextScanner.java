@@ -32,6 +32,8 @@ public interface ITextScanner {
 	
 	ScanLocation getLocation();
 	
+	long getLocationL();
+	
 	long getPos();
 
 }

@@ -17,12 +17,13 @@ import java.util.List;
 
 public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 	public List<ISVDBChildItem>		fItems;
-	public SVDBLocation				fEndLocation;
+	public long						fEndLocation;
 	
 	protected SVDBScopeItem(String name, SVDBItemType type) {
 		super(name, type);
 		
 		fItems = new ArrayList<ISVDBChildItem>();
+		fEndLocation = -1;
 	}
 	
 	public SVDBScopeItem() {
@@ -30,11 +31,11 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		fItems = new ArrayList<ISVDBChildItem>();
 	}
 	
-	public void setEndLocation(SVDBLocation loc) {
+	public void setEndLocation(long loc) {
 		fEndLocation = loc;
 	}
 	
-	public SVDBLocation getEndLocation() {
+	public long getEndLocation() {
 		return fEndLocation;
 	}
 
@@ -71,11 +72,7 @@ public class SVDBScopeItem extends SVDBItem implements ISVDBScopeItem {
 		if (obj instanceof SVDBScopeItem) {
 			SVDBScopeItem o = (SVDBScopeItem)obj;
 			
-			if (fEndLocation == null || o.fEndLocation == null) {
-				if (fEndLocation != o.fEndLocation) {
-					return false;
-				}
-			} else if (!fEndLocation.equals(o.fEndLocation)) {
+			if (fEndLocation != o.fEndLocation) {
 				return false;
 			}
 					
