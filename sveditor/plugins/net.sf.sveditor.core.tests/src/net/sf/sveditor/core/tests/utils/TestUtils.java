@@ -178,8 +178,11 @@ public class TestUtils {
 		return ret;
 	}
 			
-	
 	public static String readInput(InputStream in) {
+		return readInputSB(in).toString();
+	}
+	
+	public static StringBuilder readInputSB(InputStream in) {
 		StringBuilder sb = new StringBuilder();
 		byte tmp[] = new byte[1024];
 		int len;
@@ -191,7 +194,7 @@ public class TestUtils {
 		} catch (IOException e) {
 			
 		}
-		return sb.toString();
+		return sb;
 	}
 	
 	public static void delete(File item) {

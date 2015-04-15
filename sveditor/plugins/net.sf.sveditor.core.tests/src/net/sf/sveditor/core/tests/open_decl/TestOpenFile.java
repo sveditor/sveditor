@@ -29,22 +29,20 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.UVMExampleTestCaseBase;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestOpenFile extends SVCoreTestCaseBase {
+public class TestOpenFile extends UVMExampleTestCaseBase {
 
 	public void testRelPathOpenDecl() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -91,6 +89,11 @@ public class TestOpenFile extends SVCoreTestCaseBase {
 			fLog.debug("File Path: " + SVDBItem.getName(ret.get(0).first()));
 		} finally {
 		}
+	}
+	
+	public void testOpenFileOutsideWorkspace() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBProjectData pd = setupUBusProject();
 	}
 	
 	public void fixme_testOpenMacroDef() {
