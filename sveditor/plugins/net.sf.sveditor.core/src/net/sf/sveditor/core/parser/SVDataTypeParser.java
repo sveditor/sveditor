@@ -20,7 +20,6 @@ import java.util.Set;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -411,7 +410,7 @@ public class SVDataTypeParser extends SVParserBase {
 		
 		fLexer.readOperator("{");
 		while (fLexer.peek() != null) {
-			SVDBLocation loc = fLexer.getStartLocation();
+			long loc = fLexer.getStartLocation();
 			SVDBTypeInfoEnumerator enum_v = new SVDBTypeInfoEnumerator(fLexer.readId());
 			enum_v.setLocation(loc);
 			
@@ -443,7 +442,7 @@ public class SVDataTypeParser extends SVParserBase {
 
 		// typedef <type> <name>;
 
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("typedef");
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 		
@@ -639,7 +638,7 @@ public class SVDataTypeParser extends SVParserBase {
 		fLexer.readOperator("{");
 		
 		do {
-			SVDBLocation it_start = fLexer.getStartLocation();
+			long it_start = fLexer.getStartLocation();
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 			
 			SVDBVarDeclStmt var = new SVDBVarDeclStmt(type, 0);

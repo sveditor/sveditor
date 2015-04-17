@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
 import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
 
@@ -59,8 +60,8 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(Object elem) {
 		int file_id = -1;
 		
-		if (fRoot != null && fRoot.getLocation() != null) {
-			file_id = fRoot.getLocation().getFileId();
+		if (fRoot != null && fRoot.getLocation() != -1) {
+			file_id = SVDBLocation.unpackFileId(fRoot.getLocation());
 		}
 		
 		if (elem instanceof ISVDBItemBase) {
@@ -70,8 +71,8 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			if (it instanceof ISVDBChildParent && 
 					!fDoNotRecurseScopes.contains(it.getType())) {
 				for (ISVDBChildItem ci : ((ISVDBChildParent)it).getChildren()) {
-					if (file_id != -1 && ci.getLocation() != null) {
-						if (file_id != ci.getLocation().getFileId()) {
+					if (file_id != -1 && ci.getLocation() != -1) {
+						if (file_id != SVDBLocation.unpackFileId(ci.getLocation())) {
 							continue;
 						}
 					}

@@ -30,9 +30,11 @@ public interface ITextScanner {
 	
 	String readString(int ch);
 	
-	ScanLocation getLocation();
+	int getLineno();
 	
-	long getLocationL();
+	int getLinepos();
+	
+	int getFileId();
 	
 	long getPos();
 

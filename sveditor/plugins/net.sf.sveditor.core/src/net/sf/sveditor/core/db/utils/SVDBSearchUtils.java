@@ -19,7 +19,6 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
-import net.sf.sveditor.core.db.ISVDBEndLocation;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
@@ -147,15 +146,15 @@ public class SVDBSearchUtils implements ILogLevel {
 
 	private static ISVDBScopeItem findActiveScope_i(ISVDBItemBase it, int lineno) {
 		if (it instanceof ISVDBScopeItem) {
-			SVDBLocation end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
+			long end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 			ISVDBScopeItem s_it = (ISVDBScopeItem)it;
 			debug("        start_loc=" + s_it.getLocation() + " ; end_loc=" + end_loc);
-			if (s_it.getLocation() != null && end_loc != null) {
+			if (s_it.getLocation() != -1 && end_loc != -1) {
 				debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
-						it.getLocation().getLine() + "-" + 
-						((end_loc != null)?end_loc.getLine():-1));
-				if (lineno >= s_it.getLocation().getLine() && 
-						lineno <= end_loc.getLine()) {
+						SVDBLocation.unpackLineno(it.getLocation()) + "-" + 
+						((end_loc != -1)?SVDBLocation.unpackLineno(end_loc):-1));
+				if (lineno >= SVDBLocation.unpackLineno(s_it.getLocation()) && 
+						lineno <= SVDBLocation.unpackLineno(end_loc)) {
 					ISVDBScopeItem s_it_p = findActiveScope(s_it, lineno);
 					
 					if (s_it_p != null) {
@@ -182,11 +181,11 @@ public class SVDBSearchUtils implements ILogLevel {
 			Set<SVDBItemType>	ignore_items
 			) {
 		ISVDBItemBase ret = null;
-		SVDBLocation it_loc = it.getLocation();
+		long it_loc = it.getLocation();
 		
 		debug("--> findActiveStructItem it=" + it + " name=" + SVDBItem.getName(it) + " lineno=" + lineno);
 		
-		if (it_loc != null && lineno >= it_loc.getLine()) {
+		if (it_loc != -1 && lineno >= SVDBLocation.unpackLineno(it_loc)) {
 			if (it instanceof ISVDBChildParent) {
 				// The goal is to find the nearest child
 				Iterator<ISVDBChildItem> it_ii = ((ISVDBChildParent)it).getChildren().iterator();
@@ -204,20 +203,20 @@ public class SVDBSearchUtils implements ILogLevel {
 					debug("  it_i=" + it_i + " (" + SVDBItem.getName(it_i) + ") it_n=" + it_n +
 							" (" + SVDBItem.getName(it_n) + ")");
 					
-					SVDBLocation it_i_loc = it_i.getLocation();
-					SVDBLocation it_n_loc = (it_n != null)?it_n.getLocation():null;
+					long it_i_loc = it_i.getLocation();
+					long it_n_loc = (it_n != null)?it_n.getLocation():-1;
 					
-					if (it_i_loc != null && lineno < it_i_loc.getLine()) {
+					if (it_i_loc != -1 && lineno < SVDBLocation.unpackLineno(it_i_loc)) {
 						// We've passed where we should be
-						debug("  Past valid items: it_i_loc=" + it_i_loc.getLine());
+						debug("  Past valid items: it_i_loc=" + SVDBLocation.unpackLineno(it_i_loc));
 						break;
-					} else if (it_n_loc != null && lineno < it_n_loc.getLine()) {
+					} else if (it_n_loc != -1 && lineno < SVDBLocation.unpackLineno(it_n_loc)) {
 						// it_i is the one, since it_n is beyond where we are
-						debug("  it_n is beyond target: it_n_loc=" + it_n_loc.getLine());
+						debug("  it_n is beyond target: it_n_loc=" + SVDBLocation.unpackLineno(it_n_loc));
 						ret = it_i;
 						break;
-					} else if (it_n == null && it_i_loc != null && lineno >= it_i_loc.getLine()) {
-						debug("  Reached scope end: it_i_loc=" + it_i_loc.getLine());
+					} else if (it_n == null && it_i_loc != -1 && lineno >= SVDBLocation.unpackLineno(it_i_loc)) {
+						debug("  Reached scope end: it_i_loc=" + SVDBLocation.unpackLineno(it_i_loc));
 						ret = it_i;
 						break;
 					}
@@ -391,14 +390,14 @@ public class SVDBSearchUtils implements ILogLevel {
 //	}
 
 	private static ISVDBItemBase findActiveStructItem_i(ISVDBScopeItem s_it, int lineno) {
-		SVDBLocation end_loc = s_it.getEndLocation(); 
+		long end_loc = s_it.getEndLocation(); 
 		debug("        start_loc=" + s_it.getLocation() + " ; end_loc=" + end_loc);
-		if (s_it.getLocation() != null && end_loc != null) {
+		if (s_it.getLocation() != -1 && end_loc != -1) {
 			debug("    sub-scope " + SVDBItem.getName(s_it) + " @ " + 
-					s_it.getLocation().getLine() + "-" + 
-					((end_loc != null)?end_loc.getLine():-1));
-			if (lineno >= s_it.getLocation().getLine() && 
-					lineno <= end_loc.getLine()) {
+					SVDBLocation.unpackLineno(s_it.getLocation()) + "-" + 
+					((end_loc != -1)?SVDBLocation.unpackLineno(end_loc):-1));
+			if (lineno >= SVDBLocation.unpackLineno(s_it.getLocation()) && 
+					lineno <= SVDBLocation.unpackLineno(end_loc)) {
 				ISVDBItemBase s_it_p = findActiveStructItem(s_it, lineno);
 
 				if (s_it_p != null) {

@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
@@ -69,9 +70,9 @@ public class IndexTestUtils {
 						int fileid = -1, lineno = -1;
 						String filename = null;
 						
-						if (m.getLocation() != null) {
-							fileid = m.getLocation().getFileId();
-							lineno = m.getLocation().getLine();
+						if (m.getLocation() != -1) {
+							fileid = SVDBLocation.unpackFileId(m.getLocation());
+							lineno = SVDBLocation.unpackLineno(m.getLocation());
 						}
 						
 						if (index instanceof ISVDBIndexInt) {

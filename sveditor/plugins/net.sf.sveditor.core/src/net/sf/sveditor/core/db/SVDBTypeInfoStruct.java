@@ -19,7 +19,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
-	public SVDBLocation					fEndLocation;
+	public long								fEndLocation;
 	public List<SVDBVarDeclStmt>			fFields;
 	
 	public SVDBTypeInfoStruct() {
@@ -27,12 +27,12 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
 		fFields = new ArrayList<SVDBVarDeclStmt>();
 	}
 	
-	public SVDBLocation getEndLocation() {
+	public long getEndLocation() {
 		return fEndLocation;
 	}
 
 
-	public void setEndLocation(SVDBLocation loc) {
+	public void setEndLocation(long loc) {
 		fEndLocation = loc;
 	}
 

@@ -1889,7 +1889,6 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		while (i > 0 && 
 				(fTokenList.get(i).getType() == SVIndentTokenType.SingleLineComment ||
 				fTokenList.get(i).getType() == SVIndentTokenType.MultiLineComment)) {
-			System.out.println("Change indent from \"" + fTokenList.get(i).getLeadingWS() + "\" to \"" + tok.getLeadingWS() + "\"");
 			fTokenList.get(i).setLeadingWS(tok.getLeadingWS());
 			i--;
 		}

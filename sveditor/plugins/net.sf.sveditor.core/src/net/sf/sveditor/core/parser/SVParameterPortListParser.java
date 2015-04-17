@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -44,7 +43,7 @@ public class SVParameterPortListParser extends SVParserBase {
 		while (!fLexer.peekOperator(")")) {
 			String id = null;
 			SVDBModIfcClassParam p;
-			SVDBLocation it_start = fLexer.getStartLocation();
+			long it_start = fLexer.getStartLocation();
 			boolean is_type = false;
 
 			if (fLexer.peekKeyword("parameter")) {

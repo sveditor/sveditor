@@ -9,6 +9,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
@@ -179,7 +180,8 @@ public class TestArgFileParser extends TestCase {
 		int idx = 0;
 		for (ISVDBItemBase it : file.getChildren()) {
 			assertTrue(idx < lineno.length);
-			assertEquals("lineno for " + it.getType(), lineno[idx], it.getLocation().getLine());
+			assertEquals("lineno for " + it.getType(), lineno[idx], 
+					SVDBLocation.unpackLineno(it.getLocation()));
 			idx++;
 		}
 	}

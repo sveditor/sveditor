@@ -18,7 +18,6 @@ import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBProgramDecl;
@@ -39,7 +38,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			debug("--> process_mod_ifc_prog()");
 		}
 		
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		String type_name = fLexer.readKeyword("module", "macromodule",
 				"interface", "program");
 		SVDBItemType type = null;
@@ -137,7 +136,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 				// fScopeStack.peek().addItem(item);
 			}
 			
-			SVDBLocation end = fLexer.getStartLocation();
+			long end = fLexer.getStartLocation();
 			module.setEndLocation(end);
 			fLexer.readKeyword("end" + type_name);
 			
@@ -147,7 +146,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 				fLexer.readId();
 			}
 		} else {
-			SVDBLocation end = fLexer.getStartLocation();
+			long end = fLexer.getStartLocation();
 			module.setEndLocation(end);
 		}
 

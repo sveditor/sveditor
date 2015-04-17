@@ -341,6 +341,21 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 	public long getLocationL() {
 		return SVDBLocation.pack(0, fLineno, 1);
 	}
+	
+	
+	@Override
+	public int getLineno() {
+		return fLineno;
+	}
+
+	@Override
+	public int getLinepos() {
+		return fLinepos;
+	}
+
+	public int getFileId() {
+		return 0;
+	}
 
 	/**
 	 * Unused

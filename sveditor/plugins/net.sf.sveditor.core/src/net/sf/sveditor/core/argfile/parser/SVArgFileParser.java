@@ -2,13 +2,10 @@ package net.sf.sveditor.core.argfile.parser;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -24,6 +21,8 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
+
+import org.eclipse.core.resources.IProject;
 
 public class SVArgFileParser {
 	private SVArgFileOptionProviderList			fOptionProviders;
@@ -106,7 +105,7 @@ public class SVArgFileParser {
 							
 						case Incdir: {
 							List<String> inc_path_l = null;
-							SVDBLocation loc = fLexer.getStartLocation();
+							long loc = fLexer.getStartLocation();
 							
 							if (arg_count > 0) {
 								// include path is the argument
@@ -253,7 +252,7 @@ public class SVArgFileParser {
 			} else {
 				// It's a path
 				SVDBArgFilePathStmt p = new SVDBArgFilePathStmt();
-				SVDBLocation loc = fLexer.getStartLocation();
+				long loc = fLexer.getStartLocation();
 				p.setLocation(loc);
 				String path = fLexer.eatToken();
 				file.addChildItem(p);
@@ -277,7 +276,7 @@ public class SVArgFileParser {
 		return file;
 	}
 	
-	private void error(SVDBLocation location, String msg) throws SVParseException {
+	private void error(long location, String msg) throws SVParseException {
 		if (fMarkers != null) {
 			SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.UndefinedMacro, msg);
 			m.setLocation(location);

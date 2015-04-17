@@ -23,7 +23,6 @@ import net.sf.sveditor.core.db.SVDBCoverpoint;
 import net.sf.sveditor.core.db.SVDBCoverpointBins;
 import net.sf.sveditor.core.db.SVDBCoverpointBins.BinsType;
 import net.sf.sveditor.core.db.SVDBCoverpointCross;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.expr.SVDBBinaryExpr;
 import net.sf.sveditor.core.db.expr.SVDBCrossBinsSelectConditionExpr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -41,7 +40,7 @@ public class SVCovergroupParser extends SVParserBase {
 	}
 	
 	public void parse(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("covergroup");
 		String cg_name = fLexer.readId();
 
@@ -109,7 +108,7 @@ public class SVCovergroupParser extends SVParserBase {
 	
 	private SVDBCoverageOptionStmt coverage_option() throws SVParseException {
 		// option or type_option
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		String type = fLexer.eatToken();
 		fLexer.readOperator(".");
 		String name = fLexer.readId();
@@ -127,7 +126,7 @@ public class SVCovergroupParser extends SVParserBase {
 	private ISVDBChildItem coverage_spec() throws SVParseException {
 		ISVDBChildItem ret = null;
 		String name = "";
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		if (fLexer.peekId()) {
 			name = fLexer.readId();
 			fLexer.readOperator(":");
@@ -390,7 +389,7 @@ public class SVCovergroupParser extends SVParserBase {
 	}
 	
 	private SVDBExpr select_condition() throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		SVDBCrossBinsSelectConditionExpr select_c = new SVDBCrossBinsSelectConditionExpr();
 		SVDBUnaryExpr not_expr = null;
 		SVDBExpr bins_expr = null;

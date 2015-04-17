@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
@@ -49,7 +48,7 @@ public class SVPortListParser extends SVParserBase {
 		}
 		
 		while (true) {
-			SVDBLocation it_start = fLexer.getStartLocation();
+			long it_start = fLexer.getStartLocation();
 			
 			// Catch per-port attributes
 			try {

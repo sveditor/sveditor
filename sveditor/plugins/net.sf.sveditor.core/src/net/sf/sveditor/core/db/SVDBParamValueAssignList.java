@@ -21,7 +21,7 @@ public class SVDBParamValueAssignList extends SVDBItem implements ISVDBEndLocati
 	
 	public boolean							fNamedMapping;
 	public List<SVDBParamValueAssign>		fParameters;
-	public SVDBLocation					fEndLocation;
+	public long								fEndLocation;
 	
 	public SVDBParamValueAssignList() {
 		super("", SVDBItemType.ParamValueAssignList);
@@ -29,11 +29,11 @@ public class SVDBParamValueAssignList extends SVDBItem implements ISVDBEndLocati
 		fParameters = new ArrayList<SVDBParamValueAssign>();
 	}
 	
-	public void setEndLocation(SVDBLocation l) {
+	public void setEndLocation(long l) {
 		fEndLocation = l;
 	}
 	
-	public SVDBLocation getEndLocation() {
+	public long getEndLocation() {
 		return fEndLocation;
 	}
 

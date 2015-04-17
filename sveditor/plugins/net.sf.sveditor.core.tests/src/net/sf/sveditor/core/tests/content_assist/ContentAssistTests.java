@@ -29,7 +29,7 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
@@ -125,7 +125,7 @@ public class ContentAssistTests extends TestCase {
 //		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		ParserSVDBFileFactory factory = new ParserSVDBFileFactory();
+		SVParser factory = new SVParser();
 		SVPreProcessor2 preproc = new SVPreProcessor2(testname, tt_utils.openStream(), null, null);
 		
 		SVPreProcOutput out = preproc.preprocess();

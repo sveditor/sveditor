@@ -37,7 +37,6 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
-import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
@@ -69,11 +68,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		if (fDebugEn) {
 			debug("--> process_module_class_interface_body_item: \"" + id + 
-					"\" @ " + fLexer.getStartLocation().getLine());
+					"\" @ " + SVDBLocation.unpackLineno(fLexer.getStartLocation()));
 		}
 
 		// Save the start location before qualifiers
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		modifiers = fParsers.SVParser().scan_qualifiers(false);
 
 		id = fLexer.peek();
@@ -142,7 +141,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			parent.addChildItem(defparam);
 			
 			while (fLexer.peek() != null) {
-				SVDBLocation is = fLexer.getStartLocation();
+				long is = fLexer.getStartLocation();
 				SVDBDefParamItem item = new SVDBDefParamItem();
 				item.setLocation(is);
 				item.setTarget(fParsers.exprParser().hierarchical_identifier());
@@ -209,7 +208,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	public void parse_parameter_decl(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation param_start = fLexer.getStartLocation();
+		long param_start = fLexer.getStartLocation();
 		// local parameter
 		fLexer.readKeyword("parameter", "localparam");
 		
@@ -219,7 +218,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		SVDBTypeInfo data_type = parsers().dataTypeParser().data_type(0);
 		String param_name;
 		
-		SVDBLocation it_start = fLexer.getStartLocation();
+		long it_start = fLexer.getStartLocation();
 		
 		if (fLexer.peekId()) {
 			// likely a typed parameter
@@ -284,7 +283,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	public void parse_continuous_assign(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("assign");
 		SVDBAssign assign = new SVDBAssign();
 		assign.setLocation(start);
@@ -360,13 +359,13 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		String vector_dim = null;
 		SVDBVarDeclStmt var = null;
 		String net_name = null;
-		SVDBLocation start = null;
+		long start = -1;
 		SVDBTypeInfoBuiltinNet type_info = null;
 		SVDBTypeInfo data_type = null;
 		
 		if (fDebugEn) {
 			debug("Net Type: " + net_type + " @ " + 
-					fLexer.getStartLocation().getLine());
+					SVDBLocation.unpackLineno(fLexer.getStartLocation()));
 		}
 		
 		// Drive Strength
@@ -485,7 +484,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	public void parse_var_decl_module_inst(ISVDBAddChildItem parent, int modifiers) throws SVParseException {
 		SVDBTypeInfo type;
-		SVDBLocation start = fLexer.getStartLocation(), item_start;
+		long start = fLexer.getStartLocation(), item_start;
 
 		// TODO: need to modify this to be different for class and module/interface
 		// scopes
@@ -592,7 +591,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	private void parse_final(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("final");
 		
 		SVDBBodyStmt ret = new SVDBFinalStmt();
@@ -604,7 +603,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	private void modport_decl(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("modport");
 		SVDBModportDecl modport = new SVDBModportDecl();
 		modport.setLocation(start);
@@ -732,7 +731,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	private void parse_initial_always(ISVDBAddChildItem parent) throws SVParseException {
 		ISVDBChildItem ret = null;
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		String type = fLexer.readKeyword("initial", 
 				"always", "always_comb", "always_latch", "always_ff");
 

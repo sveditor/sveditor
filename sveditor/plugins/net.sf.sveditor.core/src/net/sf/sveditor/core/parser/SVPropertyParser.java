@@ -17,7 +17,6 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBProperty;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -89,7 +88,7 @@ public class SVPropertyParser extends SVParserBase {
 
 		// data declarations
 		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword("var") || fLexer.isIdentifier()) {
-			SVDBLocation start = fLexer.getStartLocation();
+			long start = fLexer.getStartLocation();
 			// Variable (logic, int unsigned etc)
 			if (fLexer.peekKeyword("var") || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
 				// Definitely a declaration

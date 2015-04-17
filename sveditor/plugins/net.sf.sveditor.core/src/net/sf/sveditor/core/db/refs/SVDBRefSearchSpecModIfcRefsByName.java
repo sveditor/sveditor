@@ -4,7 +4,6 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 
 
 /**
@@ -26,7 +25,7 @@ public class SVDBRefSearchSpecModIfcRefsByName extends SVDBRefSearchSpecByNameBa
 
 	@Override
 	public boolean matches(
-			SVDBLocation 			loc, 
+			long		 			loc, 
 			SVDBRefType 			type,
 			Stack<ISVDBItemBase> 	scope, 
 			String 					name) {

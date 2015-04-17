@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -45,7 +46,7 @@ import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
@@ -66,9 +67,11 @@ public class SVDBTestUtils {
 				if (m.getMarkerType() == MarkerType.Error ||
 						m.getMarkerType() == MarkerType.Warning) {
 					System.out.println("[ERROR] ERR/WARN: " + m.getMessage() +
-							" @ " + file.getName() + ":" + m.getLocation().getLine());
+							" @ " + file.getName() + ":" + 
+							SVDBLocation.unpackLineno(m.getLocation()));
 					TestCase.fail("Unexpected marker type " + m.getMarkerType() + " @ " + 
-							file.getName() + ":" + m.getLocation().getLine());
+							file.getName() + ":" + 
+							SVDBLocation.unpackLineno(m.getLocation()));
 				}
 			}
 		}
@@ -272,7 +275,7 @@ public class SVDBTestUtils {
 		
 		TestCase.assertNotNull(pp_file);
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory();
+		SVParser parser = new SVParser();
 		if (config != null) {
 			parser.setConfig(config);
 		}

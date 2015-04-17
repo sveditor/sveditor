@@ -38,7 +38,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			// check for parameters - these can be used in port lists etc.
 			} else if (fLexer.peekKeyword("parameter") || fLexer.peekKeyword("localparam")) {
 				parsers().modIfcBodyItemParser().parse_parameter_decl(tf);
-			} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0)) {
+			} else if (SVParser.isFirstLevelScope(fLexer.peek(), 0)) {
 				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");
 			} else {
 				decl_allowed = parsers().behavioralBlockParser().statement(tf, decl_allowed, is_ansi);

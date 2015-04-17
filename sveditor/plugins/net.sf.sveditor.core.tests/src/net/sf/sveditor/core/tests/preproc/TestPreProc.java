@@ -160,12 +160,12 @@ public class TestPreProc extends SVCoreTestCaseBase {
 					
 					@Override
 					public Tuple<String, InputStream> findIncFile(String incfile) {
-						System.out.println("findIncFile: " + incfile);
+						fLog.debug("findIncFile: " + incfile);
 						try {
 							File f = new File(fTmpDir, incfile);
 							InputStream in = new FileInputStream(f);
 								
-							System.out.println("findIncFile: " + f.getAbsolutePath());
+							fLog.debug("findIncFile: " + f.getAbsolutePath());
 							
 							return new Tuple<String, InputStream>(f.getAbsolutePath(), in);
 						} catch (IOException e) {}
@@ -176,7 +176,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 					@Override
 					public Tuple<String, List<SVDBFileTreeMacroList>> findCachedIncFile(
 							String incfile) {
-						System.out.println("findCachedIncFile: " + incfile);
+						fLog.debug("findCachedIncFile: " + incfile);
 						// TODO Auto-generated method stub
 						return null;
 					}
@@ -685,9 +685,9 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			} catch (IOException e) { break; }
 		}
 
-		System.out.println("path: " + ft.getFilePath());
-		// System.out.println("Orig is: \n" + orig.toString());
-		System.out.println("Result is: \n" + sb.toString());
+		fLog.debug("path: " + ft.getFilePath());
+		// fLog.debug("Orig is: \n" + orig.toString());
+		fLog.debug("Result is: \n" + sb.toString());
 		 */
 	}
 
@@ -746,9 +746,9 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			} catch (IOException e) { break; }
 		}
 
-		System.out.println("path: " + ft.getFilePath());
-		// System.out.println("Orig is: \n" + orig.toString());
-		System.out.println("Result is: \n" + sb.toString());
+		fLog.debug("path: " + ft.getFilePath());
+		// fLog.debug("Orig is: \n" + orig.toString());
+		fLog.debug("Result is: \n" + sb.toString());
 		 */
 	}
 	
@@ -1114,7 +1114,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			sb2.append((char)ch);
 			last_ch=ch;
 		}
-		System.out.println(sb2.toString());
+		fLog.debug(sb2.toString());
 		
 		SVDBFile file = SVDBTestUtils.parse(sb.toString(), "ovm_in_order_comparator.svh");
 		

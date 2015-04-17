@@ -48,7 +48,7 @@ public class SVDBRefMatcher implements ISVDBRefFinderVisitor {
 	 */
 
 	public void visitRef(
-			SVDBLocation 			loc,
+			long		 			loc,
 			SVDBRefType 			type,
 			Stack<ISVDBItemBase>	scope,
 			String 					name) {

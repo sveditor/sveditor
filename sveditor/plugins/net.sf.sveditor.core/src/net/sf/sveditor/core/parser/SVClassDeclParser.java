@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 
 public class SVClassDeclParser extends SVParserBase {
@@ -42,7 +41,7 @@ public class SVClassDeclParser extends SVParserBase {
 		}
 		
 		// Expect to enter on 'class'
-		SVDBLocation start_loc = fLexer.getStartLocation();
+		long start_loc = fLexer.getStartLocation();
 		fLexer.readKeyword("class");
 		
 		if (fLexer.peekKeyword("automatic", "static")) {

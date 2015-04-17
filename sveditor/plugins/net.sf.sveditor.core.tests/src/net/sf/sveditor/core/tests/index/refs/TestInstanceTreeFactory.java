@@ -63,7 +63,7 @@ public class TestInstanceTreeFactory extends SVCoreTestCaseBase {
 		long start = System.currentTimeMillis();
 		SVDBInstanceTreeNode root = f.build(new NullProgressMonitor(), eth_register);
 		long end = System.currentTimeMillis();
-		System.out.println("build time: " + (end-start));
+		fLog.debug("build time: " + (end-start));
 
 		dump_hierarchy("", root);
 //		for (SVDBInstanceTreeNode n : root.getInstantiations()) {
@@ -76,7 +76,7 @@ public class TestInstanceTreeFactory extends SVCoreTestCaseBase {
 				dump_hierarchy(path + "." + n.getInstname(), n);
 			}
 		} else {
-			System.out.println("Path to root: " + path);
+			fLog.debug("Path to root: " + path);
 		}
 	}
 }

@@ -3,7 +3,6 @@ package net.sf.sveditor.core.db.refs;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBLocation;
 
 
 public interface ISVDBRefSearchSpec {
@@ -28,7 +27,7 @@ public interface ISVDBRefSearchSpec {
 	 * @return
 	 */
 	boolean matches(
-			SVDBLocation 			loc, 
+			long 					loc, 
 			SVDBRefType 			type, 
 			Stack<ISVDBItemBase> 	scope, 
 			String 					name);

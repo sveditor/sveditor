@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -213,8 +214,8 @@ public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel
 			ISVDBScopeItem 			scope, 
 			int 					lineno) {
 		for (ISVDBItemBase it : scope.getItems()) {
-			if (it.getLocation() != null && 
-					it.getLocation().getLine() > lineno && lineno != -1) {
+			if (it.getLocation() != -1 && 
+					SVDBLocation.unpackLineno(it.getLocation()) > lineno && lineno != -1) {
 				return false;
 			} else if (it instanceof ISVDBScopeItem) {
 				if (!collectThisFileMacros(processed_paths, context, (ISVDBScopeItem)it, lineno)) {

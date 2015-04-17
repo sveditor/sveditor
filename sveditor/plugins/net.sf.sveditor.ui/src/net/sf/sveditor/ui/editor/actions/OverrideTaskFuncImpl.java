@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
 import net.sf.sveditor.core.indent.ISVIndenter;
@@ -79,7 +80,7 @@ public class OverrideTaskFuncImpl {
 					insert_point.getParent().getType() == SVDBItemType.ClassDecl) {
 				// insert the new code after the element
 				ISVDBScopeItem scope = (ISVDBScopeItem)insert_point;
-				insert_point_line = scope.getEndLocation().getLine();
+				insert_point_line = SVDBLocation.unpackLineno(scope.getEndLocation());
 			} else {
 				// Odd... Not quite sure what to do here
 				System.out.println("[ERROR] problem finding correct insert point");

@@ -61,7 +61,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
  *         - handle property as second-level scope - recognize 'import' - handle
  *         class declaration within module - Handle sequence as empty construct
  */
-public class ParserSVDBFileFactory implements ISVScanner,
+public class SVParser implements ISVScanner,
 		IPreProcErrorListener, ISVDBFileFactory, ISVPreProcScannerObserver,
 		ISVParser, ILogLevelListener {
 	private ITextScanner fInput;
@@ -88,11 +88,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	 */
 	private SVLanguageLevel				fLanguageLevel;
 	
-	public ParserSVDBFileFactory() {
+	public SVParser() {
 		this(null);
 	}
 
-	public ParserSVDBFileFactory(IDefineProvider dp) {
+	public SVParser(IDefineProvider dp) {
 		// Setup logging
 		fLog = LogFactory.getLogHandle(
 				"ParserSVDBFileFactory", ILogHandle.LOG_CAT_PARSER);
@@ -440,7 +440,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public ScanLocation getLocation() {
-		return fInput.getLocation();
+		int line = fInput.getLineno();
+		int pos = fInput.getLinepos();
+		return new ScanLocation("", line, pos);
+	}
+	
+	public long getLocationL() {
+		return SVDBLocation.pack(
+				fInput.getFileId(), fInput.getLineno(), fInput.getLinepos());
 	}
 	
 	public void debug(String msg) {
@@ -546,11 +553,12 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 	}
 	
-	public String getFilename(SVDBLocation loc) {
+	public String getFilename(long loc) {
 		if (fFileMapper != null) {
-			return fFileMapper.mapFileIdToPath(loc.getFileId());
+			return fFileMapper.mapFileIdToPath(
+					SVDBLocation.unpackFileId(loc));
 		} else {
-			return "FileId: " + loc.getFileId();
+			return "FileId: " + SVDBLocation.unpackFileId(loc);
 		}
 	}
 
@@ -592,6 +600,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVPreProcessor preproc = new SVPreProcessor(
 				in, filename, fDefineProvider);
 		fInput = preproc.preprocess();
+		
+		fFile.setLocation(getLocationL());
 		
 		fLog.debug("File Input: " + filename);
 //		fLog.debug(fInput.toString());
@@ -657,6 +667,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		fSVParsers = new SVParsers();
 		fSVParsers.init(this);
+		
+		fFile.setLocation(getLocationL());
 
 		try {
 			while (fLexer.peek() != null) {
@@ -671,11 +683,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} catch (SVAbortParseException e) {
 			// error limit exceeded
 		} catch (NullPointerException e) {
-			SVDBLocation loc = new SVDBLocation(fLexer.getStartLocation());
+			long loc = fLexer.getStartLocation();
 			String loc_s = "Unknown";
-			if (loc != null) {
+			if (loc != -1) {
 				loc_s = "" + getFilename(loc);
-				loc_s += ":" + loc.getLine();
+				loc_s += ":" + SVDBLocation.unpackLineno(loc);
 			}
 			fLog.error("Parser encountered a Null Pointer Exception at " + loc_s, e);
 			throw e;
@@ -765,13 +777,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	private void setLocation(ISVDBItemBase item) {
-		ScanLocation loc = getStmtLocation();
-		item.setLocation(SVDBLocation.pack(-1, loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(getLocationL());
 	}
 
 	private void setEndLocation(SVDBScopeItem item) {
-		ScanLocation loc = getStmtLocation();
-		item.setEndLocation(SVDBLocation.pack(-1, loc.getLineNo(), loc.getLinePos()));
+		item.setEndLocation(getLocationL());
 	}
 
 	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {
@@ -843,11 +853,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 	
 	public void error(String msg) throws SVParseException {
-		ScanLocation loc = getLocation();
 		String filename = fFile.getFilePath();
-		int fileid = loc.getFileId();
-		int lineno = loc.getLineNo();
-		int linepos = loc.getLinePos();
+		int fileid = fInput.getFileId();
+		int lineno = fInput.getLineno();
+		int linepos = fInput.getLinepos();
 	
 		if (fFileMapper != null) {
 			filename = fFileMapper.mapFileIdToPath(fileid);

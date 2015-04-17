@@ -52,7 +52,7 @@ public class SVDBMarker extends SVDBItemBase {
 			MarkerType		type,
 			MarkerKind		kind,
 			String 			message,
-			SVDBLocation	loc) {
+			long			loc) {
 		this(type, kind, message);
 		setLocation(loc);
 	}
@@ -97,7 +97,7 @@ public class SVDBMarker extends SVDBItemBase {
 			ret &= (o.fKind == fKind);
 			ret &= o.fMessage.equals(fMessage);
 			
-			ret &= o.fLocation.equals(fLocation);
+			ret &= o.fLocation == fLocation;
 			
 			return ret;
 		}

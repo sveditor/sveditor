@@ -18,6 +18,7 @@ import java.util.Map;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -89,7 +90,8 @@ public class SVDBIconUtils implements ISVIcons {
 			SVDBVarDeclStmt decl_p = decl.getParent();
 			
 			if (decl_p == null) {
-				System.out.println("Parent of " + decl.getName() + " @ " + decl.getLocation().getLine() + " is NULL");
+				System.out.println("Parent of " + decl.getName() + " @ " + 
+						SVDBLocation.unpackLineno(decl.getLocation()) + " is NULL");
 			}
 			int attr = decl_p.getAttr();
 			if (decl_p.getParent() != null && 

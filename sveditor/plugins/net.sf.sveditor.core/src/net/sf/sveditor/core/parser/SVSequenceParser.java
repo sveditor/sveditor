@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBSequence;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -59,7 +58,7 @@ public class SVSequenceParser extends SVParserBase {
 		
 		// data declarations
 		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword("var") || fLexer.isIdentifier()) {
-			SVDBLocation start = fLexer.getStartLocation();
+			long start = fLexer.getStartLocation();
 			if (fLexer.peekKeyword("var") || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
 				// Definitely a declaration
 				parsers().blockItemDeclParser().parse(seq, null, start);

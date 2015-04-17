@@ -475,8 +475,8 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			parent.addChildItem(continue_stmt);
 		} else if (fLexer.peekKeyword("assign", "deassign", "force", "release")) {
 			procedural_cont_assign(parent);
-		} else if (ParserSVDBFileFactory.isFirstLevelScope(fLexer.peek(), 0) ||
-			ParserSVDBFileFactory.isSecondLevelScope(fLexer.peek())) {
+		} else if (SVParser.isFirstLevelScope(fLexer.peek(), 0) ||
+			SVParser.isSecondLevelScope(fLexer.peek())) {
 			error("Unexpected non-behavioral statement keyword " + fLexer.peek());
 		} else if (fLexer.peekOperator(";")) {
 			SVDBNullStmt null_stmt = new SVDBNullStmt();

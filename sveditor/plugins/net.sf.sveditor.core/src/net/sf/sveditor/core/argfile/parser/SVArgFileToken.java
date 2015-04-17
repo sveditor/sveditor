@@ -8,7 +8,7 @@ public class SVArgFileToken {
 	protected boolean					fIsOption;
 	protected String					fOptionVal;
 	protected String					fOptionOp;
-	protected SVDBLocation				fStartLocation;
+	protected long						fStartLocation;
 	
 	public String getImage() {
 		return fImage;
@@ -38,7 +38,7 @@ public class SVArgFileToken {
 		fOptionOp = op;
 	}
 	
-	public SVDBLocation getStartLocation() {
+	public long getStartLocation() {
 		return fStartLocation;
 	}
 	
@@ -47,7 +47,7 @@ public class SVArgFileToken {
 		ret.fImage = fImage;
 		ret.fIsPath = fIsPath;
 		ret.fIsOption = fIsOption;
-		ret.fStartLocation = fStartLocation.duplicate();
+		ret.fStartLocation = fStartLocation;
 		ret.fOptionVal = fOptionVal;
 		ret.fOptionOp = fOptionOp;
 	

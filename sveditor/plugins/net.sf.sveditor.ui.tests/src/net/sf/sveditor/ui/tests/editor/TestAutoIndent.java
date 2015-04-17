@@ -12,8 +12,8 @@
 
 package net.sf.sveditor.ui.tests.editor;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.ui.tests.UiReleaseTests;
@@ -21,7 +21,7 @@ import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.jface.text.BadLocationException;
 
-public class TestAutoIndent extends TestCase {
+public class TestAutoIndent extends SVCoreTestCaseBase {
 	
 	public void testBasicIndent() throws BadLocationException {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
@@ -45,7 +45,7 @@ public class TestAutoIndent extends TestCase {
 			"\t\n" +
 			"endclass\n";
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare("testBasicIndent", expected, content);
 	}
 
@@ -69,7 +69,7 @@ public class TestAutoIndent extends TestCase {
 			"\t\tint b;\n"
 			;
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare(getName(), expected, content);
 	}
 	
@@ -104,7 +104,7 @@ public class TestAutoIndent extends TestCase {
 			"\t\n" +
 			"endclass\n";
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare(getName(), expected, content);
 	}
 
@@ -139,7 +139,7 @@ public class TestAutoIndent extends TestCase {
 			"\t\n" +
 			"endclass\n";
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare(getName(), expected, content);
 	}
 	
@@ -196,7 +196,7 @@ public class TestAutoIndent extends TestCase {
 			"endmodule\n"
 			;
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
 		// to the result when we paste
 		IndentComparator.compare("testAutoIndentAlways", expected+expected, result);
@@ -259,7 +259,7 @@ public class TestAutoIndent extends TestCase {
 						"endmodule\n"
 						;
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
 		// to the result when we paste
 		IndentComparator.compare("testAutoIndentInitial", expected+expected, result);
@@ -310,7 +310,7 @@ public class TestAutoIndent extends TestCase {
 				"endmodule\n"
 			;
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		// Note that we are expecting expected twice, proving that the formatting when we type, is identical
 		// to the result when we paste
 		IndentComparator.compare("testGenerateFor", expected+expected, result);
@@ -346,7 +346,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testAutoPostSingleComment", expected+expected, result);
 	}
 
@@ -377,7 +377,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String content = tester.getContent();
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare("testPaste", expected, content);
 	}
 
@@ -407,7 +407,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String content = tester.getContent();
 
-		System.out.println("content=\"" + content + "\"");
+		fLog.debug("content=\"" + content + "\"");
 		IndentComparator.compare("testPasteModule", expected+expected+expected_text, content);
 	}
 	
@@ -449,7 +449,7 @@ public class TestAutoIndent extends TestCase {
 		tester.paste(paste);
 		result = tester.getContent();
 		
-		System.out.println("result=\"" + result + "\"");
+		fLog.debug("result=\"" + result + "\"");
 		IndentComparator.compare("testPasteAlwaysComb",
 				"module t;\n" +
 				"	logic a;\n" +
@@ -481,7 +481,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testModuleWires", expected+expected, result);
 	}
 
@@ -513,7 +513,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testModuleWires", expected, result);
 	}
 
@@ -548,7 +548,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String content = tester.getContent();
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare("", expected, content);
 	}
 
@@ -572,8 +572,8 @@ public class TestAutoIndent extends TestCase {
 		
 		String content = tester.getContent();
 		
-		System.out.println("Result:\n" + content);
-		System.out.println("Expected:\n" + first);
+		fLog.debug("Result:\n" + content);
+		fLog.debug("Expected:\n" + first);
 		IndentComparator.compare("testPasteModuleNoCR", first, content);
 	}
 
@@ -633,7 +633,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare("", expected, result);
 	}
 
@@ -675,7 +675,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Result:\n" + content);
+		fLog.debug("Result:\n" + content);
 		IndentComparator.compare("", expected+expected, result);
 	}
 	
@@ -736,7 +736,7 @@ public class TestAutoIndent extends TestCase {
 		String result = tester.getContent();
 		
 
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("Covergroup indent failed", expected, result);
 	}
 
@@ -769,7 +769,7 @@ public class TestAutoIndent extends TestCase {
 		String result = tester.getContent();
 		
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testVirtualFunction", expected, result);
 	}
 
@@ -800,7 +800,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testPastePostStringAdaptiveIndent", expected, result);
 	}
 
@@ -826,7 +826,7 @@ public class TestAutoIndent extends TestCase {
 		
 		String result = tester.getContent();
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testPasteAdaptiveIndent", expected, result);
 	}
 	
@@ -861,7 +861,7 @@ public class TestAutoIndent extends TestCase {
 		tester.setCaretOffset(0);
 		while (true) {
 			String line = tester.readLine();
-			System.out.println("line=\"" + line + "\"");
+			fLog.debug("line=\"" + line + "\"");
 			
 			if (line.trim().startsWith("int var")) {
 				break;
@@ -870,7 +870,7 @@ public class TestAutoIndent extends TestCase {
 		tester.paste("/*\n");
 		
 		String result = tester.getContent();
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testPasteInsertOpeningComment", expected, result);
 	}
 
@@ -1035,7 +1035,7 @@ public class TestAutoIndent extends TestCase {
 		tester.type(input);
 		String result = tester.getContent();
 		
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 	}
 
 	public void disabled_testModifyIndent() throws BadLocationException {
@@ -1051,7 +1051,7 @@ public class TestAutoIndent extends TestCase {
 		tester.setCaretOffset(offset1);
 		tester.type("\n\n");
 		tester.setCaretOffset(offset2+3);
-		System.out.println("char @ " + (offset2+2) + " = \"" + tester.getChar() + "\"");
+		fLog.debug("char @ " + (offset2+2) + " = \"" + tester.getChar() + "\"");
 		tester.type("a = 5;\n");
 		tester.type("endfunction\n\n");
 		tester.type("endclass\n");
@@ -1068,7 +1068,7 @@ public class TestAutoIndent extends TestCase {
 			"\t\n" +
 			"endclass\n";
 
-		System.out.println("content=\n" + content);
+		fLog.debug("content=\n" + content);
 
 		assertEquals("Check for expected indent", expected, content);
 		
@@ -1099,12 +1099,12 @@ public class TestAutoIndent extends TestCase {
 		}
 
 		tester.setCaretOffset(idx+1);
-		System.out.println("--> type CR");
+		fLog.debug("--> type CR");
 		tester.type('\n');
-		System.out.println("<-- type CR");
+		fLog.debug("<-- type CR");
 		String result = tester.getContent();
 
-		System.out.println("Result:\n" + result);
+		fLog.debug("Result:\n" + result);
 		IndentComparator.compare("testMoveLineDown", expected, result);
 	}
 

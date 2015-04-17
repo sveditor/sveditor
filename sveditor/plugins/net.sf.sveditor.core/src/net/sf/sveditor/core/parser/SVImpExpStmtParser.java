@@ -14,7 +14,6 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBExportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
@@ -33,7 +32,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 	}
 	
 	public void parse_export(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("export");
 
 		if (fLexer.peekString() && 
@@ -69,7 +68,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 		}
 	}
 	
-	private void parse_dpi_tf(ISVDBAddChildItem parent, SVDBLocation start) throws SVParseException {
+	private void parse_dpi_tf(ISVDBAddChildItem parent, long start) throws SVParseException {
 		int modifiers = IFieldItemAttr.FieldAttr_DPI;
 
 		modifiers |= parsers().SVParser().scan_qualifiers(false);
@@ -86,7 +85,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 	}
 
 	public void parse_import(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		fLexer.readKeyword("import");
 		
 		if (fLexer.peekString()) {

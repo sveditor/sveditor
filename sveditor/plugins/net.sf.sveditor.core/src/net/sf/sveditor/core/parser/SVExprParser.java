@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVCoverageExpr;
@@ -1733,7 +1732,7 @@ public class SVExprParser extends SVParserBase {
 	}
 
 	public SVDBIdentifierExpr idExpr() throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		SVDBIdentifierExpr ret = null;
 		if (fLexer.peekKeyword("this", "super")) {
 			ret = new SVDBIdentifierExpr(fLexer.eatToken());
@@ -1746,7 +1745,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	public SVDBLiteralExpr literalExpr() throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		SVDBLiteralExpr ret = new SVDBLiteralExpr(fLexer.readNumber());
 		ret.setLocation(start);
 		

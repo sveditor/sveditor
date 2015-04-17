@@ -9,7 +9,6 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
-import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProc2InputData {
 
@@ -132,8 +131,8 @@ public class SVPreProc2InputData {
 		} catch (IOException e) {}
 	}
 	
-	ScanLocation getLocation() {
-		return new ScanLocation(fFileId, fLineno, fLinepos);
+	long getLocation() {
+		return SVDBLocation.pack(fFileId, fLineno, fLinepos);
 	}
 	
 	void addRefMacro(String name, SVDBMacroDef m) {
@@ -156,19 +155,13 @@ public class SVPreProc2InputData {
 		}
 	}
 	
-	void update_unprocessed_region(ScanLocation scan_loc, boolean enabled_pre, boolean enabled_post) {
+	void update_unprocessed_region(long loc, boolean enabled_pre, boolean enabled_post) {
 		if (enabled_pre && !enabled_post) {
 			// Entering an unprocessed region
-			SVDBLocation loc = new SVDBLocation(scan_loc.getFileId(), 
-					scan_loc.getLineNo(), scan_loc.getLinePos());
-		
 			fUnprocessedRegion = new SVDBUnprocessedRegion();
 			fUnprocessedRegion.setLocation(loc);
 		} else if (!enabled_pre && enabled_post) {
 			// Leaving an unprocessed region
-			SVDBLocation loc = new SVDBLocation(scan_loc.getFileId(), 
-					scan_loc.getLineNo(), scan_loc.getLinePos());
-		
 			SVDBUnprocessedRegion r = fUnprocessedRegion;
 			fUnprocessedRegion = null;
 		
@@ -183,10 +176,7 @@ public class SVPreProc2InputData {
 		if (fUnprocessedRegion != null) {
 			// TODO: mark error
 			// we fell off the end of the file with an ifdef active
-			ScanLocation scan_loc = getLocation();
-			SVDBLocation loc = new SVDBLocation(scan_loc.getFileId(), 
-					scan_loc.getLineNo(), scan_loc.getLinePos());
-			fUnprocessedRegion.setEndLocation(loc);
+			fUnprocessedRegion.setEndLocation(getLocation());
 			if (fFileTree != null) {
 				fFileTree.getSVDBFile().addChildItem(fUnprocessedRegion);
 			}

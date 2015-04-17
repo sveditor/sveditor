@@ -102,7 +102,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
@@ -485,7 +485,7 @@ public class SVDBArgFileIndex2 implements
 				SVPreProcOutput out = preproc.preprocess();
 				SVDBFileTree ft = out.getFileTree();
 				
-				ParserSVDBFileFactory f = new ParserSVDBFileFactory();
+				SVParser f = new SVParser();
 				f.setFileMapper(build_data);
 				
 				SVLanguageLevel language_level;
@@ -1108,7 +1108,7 @@ public class SVDBArgFileIndex2 implements
 					map = new HashMap<Integer, SVDBFile>();
 				
 					SVDBFile f = new SVDBFile(root_path);
-					f.setLocation(new SVDBLocation(root_id, -1, -1));
+					f.setLocation(SVDBLocation.pack(root_id, -1, -1));
 					map.put(root_id, f);
 //					long start = System.currentTimeMillis();
 					createSubFileMap(fBuildData, map, file, root_id, f);
@@ -1142,16 +1142,16 @@ public class SVDBArgFileIndex2 implements
 			SVDBFile						file) {
 		
 		for (ISVDBChildItem it : scope.getChildren()) {
-			SVDBLocation l = it.getLocation();
+			long l = it.getLocation();
 			
-			if (l != null && l.getFileId() != curr_id) {
-				int new_id = l.getFileId();
+			if (l != -1 && SVDBLocation.unpackFileId(l) != curr_id) {
+				int new_id = SVDBLocation.unpackFileId(l);
 				
 				SVDBFile f = map.get(new_id);
 				
 				if (f == null) {
 					f = new SVDBFile(build_data.mapFileIdToPath(new_id));
-					f.setLocation(new SVDBLocation(new_id, -1, -1));
+					f.setLocation(SVDBLocation.pack(new_id, -1, -1));
 					map.put(new_id, f);
 				}
 				
@@ -1261,14 +1261,14 @@ public class SVDBArgFileIndex2 implements
 		// we've found scopes in the target file
 		boolean found_file = false;
 		
-		SVDBLocation l = parent.getLocation();
+		long l = parent.getLocation();
 		
 		if (fDebugEn) {
 			fLog.debug("--> extractFileContents " + SVDBItem.getName(parent) + 
-					" l.file_id=" + ((l != null)?l.getFileId():"null") + " " + file_id);
+					" l.file_id=" + ((l != -1)?SVDBLocation.unpackFileId(l):"null") + " " + file_id);
 		}
 	
-		if (l != null && l.getFileId() == file_id) {
+		if (l != -1 && SVDBLocation.unpackFileId(l) == file_id) {
 			ret.addChildItem(parent);
 			found_file = true;
 			if (fDebugEn) {
@@ -1277,7 +1277,7 @@ public class SVDBArgFileIndex2 implements
 		} else {
 			for (ISVDBChildItem c : parent.getChildren()) {
 				l = c.getLocation();
-				if (l != null && l.getFileId() == file_id) {
+				if (l != -1 && SVDBLocation.unpackFileId(l) == file_id) {
 					ret.addChildItem(c);
 					found_file = true;
 					if (fDebugEn) {
@@ -1518,7 +1518,8 @@ public class SVDBArgFileIndex2 implements
 			
 			if (root_markers != null) {
 				for (SVDBMarker m : root_markers) {
-					if (m.getLocation() != null && m.getLocation().getFileId() == file_id) {
+					if (m.getLocation() != -1 && 
+							SVDBLocation.unpackFileId(m.getLocation()) == file_id) {
 						markers.add(m);
 					}
 				}
@@ -1710,7 +1711,7 @@ public class SVDBArgFileIndex2 implements
 			end = System.currentTimeMillis();
 			fLog.debug("<-- PreProcess " + r_path + " " + (end-start) + "ms");
 
-			ParserSVDBFileFactory f = new ParserSVDBFileFactory();
+			SVParser f = new SVParser();
 			f.setFileMapper(fReadOnlyFileMapper);
 			
 			SVDBFileTree ft = out.getFileTree();
@@ -1731,7 +1732,7 @@ public class SVDBArgFileIndex2 implements
 			start = System.currentTimeMillis();
 			file = f.parse(language_level, out, r_path, markers);
 			int file_id = fBuildData.mapFilePathToId(r_path, false);
-			file.setLocation(new SVDBLocation(file_id, 1, 0));
+			file.setLocation(SVDBLocation.pack(file_id, 1, 0));
 			
 //			cleanExtFileElements(file_id, file);
 			end = System.currentTimeMillis();
@@ -1792,9 +1793,9 @@ public class SVDBArgFileIndex2 implements
 			
 			List<SVDBMacroDef> macros = new ArrayList<SVDBMacroDef>();
 			for (SVDBMacroDef m : preproc.getDefaultMacros()) {
-				if (m.getLocation() == null || limit_lineno == -1 ||
-						m.getLocation().getFileId() != this_fileid ||
-						m.getLocation().getLine() <= limit_lineno) {
+				if (m.getLocation() == -1 || limit_lineno == -1 ||
+						SVDBLocation.unpackFileId(m.getLocation()) != this_fileid ||
+						SVDBLocation.unpackLineno(m.getLocation()) <= limit_lineno) {
 					macros.add(m);
 				}
 			}
@@ -2151,10 +2152,10 @@ public class SVDBArgFileIndex2 implements
 						+ SVDBItem.getName(item));
 			}
 			
-			if (item.getLocation() != null && 
-					item.getLocation().getFileId() != curr_fileid &&
-					item.getLocation().getFileId() > 0) {
-				curr_fileid = item.getLocation().getFileId();
+			if (item.getLocation() != -1 && 
+					SVDBLocation.unpackFileId(item.getLocation()) != curr_fileid &&
+					SVDBLocation.unpackFileId(item.getLocation()) > 0) {
+				curr_fileid = SVDBLocation.unpackFileId(item.getLocation());
 				curr_filename = build_data.mapFileIdToPath(curr_fileid);
 			}
 			
@@ -2687,7 +2688,7 @@ public class SVDBArgFileIndex2 implements
 			SVDBArgFileIndexBuildData 	build_data,
 			Map<String, SVDBMacroDef>	defines) {
 		long start, end;
-		ParserSVDBFileFactory f = new ParserSVDBFileFactory();
+		SVParser f = new SVParser();
 		f.setFileMapper(build_data);
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -2799,10 +2800,11 @@ public class SVDBArgFileIndex2 implements
 		
 		// Now, go through the marker list
 		for (SVDBMarker m : markers) {
-			if (m.getLocation() == null) {
+			if (m.getLocation() == -1) {
 				continue;
 			}
-			String path = build_data.mapFileIdToPath(m.getLocation().getFileId());
+			String path = build_data.mapFileIdToPath(
+					SVDBLocation.unpackFileId(m.getLocation()));
 			if (!processed_files.contains(path)) {
 				build_data.fIndexCacheData.setFileAttrBits(path, FILE_ATTR_HAS_MARKERS);
 			}

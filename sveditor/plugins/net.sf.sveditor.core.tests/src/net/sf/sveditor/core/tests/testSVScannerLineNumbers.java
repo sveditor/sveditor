@@ -21,6 +21,7 @@ import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 
@@ -38,7 +39,8 @@ public class testSVScannerLineNumbers implements IApplication {
 		SVDBFile f =  factory.parse(SVLanguageLevel.SystemVerilog, in, "tlm_imps.svh", markers);
 		
 		for (ISVDBItemBase it : f.getChildren()) {
-			System.out.println("item \"" + SVDBItem.getName(it) + "\" @ line " + it.getLocation().getLine());
+			System.out.println("item \"" + SVDBItem.getName(it) + "\" @ line " + 
+					SVDBLocation.unpackLineno(it.getLocation()));
 		}
 		
 		return 0;

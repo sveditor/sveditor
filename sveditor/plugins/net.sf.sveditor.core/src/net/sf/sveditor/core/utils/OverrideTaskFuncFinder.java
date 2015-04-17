@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.search.SVDBFindSuperClass;
@@ -24,11 +25,11 @@ public class OverrideTaskFuncFinder {
 		SVDBFindSuperClass super_finder = new SVDBFindSuperClass(index_it);
 		List<SVDBClassDecl> classes = new ArrayList<SVDBClassDecl>();
 	
-		if (file.getLocation() == null) {
+		if (file.getLocation() == -1) {
 			return ret;
 		}
 		
-		collectClasses(classes, file.getLocation().getFileId(), file);
+		collectClasses(classes, SVDBLocation.unpackFileId(file.getLocation()), file);
 		
 		for (SVDBClassDecl cls : classes) {
 			SVDBClassDecl super_cls = super_finder.find(cls);
@@ -71,14 +72,15 @@ public class OverrideTaskFuncFinder {
 			ISVDBChildParent 			scope) {
 		for (ISVDBChildItem ci : scope.getChildren()) {
 			if (ci.getType() == SVDBItemType.ClassDecl) {
-				if (ci.getLocation() != null && ci.getLocation().getFileId() == file_id) {
+				if (ci.getLocation() != -1 && 
+						SVDBLocation.unpackFileId(ci.getLocation()) == file_id) {
 					classes.add((SVDBClassDecl)ci);
 				}
 			} else if (ci.getType() == SVDBItemType.PackageDecl ||
 					ci.getType() == SVDBItemType.ModuleDecl ||
 					ci.getType() == SVDBItemType.InterfaceDecl ||
 					ci.getType() == SVDBItemType.ProgramDecl) {
-				if (ci.getLocation() != null && ci.getLocation().getFileId() == file_id) {
+				if (ci.getLocation() != -1 && SVDBLocation.unpackFileId(ci.getLocation()) == file_id) {
 					collectClasses(classes, file_id, (ISVDBChildParent)ci);
 				}
 			}

@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -58,7 +57,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 		// cmos gates have 4 terminals
 		SVDBTypeInfoUserDef type = new SVDBTypeInfoUserDef(fLexer.eatToken());
 		String primitive_name = type.getName();
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 
 		// These primitives have the following port order
 		// cmos (out, data_in, ncontrol, pcontrol)

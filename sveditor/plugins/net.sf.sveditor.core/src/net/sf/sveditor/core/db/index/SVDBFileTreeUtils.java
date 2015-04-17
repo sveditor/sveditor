@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -128,7 +129,8 @@ public class SVDBFileTreeUtils {
 				debug("    pre-proc conditional " + c.getName() + " " + c.getConditional());
 				
 				String cond = c.getConditional();
-				boolean defined = dp.isDefined(cond, it.getLocation().getLine());
+				boolean defined = dp.isDefined(cond, 
+						SVDBLocation.unpackLineno(it.getLocation()));
 				if ((defined && c.getName().equals("ifdef")) ||
 						(!defined && c.getName().equals("ifndef"))) {
 
@@ -166,7 +168,8 @@ public class SVDBFileTreeUtils {
 							it_l.get(i).getType() == SVDBItemType.PreProcCond &&
 							 ((ISVDBNamedItem)it_l.get(i)).getName().equals("elsif")) {
 						String elsif_cond = ((SVDBPreProcCond)it_l.get(i)).getConditional();
-						taken = dp.isDefined(elsif_cond, it.getLocation().getLine());
+						taken = dp.isDefined(elsif_cond, 
+								SVDBLocation.unpackLineno(it.getLocation()));
 						
 						if (taken) {
 							break;

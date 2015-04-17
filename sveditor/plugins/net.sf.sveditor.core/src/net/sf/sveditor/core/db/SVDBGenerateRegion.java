@@ -17,7 +17,7 @@ import java.util.List;
 
 public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem {
 	public List<ISVDBChildItem>		fGenerateItems;
-	public SVDBLocation				fEndLocation;
+	public long						fEndLocation;
 	
 	public SVDBGenerateRegion() {
 		super(SVDBItemType.GenerateRegion);
@@ -28,11 +28,11 @@ public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem 
 		return fGenerateItems;
 	}
 
-	public SVDBLocation getEndLocation() {
+	public long getEndLocation() {
 		return fEndLocation;
 	}
 
-	public void setEndLocation(SVDBLocation loc) {
+	public void setEndLocation(long loc) {
 		fEndLocation = loc;
 	}
 

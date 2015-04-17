@@ -711,7 +711,10 @@ public class SVLexer extends SVToken {
 //		ScanLocation loc = fScanner.getLocation();
 //		fStartLocation = new SVDBLocation(loc.getFileId(), 
 //				loc.getLineNo(), loc.getLinePos());
-		fStartLocation = fScanner.getLocationL();
+		fStartLocation = SVDBLocation.pack(
+				fScanner.getFileId(),
+				fScanner.getLineno(),
+				fScanner.getLinepos());
 
 		if (ch == -1) {
 			fEOF = true;
