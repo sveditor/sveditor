@@ -106,7 +106,7 @@ public class SVPropertyParser extends SVParserBase {
 					final List<SVToken> tok_l = new ArrayList<SVToken>();
 					ISVTokenListener l = new ISVTokenListener() {
 						public void tokenConsumed(SVToken tok) {
-							tok_l.add(tok);
+							tok_l.add(tok.duplicate());
 						}
 						public void ungetToken(SVToken tok) {
 							tok_l.remove(tok_l.size()-1);

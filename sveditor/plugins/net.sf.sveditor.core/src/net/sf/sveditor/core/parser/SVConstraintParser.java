@@ -93,7 +93,7 @@ public class SVConstraintParser extends SVParserBase {
 				// Scan forward to the first ';' ',' or brace
 				while ((tok = fLexer.peek()) != null && 
 						!fLexer.peekOperator(";", ",") &&
-						!fLexer.peekKeyword("if", "else", "foreach", "inside")) {
+						!fLexer.peekKeyword(KW.IF, KW.ELSE, KW.FOREACH, KW.INSIDE)) {
 					if (tok.equals("{")) {
 						brace_balance++;
 					} else if (tok.equals("}")) {
@@ -159,44 +159,51 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBStmt ret = null;
 		
 		if (fDebugEn) { debug("--> constraint_set_item " + fLexer.peek()); }
-		
-		if (fLexer.peekKeyword("solve")) {
-			ret = solve_expression();
-		} else if (fLexer.peekKeyword("if")) {
-			ret = constraint_if_expression();
-		} else if (fLexer.peekKeyword("foreach")) {
-			ret = constraint_foreach();
-		} else {
-			
-			if (fLexer.peekKeyword("soft")) {
-				fLexer.eatToken();
-			}
-			
-			// Not sure. Possibly one of:
-			// - expression_or_dist
-			//     - expression [dist { dist_list }]
-			// - expression -> constraint_set
 
-			// tok = expression(tok);
-			SVDBExpr expr = fParsers.exprParser().expression();
-			
-			if (fLexer.peekKeyword("dist")) {
-				ret = dist_expr();
-			} else if (fLexer.peekOperator(";")) {
-				// Done
-				fLexer.eatToken();
-				ret = new SVDBExprStmt(expr);
-			} else if (fLexer.peekOperator("->")) {
-				if (fDebugEn) { debug("  implication"); }
-				fLexer.eatToken();
+	
+		KW kw = fLexer.peekKeywordE();
+		if (kw != null) {
+			switch (kw) {
+				case SOLVE:
+					ret = solve_expression();
+					break;
+				case IF: 
+					ret = constraint_if_expression();
+					break;
+				case FOREACH:
+					ret = constraint_foreach();
+					break;
+				case SOFT: {
+					fLexer.eatToken();
+					} break;
 				
-				ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
-			} else if (fLexer.peekOperator("}")) {
-				ret = new SVDBExprStmt(expr);
-				// Do nothing ... expecting this
-			} else {
-				error("Unknown suffix for expression: " + fLexer.getImage());
+				default: {
+					if (fLexer.peekKeyword(KW.SOFT)) {
+						fLexer.eatToken();
+					}
+					SVDBExpr expr = fParsers.exprParser().expression();
+					
+					if (fLexer.peekKeyword(KW.DIST)) {
+						ret = dist_expr();
+					} else if (fLexer.peekOperator(";")) {
+						// Done
+						fLexer.eatToken();
+						ret = new SVDBExprStmt(expr);
+					} else if (fLexer.peekOperator("->")) {
+						if (fDebugEn) { debug("  implication"); }
+						fLexer.eatToken();
+						
+						ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
+					} else if (fLexer.peekOperator("}")) {
+						ret = new SVDBExprStmt(expr);
+						// Do nothing ... expecting this
+					} else {
+						error("Unknown suffix for expression: " + fLexer.getImage());
+					}					
+				} break;
 			}
+		} else {
+			error("Unknown suffix for expression: " + fLexer.getImage());
 		}
 		
 		if (fDebugEn) { debug("<-- constraint_set_item " + fLexer.peek()); }
@@ -259,10 +266,10 @@ public class SVConstraintParser extends SVParserBase {
 		
 		SVDBStmt constraint = constraint_set(false, true, false);
 		
-		if (fLexer.peekKeyword("else")) {
+		if (fLexer.peekKeyword(KW.ELSE)) {
 			SVDBStmt else_stmt;
 			fLexer.eatToken();
-			if (fLexer.peekKeyword("if")) {
+			if (fLexer.peekKeyword(KW.IF)) {
 				else_stmt = constraint_if_expression();
 			} else {
 				else_stmt = constraint_set(false, true, false);

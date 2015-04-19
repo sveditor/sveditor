@@ -16,7 +16,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 
 
 
-public interface ISVParser {
+public interface ISVParser extends ISVKeywords {
 	
 	SVLexer lexer();
 	

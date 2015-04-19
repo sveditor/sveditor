@@ -162,28 +162,24 @@ public class SVClockingBlockParser extends SVParserBase {
 	private String event_expr() throws SVParseException {
 		String ret = null;
 		
-		try {
-			while (fLexer.peek() != null) {
-				if (fLexer.peekOperator("(")) {
-					fLexer.skipPastMatch("(", ")");
-				} else {
-					if (fLexer.peekKeyword("posedge","negedge","event")) {
-						fLexer.eatToken();
-					}
-					fLexer.readId();
-				}
-				if (fLexer.peekOperator(",")) {
+		while (fLexer.peek() != null) {
+			if (fLexer.peekOperator("(")) {
+				fLexer.skipPastMatch("(", ")");
+			} else {
+				if (fLexer.peekKeyword("posedge","negedge","event")) {
 					fLexer.eatToken();
-				} else if (fLexer.peekKeyword("or")) {
-					fLexer.eatToken();
-				} else {
-					break;
 				}
+				fLexer.readId();
 			}
-		} finally {
-			ret = fLexer.endCapture();
+			if (fLexer.peekOperator(",")) {
+				fLexer.eatToken();
+			} else if (fLexer.peekKeyword("or")) {
+				fLexer.eatToken();
+			} else {
+				break;
+			}
 		}
-	
+
 		return ret;
 	}
 

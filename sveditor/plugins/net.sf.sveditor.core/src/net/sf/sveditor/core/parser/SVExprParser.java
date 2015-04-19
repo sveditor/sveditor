@@ -1303,12 +1303,17 @@ public class SVExprParser extends SVParserBase {
 					ret = ctor_call();
 				} else if (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 						fLexer.peekKeyword("const")) {
-					fLexer.startCapture();
-					fLexer.eatToken();
-					if (fLexer.peekKeyword("signed", "unsigned")) {
+					SVStringTokenListener l = new SVStringTokenListener();
+					fLexer.addTokenListener(l);
+					try {
 						fLexer.eatToken();
+						if (fLexer.peekKeyword("signed", "unsigned")) {
+							fLexer.eatToken();
+						}
+					} finally {
+						fLexer.removeTokenListener(l);
 					}
-					ret = new SVDBIdentifierExpr(fLexer.endCapture());
+					ret = new SVDBIdentifierExpr(l.toString());
 				} else {
 					// ID or 'default'
 					if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(":")) {

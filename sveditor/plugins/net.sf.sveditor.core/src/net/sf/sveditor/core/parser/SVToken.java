@@ -12,9 +12,8 @@
 
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 
-public class SVToken {
+public class SVToken implements ISVKeywords {
 
 	protected String						fImage;
 	protected boolean						fIsString;
@@ -22,7 +21,8 @@ public class SVToken {
 	protected boolean						fIsNumber;
 	protected boolean						fIsTime;
 	protected boolean						fIsIdentifier;
-	protected boolean						fIsKeyword;
+//	protected boolean						fIsKeyword;
+	protected KW							fKeyword;
 	protected boolean						fIsPath;
 //	protected SVDBLocation					fStartLocation;
 	protected long							fStartLocation;
@@ -35,7 +35,7 @@ public class SVToken {
 		ret.fIsNumber      = fIsNumber;
 		ret.fIsTime        = fIsTime;
 		ret.fIsIdentifier  = fIsIdentifier;
-		ret.fIsKeyword     = fIsKeyword;
+		ret.fKeyword       = fKeyword;
 		ret.fIsPath        = fIsPath;
 //		ret.fStartLocation = fStartLocation.duplicate();
 		ret.fStartLocation = fStartLocation;
@@ -85,7 +85,7 @@ public class SVToken {
 	}
 	
 	public boolean isKeyword() {
-		return fIsKeyword;
+		return (fKeyword != null);
 	}
 	
 	public String getImage() {

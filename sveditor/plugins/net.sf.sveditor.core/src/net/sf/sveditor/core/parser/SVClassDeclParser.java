@@ -44,7 +44,7 @@ public class SVClassDeclParser extends SVParserBase {
 		long start_loc = fLexer.getStartLocation();
 		fLexer.readKeyword("class");
 		
-		if (fLexer.peekKeyword("automatic", "static")) {
+		if (fLexer.peekKeyword(KW.AUTOMATIC, KW.STATIC)) {
 			// TODO: set lifetime on class declaration
 			fLexer.eatToken();
 		}

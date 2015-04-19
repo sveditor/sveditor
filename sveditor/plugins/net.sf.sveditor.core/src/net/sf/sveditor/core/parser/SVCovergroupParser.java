@@ -56,7 +56,7 @@ public class SVCovergroupParser extends SVParserBase {
 			error("block_event_expression not supported for covergroup sampling");
 		} else if (fLexer.peekOperator("@")) {
 			cg.setCoverageEvent(parsers().exprParser().clocking_event());
-		} else if (fLexer.peekKeyword("with")) {
+		} else if (fLexer.peekKeyword(KW.WITH)) {
 			// with function sample not completely supported 
 			// TODO : just run to the end of the covergroup, swallowing the lot
 			while (fLexer.peek() != null && !fLexer.peekOperator(";"))  {
@@ -69,7 +69,7 @@ public class SVCovergroupParser extends SVParserBase {
 
 		try {
 			// Skip statements
-			while (fLexer.peek() != null && !fLexer.peekKeyword("endgroup")) {
+			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDGROUP)) {
 				ISVDBChildItem cov_item;
 
 				if (isOption()) {
@@ -90,8 +90,8 @@ public class SVCovergroupParser extends SVParserBase {
 		} catch (SVParseException e) {
 			// attempt to recover from the error
 			while (fLexer.peek() != null && 
-					!fLexer.peekKeyword("endgroup", "class", "module", "function",
-							"task", "endclass", "endmodule")) {
+					!fLexer.peekKeyword(KW.ENDGROUP, KW.CLASS, KW.MODULE, KW.FUNCTION,
+							KW.TASK, KW.ENDCLASS, KW.ENDMODULE)) {
 				fLexer.eatToken();
 			}
 			cg.setEndLocation(fLexer.getStartLocation());
@@ -151,7 +151,7 @@ public class SVCovergroupParser extends SVParserBase {
 	private void cover_point(SVDBCoverpoint cp) throws SVParseException {
 		cp.setTarget(parsers().exprParser().expression());
 		
-		if (fLexer.peekKeyword("iff")) {
+		if (fLexer.peekKeyword(KW.IFF)) {
 			fLexer.eatToken();
 			fLexer.readOperator("(");
 			cp.setIFF(parsers().exprParser().expression());
@@ -164,7 +164,7 @@ public class SVCovergroupParser extends SVParserBase {
 				if (isOption()) {
 					cp.addItem(coverage_option());
 				} else {
-					boolean wildcard = fLexer.peekKeyword("wildcard");
+					boolean wildcard = fLexer.peekKeyword(KW.WILDCARD);
 					if (wildcard) {
 						fLexer.eatToken();
 					}
@@ -311,7 +311,7 @@ public class SVCovergroupParser extends SVParserBase {
 			}
 		}
 		
-		if (fLexer.peekKeyword("iff")) {
+		if (fLexer.peekKeyword(KW.IFF)) {
 			fLexer.eatToken();
 			fLexer.readOperator("(");
 			cp.setIFF(parsers().exprParser().expression());
@@ -331,7 +331,7 @@ public class SVCovergroupParser extends SVParserBase {
 					fLexer.readOperator("=");
 					select_stmt.setSelectCondition(select_expression());
 					
-					if (fLexer.peekKeyword("iff")) {
+					if (fLexer.peekKeyword(KW.IFF)) {
 						fLexer.eatToken();
 						fLexer.readOperator("(");
 						select_stmt.setIffExpr(fParsers.exprParser().expression());
@@ -425,7 +425,7 @@ public class SVCovergroupParser extends SVParserBase {
 		}
 		fLexer.readOperator(")");
 		
-		if (fLexer.peekKeyword("intersect")) {
+		if (fLexer.peekKeyword(KW.INTERSECT)) {
 			fLexer.eatToken();
 			fParsers.exprParser().open_range_list(select_c.getIntersectList());
 		}

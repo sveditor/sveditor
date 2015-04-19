@@ -12,8 +12,10 @@
 package net.sf.sveditor.core.parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -21,11 +23,9 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVCharacter;
-import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.ScanLocation;
 
-public class SVLexer extends SVToken {
+public class SVLexer extends SVToken implements ISVKeywords {
 	public enum Context {
 		Default,
 		Behavioral,
@@ -37,23 +37,19 @@ public class SVLexer extends SVToken {
 	// 2- and 3-character operator prefixes
 	private Set<String>				fSeqPrefixes[];
 	private Set<String> 			fOperatorSet;
-	private Set<String> 			fDefaultKeywordSet;
-	private Set<String> 			fConstraintKeywordSet;
-	private Set<String>				fExprKeywordSet;
+	private Map<String, KW>			fDefaultKeywordSet;
+	private Map<String, KW>			fConstraintKeywordSet;
+	private Map<String, KW>			fExprKeywordSet;
 
 	private List<ISVTokenListener>	fTokenListeners;
 
 	private boolean 				fTokenConsumed;
-	private boolean 				fNewlineAsOperator;
 	private boolean 				fIsDelayControl;
 
 	private StringBuilder 			fStringBuffer;
 	private static final boolean 	fDebugEn = false;
 	private boolean 				fEOF;
 
-	private StringBuilder			fCaptureBuffer;
-	private boolean 				fCapture;
-	private SVToken 				fCaptureLastToken;
 	private ISVParser 				fParser;
 	private Stack<SVToken> 			fUngetStack;
 	private boolean 				fInAttr;
@@ -66,7 +62,7 @@ public class SVLexer extends SVToken {
 	public SVLexer() {
 		this(SVLanguageLevel.SystemVerilog);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public SVLexer(SVLanguageLevel level) {
 		fLanguageLevel = level;
@@ -79,13 +75,11 @@ public class SVLexer extends SVToken {
 			new HashSet<String>()
 		};
 
-		fDefaultKeywordSet = new HashSet<String>();
-		fConstraintKeywordSet = new HashSet<String>();
-		fExprKeywordSet = new HashSet<String>();
+		fDefaultKeywordSet = new HashMap<>();
+		fConstraintKeywordSet = new HashMap<>();
+		fExprKeywordSet = new HashMap<>();
 
 		fStringBuffer = new StringBuilder();
-		fCaptureBuffer = new StringBuilder();
-		fCapture = false;
 
 		fUngetStack = new Stack<SVToken>();
 
@@ -101,20 +95,20 @@ public class SVLexer extends SVToken {
 			fOperatorSet.add(op);
 		}
 
-		for (String kw : SVKeywords.getKeywords()) {
-			if (kw.endsWith("*")) {
+//		for (String kw : SVKeywords.getKeywords()) {
+		for (ISVKeywords.KW kw : ISVKeywords.KW.values()) {
+			if (kw.isSV()) {
 				// Don't add SystemVerilog keywords if the language level is Verilog
 				if (fLanguageLevel == SVLanguageLevel.SystemVerilog) {
-					kw = kw.substring(0, kw.length() - 1);
-					fDefaultKeywordSet.add(kw);
+					fDefaultKeywordSet.put(kw.getImg(), kw);
 				}
 			} else {
-				fDefaultKeywordSet.add(kw);
+				fDefaultKeywordSet.put(kw.getImg(), kw);
 			}
 		}
-		
-		fConstraintKeywordSet.addAll(fDefaultKeywordSet);
-		fExprKeywordSet.addAll(fDefaultKeywordSet);
+	
+		fConstraintKeywordSet.putAll(fDefaultKeywordSet);
+		fExprKeywordSet.putAll(fDefaultKeywordSet);
 		
 		// Customize
 		fDefaultKeywordSet.remove("soft");
@@ -144,10 +138,6 @@ public class SVLexer extends SVToken {
 		fTokenListeners.remove(l);
 	}
 	
-	public void setNewlineAsOperator(boolean en) {
-		fNewlineAsOperator = en;
-	}
-
 	public void setInAttr(boolean in) {
 		fInAttr = in;
 	}
@@ -162,19 +152,12 @@ public class SVLexer extends SVToken {
 	public void init(SVToken tok) {
 		fImage = tok.fImage;
 		fIsIdentifier = tok.fIsIdentifier;
-		fIsKeyword = tok.fIsKeyword;
+		fKeyword = tok.fKeyword;
 		fIsNumber = tok.fIsNumber;
 		fIsOperator = tok.fIsOperator;
 		fIsString = tok.fIsString;
 		fIsTime = tok.fIsTime;
-//		fStartLocation = tok.fStartLocation.duplicate();
 		fStartLocation = tok.fStartLocation;
-	}
-
-	public SVToken peekToken() {
-		peek();
-
-		return this.duplicate();
 	}
 
 	// Returns a token
@@ -198,19 +181,6 @@ public class SVLexer extends SVToken {
 			fUngetStack.push(this.duplicate());
 		}
 		fTokenConsumed = true; // ensure we move to the next
-
-		if (fCapture) {
-			if (fCaptureBuffer.length() >= tok.getImage().length()) {
-				fCaptureBuffer.setLength(fCaptureBuffer.length()
-						- tok.getImage().length());
-			}
-			// Remove separator
-			if (fCaptureBuffer.length() > 0
-					&& fCaptureBuffer.charAt(fCaptureBuffer.length() - 1) == ' ') {
-				fCaptureBuffer.setLength(fCaptureBuffer.length() - 1);
-			}
-			fCaptureLastToken = tok.duplicate();
-		}
 
 		if (fTokenListeners.size() > 0) {
 			for (ISVTokenListener l : fTokenListeners) {
@@ -261,7 +231,7 @@ public class SVLexer extends SVToken {
 
 	public boolean isKeyword() {
 		peek();
-		return fIsKeyword;
+		return (fKeyword != null);
 	}
 
 	public boolean isOperator() {
@@ -390,10 +360,11 @@ public class SVLexer extends SVToken {
 		return eatToken();
 	}
 
+	@Deprecated
 	public boolean peekKeyword(String... kw) throws SVParseException {
 		peek();
 
-		if (fIsKeyword) {
+		if (fKeyword != null) {
 			switch (kw.length) {
 				case 0:
 					return true;
@@ -421,18 +392,67 @@ public class SVLexer extends SVToken {
 
 		return false;
 	}
+	
+	public boolean peekKeyword() throws SVParseException {
+		peek();
+		return (fKeyword != null);
+	}
+	
+	public KW peekKeywordE() throws SVParseException {
+		peek();
+		return fKeyword;
+	}
+	
+	public boolean peekKeyword(KW kw) throws SVParseException {
+		peek();
+		return (fKeyword != null && fKeyword == kw);
+	}
 
+	public boolean peekKeyword(KW ... kw) throws SVParseException {
+		peek();
+
+		if (fKeyword != null) {
+			switch (kw.length) {
+				case 0:
+					return true;
+				case 1:
+					return fKeyword == kw[0];
+				case 2:
+					return (fKeyword == kw[0] || fKeyword == kw[1]);
+				case 3:
+					return (fKeyword == kw[0] || fKeyword == kw[1] || fKeyword == kw[2]);
+				case 4:
+					return (fKeyword == kw[0] || fKeyword == kw[1] || fKeyword == kw[2] ||
+							fKeyword == kw[3]);
+				case 5:
+					return (fKeyword == kw[0] || fKeyword == kw[1] || fKeyword == kw[2] ||
+							fKeyword == kw[3] || fKeyword == kw[4]);
+				default:
+					for (KW k : kw) {
+						if (fKeyword == k) {
+							return true;
+						}
+					}
+					return false;
+			}
+		}
+
+		return false;
+	}
+
+	@Deprecated
 	public boolean peekKeyword(Set<String> kw) throws SVParseException {
 		peek();
 
 		boolean found = false;
-		if (fIsKeyword) {
+		if (fKeyword != null) {
 			found = kw.contains(fImage);
 		}
 
 		return found;
 	}
 
+	@Deprecated
 	public String readKeyword(Set<String> kw) throws SVParseException {
 		if (!peekKeyword(kw)) {
 			StringBuilder sb = new StringBuilder();
@@ -457,6 +477,41 @@ public class SVLexer extends SVToken {
 
 			for (int i = 0; i < kw.length; i++) {
 				sb.append(kw[i]);
+				if (i + 1 < kw.length) {
+					sb.append(", ");
+				}
+			}
+
+			error("Expecting one of keyword \"" + sb.toString()
+					+ "\" ; received \"" + fImage + "\" " + fKeyword);
+		}
+
+		return eatToken();
+	}
+	
+	public String readKeyword() throws SVParseException {
+		peek();
+		if (fKeyword != null) {
+			error("Expecting a keyword. Received \"" + fImage + "\"");
+		}
+		return eatToken();
+	}
+	
+	public String readKeyword(KW kw) throws SVParseException {
+		if (!peekKeyword(kw)) {
+			error("Expecting keyword \"" + kw.getImg()
+					+ "\" ; received \"" + fImage + "\"");
+		}
+		return eatToken();
+	}
+
+	public String readKeyword(KW ... kw) throws SVParseException {
+
+		if (!peekKeyword(kw)) {
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = 0; i < kw.length; i++) {
+				sb.append(kw[i].getImg());
 				if (i + 1 < kw.length) {
 					sb.append(", ");
 				}
@@ -490,19 +545,9 @@ public class SVLexer extends SVToken {
 
 	public String eatToken() {
 		peek();
-		if (fCapture) {
-			if (fCaptureBuffer.length() > 0
-					&& ((isIdentifier() && fCaptureLastToken.isIdentifier()) || (isNumber() && fCaptureLastToken
-							.isNumber()))) {
-				fCaptureBuffer.append(" ");
-			}
-			fCaptureBuffer.append(fImage);
-			fCaptureLastToken = duplicate(); // copy token
-		}
 		if (fTokenListeners.size() > 0) {
-			SVToken tok = this.duplicate();
 			for (ISVTokenListener l : fTokenListeners) {
-				l.tokenConsumed(tok);
+				l.tokenConsumed(this);
 			}
 		}
 		fTokenConsumed = true;
@@ -548,7 +593,7 @@ public class SVLexer extends SVToken {
 	public String readIdOrKeyword() throws SVParseException {
 		peek();
 
-		if (!fIsIdentifier && !fIsKeyword) {
+		if (!fIsIdentifier && (fKeyword == null)) {
 			error("Expecting an identifier or keyword ; received \"" + fImage
 					+ "\"");
 		}
@@ -614,18 +659,6 @@ public class SVLexer extends SVToken {
 		}
 	}
 
-	public void startCapture() {
-		fCaptureBuffer.setLength(0);
-		fCapture = true;
-	}
-
-	public String endCapture() {
-		fCapture = false;
-		fCaptureLastToken = null;
-
-		return fCaptureBuffer.toString();
-	}
-
 	private boolean next_token_int() throws SVParseException {
 		int ch = fScanner.get_ch();
 		int ch2 = -1;
@@ -639,7 +672,7 @@ public class SVLexer extends SVToken {
 		fIsTime = false;
 		fIsIdentifier = false;
 		boolean escaped_id = false;
-		fIsKeyword = false;
+		fKeyword = null;
 		fIsString = false;
 		boolean local_is_delay_ctrl = fIsDelayControl;
 		fIsDelayControl = false;
@@ -695,7 +728,7 @@ public class SVLexer extends SVToken {
 					continue;
 				}				
 			} else {
-				if (!Character.isWhitespace(ch) || (ch == '\n' && fNewlineAsOperator)) {
+				if (!Character.isWhitespace(ch)) {
 					break;
 				}
 			}
@@ -707,10 +740,6 @@ public class SVLexer extends SVToken {
 			append_ch(ch);
 		}
 
-		// TODO: should fix
-//		ScanLocation loc = fScanner.getLocation();
-//		fStartLocation = new SVDBLocation(loc.getFileId(), 
-//				loc.getLineNo(), loc.getLinePos());
 		fStartLocation = SVDBLocation.pack(
 				fScanner.getFileId(),
 				fScanner.getLineno(),
@@ -721,9 +750,6 @@ public class SVLexer extends SVToken {
 			/*
 			 * if (fEnableEOFException) { throw new EOFException(); }
 			 */
-		} else if (fNewlineAsOperator && ch == '\n') {
-			fIsOperator = true;
-
 		} else if (ch == '"') {
 			int last_ch = -1;
 			// String
@@ -767,7 +793,7 @@ public class SVLexer extends SVToken {
 				if (ch == 's') {
 					// most likely 1step
 					fIsNumber = false;
-					fIsKeyword = true;
+					fKeyword = KW.ONE_STEP;
 					fStringBuffer.append((char)ch);
 					while ((ch = fScanner.get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ch)) {
 						fStringBuffer.append((char)ch);
@@ -808,12 +834,6 @@ public class SVLexer extends SVToken {
 				fScanner.unget_ch(ch2);
 			}
 			fIsOperator = true;
-		} else if (fOperatorSet.contains(fStringBuffer.toString()) ||
-				// Operators that can have up to three elements
-				fSeqPrefixes[1].contains(fStringBuffer.toString()) ||
-				fSeqPrefixes[2].contains(fStringBuffer.toString())) {
-			// Probably an operator in some form
-			operator();
 		} else if (SVCharacter.isSVIdentifierStart(ch)) {
 			int last_ch = ch;
 			boolean in_ref = false;
@@ -837,6 +857,12 @@ public class SVLexer extends SVToken {
 			} else {
 				fIsIdentifier = true;
 			}
+		} else if (fOperatorSet.contains(fStringBuffer.toString()) ||
+				// Operators that can have up to three elements
+				fSeqPrefixes[1].contains(fStringBuffer.toString()) ||
+				fSeqPrefixes[2].contains(fStringBuffer.toString())) {
+			// Probably an operator in some form
+			operator();			
 		} else if (ch == '\\') {
 			// Escaped identifier
 			fStringBuffer.setLength(0); // Clear '\' from buffer 
@@ -864,7 +890,7 @@ public class SVLexer extends SVToken {
 			fImage = fStringBuffer.toString();
 
 			if (fIsIdentifier && !escaped_id) {
-				Set<String> kw = null;
+				Map<String, KW> kw = null;
 				
 				switch (fContext) {
 					case Behavioral:
@@ -881,11 +907,14 @@ public class SVLexer extends SVToken {
 						break;
 				}
 				
-				if ((fIsKeyword = kw.contains(fImage))) {
-					if (SVKeywords.isSVKeyword(fImage)) {
-						fIsIdentifier = false;
-					}
-				}
+//				if ((fIsKeyword = kw.contains(fImage))) {
+//					if (SVKeywords.isSVKeyword(fImage)) {
+//						fIsIdentifier = false;
+//					}
+//				}
+				if ((fKeyword = kw.get(fImage)) != null) {
+					fIsIdentifier = false;
+				}				
 			}
 			fTokenConsumed = false;
 			if (fDebugEn) {
@@ -1193,7 +1222,6 @@ public class SVLexer extends SVToken {
 	}
 
 	private void error(String msg) throws SVParseException {
-		endCapture();
 		setInAttr(false);
 		fParser.error(msg);
 	}

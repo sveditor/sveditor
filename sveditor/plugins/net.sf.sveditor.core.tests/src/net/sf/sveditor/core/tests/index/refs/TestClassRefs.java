@@ -76,7 +76,6 @@ public class TestClassRefs extends SVCoreTestCaseBase {
 
 	public void testFindUVMComponentExtensions() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		SVCorePlugin.getDefault().setDebugLevel(LEVEL_MIN);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
 		File test_dir = new File(fTmpDir, getName());

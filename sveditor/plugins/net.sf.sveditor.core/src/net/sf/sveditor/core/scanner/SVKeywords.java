@@ -17,7 +17,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SVKeywords {
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.parser.ISVKeywords;
+
+public class SVKeywords implements ISVKeywords {
 	
 	private static final String 		fKeywords[] = {
 		"alias*",

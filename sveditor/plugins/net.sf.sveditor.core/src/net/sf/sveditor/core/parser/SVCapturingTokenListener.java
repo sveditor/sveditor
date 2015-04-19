@@ -15,13 +15,26 @@ public class SVCapturingTokenListener implements ISVTokenListener {
 	}
 
 	public void tokenConsumed(SVToken tok) {
-		fTokenList.add(tok);
+		fTokenList.add(tok.duplicate());
 	}
 
 	public void ungetToken(SVToken tok) { 
 		if (fTokenList.size() > 0) {
 			fTokenList.remove(fTokenList.size()-1);
 		}
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for (int i=0; i<fTokenList.size(); i++) {
+			sb.append(fTokenList.get(i).getImage());
+			if (i+1 < fTokenList.size()) {
+				sb.append(" ");
+			}
+		}
+		
+		return sb.toString();
 	}
 
 }

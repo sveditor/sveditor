@@ -168,34 +168,40 @@ public class SVParser implements ISVScanner,
 			// Ignore the error and allow another parser to deal with
 		}
 		
-		if (fLexer.peekKeyword("bind")) {
-			parsers().modIfcBodyItemParser().parse_bind(parent);
-		} else if (fLexer.peekKeyword("config")) {
-			parsers().configParser().parse_config(parent);
-		} else if (fLexer.peekKeyword("class")) {
-			parsers().classParser().parse(parent, modifiers);
-		} else if (fLexer.peekKeyword("module","macromodule","interface","program")) {
-			// enter module scope
-			parsers().modIfcProgParser().parse(parent, modifiers);
-		} else if (fLexer.peekKeyword("package")) {
-			package_decl(parent);
-		} else if (fLexer.peekKeyword("covergroup")) {
-			parsers().covergroupParser().parse(parent);
-		} else if (fLexer.peekKeyword("import")) {
-			parsers().impExpParser().parse_import(parent);
-		} else if (fLexer.peekKeyword("export")) {
-			parsers().impExpParser().parse_export(parent);
-		} else if (fLexer.peekKeyword("typedef")) {
-			parsers().dataTypeParser().typedef(parent);
-		} else if (fLexer.peekKeyword("function","task")) {
-			parsers().taskFuncParser().parse(parent, start, modifiers);
-		} else if (fLexer.peekKeyword("constraint")) {
-			parsers().constraintParser().parse(parent, modifiers);
-		} else if (fLexer.peekKeyword("parameter","localparam")) {
-			parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
-		} else if (fLexer.peekKeyword("timeprecision", "timeunit")) {
-			parsers().modIfcBodyItemParser().parse_time_units_precision(parent);
-		} else if (fLexer.peekId() && fLexer.peek().equals("${file_header}")) {
+		KW kw = fLexer.peekKeywordE();
+		
+		if (kw != null) {
+			switch (kw) {
+				case BIND: parsers().modIfcBodyItemParser().parse_bind(parent); break;
+				case CONFIG: parsers().configParser().parse_config(parent); break;
+				case CLASS: parsers().classParser().parse(parent, modifiers); break;
+				case MODULE:
+				case MACROMODULE:
+				case INTERFACE:
+				case PROGRAM:
+					// enter module scope
+					parsers().modIfcProgParser().parse(parent, modifiers);
+					break;
+				case PACKAGE: package_decl(parent); break;
+				case COVERGROUP: parsers().covergroupParser().parse(parent); break;
+				case IMPORT: parsers().impExpParser().parse_import(parent); break;
+				case EXPORT: parsers().impExpParser().parse_export(parent); break;
+				case TYPEDEF: parsers().dataTypeParser().typedef(parent); break;
+				case FUNCTION:
+				case TASK: parsers().taskFuncParser().parse(parent, start, modifiers); break;
+				case CONSTRAINT: parsers().constraintParser().parse(parent, modifiers); break;
+				case PARAMETER:
+				case LOCALPARAM: parsers().modIfcBodyItemParser().parse_parameter_decl(parent); break;
+				case TIMEPRECISION:
+				case TIMEUNIT: parsers().modIfcBodyItemParser().parse_time_units_precision(parent); break;
+				
+				default:
+					// Assume this is a top-level item
+					parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
+//					error("Unhandled keyword: " + fLexer.eatToken());
+					break;
+			}
+		} else if (fLexer.peekId() && fLexer.peek().equals("${file_header}")) { // kw is null
 			// Ignore pieces of the template
 			fLexer.eatToken();
 		} else if (!fLexer.peekOperator()) {
@@ -203,7 +209,7 @@ public class SVParser implements ISVScanner,
 		} else if (fLexer.peekOperator(";")) {
 			// null statement
 			fLexer.eatToken();
-		} else {
+		} else { // kw is null
 			// TODO: check for a data declaration
 			error("Unknown top-level element \"" + fLexer.peek() + "\"");
 		}
@@ -268,7 +274,7 @@ public class SVParser implements ISVScanner,
 
 		while (fLexer.peekOperator("::",".")) {
 			ret.add(fLexer.consumeToken());
-			if (fLexer.peekKeyword("new") ||
+			if (fLexer.peekKeyword(KW.NEW) ||
 					(allow_keywords && fLexer.peekKeyword())) {
 				ret.add(fLexer.consumeToken());
 			} else {
@@ -318,12 +324,12 @@ public class SVParser implements ISVScanner,
 		}
 		SVDBPackageDecl pkg = new SVDBPackageDecl();
 		pkg.setLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("package");
+		fLexer.readKeyword(KW.PACKAGE);
 		
 		fScopeStack.push(pkg);
 
 		try {
-			if (fLexer.peekKeyword("static","automatic")) {
+			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				fLexer.eatToken();
 			}
 
@@ -333,16 +339,16 @@ public class SVParser implements ISVScanner,
 
 			parent.addChildItem(pkg);
 
-			while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
+			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDPACKAGE)) {
 				top_level_item(pkg);
 
-				if (fLexer.peekKeyword("endpackage")) {
+				if (fLexer.peekKeyword(KW.ENDPACKAGE)) {
 					break;
 				}
 			}
 
 			pkg.setEndLocation(fLexer.getStartLocation());
-			fLexer.readKeyword("endpackage");
+			fLexer.readKeyword(KW.ENDPACKAGE);
 			// Handled named package end-block
 			if (fLexer.peekOperator(":")) {
 				fLexer.eatToken();
@@ -492,7 +498,8 @@ public class SVParser implements ISVScanner,
 		if (max_strengths < num_strengths)  {
 			error("[Internal Error] Number of drive strengths '" + num_strengths + "' greater than maximum strengths '" + max_strengths + "' for this gate type");
 		}
-		return fLexer.endCapture();
+		return "";
+//		return fLexer.endCapture();
 	}
 	public String delay_n(int max_delays) throws SVParseException {
 		fLexer.readOperator("#");
@@ -537,7 +544,8 @@ public class SVParser implements ISVScanner,
 		if (num_delays > max_delays)  {
 			error("[Internal Error] Number of delay parameters '" + num_delays + "' greater than maximum delay parameters'" + max_delays + "' for this gate type");
 		}
-		return fLexer.endCapture();
+		return "";
+//		return fLexer.endCapture();
 	}
 
 	public void error(String msg, String filename, int lineno, int linepos) {

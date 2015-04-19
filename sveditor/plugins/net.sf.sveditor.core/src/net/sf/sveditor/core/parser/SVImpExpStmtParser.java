@@ -43,13 +43,17 @@ public class SVImpExpStmtParser extends SVParserBase {
 			SVDBExportStmt exp = new SVDBExportStmt();
 			exp.setLocation(start);
 			if (fLexer.peekOperator("*")) {
-				
-				fLexer.startCapture();
-				fLexer.readOperator("*");
-				fLexer.readOperator("::");
-				fLexer.readOperator("*");
+				SVStringTokenListener l = new SVStringTokenListener();
 				SVDBExportItem ei = new SVDBExportItem();
-				ei.setExport(fLexer.endCapture());
+				fLexer.addTokenListener(l);
+				try {
+					fLexer.readOperator("*");
+					fLexer.readOperator("::");
+					fLexer.readOperator("*");
+				} finally {
+					fLexer.removeTokenListener(l);
+				}
+				ei.setExport(l.toString());
 				exp.addChildItem(ei);
 			} else {
 				
@@ -119,36 +123,44 @@ public class SVImpExpStmtParser extends SVParserBase {
 	private SVDBImportItem package_import_item() throws SVParseException {
 		SVDBImportItem imp = new SVDBImportItem();
 		imp.setLocation(fLexer.getStartLocation());
-		fLexer.startCapture();
-		fLexer.readId();
-		while (fLexer.peekOperator("::")) {
-			fLexer.eatToken();
-			if (fLexer.peekOperator("*")) {
+		SVStringTokenListener l = new SVStringTokenListener();
+		fLexer.addTokenListener(l);
+		try {
+			fLexer.readId();
+			while (fLexer.peekOperator("::")) {
 				fLexer.eatToken();
-			} else {
-				fLexer.readId();
+				if (fLexer.peekOperator("*")) {
+					fLexer.eatToken();
+				} else {
+					fLexer.readId();
+				}
 			}
+		} finally {
+			fLexer.removeTokenListener(l);
 		}
-		
-		imp.setImport(fLexer.endCapture());
+		imp.setImport(l.toString());
 		return imp;
 	}
 	
 	private SVDBExportItem package_export_item() throws SVParseException {
 		SVDBExportItem exp = new SVDBExportItem();
 		exp.setLocation(fLexer.getStartLocation());
-		fLexer.startCapture();
-		fLexer.readId();
-		while (fLexer.peekOperator("::")) {
-			fLexer.eatToken();
-			if (fLexer.peekOperator("*")) {
+		SVStringTokenListener l = new SVStringTokenListener();
+		fLexer.addTokenListener(l);
+		try {
+			fLexer.readId();
+			while (fLexer.peekOperator("::")) {
 				fLexer.eatToken();
-			} else {
-				fLexer.readId();
+				if (fLexer.peekOperator("*")) {
+					fLexer.eatToken();
+				} else {
+					fLexer.readId();
+				}
 			}
+		} finally {
+			fLexer.removeTokenListener(l);
 		}
-		
-		exp.setExport(fLexer.endCapture());
+		exp.setExport(l.toString());
 		return exp;
 	}
 }
