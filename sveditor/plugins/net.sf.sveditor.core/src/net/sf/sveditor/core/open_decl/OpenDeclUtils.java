@@ -171,7 +171,7 @@ public class OpenDeclUtils {
 		// If this is an include lookup, then use a different matching strategy
 		if (expr_ctxt.fTrigger != null && expr_ctxt.fTrigger.equals("`")) {
 			if (expr_ctxt.fRoot != null && expr_ctxt.fRoot.equals("include")) {
-				findMatchingIncludeFiles(ret, expr_ctxt, index_it);
+				findMatchingIncludeFiles(log, ret, expr_ctxt, index_it);
 			} else if (expr_ctxt.fRoot == null) {
 				for (SVDBDeclCacheItem it : index_it.findGlobalScopeDecl(
 						new NullProgressMonitor(), expr_ctxt.fLeaf, 
@@ -240,12 +240,19 @@ public class OpenDeclUtils {
 	}
 	
 	private static void findMatchingIncludeFiles(
+			LogHandle								log,
 			List<OpenDeclResult>					ret,
 			SVExprContext 							expr_ctxt,
 			ISVDBIndexIterator						index_it) {
+		boolean debug_en = log.isEnabled();
+		
 		String target = expr_ctxt.fLeaf;
 		String leaf = target;
 		int idx=-1;
+		
+		if (debug_en) {
+			log.debug(ILogLevel.LEVEL_MID, "--> findMatchingIncludeFiles: \"" + target + "\"");
+		}
 		
 		if ((idx = leaf.lastIndexOf('/')) != -1) {
 			leaf = leaf.substring(idx+1);
@@ -256,13 +263,23 @@ public class OpenDeclUtils {
 			target = target.substring(3);
 		}
 		
+		if (debug_en) {
+			log.debug(ILogLevel.LEVEL_MID, "  leaf=" + leaf + " target=" + target);
+		}
+		
 		for (String filename : index_it.getFileList(new NullProgressMonitor())) {
+			if (debug_en) {
+				log.debug("  Testing file: " + filename);
+			}
 			int f_idx = filename.lastIndexOf('/');
 			if (f_idx == -1) {
 				// only a leaf name in the filename
 				if (filename.equals(leaf)) {
 					SVDBFile item = new SVDBFile(filename);
 					// FIXME:
+					if (debug_en) {
+						log.debug("    Adding based on the leafname");
+					}
 					ret.add(new OpenDeclResult(
 							item,
 							item,
@@ -270,6 +287,9 @@ public class OpenDeclUtils {
 				}
 			} else {
 				if (filename.endsWith(target)) {
+					if (debug_en) {
+						log.debug("    Adding based on the target name");
+					}
 					SVDBFile item = new SVDBFile(filename);
 					// FIXME:
 					ret.add(new OpenDeclResult(
@@ -278,6 +298,11 @@ public class OpenDeclUtils {
 							item));
 				}
 			}
+		}
+		
+		if (debug_en) {
+			log.debug(ILogLevel.LEVEL_MID, "<-- findMatchingIncludeFiles: \"" + 
+					target + "\" " + ret.size() + " found");
 		}
 	}
 
