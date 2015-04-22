@@ -402,7 +402,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		peek();
 		return fKeyword;
 	}
-	
+
 	public boolean peekKeyword(KW kw) throws SVParseException {
 		peek();
 		return (fKeyword != null && fKeyword == kw);

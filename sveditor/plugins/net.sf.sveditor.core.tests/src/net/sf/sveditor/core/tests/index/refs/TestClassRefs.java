@@ -85,6 +85,7 @@ public class TestClassRefs extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip",  test_dir);
 		File uvm = new File(test_dir, "uvm");
 		TestUtils.copy(
+				"+define+QUESTA\n" +
 				"+incdir+./src\n" +
 				"./src/uvm_pkg.sv\n",
 				new File(uvm, "uvm.f"));

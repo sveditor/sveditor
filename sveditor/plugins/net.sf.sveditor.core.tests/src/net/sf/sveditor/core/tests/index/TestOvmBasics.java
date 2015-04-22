@@ -52,6 +52,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 	
 	public void testXbusExample() {
 		SVCorePlugin.getDefault().enableDebug(false);
+//		SVCorePlugin.getDefault().setDebugLevel(LEVEL_MIN);
 		LogHandle log = LogFactory.getLogHandle("testXbusExample");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		

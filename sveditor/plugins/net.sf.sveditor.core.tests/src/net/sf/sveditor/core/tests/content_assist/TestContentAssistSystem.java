@@ -164,6 +164,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", pdir);
 		
 		PrintStream argfile = new PrintStream(new File(pdir, "argfile.f"));
+		argfile.println("+define+QUESTA");
 		argfile.println("+incdir+./uvm/src");
 		argfile.println("./uvm/src/uvm_pkg.sv");
 		
@@ -333,6 +334,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", pdir);
 		
 		PrintStream argfile = new PrintStream(new File(pdir, "argfile.f"));
+		argfile.println("+define+QUESTA");
 		argfile.println("+incdir+./uvm/src");
 		argfile.println("./uvm/src/uvm_pkg.sv");
 		

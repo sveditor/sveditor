@@ -173,40 +173,45 @@ public class SVConstraintParser extends SVParserBase {
 				case FOREACH:
 					ret = constraint_foreach();
 					break;
-				case SOFT: {
-					fLexer.eatToken();
-					} break;
 				
 				default: {
-					if (fLexer.peekKeyword(KW.SOFT)) {
-						fLexer.eatToken();
-					}
-					SVDBExpr expr = fParsers.exprParser().expression();
-					
-					if (fLexer.peekKeyword(KW.DIST)) {
-						ret = dist_expr();
-					} else if (fLexer.peekOperator(";")) {
-						// Done
-						fLexer.eatToken();
-						ret = new SVDBExprStmt(expr);
-					} else if (fLexer.peekOperator("->")) {
-						if (fDebugEn) { debug("  implication"); }
-						fLexer.eatToken();
-						
-						ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
-					} else if (fLexer.peekOperator("}")) {
-						ret = new SVDBExprStmt(expr);
-						// Do nothing ... expecting this
-					} else {
-						error("Unknown suffix for expression: " + fLexer.getImage());
-					}					
-				} break;
+					ret = expr_constraint();
+					} break;
 			}
 		} else {
-			error("Unknown suffix for expression: " + fLexer.getImage());
+			ret = expr_constraint();
 		}
 		
 		if (fDebugEn) { debug("<-- constraint_set_item " + fLexer.peek()); }
+		
+		return ret;
+	}
+	
+	private SVDBStmt expr_constraint() throws SVParseException {
+		SVDBStmt ret = null;
+		
+		if (fLexer.peekKeyword(KW.SOFT)) {
+			fLexer.eatToken();
+		}
+		SVDBExpr expr = fParsers.exprParser().expression();
+		
+		if (fLexer.peekKeyword(KW.DIST)) {
+			ret = dist_expr();
+		} else if (fLexer.peekOperator(";")) {
+			// Done
+			fLexer.eatToken();
+			ret = new SVDBExprStmt(expr);
+		} else if (fLexer.peekOperator("->")) {
+			if (fDebugEn) { debug("  implication"); }
+			fLexer.eatToken();
+			
+			ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
+		} else if (fLexer.peekOperator("}")) {
+			ret = new SVDBExprStmt(expr);
+			// Do nothing ... expecting this
+		} else {
+			error("Unknown suffix for expression: " + fLexer.getImage());
+		}
 		
 		return ret;
 	}
