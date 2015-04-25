@@ -21,7 +21,7 @@ public class SVConfigParser extends SVParserBase {
 		
 		fLexer.readKeyword("config");
 		cfg.setName(fLexer.readId());
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		parent.addChildItem(cfg);
 		
 		try {
@@ -39,7 +39,7 @@ public class SVConfigParser extends SVParserBase {
 				SVDBExpr id = fParsers.exprParser().hierarchical_identifier();
 				design_stmt.addCellIdentifier(id);
 			} while (fLexer.peekId());
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 
 			// config_rule_statement
 			while (fLexer.peek() != null) {
@@ -56,7 +56,7 @@ public class SVConfigParser extends SVParserBase {
 
 			fLexer.readKeyword("endconfig");
 
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
@@ -76,7 +76,7 @@ public class SVConfigParser extends SVParserBase {
 		fLexer.readKeyword("liblist");
 		liblist_clause(dflt_stmt);
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 
 	private void instance_clause(ISVDBAddChildItem parent) throws SVParseException {
@@ -94,7 +94,7 @@ public class SVConfigParser extends SVParserBase {
 			use_clause(inst_stmt);
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 
 	private void cell_clause(ISVDBAddChildItem parent) throws SVParseException {
@@ -112,7 +112,7 @@ public class SVConfigParser extends SVParserBase {
 			use_clause(inst_stmt);
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 
 	private void liblist_clause(SVDBConfigRuleStmtBase stmt) throws SVParseException {
@@ -127,12 +127,12 @@ public class SVConfigParser extends SVParserBase {
 			stmt.setLibCellId(fParsers.exprParser().hierarchical_identifier());
 		}
 		
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// parameter assignment(s)
 			stmt.setParamAssign(fParsers.paramValueAssignParser().parse(true));
 		}
 		
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			fLexer.readKeyword("config");
 		}

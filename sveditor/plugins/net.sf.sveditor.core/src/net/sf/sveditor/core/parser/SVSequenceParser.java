@@ -37,22 +37,22 @@ public class SVSequenceParser extends SVParserBase {
 		seq.setName(fLexer.readId());
 		
 		// Port list
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			// sequence_port_list
 			fLexer.eatToken();
-			if (!fLexer.peekOperator(")")) {
+			if (!fLexer.peekOperator(OP.RPAREN)) {
 				while (fLexer.peek() != null) {
 					seq.addPort(sequence_port_item());
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					} else {
 						break;
 					}
 				}
 			}
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 		}
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		parent.addChildItem(seq);
 		
@@ -115,10 +115,10 @@ public class SVSequenceParser extends SVParserBase {
 		// Expression
 		seq.setExpr(fParsers.propertyExprParser().sequence_expr());
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		fLexer.readKeyword("endsequence");
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			fLexer.readId();
 		}
@@ -166,11 +166,11 @@ public class SVSequenceParser extends SVParserBase {
 		vi.setName(fLexer.readId());
 		port.addChildItem(vi);
 		
-		if (fLexer.peekOperator("[")) {
+		if (fLexer.peekOperator(OP.LBRACKET)) {
 			vi.setArrayDim(fParsers.dataTypeParser().var_dim());
 		}
 		
-		if (fLexer.peekOperator("=")) {
+		if (fLexer.peekOperator(OP.EQ)) {
 			fLexer.eatToken();
 			vi.setInitExpr(fParsers.exprParser().expression());
 		}

@@ -42,7 +42,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 		} else {
 			SVDBExportStmt exp = new SVDBExportStmt();
 			exp.setLocation(start);
-			if (fLexer.peekOperator("*")) {
+			if (fLexer.peekOperator(OP.MUL)) {
 				SVStringTokenListener l = new SVStringTokenListener();
 				SVDBExportItem ei = new SVDBExportItem();
 				fLexer.addTokenListener(l);
@@ -60,14 +60,14 @@ public class SVImpExpStmtParser extends SVParserBase {
 				while (fLexer.peek() != null) {
 					exp.addChildItem(package_export_item());
 					
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					} else {
 						break;
 					}
 				}
 			}
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 			parent.addChildItem(exp);
 		}
 	}
@@ -81,7 +81,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 			// c_identifier =
 			// TODO: capture?
 			fLexer.readId();
-			fLexer.readOperator("=");
+			fLexer.readOperator(OP.EQ);
 		}
 
 		// Read tf extern declaration
@@ -108,14 +108,14 @@ public class SVImpExpStmtParser extends SVParserBase {
 			while (fLexer.peek() != null) {
 				imp.addChildItem(package_import_item());
 				
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 				} else {
 					break;
 				}
 			}
 		
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 			parent.addChildItem(imp);
 		}
 	}
@@ -127,9 +127,9 @@ public class SVImpExpStmtParser extends SVParserBase {
 		fLexer.addTokenListener(l);
 		try {
 			fLexer.readId();
-			while (fLexer.peekOperator("::")) {
+			while (fLexer.peekOperator(OP.COLON2)) {
 				fLexer.eatToken();
-				if (fLexer.peekOperator("*")) {
+				if (fLexer.peekOperator(OP.MUL)) {
 					fLexer.eatToken();
 				} else {
 					fLexer.readId();
@@ -149,9 +149,9 @@ public class SVImpExpStmtParser extends SVParserBase {
 		fLexer.addTokenListener(l);
 		try {
 			fLexer.readId();
-			while (fLexer.peekOperator("::")) {
+			while (fLexer.peekOperator(OP.COLON2)) {
 				fLexer.eatToken();
-				if (fLexer.peekOperator("*")) {
+				if (fLexer.peekOperator(OP.MUL)) {
 					fLexer.eatToken();
 				} else {
 					fLexer.readId();

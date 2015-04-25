@@ -3,6 +3,8 @@ package net.sf.sveditor.core.parser;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.sveditor.core.parser.ISVOperators.OP;
+
 public class SVOperators {
 
 	public static final String RelationalOps[] = { "&", "&&", "&&&", "|", "||", "-",
@@ -30,20 +32,13 @@ public class SVOperators {
 	public static final String AllOperators[];
 
 	static {
-		AllOperators = new String[RelationalOps.length + GroupingOps.length
-		                          + MiscOps.length];
+//		AllOperators = new String[RelationalOps.length + GroupingOps.length
+//		                          + MiscOps.length];
+		AllOperators = new String[OP.values().length];
+		
 		int idx = 0;
-
-		for (String o : RelationalOps) {
-			AllOperators[idx++] = o;
-		}
-
-		for (String o : GroupingOps) {
-			AllOperators[idx++] = o;
-		}
-
-		for (String o : MiscOps) {
-			AllOperators[idx++] = o;
+		for (OP op : OP.values()) {
+			AllOperators[idx++] = op.getImg();
 		}
 	}
 	

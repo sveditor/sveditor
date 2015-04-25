@@ -27,7 +27,7 @@ public class SVParameterDeclParser extends SVParserBase {
 	
 	public List<SVDBModIfcClassParam> parse() throws SVParseException {
 		List<SVDBModIfcClassParam> param_l = new ArrayList<SVDBModIfcClassParam>();
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		
 		while (fLexer.peekKeyword("type") || fLexer.peekId()) {
 			if (fLexer.peekKeyword("type")) {
@@ -38,7 +38,7 @@ public class SVParameterDeclParser extends SVParserBase {
 			
 			// TODO: {unpacked dimension}
 			
-			fLexer.readOperator("=");
+			fLexer.readOperator(OP.EQ);
 			
 			
 		}

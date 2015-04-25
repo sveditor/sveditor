@@ -57,7 +57,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			fLexer.eatToken();
 		}
 		
-		if (type == SVDBItemType.ProgramDecl && fLexer.peekOperator(";")) {
+		if (type == SVDBItemType.ProgramDecl && fLexer.peekOperator(OP.SEMICOLON)) {
 			// anonymous program block
 			module_type_name = "";
 		} else {
@@ -91,12 +91,12 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		}
 
 		// Handle modules with parameters
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// Handle in-line parameter declarations
 			module.getParameters().addAll(parsers().paramPortListParser().parse());
 		}
 
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			// port-list
 			List<SVDBParamPortDecl> ports = parsers().portListParser().parse();
 			for (SVDBParamPortDecl p : ports) {
@@ -114,7 +114,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			return;
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		// Extern module/programs don't have bodies
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
@@ -126,7 +126,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 					if (fDebugEn) {
 						debug("Module body item parse failed", e);
 					}
-					while (fLexer.peek() != null && !fLexer.peekOperator(";") &&
+					while (fLexer.peek() != null && !fLexer.peekOperator(OP.SEMICOLON) &&
 							!fLexer.peekKeyword("end"+ type_name)) {
 						fLexer.eatToken();
 					}
@@ -141,7 +141,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			fLexer.readKeyword("end" + type_name);
 			
 			// Optional labeled end
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}

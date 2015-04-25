@@ -13,11 +13,11 @@
 package net.sf.sveditor.core.parser;
 
 
-public class SVToken implements ISVKeywords {
+public class SVToken implements ISVKeywords, ISVOperators {
 
 	protected String						fImage;
 	protected boolean						fIsString;
-	protected boolean						fIsOperator;
+	protected OP							fOperator;
 	protected boolean						fIsNumber;
 	protected boolean						fIsTime;
 	protected boolean						fIsIdentifier;
@@ -31,7 +31,7 @@ public class SVToken implements ISVKeywords {
 		SVToken ret = new SVToken();
 		ret.fImage         = fImage;
 		ret.fIsString      = fIsString;
-		ret.fIsOperator    = fIsOperator;
+		ret.fOperator      = fOperator;
 		ret.fIsNumber      = fIsNumber;
 		ret.fIsTime        = fIsTime;
 		ret.fIsIdentifier  = fIsIdentifier;
@@ -52,13 +52,13 @@ public class SVToken implements ISVKeywords {
 	}
 	
 	public boolean isOperator() {
-		return fIsOperator;
+		return (fOperator != null);
 	}
 	
 	public boolean isOperator(String ... ops) {
-		if (fIsOperator) {
+		if (fOperator != null) {
 			for (String op : ops) {
-				if (op.equals(fImage)) {
+				if (fOperator.getImg().equals(op)) {
 					return true;
 				}
 			}
@@ -89,7 +89,13 @@ public class SVToken implements ISVKeywords {
 	}
 	
 	public String getImage() {
-		return fImage;
+		if (fKeyword != null) {
+			return fKeyword.getImg();
+		} else if (fOperator != null) {
+			return fOperator.getImg();
+		} else {
+			return fImage;
+		}
 	}
 	
 	public long getStartLocation() {

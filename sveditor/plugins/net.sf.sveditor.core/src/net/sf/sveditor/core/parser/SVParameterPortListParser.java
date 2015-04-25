@@ -38,9 +38,9 @@ public class SVParameterPortListParser extends SVParserBase {
 		List<SVDBModIfcClassParam> params = new ArrayList<SVDBModIfcClassParam>();
 		
 		fLexer.readOperator("#");
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		
-		while (!fLexer.peekOperator(")")) {
+		while (!fLexer.peekOperator(OP.RPAREN)) {
 			String id = null;
 			SVDBModIfcClassParam p;
 			long it_start = fLexer.getStartLocation();
@@ -72,7 +72,7 @@ public class SVParameterPortListParser extends SVParserBase {
 				}
 			}
 			
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				// TODO: handle vectored
 				fLexer.skipPastMatch("[", "]");
 			}
@@ -81,7 +81,7 @@ public class SVParameterPortListParser extends SVParserBase {
 			p = new SVDBModIfcClassParam(id);
 			p.setLocation(it_start);
 
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				
 				// TODO:
@@ -101,13 +101,13 @@ public class SVParameterPortListParser extends SVParserBase {
 
 			params.add(p);
 
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		
 		return params;

@@ -22,10 +22,11 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.ISVOperators.OP;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 
-public class SVLexer extends SVToken implements ISVKeywords {
+public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 	public enum Context {
 		Default,
 		Behavioral,
@@ -154,7 +155,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		fIsIdentifier = tok.fIsIdentifier;
 		fKeyword = tok.fKeyword;
 		fIsNumber = tok.fIsNumber;
-		fIsOperator = tok.fIsOperator;
+		fOperator = tok.fOperator;
 		fIsString = tok.fIsString;
 		fIsTime = tok.fIsTime;
 		fStartLocation = tok.fStartLocation;
@@ -211,7 +212,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 				debug("peek() -- \"" + fImage + "\" " + fEOF);
 			}
 		}
-		return fImage;
+		return getImage();
 	}
 
 	public boolean isIdentifier() {
@@ -236,55 +237,68 @@ public class SVLexer extends SVToken implements ISVKeywords {
 
 	public boolean isOperator() {
 		peek();
-		return fIsOperator;
+		return (fOperator != null);
+	}
+	
+	public boolean peekOperator() throws SVParseException {
+		peek();
+		
+		return (fOperator != null);
+	}
+	
+	public OP peekOperatorE() throws SVParseException {
+		peek();
+		
+		return fOperator;
+	}
+	
+	public boolean peekOperator(OP op) throws SVParseException {
+		peek();
+		return (fOperator == op);
+	}
+	
+	public boolean peekOperator(OP op1, OP op2) throws SVParseException {
+		peek();
+		return (fOperator == op1 || fOperator == op2);
+	}
+	
+	public boolean peekOperator(OP op1, OP op2, OP op3) throws SVParseException {
+		peek();
+		return (fOperator == op1 || fOperator == op2 || fOperator == op3);
 	}
 
+	@Deprecated
+	public boolean peekOperator(String op) throws SVParseException {
+		peek();
+		
+		return (fOperator != null && fOperator.getImg().equals(op));
+	}
+
+	@Deprecated
 	public boolean peekOperator(String... ops) throws SVParseException {
 		peek();
 
-		if (fIsOperator) {
+		if (fOperator != null) {
 			switch (ops.length) {
 				case 0:
 					return true;
 				case 1:
-					return (fImage.equals(ops[0]));
+					return (fOperator.getImg().equals(ops[0]));
 				case 2:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]));
+					return (fOperator.getImg().equals(ops[0]) ||
+							fOperator.getImg().equals(ops[1]));
 				case 3:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]));
+					return (fOperator.getImg().equals(ops[0]) ||
+							fOperator.getImg().equals(ops[1]) ||
+							fOperator.getImg().equals(ops[2]));
 				case 4:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || fImage.equals(ops[3]));
-				case 5:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]));
-				case 6:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]));
-				case 7:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
-							fImage.equals(ops[6]));
-				case 8:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
-							fImage.equals(ops[6]) || fImage.equals(ops[7]));
-				case 9:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
-							fImage.equals(ops[6]) || fImage.equals(ops[7]) || fImage.equals(ops[8]));
-				case 10:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
-							fImage.equals(ops[6]) || fImage.equals(ops[7]) || fImage.equals(ops[8]) ||
-							fImage.equals(ops[9]));
-				case 11:
-					return (fImage.equals(ops[0]) || fImage.equals(ops[1]) || fImage.equals(ops[2]) || 
-							fImage.equals(ops[3]) || fImage.equals(ops[4]) || fImage.equals(ops[5]) ||
-							fImage.equals(ops[6]) || fImage.equals(ops[7]) || fImage.equals(ops[8]) ||
-							fImage.equals(ops[9]) || fImage.equals(ops[10]));
+					return (fOperator.getImg().equals(ops[0]) ||
+							fOperator.getImg().equals(ops[1]) ||
+							fOperator.getImg().equals(ops[2]) ||
+							fOperator.getImg().equals(ops[3]));
 				default:
 					for (String op : ops) {
-						if (fImage.equals(op)) {
+						if (fOperator.getImg().equals(op)) {
 							return true;
 						}
 					}
@@ -295,11 +309,12 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		}
 	}
 
+	@Deprecated
 	public boolean peekOperator(Set<String> ops) throws SVParseException {
 		peek();
 
-		if (fIsOperator) {
-			return ops.contains(fImage);
+		if (fOperator != null) {
+			return ops.contains(fOperator.getImg());
 		}
 		return false;
 	}
@@ -321,21 +336,34 @@ public class SVLexer extends SVToken implements ISVKeywords {
 
 		return eatToken();
 	}
+	
+	public void readOperator(OP op) throws SVParseException {
+		peek();
+		
+		if (fOperator != op) {
+			error("Expecting operator \"" + op.getImg()
+					+ "\" ; received \"" + getImage() + "\"");
+		} else {
+			eatToken();
+		}
+	}
 
+	@Deprecated
 	public String readOperator(String... ops) throws SVParseException {
 		peek();
 
 		boolean found = false;
-		if (fIsOperator) {
+		if (fOperator != null) {
 			if (ops.length == 0) {
 				found = true;
 			} else if (ops.length == 1) {
-				found = fImage.equals(ops[0]);
+				found = fOperator.getImg().equals(ops[0]);
 			} else if (ops.length == 2) {
-				found = fImage.equals(ops[0]) || fImage.equals(ops[1]);
+				found = fOperator.getImg().equals(ops[0]) ||
+						fOperator.getImg().equals(ops[1]);
 			} else {
 				for (String op : ops) {
-					if (fImage.equals(op)) {
+					if (fOperator.getImg().equals(op)) {
 						found = true;
 						break;
 					}
@@ -407,6 +435,16 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		peek();
 		return (fKeyword != null && fKeyword == kw);
 	}
+	
+	public boolean peekKeyword(KW kw1, KW kw2) throws SVParseException {
+		peek();
+		return (fKeyword != null && (fKeyword == kw1 || fKeyword == kw2));
+	}
+	
+	public boolean peekKeyword(KW kw1, KW kw2, KW kw3) throws SVParseException {
+		peek();
+		return (fKeyword == kw1 || fKeyword == kw2 || fKeyword == kw3);
+	}
 
 	public boolean peekKeyword(KW ... kw) throws SVParseException {
 		peek();
@@ -470,6 +508,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		return eatToken();
 	}
 
+	@Deprecated
 	public String readKeyword(String... kw) throws SVParseException {
 
 		if (!peekKeyword(kw)) {
@@ -501,6 +540,14 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		if (!peekKeyword(kw)) {
 			error("Expecting keyword \"" + kw.getImg()
 					+ "\" ; received \"" + fImage + "\"");
+		}
+		return eatToken();
+	}
+	
+	public String readKeyword(KW kw1, KW kw2) throws SVParseException {
+		if (!peekKeyword(kw1, kw2)) {
+			error("Expecting keyword \"" + kw1.getImg() + "\" or \"" + kw2.getImg() + 
+					"\" ; received \"" + fImage + "\"");
 		}
 		return eatToken();
 	}
@@ -551,7 +598,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 			}
 		}
 		fTokenConsumed = true;
-		return fImage;
+		return getImage();
 	}
 
 	public String readString() throws SVParseException {
@@ -667,7 +714,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 			fLog.debug("--> next_token_int()");
 		}
 
-		fIsOperator = false;
+		fOperator = null;
 		fIsNumber = false;
 		fIsTime = false;
 		fIsIdentifier = false;
@@ -719,9 +766,8 @@ public class SVLexer extends SVToken implements ISVKeywords {
 				
 				if (fContext == Context.Behavioral) {
 					// Return ';' in a behavioral scope to prevent extraneous errors
-					fIsOperator = true;
+					fOperator = OP.SEMICOLON;
 					fTokenConsumed = false;
-					fImage = ";";
 					return true;
 				} else {
 					// treat as whitespace
@@ -785,7 +831,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 					fScanner.unget_ch(ch);
 				} else {
 					fScanner.unget_ch(ch2);
-					fIsOperator = true;
+					fOperator = OP.SQUOTE;
 				}
 			} else {
 				readNumber(ch, local_is_delay_ctrl);
@@ -812,28 +858,33 @@ public class SVLexer extends SVToken implements ISVKeywords {
 			if (ch2 == '*') {
 				int ch3 = fScanner.get_ch();
 				if (ch3 != ')') {
-					append_ch('*');
+					fOperator = OP.LPAREN_MUL;
 					fScanner.unget_ch(ch3);
 				} else {
+					fOperator = OP.LPAREN;
 					fScanner.unget_ch(ch3);
 					fScanner.unget_ch(ch2);
 				}
 			} else {
+				fOperator = OP.LPAREN;
 				fScanner.unget_ch(ch2);
 			}
-			fIsOperator = true;
 		} else if (ch == '*') {
 			// Could be *, **, *=, or *) or *>
 			ch2 = fScanner.get_ch();
 
 			if (ch2 == ')' && fInAttr) {
-				append_ch(')');
-			} else if ((ch2 == '*') || (ch2 == '=') || (ch2 == '>')) {
-				append_ch(ch2);
+				fOperator = OP.MUL_RPAREN;
+			} else if (ch2 == '*') {
+				fOperator = OP.MUL2;
+			} else if (ch2 == '=') {
+				fOperator = OP.MUL_EQ;
+			} else if (ch2 == '>') {
+				fOperator = OP.MUL_GT;
 			} else {
+				fOperator = OP.MUL;
 				fScanner.unget_ch(ch2);
 			}
-			fIsOperator = true;
 		} else if (SVCharacter.isSVIdentifierStart(ch)) {
 			int last_ch = ch;
 			boolean in_ref = false;
@@ -853,16 +904,10 @@ public class SVLexer extends SVToken implements ISVKeywords {
 			fScanner.unget_ch(ch);
 			// Handle case where we received a single '$'
 			if (fStringBuffer.length() == 1 && fStringBuffer.charAt(0) == '$') {
-				fIsOperator = true;
+				fOperator = OP.DOLLAR;
 			} else {
 				fIsIdentifier = true;
 			}
-		} else if (fOperatorSet.contains(fStringBuffer.toString()) ||
-				// Operators that can have up to three elements
-				fSeqPrefixes[1].contains(fStringBuffer.toString()) ||
-				fSeqPrefixes[2].contains(fStringBuffer.toString())) {
-			// Probably an operator in some form
-			operator();			
 		} else if (ch == '\\') {
 			// Escaped identifier
 			fStringBuffer.setLength(0); // Clear '\' from buffer 
@@ -872,6 +917,12 @@ public class SVLexer extends SVToken implements ISVKeywords {
 			fScanner.unget_ch(ch);
 			fIsIdentifier = true;
 			escaped_id = true;
+		} else /* if (fOperatorSet.contains(fStringBuffer.toString()) ||
+				// Operators that can have up to three elements
+				fSeqPrefixes[1].contains(fStringBuffer.toString()) ||
+				fSeqPrefixes[2].contains(fStringBuffer.toString())) */ {
+			// Probably an operator in some form 
+			operator();
 		}
 
 		if (fStringBuffer.length() == 0 && !fIsString) {
@@ -940,8 +991,36 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		}
 		 */
 	}
-
+	
 	private void operator() throws SVParseException {
+		char st = fStringBuffer.charAt(0);
+		fScanner.unget_ch(st);
+		
+		OP op = SVOperatorLexer.operator(fScanner);
+		
+//		fLog.debug("OP starting with " + st + ": " + op);
+		
+		if (op == null) {
+			error("Problem with operator: " + fStringBuffer.toString());
+		}
+		
+		fOperator = op;
+//		fStringBuffer.setLength(0);
+//		fStringBuffer.append(op.getImg());
+		
+		if (op == OP.HASH) {
+			// May be a delay-control expression
+			int ch;
+			while ((ch = fScanner.get_ch()) != -1 && Character.isWhitespace(ch)) { }
+			if (ch >= '0' && ch <= '9') {
+				// delay-control
+				fIsDelayControl = true;
+			}
+			fScanner.unget_ch(ch);
+		}
+	}
+
+	private void operator_1() throws SVParseException {
 		int ch;
 		int op_idx=0; // index of the op prefix to check
 		
@@ -980,7 +1059,7 @@ public class SVLexer extends SVToken implements ISVKeywords {
 		if (fDebugEn) {
 			debug("< operator: " + fStringBuffer.toString());
 		}
-		fIsOperator = true;
+//		fIsOperator = true; // TODO:
 		String val = fStringBuffer.toString();
 		if (!fOperatorSet.contains(val)) {
 			error("Problem with operator: " + fStringBuffer.toString());

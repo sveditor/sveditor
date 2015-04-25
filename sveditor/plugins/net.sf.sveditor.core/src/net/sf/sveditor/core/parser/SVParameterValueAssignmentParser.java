@@ -33,8 +33,8 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		if (is_parameter) {
 			fLexer.readOperator("#");
 		}
-		fLexer.readOperator("(");
-		while (fLexer.peek() != null && !fLexer.peekOperator(")")) {
+		fLexer.readOperator(OP.LPAREN);
+		while (fLexer.peek() != null && !fLexer.peekOperator(OP.RPAREN)) {
 			boolean is_mapped = false;
 			boolean is_wildcard = false;
 			boolean is_implicit_connection = false;
@@ -44,18 +44,18 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 				ret.addParameter(new SVDBParamValueAssign("*", (SVDBExpr)null));
 				is_wildcard = true;
 				is_mapped = true;
-			} else if (fLexer.peekOperator(".")) {
+			} else if (fLexer.peekOperator(OP.DOT)) {
 				fLexer.eatToken();
 				name = fLexer.readId();
 				// Check to see if the port has an ( as in ...
 				// .portname (signal_connected),
-				if (fLexer.peekOperator("("))  {
-					fLexer.readOperator("(");
+				if (fLexer.peekOperator(OP.LPAREN))  {
+					fLexer.readOperator(OP.LPAREN);
 					is_mapped = true;
 				}
 				// Check to see if we have an implicit port connection, as in
 				// .portname ,
-				else if (fLexer.peekOperator(","))  {
+				else if (fLexer.peekOperator(OP.COMMA))  {
 					is_implicit_connection = true;
 					is_mapped = true;
 					// Grab name and put it into the DB as the same name as the port
@@ -69,15 +69,15 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			// .portname (wirename)... handle both
 			if (!is_wildcard && !is_implicit_connection) {
 				// Allow an empty port-mapping entry: .foo()
-				if (fLexer.peekOperator(")")) {
+				if (fLexer.peekOperator(OP.RPAREN)) {
 					// Fill in a dummy name for the connection name
 					// TODO: Check on the identifier type - guessing NullExpr
 					ret.addParameter(new SVDBParamValueAssign(name, new SVDBNullExpr()));
 				}
-				else if (!fLexer.peekOperator(")")) {
+				else if (!fLexer.peekOperator(OP.RPAREN)) {
 					List<SVToken> id_list = parsers().commonParserUtils().peekScopedStaticIdentifier_l(false);
 
-					if (fLexer.peekOperator("#") /*|| fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
+					if (fLexer.peekOperator(OP.HASH) /*|| fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
 							fLexer.peekKeyword("virtual") */) {
 						// This is actually a type reference
 						fLexer.ungetToken(id_list);
@@ -92,21 +92,21 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 
 				if (is_mapped) {
 					// Read inside
-					fLexer.readOperator(")");
+					fLexer.readOperator(OP.RPAREN);
 				}
 
 				//ret.addParameter(new SVDBParamValueAssign(name, v.toString()));
 			}
 			ret.setIsNamedMapping(is_mapped);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		return ret;
 	}

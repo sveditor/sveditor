@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBActionBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssumeStmt;
@@ -28,7 +27,7 @@ public class SVAssertionParser extends SVParserBase {
 	public SVDBAssertStmt parse(ISVDBAddChildItem parent, String assertion_label) throws SVParseException {
 		long start = fLexer.getStartLocation();
 		
-		String assert_type = fLexer.readKeyword("assert", "assume", "cover", "expect");
+		String assert_type = fLexer.readKeyword(KW.ASSERT, KW.ASSUME, KW.COVER, KW.EXPECT);
 		SVDBAssertStmt assert_stmt;
 		if (assert_type.equals("assert") || (assert_type.equals ("expect"))) {
 			assert_stmt = new SVDBAssertStmt();
@@ -46,26 +45,26 @@ public class SVAssertionParser extends SVParserBase {
 		// Cover the following
 		//   expect <some_property>
 		//   assert property <some_property>
-		if (fLexer.peekKeyword("property") || (assert_type.equals("expect"))) {
+		if (fLexer.peekKeyword(KW.PROPERTY) || (assert_type.equals("expect"))) {
 			
-			if (fLexer.peekKeyword("property"))
+			if (fLexer.peekKeyword(KW.PROPERTY))
 				fLexer.eatToken();
-			fLexer.readOperator("(");
+			fLexer.readOperator(OP.LPAREN);
 			assert_stmt.setExpr(fParsers.propertyExprParser().property_spec());
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 			/* TODO: Ignoring body of property for now
 			fLexer.skipPastMatch("(", ")");
 			 */
 		} else {
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				// TODO:
 				fLexer.eatToken();
 				fLexer.readNumber();
 			}
 			
-			fLexer.readOperator("(");
+			fLexer.readOperator(OP.LPAREN);
 			assert_stmt.setExpr(parsers().exprParser().event_expression());
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 		}
 		
 		parent.addChildItem(assert_stmt);

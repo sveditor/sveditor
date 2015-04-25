@@ -48,7 +48,7 @@ public class SVFieldVarDeclParser extends SVParserBase {
 				// Variable declarations
 				List<SVToken> id_list = parsers().SVParser().scopedStaticIdentifier_l(true);
 			
-				if (!builtin_type && (fLexer.peekOperator() && !fLexer.peekOperator("#"))) {
+				if (!builtin_type && (fLexer.peekOperator() && !fLexer.peekOperator(OP.HASH))) {
 					// likely a statement
 					for (int i=id_list.size()-1; i>=0; i--) {
 						fLexer.ungetToken(id_list.get(i));

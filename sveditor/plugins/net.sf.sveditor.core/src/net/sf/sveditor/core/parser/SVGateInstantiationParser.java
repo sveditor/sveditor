@@ -143,7 +143,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 		}
 
 		// Check if we have strengths ...
-		if ((max_strengths != 0) && (fLexer.peekOperator("(")))  {
+		if ((max_strengths != 0) && (fLexer.peekOperator(OP.LPAREN)))  {
 			SVToken tok = fLexer.consumeToken();
 			if (fLexer.peekKeyword(SVKeywords.fStrength))  {
 				// TODO: handle / store strengths somewhere
@@ -156,7 +156,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 		}
 		
 		// Get Delay block if any
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// TODO: handle/store delay somewhere
 			parsers().SVParser().delay_n(max_delays);
 		}
@@ -174,14 +174,14 @@ public class SVGateInstantiationParser extends SVParserBase {
 			SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
 			inst.setLocation(start);
 			List<SVDBVarDimItem> arraydims = null;
-			if (fLexer.peekOperator("["))  {
+			if (fLexer.peekOperator(OP.LBRACKET))  {
 				// Array type
 				// TODO: What should we do with the array dimensions?
 				arraydims = parsers().dataTypeParser().var_dim();
 			}
 			item.addInst(inst);
 			
-			fLexer.readOperator("(");
+			fLexer.readOperator(OP.LPAREN);
 			
 			boolean terminals_read = false;
 			int num_ports = 0;
@@ -189,8 +189,8 @@ public class SVGateInstantiationParser extends SVParserBase {
 				// TODO: output_terminal
 				parsers().exprParser().expression();
 				num_ports ++;
-				if (fLexer.peekOperator(","))  {
-					fLexer.readOperator(",");
+				if (fLexer.peekOperator(OP.COMMA))  {
+					fLexer.readOperator(OP.COMMA);
 				}
 				else  {
 					terminals_read = true;
@@ -206,9 +206,9 @@ public class SVGateInstantiationParser extends SVParserBase {
 			if ((num_ports > max_ports) || (num_ports < min_ports))  {
 				error("[Internal Error] Primitive port list error: gate-type " + primitive_name + " has '" + num_ports + "' port instead of between '" + min_ports + "' and '" + max_ports + "' ports" );
 			}
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
@@ -218,7 +218,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 //			error("[Internal Error] gate-type " + fLexer.peek() + " not recognized");
 //		}
 
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 
 		parent.addChildItem(item);
 	}

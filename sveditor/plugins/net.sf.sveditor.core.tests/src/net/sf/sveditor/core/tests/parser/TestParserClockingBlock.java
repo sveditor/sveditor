@@ -92,7 +92,6 @@ public class TestParserClockingBlock extends TestCase {
 	}	
 
 	public void testClockingBlockProperty() {
-		String testname = "testClockingSameLine_DR";
 		String doc = 
 			"interface my_if (\n" +
 			"	input       clk,\n" +
@@ -114,8 +113,8 @@ public class TestParserClockingBlock extends TestCase {
 			"endinterface\n"
 			;
 
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVDBFile file = SVDBTestUtils.parse(doc, testname);
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "my_if");

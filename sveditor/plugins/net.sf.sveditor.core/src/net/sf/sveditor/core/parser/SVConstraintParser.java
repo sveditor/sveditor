@@ -49,14 +49,14 @@ public class SVConstraintParser extends SVParserBase {
 			c.setName(fParsers.SVParser().scopedIdentifier(false));
 
 			// Forward declaration
-			if (fLexer.peekOperator(";")) {
+			if (fLexer.peekOperator(OP.SEMICOLON)) {
 				fLexer.eatToken();
 			} else {
 				fLexer.readOperator("{");
 
 				parent.addChildItem(c);
 
-				while (fLexer.peek() != null && !fLexer.peekOperator("}")) {
+				while (fLexer.peek() != null && !fLexer.peekOperator(OP.RBRACE)) {
 					c.addChildItem(constraint_set_item());
 				}
 
@@ -79,7 +79,7 @@ public class SVConstraintParser extends SVParserBase {
 	public SVDBStmt constraint_set(boolean force_braces, boolean check_for_concat, boolean top_level) throws SVParseException {
 		if (fDebugEn) {debug("--> constraint_set()");}
 		
-		if (force_braces || fLexer.peekOperator("{")) {
+		if (force_braces || fLexer.peekOperator(OP.LBRACE)) {
 			boolean is_concat = false;
 			
 		
@@ -112,11 +112,11 @@ public class SVConstraintParser extends SVParserBase {
 				}
 
 				/*
-				if (fLexer.peekOperator(",") ||
-						(brace_balance == 0 && fLexer.peekOperator(";"))) {
+				if (fLexer.peekOperator(OP.COMMA) ||
+						(brace_balance == 0 && fLexer.peekOperator(OP.SEMICOLON))) {
 				 */
-				if ((brace_balance == 1 && fLexer.peekOperator(",") && paren_balance == 0) ||
-						(brace_balance == 0 && fLexer.peekOperator(";"))) {
+				if ((brace_balance == 1 && fLexer.peekOperator(OP.COMMA) && paren_balance == 0) ||
+						(brace_balance == 0 && fLexer.peekOperator(OP.SEMICOLON))) {
 					// Yes, very likely a concat
 					if (fDebugEn) {
 						debug("Likely concatenation: tok=" + fLexer.peek() + " brace_balance=" + brace_balance);
@@ -137,14 +137,14 @@ public class SVConstraintParser extends SVParserBase {
 			} else {
 				SVDBConstraintSetStmt ret = new SVDBConstraintSetStmt(); 
 				fLexer.readOperator("{");
-				while (lexer().peek() != null && !fLexer.peekOperator("}")) {
+				while (lexer().peek() != null && !fLexer.peekOperator(OP.RBRACE)) {
 					SVDBStmt c_stmt = constraint_set_item();
 					ret.addConstraintStmt(c_stmt);
 				}
 				fLexer.readOperator("}");
-				if (!top_level && fLexer.peekOperator(";"))  {
-					// Not documented in LRM that I can tell... Modelsim seems to allow it though... wrap this in an if (fLexer.peekOperator(";") {}?				
-					fLexer.readOperator(";");		
+				if (!top_level && fLexer.peekOperator(OP.SEMICOLON))  {
+					// Not documented in LRM that I can tell... Modelsim seems to allow it though... wrap this in an if (fLexer.peekOperator(OP.SEMICOLON) {}?				
+					fLexer.readOperator(OP.SEMICOLON);		
 				}
 				if (fDebugEn) {debug("<-- constraint_set()");}
 				return ret;
@@ -197,16 +197,16 @@ public class SVConstraintParser extends SVParserBase {
 		
 		if (fLexer.peekKeyword(KW.DIST)) {
 			ret = dist_expr();
-		} else if (fLexer.peekOperator(";")) {
+		} else if (fLexer.peekOperator(OP.SEMICOLON)) {
 			// Done
 			fLexer.eatToken();
 			ret = new SVDBExprStmt(expr);
-		} else if (fLexer.peekOperator("->")) {
+		} else if (fLexer.peekOperator(OP.IMPL)) {
 			if (fDebugEn) { debug("  implication"); }
 			fLexer.eatToken();
 			
 			ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
-		} else if (fLexer.peekOperator("}")) {
+		} else if (fLexer.peekOperator(OP.RBRACE)) {
 			ret = new SVDBExprStmt(expr);
 			// Do nothing ... expecting this
 		} else {
@@ -220,7 +220,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
 		fLexer.readKeyword("dist");
 		dist_list(dist_stmt);
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		return dist_stmt;
 	}
@@ -230,7 +230,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBConstraintDistListItem item = dist_item();
 		dist_stmt.addDistItem(item);
 
-		while (fLexer.peekOperator(",")) {
+		while (fLexer.peekOperator(OP.COMMA)) {
 			fLexer.eatToken();
 			
 			item = dist_item();
@@ -241,7 +241,7 @@ public class SVConstraintParser extends SVParserBase {
 	private SVDBConstraintDistListItem dist_item() throws SVParseException {
 		SVDBConstraintDistListItem ret = new SVDBConstraintDistListItem();
 	
-		if (fLexer.peekOperator("[")) {
+		if (fLexer.peekOperator(OP.LBRACKET)) {
 			ret.setLHS(fParsers.exprParser().parse_range());
 		} else {
 			ret.setLHS(fParsers.exprParser().expression());
@@ -265,9 +265,9 @@ public class SVConstraintParser extends SVParserBase {
 		
 		fLexer.eatToken(); // 'if'
 		
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		SVDBExpr if_expr = fParsers.exprParser().expression();
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		SVDBStmt constraint = constraint_set(false, true, false);
 		
@@ -293,9 +293,9 @@ public class SVConstraintParser extends SVParserBase {
 		stmt.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("foreach");
 		
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		stmt.setExpr(fParsers.exprParser().foreach_loopvar());
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		stmt.setStmt(constraint_set(false, true, false));
 		
@@ -310,7 +310,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBExpr expr = fParsers.exprParser().variable_lvalue();
 		ret.addSolveBefore(expr);
 		
-		while (fLexer.peekOperator(",")) {
+		while (fLexer.peekOperator(OP.COMMA)) {
 			fLexer.eatToken(); // ,
 			ret.addSolveBefore(fParsers.exprParser().variable_lvalue());
 		}
@@ -320,12 +320,12 @@ public class SVConstraintParser extends SVParserBase {
 		
 		ret.addSolveAfter(fParsers.exprParser().variable_lvalue());
 		
-		while (fLexer.peekOperator(",")) {
+		while (fLexer.peekOperator(OP.COMMA)) {
 			fLexer.eatToken(); // ,
 			ret.addSolveAfter(fParsers.exprParser().variable_lvalue());
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		return ret;
 	}

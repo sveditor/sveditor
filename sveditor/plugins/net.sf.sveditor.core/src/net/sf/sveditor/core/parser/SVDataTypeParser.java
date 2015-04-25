@@ -49,6 +49,7 @@ public class SVDataTypeParser extends SVParserBase {
 	public static final Set<String>			IntegerTypes;
 	public static final Set<String>			NonIntegerType;
 	public static final Set<String>			NetType;
+	public static final Set<KW>				NetTypeE;
 	public static final Set<String>			BuiltInTypes;
 	
 	static {
@@ -89,6 +90,23 @@ public class SVDataTypeParser extends SVParserBase {
 		NetType.add("input");
 		NetType.add("output");
 		NetType.add("inout");
+
+		NetTypeE = new HashSet<KW>();
+		NetTypeE.add(KW.SUPPLY0);
+		NetTypeE.add(KW.SUPPLY1);
+		NetTypeE.add(KW.TRI);
+		NetTypeE.add(KW.TRIAND);
+		NetTypeE.add(KW.TRIOR);
+		NetTypeE.add(KW.TRIREG);
+		NetTypeE.add(KW.TRI0);
+		NetTypeE.add(KW.TRI1);
+		NetTypeE.add(KW.UWIRE);
+		NetTypeE.add(KW.WIRE);
+		NetTypeE.add(KW.WAND);
+		NetTypeE.add(KW.WOR);
+		NetTypeE.add(KW.INPUT);
+		NetTypeE.add(KW.OUTPUT);
+		NetTypeE.add(KW.INOUT);
 		
 		BuiltInTypes = new HashSet<String>();
 		BuiltInTypes.add("string");
@@ -131,7 +149,7 @@ public class SVDataTypeParser extends SVParserBase {
 						fLexer.eatToken();
 					}
 			
-					while (fLexer.peekOperator("[")) {
+					while (fLexer.peekOperator(OP.LBRACKET)) {
 						if (fDebugEn) {
 							debug("  IntegerVectorType vector");
 						}
@@ -163,21 +181,21 @@ public class SVDataTypeParser extends SVParserBase {
 					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
 
 					// Drive Strength
-					if (fLexer.peekOperator("("))  {
+					if (fLexer.peekOperator(OP.LPAREN))  {
 						tok = fLexer.consumeToken();		// eat the (
 						if (fLexer.peekOperator(SVKeywords.fStrength))  {
 							// Have (<strength>, <strength>)
 							String strength1 = fLexer.readKeyword(SVKeywords.fStrength);
-							fLexer.readOperator(",");		// 
+							fLexer.readOperator(OP.COMMA);		// 
 							String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
-							fLexer.readOperator(")");		//
+							fLexer.readOperator(OP.RPAREN);		//
 							// TODO: Do something with the strengths
 						} else {
 							fLexer.ungetToken(tok);// restore the (
 						}
 					}
 					// Array dimensions
-					if (fLexer.peekOperator("[")) {
+					if (fLexer.peekOperator(OP.LBRACKET)) {
 						if (fDebugEn) {
 							debug("  vector type");
 						}
@@ -185,7 +203,7 @@ public class SVDataTypeParser extends SVParserBase {
 					}
 					// Delay 3
 					// #(mintypmax,mintypmax, mintypmax)
-					if (fLexer.peekOperator("#"))  {
+					if (fLexer.peekOperator(OP.HASH))  {
 						// Time expression
 						fParsers.exprParser().delay_expr(3);
 						// TODO - What Do something with the Delay expression
@@ -282,7 +300,7 @@ public class SVDataTypeParser extends SVParserBase {
 				case INTERFACE:
 					type = virtual_type();
 					break;
-//		} else if (fLexer.peekOperator("[") || fLexer.peekKeyword("signed", "unsigned")) {
+//		} else if (fLexer.peekOperator(OP.LBRACKET) || fLexer.peekKeyword("signed", "unsigned")) {
 				
 				default:
 //					if (SVKeywords.isVKeyword(fLexer.peek()) && 
@@ -292,30 +310,30 @@ public class SVDataTypeParser extends SVParserBase {
 					error("Invalid type name \"" + fLexer.peek() + "\"");
 					break;
 			}
-		} else if (fLexer.peekOperator("[")) {
+		} else if (fLexer.peekOperator(OP.LBRACKET)) {
 			type = implicit_type();
 		} else {
 			String id = fLexer.eatToken();
 			SVDBParamValueAssignList p_list = null;
 			
 			// Parameterized type?
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				fLexer.eatToken();
 				// Read in parameter list
 				p_list = parsers().paramValueAssignParser().parse(false);
 			}
 			
 			// Should be a user-defined type
-			if (fLexer.peekOperator("::")) {
+			if (fLexer.peekOperator(OP.COLON2)) {
 				StringBuilder type_id = new StringBuilder();
 				type_id.append(id);
 				
 				// scoped type
 				// [class_scope | package_scope] type_identifier { packed_dimension }
-				while (fLexer.peekOperator("::")) {
+				while (fLexer.peekOperator(OP.COLON2)) {
 					SVToken colon_tok = fLexer.consumeToken();
 					SVToken id_tok = fLexer.consumeToken();
-					if (fLexer.peekOperator("(")) {
+					if (fLexer.peekOperator(OP.LPAREN)) {
 						// This sure looks like a function call
 						fLexer.ungetToken(id_tok);
 						fLexer.ungetToken(colon_tok);
@@ -328,16 +346,16 @@ public class SVDataTypeParser extends SVParserBase {
 				
 				type = new SVDBTypeInfoUserDef(type_id.toString());
 				
-				if (fLexer.peekOperator("[")) {
+				if (fLexer.peekOperator(OP.LBRACKET)) {
 					// TODO: packed_dimension
 					type.setArrayDim(packed_dim());
 				}
-			} else if (fLexer.peekOperator(".")) {
+			} else if (fLexer.peekOperator(OP.DOT)) {
 				// Interface type: interface.modport
 				StringBuilder type_id = new StringBuilder();
 				type_id.append(id);
 				
-				while (fLexer.peekOperator(".")) {
+				while (fLexer.peekOperator(OP.DOT)) {
 					type_id.append(fLexer.eatToken()); // .
 					type_id.append(fLexer.readId());
 				}
@@ -349,13 +367,13 @@ public class SVDataTypeParser extends SVParserBase {
 			
 			((SVDBTypeInfoUserDef)type).setParameters(p_list);
 			
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
 				((SVDBTypeInfoUserDef)type).setParameters(plist);
 			}
 			
 			// A sized enum is allowed to have a duplicate bit-width assigned
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				// TODO: this is a bit lax, since var_dim allows '$', '*', '<type>' array dimension
 				if (fDebugEn) {
 					debug("  sized enum type");
@@ -388,7 +406,7 @@ public class SVDataTypeParser extends SVParserBase {
 		if (id.getImage().equals("[")) {
 			fLexer.ungetToken(id);
 			builtin_type.setVectorDim(vector_dim());
-		} else if (fLexer.peekOperator("[")) {
+		} else if (fLexer.peekOperator(OP.LBRACKET)) {
 			builtin_type.setVectorDim(vector_dim());
 		}
 		
@@ -408,13 +426,13 @@ public class SVDataTypeParser extends SVParserBase {
 		}
 		tok = fLexer.readIdTok();
 		SVDBTypeInfoUserDef ud_type = new SVDBTypeInfoUserDef(tok.getImage());
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			SVDBParamValueAssignList plist = parsers().paramValueAssignParser().parse(true);
 			ud_type.setParameters(plist);
 		}
 		
 		// May be referring to the modport
-		if (fLexer.peekOperator(".")) {
+		if (fLexer.peekOperator(OP.DOT)) {
 			fLexer.eatToken();
 			String id = fLexer.readId();
 			ud_type.setName(ud_type.getName() + "." + id);
@@ -428,13 +446,13 @@ public class SVDataTypeParser extends SVParserBase {
 		SVDBTypeInfoFwdDecl type_fwd = new SVDBTypeInfoFwdDecl("class", fLexer.readId());
 
 		// TODO: this should be a real parse
-		if (fLexer.peekOperator("#")) {
-			if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				// scanner().unget_ch('#');
 				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
 				// cls.getSuperParameters().addAll(params);
 				fLexer.eatToken();
-				if (fLexer.peekOperator("(")) {
+				if (fLexer.peekOperator(OP.LPAREN)) {
 					fLexer.skipPastMatch("(", ")");
 				} else {
 					fLexer.eatToken();
@@ -476,11 +494,11 @@ public class SVDataTypeParser extends SVParserBase {
 		SVDBTypeInfoEnum type = null;
 		
 		// TODO: scan base type
-		if (!fLexer.peekOperator("{")) {
+		if (!fLexer.peekOperator(OP.LBRACE)) {
 			/* SVDBTypeInfo base_type = */ data_type(0);
 			
 			// Forward declaration
-			if (fLexer.peekOperator(";")) {
+			if (fLexer.peekOperator(OP.SEMICOLON)) {
 				return new SVDBTypeInfoFwdDecl();
 			} else {
 				type = new SVDBTypeInfoEnum();
@@ -496,18 +514,18 @@ public class SVDataTypeParser extends SVParserBase {
 			enum_v.setLocation(loc);
 			
 			// TODO: is this really necessary ?
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				fLexer.skipPastMatch("[", "]");
 			}
 			
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				// TODO: 
 				enum_v.setExpr(parsers().exprParser().expression());
 			}
 			type.addEnumerator(enum_v);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
@@ -528,7 +546,7 @@ public class SVDataTypeParser extends SVParserBase {
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 		
 		if (type.getType() != SVDBItemType.TypeInfoFwdDecl) {
-			if (fLexer.peekOperator(";")) {
+			if (fLexer.peekOperator(OP.SEMICOLON)) {
 				// It's an anonymous forward declaration
 				SVDBTypeInfoFwdDecl fd_type = new SVDBTypeInfoFwdDecl("<<Anonymous>>", type.getName());
 				typedef = new SVDBTypedefStmt(fd_type, fd_type.getName());
@@ -537,7 +555,7 @@ public class SVDataTypeParser extends SVParserBase {
 				String id = fLexer.readId();
 
 				// TODO: dimension
-				if (fLexer.peekOperator("[")) {
+				if (fLexer.peekOperator(OP.LBRACKET)) {
 					type.setArrayDim(var_dim());
 				}
 
@@ -550,7 +568,7 @@ public class SVDataTypeParser extends SVParserBase {
 			typedef.setLocation(start);
 		}
 
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		parent.addChildItem(typedef);
 	}
 	
@@ -558,33 +576,33 @@ public class SVDataTypeParser extends SVParserBase {
 		List<SVDBVarDimItem> ret = new ArrayList<SVDBVarDimItem>();
 		
 		while (fLexer.peek() != null) {
-			fLexer.readOperator("[");
+			fLexer.readOperator(OP.LBRACKET);
 			SVDBVarDimItem dim = new SVDBVarDimItem();
 
-			if (fLexer.peekOperator("]")) {
+			if (fLexer.peekOperator(OP.RBRACKET)) {
 				dim.setDimType(DimType.Unsized);
-			} else if (fLexer.peekOperator("$")) {
+			} else if (fLexer.peekOperator(OP.DOLLAR)) {
 				fLexer.eatToken();
 				dim.setDimType(DimType.Queue);
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					fLexer.eatToken();
 					dim.setExpr(parsers().exprParser().expression());
 				}
-			} else if (fLexer.peekOperator("*")) {
+			} else if (fLexer.peekOperator(OP.MUL)) {
 				fLexer.eatToken();
 				dim.setDimType(DimType.Associative);
 			} else {
 				SVToken first = fLexer.consumeToken();
 				// TODO: seems ambiguous
 				if (first.isNumber() || first.isOperator() || 
-						(fLexer.peekOperator() && !fLexer.peekOperator("#"))) {
+						(fLexer.peekOperator() && !fLexer.peekOperator(OP.HASH))) {
 					// most likely a constant expression
 					fLexer.ungetToken(first);
 					dim.setDimType(DimType.Sized);
 
 					// TODO: should be constant expression
 					SVDBExpr expr = parsers().exprParser().expression();
-					if (fLexer.peekOperator(":")) {
+					if (fLexer.peekOperator(OP.COLON)) {
 						// range
 						fLexer.eatToken();
 						dim.setExpr(new SVDBRangeExpr(expr, fParsers.exprParser().expression()));
@@ -601,9 +619,9 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			ret.add(dim);
 
-			fLexer.readOperator("]");
+			fLexer.readOperator(OP.RBRACKET);
 			
-			if (!fLexer.peekOperator("[")) {
+			if (!fLexer.peekOperator(OP.LBRACKET)) {
 				break;
 			}
 		}
@@ -615,7 +633,7 @@ public class SVDataTypeParser extends SVParserBase {
 		List<SVDBVarDimItem> ret = new ArrayList<SVDBVarDimItem>();
 		
 		while (fLexer.peek() != null) {
-			fLexer.readOperator("[");
+			fLexer.readOperator(OP.LBRACKET);
 			SVDBVarDimItem dim = new SVDBVarDimItem();
 			dim.setDimType(DimType.Sized);
 
@@ -645,7 +663,7 @@ public class SVDataTypeParser extends SVParserBase {
 				debug("<-- expression - " + fLexer.peek());
 			}
 
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				// range
 				fLexer.eatToken();
 				t1 = fLexer.consumeToken();
@@ -674,9 +692,9 @@ public class SVDataTypeParser extends SVParserBase {
 
 			ret.add(dim);
 
-			fLexer.readOperator("]");
+			fLexer.readOperator(OP.RBRACKET);
 	
-			if (!fLexer.peekOperator("[")) {
+			if (!fLexer.peekOperator(OP.LBRACKET)) {
 				break;
 			}
 		}
@@ -688,19 +706,19 @@ public class SVDataTypeParser extends SVParserBase {
 		List<SVDBVarDimItem> ret = new ArrayList<SVDBVarDimItem>();
 		
 		while (fLexer.peek() != null) {
-			fLexer.readOperator("[");
+			fLexer.readOperator(OP.LBRACKET);
 			SVDBVarDimItem dim = new SVDBVarDimItem();
 
-			if (fLexer.peekOperator("]")) {
+			if (fLexer.peekOperator(OP.RBRACKET)) {
 				dim.setDimType(DimType.Unsized);
 			} else {
 				dim.setExpr(fParsers.exprParser().const_or_range_expression());
 			}
 			ret.add(dim);
 
-			fLexer.readOperator("]");
+			fLexer.readOperator(OP.RBRACKET);
 			
-			if (!fLexer.peekOperator("[")) {
+			if (!fLexer.peekOperator(OP.LBRACKET)) {
 				break;
 			}
 		}
@@ -710,11 +728,9 @@ public class SVDataTypeParser extends SVParserBase {
 
 	private void struct_union_body(ISVDBAddChildItem parent) throws SVParseException {
 
-		if (fLexer.peekKeyword("packed")) {
+		while (fLexer.peekKeyword(KW.PACKED, KW.SIGNED)) {
 			fLexer.eatToken();
 		}
-		
-		// TODO: signing
 		
 		fLexer.readOperator("{");
 		
@@ -732,17 +748,17 @@ public class SVDataTypeParser extends SVParserBase {
 				SVDBVarDeclItem vi = new SVDBVarDeclItem(name);
 				vi.setLocation(it_start);
 
-				if (fLexer.peekOperator("[")) {
+				if (fLexer.peekOperator(OP.LBRACKET)) {
 					vi.setArrayDim(var_dim());
 				}
 				
-				if (fLexer.peekOperator("=")) {
+				if (fLexer.peekOperator(OP.EQ)) {
 					fLexer.eatToken();
 					vi.setInitExpr(fParsers.exprParser().expression());
 				}
 				var.addChildItem(vi);
 				
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 				} else {
 					break;
@@ -750,9 +766,9 @@ public class SVDataTypeParser extends SVParserBase {
 			}
 			
 			parent.addChildItem(var);
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 							
-		} while (fLexer.peek() != null && !fLexer.peekOperator("}"));
+		} while (fLexer.peek() != null && !fLexer.peekOperator(OP.RBRACE));
 		
 		fLexer.readOperator("}");
 	}
@@ -765,12 +781,12 @@ public class SVDataTypeParser extends SVParserBase {
 			SVDBTypeInfoClassItem class_item = new SVDBTypeInfoClassItem(id);
 			class_type.addClassItem(class_item);
 			
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				SVDBParamValueAssignList param_assign = parsers().paramValueAssignParser().parse(true);
 				class_item.setParamAssignList(param_assign);
 			}
 			
-			if (fLexer.peekOperator("::")) {
+			if (fLexer.peekOperator(OP.COLON2)) {
 				fLexer.eatToken();
 			} else {
 				break;

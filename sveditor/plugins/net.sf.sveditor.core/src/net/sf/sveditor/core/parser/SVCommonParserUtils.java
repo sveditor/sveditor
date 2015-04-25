@@ -31,7 +31,7 @@ public class SVCommonParserUtils extends SVParserBase {
 			return ret;
 		}
 
-		while (fLexer.peekOperator("::")) {
+		while (fLexer.peekOperator(OP.COLON2)) {
 			ret.add(fLexer.consumeToken());
 			if (allow_keywords && fLexer.peekKeyword()) {
 				ret.add(fLexer.consumeToken());

@@ -61,7 +61,7 @@ public class SVClassDeclParser extends SVParserBase {
 		cls_type = new SVDBTypeInfoClassType(cls_type_name);
 		cls.setClassType(cls_type);
 		
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// Handle classes with parameters
 			cls.addParameters(parsers().paramPortListParser().parse());
 		}
@@ -70,12 +70,12 @@ public class SVClassDeclParser extends SVParserBase {
 			fLexer.eatToken();
 			cls.setSuperClass(parsers().dataTypeParser().class_type());
 
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				// scanner().unget_ch('#');
 				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
 				// cls.getSuperParameters().addAll(params);
 				fLexer.eatToken();
-				if (fLexer.peekOperator("(")) {
+				if (fLexer.peekOperator(OP.LPAREN)) {
 					fLexer.skipPastMatch("(", ")");
 				} else {
 					fLexer.eatToken();
@@ -83,7 +83,7 @@ public class SVClassDeclParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		parent.addChildItem(cls);
 		
@@ -96,7 +96,7 @@ public class SVClassDeclParser extends SVParserBase {
 				// Catch error
 				// TODO: recover from errors
 				while (fLexer.peek() != null && 
-						!fLexer.peekOperator(";") && !fLexer.peekKeyword("endclass")) {
+						!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword("endclass")) {
 					fLexer.eatToken();
 				}
 			}
@@ -106,7 +106,7 @@ public class SVClassDeclParser extends SVParserBase {
 		fLexer.readKeyword("endclass");
 
 		// endclass : classname
-		if (fLexer.peekOperator(":")) { 
+		if (fLexer.peekOperator(OP.COLON)) { 
 			fLexer.eatToken();
 			fLexer.readId();
 		}

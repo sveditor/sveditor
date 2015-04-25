@@ -66,23 +66,23 @@ public class SVPropertyParser extends SVParserBase {
 		
 		prop.setName(fLexer.readId());
 		// Port List
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
-			if (!fLexer.peekOperator(")")) {
+			if (!fLexer.peekOperator(OP.RPAREN)) {
 				while (fLexer.peek() != null) {
 					prop.addPropertyPort(property_port_item());
 
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					} else {
 						break;
 					}
 				}
 			}
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 			// TODO: argument list
 		}
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		parent.addChildItem(prop);
 
@@ -144,7 +144,7 @@ public class SVPropertyParser extends SVParserBase {
 		}
 
 		// Check if property has an clocking / event term
-		if (lexer().peekOperator("@")) {
+		if (lexer().peekOperator(OP.AT)) {
 			// Possibly a clocking event which is @
 			parsers().exprParser().clocking_event();
 		}
@@ -153,12 +153,12 @@ public class SVPropertyParser extends SVParserBase {
 		if (fLexer.peekKeyword("disable"))  {
 			fLexer.readKeyword("disable");
 			fLexer.readKeyword("iff");
-			fLexer.readOperator("(");
+			fLexer.readOperator(OP.LPAREN);
 			// TODO: Figure out what to do with this
 			SVDBExprStmt stmt = new SVDBExprStmt();
 			stmt.setLocation(fLexer.getStartLocation());
 			stmt.setExpr(parsers().exprParser().expression());
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 		}
 		
 		try {
@@ -169,7 +169,7 @@ public class SVPropertyParser extends SVParserBase {
 
 		fLexer.readKeyword("endproperty");
 		
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			fLexer.readId();
 		}
@@ -195,7 +195,7 @@ public class SVPropertyParser extends SVParserBase {
 		// here in the "root"
 		if (stmt.getExpr() != null && stmt.getExpr().getType() == SVDBItemType.PropertyIfStmt)  {
 //		if (stmt.getExpr().getType() == SVDBItemType.PropertyIfStmt)  {
-			fLexer.readOperator(";");		
+			fLexer.readOperator(OP.SEMICOLON);		
 		}
 		prop.addChildItem(stmt);
 				
@@ -240,11 +240,11 @@ public class SVPropertyParser extends SVParserBase {
 		vi.setName(fLexer.readId());
 		port.addChildItem(vi);
 		
-		if (fLexer.peekOperator("[")) {
+		if (fLexer.peekOperator(OP.LBRACKET)) {
 			vi.setArrayDim(fParsers.dataTypeParser().var_dim());
 		}
 		
-		if (fLexer.peekOperator("=")) {
+		if (fLexer.peekOperator(OP.EQ)) {
 			fLexer.eatToken();
 			vi.setInitExpr(fParsers.exprParser().expression());
 		}

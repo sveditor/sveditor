@@ -32,10 +32,10 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 		int dir = SVDBParamPortDecl.Direction_Input;
 		SVDBTypeInfo last_type = null;
 		
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		
 		// Empty parameter list
-		if (fLexer.peekOperator(")")) {
+		if (fLexer.peekOperator(OP.RPAREN)) {
 			fLexer.eatToken();
 			return params;
 		}
@@ -67,7 +67,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 
 			// This could be a continuation of the same type: int a, b, c
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				List<SVDBVarDimItem> dim = fParsers.dataTypeParser().vector_dim();
 				if (type instanceof SVDBTypeInfoBuiltin) {
 					((SVDBTypeInfoBuiltin)type).setVectorDim(dim);
@@ -89,7 +89,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				id = fLexer.readId();
 
 				/**
-				if (fLexer.peekOperator("[")) {
+				if (fLexer.peekOperator(OP.LBRACKET)) {
 					fLexer.startCapture();
 					fLexer.skipPastMatch("[", "]");
 					fLexer.endCapture();
@@ -107,26 +107,26 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 			SVDBVarDeclItem param = new SVDBVarDeclItem(id);
 			param_r.addChildItem(param);
 			
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				// This port is an array port
 				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 
 			params.add(param_r);
 			
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				param.setInitExpr(parsers().exprParser().expression());
 			}
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		return params;
 	}

@@ -91,7 +91,8 @@ public class TestLexer extends TestCase {
 				"\n" +
 				"	pullup r1 (\\1w ); // <- shows syntax error\n" + 
 				"endmodule\n";
-		
+	
+		SVCorePlugin.getDefault().enableDebug(false);
 		runTest(getName(), content, new String[] {
 			"1w", "2w", "3w"});
 				

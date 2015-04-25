@@ -91,7 +91,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				}
 				// Note: data_type_or_implicit could, technically, be null
 
-				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator("[")) {
+				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator(OP.LBRACKET)) {
 					// probably data-type or implicit data-type
 					// Un-get the tokens we have
 					if (data_type_or_implicit != null) {
@@ -128,11 +128,11 @@ public class SVTaskFunctionParser extends SVParserBase {
 			debug("Function Terminator: " + fLexer.peek());
 		}
 		// method declarations are required to have parens
-		if (is_decl || fLexer.peekOperator("(")) {
+		if (is_decl || fLexer.peekOperator(OP.LPAREN)) {
 			// parameter list or empty
 			params = parsers().tfPortListParser().parse();
 			is_ansi = true;
-		} else if (fLexer.peekOperator(";")) {
+		} else if (fLexer.peekOperator(OP.SEMICOLON)) {
 			// non-ANSI (?)
 			params = new ArrayList<SVDBParamPortDecl>();
 			is_ansi = false;
@@ -140,7 +140,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		
 		// Method declaration is not terminated with a semi-colon
 		if (!is_decl) {
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 		}
 		
 		if (fDebugEn) {
@@ -183,7 +183,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				fLexer.readKeyword("endfunction");
 			}
 
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				String id = fLexer.readIdOrKeyword(); // could be :new
 

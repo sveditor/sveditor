@@ -1708,7 +1708,6 @@ public class TestParseModuleBodyItems extends TestCase {
 	}
 
 	public void testParseEvent() throws SVParseException {
-		String testname = "testParseEvent";
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 				"module my_module();\n" + 
@@ -1722,7 +1721,7 @@ public class TestParseModuleBodyItems extends TestCase {
 				"	end\n" + 
 				"endmodule\n"
 			;
-		ParserTests.runTestStrDoc(testname, doc, new String[] {"some_event"});
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"some_event"});
 	}
 
 	public void testParseEvent_2() throws SVParseException {

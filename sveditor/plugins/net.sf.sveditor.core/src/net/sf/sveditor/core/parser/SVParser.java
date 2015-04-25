@@ -206,7 +206,7 @@ public class SVParser implements ISVScanner,
 			fLexer.eatToken();
 		} else if (!fLexer.peekOperator()) {
 			parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
-		} else if (fLexer.peekOperator(";")) {
+		} else if (fLexer.peekOperator(OP.SEMICOLON)) {
 			// null statement
 			fLexer.eatToken();
 		} else { // kw is null
@@ -247,7 +247,7 @@ public class SVParser implements ISVScanner,
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 
-		while (fLexer.peekOperator("::")) {
+		while (fLexer.peekOperator(OP.COLON2)) {
 			id.append("::");
 			fLexer.eatToken();
 			if (fLexer.peekKeyword("new") ||
@@ -296,7 +296,7 @@ public class SVParser implements ISVScanner,
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 		
-		while (fLexer.peekOperator("::")) {
+		while (fLexer.peekOperator(OP.COLON2)) {
 			ret.add(fLexer.consumeToken());
 			if (allow_keywords && fLexer.peekKeyword()) {
 				ret.add(fLexer.consumeToken());
@@ -335,7 +335,7 @@ public class SVParser implements ISVScanner,
 
 			String pkg_name = readQualifiedIdentifier();
 			pkg.setName(pkg_name);
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 
 			parent.addChildItem(pkg);
 
@@ -350,7 +350,7 @@ public class SVParser implements ISVScanner,
 			pkg.setEndLocation(fLexer.getStartLocation());
 			fLexer.readKeyword(KW.ENDPACKAGE);
 			// Handled named package end-block
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
@@ -432,12 +432,12 @@ public class SVParser implements ISVScanner,
 
 		ret.append(fLexer.eatToken());
 
-		while (fLexer.peekOperator("::")) {
+		while (fLexer.peekOperator(OP.COLON2)) {
 			ret.append(fLexer.eatToken());
 			ret.append(fLexer.eatToken());
 		}
 		/*
-		while (fLexer.peekId() || fLexer.peekOperator("::") || fLexer.peekKeyword()) {
+		while (fLexer.peekId() || fLexer.peekOperator(OP.COLON2) || fLexer.peekKeyword()) {
 			ret.append(fLexer.eatToken());
 		}
 		 */
@@ -486,13 +486,13 @@ public class SVParser implements ISVScanner,
 				fLexer.readKeyword(SVKeywords.fStrength);
 				num_strengths ++; 
 			}
-			if (fLexer.peekOperator(")"))  {
-				fLexer.readOperator(")");
+			if (fLexer.peekOperator(OP.RPAREN))  {
+				fLexer.readOperator(OP.RPAREN);
 				done = true;
 			}
 			else  {
 				// must be separated by comma's
-				fLexer.readOperator(",");
+				fLexer.readOperator(OP.COMMA);
 			}
 		}
 		if (max_strengths < num_strengths)  {
@@ -508,7 +508,7 @@ public class SVParser implements ISVScanner,
 		int num_delays= 0;						// Number of delay parameters
 		
 		
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
 			while (done_with_params == false)  {
 				num_delays ++;
@@ -520,20 +520,20 @@ public class SVParser implements ISVScanner,
 				// <generic_delay>
 				// <min_delay>:<typ_delay>:<max_delay>
 				parsers().exprParser().expression();			// min or base
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					has_min_max_typ = true;	// is formatted as nnn:nnn:nnn
 					fLexer.eatToken();
 					/* typ */ parsers().exprParser().expression();
 	
-					fLexer.readOperator(":");
+					fLexer.readOperator(OP.COLON);
 					/* max */ parsers().exprParser().expression();
 				}
-				if (fLexer.peekOperator(")"))  {
-					fLexer.readOperator(")");
+				if (fLexer.peekOperator(OP.RPAREN))  {
+					fLexer.readOperator(OP.RPAREN);
 					done_with_params = true;
 				}
-				else if (fLexer.peekOperator(","))  {
-					fLexer.readOperator(",");
+				else if (fLexer.peekOperator(OP.COMMA))  {
+					fLexer.readOperator(OP.COMMA);
 					
 				}
 			}

@@ -60,7 +60,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 	private String begin_end_block(ISVDBAddChildItem parent) throws SVParseException {
 		String thename = null;
 		fLexer.readKeyword("begin");
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			thename = fLexer.readId();
 		}
@@ -68,7 +68,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 			fParsers.modIfcBodyItemParser().parse(parent, "generate");
 		}
 		fLexer.readKeyword("end");
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			fLexer.readId();
 		}
@@ -79,9 +79,9 @@ public class SVGenerateBlockParser extends SVParserBase {
 		SVDBGenerateIf if_blk = new SVDBGenerateIf();
 		if_blk.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword("if");
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		if_blk.setExpr(parsers().exprParser().expression());
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		parent.addChildItem(if_blk);
 		
@@ -93,7 +93,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 			}
 			/*
 			fLexer.eatToken();
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
@@ -101,7 +101,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 			}
 			fLexer.readKeyword("end");
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
@@ -114,7 +114,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 			fLexer.eatToken();
 			if (fLexer.peekKeyword("begin")) {
 				fLexer.eatToken();
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					fLexer.eatToken();
 					fLexer.readId();
 				}
@@ -122,7 +122,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 					fParsers.modIfcBodyItemParser().parse(if_blk, "generate");
 				}
 				fLexer.readKeyword("end");
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					fLexer.eatToken();
 					fLexer.readId();
 				}
@@ -137,22 +137,22 @@ public class SVGenerateBlockParser extends SVParserBase {
 		boolean nested_begin = false;
 		
 		fLexer.readKeyword("for");
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		if (fLexer.peekKeyword("genvar")) {
 			fLexer.eatToken();
 		}
-		if (!fLexer.peekOperator(";")) {
+		if (!fLexer.peekOperator(OP.SEMICOLON)) {
 			/*String init = */parsers().exprParser().expression();
 		}
-		fLexer.readOperator(";");
-		if (!fLexer.peekOperator(";")) {
+		fLexer.readOperator(OP.SEMICOLON);
+		if (!fLexer.peekOperator(OP.SEMICOLON)) {
 			/*String cond = */parsers().exprParser().expression();
 		}
-		fLexer.readOperator(";");
-		if (!fLexer.peekOperator(")")) {
+		fLexer.readOperator(OP.SEMICOLON);
+		if (!fLexer.peekOperator(OP.RPAREN)) {
 			/*String incr = */parsers().exprParser().expression();
 		}
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 
 		parent.addChildItem(gen_blk);
 
@@ -168,7 +168,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parent.addChildItem(gen_blk);
 		
 		fLexer.readKeyword("begin");
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			gen_blk.setName(fLexer.readId());
 		}
@@ -182,7 +182,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 		}
 	
 		fLexer.readKeyword("end");
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			fLexer.readId();
 		}		
@@ -192,9 +192,9 @@ public class SVGenerateBlockParser extends SVParserBase {
 		SVDBGenerateBlock case_blk = new SVDBGenerateBlock("case");
 		
 		fLexer.readKeyword("case");
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 		parsers().exprParser().expression();
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		parent.addChildItem(case_blk);
 		
@@ -204,17 +204,17 @@ public class SVGenerateBlockParser extends SVParserBase {
 			} else {
 				// Read list of expressions
 				do {
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					}
 					parsers().exprParser().expression();
-				} while (fLexer.peekOperator(","));
+				} while (fLexer.peekOperator(OP.COMMA));
 			}
-			fLexer.readOperator(":");
+			fLexer.readOperator(OP.COLON);
 			
 			if (fLexer.peekKeyword("begin")) {
 				fLexer.eatToken();
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					fLexer.eatToken();
 					fLexer.readId();
 				}
@@ -224,7 +224,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 				}
 				
 				fLexer.readKeyword("end");
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					fLexer.eatToken();
 					fLexer.readId();
 				}
@@ -239,7 +239,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 	private void generate_item(ISVDBAddChildItem blk) throws SVParseException {
 		SVToken tok = fLexer.consumeToken();
 		
-		if (tok.isIdentifier() && fLexer.peekOperator("(")) {
+		if (tok.isIdentifier() && fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.ungetToken(tok);
 			fParsers.behavioralBlockParser().statement(blk);
 		} else {

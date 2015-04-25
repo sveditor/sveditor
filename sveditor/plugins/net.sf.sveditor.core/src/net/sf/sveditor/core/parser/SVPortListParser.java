@@ -32,16 +32,16 @@ public class SVPortListParser extends SVParserBase {
 		SVDBTypeInfo last_type = null;
 		boolean is_ansi = false;
 		
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 
 		
 		if (fLexer.peekOperator(".*")) {
 			fLexer.eatToken();
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 			return ports;
 		}
 		
-		if (fLexer.peekOperator(")")) {
+		if (fLexer.peekOperator(OP.RPAREN)) {
 			// empty port list
 			fLexer.eatToken();
 			return ports;
@@ -80,7 +80,7 @@ public class SVPortListParser extends SVParserBase {
 			// This may be an untyped vectored parameter
 			SVDBTypeInfo type = null; 
 			String id = null;
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				SVDBTypeInfoBuiltin bi_type = new SVDBTypeInfoBuiltin("untyped");
 				bi_type.setVectorDim(fParsers.dataTypeParser().vector_dim());
 				type = bi_type;
@@ -106,7 +106,7 @@ public class SVPortListParser extends SVParserBase {
 					id = fLexer.readIdOrKeyword();
 
 					/* 
-					if (fLexer.peekOperator("[")) {
+					if (fLexer.peekOperator(OP.LBRACKET)) {
 						fLexer.startCapture();
 						fLexer.skipPastMatch("[", "]");
 						fLexer.endCapture();
@@ -125,13 +125,13 @@ public class SVPortListParser extends SVParserBase {
 			param.setLocation(it_start);
 			param_r.addChildItem(param);
 
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				// This port is an array port
 				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 
 			// Read in default value
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				param.setInitExpr(parsers().exprParser().expression());
 				if (fDebugEn) {
@@ -141,9 +141,9 @@ public class SVPortListParser extends SVParserBase {
 			 
 			ports.add(param_r);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
-				if (!is_ansi && fLexer.peekOperator(")")) {
+				if (!is_ansi && fLexer.peekOperator(OP.RPAREN)) {
 					// We're done
 					break;
 				}
@@ -152,7 +152,7 @@ public class SVPortListParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		return ports;
 	}
