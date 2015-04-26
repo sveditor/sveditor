@@ -27,14 +27,14 @@ public class SVAssertionParser extends SVParserBase {
 	public SVDBAssertStmt parse(ISVDBAddChildItem parent, String assertion_label) throws SVParseException {
 		long start = fLexer.getStartLocation();
 		
-		String assert_type = fLexer.readKeyword(KW.ASSERT, KW.ASSUME, KW.COVER, KW.EXPECT);
+		KW assert_type = fLexer.readKeyword(KW.ASSERT, KW.ASSUME, KW.COVER, KW.EXPECT);
 		SVDBAssertStmt assert_stmt;
-		if (assert_type.equals("assert") || (assert_type.equals ("expect"))) {
+		if (assert_type == KW.ASSERT || assert_type == KW.EXPECT) {
 			assert_stmt = new SVDBAssertStmt();
 			if (assertion_label != "")  {
 				assert_stmt.setName(assertion_label);
 			}
-		} else if (assert_type.equals("assume")) {
+		} else if (assert_type == KW.ASSUME) {
 			assert_stmt = new SVDBAssumeStmt();
 		} else {
 			assert_stmt = new SVDBCoverStmt();

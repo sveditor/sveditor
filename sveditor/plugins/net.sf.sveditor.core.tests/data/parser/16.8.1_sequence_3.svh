@@ -7,5 +7,5 @@ module m;
 	
 	cover property (event_arg_example(posedge clk));
 	
-	cover property (@(posedge clk) x ##1 y));
+	cover property (@(posedge clk) x ##1 y);
 endmodule

@@ -42,7 +42,7 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 		
 		while (true) {
 			long it_start = fLexer.getStartLocation();
-			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
+			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT, KW.REF)) {
 				String dir_s = fLexer.eatToken();
 				if (dir_s.equals("input")) {
 					dir = SVDBParamPortDecl.Direction_Input;
@@ -53,13 +53,13 @@ public class SVTaskFunctionPortListParser extends SVParserBase {
 				} else if (dir_s.equals("ref")) {
 					dir = SVDBParamPortDecl.Direction_Ref;
 				}
-			} else if (fLexer.peekKeyword("const")) {
+			} else if (fLexer.peekKeyword(KW.CONST)) {
 				fLexer.eatToken();
-				fLexer.readKeyword("ref");
+				fLexer.readKeyword(KW.REF);
 				dir = (SVDBParamPortDecl.Direction_Ref | SVDBParamPortDecl.Direction_Const);
 			}
 			
-			if (fLexer.peekKeyword("var")) {
+			if (fLexer.peekKeyword(KW.VAR)) {
 				fLexer.eatToken();
 				dir |= SVDBParamPortDecl.Direction_Var;
 			}

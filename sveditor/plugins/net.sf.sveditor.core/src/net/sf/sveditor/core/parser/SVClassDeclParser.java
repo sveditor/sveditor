@@ -42,7 +42,7 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		// Expect to enter on 'class'
 		long start_loc = fLexer.getStartLocation();
-		fLexer.readKeyword("class");
+		fLexer.readKeyword(KW.CLASS);
 		
 		if (fLexer.peekKeyword(KW.AUTOMATIC, KW.STATIC)) {
 			// TODO: set lifetime on class declaration
@@ -66,7 +66,7 @@ public class SVClassDeclParser extends SVParserBase {
 			cls.addParameters(parsers().paramPortListParser().parse());
 		}
 		
-		if (fLexer.peekKeyword("extends")) {
+		if (fLexer.peekKeyword(KW.EXTENDS)) {
 			fLexer.eatToken();
 			cls.setSuperClass(parsers().dataTypeParser().class_type());
 
@@ -88,22 +88,22 @@ public class SVClassDeclParser extends SVParserBase {
 		parent.addChildItem(cls);
 		
 		// TODO: need a better system here...
-		while (fLexer.peek() != null && !fLexer.peekKeyword("endclass")) {
+		while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLASS)) {
 			
 			try {
-				fParsers.modIfcBodyItemParser().parse(cls, "class");
+				fParsers.modIfcBodyItemParser().parse(cls);
 			} catch (SVParseException e) {
 				// Catch error
 				// TODO: recover from errors
 				while (fLexer.peek() != null && 
-						!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword("endclass")) {
+						!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword(KW.ENDCLASS)) {
 					fLexer.eatToken();
 				}
 			}
 		}
 
 		cls.setEndLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("endclass");
+		fLexer.readKeyword(KW.ENDCLASS);
 
 		// endclass : classname
 		if (fLexer.peekOperator(OP.COLON)) { 

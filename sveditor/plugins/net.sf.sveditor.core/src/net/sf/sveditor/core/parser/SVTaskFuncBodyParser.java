@@ -22,7 +22,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 	}
 	
 	public void parse(SVDBTask tf, boolean is_ansi) throws SVParseException {
-		String end_keyword = (tf.getType() == SVDBItemType.Function)?"endfunction":"endtask";
+		KW end_keyword = (tf.getType() == SVDBItemType.Function)?KW.ENDFUNCTION:KW.ENDTASK;
 		if (fDebugEn) {
 			debug("--> SVTaskFuncBodyParser: " + fLexer.peek());
 			debug("SVTaskFuncBodyParse: is_ansi=" + is_ansi);
@@ -36,7 +36,7 @@ public class SVTaskFuncBodyParser extends SVParserBase {
 			if (fLexer.peekKeyword(end_keyword)) {
 				break;
 			// check for parameters - these can be used in port lists etc.
-			} else if (fLexer.peekKeyword("parameter") || fLexer.peekKeyword("localparam")) {
+			} else if (fLexer.peekKeyword(KW.PARAMETER) || fLexer.peekKeyword(KW.LOCALPARAM)) {
 				parsers().modIfcBodyItemParser().parse_parameter_decl(tf);
 			} else if (SVParser.isFirstLevelScope(fLexer.peek(), 0)) {
 				error("Missing " + ((tf.getType() == SVDBItemType.Function)?"function":"task") + " end");

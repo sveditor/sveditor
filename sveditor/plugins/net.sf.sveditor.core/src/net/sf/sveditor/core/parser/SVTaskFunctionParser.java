@@ -68,12 +68,12 @@ public class SVTaskFunctionParser extends SVParserBase {
 		
 		SVDBTypeInfo return_type = null;
 		if (type.equals("function")) {
-			if (fLexer.peekKeyword("new")) {
+			if (fLexer.peekKeyword(KW.NEW)) {
 				// constructor, so no return type
 				tf_name = fLexer.eatToken();
 				return_type = new SVDBTypeInfoBuiltin("");
 			} else {
-				if (fLexer.peekKeyword("static", "automatic")) {
+				if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				// 	TODO: should add this as a qualifier
 					if (fLexer.eatToken().equals("static")) {
 						qualifiers |= SVDBFieldItem.FieldAttr_Static;
@@ -82,7 +82,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				
 				// data-type or implicit
 				List<SVToken> data_type_or_implicit = null;
-				if (fLexer.peekKeyword("void","virtual") || 
+				if (fLexer.peekKeyword(KW.VOID, KW.VIRTUAL) || 
 						SVKeywords.isBuiltInType(fLexer.peek())) {
 					data_type_or_implicit = new ArrayList<SVToken>();
 					data_type_or_implicit.add(fLexer.consumeToken());
@@ -91,7 +91,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				}
 				// Note: data_type_or_implicit could, technically, be null
 
-				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator(OP.LBRACKET)) {
+				if (!fLexer.peekOperator(OP.SEMICOLON, OP.LPAREN) || fLexer.peekOperator(OP.LBRACKET)) {
 					// probably data-type or implicit data-type
 					// Un-get the tokens we have
 					if (data_type_or_implicit != null) {

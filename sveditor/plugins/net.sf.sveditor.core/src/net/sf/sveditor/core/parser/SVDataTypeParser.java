@@ -507,7 +507,7 @@ public class SVDataTypeParser extends SVParserBase {
 			type = new SVDBTypeInfoEnum();
 		}
 		
-		fLexer.readOperator("{");
+		fLexer.readOperator(OP.LBRACE);
 		while (fLexer.peek() != null) {
 			long loc = fLexer.getStartLocation();
 			SVDBTypeInfoEnumerator enum_v = new SVDBTypeInfoEnumerator(fLexer.readId());
@@ -531,7 +531,7 @@ public class SVDataTypeParser extends SVParserBase {
 				break;
 			}
 		}
-		fLexer.readOperator("}");
+		fLexer.readOperator(OP.RBRACE);
 		
 		return type;
 	}
@@ -732,7 +732,7 @@ public class SVDataTypeParser extends SVParserBase {
 			fLexer.eatToken();
 		}
 		
-		fLexer.readOperator("{");
+		fLexer.readOperator(OP.LBRACE);
 		
 		do {
 			long it_start = fLexer.getStartLocation();
@@ -770,7 +770,7 @@ public class SVDataTypeParser extends SVParserBase {
 							
 		} while (fLexer.peek() != null && !fLexer.peekOperator(OP.RBRACE));
 		
-		fLexer.readOperator("}");
+		fLexer.readOperator(OP.RBRACE);
 	}
 	
 	public SVDBTypeInfoClassType class_type() throws SVParseException {

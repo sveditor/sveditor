@@ -47,9 +47,9 @@ public class SVImpExpStmtParser extends SVParserBase {
 				SVDBExportItem ei = new SVDBExportItem();
 				fLexer.addTokenListener(l);
 				try {
-					fLexer.readOperator("*");
-					fLexer.readOperator("::");
-					fLexer.readOperator("*");
+					fLexer.readOperator(OP.MUL);
+					fLexer.readOperator(OP.COLON2);
+					fLexer.readOperator(OP.MUL);
 				} finally {
 					fLexer.removeTokenListener(l);
 				}

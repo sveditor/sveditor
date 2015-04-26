@@ -19,21 +19,21 @@ public class SVConfigParser extends SVParserBase {
 		SVDBConfigDecl cfg = new SVDBConfigDecl();
 		cfg.setLocation(fLexer.getStartLocation());
 		
-		fLexer.readKeyword("config");
+		fLexer.readKeyword(KW.CONFIG);
 		cfg.setName(fLexer.readId());
 		fLexer.readOperator(OP.SEMICOLON);
 		parent.addChildItem(cfg);
 		
 		try {
 			// local parameter declarations
-			while (fLexer.peekKeyword("localparam")) {
+			while (fLexer.peekKeyword(KW.LOCALPARAM)) {
 				parsers().modIfcBodyItemParser().parse_parameter_decl(cfg);
 			}
 
 			// design_statement
 			SVDBConfigDesignStmt design_stmt = new SVDBConfigDesignStmt();
 			design_stmt.setLocation(fLexer.getStartLocation());
-			fLexer.readKeyword("design");
+			fLexer.readKeyword(KW.DESIGN);
 			cfg.addChildItem(design_stmt);
 			do {
 				SVDBExpr id = fParsers.exprParser().hierarchical_identifier();
@@ -43,18 +43,19 @@ public class SVConfigParser extends SVParserBase {
 
 			// config_rule_statement
 			while (fLexer.peek() != null) {
-				if (fLexer.peekKeyword("default")) {
+				KW kw = fLexer.peekKeywordE();
+				if (kw == KW.DEFAULT) {
 					default_clause(cfg);
-				} else if (fLexer.peekKeyword("instance")) {
+				} else if (kw == KW.INSTANCE) {
 					instance_clause(cfg);
-				} else if (fLexer.peekKeyword("cell")) {
+				} else if (kw == KW.CELL) {
 					cell_clause(cfg);
 				} else {
 					break;
 				}
 			}
 
-			fLexer.readKeyword("endconfig");
+			fLexer.readKeyword(KW.ENDCONFIG);
 
 			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
@@ -70,10 +71,10 @@ public class SVConfigParser extends SVParserBase {
 		SVDBConfigDefaultClauseStmt dflt_stmt = new SVDBConfigDefaultClauseStmt();
 		dflt_stmt.setLocation(fLexer.getStartLocation());
 		
-		fLexer.readKeyword("default");
+		fLexer.readKeyword(KW.DEFAULT);
 		parent.addChildItem(dflt_stmt);
 		
-		fLexer.readKeyword("liblist");
+		fLexer.readKeyword(KW.LIBLIST);
 		liblist_clause(dflt_stmt);
 		
 		fLexer.readOperator(OP.SEMICOLON);
@@ -83,12 +84,12 @@ public class SVConfigParser extends SVParserBase {
 		SVDBConfigInstClauseStmt inst_stmt = new SVDBConfigInstClauseStmt();
 		
 		inst_stmt.setLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("instance");
+		fLexer.readKeyword(KW.INSTANCE);
 		inst_stmt.setInstName(fParsers.exprParser().hierarchical_identifier());
 		
-		String type = fLexer.readKeyword("liblist","use");
+		KW type = fLexer.readKeyword(KW.LIBLIST, KW.USE);
 		
-		if (type.equals("liblist")) {
+		if (type == KW.LIBLIST) {
 			liblist_clause(inst_stmt);
 		} else {
 			use_clause(inst_stmt);
@@ -101,12 +102,12 @@ public class SVConfigParser extends SVParserBase {
 		SVDBConfigCellClauseStmt inst_stmt = new SVDBConfigCellClauseStmt();
 		
 		inst_stmt.setLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("cell");
+		fLexer.readKeyword(KW.CELL);
 		inst_stmt.setCellId(fParsers.exprParser().hierarchical_identifier());
 		
-		String type = fLexer.readKeyword("liblist","use");
+		KW type = fLexer.readKeyword(KW.LIBLIST, KW.USE);
 		
-		if (type.equals("liblist")) {
+		if (type == KW.LIBLIST) {
 			liblist_clause(inst_stmt);
 		} else {
 			use_clause(inst_stmt);
@@ -134,7 +135,7 @@ public class SVConfigParser extends SVParserBase {
 		
 		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
-			fLexer.readKeyword("config");
+			fLexer.readKeyword(KW.CONFIG);
 		}
 	}
 }

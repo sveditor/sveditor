@@ -52,7 +52,7 @@ public class SVConstraintParser extends SVParserBase {
 			if (fLexer.peekOperator(OP.SEMICOLON)) {
 				fLexer.eatToken();
 			} else {
-				fLexer.readOperator("{");
+				fLexer.readOperator(OP.LBRACE);
 
 				parent.addChildItem(c);
 
@@ -61,7 +61,7 @@ public class SVConstraintParser extends SVParserBase {
 				}
 
 				c.setEndLocation(fLexer.getStartLocation());
-				fLexer.readOperator("}");
+				fLexer.readOperator(OP.RBRACE);
 			}
 		} finally {
 			fLexer.setContext(ctxt);
@@ -92,7 +92,7 @@ public class SVConstraintParser extends SVParserBase {
 				fTmpTokenList.clear();
 				// Scan forward to the first ';' ',' or brace
 				while ((tok = fLexer.peek()) != null && 
-						!fLexer.peekOperator(";", ",") &&
+						!fLexer.peekOperator(OP.SEMICOLON, OP.COMMA) &&
 						!fLexer.peekKeyword(KW.IF, KW.ELSE, KW.FOREACH, KW.INSIDE)) {
 					if (tok.equals("{")) {
 						brace_balance++;
@@ -136,12 +136,12 @@ public class SVConstraintParser extends SVParserBase {
 				return ret;
 			} else {
 				SVDBConstraintSetStmt ret = new SVDBConstraintSetStmt(); 
-				fLexer.readOperator("{");
+				fLexer.readOperator(OP.LBRACE);
 				while (lexer().peek() != null && !fLexer.peekOperator(OP.RBRACE)) {
 					SVDBStmt c_stmt = constraint_set_item();
 					ret.addConstraintStmt(c_stmt);
 				}
-				fLexer.readOperator("}");
+				fLexer.readOperator(OP.RBRACE);
 				if (!top_level && fLexer.peekOperator(OP.SEMICOLON))  {
 					// Not documented in LRM that I can tell... Modelsim seems to allow it though... wrap this in an if (fLexer.peekOperator(OP.SEMICOLON) {}?				
 					fLexer.readOperator(OP.SEMICOLON);		
@@ -226,7 +226,7 @@ public class SVConstraintParser extends SVParserBase {
 	}
 	
 	public void dist_list(SVDBConstraintDistListStmt dist_stmt) throws SVParseException {
-		fLexer.readOperator("{");
+		fLexer.readOperator(OP.LBRACE);
 		SVDBConstraintDistListItem item = dist_item();
 		dist_stmt.addDistItem(item);
 
@@ -235,7 +235,7 @@ public class SVConstraintParser extends SVParserBase {
 			
 			item = dist_item();
 		}
-		fLexer.readOperator("}");
+		fLexer.readOperator(OP.RBRACE);
 	}
 
 	private SVDBConstraintDistListItem dist_item() throws SVParseException {
@@ -247,12 +247,12 @@ public class SVConstraintParser extends SVParserBase {
 			ret.setLHS(fParsers.exprParser().expression());
 		}
 
-		if (fLexer.peekOperator(",", "}")) {
+		if (fLexer.peekOperator(OP.COMMA, OP.RBRACE)) {
 			ret.setIsDist(false);
 			ret.setRHS(new SVDBLiteralExpr("1"));
 		} else {
-			String type = fLexer.readOperator(":=", ":/");
-			ret.setIsDist(type.equals(":/"));
+			OP type = fLexer.readOperator(OP.COLON_EQ, OP.COLON_DIV);
+			ret.setIsDist(type.equals(OP.COLON_DIV));
 			ret.setRHS(fParsers.exprParser().expression());
 		}
 

@@ -35,7 +35,7 @@ public class SVPortListParser extends SVParserBase {
 		fLexer.readOperator(OP.LPAREN);
 
 		
-		if (fLexer.peekOperator(".*")) {
+		if (fLexer.peekOperator(OP.DOT_MUL)) {
 			fLexer.eatToken();
 			fLexer.readOperator(OP.RPAREN);
 			return ports;
@@ -52,12 +52,12 @@ public class SVPortListParser extends SVParserBase {
 			
 			// Catch per-port attributes
 			try {
-				if (fLexer.peekOperator("(*")) {
+				if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 					fParsers.attrParser().parse(null);
 				}
 			} catch (SVParseException e) {}
 			
-			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
+			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT, KW.REF)) {
 				it_start = fLexer.getStartLocation();
 				String dir_s = fLexer.eatToken();
 				is_ansi = true;
@@ -70,10 +70,10 @@ public class SVPortListParser extends SVParserBase {
 				} else if (dir_s.equals("ref")) {
 					dir = SVDBParamPortDecl.Direction_Ref;
 				}
-			} else if (fLexer.peekKeyword("const")) {
+			} else if (fLexer.peekKeyword(KW.CONST)) {
 				it_start = fLexer.getStartLocation();
 				fLexer.eatToken();
-				fLexer.readKeyword("ref");
+				fLexer.readKeyword(KW.REF);
 				dir = (SVDBParamPortDecl.Direction_Ref | SVDBParamPortDecl.Direction_Const);
 			}
 			

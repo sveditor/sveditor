@@ -59,9 +59,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBAddChildItem parent, String typename) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent) throws SVParseException {
 		int modifiers = 0;
-		if (fLexer.peekOperator("(*")) {
+		if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 			fParsers.attrParser().parse(parent);
 		}
 		String id = fLexer.peek();
@@ -369,7 +369,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		if (type.equals("timeprecision")) {
 			SVDBTimePrecisionStmt precision = new SVDBTimePrecisionStmt();
 			precision.setArg1(num);
-			if (fLexer.peekOperator("/")) {
+			if (fLexer.peekOperator(OP.DIV)) {
 				fLexer.eatToken();
 				precision.setArg2(fLexer.readNumber());
 			}

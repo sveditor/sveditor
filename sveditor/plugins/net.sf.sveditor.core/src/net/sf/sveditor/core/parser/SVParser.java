@@ -161,7 +161,7 @@ public class SVParser implements ISVScanner,
 		int modifiers = scan_qualifiers(false);
 
 		try {
-			if (fLexer.peekOperator("(*")) {
+			if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 				fSVParsers.attrParser().parse(parent);
 			}
 		} catch (SVParseException e) {
@@ -250,7 +250,7 @@ public class SVParser implements ISVScanner,
 		while (fLexer.peekOperator(OP.COLON2)) {
 			id.append("::");
 			fLexer.eatToken();
-			if (fLexer.peekKeyword("new") ||
+			if (fLexer.peekKeyword(KW.NEW) ||
 					(allow_keywords && fLexer.peekKeyword())) {
 				id.append(fLexer.readKeyword());
 			} else {
@@ -272,7 +272,7 @@ public class SVParser implements ISVScanner,
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 
-		while (fLexer.peekOperator("::",".")) {
+		while (fLexer.peekOperator(OP.COLON2, OP.DOT)) {
 			ret.add(fLexer.consumeToken());
 			if (fLexer.peekKeyword(KW.NEW) ||
 					(allow_keywords && fLexer.peekKeyword())) {
@@ -319,7 +319,7 @@ public class SVParser implements ISVScanner,
 	}
 
 	private void package_decl(ISVDBScopeItem parent) throws SVParseException {
-		if (fLexer.peekOperator("(*")) {
+		if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 			fSVParsers.attrParser().parse(parent);
 		}
 		SVDBPackageDecl pkg = new SVDBPackageDecl();
@@ -502,7 +502,7 @@ public class SVParser implements ISVScanner,
 //		return fLexer.endCapture();
 	}
 	public String delay_n(int max_delays) throws SVParseException {
-		fLexer.readOperator("#");
+		fLexer.readOperator(OP.HASH);
 		boolean has_min_max_typ = false;	    // is formatted as nnn:nnn:nnn
 		boolean done_with_params = false;		// Done with delay params
 		int num_delays= 0;						// Number of delay parameters

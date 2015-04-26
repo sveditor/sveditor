@@ -30,12 +30,12 @@ public class SVFieldVarDeclParser extends SVParserBase {
 	 * @return
 	 */
 	public boolean try_parse(ISVDBAddChildItem parent, boolean decl_allowed) throws SVParseException {
-		if ((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void")) ||
-				fLexer.isIdentifier() || fLexer.peekKeyword("typedef")) {
-			boolean builtin_type = (fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void"));
+		KW kw = fLexer.peekKeywordE();
+		boolean builtin_type;
+		if ((builtin_type = (SVKeywords.fBuiltinTypesE.contains(kw) && kw != KW.VOID)) ||
+				fLexer.isIdentifier() || kw == KW.TYPEDEF) {
 			
-			if ((fLexer.peekKeyword(SVKeywords.fBuiltinTypes) && !fLexer.peekKeyword("void")) ||
-					fLexer.peekKeyword("typedef")) {
+			if (builtin_type || kw == KW.TYPEDEF) {
 				// Definitely a declaration
 				if (!decl_allowed) {
 					error("declaration in a post-declaration location");

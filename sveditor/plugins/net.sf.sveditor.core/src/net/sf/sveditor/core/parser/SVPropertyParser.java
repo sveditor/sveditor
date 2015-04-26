@@ -62,7 +62,7 @@ public class SVPropertyParser extends SVParserBase {
 		
 		// Parse the following:
 		// property property_name [(some_parameter_list, and_another_parameter)];
-		fLexer.readKeyword("property");
+		fLexer.readKeyword(KW.PROPERTY);
 		
 		prop.setName(fLexer.readId());
 		// Port List
@@ -87,10 +87,13 @@ public class SVPropertyParser extends SVParserBase {
 		parent.addChildItem(prop);
 
 		// data declarations
-		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword("var") || fLexer.isIdentifier()) {
+		while (
+				SVKeywords.fBuiltinDeclTypesE.contains(fLexer.peekKeywordE()) || 
+				fLexer.peekKeyword(KW.VAR) || fLexer.isIdentifier()) {
 			long start = fLexer.getStartLocation();
 			// Variable (logic, int unsigned etc)
-			if (fLexer.peekKeyword("var") || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
+			if (fLexer.peekKeyword(KW.VAR) || 
+					SVKeywords.fBuiltinDeclTypesE.contains(fLexer.peekKeywordE())) {
 				// Definitely a declaration
 				parsers().blockItemDeclParser().parse(prop, null, start);
 			} else {
@@ -100,7 +103,7 @@ public class SVPropertyParser extends SVParserBase {
 				// field.foo
 				SVToken tok = fLexer.consumeToken();
 				
-				if (fLexer.peekOperator("::","#") || fLexer.peekId()) {
+				if (fLexer.peekOperator(OP.COLON2, OP.HASH) || fLexer.peekId()) {
 					// Likely to be a declaration. Let's read a type
 					fLexer.ungetToken(tok);
 					final List<SVToken> tok_l = new ArrayList<SVToken>();
@@ -150,9 +153,9 @@ public class SVPropertyParser extends SVParserBase {
 		}
 
 		// Check for disable iff (...)
-		if (fLexer.peekKeyword("disable"))  {
-			fLexer.readKeyword("disable");
-			fLexer.readKeyword("iff");
+		if (fLexer.peekKeyword(KW.DISABLE))  {
+			fLexer.eatToken();
+			fLexer.readKeyword(KW.IFF);
 			fLexer.readOperator(OP.LPAREN);
 			// TODO: Figure out what to do with this
 			SVDBExprStmt stmt = new SVDBExprStmt();
@@ -167,7 +170,7 @@ public class SVPropertyParser extends SVParserBase {
 			prop.setEndLocation(fLexer.getStartLocation());
 		}
 
-		fLexer.readKeyword("endproperty");
+		fLexer.readKeyword(KW.ENDPROPERTY);
 		
 		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
@@ -208,17 +211,19 @@ public class SVPropertyParser extends SVParserBase {
 		int attr = 0;
 		SVDBParamPortDecl port = new SVDBParamPortDecl();
 		port.setLocation(fLexer.getStartLocation());
-		if (fLexer.peekKeyword("local")) {
+		if (fLexer.peekKeyword(KW.LOCAL)) {
 			fLexer.eatToken();
 			// TODO: save local as an attribute
-			if (fLexer.peekKeyword("input")) {
+			if (fLexer.peekKeyword(KW.INPUT)) {
 				fLexer.eatToken();
 				attr |= SVDBParamPortDecl.Direction_Input;
 			}
 		}
 		port.setAttr(attr);
-		
-		if (fLexer.peekKeyword("sequence","event","untyped","property")) {
+	
+		KW kw;
+		if ((kw = fLexer.peekKeywordE()) != null &&
+				(kw == KW.SEQUENCE || kw == KW.EVENT || kw == KW.UNTYPED || kw == KW.PROPERTY)) {
 			port.setTypeInfo(new SVDBTypeInfoBuiltin(fLexer.eatToken()));
 		} else {
 			if (fLexer.peekId()) {

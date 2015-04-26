@@ -6,6 +6,6 @@ module m;
 	endsequence
 	cover property (event_arg_example2(clk));	
 	
-	cover property (@(posedge clk) x ##1 y));
+	cover property (@(posedge clk) x ##1 y);
 	
 endmodule

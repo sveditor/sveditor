@@ -216,6 +216,7 @@ public interface ISVKeywords {
 		USE("use", false),
 		UNTIL("until", true),
 		UNTIL_WITH("until_with", true),
+		UNTYPED("untyped", true),
 		UWIRE("uwire", false),
 		VAR("var", true),
 		VECTORED("vectored", false),

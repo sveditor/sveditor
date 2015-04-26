@@ -46,13 +46,13 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		if (fDebugEn) {
 			debug("--> specify::parse()");
 		}
-		fLexer.readKeyword("specify");
+		fLexer.readKeyword(KW.SPECIFY);
 		
-		while (fLexer.peek() != null && !fLexer.peekKeyword("endspecify")) {
+		while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDSPECIFY)) {
 			if (fDebugEn) {
 				debug(" specify item: " + fLexer.peek());
 			}
-			if (fLexer.peekKeyword("specparam")) {
+			if (fLexer.peekKeyword(KW.SPECPARAM)) {
 				specparam_declaration(null);
 			} else if (fLexer.peekKeyword("pulsestyle_onevent", "pulsestyle_ondetect",
 					"showcancelled", "noshowcancelled")) {
@@ -68,7 +68,7 @@ public class SVSpecifyBlockParser extends SVParserBase {
 				fLexer.readOperator(OP.SEMICOLON);
 			} else if (fLexer.peekId() && system_timing_checks_kw.contains(fLexer.peek())) {
 				system_timing_checks(null);
-			} else if (fLexer.peekKeyword("if","ifnone")) {
+			} else if (fLexer.peekKeyword(KW.IF, KW.IFNONE)) {
 				state_dependent_path_declaration(null);
 				fLexer.readOperator(OP.SEMICOLON);
 			} else {
@@ -76,7 +76,7 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readKeyword("endspecify");
+		fLexer.readKeyword(KW.ENDSPECIFY);
 		
 		if (fDebugEn) {
 			debug("<-- specify::parse()");
@@ -177,9 +177,9 @@ public class SVSpecifyBlockParser extends SVParserBase {
 
 	// TODO: 
 	private void timing_check_event(boolean is_controlled) throws SVParseException {
-		if (fLexer.peekKeyword("posedge", "negedge")) {
+		if (fLexer.peekKeyword(KW.POSEDGE, KW.NEGEDGE)) {
 			fLexer.eatToken();
-		} else if (fLexer.peekKeyword("edge")) {
+		} else if (fLexer.peekKeyword(KW.EDGE)) {
 			// edge [edge_descriptor {, edge_descriptor}]
 			// edge 
 			fLexer.eatToken();

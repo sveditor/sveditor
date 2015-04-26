@@ -57,9 +57,9 @@ public class SVSequenceParser extends SVParserBase {
 		parent.addChildItem(seq);
 		
 		// data declarations
-		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword("var") || fLexer.isIdentifier()) {
+		while (fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) || fLexer.peekKeyword(KW.VAR) || fLexer.isIdentifier()) {
 			long start = fLexer.getStartLocation();
-			if (fLexer.peekKeyword("var") || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
+			if (fLexer.peekKeyword(KW.VAR) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes)) {
 				// Definitely a declaration
 				parsers().blockItemDeclParser().parse(seq, null, start);
 			} else {
@@ -69,7 +69,7 @@ public class SVSequenceParser extends SVParserBase {
 				// field.foo
 				SVToken tok = fLexer.consumeToken();
 				
-				if (fLexer.peekOperator("::","#") || fLexer.peekId()) {
+				if (fLexer.peekOperator(OP.COLON2, OP.HASH) || fLexer.peekId()) {
 					// Likely to be a declaration. Let's read a type
 					fLexer.ungetToken(tok);
 					final List<SVToken> tok_l = new ArrayList<SVToken>();
@@ -128,7 +128,7 @@ public class SVSequenceParser extends SVParserBase {
 		int attr = 0;
 		SVDBParamPortDecl port = new SVDBParamPortDecl();
 		port.setLocation(fLexer.getStartLocation());
-		if (fLexer.peekKeyword("local")) {
+		if (fLexer.peekKeyword(KW.LOCAL)) {
 			fLexer.eatToken();
 			// TODO: save local as an attribute
 			if (fLexer.peekKeyword("input","inout","output")) {

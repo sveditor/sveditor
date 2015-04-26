@@ -481,10 +481,33 @@ public class SVKeywords implements ISVKeywords {
 		"string",
 		"unsigned",
 	};
+	
+	private static final KW							fTypeKeywords[] = {
+		KW.VOID,
+		KW.CHANDLE,
+		KW.EVENT,
+		
+		KW.BIT,
+		KW.LOGIC,
+		KW.REG,
+		KW.BYTE,
+		KW.SHORTINT,
+		KW.INT,
+		KW.LONGINT,
+		KW.INTEGER,
+		KW.TIME,
+		KW.SHORTREAL,
+		KW.REAL,
+		KW.SIGNED,
+		KW.STRING,
+		KW.UNSIGNED
+	};
 
 	public static final Set<String>					fBuiltinTypes;
+	public static final Set<KW>						fBuiltinTypesE;
 	public static final Set<String>					fTypePrefixes;
 	public static final Set<String>					fBuiltinDeclTypes;
+	public static final Set<KW>						fBuiltinDeclTypesE;
 	public static final Set<String>					fBuiltinSelectorMethods;
 	private static final Map<String, Boolean>			fKeywordMap;
 	private static final Set<String>					fAllKeywords;
@@ -510,11 +533,20 @@ public class SVKeywords implements ISVKeywords {
 		}
 		
 		fBuiltinTypes = new HashSet<String>();
+		fBuiltinTypesE = new HashSet<>();
 		fBuiltinDeclTypes = new HashSet<String>();
+		fBuiltinDeclTypesE = new HashSet<>();
 		for (String n : fTypeStrings) {
 			fBuiltinTypes.add(n);
 			if (!n.equals("void")) {
 				fBuiltinDeclTypes.add(n);
+			}
+		}
+		
+		for (KW n : fTypeKeywords) {
+			fBuiltinTypesE.add(n);
+			if (n != KW.VOID) {
+				fBuiltinDeclTypesE.add(n);
 			}
 		}
 		

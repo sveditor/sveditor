@@ -29,8 +29,8 @@ public class SVParameterDeclParser extends SVParserBase {
 		List<SVDBModIfcClassParam> param_l = new ArrayList<SVDBModIfcClassParam>();
 		fLexer.readOperator(OP.LPAREN);
 		
-		while (fLexer.peekKeyword("type") || fLexer.peekId()) {
-			if (fLexer.peekKeyword("type")) {
+		while (fLexer.peekKeyword(KW.TYPE) || fLexer.peekId()) {
+			if (fLexer.peekKeyword(KW.TYPE)) {
 				// TODO: recognize parameters as typed
 				fLexer.eatToken();
 			}

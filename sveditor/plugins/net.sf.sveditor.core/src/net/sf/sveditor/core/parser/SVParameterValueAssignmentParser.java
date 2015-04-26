@@ -31,7 +31,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		// StringBuilder v = new StringBuilder();
 
 		if (is_parameter) {
-			fLexer.readOperator("#");
+			fLexer.readOperator(OP.HASH);
 		}
 		fLexer.readOperator(OP.LPAREN);
 		while (fLexer.peek() != null && !fLexer.peekOperator(OP.RPAREN)) {
@@ -39,7 +39,7 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 			boolean is_wildcard = false;
 			boolean is_implicit_connection = false;
 			String name = null;
-			if (!is_parameter && fLexer.peekOperator(".*")) {
+			if (!is_parameter && fLexer.peekOperator(OP.DOT_MUL)) {
 				fLexer.eatToken();
 				ret.addParameter(new SVDBParamValueAssign("*", (SVDBExpr)null));
 				is_wildcard = true;

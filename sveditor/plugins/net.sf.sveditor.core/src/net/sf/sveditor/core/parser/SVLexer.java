@@ -267,12 +267,10 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		return (fOperator == op1 || fOperator == op2 || fOperator == op3);
 	}
 
-	@Deprecated
-	public boolean peekOperator(String op) throws SVParseException {
-		peek();
-		
-		return (fOperator != null && fOperator.getImg().equals(op));
-	}
+//	@Deprecated
+//	public boolean peekOperator(String s1, String s2, String s3) throws SVParseException {
+//		return false;
+//	}
 
 	@Deprecated
 	public boolean peekOperator(String... ops) throws SVParseException {
@@ -337,6 +335,19 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		return eatToken();
 	}
 	
+	public OP readOperator() throws SVParseException {
+		peek();
+		
+		if (fOperator == null) {
+			error("Expecting operator ; received \"" + getImage() + "\"");
+		} else {
+			OP op = fOperator;
+			eatToken();
+			return op;
+		}
+		return null;
+	}
+	
 	public void readOperator(OP op) throws SVParseException {
 		peek();
 		
@@ -346,6 +357,36 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		} else {
 			eatToken();
 		}
+	}
+	
+	public OP readOperator(OP op1, OP op2) throws SVParseException {
+		peek();
+		
+		if (fOperator != op1 && fOperator != op2) {
+			error("Expecting operator \"" + op1.getImg()
+					+ "\" or \"" + op2.getImg() + 
+					"\"; received \"" + getImage() + "\"");
+		} else {
+			OP ret = fOperator;
+			eatToken();
+			return ret;
+		}
+		return null;
+	}
+
+	public OP readOperator(OP op1, OP op2, OP op3) throws SVParseException {
+		peek();
+		
+		if (fOperator != op1 && fOperator != op2 && fOperator != op3) {
+			error("Expecting operator " + op1.getImg() +
+					", " + op2.getImg() + ", " + op3.getImg() + "; " +
+					"received \"" + getImage() + "\"");
+		} else {
+			OP ret = fOperator;
+			eatToken();
+			return ret;
+		}
+		return null;
 	}
 
 	@Deprecated
@@ -386,6 +427,11 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		}
 
 		return eatToken();
+	}
+
+	@Deprecated
+	public boolean peekKeyword(String kw) throws SVParseException {
+		return false;
 	}
 
 	@Deprecated
@@ -544,13 +590,42 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		return eatToken();
 	}
 	
-	public String readKeyword(KW kw1, KW kw2) throws SVParseException {
+	public KW readKeyword(KW kw1, KW kw2) throws SVParseException {
 		if (!peekKeyword(kw1, kw2)) {
 			error("Expecting keyword \"" + kw1.getImg() + "\" or \"" + kw2.getImg() + 
 					"\" ; received \"" + fImage + "\"");
 		}
-		return eatToken();
+		KW kw = fKeyword;
+		eatToken();
+		return kw;
 	}
+
+	public KW readKeyword(KW kw1, KW kw2, KW kw3) throws SVParseException {
+		if (!peekKeyword(kw1, kw2, kw3)) {
+			error("Expecting keywords " + 
+					kw1.getImg() + " " +
+					kw2.getImg() + " " + 
+					kw3.getImg() + " " + 
+					"; received \"" + fImage + "\"");
+		}
+		KW kw = fKeyword;
+		eatToken();
+		return kw;
+	}	
+	
+	public KW readKeyword(KW kw1, KW kw2, KW kw3, KW kw4) throws SVParseException {
+		if (!peekKeyword(kw1, kw2, kw3, kw4)) {
+			error("Expecting keywords " + 
+					kw1.getImg() + " " +
+					kw2.getImg() + " " + 
+					kw3.getImg() + " " + 
+					kw4.getImg() + " " + 
+					"; received \"" + fImage + "\"");
+		}
+		KW kw = fKeyword;
+		eatToken();
+		return kw;
+	}	
 
 	public String readKeyword(KW ... kw) throws SVParseException {
 

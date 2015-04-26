@@ -132,8 +132,8 @@ public class SVCovergroupParser extends SVParserBase {
 			fLexer.readOperator(OP.COLON);
 		}
 		
-		String type = fLexer.readKeyword("coverpoint", "cross");
-		if (type.equals("coverpoint")) {
+		KW type = fLexer.readKeyword(KW.COVERPOINT, KW.CROSS);
+		if (type == KW.COVERPOINT) {
 			SVDBCoverpoint cp = new SVDBCoverpoint(name);
 			cp.setLocation(start);
 			cover_point(cp);
@@ -169,9 +169,9 @@ public class SVCovergroupParser extends SVParserBase {
 						fLexer.eatToken();
 					}
 					
-					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
-					BinsKW kw = (type.equals("bins"))?BinsKW.Bins:
-						(type.equals("illegal_bins"))?BinsKW.IllegalBins:BinsKW.IgnoreBins;
+					KW type = fLexer.readKeyword(KW.BINS, KW.ILLEGAL_BINS, KW.IGNORE_BINS);
+					BinsKW kw = (type == KW.BINS)?BinsKW.Bins:
+						(type == KW.ILLEGAL_BINS)?BinsKW.IllegalBins:BinsKW.IgnoreBins;
 					String id = fLexer.readId();
 
 					SVDBCoverpointBins bins = new SVDBCoverpointBins(wildcard, id, kw);
@@ -190,10 +190,10 @@ public class SVCovergroupParser extends SVParserBase {
 					
 					fLexer.readOperator(OP.EQ);
 					
-					if (fLexer.peekKeyword("default")) {
+					if (fLexer.peekKeyword(KW.DEFAULT)) {
 						// Some sort of default bin
 						fLexer.eatToken();
-						boolean is_sequence = fLexer.peekKeyword("sequence");
+						boolean is_sequence = fLexer.peekKeyword(KW.SEQUENCE);
 						if (is_sequence) {
 							fLexer.eatToken();
 							bins.setBinsType(BinsType.DefaultSeq);
@@ -211,11 +211,11 @@ public class SVCovergroupParser extends SVParserBase {
 							// TODO:
 							trans_list();
 						} else {
-							fLexer.readOperator("{", "(");
+							fLexer.readOperator(OP.LBRACE, OP.LPAREN);
 						}
 					}
 					
-					if (fLexer.peekKeyword("iff")) {
+					if (fLexer.peekKeyword(KW.IFF)) {
 						fLexer.eatToken();
 						fLexer.readOperator(OP.LPAREN);
 						bins.setIFF(parsers().exprParser().expression());
@@ -225,7 +225,7 @@ public class SVCovergroupParser extends SVParserBase {
 					fLexer.readOperator(OP.SEMICOLON);
 				}
 			}
-			fLexer.readOperator("}");
+			fLexer.readOperator(OP.RBRACE);
 		} else {
 			fLexer.readOperator(OP.SEMICOLON);
 		}
@@ -251,7 +251,7 @@ public class SVCovergroupParser extends SVParserBase {
 		// TODO:
 		trans_range_list();
 		
-		while (fLexer.peekOperator("=>")) {
+		while (fLexer.peekOperator(OP.EQ_GT)) {
 			// TODO:
 			fLexer.eatToken();
 			trans_range_list();
@@ -265,7 +265,7 @@ public class SVCovergroupParser extends SVParserBase {
 		if (fLexer.peekOperator(OP.LBRACKET)) {
 			fLexer.eatToken();
 			// TODO:
-			fLexer.readOperator("*", "=", "->");
+			fLexer.readOperator(OP.MUL, OP.EQ, OP.IMPL);
 			// TODO:
 			repeat_range();
 			fLexer.readOperator(OP.RBRACKET);
@@ -325,8 +325,8 @@ public class SVCovergroupParser extends SVParserBase {
 					cp.addItem(coverage_option());
 				} else {
 					SVDBCoverageCrossBinsSelectStmt select_stmt = new SVDBCoverageCrossBinsSelectStmt();
-					String type = fLexer.readKeyword("bins", "illegal_bins", "ignore_bins");
-					select_stmt.setBinsType(type);
+					KW type = fLexer.readKeyword(KW.BINS, KW.ILLEGAL_BINS, KW.IGNORE_BINS);
+					select_stmt.setBinsType(type.getImg());
 					select_stmt.setBinsName(fParsers.exprParser().idExpr());
 					fLexer.readOperator(OP.EQ);
 					select_stmt.setSelectCondition(select_expression());
@@ -341,7 +341,7 @@ public class SVCovergroupParser extends SVParserBase {
 					cp.addItem(select_stmt);
 				}
 			}
-			fLexer.readOperator("}");
+			fLexer.readOperator(OP.RBRACE);
 		} else {
 			fLexer.readOperator(OP.SEMICOLON);
 		}
@@ -356,7 +356,7 @@ public class SVCovergroupParser extends SVParserBase {
 	private SVDBExpr or_select_expression() throws SVParseException {
 		SVDBExpr expr = and_select_expression();
 		
-		while (fLexer.peekOperator("||")) {
+		while (fLexer.peekOperator(OP.OR2)) {
 			fLexer.eatToken();
 			expr = new SVDBBinaryExpr(expr, "||", and_select_expression());
 		}
@@ -367,7 +367,7 @@ public class SVCovergroupParser extends SVParserBase {
 	private SVDBExpr and_select_expression() throws SVParseException {
 		SVDBExpr expr = unary_select_condition();
 		
-		while (fLexer.peekOperator("&&")) {
+		while (fLexer.peekOperator(OP.AND2)) {
 			fLexer.eatToken();
 			expr = new SVDBBinaryExpr(expr, "&&", unary_select_condition());
 		}
@@ -376,7 +376,7 @@ public class SVCovergroupParser extends SVParserBase {
 	}
 	
 	private SVDBExpr unary_select_condition() throws SVParseException {
-		if (fLexer.peekOperator("!")) {
+		if (fLexer.peekOperator(OP.NOT)) {
 			return new SVDBUnaryExpr("!", select_condition());
 		} else if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
@@ -395,13 +395,13 @@ public class SVCovergroupParser extends SVParserBase {
 		SVDBExpr bins_expr = null;
 		select_c.setLocation(start);
 		
-		if(fLexer.peekOperator("!")) {
+		if(fLexer.peekOperator(OP.NOT)) {
 			not_expr = new SVDBUnaryExpr("!", null);
 			not_expr.setLocation(fLexer.getStartLocation());
 			fLexer.eatToken();
 		}
 		
-		fLexer.readKeyword("binsof");
+		fLexer.readKeyword(KW.BINSOF);
 		fLexer.readOperator(OP.LPAREN);
 		bins_expr = fParsers.exprParser().idExpr();
 		if (fLexer.peekOperator(OP.DOT)) {
