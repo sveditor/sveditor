@@ -1,5 +1,6 @@
 
 -- 1.7.9 Release --
+- #(394) Indenter: Named fork / join not indenting properly
 
 ------------------------------------------------------------------------------
 -- 1.7.8 Release --
