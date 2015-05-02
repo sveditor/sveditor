@@ -242,7 +242,7 @@ public class SVParser implements ISVScanner,
 		if (!allow_keywords) {
 			id.append(fLexer.readId());
 		} else if (fLexer.peekKeyword() || fLexer.peekId()) {
-			id.append(fLexer.eatToken());
+			id.append(fLexer.eatTokenR());
 		} else {
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
@@ -430,11 +430,11 @@ public class SVParser implements ISVScanner,
 		}
 		StringBuffer ret = new StringBuffer();
 
-		ret.append(fLexer.eatToken());
+		ret.append(fLexer.eatTokenR());
 
 		while (fLexer.peekOperator(OP.COLON2)) {
-			ret.append(fLexer.eatToken());
-			ret.append(fLexer.eatToken());
+			ret.append(fLexer.eatTokenR());
+			ret.append(fLexer.eatTokenR());
 		}
 		/*
 		while (fLexer.peekId() || fLexer.peekOperator(OP.COLON2) || fLexer.peekKeyword()) {

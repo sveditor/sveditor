@@ -290,7 +290,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		
 		long lex_start = System.currentTimeMillis();
 		int tcount = 0;
-		while (l.eatToken() != null) {
+		while (l.eatTokenR() != null) {
 			tcount++;
 		}
 		long lex_end = System.currentTimeMillis();

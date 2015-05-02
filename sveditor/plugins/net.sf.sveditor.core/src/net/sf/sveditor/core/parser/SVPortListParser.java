@@ -59,7 +59,7 @@ public class SVPortListParser extends SVParserBase {
 			
 			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT, KW.REF)) {
 				it_start = fLexer.getStartLocation();
-				String dir_s = fLexer.eatToken();
+				String dir_s = fLexer.eatTokenR();
 				is_ansi = true;
 				if (dir_s.equals("input")) {
 					dir = SVDBParamPortDecl.Direction_Input;
@@ -94,7 +94,7 @@ public class SVPortListParser extends SVParserBase {
 
 				// Handle the case where a single type and a 
 				// list of parameters is declared
-				if (fLexer.peekOperator(",", ")", "=", "[")) {
+				if (fLexer.peekOperator(OP.COMMA, OP.RPAREN, OP.EQ, OP.LBRACKET)) {
 					// use previous type
 					id = type.getName();
 					if (last_type == null) {

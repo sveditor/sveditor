@@ -52,10 +52,12 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			if (fDebugEn) {
 				debug(" specify item: " + fLexer.peek());
 			}
+			KW kw;
 			if (fLexer.peekKeyword(KW.SPECPARAM)) {
 				specparam_declaration(null);
-			} else if (fLexer.peekKeyword("pulsestyle_onevent", "pulsestyle_ondetect",
-					"showcancelled", "noshowcancelled")) {
+			} else if ((kw = fLexer.peekKeywordE()) != null &&
+					(kw == KW.PULSESTYLE_ONEVENT || kw == KW.PULSESTYLE_ONDETECT ||
+					 kw == KW.SHOWCANCELLED || kw == KW.NOSHOWCANCELLED)) {
 				error("specify-block pulsestyle_onevent, pulsestyle_ondetect, showcancelled, noshowcancelled unsupported");
 			} else if (fLexer.peekOperator(OP.LPAREN)) {
 				// path_declaration
@@ -90,7 +92,7 @@ public class SVSpecifyBlockParser extends SVParserBase {
 		if (fDebugEn) {
 			debug("--> specparam_declaration");
 		}
-		fLexer.readKeyword("specparam");
+		fLexer.readKeyword(KW.SPECPARAM);
 		if (fLexer.peekOperator(OP.LBRACKET)) {
 			fParsers.dataTypeParser().packed_dim();
 		}
@@ -236,7 +238,7 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			if (fDebugEn) {
 				debug("  loop1: " + fLexer.peek());
 			}
-			if (fLexer.peekKeyword("posedge", "negedge", "edge")) {
+			if (fLexer.peekKeyword(KW.POSEDGE, KW.NEGEDGE, KW.EDGE)) {
 				// TODO: save
 				fLexer.eatToken();
 			}
@@ -253,11 +255,11 @@ public class SVSpecifyBlockParser extends SVParserBase {
 			debug("  count: " + count + " " + fLexer.peek());
 		}
 		if (count > 1) {
-			fLexer.readOperator("*>", "-*>", "+*>");
+			fLexer.readOperator(OP.MUL_GT, OP.SUB_MUL_GT, OP.PLUS_MUL_GT);
 		} else {
 			// Single start point, one or many end-points
-			if (fLexer.peekOperator("=>", "-=>", "+=>", "*>", "-*>", "+*>"))  {
-				fLexer.readOperator("=>", "-=>", "+=>", "*>", "-*>", "+*>");
+			if (fLexer.peekOperator(OP.EQ_GT, OP.SUB_GE, OP.PLUS_GE, OP.MUL_GT, OP.SUB_MUL_GT, OP.PLUS_MUL_GT)) {
+				fLexer.eatToken();
 			}
 		}
 		
@@ -319,11 +321,11 @@ public class SVSpecifyBlockParser extends SVParserBase {
 				fLexer.readOperator(OP.RBRACKET);
 			}
 			// Check for const_indexed_range operators
-			if (!fLexer.peekOperator(":", "+:", "-:"))  {
+			if (!fLexer.peekOperator(OP.COLON, OP.PLUS_COLON, OP.SUB_COLON)) {
 				loop_while_in_range = false;
 			}
 			else  {
-				fLexer.readOperator(":", "+:", "-:");
+				fLexer.readOperator(OP.COLON, OP.PLUS_COLON, OP.SUB_COLON);
 			}
 		}
 		if (fDebugEn) {

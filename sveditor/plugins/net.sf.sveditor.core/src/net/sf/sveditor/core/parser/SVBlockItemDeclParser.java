@@ -40,7 +40,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 			}
 			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT)) {
 				// TODO: add qualifiers to variable
-				dir = fLexer.eatToken();
+				dir = fLexer.eatTokenR();
 			}
 			// TODO: add qualifiers to variable
 			if (fLexer.peekKeyword(KW.CONST)) {
@@ -55,8 +55,8 @@ public class SVBlockItemDeclParser extends SVParserBase {
 			}
 
 			// Should be the data-type
-			// String id = fLexer.eatToken();
-			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) && !fLexer.peekKeyword(KW.VOID)) ||
+			// String id = fLexer.eatTokenR();
+			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypesE)) && !fLexer.peekKeyword(KW.VOID)) ||
 					!SVKeywords.isSVKeyword(fLexer.peek()) || 
 					fLexer.peekKeyword(KW.STRUCT,KW.UNION,KW.ENUM,KW.VIRTUAL)) {
 				String name = null;

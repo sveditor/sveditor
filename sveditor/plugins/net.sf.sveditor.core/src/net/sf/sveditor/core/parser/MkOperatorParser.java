@@ -94,7 +94,7 @@ public class MkOperatorParser implements ISVOperators {
 				System.out.println("idx=" + idx + " exceeds op=" + op);
 			}
 			char ch = op.charAt(idx);
-			List<String> subops = new ArrayList<>();
+			List<String> subops = new ArrayList<String>();
 			String opl = null;
 		
 			// Add all ops that have the next char

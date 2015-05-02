@@ -34,7 +34,7 @@ public class SVClockingBlockParser extends SVParserBase {
 			
 			// TODO: 
 			if (fLexer.peekKeyword(KW.DEFAULT, KW.GLOBAL)) {
-				type = fLexer.eatToken();
+				type = fLexer.eatTokenR();
 			}
 			fLexer.readKeyword(KW.CLOCKING);
 
@@ -84,7 +84,7 @@ public class SVClockingBlockParser extends SVParserBase {
 		} else if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT)) {
 			// TODO: Add to AST
 			// clocking_direction [clocking_skew] list_of_clocking_decl_assign
-			String dir = fLexer.eatToken();
+			String dir = fLexer.eatTokenR();
 			if (fDebugEn) {
 				debug("post-direction: " + fLexer.peek());
 			}

@@ -12,7 +12,9 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -293,7 +295,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					parse_var_decl_module_inst(parent, modifiers);
 				}
 			} else {
-				error("Unknown module/class/iterface body item: Operator " + fLexer.eatToken());
+				error("Unknown module/class/iterface body item: Operator " + fLexer.eatTokenR());
 			}
 		}
 					
@@ -362,11 +364,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	public void parse_time_units_precision(ISVDBAddChildItem parent) throws SVParseException {
-		String type = fLexer.readKeyword("timeprecision","timeunit");
+		KW type = fLexer.readKeyword(KW.TIMEPRECISION, KW.TIMEUNIT);
 		
 		String num = fLexer.readNumber();
 		
-		if (type.equals("timeprecision")) {
+		if (type == KW.TIMEPRECISION) {
 			SVDBTimePrecisionStmt precision = new SVDBTimePrecisionStmt();
 			precision.setArg1(num);
 			if (fLexer.peekOperator(OP.DIV)) {
@@ -385,7 +387,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	public void parse_continuous_assign(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		fLexer.readKeyword("assign");
+		fLexer.readKeyword(KW.ASSIGN);
 		SVDBAssign assign = new SVDBAssign();
 		assign.setLocation(start);
 		
@@ -395,17 +397,17 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
 			String s1=null, s2=null;
-			if (fLexer.peekKeyword("highz1", "highz0")) {
-				s1 = fLexer.eatToken();
+			if (fLexer.peekKeyword(KW.HIGHZ1, KW.HIGHZ0)) {
+				s1 = fLexer.eatTokenR();
 				fLexer.readOperator(OP.COMMA);
-				s2 = fLexer.readKeyword(SVKeywords.fStrength);
+				s2 = fLexer.readKeyword(SVKeywords.fStrength).getImg();
 			} else {
-				s1 = fLexer.readKeyword(SVKeywords.fStrength);
+				s1 = fLexer.readKeyword(SVKeywords.fStrength).getImg();
 				fLexer.readOperator(OP.COMMA);
-				if (fLexer.peekKeyword("highz1", "highz0")) {
-					s2 = fLexer.eatToken();
+				if (fLexer.peekKeyword(KW.HIGHZ1, KW.HIGHZ0)) {
+					s2 = fLexer.eatTokenR();
 				} else {
-					s2 = fLexer.readKeyword(SVKeywords.fStrength);
+					s2 = fLexer.readKeyword(SVKeywords.fStrength).getImg();
 				}
 			}
 			
@@ -456,7 +458,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	 */
 	private void parse_var_decl_net_type (ISVDBAddChildItem parent) throws SVParseException {
 		// net type
-		String net_type = fLexer.eatToken();		// at this point net_type can be an invalid net type, such as a direction - input, output or inout
+		String net_type = fLexer.eatTokenR();		// at this point net_type can be an invalid net type, such as a direction - input, output or inout
 		String vector_dim = null;
 		SVDBVarDeclStmt var = null;
 		String net_name = null;
@@ -475,9 +477,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			tok = fLexer.consumeToken();		// eat the (
 			if (fLexer.peekKeyword(SVKeywords.fStrength))  {
 				// Have (<strength>, <strength>)
-				String strength1 = fLexer.readKeyword(SVKeywords.fStrength);
+				KW strength1 = fLexer.readKeyword(SVKeywords.fStrength);
 				fLexer.readOperator(OP.COMMA);		// 
-				String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
+				KW strength2 = fLexer.readKeyword(SVKeywords.fStrength);
 				fLexer.readOperator(OP.RPAREN);		//
 				// TODO: Do something with the strengths
 			}
@@ -516,7 +518,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		// Now, based on what we see next, we determine whether the
 		// net is typed or untyped
-		if (fLexer.peekOperator(",", ";", "=")) {
+		if (fLexer.peekOperator(OP.COMMA, OP.SEMICOLON, OP.EQ)) {
 			// The net was untyped
 			net_name = data_type.getName();
 			data_type = new SVDBTypeInfoBuiltin(net_type);
@@ -559,7 +561,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		SVDBBind bind = new SVDBBind();
 		bind.setLocation(fLexer.getStartLocation());
 		
-		fLexer.readKeyword("bind");
+		fLexer.readKeyword(KW.BIND);
 		
 		bind.setTargetTypeName(fParsers.exprParser().variable_lvalue());
 		
@@ -693,7 +695,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	private void parse_final(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		fLexer.readKeyword("final");
+		fLexer.readKeyword(KW.FINAL);
 		
 		SVDBBodyStmt ret = new SVDBFinalStmt();
 		ret.setLocation(start);
@@ -705,7 +707,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	private void modport_decl(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		fLexer.readKeyword("modport");
+		fLexer.readKeyword(KW.MODPORT);
 		SVDBModportDecl modport = new SVDBModportDecl();
 		modport.setLocation(start);
 		
@@ -719,8 +721,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			
 			fLexer.readOperator(OP.LPAREN);
 			while (fLexer.peek() != null) {
-				String type = fLexer.readKeyword("clocking","import","export",
-						"input","output","inout");
+				KW type = fLexer.readKeyword(KW.CLOCKING, KW.IMPORT, KW.EXPORT, KW.INPUT, KW.OUTPUT, KW.INOUT);
 				SVDBModportPortsDecl ports_decl = null;
 				
 				if (type.equals("clocking")) {
@@ -728,10 +729,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					}
-				} else if (type.equals("import") || type.equals("export")) {
-					ports_decl = modport_tf_ports_declaration(type);
+				} else if (type == KW.IMPORT || type == KW.EXPORT) {
+					ports_decl = modport_tf_ports_declaration(type.getImg());
 				} else {
-					ports_decl = modport_simple_ports_declaration(type);
+					ports_decl = modport_simple_ports_declaration(type.getImg());
 				}
 				
 				item.addPorts(ports_decl);
@@ -765,7 +766,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		while (fLexer.peek() != null) {
 			SVDBModportTFPort port = new SVDBModportTFPort();
 			port.setLocation(fLexer.getStartLocation());
-			if (fLexer.peekKeyword("task","function")) {
+			if (fLexer.peekKeyword(KW.TASK, KW.FUNCTION)) {
 				port.setPrototype(fParsers.taskFuncParser().parse_method_decl());
 			} else {
 				port.setId(fLexer.readId());
@@ -830,13 +831,22 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		return ret;
 	}
 	
+	private static final Set<KW> initial_always_kw;
+	static {
+		initial_always_kw = new HashSet<ISVKeywords.KW>();
+		initial_always_kw.add(KW.INITIAL);
+		initial_always_kw.add(KW.ALWAYS);
+		initial_always_kw.add(KW.ALWAYS_COMB);
+		initial_always_kw.add(KW.ALWAYS_LATCH);
+		initial_always_kw.add(KW.ALWAYS_FF);
+	}
+	
 	private void parse_initial_always(ISVDBAddChildItem parent) throws SVParseException {
 		ISVDBChildItem ret = null;
 		long start = fLexer.getStartLocation();
-		String type = fLexer.readKeyword("initial", 
-				"always", "always_comb", "always_latch", "always_ff");
+		KW type = fLexer.readKeyword(initial_always_kw);
 
-		if (!type.equals("initial")) { // always
+		if (type != KW.INITIAL) { // always
 			AlwaysType always_type = null;
 			
 			if (type.equals("always")) {

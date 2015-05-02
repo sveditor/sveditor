@@ -41,7 +41,7 @@ public class SVConstraintParser extends SVParserBase {
 	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
 		SVDBConstraint c = new SVDBConstraint();
 		c.setLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("constraint");
+		fLexer.readKeyword(KW.CONSTRAINT);
 		Context ctxt = fLexer.getContext();
 		fLexer.setContext(Context.Constraint);
 	
@@ -218,7 +218,7 @@ public class SVConstraintParser extends SVParserBase {
 
 	public SVDBConstraintDistListStmt dist_expr() throws SVParseException {
 		SVDBConstraintDistListStmt dist_stmt = new SVDBConstraintDistListStmt();
-		fLexer.readKeyword("dist");
+		fLexer.readKeyword(KW.DIST);
 		dist_list(dist_stmt);
 		fLexer.readOperator(OP.SEMICOLON);
 		
@@ -291,7 +291,7 @@ public class SVConstraintParser extends SVParserBase {
 	private SVDBStmt constraint_foreach() throws SVParseException {
 		SVDBConstraintForeachStmt stmt = new SVDBConstraintForeachStmt();
 		stmt.setLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("foreach");
+		fLexer.readKeyword(KW.FOREACH);
 		
 		fLexer.readOperator(OP.LPAREN);
 		stmt.setExpr(fParsers.exprParser().foreach_loopvar());
@@ -316,7 +316,7 @@ public class SVConstraintParser extends SVParserBase {
 		}
 		
 		// solve <var> before ...
-		fLexer.readKeyword("before");
+		fLexer.readKeyword(KW.BEFORE);
 		
 		ret.addSolveAfter(fParsers.exprParser().variable_lvalue());
 		

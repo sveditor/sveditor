@@ -109,7 +109,7 @@ public class SVCovergroupParser extends SVParserBase {
 	private SVDBCoverageOptionStmt coverage_option() throws SVParseException {
 		// option or type_option
 		long start = fLexer.getStartLocation();
-		String type = fLexer.eatToken();
+		String type = fLexer.eatTokenR();
 		fLexer.readOperator(OP.DOT);
 		String name = fLexer.readId();
 		

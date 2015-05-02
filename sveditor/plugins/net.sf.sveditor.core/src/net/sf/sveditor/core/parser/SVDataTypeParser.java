@@ -48,7 +48,6 @@ public class SVDataTypeParser extends SVParserBase {
 	public static final Set<String>			IntegerVectorType;
 	public static final Set<String>			IntegerTypes;
 	public static final Set<String>			NonIntegerType;
-	public static final Set<String>			NetType;
 	public static final Set<KW>				NetTypeE;
 	public static final Set<String>			BuiltInTypes;
 	
@@ -74,23 +73,6 @@ public class SVDataTypeParser extends SVParserBase {
 		NonIntegerType.add("real");
 		NonIntegerType.add("realtime");
 		
-		NetType = new HashSet<String>();
-		NetType.add("supply0");
-		NetType.add("supply1");
-		NetType.add("tri");
-		NetType.add("triand");
-		NetType.add("trior");
-		NetType.add("trireg");
-		NetType.add("tri0");
-		NetType.add("tri1");
-		NetType.add("uwire");
-		NetType.add("wire");
-		NetType.add("wand");
-		NetType.add("wor");
-		NetType.add("input");
-		NetType.add("output");
-		NetType.add("inout");
-
 		NetTypeE = new HashSet<KW>();
 		NetTypeE.add(KW.SUPPLY0);
 		NetTypeE.add(KW.SUPPLY1);
@@ -139,7 +121,7 @@ public class SVDataTypeParser extends SVParserBase {
 				case BIT:
 				case LOGIC:
 				case REG: {
-					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatTokenR());
 			
 					// signing
 					if (fLexer.peekKeyword(KW.SIGNED, KW.UNSIGNED)) {
@@ -178,16 +160,16 @@ public class SVDataTypeParser extends SVParserBase {
 					//	net_type [ drive_strength | charge_strength ] [  vectored  |  scalared  ] 
 					//	data_type_or_implicit [ delay3 ] list_of_net_decl_assignments ;  
 					debug("NetType");
-					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatTokenR());
 
 					// Drive Strength
 					if (fLexer.peekOperator(OP.LPAREN))  {
 						tok = fLexer.consumeToken();		// eat the (
-						if (fLexer.peekOperator(SVKeywords.fStrength))  {
+						if (fLexer.peekKeyword(SVKeywords.fStrength))  {
 							// Have (<strength>, <strength>)
-							String strength1 = fLexer.readKeyword(SVKeywords.fStrength);
+							KW strength1 = fLexer.readKeyword(SVKeywords.fStrength);
 							fLexer.readOperator(OP.COMMA);		// 
-							String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
+							KW strength2 = fLexer.readKeyword(SVKeywords.fStrength);
 							fLexer.readOperator(OP.RPAREN);		//
 							// TODO: Do something with the strengths
 						} else {
@@ -218,7 +200,7 @@ public class SVDataTypeParser extends SVParserBase {
 				case INTEGER:
 				case TIME:
 				case GENVAR: {
-					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+					SVDBTypeInfoBuiltin builtin_type = new SVDBTypeInfoBuiltin(fLexer.eatTokenR());
 
 					if (fLexer.peekKeyword(KW.SIGNED, KW.UNSIGNED)) {
 						builtin_type.setAttr(fLexer.peekKeyword(KW.SIGNED)?
@@ -232,7 +214,7 @@ public class SVDataTypeParser extends SVParserBase {
 				case SHORTREAL:
 				case REAL:
 				case REALTIME: {
-					type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+					type = new SVDBTypeInfoBuiltin(fLexer.eatTokenR());
 					} break;
 					
 				case STRUCT:
@@ -269,7 +251,7 @@ public class SVDataTypeParser extends SVParserBase {
 				case CHANDLE:
 				case EVENT:
 					// string, chandle, etc
-					type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+					type = new SVDBTypeInfoBuiltin(fLexer.eatTokenR());
 					break;
 					
 				case VIRTUAL:
@@ -281,7 +263,7 @@ public class SVDataTypeParser extends SVParserBase {
 					// type_reference ::=
 					//   type ( expression )
 					//   type ( data_type )
-					type = new SVDBTypeInfoBuiltin(fLexer.eatToken());
+					type = new SVDBTypeInfoBuiltin(fLexer.eatTokenR());
 					// TODO: skip paren expression
 					error("'type' expression unsupported");
 					} break;
@@ -313,7 +295,7 @@ public class SVDataTypeParser extends SVParserBase {
 		} else if (fLexer.peekOperator(OP.LBRACKET)) {
 			type = implicit_type();
 		} else {
-			String id = fLexer.eatToken();
+			String id = fLexer.eatTokenR();
 			SVDBParamValueAssignList p_list = null;
 			
 			// Parameterized type?
@@ -356,7 +338,7 @@ public class SVDataTypeParser extends SVParserBase {
 				type_id.append(id);
 				
 				while (fLexer.peekOperator(OP.DOT)) {
-					type_id.append(fLexer.eatToken()); // .
+					type_id.append(fLexer.eatTokenR()); // .
 					type_id.append(fLexer.readId());
 				}
 				
@@ -481,7 +463,7 @@ public class SVDataTypeParser extends SVParserBase {
 	 * @throws SVParseException
 	 */
 	public SVDBTypeInfo net_port_type(int qualifiers) throws SVParseException {
-		if (fLexer.peekKeyword(NetType)) {
+		if (fLexer.peekKeyword(NetTypeE)) {
 			// TODO: should find a way to qualify the type (?)
 			fLexer.eatToken();
 		}
@@ -490,7 +472,7 @@ public class SVDataTypeParser extends SVParserBase {
 	}
 	
 	public SVDBTypeInfo enum_type() throws SVParseException {
-		fLexer.readKeyword("enum");
+		fLexer.readKeyword(KW.ENUM);
 		SVDBTypeInfoEnum type = null;
 		
 		// TODO: scan base type
@@ -542,7 +524,7 @@ public class SVDataTypeParser extends SVParserBase {
 		// typedef <type> <name>;
 
 		long start = fLexer.getStartLocation();
-		fLexer.readKeyword("typedef");
+		fLexer.readKeyword(KW.TYPEDEF);
 		SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 		
 		if (type.getType() != SVDBItemType.TypeInfoFwdDecl) {

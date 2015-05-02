@@ -341,7 +341,7 @@ class SVOperatorLexer implements ISVOperators {
 	          } else if (c1 == '=') {
 	            int c2 = scanner.get_ch();
 	              if (c2 == '>') {
-	                op = OP.OR_GE;
+	                op = OP.OR_EQ_GT;
 	              } else {
 	                op = OP.OR_EQ;
 	                scanner.unget_ch(c2);

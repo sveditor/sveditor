@@ -55,7 +55,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 		// MOS devices
 		
 		// cmos gates have 4 terminals
-		SVDBTypeInfoUserDef type = new SVDBTypeInfoUserDef(fLexer.eatToken());
+		SVDBTypeInfoUserDef type = new SVDBTypeInfoUserDef(fLexer.eatTokenR());
 		String primitive_name = type.getName();
 		long start = fLexer.getStartLocation();
 
@@ -169,7 +169,7 @@ public class SVGateInstantiationParser extends SVParserBase {
 			String name = ""; 
 			start = fLexer.getStartLocation();
 			if (fLexer.peekId()) {
-				name = fLexer.eatToken();
+				name = fLexer.eatTokenR();
 			}
 			SVDBModIfcInstItem inst = new SVDBModIfcInstItem(name);
 			inst.setLocation(start);

@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.parser.ISVKeywords;
 
 public class SVKeywords implements ISVKeywords {
@@ -508,16 +507,16 @@ public class SVKeywords implements ISVKeywords {
 	public static final Set<String>					fTypePrefixes;
 	public static final Set<String>					fBuiltinDeclTypes;
 	public static final Set<KW>						fBuiltinDeclTypesE;
-	public static final Set<String>					fBuiltinSelectorMethods;
-	private static final Map<String, Boolean>			fKeywordMap;
-	private static final Set<String>					fAllKeywords;
+	public static final Set<KW>						fBuiltinSelectorMethods;
+	private static final Map<String, Boolean>		fKeywordMap;
+	private static final Set<String>				fAllKeywords;
 	public static final Set<String>					fBuiltinGates_with_Strength;
 	public static final Set<String>					fBuiltinGates_no_Strength;
 	public static final Set<String>					fBuiltinGates;
-	public static final Set<String>					fStrength0;
-	public static final Set<String>					fStrength1;
-	public static final Set<String>					fStrengthC;
-	public static final Set<String>					fStrength;
+	public static final Set<KW>						fStrength0;
+	public static final Set<KW>						fStrength1;
+	public static final Set<KW>						fStrengthC;
+	public static final Set<KW>						fStrength;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -533,9 +532,9 @@ public class SVKeywords implements ISVKeywords {
 		}
 		
 		fBuiltinTypes = new HashSet<String>();
-		fBuiltinTypesE = new HashSet<>();
+		fBuiltinTypesE = new HashSet<KW>();
 		fBuiltinDeclTypes = new HashSet<String>();
-		fBuiltinDeclTypesE = new HashSet<>();
+		fBuiltinDeclTypesE = new HashSet<KW>();
 		for (String n : fTypeStrings) {
 			fBuiltinTypes.add(n);
 			if (!n.equals("void")) {
@@ -550,13 +549,13 @@ public class SVKeywords implements ISVKeywords {
 			}
 		}
 		
-		fBuiltinSelectorMethods = new HashSet<String>();
-		for (String m : new String[] {
-				"new", "super", "this",
-				"and", "or", "xor"
-				}) {
-			fBuiltinSelectorMethods.add(m);
-		}
+		fBuiltinSelectorMethods = new HashSet<KW>();
+		fBuiltinSelectorMethods.add(KW.NEW);
+		fBuiltinSelectorMethods.add(KW.SUPER);
+		fBuiltinSelectorMethods.add(KW.THIS);
+		fBuiltinSelectorMethods.add(KW.AND);
+		fBuiltinSelectorMethods.add(KW.OR);
+		fBuiltinSelectorMethods.add(KW.XOR);
 		
 		fBuiltinGates_with_Strength = new HashSet<String>();
 		fBuiltinGates_with_Strength.add("cmos");
@@ -596,27 +595,27 @@ public class SVKeywords implements ISVKeywords {
 		fTypePrefixes.add("const");
 		fTypePrefixes.add("virtual");
 		
-		fStrength0 = new HashSet<String>();
-		fStrength0.add("supply0");
-		fStrength0.add("strong0");
-		fStrength0.add("pull0");
-		fStrength0.add("weak0");
-		fStrength0.add("highz0");
+		fStrength0 = new HashSet<KW>();
+		fStrength0.add(KW.SUPPLY0);
+		fStrength0.add(KW.STRONG0);
+		fStrength0.add(KW.PULL0);
+		fStrength0.add(KW.WEAK0);
+		fStrength0.add(KW.HIGHZ0);
 		
-		fStrength1 = new HashSet<String>();
-		fStrength1.add("supply1");
-		fStrength1.add("strong1");
-		fStrength1.add("pull1");
-		fStrength1.add("weak1");
-		fStrength1.add("highz1");
+		fStrength1 = new HashSet<KW>();
+		fStrength1.add(KW.SUPPLY1);
+		fStrength1.add(KW.STRONG1);
+		fStrength1.add(KW.PULL1);
+		fStrength1.add(KW.WEAK1);
+		fStrength1.add(KW.HIGHZ1);
 
-		fStrengthC = new HashSet<String>();		// capacitor sizes
-		fStrengthC.add("large");
-		fStrengthC.add("medium");
-		fStrengthC.add("small");
+		fStrengthC = new HashSet<KW>();		// capacitor sizes
+		fStrengthC.add(KW.LARGE);
+		fStrengthC.add(KW.MEDIUM);
+		fStrengthC.add(KW.SMALL);
 		
 		
-		fStrength = new HashSet<String>();
+		fStrength = new HashSet<KW>();
 		fStrength.addAll(fStrength0);
 		fStrength.addAll(fStrength1);
 		fStrength.addAll(fStrengthC);

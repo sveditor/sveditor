@@ -89,6 +89,7 @@ public class SVDBLocation {
 	}
 	
 	public static int unpackPos(long location) {
-		return (int)(location & 0xFF);
+		int ret = (int)(location & 0xFF);
+		return (ret == 0xFF)?-1:ret;
 	}
 }

@@ -224,7 +224,7 @@ public class SVPropertyParser extends SVParserBase {
 		KW kw;
 		if ((kw = fLexer.peekKeywordE()) != null &&
 				(kw == KW.SEQUENCE || kw == KW.EVENT || kw == KW.UNTYPED || kw == KW.PROPERTY)) {
-			port.setTypeInfo(new SVDBTypeInfoBuiltin(fLexer.eatToken()));
+			port.setTypeInfo(new SVDBTypeInfoBuiltin(fLexer.eatTokenR()));
 		} else {
 			if (fLexer.peekId()) {
 				SVToken t = fLexer.consumeToken();

@@ -996,7 +996,7 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 
 	public void testRandomizeLocalVarRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = getName();
 		String content =
 			"class myclass;\n" +

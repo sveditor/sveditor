@@ -61,21 +61,22 @@ public class SVTaskFunctionParser extends SVParserBase {
 			start = fLexer.getStartLocation();
 		}
 		
-		String type = fLexer.readKeyword("task", "function");
+		KW type = fLexer.readKeyword(KW.TASK, KW.FUNCTION);
 	
 		// ??
 		// fLexer.eatToken();
 		
 		SVDBTypeInfo return_type = null;
-		if (type.equals("function")) {
+		if (type == KW.FUNCTION) {
 			if (fLexer.peekKeyword(KW.NEW)) {
 				// constructor, so no return type
-				tf_name = fLexer.eatToken();
+				tf_name = fLexer.eatTokenR();
 				return_type = new SVDBTypeInfoBuiltin("");
 			} else {
 				if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
+					KW kw = fLexer.readKeywordE();
 				// 	TODO: should add this as a qualifier
-					if (fLexer.eatToken().equals("static")) {
+					if (kw == KW.STATIC) {
 						qualifiers |= SVDBFieldItem.FieldAttr_Static;
 					}
 				}
@@ -113,9 +114,10 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		} else {
 			// task
-			if (fLexer.peekKeyword("static", "automatic")) {
+			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				// 	TODO: should add this as a qualifier
-				if (fLexer.eatToken().equals("static")) {
+				KW kw = fLexer.readKeywordE();
+				if (kw == KW.STATIC) {
 					qualifiers |= SVDBFieldItem.FieldAttr_Static;
 				}
 			}
@@ -147,7 +149,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			debug("Procesing " + type + " " + tf_name);
 		}
 		
-		if (type.equals("function")) {
+		if (type == KW.FUNCTION) {
 			func = new SVDBFunction(tf_name, return_type);
 		} else {
 			func = new SVDBTask(tf_name, SVDBItemType.Task);
@@ -177,10 +179,10 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 
 			end = fLexer.getStartLocation();
-			if  (type.equals("task")) {
-				fLexer.readKeyword("endtask");
+			if  (type == KW.TASK) {
+				fLexer.readKeyword(KW.ENDTASK);
 			} else {
-				fLexer.readKeyword("endfunction");
+				fLexer.readKeyword(KW.ENDFUNCTION);
 			}
 
 			if (fLexer.peekOperator(OP.COLON)) {

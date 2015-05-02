@@ -47,7 +47,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 	
 	private static final Set<String> BinaryOpKW;
 	private static final Set<KW> BinaryOpKWE;
-	private static final Set<String> BinaryOp;
+	private static final Set<OP> BinaryOp;
 	
 	static {
 		BinaryOpKW = new HashSet<String>();
@@ -74,12 +74,11 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		BinaryOpKWE.add(KW.IMPLIES);
 		BinaryOpKWE.add(KW.IFF);
 		
-		BinaryOp = new HashSet<String>();
-		BinaryOp.add("|->");
-		BinaryOp.add("|=>");
-		BinaryOp.add("#-#");
-		BinaryOp.add("#-#");
-		for (String op : SVOperators.RelationalOps) {
+		BinaryOp = new HashSet<OP>();
+		BinaryOp.add(OP.OR_IMPL);
+		BinaryOp.add(OP.OR_EQ_GT);
+		BinaryOp.add(OP.HASH_SUB_HASH);
+		for (OP op : SVOperators.RelationalOps) {
 			BinaryOp.add(op);
 		}
 	}
@@ -216,8 +215,8 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		}
 		
 		// Now, parse binary operators
-		if (fLexer.peekKeyword(BinaryOpKW) || fLexer.peekOperator(BinaryOp)) {
-			String op = fLexer.eatToken();
+		if (fLexer.peekKeyword(BinaryOpKWE) || fLexer.peekOperator(BinaryOp)) {
+			String op = fLexer.eatTokenR();
 			if (fDebugEn) {debug("Property binary operator: " + op);}
 			ret = new SVDBBinaryExpr(ret, op, property_expr());
 		} else if (fLexer.peekOperator(OP.HASH2)) {
@@ -236,8 +235,8 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				ret = new SVDBBinaryExpr(ret, op, sequence_expr());
 			}
 			
-			if (fLexer.peekKeyword(BinaryOpKW) || fLexer.peekOperator(BinaryOp)) {
-				op = fLexer.eatToken();
+			if (fLexer.peekKeyword(BinaryOpKWE) || fLexer.peekOperator(BinaryOp)) {
+				op = fLexer.eatTokenR();
 				if (fDebugEn) {debug("Property binary operator: " + op);}
 				ret = new SVDBBinaryExpr(ret, op, property_expr());
 			}
@@ -441,10 +440,10 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				expr = delay_expr;
 			}
 		} else if (fLexer.peekKeyword(KW.AND, KW.INTERSECT, KW.OR, KW.WITHIN, KW.THROUGHOUT) ||
-				fLexer.peekOperator(SVOperators.RelationalOps)) {
+				fLexer.peekOperator(SVOperators.RelationalOpsE)) {
 			long start = fLexer.getStartLocation();
 			if (fDebugEn) {debug(" --> -- binary sequence_expr" + fLexer.peek());}
-			expr = new SVDBBinaryExpr(expr, fLexer.eatToken(), sequence_expr());
+			expr = new SVDBBinaryExpr(expr, fLexer.eatTokenR(), sequence_expr());
 			if (fDebugEn) {debug(" <-- -- binary sequence_expr" + fLexer.peek());}
 			expr.setLocation(start);
 		}
@@ -563,7 +562,7 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		if (fLexer.peekOperator(OP.LBRACKET)) {
 			fLexer.eatToken();
 			if (fLexer.peekOperator(OP.MUL, OP.PLUS)) {
-				String op = fLexer.eatToken();
+				String op = fLexer.eatTokenR();
 				expr.setExpr(new SVDBRangeExpr(
 						new SVDBLiteralExpr(op), new SVDBLiteralExpr(op)));
 			} else {

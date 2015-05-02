@@ -220,6 +220,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					ISVDBItemBase item = null;
 					if (expr != null) {
 						item = v.findTypeItem(expr);
+					} else {
+						fLog.debug(LEVEL_MID, "Expression parser returned null");
 					}
 
 					if (item == null) {

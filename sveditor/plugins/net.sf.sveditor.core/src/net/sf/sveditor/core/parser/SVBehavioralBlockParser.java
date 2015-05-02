@@ -59,6 +59,7 @@ import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWaitForkStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWaitStmt;
 import net.sf.sveditor.core.db.stmt.SVDBWhileStmt;
+import net.sf.sveditor.core.parser.ISVKeywords.KW;
 import net.sf.sveditor.core.parser.SVLexer.Context;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
@@ -92,11 +93,15 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	}
 	
 	private static final Set<String> fDeclKeywordsANSI;
+	private static final Set<KW> fDeclKeywordsANSIE;
 	private static final Set<String> fDeclKeywordsNonANSI;
+	private static final Set<KW> fDeclKeywordsNonANSIE;
 	
 	static {
 		fDeclKeywordsANSI = new HashSet<String>();
+		fDeclKeywordsANSIE = new HashSet<KW>();
 		fDeclKeywordsNonANSI = new HashSet<String>();
+		fDeclKeywordsNonANSIE = new HashSet<KW>();
 		
 		fDeclKeywordsANSI.add("const");
 		fDeclKeywordsANSI.add("var");
@@ -104,11 +109,23 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fDeclKeywordsANSI.add("static");
 		fDeclKeywordsANSI.add("typedef");
 		
+		fDeclKeywordsANSIE.add(KW.CONST);
+		fDeclKeywordsANSIE.add(KW.VAR);
+		fDeclKeywordsANSIE.add(KW.AUTOMATIC);
+		fDeclKeywordsANSIE.add(KW.STATIC);
+		fDeclKeywordsANSIE.add(KW.TYPEDEF);
+		
 		fDeclKeywordsNonANSI.addAll(fDeclKeywordsANSI);
 		fDeclKeywordsNonANSI.add("input");
 		fDeclKeywordsNonANSI.add("output");
 		fDeclKeywordsNonANSI.add("inout");
 		fDeclKeywordsNonANSI.add("ref");
+		
+		fDeclKeywordsNonANSIE.addAll(fDeclKeywordsANSIE);
+		fDeclKeywordsNonANSIE.add(KW.INPUT);
+		fDeclKeywordsNonANSIE.add(KW.OUTPUT);
+		fDeclKeywordsNonANSIE.add(KW.INOUT);
+		fDeclKeywordsNonANSIE.add(KW.REF);
 	}
 	
 	private boolean statement_int(
@@ -117,6 +134,26 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			boolean 			ansi_decl, 
 			boolean 			consume_terminator) throws SVParseException {
 		return statement_int(parent, decl_allowed, ansi_decl, consume_terminator, false);
+	}
+	
+	private static Set<KW>				fPossibleDeclKeywordsANSI;
+	private static Set<KW>				fPossibleDeclKeywordsNonANSI;
+	
+	static {
+		fPossibleDeclKeywordsANSI = new HashSet<KW>();
+		fPossibleDeclKeywordsANSI.addAll(SVKeywords.fBuiltinDeclTypesE);
+		fPossibleDeclKeywordsANSI.add(KW.PARAMETER);
+		fPossibleDeclKeywordsANSI.add(KW.LOCALPARAM);
+		fPossibleDeclKeywordsANSI.add(KW.STRUCT);
+		fPossibleDeclKeywordsANSI.add(KW.UNION);
+		fPossibleDeclKeywordsANSI.add(KW.ENUM);
+		fPossibleDeclKeywordsANSI.add(KW.VIRTUAL);
+		
+		fPossibleDeclKeywordsNonANSI = new HashSet<KW>();
+		fPossibleDeclKeywordsNonANSI.addAll(fPossibleDeclKeywordsANSI);
+		
+		fPossibleDeclKeywordsANSI.addAll(fDeclKeywordsANSIE);
+		fPossibleDeclKeywordsNonANSI.addAll(fDeclKeywordsNonANSIE);
 	}
 	
 	private boolean statement_int(
@@ -129,20 +166,29 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			debug("--> statement tok=" + fLexer.peek() + " is_kw=" + fLexer.isKeyword() +
 					" @ " + SVDBLocation.toString(fLexer.getStartLocation()) + " decl_allowed=" + decl_allowed);
 		}
-		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
+//		Set<String> decl_keywords = (ansi_decl)?fDeclKeywordsANSI:fDeclKeywordsNonANSI;
+//		Set<KW> decl_keywords = (ansi_decl)?fPossibleDeclKeywordsANSI:fPossibleDeclKeywordsNonANSI;
 		long start = fLexer.getStartLocation();
-		
+
+		boolean is_possible_decl;
+		KW kw = fLexer.peekKeywordE();
+		if (ansi_decl) {
+			is_possible_decl = fPossibleDeclKeywordsANSI.contains(kw);
+		} else {
+			is_possible_decl = fPossibleDeclKeywordsNonANSI.contains(kw);
+		}
 		// Try for a declaration here
-		if (decl_allowed &&
-				(fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
-				fLexer.isIdentifier() || fLexer.peekKeyword(
-						"parameter", "localparam", "typedef","struct","union","enum","virtual"))) {
+		if (decl_allowed && (fLexer.isIdentifier() || is_possible_decl)) {
+//				(fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
+//				fLexer.isIdentifier() || fLexer.peekKeyword(
+//						"parameter", "localparam", "typedef","struct","union","enum","virtual"))) {
 //			boolean builtin_type = fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes);
 
 			if (fDebugEn) {debug(" -- possible variable declaration " + fLexer.peek());}
 
-			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
-					fLexer.peekKeyword("typedef","struct","union","enum","virtual")) {
+//			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
+//					fLexer.peekKeyword("typedef","struct","union","enum","virtual")) {
+			if (is_possible_decl && kw != KW.PARAMETER && kw != KW.LOCALPARAM) {
 				// Definitely a declaration
 				if (fDebugEn) {debug(" -- variable declaration 1 " + fLexer.peek());}
 				if (!decl_allowed) {
@@ -166,7 +212,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 				if (fDebugEn) {debug(" -- variable declaration 2 " + fLexer.peek());}
 
-				if (fLexer.peekOperator("::","#", "##", "[") || fLexer.peekId()) {
+				OP op;
+				if ((op = fLexer.peekOperatorE()) == OP.COLON2 ||
+						op == OP.HASH || op == OP.HASH2 || op == OP.LBRACKET || fLexer.peekId()) {
 					boolean retry_as_statement = false;
 					// Likely to be a declaration. Let's read a type
 					fLexer.ungetToken(tok);
@@ -227,7 +275,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 		decl_allowed = false;
 		
-		KW kw = fLexer.peekKeywordE();
+		kw = fLexer.peekKeywordE();
 		
 		if (kw != null) {
 			switch (kw) {
@@ -317,20 +365,20 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					break;
 					
 				default:
-					if (fLexer.peekKeyword(SVKeywords.fBuiltinTypes) ||
+					if (fLexer.peekKeyword(SVKeywords.fBuiltinTypesE) ||
 							kw == KW.THIS || kw == KW.SUPER) {
 						non_kw_statement(start, parent, could_be_case_item, decl_allowed, ansi_decl, consume_terminator);
 					} else if (SVParser.isFirstLevelScope(fLexer.peek(), 0) ||
 							SVParser.isSecondLevelScope(fLexer.peek())) {
 						error("Unexpected non-behavioral statement keyword " + fLexer.peek());
 					} else {
-						error("unhandled keyword: " + fLexer.eatToken());
+						error("unhandled keyword: " + fLexer.eatTokenR());
 					}
 			}
-		} else if (fLexer.peekOperator("->>", "->", "-->")) {
+		} else if (fLexer.peekOperator(OP.IMPL2, OP.IMPL, OP.IMPL_RSHIFT)) {
 			// TODO: preserve contents
 			SVDBEventTriggerStmt event_trigger = new SVDBEventTriggerStmt();
-			String tt =  fLexer.eatToken();
+			String tt = fLexer.eatTokenR();
 			
 			// Non-blocking operator can have a [delay_or_event_control] module
 			if (tt.equals("->>"))  {
@@ -443,7 +491,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		parent.addChildItem(do_while);
 
 		statement(do_while, false,false);
-		fLexer.readKeyword("while");
+		fLexer.readKeyword(KW.WHILE);
 		fLexer.readOperator(OP.LPAREN);
 		do_while.setCond(parsers().exprParser().expression());
 		fLexer.readOperator(OP.RPAREN);
@@ -547,7 +595,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 
 		while (fLexer.peek() != null && 
-				!fLexer.peekKeyword("join", "join_none", "join_any")) {
+				!fLexer.peekKeyword(KW.JOIN, KW.JOIN_NONE, KW.JOIN_ANY)) {
 			if (fDebugEn) {
 				debug("--> Fork Statement");
 			}
@@ -559,12 +607,12 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		}
 		fork.setEndLocation(fLexer.getStartLocation());
 		// Read join
-		String join_type = fLexer.readKeyword("join", "join_none", "join_any");
-		if (join_type.equals("join")) {
+		KW join_type = fLexer.readKeyword(KW.JOIN, KW.JOIN_NONE, KW.JOIN_ANY);
+		if (join_type == KW.JOIN) {
 			fork.setJoinType(JoinType.Join);
-		} else if (join_type.equals("join_none")) {
+		} else if (join_type == KW.JOIN_NONE) {
 			fork.setJoinType(JoinType.JoinNone);
-		} else if (join_type.equals("join_any")) {
+		} else if (join_type == KW.JOIN_ANY) {
 			fork.setJoinType(JoinType.JoinAny);
 		}
 
@@ -633,7 +681,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		// If an assignment
 		if (fLexer.peekOperator(SVOperators.fAssignmentOps)) {
-			String op = fLexer.eatToken();
+			String op = fLexer.eatTokenR();
 			SVDBAssignStmt assign_stmt = new SVDBAssignStmt();
 			assign_stmt.setLocation(start);
 			assign_stmt.setLHS(lvalue);
@@ -784,15 +832,15 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	
 	private void procedural_cont_assign(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		String type_s = fLexer.readKeyword("assign", "deassign", "force", "release");
+		KW type_s = fLexer.readKeyword(KW.ASSIGN, KW.DEASSIGN, KW.FORCE, KW.RELEASE);
 		AssignType type = null;
-		if (type_s.equals("assign")) {
+		if (type_s == KW.ASSIGN) {
 			type = AssignType.Assign;
-		} else if (type_s.equals("deassign")) {
+		} else if (type_s == KW.DEASSIGN) {
 			type = AssignType.Deassign;
-		} else if (type_s.equals("force")) {
+		} else if (type_s == KW.FORCE) {
 			type = AssignType.Force;
-		} else if (type_s.equals("release")) {
+		} else if (type_s == KW.RELEASE) {
 			type = AssignType.Release;
 		}
 		SVDBProceduralContAssignStmt assign = new SVDBProceduralContAssignStmt(type);
@@ -844,7 +892,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	
 	private void parse_if_stmt(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		String if_stem = fLexer.eatToken();
+		String if_stem = fLexer.eatTokenR();
 		
 		if (fDebugEn) {
 			debug("beginning of \"if\": " + if_stem);
@@ -876,7 +924,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	
 	private void parse_case_stmt(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		String type_s = fLexer.eatToken();
+		String type_s = fLexer.eatTokenR();
 		CaseType type = null;
 //		List<SVToken> token_l = new ArrayList<SVToken>();
 		boolean case_inside = false;
@@ -903,7 +951,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 		if (fLexer.peekKeyword(KW.MATCHES, KW.INSIDE)) {
 			// TODO: ignore for now
-			String casetype = fLexer.eatToken();
+			String casetype = fLexer.eatTokenR();
 			
 			if (casetype.equals("inside")) {
 				case_inside = true;
@@ -1026,9 +1074,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		// rs_production_list 
 
 		while (fLexer.peek() != null) {
-			if (fLexer.peekKeyword("rand")) {
-				fLexer.readKeyword("rand");
-				fLexer.readKeyword("join");
+			if (fLexer.peekKeyword(KW.RAND)) {
+				fLexer.eatToken();
+				fLexer.readKeyword(KW.JOIN);
 				if (fLexer.peekOperator(OP.LPAREN)) {
 					fLexer.eatToken();
 					SVDBExpr expr = fParsers.exprParser().expression();
@@ -1049,7 +1097,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readKeyword(":");
+		fLexer.readOperator(OP.COLON);
 		
 	}
 	

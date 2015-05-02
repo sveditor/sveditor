@@ -33,7 +33,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 	
 	public void parse_export(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		fLexer.readKeyword("export");
+		fLexer.readKeyword(KW.EXPORT);
 
 		if (fLexer.peekString() && 
 				(fLexer.peek().equals("DPI") || fLexer.peek().equals("DPI-C"))) {
@@ -90,7 +90,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 
 	public void parse_import(ISVDBAddChildItem parent) throws SVParseException {
 		long start = fLexer.getStartLocation();
-		fLexer.readKeyword("import");
+		fLexer.readKeyword(KW.IMPORT);
 		
 		if (fLexer.peekString()) {
 			// likely DPI import/export. Double-check
