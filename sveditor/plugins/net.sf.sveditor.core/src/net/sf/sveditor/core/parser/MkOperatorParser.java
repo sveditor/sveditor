@@ -1,5 +1,7 @@
 package net.sf.sveditor.core.parser;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +33,11 @@ public class MkOperatorParser implements ISVOperators {
 		Collections.sort(ops);
 		
 		String ind = "";
+		
+		fPS.println(ind + "package net.sf.sveditor.core.parser;");
+		fPS.println();
+		fPS.println("import net.sf.sveditor.core.scanutils.ITextScanner;");
+		fPS.println();
 		
 		fPS.println(ind + "class SVOperatorLexer implements ISVOperators {");
 		
@@ -171,9 +178,22 @@ public class MkOperatorParser implements ISVOperators {
 		return sb.toString();
 	}
 	
-	public static final void main(String args[]) {
-		MkOperatorParser p = new MkOperatorParser(System.out);
+	public static final void main(String args[]) throws IOException {
+		PrintStream ps = null;
+		
+		if (args.length > 0) {
+			ps = new PrintStream(args[0]);
+		} else {
+			ps = System.out;
+		}
+		
+		MkOperatorParser p = new MkOperatorParser(ps);
 		p.build();
+		
+		ps.flush();
+		if (ps != System.out) {
+			ps.close();
+		}
 	}
 
 	

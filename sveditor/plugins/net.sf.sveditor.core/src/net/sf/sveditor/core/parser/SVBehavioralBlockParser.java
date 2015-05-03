@@ -992,7 +992,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			}
 			
 			if (fLexer.peekId() || fLexer.peekNumber() || 
-					fLexer.peekOperator("{", "(", "+", "-")) {
+					fLexer.peekOperator(OP.LBRACE, OP.LPAREN, OP.PLUS, OP.MINUS)) {
 				SVDBBlockStmt null_block = new SVDBBlockStmt();
 				SVCapturingTokenListener tl = new SVCapturingTokenListener();
 				fLexer.addTokenListener(tl);

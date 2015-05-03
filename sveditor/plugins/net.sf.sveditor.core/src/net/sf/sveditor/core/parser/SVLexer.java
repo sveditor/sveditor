@@ -278,41 +278,6 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 				fOperator == op5 || fOperator == op6);
 	}
 	
-	@Deprecated
-	public boolean peekOperator(String... ops) throws SVParseException {
-		peek();
-
-		if (fOperator != null) {
-			switch (ops.length) {
-				case 0:
-					return true;
-				case 1:
-					return (fOperator.getImg().equals(ops[0]));
-				case 2:
-					return (fOperator.getImg().equals(ops[0]) ||
-							fOperator.getImg().equals(ops[1]));
-				case 3:
-					return (fOperator.getImg().equals(ops[0]) ||
-							fOperator.getImg().equals(ops[1]) ||
-							fOperator.getImg().equals(ops[2]));
-				case 4:
-					return (fOperator.getImg().equals(ops[0]) ||
-							fOperator.getImg().equals(ops[1]) ||
-							fOperator.getImg().equals(ops[2]) ||
-							fOperator.getImg().equals(ops[3]));
-				default:
-					for (String op : ops) {
-						if (fOperator.getImg().equals(op)) {
-							return true;
-						}
-					}
-					return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
 	public boolean peekOperator(Set<OP> ops) throws SVParseException {
 		peek();
 
@@ -391,80 +356,6 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		return null;
 	}
 
-	@Deprecated
-	public String readOperator(String... ops) throws SVParseException {
-		peek();
-
-		boolean found = false;
-		if (fOperator != null) {
-			if (ops.length == 0) {
-				found = true;
-			} else if (ops.length == 1) {
-				found = fOperator.getImg().equals(ops[0]);
-			} else if (ops.length == 2) {
-				found = fOperator.getImg().equals(ops[0]) ||
-						fOperator.getImg().equals(ops[1]);
-			} else {
-				for (String op : ops) {
-					if (fOperator.getImg().equals(op)) {
-						found = true;
-						break;
-					}
-				}
-			}
-		}
-
-		if (!found) {
-			StringBuilder sb = new StringBuilder();
-
-			for (int i = 0; i < ops.length; i++) {
-				sb.append(ops[i]);
-				if (i + 1 < ops.length) {
-					sb.append(", ");
-				}
-			}
-
-			error("Expecting one of operator \"" + sb.toString()
-					+ "\" ; received \"" + getImage() + "\"");
-		}
-
-		return eatTokenR();
-	}
-	
-
-	@Deprecated
-	public boolean peekKeyword(String... kw) throws SVParseException {
-		peek();
-
-		if (fKeyword != null) {
-			switch (kw.length) {
-				case 0:
-					return true;
-				case 1:
-					return fImage.equals(kw[0]);
-				case 2:
-					return (fImage.equals(kw[0]) || fImage.equals(kw[1]));
-				case 3:
-					return (fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]));
-				case 4:
-					return (fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]) ||
-							fImage.equals(kw[3]));
-				case 5:
-					return (fImage.equals(kw[0]) || fImage.equals(kw[1]) || fImage.equals(kw[2]) ||
-							fImage.equals(kw[3]) || fImage.equals(kw[4]));
-				default:
-					for (String k : kw) {
-						if (fImage.equals(k)) {
-							return true;
-						}
-					}
-					return false;
-			}
-		}
-
-		return false;
-	}
-	
 	public boolean peekKeyword() throws SVParseException {
 		peek();
 		return (fKeyword != null);

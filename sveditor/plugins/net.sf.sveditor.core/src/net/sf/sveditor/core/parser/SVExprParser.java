@@ -270,7 +270,7 @@ public class SVExprParser extends SVParserBase {
 			error ("delay_expr - should have either 2 or 3 as arguments");
 		}
 		if (delay_expr) {
-			fLexer.readOperator("#", "##");
+			fLexer.readOperator(OP.HASH, OP.HASH2);
 		}
 		if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
@@ -350,7 +350,7 @@ public class SVExprParser extends SVParserBase {
 			ret = idExpr();
 			
 			if (fDebugEn) {debug("  postPrimary -- peek: " + fLexer.peek());}
-			while (fLexer.peekOperator("::", ".", "[")) {
+			while (fLexer.peekOperator(OP.COLON2, OP.DOT, OP.LBRACKET)) {
 				SVToken t = fLexer.consumeToken();
 				// Don't move forward if this is likely to be an assertion sequence
 				if (fAssertionExpr.peek()) {
@@ -501,7 +501,7 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr const_or_range_expression() throws SVParseException {
 		if (fDebugEn) {debug("--> const_or_range_expression - " + fLexer.peek());}
 		SVDBExpr expr = expression();
-		if (fLexer.peekOperator(":", "+:", "-:")) {
+		if (fLexer.peekOperator(OP.COLON, OP.PLUS_COLON, OP.SUB_COLON)) {
 			fLexer.eatToken();
 			expr = new SVDBRangeExpr(expr, expression());
 		}
@@ -962,7 +962,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> equalityExpression");}
 		SVDBExpr a = relationalExpression();
 		
-		while (fLexer.peekOperator("==", "!=", "===", "!==", "==?", "!=?")) {
+		while (fLexer.peekOperator(OP.EQ2, OP.NOT_EQ, OP.EQ3, OP.NOT_EQ2, OP.EQ2_TERN, OP.NOT_EQ_TERN)) {
 			a = new SVDBBinaryExpr(a, fLexer.readOperator().getImg(), relationalExpression());
 		}
 		
@@ -974,7 +974,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> relationalExpression");}
 		SVDBExpr a = shiftExpression();
 		
-		while (fLexer.peekOperator("<", ">", "<=", ">=")) {
+		while (fLexer.peekOperator(OP.LT, OP.GT, OP.LE, OP.GE)) {
 			a = new SVDBBinaryExpr(a, fLexer.readOperator().getImg(), shiftExpression());
 		}
 		
@@ -986,7 +986,7 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> shiftExpression");}
 		SVDBExpr a = additiveExpression();
 		
-		while (fLexer.peekOperator("<<", "<<<", ">>", ">>>")) {
+		while (fLexer.peekOperator(OP.LSHIFT, OP.LSHIFT3, OP.RSHIFT, OP.RSHIFT3)) {
 			a = new SVDBBinaryExpr(a, fLexer.readOperator().getImg(), additiveExpression());
 		}
 		
@@ -1009,11 +1009,27 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> multiplicativeExpression " + fLexer.peek());}
 		SVDBExpr a = unaryExpression();
 		
-		while (fLexer.peekOperator("*", "/", "%", "**")) {
+		while (fLexer.peekOperator(OP.MUL, OP.DIV, OP.MOD, OP.MUL2)) {
 			a = new SVDBBinaryExpr(a, fLexer.readOperator().getImg(), unaryExpression());
 		}
 		if (fDebugEn) {debug("<-- multiplicativeExpression");}
 		return a;
+	}
+	
+	private static final Set<OP>	op_set;
+	static {
+		op_set = new HashSet<ISVOperators.OP>();
+		op_set.add(OP.PLUS);
+		op_set.add(OP.MINUS);
+		op_set.add(OP.NEG);
+		op_set.add(OP.NOT);
+		op_set.add(OP.AND);
+		op_set.add(OP.NEG_AND);
+		op_set.add(OP.OR);
+		op_set.add(OP.NEG_OR);
+		op_set.add(OP.XOR);
+		op_set.add(OP.NEG_XOR);
+		op_set.add(OP.XOR_NEG);
 	}
 	
 	public SVDBExpr unaryExpression() throws SVParseException {
@@ -1028,7 +1044,7 @@ public class SVExprParser extends SVParserBase {
 			}
 			return ret;
 		}
-		if (fLexer.peekOperator("+", "-", "~", "!", "&", "~&", "|", "~|", "^", "~^", "^~") ||
+		if (op_set.contains(fLexer.peekOperatorE()) ||
 				(fAssertionExpr.peek() && 
 						(fLexer.peekOperator(OP.MUL) || fLexer.peekKeyword(KW.NOT)))) {
 			String op = fLexer.eatTokenR();
@@ -1043,7 +1059,7 @@ public class SVExprParser extends SVParserBase {
 		SVDBExpr a = primary();
 		
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
-		while (fLexer.peekOperator("::", ".", "[")) {
+		while (fLexer.peekOperator(OP.COLON2, OP.DOT, OP.LBRACKET)) {
 //			if (fLexer.peekOperator ("["))  {
 //				
 //				SVToken t = fLexer.consumeToken();
@@ -1380,7 +1396,7 @@ public class SVExprParser extends SVParserBase {
 					fLexer.eatToken();
 					fLexer.readOperator(OP.LBRACKET);
 					expression();
-					if (fLexer.peekOperator(":", "+:", "-:")) {
+					if (fLexer.peekOperator(OP.COLON, OP.PLUS_COLON, OP.SUB_COLON)) {
 						fLexer.eatToken();
 						expression();
 					}
@@ -1614,7 +1630,7 @@ public class SVExprParser extends SVParserBase {
 			SVDBExpr high = null;
 
 			// TODO: should probably preserve array-bounds method
-			if (fLexer.peekOperator(":", "+:", "-:")) {
+			if (fLexer.peekOperator(OP.COLON, OP.PLUS_COLON, OP.SUB_COLON)) {
 				fLexer.eatToken();
 				high = expression();
 				ret = new SVDBArrayAccessExpr(expr, low, high);
@@ -1695,7 +1711,7 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.peekOperator(OP.LBRACKET)) {
 				fLexer.eatToken();
 				tf.setWithExpr(expression());
-				if (fLexer.peekOperator(":", "+:","-:")) {
+				if (fLexer.peekOperator(OP.COLON, OP.PLUS_COLON, OP.SUB_COLON)) {
 					fLexer.eatToken();
 					expression();
 				}

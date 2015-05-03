@@ -2747,16 +2747,16 @@ public class SVDBArgFileIndex2 implements
 			fLog.debug(LEVEL_MID, "<-- Parse " + path + ": " +
 					(parse_end-parse_start) + "ms");
 		}
-//		System.out.println("Parse " + path + " " + (end-start));
 
 		start = System.currentTimeMillis();
 		cacheDeclarations(build_data, file, ft);
 		end = System.currentTimeMillis();
-//		System.out.println("CacheDecl " + path + " " + (end-start));
+		build_data.fIndexStats.incLastIndexDeclCacheTime(end-start);
 		
 		start = System.currentTimeMillis();
 		cacheReferences(build_data, file);
 		end = System.currentTimeMillis();
+		build_data.fIndexStats.incLastIndexRefCacheTime(end-start);
 		
 		start = System.currentTimeMillis();
 		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
@@ -2769,7 +2769,6 @@ public class SVDBArgFileIndex2 implements
 		updateSrcFileAttr(build_data, ft, markers);
 
 		end = System.currentTimeMillis();
-//		System.out.println("SetCache " + path + " " + (end-start));a
 
 		if (build_data.isMFCU()) {
 			// In MFCU mode, collect the defined macros and 
