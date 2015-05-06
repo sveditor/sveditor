@@ -70,7 +70,7 @@ public class TestUVMParsePerformance extends SVCoreTestCaseBase {
 		final SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		final IProject p = fProjectList.get(0);
 
-		int n_rebuilds = 1;
+		int n_rebuilds = 10;
 		ISVDBIndex index = null;
 		for (ISVDBIndex i : pd.getProjectIndexMgr().getIndexList()) {
 			if (i.getBaseLocation().contains("ubus")) {
