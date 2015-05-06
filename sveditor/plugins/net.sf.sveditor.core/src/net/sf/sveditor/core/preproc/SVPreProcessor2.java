@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -45,6 +46,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private StringBuilder							fOutput;
 	private int										fOutputLen;
 	private StringBuilder							fCommentBuffer;
+	private boolean									fCommentDocComment;
+	private boolean									fCommentTaskTag;
 	private boolean									fInComment;
 	private IDocCommentParser   					fDocCommentParser;
 	private long									fCommentStart;
@@ -336,7 +339,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			return ; 
 		}
 		
-		fInComment = false ;
+		fInComment = false;
 		String comment = fCommentBuffer.toString() ;
 		Tuple<String,String> dc = new Tuple<String, String>(null, null);
 		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc) ;
@@ -345,24 +348,25 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			String title = dc.second();
 			SVPreProc2InputData in = fInputCurr;
 			long loc = fCommentStart;
+			
+			boolean is_task = fTaskTags.contains(tag);
 
-			if (type == IDocCommentParser.CommentType.TaskTag && fTaskTags.contains(tag)) {
+			if (type == IDocCommentParser.CommentType.TaskTag && is_task) {
 				// Actually a task marker
-//				String msg = tag + ": " + comment;
 				String msg = tag + " " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {
 					in.getFileTree().fMarkers.add(m);
 				}
-			} else if (type == IDocCommentParser.CommentType.DocComment && fTaskTags.contains(tag)) {
+			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
 				String msg = tag + ": " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {
 					in.getFileTree().fMarkers.add(m);
 				}
-			} else {
+			} else if (DocTopicManager.singularKeywordMap.containsKey(tag.toLowerCase())) {
 				// Really a doc comment
 				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
 
@@ -372,6 +376,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 			}
 		} 
+		/*
+		 */
 	}
 	
 	private void handle_preproc_directive() {

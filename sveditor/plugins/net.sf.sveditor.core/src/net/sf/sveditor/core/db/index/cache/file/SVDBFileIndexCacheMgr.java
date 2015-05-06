@@ -28,8 +28,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	private SVDBFileIndexCacheEntry					fUnCachedHead;
 	private SVDBFileIndexCacheEntry					fUnCachedTail;
 	
-//	private int										fMaxCacheSize = 100;
 	private int										fMaxCacheSize = 100;
+//	private int										fMaxCacheSize = 10;
 //	private int										fMaxCacheSize = 1;
 	
 	private boolean									fUseSoftRef = true;
