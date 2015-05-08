@@ -3,6 +3,13 @@
 
 - #(393) - Added support for default clocking that references a previously-defined
   clocking block.
+  
+- #(enh) - Add hyperlink support for files outside the workspace to the 
+  'Build Script Launch' console. 
+  
+- #(enh) - Add hyperlink support for line numbers that directly follow the path.
+  For example: /home/foobar/file.svh 27
+  
 
 ------------------------------------------------------------------------------
 -- 1.7.8 Release --

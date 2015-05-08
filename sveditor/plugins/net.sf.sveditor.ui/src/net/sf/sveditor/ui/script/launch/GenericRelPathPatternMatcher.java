@@ -1,11 +1,16 @@
 package net.sf.sveditor.ui.script.launch;
 
+import java.io.File;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.script.launch.ILogMessageScanner;
 import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.debug.ui.console.FileLink;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.IPatternMatchListener;
@@ -63,6 +68,7 @@ public class GenericRelPathPatternMatcher implements IPatternMatchListener,
 		
 		int paren_idx=-1;
 		int colon_idx=-1;
+		int sp_idx=-1;
 		int lineno=-1;
 	
 		if (SVFileUtils.isWin()) {
@@ -118,6 +124,24 @@ public class GenericRelPathPatternMatcher implements IPatternMatchListener,
 					lineno = Integer.parseInt(number);
 				} catch (NumberFormatException e) {}			
 			}
+		} else if ((sp_idx=content.indexOf(' ')) != -1) {
+			// See if there's a trailing number.
+			int idx = sp_idx;
+			while (idx < content.length() && 
+					Character.isWhitespace(content.charAt(idx))) {
+				idx++;
+			}
+			
+			if (idx < content.length() && 
+					content.charAt(idx) >= '0' && content.charAt(idx) <= '9') {
+				String number = content.substring(idx).trim();
+				content = content.substring(0, sp_idx);
+				try {
+					lineno = Integer.parseInt(number);
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		String path = content;
@@ -129,6 +153,7 @@ public class GenericRelPathPatternMatcher implements IPatternMatchListener,
 		}
 		
 		IFile file = SVFileUtils.findWorkspaceFile(path);
+		File efile = SVFileUtils.getFile(content);
 	
 		// Eclipse sometimes returns a file (that doesn't exist) for
 		// a directory path. We only want to hyperlink 'real' files.
@@ -137,12 +162,18 @@ public class GenericRelPathPatternMatcher implements IPatternMatchListener,
 			try {
 				fConsole.addHyperlink(link, event.getOffset(), content.length());
 			} catch (BadLocationException e) {}
+		} else if (efile != null && efile.isFile()) {
+			IFileStore fs = EFS.getLocalFileSystem().getStore(new Path(efile.getAbsolutePath()));
+			ExternalPathHyperlink link = new ExternalPathHyperlink(fs, null, -1, -1, lineno);
+			try {
+				fConsole.addHyperlink(link, event.getOffset(), content.length());
+			} catch (BadLocationException e) {}
 		}
 	}
 
 	@Override
 	public String getPattern() {
-		return "\\.\\.[/\\\\][^ \\t\\n\\r]+";
+		return "\\.\\.[/\\\\][^ \\t\\n\\r]+([ \\t]+[0-9]+)?";
 	}
 
 	@Override
