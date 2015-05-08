@@ -102,6 +102,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
+	private static boolean					fTestModeBuilderDisabled = false;
 	public static final boolean				fUseNewCacheMgr = SVDBArgFileIndexFactory.fUseArgFile2Index;
 	
 	// Listeners
@@ -250,6 +251,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public static boolean getTestMode() {
 		return fTestMode;
+	}
+	
+	public static void setTestModeBuilderDisabled() {
+		fTestModeBuilderDisabled = true;
+	}
+	
+	public static boolean isTestModeBuilderDisabled() {
+		return fTestModeBuilderDisabled;
 	}
 	
 	public SVParserConfig getParserConfig() {

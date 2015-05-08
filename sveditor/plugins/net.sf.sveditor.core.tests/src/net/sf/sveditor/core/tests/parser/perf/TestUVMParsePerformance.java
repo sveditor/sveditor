@@ -2,14 +2,6 @@ package net.sf.sveditor.core.tests.parser.perf;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
@@ -22,6 +14,10 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 
 public class TestUVMParsePerformance extends SVCoreTestCaseBase {
 
@@ -66,11 +62,13 @@ public class TestUVMParsePerformance extends SVCoreTestCaseBase {
 	}
 	
 	public void testUBusParsePerformance() {
+		SVCorePlugin.setTestModeBuilderDisabled();
+		
 		SVDBProjectData pd = setupUBusProject();
 		final SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		final IProject p = fProjectList.get(0);
 
-		int n_rebuilds = 10;
+		int n_rebuilds = 20;
 		ISVDBIndex index = null;
 		for (ISVDBIndex i : pd.getProjectIndexMgr().getIndexList()) {
 			if (i.getBaseLocation().contains("ubus")) {

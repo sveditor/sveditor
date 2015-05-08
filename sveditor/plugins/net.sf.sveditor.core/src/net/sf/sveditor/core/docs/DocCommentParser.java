@@ -106,56 +106,56 @@ public class DocCommentParser implements IDocCommentParser {
 		}
 		
 		if (has_colon || has_tasktag) {
-		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
-		
-		for(String line: lines) {
-			if (line.indexOf(':') != -1) {
-				Matcher matcher = fPatternIsDocComment.matcher(line);
-				if(matcher.matches()) {
-					if(fDocTopics == null) {
-						info.first(matcher.group(1));
-						info.second(matcher.group(2));
-						return CommentType.DocComment;
+			String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
+
+			for(String line: lines) {
+				if (line.indexOf(':') != -1) {
+					Matcher matcher = fPatternIsDocComment.matcher(line);
+					if(matcher.matches()) {
+						if(fDocTopics == null) {
+							info.first(matcher.group(1));
+							info.second(matcher.group(2));
+							return CommentType.DocComment;
+						}
+						String keyword = matcher.group(1).toLowerCase() ;
+						if(fDocTopics.getTopicType(keyword) != null) {
+							info.first(matcher.group(1));
+							info.second(matcher.group(2));
+							return CommentType.DocComment;
+						}
 					}
-					String keyword = matcher.group(1).toLowerCase() ;
-					if(fDocTopics.getTopicType(keyword) != null) {
-						info.first(matcher.group(1));
-						info.second(matcher.group(2));
-						return CommentType.DocComment;
+				} else {
+					int idx=0;
+					char ch;
+
+					while (idx < line.length()) {
+						ch = line.charAt(idx);
+						if (!Character.isWhitespace(ch) && ch != '*') {
+							break;
+						}
+						idx++;
 					}
-				}
-			} else {
-				int idx=0;
-				char ch;
-			
-				while (idx < line.length()) {
-					ch = line.charAt(idx);
-					if (!Character.isWhitespace(ch) && ch != '*') {
-						break;
+
+					int cnt=0;
+
+					// A task tag must have a sequence of upper-case letters
+					while (idx < line.length() && line.charAt(idx) >= 'A' && line.charAt(idx) <= 'Z' && cnt < 4) {
+						cnt++;
+						idx++;
 					}
-					idx++;
-				}
-				
-				int cnt=0;
-			
-				// A task tag must have a sequence of upper-case letters
-				while (idx < line.length() && line.charAt(idx) >= 'A' && line.charAt(idx) <= 'Z' && cnt < 4) {
-					cnt++;
-					idx++;
-				}
-				
-				if (cnt >= 3) {
-					// May still be a task tag.
-					Matcher task_matcher = fPatternIsTaskTagComment.matcher(line);
-			
-					if (task_matcher.matches()) {
-						info.first(task_matcher.group(1));
-						info.second(task_matcher.group(2));
-						return CommentType.TaskTag;
-					}					
+
+					if (cnt >= 3) {
+						// May still be a task tag.
+						Matcher task_matcher = fPatternIsTaskTagComment.matcher(line);
+
+						if (task_matcher.matches()) {
+							info.first(task_matcher.group(1));
+							info.second(task_matcher.group(2));
+							return CommentType.TaskTag;
+						}					
+					}
 				}
 			}
-		}
 		}
 		
 		return CommentType.None ;

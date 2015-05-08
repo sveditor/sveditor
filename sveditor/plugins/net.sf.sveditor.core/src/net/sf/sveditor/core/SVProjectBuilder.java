@@ -45,6 +45,11 @@ public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogL
 		 */
 		
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+	
+		// Special test mode enabled
+		if (SVCorePlugin.isTestModeBuilderDisabled()) {
+			return null;
+		}
 		
 		switch (kind) {
 			case CLEAN_BUILD:
