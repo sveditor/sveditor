@@ -22,7 +22,7 @@ public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 	
 	public SVDBTypeInfo(String typename, SVDBItemType data_type) {
 		super(typename, data_type);
-		fLocation = null;
+		fLocation = -1;
 	}
 
 	@Deprecated

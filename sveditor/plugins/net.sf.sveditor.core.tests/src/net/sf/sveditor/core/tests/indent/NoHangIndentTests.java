@@ -63,7 +63,7 @@ public class NoHangIndentTests extends TestCase {
 				failures++;
 			}
 		}
-		log.note("testIndentNoHang: " + passes + " pass " + failures + " fail");
+		log.debug("testIndentNoHang: " + passes + " pass " + failures + " fail");
 		assertEquals("Check for no failures", failures, 0);
 		LogFactory.removeLogHandle(log);
 	}

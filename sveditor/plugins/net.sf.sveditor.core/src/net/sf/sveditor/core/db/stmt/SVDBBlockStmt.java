@@ -20,7 +20,6 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
@@ -28,7 +27,7 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 	public ISVDBChildItem			fParent;
 	
 	public List<ISVDBItemBase>		fItems;
-	public SVDBLocation				fEndLocation;
+	public long						fEndLocation;
 	public String					fBlockName;
 	
 	public SVDBBlockStmt() {
@@ -84,11 +83,11 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 		fParent = parent;
 	}
 
-	public SVDBLocation getEndLocation() {
+	public long getEndLocation() {
 		return fEndLocation;
 	}
 
-	public void setEndLocation(SVDBLocation loc) {
+	public void setEndLocation(long loc) {
 		fEndLocation = loc;
 	}
 
@@ -107,10 +106,10 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 		super.init(other);
 		
 		fBlockName = o.getBlockName();
-		if (o.getEndLocation() == null) {
-			fEndLocation = null;
+		if (o.getEndLocation() == -1) {
+			fEndLocation = -1;
 		} else {
-			fEndLocation = o.getEndLocation().duplicate();
+			fEndLocation = o.getEndLocation();
 		}
 		fItems.clear();
 		for (ISVDBItemBase i : o.getItems()) {

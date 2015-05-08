@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
-import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcOutput extends AbstractTextScanner {
 	
@@ -34,6 +33,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	private int								fNextFilePos;
 	private int								fIdx;
 	private int								fUngetCh1, fUngetCh2;
+	private boolean							fLineValid;
 	
 	public SVPreProcOutput(
 			StringBuilder 			text,
@@ -115,6 +115,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 			fUngetCh2 = -1;
 		} else if (fIdx < fTextLength) {
 			ch = fText.charAt(fIdx++);
+			fLineValid = false;
 		}
 		return ch;
 	}
@@ -123,8 +124,33 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		fUngetCh2 = fUngetCh1;
 		fUngetCh1 = ch;
 	}
+	
+	
+	@Override
+	public int getFileId() {
+		if (!fLineValid) {
+			update_location();
+		}
+		return fFileId;
+	}
 
-	public ScanLocation getLocation() {
+	@Override
+	public int getLineno() {
+		if (!fLineValid) {
+			update_location();
+		}
+		return fLineno;
+	}
+
+	@Override
+	public int getLinepos() {
+		if (!fLineValid) {
+			update_location();
+		}
+		return fLinepos;
+	}
+
+	public void update_location() {
 		// Spin the line location forward if necessary
 		if (fIdx >= fNextLinePos) {
 			// Need to move forward
@@ -166,7 +192,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 			}
 		}
 		
-		return new ScanLocation(fFileId, fLineno, 1);
+		fLineValid = true;
 	}
 
 	public long getPos() {
@@ -180,7 +206,6 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	public String dump() {
 		StringBuilder ret = new StringBuilder();
 		SVPreProcOutput out = duplicate();
-		ScanLocation loc = null;
 		
 		while (true) {
 			int ch = out.get_ch();
@@ -188,13 +213,13 @@ public class SVPreProcOutput extends AbstractTextScanner {
 				break;
 			}
 			
-			ScanLocation tmp = out.getLocation();
-			if (loc == null || 
-					loc.getFileId() != tmp.getFileId() || 
-					loc.getLineNo() != tmp.getLineNo()) {
-				loc = tmp;
-				System.out.print("\n" + loc.getFileId() + ":" + loc.getLineNo() + " ");
-			}
+//			ScanLocation tmp = out.getLocation();
+//			if (loc == null || 
+//					loc.getFileId() != tmp.getFileId() || 
+//					loc.getLineNo() != tmp.getLineNo()) {
+//				loc = tmp;
+//				System.out.print("\n" + loc.getFileId() + ":" + loc.getLineNo() + " ");
+//			}
 			System.out.print((char)ch);
 		}
 	

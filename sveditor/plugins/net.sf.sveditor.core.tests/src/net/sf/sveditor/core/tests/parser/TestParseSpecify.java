@@ -98,7 +98,6 @@ public class TestParseSpecify extends TestCase {
 	}
 	
 	public void testSpecifyBlock_CondMinTyp_1() throws SVParseException {
-		String testname = "testSpecifyBlock";
 		String doc = 
 				"module delay;\n" +
 				"	specify\n" +
@@ -108,7 +107,7 @@ public class TestParseSpecify extends TestCase {
 				"endmodule\n"
 				;
 		SVCorePlugin.getDefault().enableDebug(false);
-		ParserTests.runTestStrDoc(testname, doc, new String[] {"delay"});
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"delay"});
 	}
 
 	public void testSpecifyArrayIfCond() throws SVParseException {

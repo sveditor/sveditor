@@ -26,7 +26,7 @@ import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.parser.SVParserConfig;
 
@@ -39,21 +39,21 @@ public class TestParseFunction extends TestCase {
 	
 	private SVDBTask parse_tf(SVParserConfig config, String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		SVParser parser = new SVParser(null);
 		parser.init(new StringInputStream(content), name);
 		
 		if (config != null) {
 			parser.setConfig(config);
 		}
 		
-		parser.parsers().taskFuncParser().parse(scope, null, 0);
+		parser.parsers().taskFuncParser().parse(scope, -1, 0);
 
 		return (SVDBTask)scope.getChildren().iterator().next();
 	}
 
 	private SVDBClassDecl parse_class(String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		SVParser parser = new SVParser(null);
 		parser.init(new StringInputStream(content), name);
 		
 		parser.parsers().classParser().parse(scope, 0);

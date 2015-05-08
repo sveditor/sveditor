@@ -51,7 +51,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 
@@ -102,6 +102,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
+	private static boolean					fTestModeBuilderDisabled = false;
 	public static final boolean				fUseNewCacheMgr = SVDBArgFileIndexFactory.fUseArgFile2Index;
 	
 	// Listeners
@@ -252,6 +253,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fTestMode;
 	}
 	
+	public static void setTestModeBuilderDisabled() {
+		fTestModeBuilderDisabled = true;
+	}
+	
+	public static boolean isTestModeBuilderDisabled() {
+		return fTestModeBuilderDisabled;
+	}
+	
 	public SVParserConfig getParserConfig() {
 		return fParserConfig;
 	}
@@ -297,7 +306,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	}
 	
 	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
-		ParserSVDBFileFactory f = new ParserSVDBFileFactory(dp);
+		SVParser f = new SVParser(dp);
 		if (getDefault() != null) {
 			f.setConfig(getDefault().getParserConfig());
 		}

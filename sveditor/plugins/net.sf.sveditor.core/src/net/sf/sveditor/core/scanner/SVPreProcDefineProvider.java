@@ -20,9 +20,9 @@ import java.util.Set;
 import java.util.Stack;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
-import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -91,7 +91,8 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			if (lineno == -1) {
 				return true;
 			} else {
-				return (m.getLocation() == null || m.getLocation().getLine() <= lineno);
+				return (m.getLocation() == -1 || 
+						SVDBLocation.unpackLineno(m.getLocation()) <= lineno);
 			}
 //			return true;
 		} else {
@@ -401,7 +402,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		
 		if (m.getDef() == null) {
 			System.out.println("Macro \"" + m.getName() + "\" @ <<UNKNOWN>>:" + 
-					m.getLocation().getLine() + " is null");
+					SVDBLocation.unpackLineno(m.getLocation()) + " is null");
 			// Replace the text with ""
 			scanner.replace(scanner.getOffset(), scanner.getLimit(), "");
 		} else {

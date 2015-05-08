@@ -110,8 +110,20 @@ public class SVPreProcDirectiveScanner extends AbstractTextScanner
 		return fScanLocation;
 	}
 	
-	public ScanLocation getLocation() {
-		return new ScanLocation(fFileName, fLineno, 0);
+	@Override
+	public int getFileId() {
+		// TODO Auto-generated method stub
+		return -1;
+	}
+
+	@Override
+	public int getLineno() {
+		return fLineno;
+	}
+
+	@Override
+	public int getLinepos() {
+		return fLinepos;
 	}
 
 	public void setStmtLocation(ScanLocation location) {

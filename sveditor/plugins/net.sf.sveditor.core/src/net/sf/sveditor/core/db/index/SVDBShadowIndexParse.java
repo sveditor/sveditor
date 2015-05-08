@@ -12,7 +12,7 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ops.SVDBFindMacroOp;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
@@ -50,7 +50,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		
 		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path);
 		
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory();
+		SVParser parser = new SVParser();
 
 		SVDBFile file = parser.parse(language_level, pp_out, path, markers);
 		

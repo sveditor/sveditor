@@ -81,11 +81,11 @@ public class TestOpenDeclIndex extends SVCoreTestCaseBase {
 		String in_data = SVFileUtils.readInput(in);
 		index.getFileSystemProvider().closeStream(in);
 		
-		System.out.println("==> parse");
+		fLog.debug("==> parse");
 		Tuple<SVDBFile, SVDBFile> parse_r = index.parse(new NullProgressMonitor(), 
 				new StringInputStream(in_data),
 				uvm_component, null);
-		System.out.println("<== parse");
+		fLog.debug("<== parse");
 		
 		assertNotNull(parse_r);
 //		assertNotNull(parse_r.first());
@@ -105,20 +105,20 @@ public class TestOpenDeclIndex extends SVCoreTestCaseBase {
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				parse_r.second(), line, scanner, index);
 		
-		System.out.println("ret=" + ret + " size=" + ret.size());
+		fLog.debug("ret=" + ret + " size=" + ret.size());
 		assertEquals("Failed to find uvm_component declaration", 1, ret.size());
 		ISVDBItemBase item = ret.get(0).first();
 
 		while ((item instanceof ISVDBChildItem) && 
 				((ISVDBChildItem)item).getParent() != null &&
 				item.getType() != SVDBItemType.File) {
-			System.out.println("type=" + item.getType());
+			fLog.debug("type=" + item.getType());
 			item = ((ISVDBChildItem)item).getParent();
 		}
 
 		String path = ((SVDBFile)item).getFilePath();
 
-		System.out.println("path=" + path);
+		fLog.debug("path=" + path);
 		assertTrue(path.endsWith("uvm_report_object.svh"));
 
 	}

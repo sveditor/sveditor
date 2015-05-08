@@ -5,16 +5,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
 import net.sf.sveditor.core.db.expr.SVDBTFCallExpr;
@@ -85,7 +81,7 @@ public class SVDBRefSearchSpecClassFieldRefsByName extends SVDBRefSearchSpecByNa
 
 	@Override
 	public boolean matches(
-			SVDBLocation 			loc, 
+			long		 			loc, 
 			SVDBRefType 			type,
 			Stack<ISVDBItemBase> 	scope, 
 			String 					name) {

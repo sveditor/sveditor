@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.srcgen.MethodGenerator;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
@@ -28,10 +28,10 @@ public class TestMethodGenerator extends TestCase {
 	
 	private SVDBTask parse_tf(String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		ParserSVDBFileFactory parser = new ParserSVDBFileFactory(null);
+		SVParser parser = new SVParser(null);
 		parser.init(new StringInputStream(content), name);
 		
-		parser.parsers().taskFuncParser().parse(scope, null, 0);
+		parser.parsers().taskFuncParser().parse(scope, -1, 0);
 
 		return (SVDBTask)scope.getChildren().iterator().next();
 	}

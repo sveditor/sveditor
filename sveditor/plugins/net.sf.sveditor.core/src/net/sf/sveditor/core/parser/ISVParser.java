@@ -12,12 +12,11 @@
 
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.ILogHandle;
 
 
 
-public interface ISVParser {
+public interface ISVParser extends ISVKeywords, ISVOperators {
 	
 	SVLexer lexer();
 	
@@ -41,6 +40,6 @@ public interface ISVParser {
 	
 	SVParserConfig getConfig();
 	
-	String getFilename(SVDBLocation loc);
+	String getFilename(long loc);
 	
 }

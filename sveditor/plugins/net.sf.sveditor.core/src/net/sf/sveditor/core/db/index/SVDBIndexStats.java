@@ -37,6 +37,16 @@ public class SVDBIndexStats {
 	private long				fLastIndexParseTimeMS;
 	
 	/**
+	 * Number of ms taken to index declarations from files
+	 */
+	private long				fLastIndexDeclIndexTimeMS;
+	
+	/**
+	 * Number of ms taken to index references
+	 */
+	private long				fLastIndexRefIndexTimeMS;
+	
+	/**
 	 * Total number of ms taken during the last index
 	 */
 	private long				fLastIndexTotalTimeMS;
@@ -116,6 +126,22 @@ public class SVDBIndexStats {
 	
 	public void setLastIndexParseTime(long t) {
 		fLastIndexParseTimeMS = t;
+	}
+	
+	public long getLastIndexDeclCacheTime() {
+		return fLastIndexDeclIndexTimeMS;
+	}
+	
+	public void incLastIndexDeclCacheTime(long t) {
+		fLastIndexDeclIndexTimeMS += t;
+	}
+	
+	public long getLastIndexRefCacheTime() {
+		return fLastIndexRefIndexTimeMS;
+	}
+	
+	public void incLastIndexRefCacheTime(long t) {
+		fLastIndexRefIndexTimeMS += t;
 	}
 	
 	public void incLastIndexParseTime(long t) {

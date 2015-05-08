@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -134,7 +135,8 @@ public class TestOpencoresProjects extends SVCoreTestCaseBase {
 		}
 		
 		for (SVDBMarker m : errors) {
-			log.debug("[ERROR] " + m.getMessage() + " @ " + ":" + m.getLocation().getLine());
+			log.debug("[ERROR] " + m.getMessage() + " @ " + ":" + 
+					SVDBLocation.unpackLineno(m.getLocation()));
 		}
 		
 		assertEquals(0, errors.size());

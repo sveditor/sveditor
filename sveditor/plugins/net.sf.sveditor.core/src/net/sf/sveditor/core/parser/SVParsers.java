@@ -22,7 +22,7 @@ package net.sf.sveditor.core.parser;
 public class SVParsers {
 	
 	private ISVParser							fSVParser;
-	private ParserSVDBFileFactory				fSVDBFileFactory;
+	private SVParser				fSVDBFileFactory;
 	private SVCommonParserUtils					fCommonParserUtils;
 	private SVClassDeclParser					fClassParser;
 	private SVCovergroupParser					fCovergroupParser;
@@ -59,7 +59,7 @@ public class SVParsers {
 		fSVParser = parser;
 	}
 	
-	public void init(ParserSVDBFileFactory sv_parser) {
+	public void init(SVParser sv_parser) {
 		fSVDBFileFactory = sv_parser;
 		init((ISVParser)sv_parser);
 	}
@@ -96,7 +96,7 @@ public class SVParsers {
 		fConfigParser = new SVConfigParser(fSVParser);
 	}
 	
-	public ParserSVDBFileFactory SVParser() {
+	public SVParser SVParser() {
 		return fSVDBFileFactory;
 	}
 	

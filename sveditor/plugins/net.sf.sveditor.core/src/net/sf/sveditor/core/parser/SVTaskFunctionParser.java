@@ -22,7 +22,6 @@ import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -38,52 +37,53 @@ public class SVTaskFunctionParser extends SVParserBase {
 	}
 	
 	public void parse_method_decl(ISVDBScopeItem parent) throws SVParseException {
-		parse(parent, null, true, 0);
+		parse(parent, -1, true, 0);
 	}
 
 	public SVDBTask parse_method_decl() throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		parse(scope, null, true, 0);
+		parse(scope, -1, true, 0);
 		
 		return (SVDBTask)SVDBUtil.getFirstChildItem(scope);
 	}
 
 	// Enter on 'function'
-	public void parse(ISVDBAddChildItem parent, SVDBLocation start, int qualifiers) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, long start, int qualifiers) throws SVParseException {
 		parse(parent, start, false, qualifiers);
 	}
 	
-	private void parse(ISVDBAddChildItem parent, SVDBLocation start, boolean is_decl, int qualifiers) throws SVParseException {
+	private void parse(ISVDBAddChildItem parent, long start, boolean is_decl, int qualifiers) throws SVParseException {
 		SVDBTask func = null;
-		SVDBLocation end = null;
+		long end = -1;
 		String tf_name;
 		
-		if (start == null) {
+		if (start == -1) {
 			start = fLexer.getStartLocation();
 		}
 		
-		String type = fLexer.readKeyword("task", "function");
+		KW type = fLexer.readKeyword(KW.TASK, KW.FUNCTION);
 	
 		// ??
 		// fLexer.eatToken();
 		
 		SVDBTypeInfo return_type = null;
-		if (type.equals("function")) {
-			if (fLexer.peekKeyword("new")) {
+		if (type == KW.FUNCTION) {
+			if (fLexer.peekKeyword(KW.NEW)) {
 				// constructor, so no return type
-				tf_name = fLexer.eatToken();
+				tf_name = fLexer.eatTokenR();
 				return_type = new SVDBTypeInfoBuiltin("");
 			} else {
-				if (fLexer.peekKeyword("static", "automatic")) {
+				if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
+					KW kw = fLexer.readKeywordE();
 				// 	TODO: should add this as a qualifier
-					if (fLexer.eatToken().equals("static")) {
+					if (kw == KW.STATIC) {
 						qualifiers |= SVDBFieldItem.FieldAttr_Static;
 					}
 				}
 				
 				// data-type or implicit
 				List<SVToken> data_type_or_implicit = null;
-				if (fLexer.peekKeyword("void","virtual") || 
+				if (fLexer.peekKeyword(KW.VOID, KW.VIRTUAL) || 
 						SVKeywords.isBuiltInType(fLexer.peek())) {
 					data_type_or_implicit = new ArrayList<SVToken>();
 					data_type_or_implicit.add(fLexer.consumeToken());
@@ -92,7 +92,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				}
 				// Note: data_type_or_implicit could, technically, be null
 
-				if (!fLexer.peekOperator(";", "(") || fLexer.peekOperator("[")) {
+				if (!fLexer.peekOperator(OP.SEMICOLON, OP.LPAREN) || fLexer.peekOperator(OP.LBRACKET)) {
 					// probably data-type or implicit data-type
 					// Un-get the tokens we have
 					if (data_type_or_implicit != null) {
@@ -114,9 +114,10 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		} else {
 			// task
-			if (fLexer.peekKeyword("static", "automatic")) {
+			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				// 	TODO: should add this as a qualifier
-				if (fLexer.eatToken().equals("static")) {
+				KW kw = fLexer.readKeywordE();
+				if (kw == KW.STATIC) {
 					qualifiers |= SVDBFieldItem.FieldAttr_Static;
 				}
 			}
@@ -129,11 +130,11 @@ public class SVTaskFunctionParser extends SVParserBase {
 			debug("Function Terminator: " + fLexer.peek());
 		}
 		// method declarations are required to have parens
-		if (is_decl || fLexer.peekOperator("(")) {
+		if (is_decl || fLexer.peekOperator(OP.LPAREN)) {
 			// parameter list or empty
 			params = parsers().tfPortListParser().parse();
 			is_ansi = true;
-		} else if (fLexer.peekOperator(";")) {
+		} else if (fLexer.peekOperator(OP.SEMICOLON)) {
 			// non-ANSI (?)
 			params = new ArrayList<SVDBParamPortDecl>();
 			is_ansi = false;
@@ -141,14 +142,14 @@ public class SVTaskFunctionParser extends SVParserBase {
 		
 		// Method declaration is not terminated with a semi-colon
 		if (!is_decl) {
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 		}
 		
 		if (fDebugEn) {
 			debug("Procesing " + type + " " + tf_name);
 		}
 		
-		if (type.equals("function")) {
+		if (type == KW.FUNCTION) {
 			func = new SVDBFunction(tf_name, return_type);
 		} else {
 			func = new SVDBTask(tf_name, SVDBItemType.Task);
@@ -178,13 +179,13 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 
 			end = fLexer.getStartLocation();
-			if  (type.equals("task")) {
-				fLexer.readKeyword("endtask");
+			if  (type == KW.TASK) {
+				fLexer.readKeyword(KW.ENDTASK);
 			} else {
-				fLexer.readKeyword("endfunction");
+				fLexer.readKeyword(KW.ENDFUNCTION);
 			}
 
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				String id = fLexer.readIdOrKeyword(); // could be :new
 
@@ -194,7 +195,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 			}
 		}
 		
-		if (end == null) {
+		if (end == -1) {
 			end = fLexer.getStartLocation();
 		}
 		

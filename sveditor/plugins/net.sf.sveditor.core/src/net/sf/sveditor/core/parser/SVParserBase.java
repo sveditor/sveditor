@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
 import net.sf.sveditor.core.log.ILogHandle;
@@ -77,7 +76,7 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 		return fParser.parsers();
 	}
 	
-	public SVDBLocation getLocation() {
+	public long getLocation() {
 		return fLexer.getStartLocation();
 	}
 
@@ -101,7 +100,7 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 		item.setEndLocation(getLocation());
 	}
 
-	public String getFilename(SVDBLocation loc) {
+	public String getFilename(long loc) {
 		return fParser.getFilename(loc);
 	}
 	

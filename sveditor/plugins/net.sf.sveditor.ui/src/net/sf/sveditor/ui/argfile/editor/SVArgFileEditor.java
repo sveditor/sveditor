@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -184,12 +185,12 @@ public class SVArgFileEditor extends TextEditor
 		int start = -1;
 		int end   = -1;
 		
-		if (it.getLocation() != null) {
-			start = it.getLocation().getLine();
+		if (it.getLocation() != -1) {
+			start = SVDBLocation.unpackLineno(it.getLocation());
 			
 			if (it instanceof ISVDBScopeItem &&
-					((ISVDBScopeItem)it).getEndLocation() != null) {
-				end = ((ISVDBScopeItem)it).getEndLocation().getLine();
+					((ISVDBScopeItem)it).getEndLocation() != -1) {
+				end = SVDBLocation.unpackLineno(((ISVDBScopeItem)it).getEndLocation());
 			}
 			setSelection(start, end, set_cursor);
 		}		
@@ -342,7 +343,7 @@ public class SVArgFileEditor extends TextEditor
 				ann = new Annotation(
 						"org.eclipse.ui.workbench.texteditor.error", 
 						false, marker.getMessage());
-				line = marker.getLocation().getLine();
+				line = SVDBLocation.unpackLineno(marker.getLocation());
 			}
 
 			if (ann != null) {

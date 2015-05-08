@@ -47,17 +47,17 @@ public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 	}
 
 	public void visitRef(
-			SVDBLocation 			loc,
+			long 					loc,
 			SVDBRefType 			type,
 			Stack<ISVDBItemBase>	scope_stack,
 			String 					name) {
 		
 //		System.out.println("visitRef: " + loc + " " + type + " " + name);
 		
-		if (loc == null) {
+		if (loc == -1) {
 			// Step up the stack to find the last location
 			for (int i=scope_stack.size()-1; i>=0; i--) {
-				if (scope_stack.get(i).getLocation() != null) {
+				if (scope_stack.get(i).getLocation() != -1) {
 					loc = scope_stack.get(i).getLocation();
 					break;
 				}
@@ -80,10 +80,10 @@ public class SVDBFileRefCollector implements ISVDBRefFinderVisitor {
 		}
 	}
 	
-	private void addRef(SVDBLocation loc, String name) {
+	private void addRef(long loc, String name) {
 //		System.out.println("addRef: " + loc + " " + name);
-		if (loc != null) {
-			int file_id = loc.getFileId();
+		if (loc != -1) {
+			int file_id = SVDBLocation.unpackFileId(loc);
 			List<Integer> file_list = fReferences.get(name);
 
 			if (file_list == null) {

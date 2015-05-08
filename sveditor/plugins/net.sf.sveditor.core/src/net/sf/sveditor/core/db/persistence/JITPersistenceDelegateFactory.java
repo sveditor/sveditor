@@ -1018,7 +1018,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 							// Stack layout:
 							// field value
 							// parent handle
-							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeInt", WRITE_LONG_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "writeLong", WRITE_LONG_SIG);
 						} else {
 							mv.visitVarInsn(ALOAD, READ_OBJ_VAR); // used by final PUTFIELD
 							
@@ -1028,7 +1028,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 							// Call readString
 							// Stack layout:
 							// parent handle
-							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "readInt", READ_LONG_SIG);
+							mv.visitMethodInsn(INVOKESPECIAL, fBaseClass, "readLong", READ_LONG_SIG);
 							mv.visitFieldInsn(PUTFIELD, tgt_classname, f.getName(), "J"); 
 						}
 					} else if (field_class == boolean.class) {

@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
@@ -486,7 +487,7 @@ public class SVArgFileOutlinePage extends ContentOutlinePage
 						if (fLastSelection == null || !fLastSelection.equals(it, true)) {
 							if (fDebugEn) {
 								fLog.debug("Setting SVArgFileEditor selection: " + SVDBItem.getName(it) + " @ " + 
-										((it.getLocation() != null)?it.getLocation().getLine():-1));
+										((it.getLocation() != -1)?SVDBLocation.unpackLineno(it.getLocation()):-1));
 							}
 							fEditor.setSelection(it, false);
 							fLastSelection = it;

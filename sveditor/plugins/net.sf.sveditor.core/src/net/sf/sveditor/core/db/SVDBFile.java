@@ -39,7 +39,7 @@ public class SVDBFile extends SVDBScopeItem {
 			}
 		}
 		fFile               = file;
-		setLocation(new SVDBLocation(-1, -1, -1));
+		setLocation(-1);
 	}
 	
 	public void setIndex(ISVDBIndex index) {
@@ -52,17 +52,6 @@ public class SVDBFile extends SVDBScopeItem {
 
 	public String getFilePath() {
 		return fFile;
-	}
-	
-	public void setFilePath(String file) {
-		if (file == null) {
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		fFile = file;
 	}
 	
 	public void clearChildren() {

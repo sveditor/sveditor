@@ -31,6 +31,7 @@ import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
@@ -219,6 +220,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 					ISVDBItemBase item = null;
 					if (expr != null) {
 						item = v.findTypeItem(expr);
+					} else {
+						fLog.debug(LEVEL_MID, "Expression parser returned null");
 					}
 
 					if (item == null) {
@@ -452,8 +455,6 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			} else {
 				fLog.debug("Failed to find package declaration \"" + pkg_decl.getName() + "\"");
 			}
-			System.out.println("Package Decl");
-			
 		} else if (leaf_item.getType() == SVDBItemType.VarDeclItem) {
 			// Get the field type
 			ISVDBItemBase item_type = getItemType(leaf_item);
@@ -857,12 +858,14 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		for (ISVDBChildItem c : p.getChildren()) {
 			if (c.getType() == SVDBItemType.ModIfcInst) {
 				last_inst = (SVDBModIfcInst)c;
-				if (c.getLocation().getLine() > lineno) {
+				int c_lineno = SVDBLocation.unpackLineno(c.getLocation());
+				if (c_lineno > lineno) {
 					break;
 				}
 			} else if (c instanceof ISVDBChildParent) {
 				// We're done if the start of this scope is beyond our current line
-				if (c.getLocation() != null && c.getLocation().getLine() > lineno) {
+				if (c.getLocation() != -1 && 
+						SVDBLocation.unpackLineno(c.getLocation()) > lineno) {
 					break;
 				}
 				if ((last_inst = findInst((ISVDBChildParent)c, lineno, linepos)) != null) {

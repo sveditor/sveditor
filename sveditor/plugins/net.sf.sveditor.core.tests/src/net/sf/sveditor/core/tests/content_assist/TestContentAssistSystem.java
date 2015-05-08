@@ -13,8 +13,6 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
@@ -41,8 +39,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 	}
 
 	public void testGlobalFieldRef() {
-		String testname = "testGlobalFieldRef";
-		LogHandle log = LogFactory.getLogHandle(testname);
+		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc = 
@@ -59,9 +56,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		
 		fUtils.copyBundleDirToWS("/data/content_assist/global_field_ref/", fProject);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		
-		ISVDBIndex index = rgy.findCreateIndex(
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(), "GENERIC", 
 				"${workspace_loc}/project/global_field_ref/global_field_ref.f",
 				SVDBArgFileIndexFactory.TYPE, null);
@@ -69,13 +64,10 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 
 		ContentAssistTests.runTest(testname, doc, index, 
 				"field_cls");
-		
-		LogFactory.removeLogHandle(log);		
 	}
 	
 	public void disabled_testShadowSVBuiltinProjectFile() {
-		String testname = "testFindSVBuiltinProcessProject";
-		LogHandle log = LogFactory.getLogHandle(testname);
+		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
@@ -108,8 +100,6 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		
 		ContentAssistTests.runTest(testname, doc, result.second(), 
 				"size");
-		
-		LogFactory.removeLogHandle(log);		
 	}
 
 	public void disabled_testShadowSVBuiltinNonProjectFile() {
@@ -174,6 +164,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", pdir);
 		
 		PrintStream argfile = new PrintStream(new File(pdir, "argfile.f"));
+		argfile.println("+define+QUESTA");
 		argfile.println("+incdir+./uvm/src");
 		argfile.println("./uvm/src/uvm_pkg.sv");
 		
@@ -312,7 +303,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		ISVDBIndex index = null;
 		
 		for (ISVDBIndex index_i : pdata.getProjectIndexMgr().getIndexList()) {
-			System.out.println("index: " + index_i.getBaseLocation());
+			fLog.debug("index: " + index_i.getBaseLocation());
 			if (index_i.getBaseLocation().equals("${workspace_loc}/pdir/argfile.f")) {
 				index = index_i;
 				break;
@@ -343,6 +334,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		utils.unpackBundleZipToFS("/uvm.zip", pdir);
 		
 		PrintStream argfile = new PrintStream(new File(pdir, "argfile.f"));
+		argfile.println("+define+QUESTA");
 		argfile.println("+incdir+./uvm/src");
 		argfile.println("./uvm/src/uvm_pkg.sv");
 		
@@ -363,7 +355,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		ISVDBIndex index = null;
 		
 		for (ISVDBIndex index_i : pdata.getProjectIndexMgr().getIndexList()) {
-			System.out.println("index: " + index_i.getBaseLocation());
+			fLog.debug("index: " + index_i.getBaseLocation());
 			if (index_i.getBaseLocation().equals("${workspace_loc}/pdir/argfile.f")) {
 				index = index_i;
 				break;

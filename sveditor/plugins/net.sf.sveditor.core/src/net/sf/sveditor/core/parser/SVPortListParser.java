@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
@@ -33,34 +32,34 @@ public class SVPortListParser extends SVParserBase {
 		SVDBTypeInfo last_type = null;
 		boolean is_ansi = false;
 		
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.LPAREN);
 
 		
-		if (fLexer.peekOperator(".*")) {
+		if (fLexer.peekOperator(OP.DOT_MUL)) {
 			fLexer.eatToken();
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 			return ports;
 		}
 		
-		if (fLexer.peekOperator(")")) {
+		if (fLexer.peekOperator(OP.RPAREN)) {
 			// empty port list
 			fLexer.eatToken();
 			return ports;
 		}
 		
 		while (true) {
-			SVDBLocation it_start = fLexer.getStartLocation();
+			long it_start = fLexer.getStartLocation();
 			
 			// Catch per-port attributes
 			try {
-				if (fLexer.peekOperator("(*")) {
+				if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 					fParsers.attrParser().parse(null);
 				}
 			} catch (SVParseException e) {}
 			
-			if (fLexer.peekKeyword("input", "output", "inout", "ref")) {
+			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT, KW.REF)) {
 				it_start = fLexer.getStartLocation();
-				String dir_s = fLexer.eatToken();
+				String dir_s = fLexer.eatTokenR();
 				is_ansi = true;
 				if (dir_s.equals("input")) {
 					dir = SVDBParamPortDecl.Direction_Input;
@@ -71,17 +70,17 @@ public class SVPortListParser extends SVParserBase {
 				} else if (dir_s.equals("ref")) {
 					dir = SVDBParamPortDecl.Direction_Ref;
 				}
-			} else if (fLexer.peekKeyword("const")) {
+			} else if (fLexer.peekKeyword(KW.CONST)) {
 				it_start = fLexer.getStartLocation();
 				fLexer.eatToken();
-				fLexer.readKeyword("ref");
+				fLexer.readKeyword(KW.REF);
 				dir = (SVDBParamPortDecl.Direction_Ref | SVDBParamPortDecl.Direction_Const);
 			}
 			
 			// This may be an untyped vectored parameter
 			SVDBTypeInfo type = null; 
 			String id = null;
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				SVDBTypeInfoBuiltin bi_type = new SVDBTypeInfoBuiltin("untyped");
 				bi_type.setVectorDim(fParsers.dataTypeParser().vector_dim());
 				type = bi_type;
@@ -95,7 +94,7 @@ public class SVPortListParser extends SVParserBase {
 
 				// Handle the case where a single type and a 
 				// list of parameters is declared
-				if (fLexer.peekOperator(",", ")", "=", "[")) {
+				if (fLexer.peekOperator(OP.COMMA, OP.RPAREN, OP.EQ, OP.LBRACKET)) {
 					// use previous type
 					id = type.getName();
 					if (last_type == null) {
@@ -107,7 +106,7 @@ public class SVPortListParser extends SVParserBase {
 					id = fLexer.readIdOrKeyword();
 
 					/* 
-					if (fLexer.peekOperator("[")) {
+					if (fLexer.peekOperator(OP.LBRACKET)) {
 						fLexer.startCapture();
 						fLexer.skipPastMatch("[", "]");
 						fLexer.endCapture();
@@ -126,13 +125,13 @@ public class SVPortListParser extends SVParserBase {
 			param.setLocation(it_start);
 			param_r.addChildItem(param);
 
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				// This port is an array port
 				param.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 
 			// Read in default value
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				param.setInitExpr(parsers().exprParser().expression());
 				if (fDebugEn) {
@@ -142,9 +141,9 @@ public class SVPortListParser extends SVParserBase {
 			 
 			ports.add(param_r);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
-				if (!is_ansi && fLexer.peekOperator(")")) {
+				if (!is_ansi && fLexer.peekOperator(OP.RPAREN)) {
 					// We're done
 					break;
 				}
@@ -153,7 +152,7 @@ public class SVPortListParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		return ports;
 	}

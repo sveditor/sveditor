@@ -2,6 +2,7 @@ package net.sf.sveditor.core.argfile.parser;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ScanLocation;
 
@@ -12,6 +13,7 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 	private int						fNextLinePos;
 	private int						fIdx;
 	private int						fUngetCh1, fUngetCh2;
+	private boolean					fLinenoValid;
 	
 	public SVArgFilePreProcOutput(
 			StringBuilder 		text,
@@ -50,6 +52,7 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 			fUngetCh2 = -1;
 		} else if (fIdx < fText.length()) {
 			ch = fText.charAt(fIdx++);
+			fLinenoValid = false;
 		}
 		return ch;
 	}
@@ -77,6 +80,50 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 		}
 		
 		return new ScanLocation("", fLineno, 1);
+	}
+	
+	@Override
+	public int getLineno() {
+		if (!fLinenoValid) {
+			update_location();
+		}
+		return fLineno;
+	}
+
+	@Override
+	public int getLinepos() {
+		if (!fLinenoValid) {
+			update_location();
+		}
+		return fLinepos;
+	}
+
+	@Override
+	public int getFileId() {
+	//	if (!fLinenoValid) {
+	//		update_location();
+	//	}
+		return 0;
+	}
+
+	public void update_location() {
+		// Spin the line location forward if necessary
+		if (fIdx >= fNextLinePos) {
+			// Need to move forward
+			while (fLineIdx < fLineMap.size() &&
+					fLineMap.get(fLineIdx) < fIdx) {
+				fLineIdx++;
+				fLineno++;
+			}
+		
+			// Once we reach the last line, ensure we
+			// don't keep doing this
+			if (fLineIdx >= fLineMap.size()) {
+				fNextLinePos = Integer.MAX_VALUE;
+			}
+		}
+		
+		fLinenoValid = true;
 	}
 
 	public long getPos() {

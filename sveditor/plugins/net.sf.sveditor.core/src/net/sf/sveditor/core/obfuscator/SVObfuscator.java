@@ -12,7 +12,6 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVOperators;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
@@ -152,9 +151,20 @@ public class SVObfuscator {
 		public ScanLocation getStartLocation() {
 			return fScanLocation;
 		}
+		
+		@Override
+		public int getFileId() {
+			return -1;
+		}
 
-		public ScanLocation getLocation() {
-			return new ScanLocation(fFileName, fLineno, 0);
+		@Override
+		public int getLineno() {
+			return fLineno;
+		}
+
+		@Override
+		public int getLinepos() {
+			return fLinepos;
 		}
 
 		public void setStmtLocation(ScanLocation location) {

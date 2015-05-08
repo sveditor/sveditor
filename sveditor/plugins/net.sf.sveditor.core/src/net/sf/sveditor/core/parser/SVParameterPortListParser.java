@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -38,16 +37,16 @@ public class SVParameterPortListParser extends SVParserBase {
 	public List<SVDBModIfcClassParam> parse() throws SVParseException {
 		List<SVDBModIfcClassParam> params = new ArrayList<SVDBModIfcClassParam>();
 		
-		fLexer.readOperator("#");
-		fLexer.readOperator("(");
+		fLexer.readOperator(OP.HASH);
+		fLexer.readOperator(OP.LPAREN);
 		
-		while (!fLexer.peekOperator(")")) {
+		while (!fLexer.peekOperator(OP.RPAREN)) {
 			String id = null;
 			SVDBModIfcClassParam p;
-			SVDBLocation it_start = fLexer.getStartLocation();
+			long it_start = fLexer.getStartLocation();
 			boolean is_type = false;
 
-			if (fLexer.peekKeyword("parameter")) {
+			if (fLexer.peekKeyword(KW.PARAMETER)) {
 				fLexer.eatToken();
 			}
 
@@ -55,7 +54,7 @@ public class SVParameterPortListParser extends SVParserBase {
 			// type T=int
 			// string Ts="foo"
 			// parameter int c[1:0]
-			if (fLexer.peekKeyword("type")) {
+			if (fLexer.peekKeyword(KW.TYPE)) {
 				fLexer.eatToken();
 				id = fLexer.readIdOrKeyword();
 				is_type = true;
@@ -65,7 +64,7 @@ public class SVParameterPortListParser extends SVParserBase {
 
 				// If the next element is an operator, then the 
 				// return from the type parser is the parameter name
-				if (fLexer.peekOperator(",", ")", "=")) {
+				if (fLexer.peekOperator(OP.COMMA, OP.RPAREN, OP.EQ)) {
 					id = type.getName();
 				} else {
 					// Otherwise, we have a type and a parameter name
@@ -73,7 +72,7 @@ public class SVParameterPortListParser extends SVParserBase {
 				}
 			}
 			
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				// TODO: handle vectored
 				fLexer.skipPastMatch("[", "]");
 			}
@@ -82,7 +81,7 @@ public class SVParameterPortListParser extends SVParserBase {
 			p = new SVDBModIfcClassParam(id);
 			p.setLocation(it_start);
 
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				
 				// TODO:
@@ -102,13 +101,13 @@ public class SVParameterPortListParser extends SVParserBase {
 
 			params.add(p);
 
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
-		fLexer.readOperator(")");
+		fLexer.readOperator(OP.RPAREN);
 		
 		
 		return params;

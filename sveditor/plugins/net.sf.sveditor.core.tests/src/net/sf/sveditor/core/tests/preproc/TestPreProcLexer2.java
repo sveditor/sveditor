@@ -212,13 +212,15 @@ public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 		int idx = 0;
 		while ((t = lexer.consumeToken()) != null) {
 			fLog.debug("Token: " + t.getImage() + " @ " + 
-					t.getStartLocation().getFileId() + ":" +
-					t.getStartLocation().getLine());
+					SVDBLocation.unpackFileId(t.getStartLocation()) + ":" +
+					SVDBLocation.unpackLineno(t.getStartLocation()));
 			assertEquals(images[idx], t.getImage());
 			assertEquals("File ID of " + images[idx] + "(" + idx + ")", 
-					locations[idx].getFileId(), t.getStartLocation().getFileId());
+					locations[idx].getFileId(), 
+					SVDBLocation.unpackFileId(t.getStartLocation()));
 			assertEquals("Line of " + images[idx] + "(" + idx + ")", 
-					locations[idx].getLine(), t.getStartLocation().getLine());
+					locations[idx].getLine(), 
+					SVDBLocation.unpackLineno(t.getStartLocation()));
 			idx++;
 		}
 	}

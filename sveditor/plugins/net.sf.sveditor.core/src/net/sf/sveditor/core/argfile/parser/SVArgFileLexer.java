@@ -20,7 +20,6 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.ISVParser;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVArgFileLexer extends SVArgFileToken {
 	private ITextScanner 				fScanner;
@@ -76,7 +75,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 		fImage = tok.getImage();
 		fIsPath = tok.isPath();
 		fIsOption = tok.isOption();
-		fStartLocation = tok.getStartLocation().duplicate();
+		fStartLocation = tok.getStartLocation();
 	}
 
 	public SVArgFileToken peekToken() {
@@ -346,8 +345,10 @@ public class SVArgFileLexer extends SVArgFileToken {
 		fStringBuffer.setLength(0);
 
 		// TODO: should fix
-		ScanLocation loc = fScanner.getLocation();
-		fStartLocation = new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos());
+		fStartLocation = SVDBLocation.pack(
+				fScanner.getFileId(),
+				fScanner.getLineno(),
+				fScanner.getLinepos());
 
 		if (ch == -1) {
 			fEOF = true;
@@ -380,7 +381,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 			fEOF = true;
 			
 			if (fDebugEn) {
-				debug("EOF - " + getStartLocation().toString());
+				debug("EOF - " + SVDBLocation.toString(getStartLocation()));
 			}
 			
 			if (fDebugEn) {
@@ -392,7 +393,8 @@ public class SVArgFileLexer extends SVArgFileToken {
 
 			fTokenConsumed = false;
 			if (fDebugEn) {
-				debug("next_token(): \"" + fImage + "\" @ " + getStartLocation().getLine());
+				debug("next_token(): \"" + fImage + "\" @ " + 
+						SVDBLocation.unpackLineno(getStartLocation()));
 			}
 			if (fDebugEn) {
 				fLog.debug("<-- next_token_int()");

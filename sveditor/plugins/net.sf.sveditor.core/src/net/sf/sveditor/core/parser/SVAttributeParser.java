@@ -23,26 +23,26 @@ public class SVAttributeParser extends SVParserBase {
 	public void parse(ISVDBAddChildItem parent) throws SVParseException {
 		// TODO: save these later
 		try {
-			while (fLexer.peekOperator("(*")) {
+			while (fLexer.peekOperator(OP.LPAREN_MUL)) {
 				fLexer.setInAttr(true);
 				fLexer.eatToken();
 
 				while (fLexer.peek() != null) {
 					fLexer.readId();
 
-					if (fLexer.peekOperator("=")) {
+					if (fLexer.peekOperator(OP.EQ)) {
 						fLexer.eatToken();
 						fParsers.exprParser().expression();
 					}
 
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					} else {
 						break;
 					}
 				}
 
-				fLexer.readOperator("*)");
+				fLexer.readOperator(OP.MUL_RPAREN);
 			}
 		} finally {
 			fLexer.setInAttr(false);

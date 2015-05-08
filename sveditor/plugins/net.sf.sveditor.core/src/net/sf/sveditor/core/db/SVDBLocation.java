@@ -14,46 +14,34 @@ package net.sf.sveditor.core.db;
 
 
 public class SVDBLocation {
-	public int				fFileId;
-	public int				fLine;
-	public int				fPos;
+	private long			fLocation;
 
-	/*
-	public SVDBLocation(int line, int pos) {
-		fFileId = -1;
-		fLine   = line;
-		fPos    = pos;
-	}
-	 */
-	
 	public SVDBLocation(int file_id, int line, int pos) {
-		fFileId = file_id;
-		fLine   = line;
-		fPos    = pos;
+		fLocation = pack(file_id, line, pos);
+	}
+	
+	public SVDBLocation(long location) {
+		fLocation = location;
 	}
 
 	public SVDBLocation(SVDBLocation other) {
-		fFileId = other.fFileId;
-		fLine	= other.fLine;
-		fPos	= other.fPos;
+		fLocation = other.fLocation;
 	}
 	
 	public int getFileId() {
-		return fFileId;
+		return unpackFileId(fLocation);
 	}
 
 	public int getLine() {
-		return fLine;
+		return unpackLineno(fLocation);
 	}
 	
 	public int getPos() {
-		return fPos;
+		return unpackPos(fLocation);
 	}
 	
 	public void init(SVDBLocation other) {
-		fFileId = other.fFileId;
-		fLine = other.fLine;
-		fPos  = other.fPos;
+		fLocation = other.fLocation;
 	}
 	
 	public SVDBLocation duplicate() {
@@ -65,7 +53,7 @@ public class SVDBLocation {
 			boolean ret = true;
 			SVDBLocation o = (SVDBLocation)other;
 			
-			ret &= (o.fLine == fLine &&	o.fPos == fPos && o.fFileId == fFileId);
+			ret &= (o.fLocation == fLocation);
 			
 			return ret;
 		}
@@ -73,6 +61,35 @@ public class SVDBLocation {
 	}
 	
 	public String toString() {
-		return fFileId + ":" + fLine;
+		return "" + unpackFileId(fLocation) + ":" + 
+					unpackLineno(fLocation) + ":" +
+					unpackPos(fLocation);
+	}
+	
+	public static String toString(long location) {
+		return "TODO: " + location;
+	}
+	
+	public static long pack(int fileid, int lineno, int linepos) {
+		long ret = fileid;
+		ret <<= 32;
+		ret |= (lineno & 0xFFFFFF) << 8;
+		ret |= linepos;
+		
+		return ret;
+	}
+	
+	public static int unpackFileId(long location) {
+		return (int)((location >> 32) & 0xFFFFFFFF);
+	}
+	
+	public static int unpackLineno(long location) {
+		int ret = (int)((location >> 8) & 0xFFFFFF);
+		return (ret == 0xFFFFFF)?-1:ret;
+	}
+	
+	public static int unpackPos(long location) {
+		int ret = (int)(location & 0xFF);
+		return (ret == 0xFF)?-1:ret;
 	}
 }

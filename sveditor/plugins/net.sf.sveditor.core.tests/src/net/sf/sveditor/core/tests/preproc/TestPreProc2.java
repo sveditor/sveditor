@@ -199,7 +199,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				new SVDBMarker[] {
 						new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 								"Failed to find include file missing.svh",
-								new SVDBLocation(0, 2, 0))
+								SVDBLocation.pack(0,  2,  0))
 				}
 				);
 	}
@@ -221,7 +221,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				new SVDBMarker[] {
 						new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 								"Failed to find include file missing.svh",
-								new SVDBLocation(0, 4, 0))
+								SVDBLocation.pack(0, 4, 0))
 				}
 				);
 	}
@@ -452,8 +452,9 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			SVDBMarker m = markers.get(i);
 			
 			fLog.debug("Marker: " + m.getMessage() + ":" + m.getMarkerType() + ":" + m.getKind() + ":" + 
-					m.getLocation().getFileId() + ":" + m.getLocation().getLine() + ":" +
-					m.getLocation().getPos());
+					SVDBLocation.unpackFileId(m.getLocation()) + ":" + 
+					SVDBLocation.unpackLineno(m.getLocation()) + ":" +
+					SVDBLocation.unpackPos(m.getLocation()));
 			
 			if (unmatched.contains(m)) {
 				markers.remove(i);
@@ -466,11 +467,13 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		for (SVDBMarker m : unmatched) {
 			fLog.debug("Failed to match marker: " + m.getMessage() + ":" + m.getMarkerType() + ":" + m.getKind() + ":" + 
-					m.getLocation().getFileId() + ":" + m.getLocation().getLine() + ":" +
-					m.getLocation().getPos());
+					SVDBLocation.unpackFileId(m.getLocation()) + ":" + 
+					SVDBLocation.unpackLineno(m.getLocation()) + ":" +
+					SVDBLocation.unpackPos(m.getLocation()));
 			sb.append("m=" + m.getMessage() + ":" + m.getMarkerType() + ":" + m.getKind() + ":" + 
-					m.getLocation().getFileId() + ":" + m.getLocation().getLine() + ":" +
-					m.getLocation().getPos() + " ; ");
+					SVDBLocation.unpackFileId(m.getLocation()) + ":" + 
+					SVDBLocation.unpackLineno(m.getLocation()) + ":" +
+					SVDBLocation.unpackPos(m.getLocation()) + " ; ");
 		}
 		
 		assertEquals("Failed to find markers: " + sb.toString(), 0, unmatched.size());
@@ -478,11 +481,13 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		sb.setLength(0);
 		for (SVDBMarker m : unmatched) {
 			fLog.debug("Unexpected marker: " + m.getMessage() + ":" + m.getMarkerType() + ":" + m.getKind() + ":" + 
-					m.getLocation().getFileId() + ":" + m.getLocation().getLine() + ":" +
-					m.getLocation().getPos());
+					SVDBLocation.unpackFileId(m.getLocation()) + ":" + 
+					SVDBLocation.unpackLineno(m.getLocation()) + ":" +
+					SVDBLocation.unpackPos(m.getLocation()));
 			sb.append("m=" + m.getMessage() + ":" + m.getMarkerType() + ":" + m.getKind() + ":" + 
-					m.getLocation().getFileId() + ":" + m.getLocation().getLine() + ":" +
-					m.getLocation().getPos() + " ; ");
+					SVDBLocation.unpackFileId(m.getLocation()) + ":" + 
+					SVDBLocation.unpackLineno(m.getLocation()) + ":" +
+					SVDBLocation.unpackPos(m.getLocation()) + " ; ");
 		}
 		
 		assertEquals("Unexpected markers: " + sb.toString(), 0, unmatched.size());

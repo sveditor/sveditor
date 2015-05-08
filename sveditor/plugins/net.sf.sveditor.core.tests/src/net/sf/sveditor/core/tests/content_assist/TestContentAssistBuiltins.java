@@ -25,8 +25,6 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -67,7 +65,6 @@ public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 	}
 
 	public void testCovergroupOption() {
-		LogHandle log = LogFactory.getLogHandle("testCovergroupOption");
 		String doc =
 			"class my_class1;\n" +							// 1
 			"\n" +											// 2
@@ -92,7 +89,7 @@ public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 
 		IndexTestUtils.assertFileHasElements(index_it, "my_class1" /*, "my_class1::foo" */);
 		
-		log.debug("");
+		fLog.debug("");
 		
 		cp.computeProposals(scanner, ini.first(), 
 				ini.second().getLineMap().get("MARK"));
@@ -101,8 +98,6 @@ public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 		// TODO: at some point, my_class1 and my_class2 will not be proposals,
 		// since they are types not variables 
 		validateResults(new String[] {"per_instance"}, proposals);
-		
-		LogFactory.removeLogHandle(log);
 	}
 
 	public void testCovergroupTypeOptionMergeInstances() {

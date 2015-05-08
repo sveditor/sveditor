@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -26,40 +25,40 @@ public class SVBlockItemDeclParser extends SVParserBase {
 		super(parser);
 	}
 
-	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, long start) throws SVParseException {
 		parse(parent, type, start, true);
 	}
 
-	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, SVDBLocation start, boolean consume_terminator) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent, SVDBTypeInfo type, long start, boolean consume_terminator) throws SVParseException {
 		
-		if (fLexer.peekKeyword("typedef")) {
+		if (fLexer.peekKeyword(KW.TYPEDEF)) {
 			parsers().dataTypeParser().typedef(parent);
 		} else {
 			String dir = null;
-			if (start == null) {
+			if (start == -1) {
 				start = fLexer.getStartLocation();
 			}
-			if (fLexer.peekKeyword("input","output","inout")) {
+			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT)) {
 				// TODO: add qualifiers to variable
-				dir = fLexer.eatToken();
+				dir = fLexer.eatTokenR();
 			}
 			// TODO: add qualifiers to variable
-			if (fLexer.peekKeyword("const")) {
+			if (fLexer.peekKeyword(KW.CONST)) {
 				fLexer.eatToken();
 			}
-			if (fLexer.peekKeyword("var")) {
+			if (fLexer.peekKeyword(KW.VAR)) {
 				fLexer.eatToken();
 			}
 
-			if (fLexer.peekKeyword("static", "automatic")) {
+			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				fLexer.eatToken();
 			}
 
 			// Should be the data-type
-			// String id = fLexer.eatToken();
-			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypes)) && !fLexer.peekKeyword("void")) ||
+			// String id = fLexer.eatTokenR();
+			if (((fLexer.peekKeyword(SVKeywords.fBuiltinTypesE)) && !fLexer.peekKeyword(KW.VOID)) ||
 					!SVKeywords.isSVKeyword(fLexer.peek()) || 
-					fLexer.peekKeyword("struct","union","enum","virtual")) {
+					fLexer.peekKeyword(KW.STRUCT,KW.UNION,KW.ENUM,KW.VIRTUAL)) {
 				String name = null;
 				// Data declaration or statement
 				if (type == null) {
@@ -81,9 +80,9 @@ public class SVBlockItemDeclParser extends SVParserBase {
 				parent.addChildItem(var_decl);
 
 				// Ensure we don't misinterpret a static reference
-				if (!fLexer.peekOperator("::")) {
+				if (!fLexer.peekOperator(OP.COLON2)) {
 					while (fLexer.peek() != null) {
-						SVDBLocation it_start = fLexer.getStartLocation();
+						long it_start = fLexer.getStartLocation();
 						if (name == null) {
 							name = fLexer.readId();
 						}
@@ -94,16 +93,16 @@ public class SVBlockItemDeclParser extends SVParserBase {
 						var_decl.addChildItem(var);
 
 						// TODO: handle array, queue, etc
-						if (fLexer.peekOperator("[")) {
+						if (fLexer.peekOperator(OP.LBRACKET)) {
 							var.setArrayDim(parsers().dataTypeParser().var_dim());
 						}
 
-						if (fLexer.peekOperator("=")) {
+						if (fLexer.peekOperator(OP.EQ)) {
 							fLexer.eatToken();
 							var.setInitExpr(parsers().exprParser().expression());
 						}
 
-						if (fLexer.peekOperator(",")) {
+						if (fLexer.peekOperator(OP.COMMA)) {
 							// Could be:
 							// => , <var_id>
 							// => <type_id> <var_id>
@@ -130,7 +129,7 @@ public class SVBlockItemDeclParser extends SVParserBase {
 						name = null;
 					}
 					if (consume_terminator) {
-						fLexer.readOperator(";");
+						fLexer.readOperator(OP.SEMICOLON);
 					}
 				}
 			} else {

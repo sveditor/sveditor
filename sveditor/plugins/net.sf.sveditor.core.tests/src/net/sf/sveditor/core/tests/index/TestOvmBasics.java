@@ -52,6 +52,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 	
 	public void testXbusExample() {
 		SVCorePlugin.getDefault().enableDebug(false);
+//		SVCorePlugin.getDefault().setDebugLevel(LEVEL_MIN);
 		LogHandle log = LogFactory.getLogHandle("testXbusExample");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
@@ -90,14 +91,14 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		IProject p = TestUtils.createProject("trivial", trivial);
 		addProject(p);
 		
-		System.out.println("--> findCreateIndex");
+		fLog.debug("--> findCreateIndex");
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/trivial/compile_questa_sv.f",
 				SVDBArgFileIndexFactory.TYPE, null);
-		System.out.println("<-- findCreateIndex");
-		System.out.println("--> loadIndex");
+		fLog.debug("<-- findCreateIndex");
+		fLog.debug("--> loadIndex");
 		index.loadIndex(new NullProgressMonitor());
-		System.out.println("<-- loadIndex");
+		fLog.debug("<-- loadIndex");
 		
 		/*
 		ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());

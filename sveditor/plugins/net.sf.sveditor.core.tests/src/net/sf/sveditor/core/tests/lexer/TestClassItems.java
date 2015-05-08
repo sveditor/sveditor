@@ -78,8 +78,8 @@ public class TestClassItems extends TestCase {
 			public SVParserConfig getConfig() {
 				return null;
 			}
-			public String getFilename(SVDBLocation loc) {
-				return "Unknown: " + loc.getFileId();
+			public String getFilename(long loc) {
+				return "Unknown: " + SVDBLocation.unpackFileId(loc);
 			}
 		};
 		lexer.init(parser, new StringTextScanner(content));

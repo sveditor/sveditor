@@ -33,23 +33,23 @@ public class SVClockingBlockParser extends SVParserBase {
 			String type = null;
 			
 			// TODO: 
-			if (fLexer.peekKeyword("default", "global") ) {
-				type = fLexer.eatToken();
+			if (fLexer.peekKeyword(KW.DEFAULT, KW.GLOBAL)) {
+				type = fLexer.eatTokenR();
 			}
-			fLexer.readKeyword("clocking");
+			fLexer.readKeyword(KW.CLOCKING);
 
-			if (!fLexer.peekOperator("@")) {
+			if (!fLexer.peekOperator(OP.AT)) {
 				// Expect a clocking block identifier
 				name = fLexer.readId();
 			}
 			clk_blk.setName(name);
 
 			clk_blk.setExpr(fParsers.exprParser().clocking_event());
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 
 			// Global clocking does not have a body
 			if (type == null || !type.equals("global")) {
-				while (fLexer.peek() != null && !fLexer.peekKeyword("endclocking")) {
+				while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLOCKING)) {
 					clocking_item(clk_blk);
 				}
 			}
@@ -59,13 +59,13 @@ public class SVClockingBlockParser extends SVParserBase {
 				fLexer.eatToken();
 				String type = fLexer.readKeyword("input", "output");
 				// TODO:
-				fLexer.readOperator(";");
+				fLexer.readOperator(OP.SEMICOLON);
 			} else if (fLexer.peekKeyword("input))
 				 */
 			clk_blk.setEndLocation(fLexer.getStartLocation());
-			fLexer.readKeyword("endclocking");
+			fLexer.readKeyword(KW.ENDCLOCKING);
 
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
@@ -77,22 +77,22 @@ public class SVClockingBlockParser extends SVParserBase {
 		if (fDebugEn) {
 			debug("clocking_item: " + fLexer.peek());
 		}
-		if (fLexer.peekKeyword("default")) {
+		if (fLexer.peekKeyword(KW.DEFAULT)) {
 			// default 
 			default_skew();
-			fLexer.readOperator(";");
-		} else if (fLexer.peekKeyword("input", "output", "inout")) {
+			fLexer.readOperator(OP.SEMICOLON);
+		} else if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT)) {
 			// TODO: Add to AST
 			// clocking_direction [clocking_skew] list_of_clocking_decl_assign
-			String dir = fLexer.eatToken();
+			String dir = fLexer.eatTokenR();
 			if (fDebugEn) {
 				debug("post-direction: " + fLexer.peek());
 			}
-			if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
+			if (fLexer.peekKeyword(KW.POSEDGE, KW.NEGEDGE) || fLexer.peekOperator(OP.HASH)) {
 				clocking_skew();
-				if (dir.equals("input") && fLexer.peekKeyword("output")) {
+				if (dir.equals("input") && fLexer.peekKeyword(KW.OUTPUT)) {
 					fLexer.eatToken();
-					if (fLexer.peekKeyword("posedge","negedge") || fLexer.peekOperator("#")) {
+					if (fLexer.peekKeyword(KW.POSEDGE, KW.NEGEDGE) || fLexer.peekOperator(OP.HASH)) {
 						clocking_skew();
 					}
 				}
@@ -101,19 +101,19 @@ public class SVClockingBlockParser extends SVParserBase {
 			while (fLexer.peek() != null) {
 				fLexer.readId();
 
-				if (fLexer.peekOperator("=")) {
+				if (fLexer.peekOperator(OP.EQ)) {
 					fLexer.eatToken();
 					fParsers.exprParser().expression();
 				}
 
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 				} else {
 					break;
 				}
 			}
 
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 		} else {
 			// {attribute_instance} assertion_item_declaration
 			fParsers.attrParser().parse(null);
@@ -136,21 +136,21 @@ public class SVClockingBlockParser extends SVParserBase {
 
 	// TODO: save parsed information
 	private void default_skew() throws SVParseException {
-		fLexer.readKeyword("default");
+		fLexer.readKeyword(KW.DEFAULT);
 
-		String type = fLexer.readKeyword("input", "output");
+		KW type = fLexer.readKeyword(KW.INPUT, KW.OUTPUT);
 		clocking_skew();
-		if (type.equals("input") && fLexer.peekKeyword("output")) {
-			fLexer.readKeyword("output");
+		if (type == KW.INPUT && fLexer.peekKeyword(KW.OUTPUT)) {
+			fLexer.eatToken();
 			clocking_skew();
 		}
 	}
 
 	// TODO: save parsed information
 	private void clocking_skew() throws SVParseException {
-		if (fLexer.peekKeyword("posedge", "negedge")) {
+		if (fLexer.peekKeyword(KW.POSEDGE, KW.NEGEDGE)) {
 			fLexer.eatToken();
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				fParsers.exprParser().delay_expr(3);
 			}
 		} else {
@@ -162,28 +162,24 @@ public class SVClockingBlockParser extends SVParserBase {
 	private String event_expr() throws SVParseException {
 		String ret = null;
 		
-		try {
-			while (fLexer.peek() != null) {
-				if (fLexer.peekOperator("(")) {
-					fLexer.skipPastMatch("(", ")");
-				} else {
-					if (fLexer.peekKeyword("posedge","negedge","event")) {
-						fLexer.eatToken();
-					}
-					fLexer.readId();
-				}
-				if (fLexer.peekOperator(",")) {
+		while (fLexer.peek() != null) {
+			if (fLexer.peekOperator(OP.LPAREN)) {
+				fLexer.skipPastMatch("(", ")");
+			} else {
+				if (fLexer.peekKeyword(KW.POSEDGE, KW.NEGEDGE, KW.EVENT)) {
 					fLexer.eatToken();
-				} else if (fLexer.peekKeyword("or")) {
-					fLexer.eatToken();
-				} else {
-					break;
 				}
+				fLexer.readId();
 			}
-		} finally {
-			ret = fLexer.endCapture();
+			if (fLexer.peekOperator(OP.COMMA)) {
+				fLexer.eatToken();
+			} else if (fLexer.peekKeyword(KW.OR)) {
+				fLexer.eatToken();
+			} else {
+				break;
+			}
 		}
-	
+
 		return ret;
 	}
 

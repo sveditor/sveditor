@@ -2,8 +2,8 @@ package net.sf.sveditor.core.db.index.ops;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -54,8 +54,8 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 					String msg = m.getMessage();
 					String type = "";
 					
-					if (m.getLocation() != null) {
-						lineno = m.getLocation().getLine();
+					if (m.getLocation() != -1) {
+						lineno = SVDBLocation.unpackLineno(m.getLocation());
 					}
 					
 					switch (m.getMarkerType()) {

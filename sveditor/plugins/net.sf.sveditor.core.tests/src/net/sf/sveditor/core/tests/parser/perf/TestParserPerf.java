@@ -24,10 +24,10 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
@@ -39,11 +39,9 @@ import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ParserSVDBFileFactory;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVLexer;
-import net.sf.sveditor.core.parser.SVToken;
-import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
@@ -292,14 +290,14 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		
 		long lex_start = System.currentTimeMillis();
 		int tcount = 0;
-		while (l.eatToken() != null) {
+		while (l.eatTokenR() != null) {
 			tcount++;
 		}
 		long lex_end = System.currentTimeMillis();
 		
 		System.out.println("Processed " + tcount + " tokens in " + (lex_end-lex_start) + "ms");
 	
-		ParserSVDBFileFactory ff = new ParserSVDBFileFactory();
+		SVParser ff = new SVParser();
 		List<SVDBMarker> m = new ArrayList<SVDBMarker>();
 		long parse_start = System.currentTimeMillis();
 		ff.parse(SVLanguageLevel.SystemVerilog, pp_out_parse, "", m);
@@ -442,9 +440,9 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 	private void traverse_files(ISVDBChildParent p, int file_id) {
 		for (ISVDBChildItem c : p.getChildren()) {
 			System.out.println("Item: " + SVDBItem.getName(c));
-			if (c.getLocation() != null && c.getLocation().getFileId() != file_id) {
-				System.out.println("Switch to file: " + c.getLocation().getFileId());
-				file_id = c.getLocation().getFileId();
+			if (c.getLocation() != -1 && SVDBLocation.unpackFileId(c.getLocation()) != file_id) {
+				System.out.println("Switch to file: " + SVDBLocation.unpackFileId(c.getLocation()));
+				file_id = SVDBLocation.unpackFileId(c.getLocation());
 			}
 
 			if (c instanceof ISVDBChildParent) {

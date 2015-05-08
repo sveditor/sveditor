@@ -12,7 +12,9 @@
 
 package net.sf.sveditor.core.parser;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -37,7 +39,6 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
-import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
@@ -60,132 +61,233 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		super(parser);
 	}
 	
-	public void parse(ISVDBAddChildItem parent, String typename) throws SVParseException {
+	public void parse(ISVDBAddChildItem parent) throws SVParseException {
 		int modifiers = 0;
-		if (fLexer.peekOperator("(*")) {
+		if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 			fParsers.attrParser().parse(parent);
 		}
 		String id = fLexer.peek();
 
 		if (fDebugEn) {
 			debug("--> process_module_class_interface_body_item: \"" + id + 
-					"\" @ " + fLexer.getStartLocation().getLine());
+					"\" @ " + SVDBLocation.unpackLineno(fLexer.getStartLocation()));
 		}
 
 		// Save the start location before qualifiers
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		modifiers = fParsers.SVParser().scan_qualifiers(false);
+		
+//		id = fLexer.peek();
+		KW kw = fLexer.peekKeywordE();
 
-		id = fLexer.peek();
+		if (kw != null) {
 
-		if (fDebugEn) {
-			debug("body item is: " + id);
-		}
-
-		if (id.equals("function") || id.equals("task")) {
-			parsers().taskFuncParser().parse(parent, start, modifiers);
-		} else if (fLexer.peekKeyword("assert","assume","cover","restrict", "expect")) {
-			parsers().assertionParser().parse(parent, "");
-		} else if (id.equals("property")) {
-			fParsers.propertyParser().property(parent);
-		} else if (fLexer.peekKeyword("generate", "for", "if", "case")) {
-			// Generate-block statements
-			parsers().generateBlockParser().parse(parent);
-		} else if (id.equals("specify")) {
-			parsers().specifyBlockParser().parse(parent);
-		} else if (fLexer.peekKeyword("default", "global", "clocking")) {
-			// Clocking block
-			parsers().clockingBlockParser().parse(parent);
-		} else if (id.equals(";")) {
-			// null statement
-			SVDBNullStmt stmt = new SVDBNullStmt();
-			stmt.setLocation(fLexer.getStartLocation());
-			fLexer.eatToken();
-			parent.addChildItem(stmt);
-		} else if (fLexer.peekKeyword("always","always_comb","always_latch","always_ff","initial")) {
-			parse_initial_always(parent);
-		} else if (fLexer.peekKeyword("final")) {
-			parse_final(parent);
-		} else if (id.equals("modport")) {
-			modport_decl(parent);
-		} else if (id.equals("assign")) {
-			parse_continuous_assign(parent);
-		} else if (id.equals("bind")) {
-			parse_bind(parent);
-		} else if (id.equals("covergroup")) {
-			parsers().covergroupParser().parse(parent);
-		} else if (id.equals("constraint")) {
-			fParsers.constraintParser().parse(parent, modifiers);
-		} else if (id.equals("sequence")) {
-			fParsers.sequenceParser().sequence(parent);
-		} else if (id.equals("import")) {
-			parsers().impExpParser().parse_import(parent);
-		} else if (id.equals("export")) {
-			parsers().impExpParser().parse_export(parent);
-		} else if (id.equals("clocking")) {
-			fParsers.clockingBlockParser().parse(parent);
-		} else if (id.equals("typedef")) {
-			parsers().dataTypeParser().typedef(parent);
-		} else if (id.equals("class")) {
-			parsers().classParser().parse(parent, modifiers);
-		} else if (id.equals("module") || id.equals("program") ||
-				(id.equals("interface") && (modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0)) {
-			// enter module scope
-			parsers().modIfcProgParser().parse(parent, modifiers);
-		} else if (id.equals("parameter") || id.equals("localparam")) {
-			parse_parameter_decl(parent);
-		} else if (fLexer.peekKeyword("defparam")) {
-			SVDBDefParamStmt defparam = new SVDBDefParamStmt();
-			defparam.setLocation(fLexer.getStartLocation());
-			fLexer.eatToken();
-			
-			parent.addChildItem(defparam);
-			
-			while (fLexer.peek() != null) {
-				SVDBLocation is = fLexer.getStartLocation();
-				SVDBDefParamItem item = new SVDBDefParamItem();
-				item.setLocation(is);
-				item.setTarget(fParsers.exprParser().hierarchical_identifier());
-				fLexer.readOperator("=");
-				item.setExpr(fParsers.exprParser().expression());
-				
-				defparam.addParamAssign(item);
-				
-				if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
-				} else {
-					break;
-				}
+			if (fDebugEn) {
+				debug("body item kw is: " + kw);
 			}
-			fLexer.readOperator(";");
-		} else if (SVDataTypeParser.NetType.contains(id)) {
-			parse_var_decl_net_type (parent);
-		} else if (fLexer.peekKeyword(SVKeywords.fBuiltinGates)) {
-			parsers().gateInstanceParser().parse(parent);
-		} else if (fLexer.peekKeyword("defparam", "specparam")) {
-			// TODO: defparam doesn't appear in hierarchy
-			fLexer.eatToken();
-			while (fLexer.peek() != null && !fLexer.peekOperator(";")) {
-				parsers().exprParser().expression();
-				if (fLexer.peekOperator(",")) {
-					fLexer.eatToken();
-				} else {
+			
+			switch (kw) {
+				case FUNCTION:
+				case TASK:
+					parsers().taskFuncParser().parse(parent, start, modifiers);
 					break;
-				}
-			}
-			fLexer.readOperator(";");
-		} else if (fLexer.peekKeyword("timeprecision","timeunit")) {
-			parse_time_units_precision(parent);
-		} else if (!fLexer.peekOperator()) {
-			if (fLexer.peekId()) {
-				SVToken tok = fLexer.consumeToken();
-				if (fLexer.peekOperator(":")) {
-					// Labeled assertion
-					String assertion_label = tok.getImage();
+					
+				case ASSERT:
+				case ASSUME:
+				case COVER:
+				case RESTRICT:
+				case EXPECT:
+					parsers().assertionParser().parse(parent, "");
+					break;
+					
+				case PROPERTY:
+					fParsers.propertyParser().property(parent);
+					break;
+					
+				case GENERATE:
+				case FOR:
+				case IF:
+				case CASE:
+					// Generate-block statements
+					parsers().generateBlockParser().parse(parent);
+					break;
+					
+				case SPECIFY:
+					parsers().specifyBlockParser().parse(parent);
+					break;
+					
+				case DEFAULT:
+				case GLOBAL:
+				case CLOCKING:
+					// Clocking block
+					parsers().clockingBlockParser().parse(parent);
+					break;
+					
+				case ALWAYS:
+				case ALWAYS_COMB:
+				case ALWAYS_LATCH:
+				case ALWAYS_FF:
+				case INITIAL:
+					parse_initial_always(parent);
+					break;
+					
+				case FINAL:
+					parse_final(parent);
+					break;
+					
+				case MODPORT:
+					modport_decl(parent);
+					break;
+					
+				case ASSIGN:
+					parse_continuous_assign(parent);
+					break;
+					
+				case BIND:
+					parse_bind(parent);
+					break;
+					
+				case COVERGROUP:
+					fParsers.covergroupParser().parse(parent);
+					break;
+					
+				case CONSTRAINT:
+					fParsers.constraintParser().parse(parent, modifiers);
+					break;
+					
+				case SEQUENCE:
+					fParsers.sequenceParser().sequence(parent);
+					break;
+					
+				case IMPORT:
+					fParsers.impExpParser().parse_import(parent);
+					break;
+					
+				case EXPORT:
+					fParsers.impExpParser().parse_export(parent);
+					break;
+					
+				case TYPEDEF:
+					fParsers.dataTypeParser().typedef(parent);
+					break;
+					
+				case CLASS:
+					parsers().classParser().parse(parent, modifiers);
+					break;
+					
+				case MODULE:
+				case PROGRAM:
+				case INTERFACE:
+					if (kw == KW.INTERFACE) {
+						if ((modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0) {
+							parsers().modIfcProgParser().parse(parent, modifiers);
+						} else {
+							parse_var_decl_module_inst(parent, modifiers);
+						}
+					} else {
+						parsers().modIfcProgParser().parse(parent, modifiers);
+					}
+					break;
+					
+				case PARAMETER:
+				case LOCALPARAM:
+					parse_parameter_decl(parent);
+					break;
+					
+				case DEFPARAM: 
+				case SPECPARAM: {
+					SVDBDefParamStmt defparam = new SVDBDefParamStmt();
+					defparam.setLocation(fLexer.getStartLocation());
 					fLexer.eatToken();
-					parsers().assertionParser().parse(parent, assertion_label);
+
+					parent.addChildItem(defparam);
+
+					while (fLexer.peek() != null) {
+						long is = fLexer.getStartLocation();
+						SVDBDefParamItem item = new SVDBDefParamItem();
+						item.setLocation(is);
+						item.setTarget(fParsers.exprParser().hierarchical_identifier());
+						fLexer.readOperator(OP.EQ);
+						item.setExpr(fParsers.exprParser().expression());
+
+						defparam.addParamAssign(item);
+
+						if (fLexer.peekOperator(OP.COMMA)) {
+							fLexer.eatToken();
+						} else {
+							break;
+						}
+					}
+					fLexer.readOperator(OP.SEMICOLON);
+					} break;
+				
+				case TIMEPRECISION:
+				case TIMEUNIT:
+					parse_time_units_precision(parent);
+					break;
+					
+				case CMOS:
+				case RCMOS:
+				case BUFIF0:
+				case BUFIF1:
+				case NOTIF0:
+				case NOTIF1:
+				case NMOS:
+				case PMOS:
+				case RNMOS:
+				case RPMOS:
+				case AND:
+				case NAND:
+				case OR:
+				case NOR:
+				case XOR:
+				case XNOR:
+				case BUF:
+				case NOT:
+				case PULLUP:
+				case PULLDOWN:
+				case TRANIF0:
+				case TRANIF1:
+				case RTRANIF1:
+				case RTRANIF0:
+				case TRAN:
+				case RTRAN:
+					parsers().gateInstanceParser().parse(parent);
+					break;
+					
+				default:
+					if (SVDataTypeParser.NetTypeE.contains(kw)) {
+						parse_var_decl_net_type (parent);
+					} else {
+						parse_var_decl_module_inst(parent, modifiers);
+//						error("unknown ModIfcBodyItem: " + kw);
+					}
+			}
+		} else { // kw null
+			
+			if (fLexer.peekOperator(OP.SEMICOLON)) {
+				// null statement
+				SVDBNullStmt stmt = new SVDBNullStmt();
+				stmt.setLocation(fLexer.getStartLocation());
+				fLexer.eatToken();
+				parent.addChildItem(stmt);
+			} else if (!fLexer.peekOperator()) {
+				if (fLexer.peekId()) {
+					SVToken tok = fLexer.consumeToken();
+					if (fLexer.peekOperator(OP.COLON)) {
+						// Labeled assertion
+						String assertion_label = tok.getImage();
+						fLexer.eatToken();
+						parsers().assertionParser().parse(parent, assertion_label);
+					} else {
+						fLexer.ungetToken(tok);
+						// likely a variable or module declaration
+						if (fDebugEn) {
+							debug("Likely VarDecl: " + id);
+						}
+						parse_var_decl_module_inst(parent, modifiers);
+					}
 				} else {
-					fLexer.ungetToken(tok);
 					// likely a variable or module declaration
 					if (fDebugEn) {
 						debug("Likely VarDecl: " + id);
@@ -193,15 +295,15 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					parse_var_decl_module_inst(parent, modifiers);
 				}
 			} else {
-				// likely a variable or module declaration
-				if (fDebugEn) {
-					debug("Likely VarDecl: " + id);
-				}
-				parse_var_decl_module_inst(parent, modifiers);
+				error("Unknown module/class/iterface body item: Operator " + fLexer.eatTokenR());
 			}
-		} else {
-			error("Unknown module/class/iterface body item: Operator " + fLexer.eatToken());
 		}
+					
+//		} else if (id.equals("module") || id.equals("program") ||
+//				(id.equals("interface") && (modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0)) {
+//			// enter module scope
+//			parsers().modIfcProgParser().parse(parent, modifiers);
+
 
 		if (fDebugEn) {
 			debug("<-- process_module_class_interface_body_item");
@@ -209,17 +311,17 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	public void parse_parameter_decl(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation param_start = fLexer.getStartLocation();
+		long param_start = fLexer.getStartLocation();
 		// local parameter
-		fLexer.readKeyword("parameter", "localparam");
+		fLexer.readKeyword(KW.PARAMETER, KW.LOCALPARAM);
 		
-		if (fLexer.peekKeyword("type")) {
+		if (fLexer.peekKeyword(KW.TYPE)) {
 			fLexer.eatToken();
 		}
 		SVDBTypeInfo data_type = parsers().dataTypeParser().data_type(0);
 		String param_name;
 		
-		SVDBLocation it_start = fLexer.getStartLocation();
+		long it_start = fLexer.getStartLocation();
 		
 		if (fLexer.peekId()) {
 			// likely a typed parameter
@@ -239,10 +341,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		while (true) {
 			pi = new SVDBVarDeclItem(param_name);
 			
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				pi.setArrayDim(fParsers.dataTypeParser().var_dim());
 			}
-			if (fLexer.peekOperator("=")) {
+			if (fLexer.peekOperator(OP.EQ)) {
 				fLexer.eatToken();
 				parsers().exprParser().expression();
 			}
@@ -250,7 +352,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			pi.setLocation(it_start);
 			p.addChildItem(pi);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 				it_start = fLexer.getStartLocation();
 				param_name = fLexer.readId();
@@ -258,18 +360,18 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				break;
 			}
 		}
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 	
 	public void parse_time_units_precision(ISVDBAddChildItem parent) throws SVParseException {
-		String type = fLexer.readKeyword("timeprecision","timeunit");
+		KW type = fLexer.readKeyword(KW.TIMEPRECISION, KW.TIMEUNIT);
 		
 		String num = fLexer.readNumber();
 		
-		if (type.equals("timeprecision")) {
+		if (type == KW.TIMEPRECISION) {
 			SVDBTimePrecisionStmt precision = new SVDBTimePrecisionStmt();
 			precision.setArg1(num);
-			if (fLexer.peekOperator("/")) {
+			if (fLexer.peekOperator(OP.DIV)) {
 				fLexer.eatToken();
 				precision.setArg2(fLexer.readNumber());
 			}
@@ -280,39 +382,39 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			parent.addChildItem(units);
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 	
 	public void parse_continuous_assign(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
-		fLexer.readKeyword("assign");
+		long start = fLexer.getStartLocation();
+		fLexer.readKeyword(KW.ASSIGN);
 		SVDBAssign assign = new SVDBAssign();
 		assign.setLocation(start);
 		
 		// [drive_strength] [delay3]
 
 		// TODO: discarded for now
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
 			String s1=null, s2=null;
-			if (fLexer.peekKeyword("highz1", "highz0")) {
-				s1 = fLexer.eatToken();
-				fLexer.readOperator(",");
-				s2 = fLexer.readKeyword(SVKeywords.fStrength);
+			if (fLexer.peekKeyword(KW.HIGHZ1, KW.HIGHZ0)) {
+				s1 = fLexer.eatTokenR();
+				fLexer.readOperator(OP.COMMA);
+				s2 = fLexer.readKeyword(SVKeywords.fStrength).getImg();
 			} else {
-				s1 = fLexer.readKeyword(SVKeywords.fStrength);
-				fLexer.readOperator(",");
-				if (fLexer.peekKeyword("highz1", "highz0")) {
-					s2 = fLexer.eatToken();
+				s1 = fLexer.readKeyword(SVKeywords.fStrength).getImg();
+				fLexer.readOperator(OP.COMMA);
+				if (fLexer.peekKeyword(KW.HIGHZ1, KW.HIGHZ0)) {
+					s2 = fLexer.eatTokenR();
 				} else {
-					s2 = fLexer.readKeyword(SVKeywords.fStrength);
+					s2 = fLexer.readKeyword(SVKeywords.fStrength).getImg();
 				}
 			}
 			
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 		}
 
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// Time expression
 			assign.setDelay(fParsers.exprParser().delay_expr(3));
 		}
@@ -322,20 +424,20 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			item.setLocation(fLexer.getStartLocation());
 			item.setLHS(fParsers.exprParser().variable_lvalue());
 			
-			fLexer.readOperator("=");
+			fLexer.readOperator(OP.EQ);
 			
 			item.setRHS(fParsers.exprParser().expression());
 			
 			assign.addChildItem(item);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		parent.addChildItem(assign);
 	}
@@ -356,29 +458,29 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	 */
 	private void parse_var_decl_net_type (ISVDBAddChildItem parent) throws SVParseException {
 		// net type
-		String net_type = fLexer.eatToken();		// at this point net_type can be an invalid net type, such as a direction - input, output or inout
+		String net_type = fLexer.eatTokenR();		// at this point net_type can be an invalid net type, such as a direction - input, output or inout
 		String vector_dim = null;
 		SVDBVarDeclStmt var = null;
 		String net_name = null;
-		SVDBLocation start = null;
+		long start = -1;
 		SVDBTypeInfoBuiltinNet type_info = null;
 		SVDBTypeInfo data_type = null;
 		
 		if (fDebugEn) {
 			debug("Net Type: " + net_type + " @ " + 
-					fLexer.getStartLocation().getLine());
+					SVDBLocation.unpackLineno(fLexer.getStartLocation()));
 		}
 		
 		// Drive Strength
-		if (fLexer.peekOperator("("))  {
+		if (fLexer.peekOperator(OP.LPAREN))  {
 			SVToken tok = new SVToken ();
 			tok = fLexer.consumeToken();		// eat the (
 			if (fLexer.peekKeyword(SVKeywords.fStrength))  {
 				// Have (<strength>, <strength>)
-				String strength1 = fLexer.readKeyword(SVKeywords.fStrength);
-				fLexer.readOperator(",");		// 
-				String strength2 = fLexer.readKeyword(SVKeywords.fStrength);
-				fLexer.readOperator(")");		//
+				KW strength1 = fLexer.readKeyword(SVKeywords.fStrength);
+				fLexer.readOperator(OP.COMMA);		// 
+				KW strength2 = fLexer.readKeyword(SVKeywords.fStrength);
+				fLexer.readOperator(OP.RPAREN);		//
 				// TODO: Do something with the strengths
 			}
 			else  {
@@ -388,14 +490,14 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		// Delay 3
 		// #(mintypmax,mintypmax, mintypmax)
-		if (fLexer.peekOperator("#"))  {
+		if (fLexer.peekOperator(OP.HASH))  {
 			// Time expression
 			fParsers.exprParser().delay_expr(3);
 			// TODO - What Do something with the Delay expression
 		}
 
 		// vectored untyped net
-		if (fLexer.peekOperator("[")) {
+		if (fLexer.peekOperator(OP.LBRACKET)) {
 			// TODO:
 			data_type = new SVDBTypeInfoBuiltin(net_type);
 			((SVDBTypeInfoBuiltin)data_type).setVectorDim(
@@ -408,7 +510,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		
 		// Delay 3
 		// #(mintypmax,mintypmax, mintypmax)
-		if (fLexer.peekOperator("#"))  {
+		if (fLexer.peekOperator(OP.HASH))  {
 			// Time expression
 			fParsers.exprParser().delay_expr(3);
 			// TODO - What Do something with the Delay expression
@@ -416,7 +518,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 		// Now, based on what we see next, we determine whether the
 		// net is typed or untyped
-		if (fLexer.peekOperator(",", ";", "=")) {
+		if (fLexer.peekOperator(OP.COMMA, OP.SEMICOLON, OP.EQ)) {
 			// The net was untyped
 			net_name = data_type.getName();
 			data_type = new SVDBTypeInfoBuiltin(net_type);
@@ -435,15 +537,15 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			vi.setLocation(start);
 			var.addChildItem(vi);
 			
-			if (fLexer.peekOperator("[")) {
+			if (fLexer.peekOperator(OP.LBRACKET)) {
 				vi.setArrayDim(parsers().dataTypeParser().var_dim());
 			}
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 				start = fLexer.getStartLocation();
 				net_name = fLexer.readId();
-			} else if (fLexer.peekOperator("=")) {
+			} else if (fLexer.peekOperator(OP.EQ)) {
 				// Initialized wire
 				fLexer.eatToken();
 				parsers().exprParser().expression();
@@ -452,25 +554,25 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 	
 	public void parse_bind(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBBind bind = new SVDBBind();
 		bind.setLocation(fLexer.getStartLocation());
 		
-		fLexer.readKeyword("bind");
+		fLexer.readKeyword(KW.BIND);
 		
 		bind.setTargetTypeName(fParsers.exprParser().variable_lvalue());
 		
 		parent.addChildItem(bind);
 		
-		if (fLexer.peekOperator(":")) {
+		if (fLexer.peekOperator(OP.COLON)) {
 			fLexer.eatToken();
 			// Have a list of instance names
 			while (fLexer.peek() != null) {
 				bind.addTargetInstName(fParsers.exprParser().hierarchical_identifier());
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 				} else {
 					break;
@@ -485,7 +587,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	
 	public void parse_var_decl_module_inst(ISVDBAddChildItem parent, int modifiers) throws SVParseException {
 		SVDBTypeInfo type;
-		SVDBLocation start = fLexer.getStartLocation(), item_start;
+		long start = fLexer.getStartLocation(), item_start;
 
 		// TODO: need to modify this to be different for class and module/interface
 		// scopes
@@ -503,13 +605,13 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		// some_module module_instance_name [5:0] ( .a (a), .y (y));
 		// so grab the dimensions here
 		List<SVDBVarDimItem> arraydims = null;
-		if (fLexer.peekOperator("[")) {
+		if (fLexer.peekOperator(OP.LBRACKET)) {
 			// Array type
 			arraydims = parsers().dataTypeParser().var_dim();
 		}
 
 		// Check to see if we have an '(' - we have a module at this point
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			// TODO: hopefully this is a user-defined type?
 			if (fDebugEn) {
 				debug("Module instance type: " + type.getClass().getName());
@@ -536,19 +638,19 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				SVDBParamValueAssignList port_map = fParsers.paramValueAssignParser().parse(false);
 				item.setPortMap(port_map);
 
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 					start = fLexer.getStartLocation();
 					inst_name_or_var = fLexer.readId();
 					// Check to see if the instance is arrayed
-					if (fLexer.peekOperator("[")) {
+					if (fLexer.peekOperator(OP.LBRACKET)) {
 						arraydims = fParsers.dataTypeParser().var_dim();
 					}
 				} else {
 					break;
 				}
 			}
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 		} 
 		// non-module instance
 		else {
@@ -570,30 +672,30 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 
 				item.addChildItem(vi);
 
-				if (fLexer.peekOperator("=")) {
+				if (fLexer.peekOperator(OP.EQ)) {
 					fLexer.eatToken();
 					vi.setInitExpr(fParsers.exprParser().expression());
 				}
 
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 					start = fLexer.getStartLocation();
 					inst_name_or_var = fLexer.readId();
 					// Parse the next array dimension
-					if (fLexer.peekOperator("[")) {
+					if (fLexer.peekOperator(OP.LBRACKET)) {
 						arraydims = fParsers.dataTypeParser().var_dim();
 					}
 				} else {
 					break;
 				}
 			}
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 		}
 	}
 	
 	private void parse_final(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
-		fLexer.readKeyword("final");
+		long start = fLexer.getStartLocation();
+		fLexer.readKeyword(KW.FINAL);
 		
 		SVDBBodyStmt ret = new SVDBFinalStmt();
 		ret.setLocation(start);
@@ -604,8 +706,8 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	}
 	
 	private void modport_decl(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
-		fLexer.readKeyword("modport");
+		long start = fLexer.getStartLocation();
+		fLexer.readKeyword(KW.MODPORT);
 		SVDBModportDecl modport = new SVDBModportDecl();
 		modport.setLocation(start);
 		
@@ -617,39 +719,38 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			SVDBModportItem item = new SVDBModportItem(id);
 			item.setLocation(start);
 			
-			fLexer.readOperator("(");
+			fLexer.readOperator(OP.LPAREN);
 			while (fLexer.peek() != null) {
-				String type = fLexer.readKeyword("clocking","import","export",
-						"input","output","inout");
+				KW type = fLexer.readKeyword(KW.CLOCKING, KW.IMPORT, KW.EXPORT, KW.INPUT, KW.OUTPUT, KW.INOUT);
 				SVDBModportPortsDecl ports_decl = null;
 				
 				if (type.equals("clocking")) {
 					ports_decl = modport_clocking_declaration();
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					}
-				} else if (type.equals("import") || type.equals("export")) {
-					ports_decl = modport_tf_ports_declaration(type);
+				} else if (type == KW.IMPORT || type == KW.EXPORT) {
+					ports_decl = modport_tf_ports_declaration(type.getImg());
 				} else {
-					ports_decl = modport_simple_ports_declaration(type);
+					ports_decl = modport_simple_ports_declaration(type.getImg());
 				}
 				
 				item.addPorts(ports_decl);
 				
-				if (fLexer.peekOperator(")")) {
+				if (fLexer.peekOperator(OP.RPAREN)) {
 					break;
 				}
 			}
-			fLexer.readOperator(")");
+			fLexer.readOperator(OP.RPAREN);
 
 			modport.addModportItem(item);
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
 			}
 		}
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 	}
 
 	private SVDBModportClockingPortDecl modport_clocking_declaration() throws SVParseException {
@@ -665,14 +766,14 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		while (fLexer.peek() != null) {
 			SVDBModportTFPort port = new SVDBModportTFPort();
 			port.setLocation(fLexer.getStartLocation());
-			if (fLexer.peekKeyword("task","function")) {
+			if (fLexer.peekKeyword(KW.TASK, KW.FUNCTION)) {
 				port.setPrototype(fParsers.taskFuncParser().parse_method_decl());
 			} else {
 				port.setId(fLexer.readId());
 			}
 			ret.addChildItem(port);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
@@ -697,22 +798,22 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		while (fLexer.peek() != null) {
 			SVDBModportSimplePort port = new SVDBModportSimplePort();
 			port.setLocation(fLexer.getStartLocation());
-			if (fLexer.peekOperator(".")) {
+			if (fLexer.peekOperator(OP.DOT)) {
 				port.setIsMapped(true);
 				fLexer.eatToken();
 			}
 			port.setPortId(fLexer.readId());
 			if (port.isMapped()) {
-				fLexer.readOperator("(");
+				fLexer.readOperator(OP.LPAREN);
 				port.setExpr(fParsers.exprParser().expression());
-				fLexer.readOperator(")");
+				fLexer.readOperator(OP.RPAREN);
 			}
 			if (fDebugEn) {
 				debug(" -- Add port " + port.getPortId());
 			}
 			ret.addPort(port);
 			
-			if (fLexer.peekOperator(",")) {
+			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();
 			} else {
 				break;
@@ -730,13 +831,22 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		return ret;
 	}
 	
+	private static final Set<KW> initial_always_kw;
+	static {
+		initial_always_kw = new HashSet<ISVKeywords.KW>();
+		initial_always_kw.add(KW.INITIAL);
+		initial_always_kw.add(KW.ALWAYS);
+		initial_always_kw.add(KW.ALWAYS_COMB);
+		initial_always_kw.add(KW.ALWAYS_LATCH);
+		initial_always_kw.add(KW.ALWAYS_FF);
+	}
+	
 	private void parse_initial_always(ISVDBAddChildItem parent) throws SVParseException {
 		ISVDBChildItem ret = null;
-		SVDBLocation start = fLexer.getStartLocation();
-		String type = fLexer.readKeyword("initial", 
-				"always", "always_comb", "always_latch", "always_ff");
+		long start = fLexer.getStartLocation();
+		KW type = fLexer.readKeyword(initial_always_kw);
 
-		if (!type.equals("initial")) { // always
+		if (type != KW.INITIAL) { // always
 			AlwaysType always_type = null;
 			
 			if (type.equals("always")) {
@@ -757,7 +867,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				// @(*)
 				// @ expression
 				// @ (expression)
-				if (lexer().peekOperator("@")) {
+				if (lexer().peekOperator(OP.AT)) {
 					always_stmt.setCBEventExpr(parsers().exprParser().clocking_event());
 				} else {
 					always_stmt.setAlwaysEventType(ClockingEventType.None);

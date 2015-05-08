@@ -12,31 +12,33 @@
 
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.SVDBLocation;
 
-public class SVToken {
+public class SVToken implements ISVKeywords, ISVOperators {
 
 	protected String						fImage;
 	protected boolean						fIsString;
-	protected boolean						fIsOperator;
+	protected OP							fOperator;
 	protected boolean						fIsNumber;
 	protected boolean						fIsTime;
 	protected boolean						fIsIdentifier;
-	protected boolean						fIsKeyword;
+//	protected boolean						fIsKeyword;
+	protected KW							fKeyword;
 	protected boolean						fIsPath;
-	protected SVDBLocation					fStartLocation;
+//	protected SVDBLocation					fStartLocation;
+	protected long							fStartLocation;
 
 	public SVToken duplicate() {
 		SVToken ret = new SVToken();
 		ret.fImage         = fImage;
 		ret.fIsString      = fIsString;
-		ret.fIsOperator    = fIsOperator;
+		ret.fOperator      = fOperator;
 		ret.fIsNumber      = fIsNumber;
 		ret.fIsTime        = fIsTime;
 		ret.fIsIdentifier  = fIsIdentifier;
-		ret.fIsKeyword     = fIsKeyword;
+		ret.fKeyword       = fKeyword;
 		ret.fIsPath        = fIsPath;
-		ret.fStartLocation = fStartLocation.duplicate();
+//		ret.fStartLocation = fStartLocation.duplicate();
+		ret.fStartLocation = fStartLocation;
 		
 		return ret;
 	}
@@ -50,13 +52,13 @@ public class SVToken {
 	}
 	
 	public boolean isOperator() {
-		return fIsOperator;
+		return (fOperator != null);
 	}
 	
 	public boolean isOperator(String ... ops) {
-		if (fIsOperator) {
+		if (fOperator != null) {
 			for (String op : ops) {
-				if (op.equals(fImage)) {
+				if (fOperator.getImg().equals(op)) {
 					return true;
 				}
 			}
@@ -83,14 +85,20 @@ public class SVToken {
 	}
 	
 	public boolean isKeyword() {
-		return fIsKeyword;
+		return (fKeyword != null);
 	}
 	
 	public String getImage() {
-		return fImage;
+		if (fKeyword != null) {
+			return fKeyword.getImg();
+		} else if (fOperator != null) {
+			return fOperator.getImg();
+		} else {
+			return fImage;
+		}
 	}
 	
-	public SVDBLocation getStartLocation() {
+	public long getStartLocation() {
 		return fStartLocation;
 	}
 	

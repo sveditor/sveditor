@@ -47,6 +47,21 @@ public abstract class AbstractTextScanner implements ITextScanner {
 		fScanFwd = scanFwd;
 	}
 	
+	@Override
+	public int getLineno() {
+		return fLineno;
+	}
+
+	@Override
+	public int getLinepos() {
+		return fLinepos;
+	}
+
+	@Override
+	public int getFileId() {
+		return -1;
+	}
+
 	public int skipWhite(int ch) {
 		
 		while (Character.isWhitespace(ch) || ch == '\\') {

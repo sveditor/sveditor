@@ -11,7 +11,6 @@ import java.util.Stack;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
-import net.sf.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcessor extends AbstractTextScanner implements ISVPreProcessor {
 	private IDefineProvider				fDefineProvider;
@@ -622,13 +621,19 @@ public class SVPreProcessor extends AbstractTextScanner implements ISVPreProcess
 			fCaptureBuffer.deleteCharAt(fCaptureBuffer.length()-1);
 		}
 	}
+	
+	
+	@Override
+	public int getFileId() {
+		return -1;
+	}
 
-	/**
-	 * Unused
-	 */
-	public ScanLocation getLocation() {
-		// Unnecessary
-		return new ScanLocation(fFileName, fLineno, 1);
+	public int getLineno() {
+		return fLineno;
+	}
+	
+	public int getLinepos() {
+		return fLinepos;
 	}
 
 	/**

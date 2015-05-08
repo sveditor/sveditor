@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -36,7 +37,6 @@ import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
-import net.sf.sveditor.core.scanutils.ScanLocation;
 
 
 public class SVPreProcessor2 extends AbstractTextScanner 
@@ -46,9 +46,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private StringBuilder							fOutput;
 	private int										fOutputLen;
 	private StringBuilder							fCommentBuffer;
+	private boolean									fCommentDocComment;
+	private boolean									fCommentTaskTag;
 	private boolean									fInComment;
 	private IDocCommentParser   					fDocCommentParser;
-	private ScanLocation							fCommentStart;
+	private long									fCommentStart;
 	private Set<String>								fTaskTags;
 
 	// List of offset,file-id pairs
@@ -57,7 +59,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private StringBuilder							fTmpBuffer;
 	private List<Tuple<String, String>>				fParamList;
 	private Stack<Integer>							fPreProcEn;
-	private Stack<ScanLocation>						fPreProcLoc;
+	private Stack<Long>								fPreProcLoc;
 	private IPreProcMacroProvider					fMacroProvider;
 	private SVPreProcDefineProvider					fDefineProvider;
 	private LogHandle								fLog;
@@ -120,7 +122,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fTmpBuffer = new StringBuilder();
 		fParamList = new ArrayList<Tuple<String,String>>();
 		fPreProcEn = new Stack<Integer>();
-		fPreProcLoc = new Stack<ScanLocation>();
+		fPreProcLoc = new Stack<Long>();
 		fFileMap = new ArrayList<SVPreProcOutput.FileChangeInfo>();
 		fFileList = new ArrayList<String>();
 
@@ -337,7 +339,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			return ; 
 		}
 		
-		fInComment = false ;
+		fInComment = false;
 		String comment = fCommentBuffer.toString() ;
 		Tuple<String,String> dc = new Tuple<String, String>(null, null);
 		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc) ;
@@ -345,26 +347,26 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			String tag = dc.first();
 			String title = dc.second();
 			SVPreProc2InputData in = fInputCurr;
-			SVDBLocation loc = new SVDBLocation(fCommentStart.getFileId(),  
-					fCommentStart.getLineNo(), fCommentStart.getLinePos());
+			long loc = fCommentStart;
+			
+			boolean is_task = fTaskTags.contains(tag);
 
-			if (type == IDocCommentParser.CommentType.TaskTag && fTaskTags.contains(tag)) {
+			if (type == IDocCommentParser.CommentType.TaskTag && is_task) {
 				// Actually a task marker
-//				String msg = tag + ": " + comment;
 				String msg = tag + " " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {
 					in.getFileTree().fMarkers.add(m);
 				}
-			} else if (type == IDocCommentParser.CommentType.DocComment && fTaskTags.contains(tag)) {
+			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
 				String msg = tag + ": " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {
 					in.getFileTree().fMarkers.add(m);
 				}
-			} else {
+			} else if (DocTopicManager.singularKeywordMap.containsKey(tag.toLowerCase())) {
 				// Really a doc comment
 				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
 
@@ -374,13 +376,15 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 			}
 		} 
+		/*
+		 */
 	}
 	
 	private void handle_preproc_directive() {
 		int ch = -1;
 		
 		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
-		ScanLocation scan_loc = getLocation();
+		long scan_loc = getLocation();
 	
 		String type;
 		if (ch == -1) {
@@ -436,8 +440,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			// Skip entire line 
 			readLine(get_ch());
 		} else if (type.equals("define")) {
-			SVDBLocation location = new SVDBLocation(
-				scan_loc.getFileId(), scan_loc.getLineNo(), scan_loc.getLinePos());
 			SVDBMacroDef m = new SVDBMacroDef();
 			// TODO: save file?
 
@@ -445,7 +447,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			ch = skipWhite(get_ch());
 			
 			m.setName(readIdentifier(ch));
-			m.setLocation(location);
+			m.setLocation(scan_loc);
 			
 			fParamList.clear();
 			
@@ -562,10 +564,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						
 							// TODO: Need to mark as a 'virtual' include?
 							SVDBInclude svdb_inc = new SVDBInclude(inc);
-							svdb_inc.setLocation(new SVDBLocation(
-									scan_loc.getFileId(), 
-									scan_loc.getLineNo(),
-									scan_loc.getLinePos()));
+							svdb_inc.setLocation(scan_loc);
 							
 							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
 							
@@ -603,39 +602,27 @@ public class SVPreProcessor2 extends AbstractTextScanner
 								fIncFileProvider.addCachedIncFile(in.first(), rootfile);
 
 								SVDBInclude svdb_inc = new SVDBInclude(inc);
-								svdb_inc.setLocation(new SVDBLocation(
-										scan_loc.getFileId(), 
-										scan_loc.getLineNo(),
-										scan_loc.getLinePos()));
+								svdb_inc.setLocation(scan_loc);
 
 								curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
 
 								enter_file(in.first(), in.second());
 							} else {
 								// Recursive include and have exceeded the limit
-								SVDBLocation location = new SVDBLocation(
-										scan_loc.getFileId(), scan_loc.getLineNo(), 
-										scan_loc.getLinePos());
-								
 								SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 										MarkerKind.MissingInclude,
 										"Recursive inclusion of file " + inc);
-								m.setLocation(location);
+								m.setLocation(scan_loc);
 								curr_in.getFileTree().fMarkers.add(m);
 								try {
 									in.second().close();
 								} catch (IOException e) {}
 							}
 						} else {
-							SVDBLocation location = new SVDBLocation(
-									scan_loc.getFileId(), scan_loc.getLineNo(), 
-									scan_loc.getLinePos());
-							
 							SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 									MarkerKind.MissingInclude,
 									"Failed to find include file " + inc);
-							m.setLocation(location);
-//							SVPreProc2InputData curr_in = fInputCurr;
+							m.setLocation(scan_loc);
 							curr_in.getFileTree().fMarkers.add(m);
 
 							// TODO: add missing-include error
@@ -699,14 +686,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 
 				boolean is_defined = fDefineProvider.isDefined(type, -1);
 				if (!is_defined) {
-					SVDBLocation location = new SVDBLocation(
-							scan_loc.getFileId(), scan_loc.getLineNo(), 
-							scan_loc.getLinePos());
-					
 					SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 							MarkerKind.UndefinedMacro,
 							"Macro " + type + " undefined");
-					m.setLocation(location);
+					m.setLocation(scan_loc);
 
 					fInputCurr.getFileTree().fMarkers.add(m);
 
@@ -831,21 +814,22 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 	private void cleanup_preproc_leftovers() {
 		int file_id = fInputCurr.getFileId();
-		while (fPreProcLoc.size() > 0 && fPreProcLoc.peek().getFileId() == file_id) {
+		long loc;
+		while (fPreProcLoc.size() > 0 && 
+				SVDBLocation.unpackFileId((loc = fPreProcLoc.peek())) == file_id) {
 			
 			// Leftovers indicates unbalanced directives
-			ScanLocation loc = fPreProcLoc.pop();
+			fPreProcLoc.pop();
 			fPreProcEn.pop();
-			SVDBLocation location = new SVDBLocation(loc.getFileId(), 
-					loc.getLineNo(), loc.getLinePos());
 			SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 					MarkerKind.UnbalancedDirective, 
 					"Unbalanced pre-processor directive");
 			
 			if (fDebugEn) {
-				fLog.debug("Cleanup pre-proc leftover @ " + loc.getLineNo());
+				fLog.debug("Cleanup pre-proc leftover @ " + 
+						SVDBLocation.unpackLineno(loc));
 			}
-			m.setLocation(location);
+			m.setLocation(loc);
 			if (fInputCurr.getFileTree() != null) {
 				fInputCurr.getFileTree().fMarkers.add(m);
 			}
@@ -905,7 +889,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		in.addReferencedMacro(macro, def);
 	}
 	
-	private void enter_ifdef(ScanLocation scan_loc, boolean enabled) {
+	private void enter_ifdef(long scan_loc, boolean enabled) {
 		boolean enabled_pre = ifdef_enabled();
 		int e = (enabled)?PP_ENABLED:PP_DISABLED;
 		
@@ -928,7 +912,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fPreProcLoc.push(scan_loc);
 	
 		if (fDebugEn) {
-			fLog.debug("enter_ifdef: " + scan_loc.getLineNo() + 
+			fLog.debug("enter_ifdef: " + SVDBLocation.unpackLineno(scan_loc) + 
 					" enabled=" + enabled + " pre=" + enabled_pre + 
 					" post=" + ifdef_enabled() + " sz=" + fPreProcEn.size());
 		}
@@ -936,7 +920,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
 	
-	private void leave_ifdef(ScanLocation scan_loc) {
+	private void leave_ifdef(long scan_loc) {
 		boolean enabled_pre = ifdef_enabled();
 		if (fPreProcEn.size() > 0) {
 			fPreProcEn.pop();
@@ -944,7 +928,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 	
 		if (fDebugEn) {
-			fLog.debug("leave_ifdef: " + scan_loc.getLineNo() + 
+			fLog.debug("leave_ifdef: " + SVDBLocation.unpackLineno(scan_loc) + 
 					" pre=" + enabled_pre + 
 					" post=" + ifdef_enabled());
 		}
@@ -952,7 +936,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
 	
-	private void enter_elsif(ScanLocation scan_loc, boolean enabled) {
+	private void enter_elsif(long scan_loc, boolean enabled) {
 		boolean enabled_pre = ifdef_enabled();
 		if (fPreProcEn.size() > 0) {
 			int e = fPreProcEn.pop();
@@ -976,7 +960,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		update_unprocessed_region(scan_loc, enabled_pre);
 	}
 	
-	private void enter_else(ScanLocation scan_loc) {
+	private void enter_else(long scan_loc) {
 		boolean enabled_pre = ifdef_enabled();
 		if (fPreProcEn.size() > 0) {
 			int e = fPreProcEn.pop();
@@ -1004,7 +988,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 		
 		if (fDebugEn) {
-			fLog.debug("enter_else: " + scan_loc.getLineNo() + 
+			fLog.debug("enter_else: " + SVDBLocation.unpackLineno(scan_loc) + 
 					" pre=" + enabled_pre + 
 					" post=" + ifdef_enabled());
 		}
@@ -1022,7 +1006,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 	}	
 	
-	private void update_unprocessed_region(ScanLocation scan_loc, boolean enabled_pre) {
+	private void update_unprocessed_region(long scan_loc, boolean enabled_pre) {
 		boolean enabled_post = ifdef_enabled();
 		
 		// TODO: need to identify exclusions due to multiple includes?
@@ -1136,8 +1120,24 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fMacroProvider.setMacro(key, value);
 	}
 	
-	public ScanLocation getLocation() {
+	public long getLocation() {
 		return fInputCurr.getLocation();
+	}
+	
+	
+	@Override
+	public int getFileId() {
+		return -1;
+	}
+
+	@Override
+	public int getLineno() {
+		return fLineno;
+	}
+
+	@Override
+	public int getLinepos() {
+		return fLinepos;
 	}
 
 	/**

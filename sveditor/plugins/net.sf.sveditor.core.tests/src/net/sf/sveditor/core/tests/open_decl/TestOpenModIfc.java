@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
@@ -359,7 +360,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
 		assertEquals("clk_i", SVDBItem.getName(ret.get(0).first()));
 		assertNotNull(ret.get(0).first().getLocation());
-		assertEquals(2, ret.get(0).first().getLocation().getLine());
+		assertEquals(2, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
 	}
 	
 	public void testModulePort_2() {
@@ -396,7 +397,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
 		assertEquals("rst_n", SVDBItem.getName(ret.get(0).first()));
 		assertNotNull(ret.get(0).first().getLocation());
-		assertEquals(3, ret.get(0).first().getLocation().getLine());
+		assertEquals(3, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
 	}	
 }
 

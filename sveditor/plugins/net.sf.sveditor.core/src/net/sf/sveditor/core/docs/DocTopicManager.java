@@ -44,12 +44,11 @@ public class DocTopicManager implements IDocTopicManager {
 //	public static String TOPIC_EVENT 		= "event";
 	
 	
-	Map<String,DocTopicType>  topicTypeMap ;    	// topicTypeName -> TopicType
-	Map<String,DocTopicType>  singularKeywordMap ;	// singular keyword -> TopicType
-	Map<String,DocTopicType>  pluralKeywordMap ;	// plural keyword -> TopicType
+	public static final Map<String,DocTopicType>  topicTypeMap ;    	// topicTypeName -> TopicType
+	public static final Map<String,DocTopicType>  singularKeywordMap ;	// singular keyword -> TopicType
+	public static final Map<String,DocTopicType>  pluralKeywordMap ;	// plural keyword -> TopicType
 	
-	public DocTopicManager() {
-		
+	static {
 		topicTypeMap 		= new HashMap<String,DocTopicType>() ;
 		singularKeywordMap 	= new HashMap<String,DocTopicType>() ;
 		pluralKeywordMap   	= new HashMap<String,DocTopicType>() ;
@@ -126,11 +125,16 @@ public class DocTopicManager implements IDocTopicManager {
 		registerKeywordForTopicType(TOPIC_VARIABLE, "object", 		"objects") ;
 		registerKeywordForTopicType(TOPIC_VARIABLE, "character", 	"characters") ;
 		registerKeywordForTopicType(TOPIC_VARIABLE, "string", 		"strings") ;
-		registerKeywordForTopicType(TOPIC_VARIABLE, "handle", 		"handles") ;
+		registerKeywordForTopicType(TOPIC_VARIABLE, "handle", 		"handles") ;		
+	}
+	
+	public DocTopicManager() {
+		
+
 		
 	}
 
-	private void registerKeywordForTopicType(String topicTypeName,
+	private static void registerKeywordForTopicType(String topicTypeName,
 											 String singularKeyword, 
 											 String pluralKeyword) {
 		

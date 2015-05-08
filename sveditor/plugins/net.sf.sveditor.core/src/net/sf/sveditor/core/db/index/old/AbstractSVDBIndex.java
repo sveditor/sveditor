@@ -38,6 +38,7 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
@@ -1180,7 +1181,8 @@ public abstract class AbstractSVDBIndex implements
 					break;
 				}
 				getFileSystemProvider().addMarker(path, type, 
-						m.getLocation().getLine(), m.getMessage());
+						SVDBLocation.unpackLineno(m.getLocation()),
+						m.getMessage());
 			}
 		}
 	}
@@ -2243,15 +2245,18 @@ public abstract class AbstractSVDBIndex implements
 			ISVDBChildParent			scope,
 			List<SVDBDeclCacheItem>		pkgitem_list,
 			SVDBPackageDecl				pkg) {
-		int			pkg_start = (pkg.getLocation() != null)?pkg.getLocation().getLine():0;
-		int			pkg_end = (pkg.getEndLocation() != null)?pkg.getEndLocation().getLine():-1;
+		int			pkg_start = (pkg.getLocation() != -1)?
+				SVDBLocation.unpackLineno(pkg.getLocation()):0;
+		int			pkg_end = (pkg.getEndLocation() != -1)?
+				SVDBLocation.unpackLineno(pkg.getEndLocation()):-1;
 		Set<String>	processed_files = new HashSet<String>();
 		
 		fLog.debug("--> cachePkgDeclFileTree: " + pkg.getName() + " " +
 				pkg_start + ".." + pkg_end);
 		
 		for (ISVDBChildItem item : scope.getChildren()) {
-			int line = (item.getLocation() != null)?(item.getLocation().getLine()):-1;
+			int line = (item.getLocation() != -1)?
+					SVDBLocation.unpackLineno(item.getLocation()):-1;
 			if (fDebugEn) {
 				fLog.debug("cachePkgDeclFileTree: process " + item.getType() + " @ " +
 						line + " (package bounds " + pkg_start + ".." + pkg_end + ")");

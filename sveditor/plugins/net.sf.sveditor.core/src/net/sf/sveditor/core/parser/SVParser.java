@@ -61,7 +61,7 @@ import net.sf.sveditor.core.scanutils.ScanLocation;
  *         - handle property as second-level scope - recognize 'import' - handle
  *         class declaration within module - Handle sequence as empty construct
  */
-public class ParserSVDBFileFactory implements ISVScanner,
+public class SVParser implements ISVScanner,
 		IPreProcErrorListener, ISVDBFileFactory, ISVPreProcScannerObserver,
 		ISVParser, ILogLevelListener {
 	private ITextScanner fInput;
@@ -88,11 +88,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	 */
 	private SVLanguageLevel				fLanguageLevel;
 	
-	public ParserSVDBFileFactory() {
+	public SVParser() {
 		this(null);
 	}
 
-	public ParserSVDBFileFactory(IDefineProvider dp) {
+	public SVParser(IDefineProvider dp) {
 		// Setup logging
 		fLog = LogFactory.getLogHandle(
 				"ParserSVDBFileFactory", ILogHandle.LOG_CAT_PARSER);
@@ -151,59 +151,65 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				file_id = fFileMapper.mapFilePathToId(filename, false);
 			}
 			
-			marker.setLocation(new SVDBLocation(file_id, lineno, 0));
+			marker.setLocation(SVDBLocation.pack(file_id, lineno, 0));
 			fMarkers.add(marker);
 		}
 	}
 
 	private void top_level_item(ISVDBScopeItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
+		long start = fLexer.getStartLocation();
 		int modifiers = scan_qualifiers(false);
 
 		try {
-			if (fLexer.peekOperator("(*")) {
+			if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 				fSVParsers.attrParser().parse(parent);
 			}
 		} catch (SVParseException e) {
 			// Ignore the error and allow another parser to deal with
 		}
 		
-		if (fLexer.peekKeyword("bind")) {
-			parsers().modIfcBodyItemParser().parse_bind(parent);
-		} else if (fLexer.peekKeyword("config")) {
-			parsers().configParser().parse_config(parent);
-		} else if (fLexer.peekKeyword("class")) {
-			parsers().classParser().parse(parent, modifiers);
-		} else if (fLexer.peekKeyword("module","macromodule","interface","program")) {
-			// enter module scope
-			parsers().modIfcProgParser().parse(parent, modifiers);
-		} else if (fLexer.peekKeyword("package")) {
-			package_decl(parent);
-		} else if (fLexer.peekKeyword("covergroup")) {
-			parsers().covergroupParser().parse(parent);
-		} else if (fLexer.peekKeyword("import")) {
-			parsers().impExpParser().parse_import(parent);
-		} else if (fLexer.peekKeyword("export")) {
-			parsers().impExpParser().parse_export(parent);
-		} else if (fLexer.peekKeyword("typedef")) {
-			parsers().dataTypeParser().typedef(parent);
-		} else if (fLexer.peekKeyword("function","task")) {
-			parsers().taskFuncParser().parse(parent, start, modifiers);
-		} else if (fLexer.peekKeyword("constraint")) {
-			parsers().constraintParser().parse(parent, modifiers);
-		} else if (fLexer.peekKeyword("parameter","localparam")) {
-			parsers().modIfcBodyItemParser().parse_parameter_decl(parent);
-		} else if (fLexer.peekKeyword("timeprecision", "timeunit")) {
-			parsers().modIfcBodyItemParser().parse_time_units_precision(parent);
-		} else if (fLexer.peekId() && fLexer.peek().equals("${file_header}")) {
+		KW kw = fLexer.peekKeywordE();
+		
+		if (kw != null) {
+			switch (kw) {
+				case BIND: parsers().modIfcBodyItemParser().parse_bind(parent); break;
+				case CONFIG: parsers().configParser().parse_config(parent); break;
+				case CLASS: parsers().classParser().parse(parent, modifiers); break;
+				case MODULE:
+				case MACROMODULE:
+				case INTERFACE:
+				case PROGRAM:
+					// enter module scope
+					parsers().modIfcProgParser().parse(parent, modifiers);
+					break;
+				case PACKAGE: package_decl(parent); break;
+				case COVERGROUP: parsers().covergroupParser().parse(parent); break;
+				case IMPORT: parsers().impExpParser().parse_import(parent); break;
+				case EXPORT: parsers().impExpParser().parse_export(parent); break;
+				case TYPEDEF: parsers().dataTypeParser().typedef(parent); break;
+				case FUNCTION:
+				case TASK: parsers().taskFuncParser().parse(parent, start, modifiers); break;
+				case CONSTRAINT: parsers().constraintParser().parse(parent, modifiers); break;
+				case PARAMETER:
+				case LOCALPARAM: parsers().modIfcBodyItemParser().parse_parameter_decl(parent); break;
+				case TIMEPRECISION:
+				case TIMEUNIT: parsers().modIfcBodyItemParser().parse_time_units_precision(parent); break;
+				
+				default:
+					// Assume this is a top-level item
+					parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
+//					error("Unhandled keyword: " + fLexer.eatToken());
+					break;
+			}
+		} else if (fLexer.peekId() && fLexer.peek().equals("${file_header}")) { // kw is null
 			// Ignore pieces of the template
 			fLexer.eatToken();
 		} else if (!fLexer.peekOperator()) {
 			parsers().modIfcBodyItemParser().parse_var_decl_module_inst(parent, modifiers);
-		} else if (fLexer.peekOperator(";")) {
+		} else if (fLexer.peekOperator(OP.SEMICOLON)) {
 			// null statement
 			fLexer.eatToken();
-		} else {
+		} else { // kw is null
 			// TODO: check for a data declaration
 			error("Unknown top-level element \"" + fLexer.peek() + "\"");
 		}
@@ -236,15 +242,15 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (!allow_keywords) {
 			id.append(fLexer.readId());
 		} else if (fLexer.peekKeyword() || fLexer.peekId()) {
-			id.append(fLexer.eatToken());
+			id.append(fLexer.eatTokenR());
 		} else {
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 
-		while (fLexer.peekOperator("::")) {
+		while (fLexer.peekOperator(OP.COLON2)) {
 			id.append("::");
 			fLexer.eatToken();
-			if (fLexer.peekKeyword("new") ||
+			if (fLexer.peekKeyword(KW.NEW) ||
 					(allow_keywords && fLexer.peekKeyword())) {
 				id.append(fLexer.readKeyword());
 			} else {
@@ -266,9 +272,9 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 
-		while (fLexer.peekOperator("::",".")) {
+		while (fLexer.peekOperator(OP.COLON2, OP.DOT)) {
 			ret.add(fLexer.consumeToken());
-			if (fLexer.peekKeyword("new") ||
+			if (fLexer.peekKeyword(KW.NEW) ||
 					(allow_keywords && fLexer.peekKeyword())) {
 				ret.add(fLexer.consumeToken());
 			} else {
@@ -290,7 +296,7 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			error("scopedIdentifier: starts with " + fLexer.peek());
 		}
 		
-		while (fLexer.peekOperator("::")) {
+		while (fLexer.peekOperator(OP.COLON2)) {
 			ret.add(fLexer.consumeToken());
 			if (allow_keywords && fLexer.peekKeyword()) {
 				ret.add(fLexer.consumeToken());
@@ -313,38 +319,38 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	private void package_decl(ISVDBScopeItem parent) throws SVParseException {
-		if (fLexer.peekOperator("(*")) {
+		if (fLexer.peekOperator(OP.LPAREN_MUL)) {
 			fSVParsers.attrParser().parse(parent);
 		}
 		SVDBPackageDecl pkg = new SVDBPackageDecl();
 		pkg.setLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("package");
+		fLexer.readKeyword(KW.PACKAGE);
 		
 		fScopeStack.push(pkg);
 
 		try {
-			if (fLexer.peekKeyword("static","automatic")) {
+			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				fLexer.eatToken();
 			}
 
 			String pkg_name = readQualifiedIdentifier();
 			pkg.setName(pkg_name);
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 
 			parent.addChildItem(pkg);
 
-			while (fLexer.peek() != null && !fLexer.peekKeyword("endpackage")) {
+			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDPACKAGE)) {
 				top_level_item(pkg);
 
-				if (fLexer.peekKeyword("endpackage")) {
+				if (fLexer.peekKeyword(KW.ENDPACKAGE)) {
 					break;
 				}
 			}
 
 			pkg.setEndLocation(fLexer.getStartLocation());
-			fLexer.readKeyword("endpackage");
+			fLexer.readKeyword(KW.ENDPACKAGE);
 			// Handled named package end-block
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
@@ -424,14 +430,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		}
 		StringBuffer ret = new StringBuffer();
 
-		ret.append(fLexer.eatToken());
+		ret.append(fLexer.eatTokenR());
 
-		while (fLexer.peekOperator("::")) {
-			ret.append(fLexer.eatToken());
-			ret.append(fLexer.eatToken());
+		while (fLexer.peekOperator(OP.COLON2)) {
+			ret.append(fLexer.eatTokenR());
+			ret.append(fLexer.eatTokenR());
 		}
 		/*
-		while (fLexer.peekId() || fLexer.peekOperator("::") || fLexer.peekKeyword()) {
+		while (fLexer.peekId() || fLexer.peekOperator(OP.COLON2) || fLexer.peekKeyword()) {
 			ret.append(fLexer.eatToken());
 		}
 		 */
@@ -440,7 +446,14 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	public ScanLocation getLocation() {
-		return fInput.getLocation();
+		int line = fInput.getLineno();
+		int pos = fInput.getLinepos();
+		return new ScanLocation("", line, pos);
+	}
+	
+	public long getLocationL() {
+		return SVDBLocation.pack(
+				fInput.getFileId(), fInput.getLineno(), fInput.getLinepos());
 	}
 	
 	public void debug(String msg) {
@@ -473,28 +486,29 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				fLexer.readKeyword(SVKeywords.fStrength);
 				num_strengths ++; 
 			}
-			if (fLexer.peekOperator(")"))  {
-				fLexer.readOperator(")");
+			if (fLexer.peekOperator(OP.RPAREN))  {
+				fLexer.readOperator(OP.RPAREN);
 				done = true;
 			}
 			else  {
 				// must be separated by comma's
-				fLexer.readOperator(",");
+				fLexer.readOperator(OP.COMMA);
 			}
 		}
 		if (max_strengths < num_strengths)  {
 			error("[Internal Error] Number of drive strengths '" + num_strengths + "' greater than maximum strengths '" + max_strengths + "' for this gate type");
 		}
-		return fLexer.endCapture();
+		return "";
+//		return fLexer.endCapture();
 	}
 	public String delay_n(int max_delays) throws SVParseException {
-		fLexer.readOperator("#");
+		fLexer.readOperator(OP.HASH);
 		boolean has_min_max_typ = false;	    // is formatted as nnn:nnn:nnn
 		boolean done_with_params = false;		// Done with delay params
 		int num_delays= 0;						// Number of delay parameters
 		
 		
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			fLexer.eatToken();
 			while (done_with_params == false)  {
 				num_delays ++;
@@ -506,20 +520,20 @@ public class ParserSVDBFileFactory implements ISVScanner,
 				// <generic_delay>
 				// <min_delay>:<typ_delay>:<max_delay>
 				parsers().exprParser().expression();			// min or base
-				if (fLexer.peekOperator(":")) {
+				if (fLexer.peekOperator(OP.COLON)) {
 					has_min_max_typ = true;	// is formatted as nnn:nnn:nnn
 					fLexer.eatToken();
 					/* typ */ parsers().exprParser().expression();
 	
-					fLexer.readOperator(":");
+					fLexer.readOperator(OP.COLON);
 					/* max */ parsers().exprParser().expression();
 				}
-				if (fLexer.peekOperator(")"))  {
-					fLexer.readOperator(")");
+				if (fLexer.peekOperator(OP.RPAREN))  {
+					fLexer.readOperator(OP.RPAREN);
 					done_with_params = true;
 				}
-				else if (fLexer.peekOperator(","))  {
-					fLexer.readOperator(",");
+				else if (fLexer.peekOperator(OP.COMMA))  {
+					fLexer.readOperator(OP.COMMA);
 					
 				}
 			}
@@ -530,7 +544,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		if (num_delays > max_delays)  {
 			error("[Internal Error] Number of delay parameters '" + num_delays + "' greater than maximum delay parameters'" + max_delays + "' for this gate type");
 		}
-		return fLexer.endCapture();
+		return "";
+//		return fLexer.endCapture();
 	}
 
 	public void error(String msg, String filename, int lineno, int linepos) {
@@ -541,16 +556,17 @@ public class ParserSVDBFileFactory implements ISVScanner,
 			if (fFileMapper != null) {
 				file_id = fFileMapper.mapFilePathToId(filename, false);
 			}
-			marker.setLocation(new SVDBLocation(file_id, lineno, linepos));
+			marker.setLocation(SVDBLocation.pack(file_id, lineno, linepos));
 			fMarkers.add(marker);
 		}
 	}
 	
-	public String getFilename(SVDBLocation loc) {
+	public String getFilename(long loc) {
 		if (fFileMapper != null) {
-			return fFileMapper.mapFileIdToPath(loc.getFileId());
+			return fFileMapper.mapFileIdToPath(
+					SVDBLocation.unpackFileId(loc));
 		} else {
-			return "FileId: " + loc.getFileId();
+			return "FileId: " + SVDBLocation.unpackFileId(loc);
 		}
 	}
 
@@ -592,6 +608,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		SVPreProcessor preproc = new SVPreProcessor(
 				in, filename, fDefineProvider);
 		fInput = preproc.preprocess();
+		
+		fFile.setLocation(getLocationL());
 		
 		fLog.debug("File Input: " + filename);
 //		fLog.debug(fInput.toString());
@@ -657,6 +675,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		
 		fSVParsers = new SVParsers();
 		fSVParsers.init(this);
+		
+		fFile.setLocation(getLocationL());
 
 		try {
 			while (fLexer.peek() != null) {
@@ -671,11 +691,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 		} catch (SVAbortParseException e) {
 			// error limit exceeded
 		} catch (NullPointerException e) {
-			SVDBLocation loc = fLexer.getStartLocation();
+			long loc = fLexer.getStartLocation();
 			String loc_s = "Unknown";
-			if (loc != null) {
+			if (loc != -1) {
 				loc_s = "" + getFilename(loc);
-				loc_s += ":" + loc.getLine();
+				loc_s += ":" + SVDBLocation.unpackLineno(loc);
 			}
 			fLog.error("Parser encountered a Null Pointer Exception at " + loc_s, e);
 			throw e;
@@ -765,13 +785,11 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 
 	private void setLocation(ISVDBItemBase item) {
-		ScanLocation loc = getStmtLocation();
-		item.setLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
+		item.setLocation(getLocationL());
 	}
 
 	private void setEndLocation(SVDBScopeItem item) {
-		ScanLocation loc = getStmtLocation();
-		item.setEndLocation(new SVDBLocation(-1, loc.getLineNo(), loc.getLinePos()));
+		item.setEndLocation(getLocationL());
 	}
 
 	public void preproc_define(String key, List<Tuple<String, String>> params, String value) {
@@ -786,7 +804,8 @@ public class ParserSVDBFileFactory implements ISVScanner,
 
 		if (def.getName() == null || def.getName().equals("")) {
 			// TODO: find filename
-			System.out.println("    <<UNKNOWN>> " + ":" + def.getLocation().getLine());
+			System.out.println("    <<UNKNOWN>> " + ":" + 
+					SVDBLocation.unpackLineno(def.getLocation()));
 		}
 
 		fScopeStack.peek().addItem(def);
@@ -842,11 +861,10 @@ public class ParserSVDBFileFactory implements ISVScanner,
 	}
 	
 	public void error(String msg) throws SVParseException {
-		ScanLocation loc = getLocation();
 		String filename = fFile.getFilePath();
-		int fileid = loc.getFileId();
-		int lineno = loc.getLineNo();
-		int linepos = loc.getLinePos();
+		int fileid = fInput.getFileId();
+		int lineno = fInput.getLineno();
+		int linepos = fInput.getLinepos();
 	
 		if (fFileMapper != null) {
 			filename = fFileMapper.mapFileIdToPath(fileid);

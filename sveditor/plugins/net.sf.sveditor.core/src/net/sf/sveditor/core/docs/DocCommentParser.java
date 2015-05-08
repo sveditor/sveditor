@@ -82,29 +82,79 @@ public class DocCommentParser implements IDocCommentParser {
 	* @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
 	public CommentType isDocCommentOrTaskTag(String comment, Tuple<String, String> info) {
-		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
+		boolean has_colon = (comment.indexOf(':') != -1);
+		boolean has_tasktag = false;
 		
-		for(String line: lines) {
-			Matcher matcher = fPatternIsDocComment.matcher(line) ;
-			Matcher task_matcher = fPatternIsTaskTagComment.matcher(line);
+		if (!has_colon) {
+			// Look for sequential upper-case letters
+			int cnt=0;
 			
-			if(matcher.matches()) {
-				if(fDocTopics == null) {
-					info.first(matcher.group(1));
-					info.second(matcher.group(2));
-					return CommentType.DocComment;
+			for (int i=0; i<comment.length(); i++) {
+				char ch = comment.charAt(i);
+				
+				if (ch >= 'A' && ch <= 'Z') {
+					cnt++;
+				} else {
+					cnt = 0;
 				}
-				String keyword = matcher.group(1).toLowerCase() ;
-				if(fDocTopics.getTopicType(keyword) != null) {
-					info.first(matcher.group(1));
-					info.second(matcher.group(2));
-					return CommentType.DocComment;
-//					return matcher.group(2) ;
-				} 
-			} else if (task_matcher.matches()) {
-				info.first(task_matcher.group(1));
-				info.second(task_matcher.group(2));
-				return CommentType.TaskTag;
+				
+				if (cnt >= 3) {
+					has_tasktag = true;
+					break;
+				}
+			}
+		}
+		
+		if (has_colon || has_tasktag) {
+			String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;
+
+			for(String line: lines) {
+				if (line.indexOf(':') != -1) {
+					Matcher matcher = fPatternIsDocComment.matcher(line);
+					if(matcher.matches()) {
+						if(fDocTopics == null) {
+							info.first(matcher.group(1));
+							info.second(matcher.group(2));
+							return CommentType.DocComment;
+						}
+						String keyword = matcher.group(1).toLowerCase() ;
+						if(fDocTopics.getTopicType(keyword) != null) {
+							info.first(matcher.group(1));
+							info.second(matcher.group(2));
+							return CommentType.DocComment;
+						}
+					}
+				} else {
+					int idx=0;
+					char ch;
+
+					while (idx < line.length()) {
+						ch = line.charAt(idx);
+						if (!Character.isWhitespace(ch) && ch != '*') {
+							break;
+						}
+						idx++;
+					}
+
+					int cnt=0;
+
+					// A task tag must have a sequence of upper-case letters
+					while (idx < line.length() && line.charAt(idx) >= 'A' && line.charAt(idx) <= 'Z' && cnt < 4) {
+						cnt++;
+						idx++;
+					}
+
+					if (cnt >= 3) {
+						// May still be a task tag.
+						Matcher task_matcher = fPatternIsTaskTagComment.matcher(line);
+
+						if (task_matcher.matches()) {
+							info.first(task_matcher.group(1));
+							info.second(task_matcher.group(2));
+							return CommentType.TaskTag;
+						}					
+					}
+				}
 			}
 		}
 		

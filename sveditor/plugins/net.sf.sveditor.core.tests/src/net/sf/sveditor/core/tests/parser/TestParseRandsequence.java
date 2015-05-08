@@ -7,7 +7,7 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 public class TestParseRandsequence extends SVCoreTestCaseBase {
 	
 	public void testRandsequence_1() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class rs1;\n" +
 			"\n" +

@@ -996,7 +996,8 @@ public class TestParseClassBodyItems extends TestCase {
 	}
 
 	public void testRandomizeLocalVarRef() {
-		String testname = "testRandomizeLocalVarRef";
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = getName();
 		String content =
 			"class myclass;\n" +
 			"	typedef enum bit {\n" +

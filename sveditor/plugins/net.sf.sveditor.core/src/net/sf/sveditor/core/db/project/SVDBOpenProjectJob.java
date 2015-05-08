@@ -71,7 +71,7 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 
 		IWorkspaceDescription desc = ResourcesPlugin.getWorkspace().getDescription();
 		
-		if (!desc.isAutoBuilding()) {
+		if (!desc.isAutoBuilding() || SVCorePlugin.isTestModeBuilderDisabled()) {
 			fLog.debug(LEVEL_MIN, "-- OpenProjectJob canceled -- AutoBuild disabled");
 			return Status.OK_STATUS;
 		}

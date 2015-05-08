@@ -1082,12 +1082,12 @@ public class SVEditor extends TextEditor
 		int start = -1;
 		int end   = -1;
 		
-		if (it.getLocation() != null) {
-			start = it.getLocation().getLine();
+		if (it.getLocation() != -1) {
+			start = SVDBLocation.unpackLineno(it.getLocation());
 			
 			if (it instanceof ISVDBScopeItem &&
-					((ISVDBScopeItem)it).getEndLocation() != null) {
-				end = ((ISVDBScopeItem)it).getEndLocation().getLine();
+					((ISVDBScopeItem)it).getEndLocation() != -1) {
+				end = SVDBLocation.unpackLineno(((ISVDBScopeItem)it).getEndLocation());
 			}
 			setSelection(start, end, set_cursor);
 		}
@@ -1215,7 +1215,7 @@ public class SVEditor extends TextEditor
 				ann = new Annotation(
 						"org.eclipse.ui.workbench.texteditor.error", 
 						false, marker.getMessage());
-				line = marker.getLocation().getLine();
+				line = SVDBLocation.unpackLineno(marker.getLocation());
 			}
 
 			if (ann != null) {
@@ -1239,17 +1239,19 @@ public class SVEditor extends TextEditor
 		collectUnprocessedRegions(unprocessed_regions, file_pp);
 		
 		for (SVDBUnprocessedRegion r : unprocessed_regions) {
-			SVDBLocation start = r.getLocation();
-			SVDBLocation end = r.getEndLocation();
+			long start = r.getLocation();
+			long end = r.getEndLocation();
 
-			if (start == null || end == null) {
+			if (start == -1 || end == -1) {
 				continue;
 			}
 			
+			int start_l = SVDBLocation.unpackLineno(start);
+			int end_l = SVDBLocation.unpackLineno(end);
 			Annotation ann_1 = new Annotation(SVUiPlugin.PLUGIN_ID + ".disabledRegion", false, "");
 			try {
-				int line1 = doc.getLineOffset((start.getLine()>0)?start.getLine()-1:0);
-				int line2 = doc.getLineOffset(end.getLine());
+				int line1 = doc.getLineOffset((start_l>0)?start_l-1:0);
+				int line2 = doc.getLineOffset(end_l);
 				ann_model.addAnnotation(ann_1, new Position(line1, (line2-line1)));
 			} catch (BadLocationException e) {}
 		}
@@ -1295,7 +1297,7 @@ public class SVEditor extends TextEditor
 					"overrides " + SVDBItem.getName(target_t.getParent()) + "::" + target_t.getName());
 			
 			try {
-				int line = tf.getLocation().getLine();
+				int line = SVDBLocation.unpackLineno(tf.getLocation());
 				if (line > 0) {
 					line = doc.getLineOffset(line-1);
 				} else {
@@ -1370,19 +1372,19 @@ public class SVEditor extends TextEditor
 		
 		IDocument doc = getDocument();
 		
-		collectFoldingRegions(file.getLocation().getFileId(), file, positions);
+		collectFoldingRegions(SVDBLocation.unpackFileId(file.getLocation()), file, positions);
 		collectMultiLineCommentFoldingRegions(doc, positions);
 		
 		for (ISVDBChildItem ci : file_pp.getChildren()) {
 			if (ci.getType() == SVDBItemType.UnprocessedRegion) {
 				SVDBUnprocessedRegion ur = (SVDBUnprocessedRegion)ci;
-				SVDBLocation start = ur.getLocation();
-				SVDBLocation end = ur.getEndLocation();
+				long start = ur.getLocation();
+				long end = ur.getEndLocation();
 			
-				if (start != null && end != null) {
+				if (start != -1 && end != -1) {
 					try {
-						int start_l = start.getLine();
-						int end_l = end.getLine(); // this is the `endif or `else
+						int start_l = SVDBLocation.unpackLineno(start);
+						int end_l = SVDBLocation.unpackLineno(end); // this is the `endif or `else
 						
 						if (start_l > 0) {
 							start_l--;
@@ -1461,16 +1463,16 @@ public class SVEditor extends TextEditor
 		for (ISVDBChildItem ci : scope.getChildren()) {
 			if (fFoldingRegions.contains(ci.getType())) {
 				ISVDBEndLocation el = (ISVDBEndLocation)ci;
-				SVDBLocation start = ci.getLocation();
-				SVDBLocation end = el.getEndLocation();
+				long start = ci.getLocation();
+				long end = el.getEndLocation();
 			
-				if (start != null && end != null) {
-					int it_file_id = start.getFileId();
+				if (start != -1 && end != -1) {
+					int it_file_id = SVDBLocation.unpackFileId(start);
 					
 					if (file_id == -1 || it_file_id == file_id) {
 						try {
-							int start_l = start.getLine();
-							int end_l = end.getLine();
+							int start_l = SVDBLocation.unpackLineno(start);
+							int end_l = SVDBLocation.unpackLineno(end);
 							if (start_l != end_l) {
 								if (start_l > 0) {
 									start_l--;

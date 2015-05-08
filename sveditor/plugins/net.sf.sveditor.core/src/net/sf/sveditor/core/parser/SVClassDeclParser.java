@@ -15,7 +15,6 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 
 public class SVClassDeclParser extends SVParserBase {
@@ -42,10 +41,10 @@ public class SVClassDeclParser extends SVParserBase {
 		}
 		
 		// Expect to enter on 'class'
-		SVDBLocation start_loc = fLexer.getStartLocation();
-		fLexer.readKeyword("class");
+		long start_loc = fLexer.getStartLocation();
+		fLexer.readKeyword(KW.CLASS);
 		
-		if (fLexer.peekKeyword("automatic", "static")) {
+		if (fLexer.peekKeyword(KW.AUTOMATIC, KW.STATIC)) {
 			// TODO: set lifetime on class declaration
 			fLexer.eatToken();
 		}
@@ -62,21 +61,21 @@ public class SVClassDeclParser extends SVParserBase {
 		cls_type = new SVDBTypeInfoClassType(cls_type_name);
 		cls.setClassType(cls_type);
 		
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// Handle classes with parameters
 			cls.addParameters(parsers().paramPortListParser().parse());
 		}
 		
-		if (fLexer.peekKeyword("extends")) {
+		if (fLexer.peekKeyword(KW.EXTENDS)) {
 			fLexer.eatToken();
 			cls.setSuperClass(parsers().dataTypeParser().class_type());
 
-			if (fLexer.peekOperator("#")) {
+			if (fLexer.peekOperator(OP.HASH)) {
 				// scanner().unget_ch('#');
 				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
 				// cls.getSuperParameters().addAll(params);
 				fLexer.eatToken();
-				if (fLexer.peekOperator("(")) {
+				if (fLexer.peekOperator(OP.LPAREN)) {
 					fLexer.skipPastMatch("(", ")");
 				} else {
 					fLexer.eatToken();
@@ -84,30 +83,30 @@ public class SVClassDeclParser extends SVParserBase {
 			}
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		parent.addChildItem(cls);
 		
 		// TODO: need a better system here...
-		while (fLexer.peek() != null && !fLexer.peekKeyword("endclass")) {
+		while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLASS)) {
 			
 			try {
-				fParsers.modIfcBodyItemParser().parse(cls, "class");
+				fParsers.modIfcBodyItemParser().parse(cls);
 			} catch (SVParseException e) {
 				// Catch error
 				// TODO: recover from errors
 				while (fLexer.peek() != null && 
-						!fLexer.peekOperator(";") && !fLexer.peekKeyword("endclass")) {
+						!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword(KW.ENDCLASS)) {
 					fLexer.eatToken();
 				}
 			}
 		}
 
 		cls.setEndLocation(fLexer.getStartLocation());
-		fLexer.readKeyword("endclass");
+		fLexer.readKeyword(KW.ENDCLASS);
 
 		// endclass : classname
-		if (fLexer.peekOperator(":")) { 
+		if (fLexer.peekOperator(OP.COLON)) { 
 			fLexer.eatToken();
 			fLexer.readId();
 		}

@@ -4,6 +4,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
@@ -32,7 +33,7 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 6);
 	
-		System.out.println("it=" + it);
+		fLog.debug("it=" + it);
 		assertNotNull(it);
 		assertTrue("it not instanceof SVDBModIfInst: " + it, 
 				(it instanceof SVDBModIfcInstItem));
@@ -68,10 +69,13 @@ public class TestFindItem extends SVCoreTestCaseBase {
 				fLog, content, getName(), false);
 	
 		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBLocation l = new SVDBLocation(file.getLocation());
+		fLog.debug("Location: " + l.getFileId() + " " + l.getLine() + " " + l.getPos());
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 12);
 	
 		assertNotNull(it);
-		System.out.println("it=" + it + " line=" + it.getLocation().getLine());
+		fLog.debug("it=" + it + " line=" + 
+				SVDBLocation.unpackLineno(it.getLocation()));
 		assertTrue("it not instanceof SVDBModIfInst: " + it, 
 				(it instanceof SVDBModIfcInstItem));
 		assertEquals("u_sub_2", SVDBItem.getName(it));
@@ -114,7 +118,8 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 12);
 	
 		assertNotNull(it);
-		System.out.println("it=" + it + " line=" + it.getLocation().getLine());
+		fLog.debug("it=" + it + " line=" + 
+				SVDBLocation.unpackLineno(it.getLocation()));
 		assertTrue("it not instanceof SVDBModIfInst: " + it, 
 				(it instanceof SVDBModIfcInstItem));
 		assertEquals("u_sub_2", SVDBItem.getName(it));
@@ -157,7 +162,8 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 16);
 	
 		assertNotNull(it);
-		System.out.println("it=" + it + " line=" + it.getLocation().getLine());
+		fLog.debug("it=" + it + " line=" + 
+				SVDBLocation.unpackLineno(it.getLocation()));
 		assertTrue("it not instanceof SVDBModIfInst: " + it, 
 				(it instanceof SVDBModIfcInstItem));
 		assertEquals("u_sub_2_1", SVDBItem.getName(it));
@@ -189,7 +195,8 @@ public class TestFindItem extends SVCoreTestCaseBase {
 		ISVDBItemBase it = SVDBSearchUtils.findActiveStructItem(file, 8);
 	
 		assertNotNull(it);
-		System.out.println("it=" + it + " line=" + it.getLocation().getLine());
+		fLog.debug("it=" + it + " line=" + 
+				SVDBLocation.unpackLineno(it.getLocation()));
 		assertTrue("it not instanceof SVDBModIfInst: " + it, 
 				(it instanceof SVDBModIfcInstItem));
 		assertEquals("a", SVDBItem.getName(it));

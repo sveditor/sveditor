@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.expr_utils;
 
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -105,8 +104,8 @@ public class SVExprUtilsParser implements ISVParser {
 
 	}
 
-	public String getFilename(SVDBLocation loc) {
-		return "UNKNOWN: " + loc.getFileId();
+	public String getFilename(long loc) {
+		return "UNKNOWN: " + loc;
 	}
 
 }

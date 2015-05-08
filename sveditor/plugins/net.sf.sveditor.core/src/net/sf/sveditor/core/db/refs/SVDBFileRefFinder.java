@@ -20,7 +20,6 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
@@ -306,7 +305,7 @@ public class SVDBFileRefFinder {
 					SVDBVarDeclStmt var_decl = (SVDBVarDeclStmt)stmt;
 					if (var_decl.getTypeInfo().getType() == SVDBItemType.TypeInfoUserDef) {
 						SVDBTypeInfoUserDef ut = (SVDBTypeInfoUserDef)var_decl.getTypeInfo();
-						visitRef(null, SVDBRefType.TypeReference, ut.getName());
+						visitRef(-1, SVDBRefType.TypeReference, ut.getName());
 
 						for (ISVDBChildItem var_item_c : var_decl.getChildren()) {
 							SVDBVarDeclItem var_item = (SVDBVarDeclItem)var_item_c;
@@ -443,7 +442,7 @@ public class SVDBFileRefFinder {
 		}
 	}
 	
-	protected void visitRef(SVDBLocation loc, SVDBRefType type, String name) {
+	protected void visitRef(long loc, SVDBRefType type, String name) {
 		if (fRefVisitor != null) {
 			fRefVisitor.visitRef(loc, type, fScopeStack, name);
 		}

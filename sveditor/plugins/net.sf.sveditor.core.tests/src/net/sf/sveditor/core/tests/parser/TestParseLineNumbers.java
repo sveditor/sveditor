@@ -17,6 +17,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -44,8 +45,10 @@ public class TestParseLineNumbers extends TestCase {
 		assertNotNull("Start location not specified", cls.getLocation());
 		assertNotNull("End location not specified", cls.getEndLocation());
 		
-		assertEquals("Wrong start location", 1, cls.getLocation().getLine());
-		assertEquals("Wrong end location", 5, cls.getEndLocation().getLine());
+		assertEquals("Wrong start location", 1, 
+				SVDBLocation.unpackLineno(cls.getLocation()));
+		assertEquals("Wrong end location", 5, 
+				SVDBLocation.unpackLineno(cls.getEndLocation()));
 	}
 
 	public void testClassFunctionLineNumbers() {
@@ -79,8 +82,10 @@ public class TestParseLineNumbers extends TestCase {
 		assertNotNull("Start location not specified", cls.getLocation());
 		assertNotNull("End location not specified", cls.getEndLocation());
 		
-		assertEquals("Wrong start location", 1, cls.getLocation().getLine());
-		assertEquals("Wrong end location", 15, cls.getEndLocation().getLine());
+		assertEquals("Wrong start location", 1, 
+				SVDBLocation.unpackLineno(cls.getLocation()));
+		assertEquals("Wrong end location", 15, 
+				SVDBLocation.unpackLineno(cls.getEndLocation()));
 		
 		SVDBTask f1=null, f2=null;
 		
@@ -95,11 +100,15 @@ public class TestParseLineNumbers extends TestCase {
 		
 		assertNotNull(f1);
 		assertNotNull(f2);
-		assertEquals("Wrong foobar_f start location", 5, f1.getLocation().getLine());
-		assertEquals("Wrong foobar_f end location", 8, f1.getEndLocation().getLine());
+		assertEquals("Wrong foobar_f start location", 5, 
+				SVDBLocation.unpackLineno(f1.getLocation()));
+		assertEquals("Wrong foobar_f end location", 8, 
+				SVDBLocation.unpackLineno(f1.getEndLocation()));
 		
-		assertEquals("Wrong foobar_f2 start location", 10, f2.getLocation().getLine());
-		assertEquals("Wrong foobar_f2 end location", 13, f2.getEndLocation().getLine());
+		assertEquals("Wrong foobar_f2 start location", 10, 
+				SVDBLocation.unpackLineno(f2.getLocation()));
+		assertEquals("Wrong foobar_f2 end location", 13, 
+				SVDBLocation.unpackLineno(f2.getEndLocation()));
 	}
 
 }

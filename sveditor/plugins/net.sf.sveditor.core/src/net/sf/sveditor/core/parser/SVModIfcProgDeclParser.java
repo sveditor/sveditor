@@ -18,7 +18,6 @@ import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBInterfaceDecl;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBProgramDecl;
@@ -31,7 +30,6 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 	}
 	
 	public void parse(ISVDBAddChildItem parent, int qualifiers) throws SVParseException {
-		String id;
 		String module_type_name = null;
 		SVDBModIfcDecl module = null;
 
@@ -39,26 +37,37 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			debug("--> process_mod_ifc_prog()");
 		}
 		
-		SVDBLocation start = fLexer.getStartLocation();
-		String type_name = fLexer.readKeyword("module", "macromodule",
-				"interface", "program");
+		long start = fLexer.getStartLocation();
+		KW type_name = fLexer.readKeyword(KW.MODULE, KW.MACROMODULE, KW.INTERFACE, KW.PROGRAM);
+		KW end_type = null;
 		SVDBItemType type = null;
-		if (type_name.equals("module") || type_name.equals("macromodule")) {
-			type = SVDBItemType.ModuleDecl;
-		} else if (type_name.equals("interface")) {
-			type = SVDBItemType.InterfaceDecl;
-		} else if (type_name.equals("program")) {
-			type = SVDBItemType.ProgramDecl;
-		} else {
-			error("Unsupported module/interface/program type-name " + type_name);
+		
+		switch (type_name) {
+			case MODULE:
+			case MACROMODULE:
+				type = SVDBItemType.ModuleDecl;
+				end_type = KW.ENDMODULE;
+				break;
+				
+			case INTERFACE:
+				type = SVDBItemType.InterfaceDecl;
+				end_type = KW.ENDINTERFACE;
+				break;
+				
+			case PROGRAM:
+				type = SVDBItemType.ProgramDecl;
+				end_type = KW.ENDPROGRAM;
+				break;
+			default:
+				break;
 		}
 		
-		if (fLexer.peekKeyword("static", "automatic")) {
+		if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 			// TODO: tag with lifetime
 			fLexer.eatToken();
 		}
 		
-		if (type == SVDBItemType.ProgramDecl && fLexer.peekOperator(";")) {
+		if (type == SVDBItemType.ProgramDecl && fLexer.peekOperator(OP.SEMICOLON)) {
 			// anonymous program block
 			module_type_name = "";
 		} else {
@@ -85,19 +94,19 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		
 		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
-			while (fLexer.peekKeyword("import")) {
+			while (fLexer.peekKeyword(KW.IMPORT)) {
 				// Import statement
 				parsers().impExpParser().parse_import(module);
 			}
 		}
 
 		// Handle modules with parameters
-		if (fLexer.peekOperator("#")) {
+		if (fLexer.peekOperator(OP.HASH)) {
 			// Handle in-line parameter declarations
 			module.getParameters().addAll(parsers().paramPortListParser().parse());
 		}
 
-		if (fLexer.peekOperator("(")) {
+		if (fLexer.peekOperator(OP.LPAREN)) {
 			// port-list
 			List<SVDBParamPortDecl> ports = parsers().portListParser().parse();
 			for (SVDBParamPortDecl p : ports) {
@@ -106,7 +115,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			module.getPorts().addAll(ports);
 		}
 		
-		if (fLexer.peekKeyword("end" + type_name)) {
+		if (fLexer.peekKeyword(end_type)) {
 			fLexer.eatToken();
 			if (fDebugEn) {
 				debug("<-- process_mod_ifc_prog(early escape)");
@@ -115,20 +124,20 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			return;
 		}
 		
-		fLexer.readOperator(";");
+		fLexer.readOperator(OP.SEMICOLON);
 		
 		// Extern module/programs don't have bodies
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
-			while (fLexer.peek() != null && !fLexer.peekKeyword("end" + type_name)) {
+			while (fLexer.peek() != null && !fLexer.peekKeyword(end_type)) {
 				try {
-					fParsers.modIfcBodyItemParser().parse(module, type_name);
+					fParsers.modIfcBodyItemParser().parse(module);
 				} catch (SVParseException e) {
 					// TODO: How to adapt?
 					if (fDebugEn) {
 						debug("Module body item parse failed", e);
 					}
-					while (fLexer.peek() != null && !fLexer.peekOperator(";") &&
-							!fLexer.peekKeyword("end"+ type_name)) {
+					while (fLexer.peek() != null && !fLexer.peekOperator(OP.SEMICOLON) &&
+							!fLexer.peekKeyword(end_type)) {
 						fLexer.eatToken();
 					}
 				}
@@ -137,17 +146,17 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 				// fScopeStack.peek().addItem(item);
 			}
 			
-			SVDBLocation end = fLexer.getStartLocation();
+			long end = fLexer.getStartLocation();
 			module.setEndLocation(end);
-			fLexer.readKeyword("end" + type_name);
+			fLexer.readKeyword(end_type);
 			
 			// Optional labeled end
-			if (fLexer.peekOperator(":")) {
+			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
 				fLexer.readId();
 			}
 		} else {
-			SVDBLocation end = fLexer.getStartLocation();
+			long end = fLexer.getStartLocation();
 			module.setEndLocation(end);
 		}
 

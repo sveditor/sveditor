@@ -25,9 +25,9 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
@@ -38,7 +38,6 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -579,7 +578,7 @@ public class SVOutlinePage extends ContentOutlinePage
 						if (fLastSelection == null || !fLastSelection.equals(it, true)) {
 							if (fDebugEn) {
 								fLog.debug("Setting SVEditor selection: " + SVDBItem.getName(it) + " @ " + 
-										((it.getLocation() != null)?it.getLocation().getLine():-1));
+										((it.getLocation() != -1)?SVDBLocation.unpackLineno(it.getLocation()):-1));
 							}
 							fEditor.setSelection(it, false);
 							fLastSelection = it;

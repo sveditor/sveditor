@@ -14,7 +14,6 @@ package net.sf.sveditor.core.parser;
 
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
 import net.sf.sveditor.core.db.stmt.SVDBExportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
@@ -33,8 +32,8 @@ public class SVImpExpStmtParser extends SVParserBase {
 	}
 	
 	public void parse_export(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
-		fLexer.readKeyword("export");
+		long start = fLexer.getStartLocation();
+		fLexer.readKeyword(KW.EXPORT);
 
 		if (fLexer.peekString() && 
 				(fLexer.peek().equals("DPI") || fLexer.peek().equals("DPI-C"))) {
@@ -43,33 +42,37 @@ public class SVImpExpStmtParser extends SVParserBase {
 		} else {
 			SVDBExportStmt exp = new SVDBExportStmt();
 			exp.setLocation(start);
-			if (fLexer.peekOperator("*")) {
-				
-				fLexer.startCapture();
-				fLexer.readOperator("*");
-				fLexer.readOperator("::");
-				fLexer.readOperator("*");
+			if (fLexer.peekOperator(OP.MUL)) {
+				SVStringTokenListener l = new SVStringTokenListener();
 				SVDBExportItem ei = new SVDBExportItem();
-				ei.setExport(fLexer.endCapture());
+				fLexer.addTokenListener(l);
+				try {
+					fLexer.readOperator(OP.MUL);
+					fLexer.readOperator(OP.COLON2);
+					fLexer.readOperator(OP.MUL);
+				} finally {
+					fLexer.removeTokenListener(l);
+				}
+				ei.setExport(l.toString());
 				exp.addChildItem(ei);
 			} else {
 				
 				while (fLexer.peek() != null) {
 					exp.addChildItem(package_export_item());
 					
-					if (fLexer.peekOperator(",")) {
+					if (fLexer.peekOperator(OP.COMMA)) {
 						fLexer.eatToken();
 					} else {
 						break;
 					}
 				}
 			}
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 			parent.addChildItem(exp);
 		}
 	}
 	
-	private void parse_dpi_tf(ISVDBAddChildItem parent, SVDBLocation start) throws SVParseException {
+	private void parse_dpi_tf(ISVDBAddChildItem parent, long start) throws SVParseException {
 		int modifiers = IFieldItemAttr.FieldAttr_DPI;
 
 		modifiers |= parsers().SVParser().scan_qualifiers(false);
@@ -78,7 +81,7 @@ public class SVImpExpStmtParser extends SVParserBase {
 			// c_identifier =
 			// TODO: capture?
 			fLexer.readId();
-			fLexer.readOperator("=");
+			fLexer.readOperator(OP.EQ);
 		}
 
 		// Read tf extern declaration
@@ -86,8 +89,8 @@ public class SVImpExpStmtParser extends SVParserBase {
 	}
 
 	public void parse_import(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBLocation start = fLexer.getStartLocation();
-		fLexer.readKeyword("import");
+		long start = fLexer.getStartLocation();
+		fLexer.readKeyword(KW.IMPORT);
 		
 		if (fLexer.peekString()) {
 			// likely DPI import/export. Double-check
@@ -105,14 +108,14 @@ public class SVImpExpStmtParser extends SVParserBase {
 			while (fLexer.peek() != null) {
 				imp.addChildItem(package_import_item());
 				
-				if (fLexer.peekOperator(",")) {
+				if (fLexer.peekOperator(OP.COMMA)) {
 					fLexer.eatToken();
 				} else {
 					break;
 				}
 			}
 		
-			fLexer.readOperator(";");
+			fLexer.readOperator(OP.SEMICOLON);
 			parent.addChildItem(imp);
 		}
 	}
@@ -120,36 +123,44 @@ public class SVImpExpStmtParser extends SVParserBase {
 	private SVDBImportItem package_import_item() throws SVParseException {
 		SVDBImportItem imp = new SVDBImportItem();
 		imp.setLocation(fLexer.getStartLocation());
-		fLexer.startCapture();
-		fLexer.readId();
-		while (fLexer.peekOperator("::")) {
-			fLexer.eatToken();
-			if (fLexer.peekOperator("*")) {
+		SVStringTokenListener l = new SVStringTokenListener();
+		fLexer.addTokenListener(l);
+		try {
+			fLexer.readId();
+			while (fLexer.peekOperator(OP.COLON2)) {
 				fLexer.eatToken();
-			} else {
-				fLexer.readId();
+				if (fLexer.peekOperator(OP.MUL)) {
+					fLexer.eatToken();
+				} else {
+					fLexer.readId();
+				}
 			}
+		} finally {
+			fLexer.removeTokenListener(l);
 		}
-		
-		imp.setImport(fLexer.endCapture());
+		imp.setImport(l.toString());
 		return imp;
 	}
 	
 	private SVDBExportItem package_export_item() throws SVParseException {
 		SVDBExportItem exp = new SVDBExportItem();
 		exp.setLocation(fLexer.getStartLocation());
-		fLexer.startCapture();
-		fLexer.readId();
-		while (fLexer.peekOperator("::")) {
-			fLexer.eatToken();
-			if (fLexer.peekOperator("*")) {
+		SVStringTokenListener l = new SVStringTokenListener();
+		fLexer.addTokenListener(l);
+		try {
+			fLexer.readId();
+			while (fLexer.peekOperator(OP.COLON2)) {
 				fLexer.eatToken();
-			} else {
-				fLexer.readId();
+				if (fLexer.peekOperator(OP.MUL)) {
+					fLexer.eatToken();
+				} else {
+					fLexer.readId();
+				}
 			}
+		} finally {
+			fLexer.removeTokenListener(l);
 		}
-		
-		exp.setExport(fLexer.endCapture());
+		exp.setExport(l.toString());
 		return exp;
 	}
 }

@@ -19,9 +19,9 @@ public interface ISVDBItemBase {
 	
 	SVDBItemType getType();
 	
-	SVDBLocation getLocation();
+	long getLocation();
 	
-	void setLocation(SVDBLocation location);
+	void setLocation(long location);
 	
 	ISVDBItemBase duplicate();
 	
