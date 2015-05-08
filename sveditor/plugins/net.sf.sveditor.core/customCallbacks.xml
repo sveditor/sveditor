@@ -1,10 +1,14 @@
 <project name="customCallbacks" default="pre.compile">
-
+	
 	<target name="pre.compile">
 		<echo message="Generating Operator Lexer"/>
-		<javac source="1.6" target="1.6" compiler="org.eclipse.jdt.core.JDTCompilerAdapter"
+		<!--
+		compiler="org.eclipse.jdt.core.JDTCompilerAdapter"
+		-->
+		
+		<javac source="1.6" target="1.6" 
 			srcdir="${basedir}/src" destdir="${basedir}/bin"
-			includes="**/parser/MkOperatorParser.java" includeantruntime="false">
+			includes="**/parser/MkOperatorParser.java" includeantruntime="true">
 		</javac>
 		<java classpath="${basedir}/bin" classname="net.sf.sveditor.core.parser.MkOperatorParser">
 			<arg value="${basedir}/src/net/sf/sveditor/core/parser/SVOperatorLexer.java"/>
