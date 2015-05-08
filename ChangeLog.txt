@@ -1,6 +1,9 @@
 
 -- 1.7.9 Release --
 
+- #(393) - Added support for default clocking that references a previously-defined
+  clocking block.
+
 ------------------------------------------------------------------------------
 -- 1.7.8 Release --
 

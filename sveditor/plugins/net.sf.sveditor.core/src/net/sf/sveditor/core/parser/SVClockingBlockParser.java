@@ -23,7 +23,7 @@ public class SVClockingBlockParser extends SVParserBase {
 	
 	public void parse(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBClockingBlock clk_blk = new SVDBClockingBlock("");
-		String name = "";
+		String name = null;
 		
 		clk_blk.setLocation(fLexer.getStartLocation());
 		
@@ -41,33 +41,33 @@ public class SVClockingBlockParser extends SVParserBase {
 			if (!fLexer.peekOperator(OP.AT)) {
 				// Expect a clocking block identifier
 				name = fLexer.readId();
+				clk_blk.setName(name);
+			} else {
+				clk_blk.setName("");
 			}
-			clk_blk.setName(name);
-
-			clk_blk.setExpr(fParsers.exprParser().clocking_event());
-			fLexer.readOperator(OP.SEMICOLON);
-
-			// Global clocking does not have a body
-			if (type == null || !type.equals("global")) {
-				while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLOCKING)) {
-					clocking_item(clk_blk);
-				}
-			}
-
-				/*
-			if (fLexer.peekKeyword("default")) {
+		
+			// Section 14.12: reference to a previously-defined clocking block
+			if (name != null && fLexer.peekOperator(OP.SEMICOLON)) {
 				fLexer.eatToken();
-				String type = fLexer.readKeyword("input", "output");
-				// TODO:
+			} else {
+
+				clk_blk.setExpr(fParsers.exprParser().clocking_event());
 				fLexer.readOperator(OP.SEMICOLON);
-			} else if (fLexer.peekKeyword("input))
-				 */
-			clk_blk.setEndLocation(fLexer.getStartLocation());
-			fLexer.readKeyword(KW.ENDCLOCKING);
 
-			if (fLexer.peekOperator(OP.COLON)) {
-				fLexer.eatToken();
-				fLexer.readId();
+				// Global clocking does not have a body
+				if (type == null || !type.equals("global")) {
+					while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLOCKING)) {
+						clocking_item(clk_blk);
+					}
+				}
+
+				clk_blk.setEndLocation(fLexer.getStartLocation());
+				fLexer.readKeyword(KW.ENDCLOCKING);
+
+				if (fLexer.peekOperator(OP.COLON)) {
+					fLexer.eatToken();
+					fLexer.readId();
+				}
 			}
 		} finally {
 		}

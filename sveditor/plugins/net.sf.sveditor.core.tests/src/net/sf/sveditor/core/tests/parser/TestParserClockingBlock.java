@@ -2,6 +2,7 @@ package net.sf.sveditor.core.tests.parser;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import junit.framework.TestCase;
 
@@ -150,5 +151,27 @@ public class TestParserClockingBlock extends TestCase {
 		
 		SVDBTestUtils.assertNoErrWarn(file);
 		SVDBTestUtils.assertFileHasElements(file, "my_if");
+	}
+	
+	public void testClockingBlockNamedDefault() throws SVParseException {
+		String doc =
+			"module processor;\n" +
+			"	clocking busA @(posedge clk1); endclocking\n" +
+			"	clocking busB @(negedge clk2); endclocking\n" +
+			"\n" +
+			"module cpu( interface y );\n" +
+			"	default clocking busA ;\n" +
+			"	initial begin\n" +
+			"		## 5; // use busA => (posedge clk1)\n"  +
+			"end\n" +
+			"endmodule\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "processor");
 	}
 }
