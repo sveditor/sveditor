@@ -1,5 +1,6 @@
 
 -- 1.7.9 Release --
+
 - #(394) Indenter: Named fork / join not indenting properly
 
 - #(393) - Added support for default clocking that references a previously-defined
@@ -10,7 +11,9 @@
   
 - #(enh) - Add hyperlink support for line numbers that directly follow the path.
   For example: /home/foobar/file.svh 27
-  
+
+- #(enh) - Major restructuring of the lexer and preprocessor that will, in
+  some cases, boost performance and reduce memory footprint.   
 
 ------------------------------------------------------------------------------
 -- 1.7.8 Release --
