@@ -1,9 +1,9 @@
 
-# version=1.7.9
-version=1.7.8.5
+version=1.7.9
+# version=1.7.8.9
 
-# version_type=release
-version_type=testing
+version_type=release
+# version_type=testing
 
 
 upload_archive=0
