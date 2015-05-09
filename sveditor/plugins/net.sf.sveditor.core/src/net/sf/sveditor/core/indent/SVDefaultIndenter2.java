@@ -406,7 +406,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		SVIndentToken tok = current();
 		
 		start_of_scope(tok);
-		tok = next_s();
+		tok = consume_labeled_block(next_s());	// Forks can be named fork : some_name
 		enter_scope(tok);
 
 		while (tok != null && 

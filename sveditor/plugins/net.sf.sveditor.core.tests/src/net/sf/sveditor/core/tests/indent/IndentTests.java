@@ -1302,6 +1302,10 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"			a();\n" +
 		"			b();\n" +
 		"		join\n" +
+		"		fork : named_fork\n" +
+		"			a();\n" +
+		"			b();\n" +
+		"		join_none\n" +
 		"	endtask\n" +
 		"endclass\n"
 		;
