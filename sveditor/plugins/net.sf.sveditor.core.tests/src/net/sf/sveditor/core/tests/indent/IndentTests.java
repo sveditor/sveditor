@@ -1332,6 +1332,41 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testForever() {
+		String testname = "testForever";
+		String ref =
+				"module foo ();\n" +
+				"	initial begin\n" +
+				"		forever #1\n" +
+				"		begin\n" +
+				"			a=b;\n" +
+				"		end\n" +
+				"	end\n"  +
+				"endmodule\n" 
+				;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
+		
+		IndentComparator.compare(log, testname, ref, result);
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testEmptyForkJoin() {
 		String testname = "testEmptyForkJoin";
 		String ref =
