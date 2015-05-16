@@ -441,6 +441,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else {
 				return tok;
 			}
+		} else if (tok.isId("forever")) {
+			// A forever COULD have a #(delay) after it... swallow it if exists
+			tok = next_s();
+			if (tok.isOp("#")) {
+				tok = next_s();
+				tok = consume_expression();
+			}
 		} else {
 			tok = next_s();
 		}

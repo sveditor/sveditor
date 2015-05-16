@@ -1,5 +1,6 @@
 
 -- 1.8.0 Release --
+- #(395)  Indenter: forever followed by #delay not indented correctly
 
 ------------------------------------------------------------------------------
 -- 1.7.9 Release --
