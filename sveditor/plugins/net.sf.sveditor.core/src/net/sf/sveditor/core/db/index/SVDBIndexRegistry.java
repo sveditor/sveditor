@@ -372,31 +372,10 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	public void close() {
 		fLog.debug("close()");
 	
-		if (SVCorePlugin.fUseNewCacheMgr && fCacheFactory != null) {
+		if (fCacheFactory != null) {
 			// Close down the cache factory
 			fCacheFactory.dispose();
 			
-		} else {
-			// Old behavior
-			synchronized (fIndexList) {
-				for (ISVDBIndex i : fIndexList) {
-					i.dispose();
-				}
-			}
-			
-			if (fCacheFactory != null) {
-				List<ISVDBIndexCache> cache_l = new ArrayList<ISVDBIndexCache>();
-				synchronized (fIndexList) {
-					for (ISVDBIndex i : fIndexList) {
-						if (!cache_l.contains(i.getCache()) && i.getCache() != null) {
-							cache_l.add(i.getCache());
-						}
-					}
-				}
-				
-				// Compact the cache-storage area
-				fCacheFactory.compactCache(cache_l);
-			}			
 		}
 
 		fIndexList.clear();

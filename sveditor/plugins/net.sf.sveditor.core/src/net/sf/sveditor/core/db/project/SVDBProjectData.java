@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.ISVProjectBuilderListener;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -50,12 +51,14 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 	private String									fProjectName;
 	private LogHandle								fLog;
 	private List<ISVDBProjectSettingsListener>		fListeners;
+	private List<ISVProjectBuilderListener>			fBuildListeners;
 
 	public SVDBProjectData(IProject	project) {
 //		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		fProject = project;
 		fLog = LogFactory.getLogHandle("SVDBProjectData");
 		fListeners = new ArrayList<ISVDBProjectSettingsListener>();
+		fBuildListeners = new ArrayList<ISVProjectBuilderListener>();
 		fProjectName    = project.getName();
 		
 		fLog.debug("Create SVDBProjectData for \"" + project.getName() + "\"");
@@ -138,7 +141,34 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			fListeners.remove(l);
 		}
 	}
+	
+	public void addBuildListener(ISVProjectBuilderListener l) {
+		synchronized (fBuildListeners) {
+			fBuildListeners.add(l);
+		}
+	}
 
+	public void removeBuildListener(ISVProjectBuilderListener l) {
+		synchronized (fBuildListeners) {
+			fBuildListeners.remove(l);
+		}
+	}
+	
+	public void buildEvent(
+			boolean					started,
+			int						kind,
+			Map<String, String>		args) {
+		synchronized (fBuildListeners) {
+			for (ISVProjectBuilderListener l : fBuildListeners) {
+				if (started) {
+					l.build_start(kind, args);
+				} else {
+					l.build_complete(kind, args);
+				}
+			}
+		}
+	}
+	
 	public synchronized SVDBIndexCollection getProjectIndexMgr() {
 		if (fIndexCollection == null) {
 			fIndexCollection = createProjectIndex();

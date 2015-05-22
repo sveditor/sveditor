@@ -35,13 +35,12 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVLexer;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
@@ -175,21 +174,12 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		ps.close();
 
 		ISVDBIndex index;
-		boolean use_index2 = true;
 		
-		if (use_index2) {
 			index = new SVDBArgFileIndex2("GENERIC", 
 					uvm_f.getAbsolutePath(),
 					new SVDBFSFileSystemProvider(),
 					factory.createIndexCache("GENERIC",  uvm_f.getAbsolutePath()),
 					null);
-		} else {
-			index = new SVDBArgFileIndex("GENERIC", 
-					uvm_f.getAbsolutePath(),
-					new SVDBFSFileSystemProvider(),
-					factory.createIndexCache("GENERIC",  uvm_f.getAbsolutePath()),
-					null);
-		}
 		
 		index.init(new NullProgressMonitor(), null);
 		
@@ -359,19 +349,10 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		
 		ISVDBIndex index;
 		
-		boolean use_argfile2 = false;
-		
-		if (use_argfile2) {
 			index = new SVDBArgFileIndex2("GENERIC", opensparc_design.getAbsolutePath(), 
 					new SVDBFSFileSystemProvider(), 
 					cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 					null);
-		} else {
-			index = new SVDBArgFileIndex("GENERIC", opensparc_design.getAbsolutePath(), 
-					new SVDBFSFileSystemProvider(), 
-					cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
-					null);
-		}
 		index.init(new NullProgressMonitor(), null);
 		
 		// ISVDBItemIterator it = index.getItemIterator(new NullProgressMonitor());
@@ -459,7 +440,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		TestIndexCacheFactory cache_f = fCacheFactory;
 		
-		ISVDBIndex index = new SVDBArgFileIndex("GENERIC", 
+		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
 				opensparc_design.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
@@ -516,21 +497,12 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		TestIndexCacheFactory cache_f = fCacheFactory;
 		
 		ISVDBIndex index = null;
-		boolean use_index2 = true;
 		
-		if (use_index2) {
 			index = new SVDBArgFileIndex2("GENERIC", 
 				ethernet_f.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", ethernet_f.getAbsolutePath()),
 				null);
-		} else {
-			index = new SVDBArgFileIndex("GENERIC", 
-				ethernet_f.getAbsolutePath(),
-				new SVDBFSFileSystemProvider(),
-				cache_f.createIndexCache("GENERIC", ethernet_f.getAbsolutePath()),
-				null);
-		}
 		index.init(new NullProgressMonitor(), null);
 	
 		long start = System.currentTimeMillis();

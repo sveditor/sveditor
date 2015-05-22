@@ -24,6 +24,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.ProjectBuildMonitor;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -122,12 +123,12 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 	}
 	
 	public void testResourceVarProjVarRef() throws CoreException {
-		System.out.println("BEGIN testResourceVarProjVarRef");
-		String testname = "testResourceVarProjVarRef";
+		// Ignore auto-builds
+		SVCorePlugin.setTestModeBuilderDisabled();
+		SVCorePlugin.getDefault().enableDebug(true);
+		fLog.debug("BEGIN testResourceVarProjVarRef");
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
 		CoreReleaseTests.clearErrors();
 
 		utils.copyBundleDirToFS(
@@ -139,8 +140,9 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
-		
-		index_collection.loadIndex(new NullProgressMonitor());
+
+		index_collection.rebuildIndex(new NullProgressMonitor());
+//		index_collection.loadIndex(new NullProgressMonitor());
 	
 		InputStream in = null;
 
@@ -149,16 +151,16 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		
 		String target_file = "${workspace_loc}/" + project.getName() + "/top_dir/parameters.sv";
 
-		log.debug("--> findIndexFile: " + target_file);
+		fLog.debug("--> findIndexFile: " + target_file);
 		Tuple<ISVDBIndex, SVDBIndexCollection> result = SVDBIndexUtil.findIndexFile(
 				target_file, project.getName(), false);
-		log.debug("<-- findIndexFile: " + target_file);
+		fLog.debug("<-- findIndexFile: " + target_file);
 		
 		assertNotNull(result);
-		log.debug("ISVDBIndex: " + result.first().getBaseLocation());
-		log.debug("Index Files:");
+		fLog.debug("ISVDBIndex: " + result.first().getBaseLocation());
+		fLog.debug("Index Files:");
 		for (String file : result.first().getFileList(new NullProgressMonitor())) {
-			log.debug("  " + file);
+			fLog.debug("  " + file);
 		}
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -170,7 +172,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		assertNotNull(file);
 		assertEquals(0, markers.size());
 		assertEquals(0, CoreReleaseTests.getErrors().size());
-		System.out.println("END testResourceVarProjVarRef");
+		fLog.debug("END testResourceVarProjVarRef");
 	}
 
 	public void testProjectDefine() throws CoreException {

@@ -15,19 +15,23 @@ public class SVFileBuffer extends InputStream {
 	private int								fPageIdx;
 	private int								fPageLen;
 	private int								fLastPageLength;
+	private static final boolean			fFullRead = true;
 	
 	public SVFileBuffer(InputStream in) {
-		fPageList = new ArrayList<byte[]>();
+		if (fFullRead) {
+			fPageList = new ArrayList<byte[]>();
+		}
 		init(in);
 	}
 	
 	public long init(InputStream in) {
-		long start = System.currentTimeMillis();
 		byte page[] = new byte[fPageSize];
 		int len = -1;
 		
 		fIn = in;
+		if (fFullRead) {
 		fPageList.clear();
+		long start = System.currentTimeMillis();
 	
 		try {
 			while ((len = in.read(page, 0, fPageSize)) == fPageSize) {
@@ -54,6 +58,14 @@ public class SVFileBuffer extends InputStream {
 				fPageLen = fLastPageLength;
 			}
 		}
+		} else { // Incremental read
+		try {
+			len = in.read(page, 0, fPageSize);
+		} catch (IOException e) {}
+			fCurrPage = page;
+			fPageLen = len;
+
+		}
 		
 		return fReadTime;
 	}
@@ -64,6 +76,7 @@ public class SVFileBuffer extends InputStream {
 
 	@Override
 	public int read() throws IOException {
+		if (fFullRead) {
 		if (fPageIdx >= fPageLen) {
 			// Switch to new page or quit
 			if (fPageListIdx+1 >= fPageList.size()) {
@@ -81,6 +94,23 @@ public class SVFileBuffer extends InputStream {
 		}
 		
 		return fCurrPage[fPageIdx++];
+		} else {
+			if (fPageIdx >= fPageLen) {
+				int len=0;
+				
+				try {
+					len = fIn.read(fCurrPage, 0, fPageSize);
+				} catch (IOException e) {}
+				fPageIdx = 0;
+				fPageLen = len;
+				
+				if (len <= 0) {
+					return -1;
+				}
+			}
+			
+			return fCurrPage[fPageIdx++];
+		}
 	}
 
 	@Override

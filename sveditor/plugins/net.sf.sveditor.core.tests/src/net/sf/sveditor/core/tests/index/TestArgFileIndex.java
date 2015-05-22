@@ -854,11 +854,6 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 	
 	public void testLibDirOptionMFCU() throws IOException, CoreException, URISyntaxException {
 		
-		if (!SVDBArgFileIndexFactory.fUseArgFile2Index) {
-			// Only passes with the new indexer
-			return;
-		}
-		
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 

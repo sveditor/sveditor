@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogLevel {
-	private LogHandle			fLog;
+	private LogHandle							fLog;
 	
 	public static final String BUILDER_ID = "net.sf.sveditor.core.SVProjectBuilder";
 
@@ -50,6 +50,8 @@ public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogL
 		if (SVCorePlugin.isTestModeBuilderDisabled()) {
 			return null;
 		}
+		
+		pmgr.buildEvent(p, true, kind, args);
 		
 		switch (kind) {
 			case CLEAN_BUILD:
@@ -105,7 +107,9 @@ public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogL
 					pmgr.rebuildProject(monitor, p, changes);
 				} break;
 		}
-
+		
+		pmgr.buildEvent(p, false, kind, args);
+		
 		// Don't need any delta right now...
 		return null;
 	}

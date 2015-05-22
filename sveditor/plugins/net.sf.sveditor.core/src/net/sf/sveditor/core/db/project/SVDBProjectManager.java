@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.project;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -113,6 +114,17 @@ public class SVDBProjectManager implements
 	public void removeProjectSettingsListener(ISVDBProjectSettingsListener l) {
 		synchronized (fListeners) {
 			fListeners.remove(l);
+		}
+	}
+	
+	public void buildEvent(
+			IProject			project,
+			boolean				started,
+			int					kind,
+			Map<String, String>	args) {
+		SVDBProjectData pd = fProjectMap.get(project.getFullPath());
+		if (pd != null) {
+			pd.buildEvent(started, kind, args);
 		}
 	}
 	

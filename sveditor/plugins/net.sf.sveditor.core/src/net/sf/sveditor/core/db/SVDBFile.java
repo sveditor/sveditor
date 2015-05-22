@@ -28,7 +28,12 @@ public class SVDBFile extends SVDBScopeItem {
 	}
 	
 	public SVDBFile(String file) {
-		super(file, SVDBItemType.File);
+		this(file, SVDBItemType.File);
+	}
+	
+	protected SVDBFile(String file, SVDBItemType type) {
+		super(file, type);
+		
 		if (file != null) {
 			setName(new File(file).getName());
 		} else {
@@ -39,7 +44,7 @@ public class SVDBFile extends SVDBScopeItem {
 			}
 		}
 		fFile               = file;
-		setLocation(-1);
+		setLocation(-1);		
 	}
 	
 	public void setIndex(ISVDBIndex index) {

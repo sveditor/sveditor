@@ -376,6 +376,7 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 * @param entry
 	 */
 	synchronized void removeEntry(SVDBFileIndexCacheEntry entry) {
+		System.out.println("removeEntry: " + entry.isCached());
 		if (entry.isCached()) {
 			removeFromCachedList(entry);
 		} else {

@@ -36,12 +36,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVProjectBuilder;
 import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 
+import org.eclipse.core.internal.events.BuildCommand;
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -335,6 +341,18 @@ public class TestUtils {
 	
 	public static IProject createProject(String name) {
 		return createProject(name, null);
+	}
+	
+	public static Tuple<IProject, SVDBProjectData> createSVEProject(
+			String				name,
+			File				location) {
+		IProject p = createProject(name, location);
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(p);
+		
+		SVProjectNature.ensureHasSvProjectNature(p);
+	
+		return new Tuple<IProject, SVDBProjectData>(p, pdata);
 	}
 	
 	public static IProject setupIndexWSProject(

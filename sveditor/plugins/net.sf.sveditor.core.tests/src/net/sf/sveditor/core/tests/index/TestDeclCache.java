@@ -6,10 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
-import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -31,10 +28,11 @@ public class TestDeclCache extends SVCoreTestCaseBase {
 
 		utils.copyBundleDirToWS("/data/index/package_cache_non_include", p);
 	
-		ISVDBIndex index = new SVDBArgFileIndex("project", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(),
+				p.getName(),
 				"${workspace_loc}/package_cache_non_include/package_cache_non_include/package_cache_non_include.f",
-				new SVDBWSFileSystemProvider(),
-				new InMemoryIndexCache(),
+				SVDBArgFileIndexFactory.TYPE,
 				null);
 	
 		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
@@ -65,7 +63,7 @@ public class TestDeclCache extends SVCoreTestCaseBase {
 	}
 
 	public void testPackageCacheInclude() {
-		String testname = "testPackageCacheInclude";
+		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
@@ -74,10 +72,11 @@ public class TestDeclCache extends SVCoreTestCaseBase {
 
 		utils.copyBundleDirToWS("/data/index/package_cache_include", p);
 	
-		ISVDBIndex index = new SVDBArgFileIndex("project", 
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(),
+				p.getName(),
 				"${workspace_loc}/package_cache_include/package_cache_include/package_cache_include.f",
-				new SVDBWSFileSystemProvider(),
-				new InMemoryIndexCache(),
+				SVDBArgFileIndexFactory.TYPE,
 				null);
 	
 		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
@@ -120,10 +119,9 @@ public class TestDeclCache extends SVCoreTestCaseBase {
 				new File(fTmpDir, "module_members_not_cached"));
 		addProject(p);
 
-	
 		ISVDBIndex index = fIndexRgy.findCreateIndex(
 				new NullProgressMonitor(),
-				"project",
+				p.getName(),
 				"${workspace_loc}/module_members_not_cached/module_members_not_cached.f",
 				SVDBArgFileIndexFactory.TYPE,
 				null);

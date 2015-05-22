@@ -31,7 +31,6 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -103,7 +102,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBFileSystem					fCacheFS;
 	private SVDBFileIndexCacheMgr			fCacheMgr;
 	private static boolean					fTestModeBuilderDisabled = false;
-	public static final boolean				fUseNewCacheMgr = SVDBArgFileIndexFactory.fUseArgFile2Index;
 	
 	// Listeners
 	private List<ILineListener>				fStdoutLineListeners = new ArrayList<ILineListener>();
@@ -160,22 +158,18 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		}
 
 		// Initialize the cache manager and filesystem
-		if (fUseNewCacheMgr) {
-			File cache = new File(state_location, "cache2");
+		File cache = new File(state_location, "cache2");
 
-			if (!cache.isDirectory()) {
-				cache.mkdirs();
-			}
-			fCacheFS  = new SVDBFileSystem(cache, getVersion());
-			fCacheFS.init();
-			fCacheMgr = new SVDBFileIndexCacheMgr();
-			fCacheMgr.init(fCacheFS);
-
-			// Connect the cache manager
-			fIndexRegistry.init(fCacheMgr);
-		} else {
-			fIndexRegistry.init(fOldCacheMgr);
+		if (!cache.isDirectory()) {
+			cache.mkdirs();
 		}
+		fCacheFS  = new SVDBFileSystem(cache, getVersion());
+		fCacheFS.init();
+		fCacheMgr = new SVDBFileIndexCacheMgr();
+		fCacheMgr.init(fCacheFS);
+
+		// Connect the cache manager
+		fIndexRegistry.init(fCacheMgr);
 	
 		// Enable by default
 		fEnableAsyncCacheClear = true;

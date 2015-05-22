@@ -396,6 +396,7 @@ public class SVDBFileIndexCache implements ISVDBIndexCache {
 		SVDBFileIndexCacheEntry entry = getCacheEntry(path, type, true);
 		
 		fCacheMgr.removeEntry(entry);
+		fCache.remove(path);
 	}
 	
 	public FileType getFileType(String path) {

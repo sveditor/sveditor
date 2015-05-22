@@ -19,7 +19,6 @@ import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
-import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
@@ -594,32 +593,4 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 
 	}
 	
-	public void testParseUVM_old() {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().setTestDebugLevel(0);
-		
-		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
-		
-		TestUtils.copy(
-				"+incdir+uvm/src\n" +
-				"uvm/src/uvm_pkg.sv",
-				new File(fTmpDir, "uvm.f"));
-		
-		String base_location = new File(fTmpDir, "uvm.f").getAbsolutePath();
-		
-		SVDBArgFileIndex index = new SVDBArgFileIndex(
-				getName(), base_location,
-				new SVDBWSFileSystemProvider(),
-				fCacheFactory.createIndexCache(getName(), base_location),
-				null);
-	
-		long start, end;
-		
-		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
-		index.loadIndex(new NullProgressMonitor());
-		end = System.currentTimeMillis();
-		
-		System.out.println("Parse UVM in " + (end-start) + "ms");
-	}	
 }

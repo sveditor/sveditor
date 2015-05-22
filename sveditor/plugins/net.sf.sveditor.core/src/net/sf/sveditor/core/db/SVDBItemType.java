@@ -19,6 +19,7 @@ import java.util.Set;
 @SuppressWarnings("rawtypes")
 public enum SVDBItemType {
 	File,
+	ArgFile,
 	FileTree,
 	FileTreeMacroList,
 	ModuleDecl,

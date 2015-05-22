@@ -21,6 +21,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -35,6 +36,7 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -132,7 +134,7 @@ public class IndexTestUtils {
 			public void index_operation(IProgressMonitor monitor, ISVDBIndex index) {
 				int i=0;
 				while (i < exp.size()) {
-					List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(
+					List<SVDBDeclCacheItem> result = index.findGlobalScopeDecl(
 							new NullProgressMonitor(), 
 							exp.get(i), SVDBFindDefaultNameMatcher.getDefault());
 					
@@ -169,6 +171,10 @@ public class IndexTestUtils {
 					List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(
 							new NullProgressMonitor(), 
 							e, SVDBFindDefaultNameMatcher.getDefault());
+					
+					if (result.size() > 0) {
+						System.out.println("Find Item: " + result.get(0).getSVDBItem());
+					}
 					
 					TestCase.assertEquals("Index contains " + e, 0, result.size());
 				}

@@ -18,14 +18,11 @@ import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.old.SVDBArgFileIndex;
 
 public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 	
 	public static final String	TYPE = "net.sf.sveditor.argFileIndex";
 	
-	public static final boolean		fUseArgFile2Index = true;
-
 	public ISVDBIndex createSVDBIndex(
 			String 					projectName, 
 			String 					base_location,
@@ -35,15 +32,8 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 		
 		fs_provider = new SVDBWSFileSystemProvider();
 		
-		ISVDBIndex ret = null;
-
-		if (fUseArgFile2Index) {
-			ret = new SVDBArgFileIndex2(
+		ISVDBIndex ret = new SVDBArgFileIndex2(
 				projectName, base_location, fs_provider, cache, config);
-		} else {
-			ret = new SVDBArgFileIndex(
-				projectName, base_location, fs_provider, cache, config);
-		}
 		
 		return ret;
 	}

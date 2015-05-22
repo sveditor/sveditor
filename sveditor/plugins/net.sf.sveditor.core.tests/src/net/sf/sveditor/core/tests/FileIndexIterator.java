@@ -72,7 +72,7 @@ public class FileIndexIterator extends SVDBArgFileIndex2 {
 			IProgressMonitor 			monitor,
 			SVDBArgFileIndexBuildData 	build_data) {
 		
-		addFile(build_data, fFile.getFilePath(), false);
+		build_data.addFile(fFile.getFilePath(), false);
 		
 		cacheDeclarations(build_data, fFile, fFileTree);
 		

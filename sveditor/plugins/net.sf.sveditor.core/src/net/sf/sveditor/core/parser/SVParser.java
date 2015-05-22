@@ -651,6 +651,16 @@ public class SVParser implements ISVScanner,
 			ITextScanner		in,
 			String				filename,
 			List<SVDBMarker>	markers) {
+		return parse(language_level, in, filename, null, markers);
+	}
+	
+	public SVDBFile parse(
+			SVLanguageLevel		language_level,
+			ITextScanner		in,
+			String				filename,
+			ISVTokenListener	tok_listener,
+			List<SVDBMarker>	markers) {
+	
 		if (language_level == null) {
 			fLanguageLevel = SVLanguageLevel.SystemVerilog;
 		} else {
@@ -672,6 +682,10 @@ public class SVParser implements ISVScanner,
 		fInput = in;
 		fLexer = new SVLexer(fLanguageLevel);
 		fLexer.init(this, in);
+		
+		if (tok_listener != null) {
+			fLexer.addTokenListener(tok_listener);
+		}
 		
 		fSVParsers = new SVParsers();
 		fSVParsers.init(this);

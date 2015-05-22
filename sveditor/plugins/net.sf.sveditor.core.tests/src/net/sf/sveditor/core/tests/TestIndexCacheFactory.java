@@ -38,7 +38,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 		
 		if (fRoot == null) {
 			fCacheImpl = InMemCacheMgr; 
-		} else if (SVCorePlugin.fUseNewCacheMgr) {
+		} else {
 			fCacheImpl = new SVDBFileIndexCacheMgr();
 			fFileSystem = new SVDBFileSystem(fRoot, SVCorePlugin.getVersion());
 			try {
@@ -47,9 +47,7 @@ public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 				TestCase.fail("Failed to initialize filesystem");
 			}
 			((SVDBFileIndexCacheMgr)fCacheImpl).init(fFileSystem);
-		} else {
-			fCacheImpl = OldCacheMgr;
-		}
+		} 
 	}
 
 	public ISVDBIndexCache createIndexCache(String project_name, String base_location) {

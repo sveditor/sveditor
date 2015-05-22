@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.index.argfile;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,21 +14,24 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.refs.SVDBLexerListenerRefCollector;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBArgFileIndexBuildData implements 
-	ISVPreProcFileMapper, ISVPreProcIncFileProvider {
+	ISVDBArgFileIndexBuildData, ISVPreProcFileMapper, ISVPreProcIncFileProvider {
 
 	ISVDBFileSystemProvider						fFileSystemProvider;
 	SVDBArgFileIndexCacheData					fIndexCacheData;
@@ -36,6 +40,7 @@ public class SVDBArgFileIndexBuildData implements
 	Set<String>									fFileDirs;
 	Set<String>									fMissingIncludes;
 	SVDBIndexStats								fIndexStats;
+	SVDBLexerListenerRefCollector				fRefCollector;
 	LogHandle									fLog = LogFactory.getLogHandle("SVDBArgFileIndexBuildData");
 	private static boolean						fEnableIncludeCache = true;
 	
@@ -58,6 +63,7 @@ public class SVDBArgFileIndexBuildData implements
 		
 		fCache.init(new NullProgressMonitor(), fIndexCacheData, base_location);
 		fIndexStats = new SVDBIndexStats();
+		fRefCollector = new SVDBLexerListenerRefCollector();
 		
 		fIncludeMap = new HashMap<String, String>();
 		fResolvedIncDirs = new ArrayList<String>();
@@ -97,6 +103,71 @@ public class SVDBArgFileIndexBuildData implements
 		old_cache.dispose();
 	}
 	
+	public void addFile(String path, boolean is_argfile) {
+		fLog.debug("addFile: " + path + " is_argfile=" + is_argfile);
+		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
+		fCache.addFile(path, is_argfile);
+		fCache.setLastModified(path, last_modified, is_argfile);
+		
+		if (!is_argfile) {
+			fIndexCacheData.addFile(path, 
+					ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+					ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
+		}
+
+		addFileDir(path);		
+	}
+	
+	public void removeFile(String path, boolean is_argfile) {
+		fCache.removeFile(path, is_argfile);
+	}
+	
+	public SVDBFile getFile(IProgressMonitor monitor, String path) {
+		return fCache.getFile(monitor, path);
+	}
+	
+	public void setFile(String path, SVDBFile file, boolean is_argfile) {
+		fCache.setFile(path, file, is_argfile);
+	}
+	
+	public void setLastModified(String path, long timestamp, boolean is_argfile) {
+		fCache.setLastModified(path, timestamp, is_argfile);
+	}
+	
+	public void setMarkers(String path, List<SVDBMarker> markers, boolean is_argfile) {
+		fCache.setMarkers(path, markers, is_argfile);
+	}
+	
+	public List<SVDBMarker> getMarkers(String path) {
+		return fCache.getMarkers(path);
+	}
+	
+	public void setFileTree(String path, SVDBFileTree file, boolean is_argfile) {
+		fCache.setFileTree(path, file, is_argfile);
+	}
+
+	public void addLibFile(String path) {
+		fLog.debug("addLibFile: " + path);
+		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
+		fCache.addFile(path, false);
+		fCache.setLastModified(path, last_modified, false);
+		
+		fIndexCacheData.addFile(path, 
+				ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+				ISVDBDeclCache.FILE_ATTR_LIB_FILE);
+
+		addFileDir(path);
+	}
+
+	public void addFileDir(String file_path) {
+		File f = new File(file_path);
+		File p = f.getParentFile();
+
+		if (p != null && !fFileDirs.contains(p.getPath())) {
+			fFileDirs.add(p.getPath());
+		}
+	}
+	
 	public ISVDBIndexCache getCache() {
 		return fCache;
 	}
@@ -127,7 +198,7 @@ public class SVDBArgFileIndexBuildData implements
 		fIndexCacheData.fIncludePathList.addAll(other.fIndexCacheData.fIncludePathList);
 	}
 
-	void addIncludePath(String path) {
+	public void addIncludePath(String path) {
 		fIndexCacheData.addIncludePath(path);
 		fIncludeCacheValid = false;
 	}
@@ -136,31 +207,31 @@ public class SVDBArgFileIndexBuildData implements
 		return fIndexCacheData.getIncludePaths();
 	}
 	
-	void addDefine(String key, String val) {
+	public void addDefine(String key, String val) {
 		fIndexCacheData.addDefine(key, val);
 	}
 	
-	void setMFCU() {
+	public void setMFCU() {
 		fIndexCacheData.fMFCU = true;
 	}
 	
-	boolean isMFCU() {
+	public boolean isMFCU() {
 		return fIndexCacheData.fMFCU;
 	}
 	
-	boolean getForceSV() {
+	public boolean getForceSV() {
 		return fIndexCacheData.fForceSV;
 	}
 	
-	void setForceSV(boolean force) {
+	public void setForceSV(boolean force) {
 		fIndexCacheData.fForceSV = force;
 	}
 	
-	void addArgFilePath(String path) {
+	public void addArgFilePath(String path) {
 		fIndexCacheData.addFile(path, ISVDBDeclCache.FILE_ATTR_ARG_FILE);
 	}
 	
-	void addArgFile(SVDBFile argfile) {
+	public void addArgFile(SVDBFile argfile) {
 		fIndexCacheData.fArgFiles.add(argfile);
 	}
 	
