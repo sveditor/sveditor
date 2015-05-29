@@ -5,6 +5,8 @@
 
 - #(397) - Add support for 'alias' statement
 
+- #(398) - Correct a parse bug with realtime local variables
+
 ------------------------------------------------------------------------------
 -- 1.7.9 Release --
 

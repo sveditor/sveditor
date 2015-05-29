@@ -497,6 +497,7 @@ public class SVKeywords implements ISVKeywords {
 		KW.TIME,
 		KW.SHORTREAL,
 		KW.REAL,
+		KW.REALTIME,
 		KW.SIGNED,
 		KW.STRING,
 		KW.UNSIGNED

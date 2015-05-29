@@ -34,6 +34,7 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
+import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
@@ -1024,6 +1025,22 @@ public class TestParseClassBodyItems extends TestCase {
        		"endmodule\n"
        		;
 		runTest(testname, content, new String[] {"myclass","mymodule"});
+	}
+	
+	public void testMethodLocalRealTime() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class foo;\n" +
+			"	realtime time_1;     //OK\n" +
+			"\n" +
+			"	task do_task();\n" +
+			"		time     time_2; //OK\n" +
+			"		realtime time_3; //Unhandled keywork: realtime\n" +
+			"	endtask\n" +
+			"endclass : foo\n"
+			;
+		
+		runTest(getName(), doc, new String[] {"foo"});
 	}
 
 	private void runTest(
