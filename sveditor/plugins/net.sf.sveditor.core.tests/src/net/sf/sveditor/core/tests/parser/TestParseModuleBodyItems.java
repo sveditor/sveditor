@@ -1942,6 +1942,46 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"a_module"});
 	}
 	
+	public void testNetAlias_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module byte_swap (inout wire [31:0] A, inout wire [31:0] B);\n" +
+			"	alias {A[7:0],A[15:8],A[23:16],A[31:24]} = B;\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"byte_swap"});		
+	}
+	
+	public void testNetAlias_2() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module byte_rip (inout wire [31:0] W, inout wire [7:0] LSB, MSB);\n" +
+			"	alias W[7:0] = LSB;\n" +
+			"	alias W[31:24] = MSB;\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"byte_rip"});		
+	}
+	
+	public void testNetAlias_3() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module my_dff(rst, clk, d, q, q_bar); // wrapper cell\n" +
+			"	input rst, clk, d;\n" +
+			"	output q, q_bar;\n" +
+			"	alias rst = Reset = reset = RST;\n" +
+			"	alias clk = Clk = clock = CLK;\n" +
+			"	alias d = Data = data = D;\n" +
+			"	alias q = Q;\n" +
+			"	alias Q_ = q_bar = Q_Bar = qbar;\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"my_dff"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

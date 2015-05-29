@@ -3,7 +3,7 @@ package net.sf.sveditor.core.parser;
 public interface ISVKeywords {
 	
 	enum KW {
-		alias("alias", true),
+		ALIAS("alias", true),
 		ALWAYS("always", false),
 		ALWAYS_COMB("always_comb", true),
 		ALWAYS_FF("always_ff", true),

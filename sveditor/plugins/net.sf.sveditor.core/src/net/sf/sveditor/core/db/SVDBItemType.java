@@ -58,6 +58,7 @@ public enum SVDBItemType {
 	Constraint,
 	Assign,
 	AssignItem,
+	Alias,
 	Marker,
 	ParamValueAssign,
 	ParamValueAssignList,

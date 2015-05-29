@@ -1,6 +1,9 @@
 
 -- 1.8.0 Release --
-- #(395)  Indenter: forever followed by #delay not indented correctly
+
+- #(395) - Indenter: forever followed by #delay not indented correctly
+
+- #(397) - Add support for 'alias' statement
 
 ------------------------------------------------------------------------------
 -- 1.7.9 Release --

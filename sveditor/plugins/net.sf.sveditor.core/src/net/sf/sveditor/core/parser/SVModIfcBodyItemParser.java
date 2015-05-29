@@ -18,6 +18,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.SVDBAlias;
 import net.sf.sveditor.core.db.SVDBAssign;
 import net.sf.sveditor.core.db.SVDBAssignItem;
 import net.sf.sveditor.core.db.SVDBBind;
@@ -87,6 +88,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			}
 			
 			switch (kw) {
+				case ALIAS:
+					parse_alias(parent, start);
+					break;
+			
 				case FUNCTION:
 				case TASK:
 					parsers().taskFuncParser().parse(parent, start, modifiers);
@@ -839,6 +844,29 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		initial_always_kw.add(KW.ALWAYS_COMB);
 		initial_always_kw.add(KW.ALWAYS_LATCH);
 		initial_always_kw.add(KW.ALWAYS_FF);
+	}
+	
+	private void parse_alias(ISVDBAddChildItem parent, long start) throws SVParseException {
+		fLexer.readKeyword(KW.ALIAS);
+		
+		SVDBAlias alias = new SVDBAlias();
+		alias.setLocation(start);
+		
+		alias.setLvalue(fParsers.exprParser().variable_lvalue());
+		
+		while (true) {
+			fLexer.readOperator(OP.EQ);
+			
+			alias.addAlias(fParsers.exprParser().variable_lvalue());
+		
+			if (!fLexer.peekOperator(OP.EQ)) {
+				break;
+			}
+		}
+		
+		fLexer.readOperator(OP.SEMICOLON);
+		
+		parent.addChildItem(alias);
 	}
 	
 	private void parse_initial_always(ISVDBAddChildItem parent) throws SVParseException {
