@@ -20,6 +20,7 @@ public class OpenDeclTests extends TestSuite {
 		TestSuite s = new TestSuite("OpenDeclTests");
 //		s.addTest(new TestSuite(TestOpenFile.class));
 		s.addTest(new TestSuite(TestOpenClass.class));
+		s.addTest(new TestSuite(TestOpenMethod.class));
 		s.addTest(new TestSuite(TestOpenModIfc.class));
 		s.addTest(new TestSuite(TestOpenDeclIndex.class));
 		s.addTest(new TestSuite(TestOpenDeclUBus.class));

@@ -88,6 +88,10 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		}
 	}
 	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		return fCacheFactory;
+	}
+	
 	public void notifyChanges(List<SVDBIndexResourceChangeEvent> changes) {
 		List<ISVDBIndexChangePlan> plans = new ArrayList<ISVDBIndexChangePlan>();
 

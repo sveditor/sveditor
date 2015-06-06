@@ -7,6 +7,9 @@
 
 - #(398) - Correct a parse bug with realtime local variables
 
+- #(396) - Correct a bug when performing Open Declaration from a nested 
+  behavioral statement.
+
 ------------------------------------------------------------------------------
 -- 1.7.9 Release --
 

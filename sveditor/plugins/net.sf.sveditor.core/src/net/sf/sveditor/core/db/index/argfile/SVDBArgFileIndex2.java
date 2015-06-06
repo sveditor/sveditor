@@ -22,6 +22,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -1211,13 +1212,13 @@ public class SVDBArgFileIndex2 implements
 
 		return ret;
 	}
-	
+
 	private void createSubFileMap(
 			SVDBArgFileIndexBuildData 		build_data,
 			Map<Integer, SVDBFile>			map,
 			ISVDBChildParent				scope,
 			int								curr_id,
-			SVDBFile						file) {
+			ISVDBAddChildItem				file) {
 		
 		for (ISVDBChildItem it : scope.getChildren()) {
 			long l = it.getLocation();
@@ -1240,10 +1241,12 @@ public class SVDBArgFileIndex2 implements
 					createSubFileMap(build_data, map, (ISVDBChildParent)it, new_id, f);
 				}
 			} else {
-				file.addChildItem(it);
+				if (file != scope) {
+					file.addChildItem(it);
+				}
 				
 				if (it instanceof ISVDBScopeItem) {
-					createSubFileMap(build_data, map, (ISVDBScopeItem)it, curr_id, file);
+					createSubFileMap(build_data, map, (ISVDBScopeItem)it, curr_id, (ISVDBScopeItem)it);
 				}
 			}
 		}

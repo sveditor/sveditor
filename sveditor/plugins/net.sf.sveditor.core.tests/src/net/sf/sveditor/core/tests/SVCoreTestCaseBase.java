@@ -7,8 +7,12 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -131,6 +135,31 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		LogFactory.removeLogHandle(fLog);
 		
 		CoreReleaseTests.clearErrors();
+	}
+	
+	protected SVDBArgFileIndex2 createArgFileIndex(
+			String						project,
+			String						base_location,
+			ISVDBFileSystemProvider		fs_provider
+			) {
+		ISVDBIndexCacheMgr cache_mgr = fIndexRgy.getCacheMgr();
+		ISVDBIndexCache cache = cache_mgr.findIndexCache(project, base_location);
+		if (cache == null) {
+			cache = fCacheFactory.createIndexCache(project, base_location);
+		}		
+		return createArgFileIndex(project, base_location, fs_provider, cache);
+	}
+
+	protected SVDBArgFileIndex2 createArgFileIndex(
+			String						project,
+			String						base_location,
+			ISVDBFileSystemProvider		fs_provider,
+			ISVDBIndexCache				cache
+			) {
+		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(project, base_location, 
+				fs_provider, cache, null);
+		// TODO: may wish to track and tear down
+		return index;
 	}
 
 	protected void addProject(IProject p) {

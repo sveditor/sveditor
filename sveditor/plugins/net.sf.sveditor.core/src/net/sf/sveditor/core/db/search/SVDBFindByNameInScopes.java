@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -45,15 +46,18 @@ public class SVDBFindByNameInScopes {
 	private   ISVDBFindNameMatcher			fMatcher;
 	private   LogHandle						fLog;
 	protected List<ISVDBItemBase>			fRet;
+	private ISVDBIndexIterator				fIndexIt;
 	
 	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it) {
 		fMatcher = SVDBFindDefaultNameMatcher.getDefault();
 		fLog = LogFactory.getLogHandle("SVDBFindByNameInScopes");
+		fIndexIt = index_it;
 	}
 	
 	public SVDBFindByNameInScopes(ISVDBIndexIterator index_it, ISVDBFindNameMatcher matcher) {
 		fMatcher = matcher;
 		fLog = LogFactory.getLogHandle("SVDBFindByNameInScopes");
+		fIndexIt = index_it;
 	}
 	
 	protected void add(
@@ -79,6 +83,7 @@ public class SVDBFindByNameInScopes {
 		while (context != null && 
 				context.getType() != SVDBItemType.File && 
 				context instanceof ISVDBChildParent) {
+			fLog.debug("Scope " + SVDBItem.getName(context) + " " + context.getType());
 			
 			if (context.getType() == SVDBItemType.ClassDecl) {
 				SVDBClassDecl cls = (SVDBClassDecl)context;
@@ -86,6 +91,25 @@ public class SVDBFindByNameInScopes {
 					for (SVDBModIfcClassParam p : cls.getParameters()) {
 						if (fMatcher.match(p, name)) {
 							add(p, Scope.ScopeModIfcClsVars, scope_level);
+						}
+					}
+				}
+			} else if (context.getType() == SVDBItemType.Function || context.getType() == SVDBItemType.Task) {
+				String tf_name = ((ISVDBNamedItem)context).getName();
+				int idx;
+				if (tf_name != null && (idx = tf_name.indexOf("::")) != -1) {
+					// This is an external method. Go find the class that this is part of
+					String clsname = tf_name.substring(0, idx);
+					SVDBFindByName finder = new SVDBFindByName(fIndexIt);
+					List<SVDBDeclCacheItem> cls_l = finder.find(clsname, false, SVDBItemType.ClassDecl);
+					ISVDBItemBase cls_i;
+					if (cls_l.size() > 0 && (cls_i = cls_l.get(0).getSVDBItem()) != null) {
+						SVDBFindByNameInClassHierarchy cls_h_finder = new SVDBFindByNameInClassHierarchy(
+								fIndexIt, fMatcher);
+						List<ISVDBItemBase> it_l = cls_h_finder.find((SVDBClassDecl)cls_i, name);
+						
+						for (ISVDBItemBase it_t : it_l) {
+							add(it_t, Scope.ScopeModIfcClsVars, scope_level);
 						}
 					}
 				}
@@ -243,7 +267,9 @@ public class SVDBFindByNameInScopes {
 			}
 
 			while ((context = context.getParent()) != null && 
-					!(context instanceof ISVDBChildParent)) { }
+					!(context instanceof ISVDBChildParent)) { 
+				fLog.debug("SKIP: " + context.getType() + " " + SVDBItem.getName(context));
+			}
 			
 			fLog.debug("parent: " + ((context != null)?context.getType():"NULL"));
 			scope_level++;
