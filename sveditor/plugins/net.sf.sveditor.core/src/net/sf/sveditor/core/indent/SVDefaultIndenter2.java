@@ -422,6 +422,32 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		return tok;
 	}
+	/**
+	 * Function: indent_delay
+	 * 
+	 * Parses #delay statements
+	 * 
+	 * Looks for:
+	 * #[number]<time_unit ::= s | ms | us | ns | ps | fs | step> <;>
+	 * @return
+	 */
+	private SVIndentToken indent_delay(String parent, boolean parent_is_block) {
+		SVIndentToken tok = current();
+		
+		start_of_scope(tok);
+		tok=next_s();			// Consume the #
+		tok=next_s();			// Consume the number
+		if (tok.isId("s") || tok.isId("ms") || tok.isId("us") || tok.isId("ns") || tok.isId("ps") || tok.isId("fs") || tok.isId("step"))  {
+			tok = next_s();		// Consume the time_unit
+		}
+		enter_scope(tok);
+		if (!tok.isId(";"))  {
+			tok = indent_stmt(parent, true);
+		}
+		leave_scope(tok); // restore scope previously set
+		end_of_scope(tok);
+		return tok;
+	}
 	
 	private SVIndentToken indent_loop_stmt() {
 		SVIndentToken tok, first;
@@ -1211,6 +1237,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok.isId("repeat") || tok.isId("forever") ||
 				tok.isId("for") || tok.isId("foreach")) {
 			tok = indent_loop_stmt();
+		} else if (tok.isOp("#")) {
+			tok = indent_delay(parent, parent_is_block);
 		} else {
 			boolean is_label = false;
 			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]

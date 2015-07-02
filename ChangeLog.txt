@@ -10,6 +10,8 @@
 - #(396) - Correct a bug when performing Open Declaration from a nested 
   behavioral statement.
 
+- #(401) - Indenter: #xxx for (...) begin ... end not indented properly
+
 ------------------------------------------------------------------------------
 -- 1.7.9 Release --
 
