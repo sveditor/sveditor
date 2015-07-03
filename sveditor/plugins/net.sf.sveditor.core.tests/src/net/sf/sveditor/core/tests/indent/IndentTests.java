@@ -1475,6 +1475,50 @@ public class IndentTests extends SVCoreTestCaseBase {
 		IndentComparator.compare(fLog, getName(), ref, result);
 	}
 
+	public void testPoundDelay() {
+		String ref =
+				"module m ();\n" +
+				"	initial begin\n" +
+				"		#1110;\n" +
+				"		a = b;\n" +
+				"		#1110 a = b;\n" +
+				"		#1111ns	// No ;\n" +
+				"			a = b;\n" +
+				"		#1113fs	// No ;\n" +
+				"			// comment \n" +
+				"			for (i=0; i<5; i++)\n" +
+				"			begin\n" +
+				"				a = b;\n" +
+				"			end\n" +
+				"		#112ps;	// with ;\n" +
+				"		if (a == b)\n" +
+				"		begin\n" +
+				"			a = b;\n" +
+				"		end\n" +
+				"	end\n" +
+				"endmodule\n"
+						;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		fLog.debug("Ref:\n" + ref);
+		fLog.debug("====");
+		fLog.debug("Result:\n" + result);
+		fLog.debug("====");
+		
+		IndentComparator.compare(fLog, getName(), ref, result);
+	}
+	
 
 	
 	public void testPreProcIndent() {
