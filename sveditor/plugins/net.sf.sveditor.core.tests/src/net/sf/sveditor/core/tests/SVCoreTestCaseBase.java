@@ -125,7 +125,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 				TestUtils.deleteProject(getName(), p);
 			}
 		} else {
-			fCacheFactory.dispose();
+//			fCacheFactory.dispose();
 		}
 		
 		if (fTmpDir != null && fTmpDir.exists()) {
@@ -135,6 +135,12 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		LogFactory.removeLogHandle(fLog);
 		
 		CoreReleaseTests.clearErrors();
+	}
+	
+	protected IProject createProject(String name, File path) {
+		IProject p = TestUtils.createProject(name, path);
+		addProject(p);
+		return p;
 	}
 	
 	protected SVDBArgFileIndex2 createArgFileIndex(

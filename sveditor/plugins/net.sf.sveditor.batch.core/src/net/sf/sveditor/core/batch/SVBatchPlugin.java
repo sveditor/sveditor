@@ -13,7 +13,6 @@
 package net.sf.sveditor.core.batch;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +20,6 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -33,8 +30,7 @@ public class SVBatchPlugin implements BundleActivator {
 	private static SVBatchPlugin	fDefault;
 	private List<File>				fTempDirs;
 	private List<ISVDBIndex>		fLocalIndexes;
-	private SVDBFileSystem			fFileSystem;
-	private SVDBFileIndexCacheMgr	fCacheMgr;
+	private ISVDBIndexCacheMgr		fCacheMgr;
 	private SVDBIndexRegistry		fIndexRgy;
 
 	static BundleContext getContext() {
@@ -88,14 +84,7 @@ public class SVBatchPlugin implements BundleActivator {
 		fLocalIndexes = new ArrayList<ISVDBIndex>();
 		
 		File db_dir = createTempDir();
-		fFileSystem = new SVDBFileSystem(db_dir, SVCorePlugin.getVersion());
-		try {
-			fFileSystem.init();
-		} catch (IOException e) {
-			
-		}
-		fCacheMgr = new SVDBFileIndexCacheMgr();
-		fCacheMgr.init(fFileSystem);
+		fCacheMgr = SVCorePlugin.createCacheMgr(db_dir);
 		
 		fIndexRgy = new SVDBIndexRegistry();
 		fIndexRgy.init(fCacheMgr);

@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -31,6 +32,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 	
 	private List<RandomAccessFile>		fFileRWList;
 	private int							fLastRwBlkLen;
+	private boolean						fIsOpen;
+	private Exception					fCloseStack;
 	
 	private class FileInfo {
 		public int					fFileId;
@@ -98,6 +101,8 @@ public class SVDBFileSystem implements ILogLevelListener {
 				initialize();
 			}
 		}
+		
+		fIsOpen = true;
 	
 		return ret;
 	}
@@ -170,7 +175,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 				fLastRwBlkLen  = in.readInt();
 				fAllocListFile = in.readInt();
 				int alloc_list_len = in.readInt();
-
+				
 				// Read back the file list;
 				fFileInfoHndl = in.readInt();
 				int file_list_size = in.readInt();
@@ -308,6 +313,13 @@ public class SVDBFileSystem implements ILogLevelListener {
 	}
 
 	public synchronized void sync() throws IOException {
+		
+		if (!fIsOpen) {
+			if (fCloseStack != null) {
+				fCloseStack.printStackTrace();
+			}
+			throw new IOException("Filesystem is closed");
+		}
 		// Create and save the root block
 		SVDBFileSystemDataOutput out = new SVDBFileSystemDataOutput();
 
@@ -380,6 +392,12 @@ public class SVDBFileSystem implements ILogLevelListener {
 		writeBlock("rootFile", 0, out.getPage(0));
 	}
 	
+	public synchronized void delete() throws IOException {
+		close();
+	
+		SVFileUtils.delete(fDBDir);
+	}
+	
 	public synchronized void close() throws IOException {
 		sync();
 		
@@ -387,6 +405,13 @@ public class SVDBFileSystem implements ILogLevelListener {
 			rw.close();
 		}
 		fFileRWList.clear();
+		
+		fIsOpen = false;
+		try {
+			throw new Exception();
+		} catch (Exception e) {
+			fCloseStack = e;
+		}
 	}
 	
 	public synchronized SVDBFileSystemDataInput readFile(String path, int id) throws IOException {

@@ -379,7 +379,6 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		if (fCacheFactory != null) {
 			// Close down the cache factory
 			fCacheFactory.dispose();
-			
 		}
 
 		fIndexList.clear();

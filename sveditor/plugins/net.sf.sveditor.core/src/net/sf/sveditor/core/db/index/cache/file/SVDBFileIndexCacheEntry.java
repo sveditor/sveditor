@@ -164,30 +164,30 @@ public class SVDBFileIndexCacheEntry {
 		return fType;
 	}
 	
-	SVDBFileIndexCacheEntry getPrev() {
+	public SVDBFileIndexCacheEntry getPrev() {
 		return fPrev;
 	}
 	
-	void setPrev(SVDBFileIndexCacheEntry prev) {
+	public void setPrev(SVDBFileIndexCacheEntry prev) {
 		fPrev = prev;
 	}
 
-	SVDBFileIndexCacheEntry getNext() {
+	public SVDBFileIndexCacheEntry getNext() {
 		return fNext;
 	}
 	
-	void setNext(SVDBFileIndexCacheEntry next) {
+	public void setNext(SVDBFileIndexCacheEntry next) {
 		fNext = next;
 	}
 	
-	boolean isCached() {
+	public boolean isCached() {
 		return fCached;
 	}
 
 	/**
 	 * clear references and set 'cached' to false
 	 */
-	void clearCached() {
+	public void clearCached() {
 		fSVDBFileRef = null;
 		fSVDBFileTreeRef = null;
 		fSVDBPreProcFileRef = null;
@@ -203,7 +203,7 @@ public class SVDBFileIndexCacheEntry {
 	 * 
 	 * @return
 	 */
-	int setCached() {
+	public int setCached() {
 		fCached = true;
 		if (fSVDBFile != null) {
 			fSVDBFileRef = fSVDBFile.get();
@@ -239,7 +239,7 @@ public class SVDBFileIndexCacheEntry {
 		return fLoadedMask;
 	}
 	
-	SVDBFile getSVDBFileRef() {
+	public SVDBFile getSVDBFileRef() {
 		if (fSVDBFile != null) {
 			return fSVDBFile.get();
 		} else {
@@ -248,21 +248,21 @@ public class SVDBFileIndexCacheEntry {
 	}
 
 	@SuppressWarnings("unchecked")
-	void setSVDBFileRef(SVDBFile file) {
+	public void setSVDBFileRef(SVDBFile file) {
 		fSVDBFileRef = file;
 		fSVDBFile = (Reference<SVDBFile>)createRef(file);
 		fDirtyMask |= SVDB_FILE_MASK;
 	}
 	
-	int getSVDBFileId() {
+	public int getSVDBFileId() {
 		return fSVDBFileId;
 	}
 	
-	void setSVDBFileId(int id) {
+	public void setSVDBFileId(int id) {
 		fSVDBFileId = id;
 	}
 	
-	SVDBFile getSVDBPreProcFileRef() {
+	public SVDBFile getSVDBPreProcFileRef() {
 		if (fSVDBPreProcFile != null) {
 			return fSVDBPreProcFile.get();
 		} else {
@@ -271,21 +271,21 @@ public class SVDBFileIndexCacheEntry {
 	}
 	
 	@SuppressWarnings("unchecked")
-	void setSVDBPreProcFileRef(SVDBFile file) {
+	public void setSVDBPreProcFileRef(SVDBFile file) {
 		fSVDBPreProcFileRef = file;
 		fSVDBPreProcFile = (Reference<SVDBFile>)createRef(file);
 		fDirtyMask |= SVDB_PREPROC_FILE_MASK;
 	}
 	
-	int getSVDBPreProcFileId() {
+	public int getSVDBPreProcFileId() {
 		return fSVDBPreProcFileId;
 	}
 	
-	void setSVDBPreProcFileId(int id) {
+	public void setSVDBPreProcFileId(int id) {
 		fSVDBPreProcFileId = id;
 	}
 	
-	SVDBFileTree getSVDBFileTreeRef() {
+	public SVDBFileTree getSVDBFileTreeRef() {
 		if (fSVDBFileTree != null) {
 			return fSVDBFileTree.get();
 		} else {
@@ -294,21 +294,21 @@ public class SVDBFileIndexCacheEntry {
 	}
 	
 	@SuppressWarnings("unchecked")
-	void setSVDBFileTreeRef(SVDBFileTree ft) {
+	public void setSVDBFileTreeRef(SVDBFileTree ft) {
 		fSVDBFileTreeRef = ft;
 		fSVDBFileTree = (Reference<SVDBFileTree>)createRef(ft);
 		fDirtyMask |= SVDB_FILETREE_MASK;
 	}
 	
-	int getSVDBFileTreeId() {
+	public int getSVDBFileTreeId() {
 		return fSVDBFileTreeId;
 	}
 	
-	void setSVDBFileTreeId(int id) {
+	public void setSVDBFileTreeId(int id) {
 		fSVDBFileTreeId = id;
 	}
 	
-	List<SVDBMarker> getMarkersRef() {
+	public List<SVDBMarker> getMarkersRef() {
 		if (fMarkers != null) {
 			return fMarkers.get();
 		} else {
@@ -316,11 +316,11 @@ public class SVDBFileIndexCacheEntry {
 		}
 	}
 	
-	int getMarkersId() {
+	public int getMarkersId() {
 		return fMarkersId;
 	}
 	
-	void setMarkersId(int id) {
+	public void setMarkersId(int id) {
 		fMarkersId = id;
 	}
 	
@@ -331,28 +331,28 @@ public class SVDBFileIndexCacheEntry {
 		fMarkersRef = markers;
 	}
 	
-	void setSubFileMapRef(Map<Integer, SVDBFile> map) {
+	public void setSubFileMapRef(Map<Integer, SVDBFile> map) {
 		fSubFileMapRef = map;
 	}
 	
-	Map<Integer, SVDBFile> getSubFileMapRef() {
+	public Map<Integer, SVDBFile> getSubFileMapRef() {
 		return fSubFileMapRef;
 	}
 
 	@SuppressWarnings("unchecked")
-	void setFileTree(SVDBFileTree ft) {
+	public void setFileTree(SVDBFileTree ft) {
 		fSVDBFileTree = (Reference<SVDBFileTree>)createRef(ft);
 		fSVDBFileTreeRef = ft;
 	}
 	
 	@SuppressWarnings("unchecked")
-	void setPreProcFile(SVDBFile file) {
+	public void setPreProcFile(SVDBFile file) {
 		fSVDBPreProcFile = (Reference<SVDBFile>)createRef(file);
 		fSVDBPreProcFileRef = file;
 	}
 	
 	@SuppressWarnings("unchecked")
-	void setFile(SVDBFile file) {
+	public void setFile(SVDBFile file) {
 		fSVDBFile    = (Reference<SVDBFile>)createRef(file);
 		fSVDBFileRef = file;
 	
@@ -361,11 +361,11 @@ public class SVDBFileIndexCacheEntry {
 		fSubFileMapRef = null;
 	}
 	
-	long getLastModified() {
+	public long getLastModified() {
 		return fLastModified;
 	}
 	
-	void setLastModified(long modified) {
+	public void setLastModified(long modified) {
 		fLastModified = modified;
 	}
 

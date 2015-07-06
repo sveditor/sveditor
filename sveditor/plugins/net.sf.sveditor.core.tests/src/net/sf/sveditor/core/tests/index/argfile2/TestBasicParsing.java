@@ -9,17 +9,18 @@ import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
-import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -32,28 +33,26 @@ import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestBasicParsing extends SVCoreTestCaseBase {
-	private SVDBFileSystem					fCacheFS;
-	private SVDBFileIndexCacheMgr			fCacheMgr;
+	private ISVDBIndexCacheMgr				fPrvCacheMgr;
 	
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		fCacheMgr = new SVDBFileIndexCacheMgr();
 		File db2 = new File(fTmpDir, "db2");
 		assertTrue(db2.mkdirs());
-		fCacheFS = new SVDBFileSystem(db2, SVCorePlugin.getVersion());
-		fCacheFS.init();
-		fCacheMgr.init(fCacheFS);
+		fPrvCacheMgr = SVCorePlugin.createCacheMgr(db2);
 	
-		SVCorePlugin.getDefault().getSVDBIndexRegistry().init(fCacheMgr);
+		SVCorePlugin.getDefault().getSVDBIndexRegistry().init(fPrvCacheMgr);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
+//		fPrvCacheMgr.dispose();
 		super.tearDown();
 	}
 
@@ -73,7 +72,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
+				fPrvCacheMgr.createIndexCache(getName(), base_location),
 				null);
 		
 		long start, end;
@@ -214,95 +213,135 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 
 	}
 
-	public void testFileSystemConstSize() {
+	public void testRebuildUVM() {
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		SVCorePlugin.getDefault().setTestDebugLevel(0);
 		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		
+		IProject uvm = createProject("uvm", new File(fTmpDir, "uvm"));
+		
 		TestUtils.copy(
-				"+incdir+uvm/src\n" +
-				"uvm/src/uvm_pkg.sv",
-				new File(fTmpDir, "uvm.f"));
+				"+define+QUESTA\n" +
+				"+incdir+src\n" +
+				"src/uvm_pkg.sv",
+				uvm.getFile("uvm.f"));
 		
-		String base_location = new File(fTmpDir, "uvm.f").getAbsolutePath();
+		String base_location = "${workspace_loc}/uvm/uvm.f";
+
+		ISVDBIndex index;
 		
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
-				getName(), base_location,
-				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
-				null);
+		index = createArgFileIndex(getName(), base_location, 
+				new SVDBWSFileSystemProvider(), 
+				fPrvCacheMgr.createIndexCache(getName(), base_location));
 		
-		long start, end;
-		
-		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor(), null);
 		index.execIndexChangePlan(new NullProgressMonitor(), 
 				new SVDBIndexChangePlanRebuild(index));
-		end = System.currentTimeMillis();
-		System.out.println("Parse UVM in " + (end-start) + "ms");
-
-		// For some unknown (yet) reason, the size after the first
-		// build is too large
-		fCacheMgr.sync();
-
-		int last_rebuild_sz = -1;
-		for (int i=0; i<4; i++) {
-			index.execIndexChangePlan(new NullProgressMonitor(), 
-					new SVDBIndexChangePlanRebuild(index));
-			fCacheMgr.sync();
-			int sz = fCacheFS.blockSize();
-			if (last_rebuild_sz != -1) {
-				assertEquals("Check size for " + i, last_rebuild_sz, sz);
-			}
-			last_rebuild_sz = sz;
-		}
-
+		
+		List<SVDBDeclCacheItem> result;
+		
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), 
+				"uvm_pkg", 
+				SVDBFindDefaultNameMatcher.getDefault());
+		assertEquals(1, result.size());
+		
+		result = index.findGlobalScopeDecl(
+				new NullProgressMonitor(), 
+				"uvm_pkg", 
+				SVDBFindDefaultNameMatcher.getDefault());
+		assertEquals(1, result.size());
 	}
-
-	public void testFileSystemConstSizeLibIndex() {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().setTestDebugLevel(0);
-		
-		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
-		
-		TestUtils.copy(
-				"+incdir+uvm/src\n" +
-				"uvm/src/uvm_pkg.sv",
-				new File(fTmpDir, "uvm.f"));
-		
-		String base_location = new File(fTmpDir, "uvm/src/uvm_pkg.sv").getAbsolutePath();
-		
-		SVDBLibIndex index = new SVDBLibIndex(
-				getName(), base_location,
-				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
-				null);
-		
-		long start, end;
-		
-		start = System.currentTimeMillis();
-		index.init(new NullProgressMonitor(), null);
-		index.execIndexChangePlan(new NullProgressMonitor(), 
-				new SVDBIndexChangePlanRebuild(index));
-		end = System.currentTimeMillis();
-		System.out.println("Parse UVM in " + (end-start) + "ms");
 	
-		fCacheMgr.sync();
-		int first_rebuild_sz = fCacheFS.blockSize();
+//	public void testFileSystemConstSize() {
+//		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+//		SVCorePlugin.getDefault().setTestDebugLevel(0);
+//		
+//		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+//		
+//		TestUtils.copy(
+//				"+incdir+uvm/src\n" +
+//				"uvm/src/uvm_pkg.sv",
+//				new File(fTmpDir, "uvm.f"));
+//		
+//		String base_location = new File(fTmpDir, "uvm.f").getAbsolutePath();
+//		
+//		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+//				getName(), base_location,
+//				new SVDBWSFileSystemProvider(),
+//				fCacheMgr.createIndexCache(getName(), base_location),
+//				null);
+//		
+//		long start, end;
+//		
+//		start = System.currentTimeMillis();
+//		index.init(new NullProgressMonitor(), null);
+//		index.execIndexChangePlan(new NullProgressMonitor(), 
+//				new SVDBIndexChangePlanRebuild(index));
+//		end = System.currentTimeMillis();
+//		System.out.println("Parse UVM in " + (end-start) + "ms");
+//
+//		// For some unknown (yet) reason, the size after the first
+//		// build is too large
+//		fCacheMgr.sync();
+//
+//		int last_rebuild_sz = -1;
+//		for (int i=0; i<4; i++) {
+//			index.execIndexChangePlan(new NullProgressMonitor(), 
+//					new SVDBIndexChangePlanRebuild(index));
+//			fCacheMgr.sync();
+//			int sz = fCacheFS.blockSize();
+//			if (last_rebuild_sz != -1) {
+//				assertEquals("Check size for " + i, last_rebuild_sz, sz);
+//			}
+//			last_rebuild_sz = sz;
+//		}
+//
+//	}
 
-		for (int i=0; i<4; i++) {
-			System.out.println("--> Build " + i);
-			index.execIndexChangePlan(new NullProgressMonitor(), 
-					new SVDBIndexChangePlanRebuild(index));
-			fCacheMgr.sync();
-			System.out.println("<-- Build " + i);
-		}
-
-		int second_rebuild_sz = fCacheFS.blockSize();
-		
-		assertEquals(first_rebuild_sz, second_rebuild_sz);
-	}
+//	public void testFileSystemConstSizeLibIndex() {
+//		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+//		SVCorePlugin.getDefault().setTestDebugLevel(0);
+//		
+//		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
+//		
+//		TestUtils.copy(
+//				"+incdir+uvm/src\n" +
+//				"uvm/src/uvm_pkg.sv",
+//				new File(fTmpDir, "uvm.f"));
+//		
+//		String base_location = new File(fTmpDir, "uvm/src/uvm_pkg.sv").getAbsolutePath();
+//		
+//		SVDBLibIndex index = new SVDBLibIndex(
+//				getName(), base_location,
+//				new SVDBWSFileSystemProvider(),
+//				fCacheMgr.createIndexCache(getName(), base_location),
+//				null);
+//		
+//		long start, end;
+//		
+//		start = System.currentTimeMillis();
+//		index.init(new NullProgressMonitor(), null);
+//		index.execIndexChangePlan(new NullProgressMonitor(), 
+//				new SVDBIndexChangePlanRebuild(index));
+//		end = System.currentTimeMillis();
+//		System.out.println("Parse UVM in " + (end-start) + "ms");
+//	
+//		fCacheMgr.sync();
+//		int first_rebuild_sz = fCacheFS.blockSize();
+//
+//		for (int i=0; i<4; i++) {
+//			System.out.println("--> Build " + i);
+//			index.execIndexChangePlan(new NullProgressMonitor(), 
+//					new SVDBIndexChangePlanRebuild(index));
+//			fCacheMgr.sync();
+//			System.out.println("<-- Build " + i);
+//		}
+//
+//		int second_rebuild_sz = fCacheFS.blockSize();
+//		
+//		assertEquals(first_rebuild_sz, second_rebuild_sz);
+//	}
 
 	public void testMFCU_1() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -330,7 +369,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
+				fPrvCacheMgr.createIndexCache(getName(), base_location),
 				null);
 		
 		index.init(new NullProgressMonitor(), null);
@@ -366,7 +405,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
+				fPrvCacheMgr.createIndexCache(getName(), base_location),
 				null);
 		
 		index.init(new NullProgressMonitor(), null);
@@ -401,7 +440,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
+				fPrvCacheMgr.createIndexCache(getName(), base_location),
 				null);
 		
 		long start, end;
@@ -478,7 +517,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
-				fCacheMgr.createIndexCache(getName(), base_location),
+				fPrvCacheMgr.createIndexCache(getName(), base_location),
 				null);
 		
 		long start, end;

@@ -209,11 +209,12 @@ public class TestUtils {
 				delete(i);
 			}
 		}
-		
+
+		StringBuilder failed_deletes = new StringBuilder();
 		for (int i=0; i<2; i++) {
 			if (item.exists()) {
 				if (!item.delete()) {
-					if( i == 0) {
+					if (i == 0) {
 						try {
 							Thread.sleep(200);
 						} catch (InterruptedException e) {}
@@ -226,12 +227,17 @@ public class TestUtils {
 									ex_files.append(f.getName() + " ");
 								}
 							}
-							TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\" sub-files: " + ex_files.toString());
+//							TestCase.fail("Failed to delete directory \"" + item.getAbsolutePath() + "\" sub-files: " + ex_files.toString());
+							failed_deletes.append(item.getAbsolutePath() + " ");
 						} else {
-							TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
+							failed_deletes.append(item.getAbsolutePath() + " ");
+//							TestCase.fail("Failed to delete file \"" + item.getAbsolutePath() + "\"");
 						}
 					}
 				}
+				
+				TestCase.assertEquals("Failed to delete: " + failed_deletes, 
+						0, failed_deletes.length());
 			}
 		}
 	}

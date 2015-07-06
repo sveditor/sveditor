@@ -20,8 +20,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -39,15 +38,7 @@ public class SVEditorVlogIndexFactory {
 		// Select a temporary directory
 		File tmpdir = SVBatchPlugin.createTempDir();
 		File db = new File(tmpdir, "db");
-		SVDBFileSystem fs = new SVDBFileSystem(db, SVCorePlugin.getVersion());
-		try {
-			fs.init();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		SVDBFileIndexCacheMgr cache_mgr = new SVDBFileIndexCacheMgr();
-		cache_mgr.init(fs);
+		ISVDBIndexCacheMgr cache_mgr = SVCorePlugin.createCacheMgr(db);
 
 		PrintStream ps = null;
 		
