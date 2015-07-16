@@ -197,7 +197,7 @@ public class SVDBArgFileParser implements ILogLevelListener {
 		// Add an include path for the arg file location
 		build_data.addIncludePath(fResolvedBaseLocationDir);
 
-		String resolved_argfile_path = fBaseLocation;
+		String resolved_argfile_path = fResolvedBaseLocation;
 		if (fFSProvider.fileExists(resolved_argfile_path)) {
 			processArgFile(
 					new SubProgressMonitor(monitor, 4), 
