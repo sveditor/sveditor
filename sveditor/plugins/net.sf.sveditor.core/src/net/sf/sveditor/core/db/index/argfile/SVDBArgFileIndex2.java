@@ -521,7 +521,7 @@ public class SVDBArgFileIndex2 implements
 				monitor.subTask("Parse " + path);
 				// path is a 'root' file
 				InputStream in = fFileSystemProvider.openStream(path);
-				System.out.println("Remove: " + path + " from existing files");
+//				System.out.println("Remove: " + path + " from existing files");
 				if (!existing_files.remove(path)) { // Remove the new path from the set of pre-existing ones
 					added_files.add(path);
 				} 

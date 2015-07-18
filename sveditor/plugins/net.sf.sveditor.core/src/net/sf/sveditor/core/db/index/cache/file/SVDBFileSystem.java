@@ -255,7 +255,9 @@ public class SVDBFileSystem implements ILogLevelListener {
 		for (RandomAccessFile rw : fFileRWList) {
 			try {
 				rw.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		fFileRWList.clear();
 		
