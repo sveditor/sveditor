@@ -1,3 +1,5 @@
+-- 1.8.1 Release --
+- #(402) Arg File Parser error - PROJECT_LOC case sensitive
 
 -- 1.8.1 Release --
 
@@ -33,7 +35,7 @@
   For example: /home/foobar/file.svh 27
 
 - #(enh) - Major restructuring of the lexer and preprocessor that will, in
-  some cases, boost performance and reduce memory footprint.   
+  some cases, boost performance and reduce memory footprint.
 
 ------------------------------------------------------------------------------
 -- 1.7.8 Release --
