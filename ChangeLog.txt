@@ -1,4 +1,6 @@
 -- 1.8.1 Release --
+- #(403) Indenter: Indenter error for class containing virtual interface 
+
 - #(402) Arg File Parser error - PROJECT_LOC case sensitive
 
 -- 1.8.0 Release --

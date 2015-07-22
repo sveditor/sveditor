@@ -110,6 +110,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"\n" +
 			"class class1 #(type T=int);\n" +
 			"\n" +
+			"virtual interface some_if the_if;\n" +
+			"\n" +
 			"function new();\n" +
 			"if (foo)\n" +
 			"foo = 5;\n" +
@@ -122,6 +124,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 		String expected =
 			"\n" +
 			"class class1 #(type T=int);\n" +
+			"\n" +
+			"	virtual interface some_if the_if;\n" +
 			"\n" +
 			"	function new();\n" +
 			"		if (foo)\n" +
