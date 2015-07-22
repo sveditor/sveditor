@@ -812,6 +812,28 @@
             </command>
          </toolbar>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+         <command
+               commandId="net.sf.sveditor.ui.addFilelistToProject"
+               label="Add Argument File to Project"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <iterate
+                     ifEmpty="false">
+                  <adapt
+                        type="org.eclipse.core.resources.IFile">
+                     <test
+                           property="org.eclipse.core.resources.contentTypeId"
+                           value="net.sf.sveditor.core.argfile">
+                     </test>
+                  </adapt>
+               </iterate>
+            </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.search.searchPages">
@@ -1044,6 +1066,10 @@ endclass
             description="Open File"
             id="net.sf.sveditor.ui.argfile.editor.open.file"
             name="Open File">
+      </command>
+      <command
+            id="net.sf.sveditor.ui.addFilelistToProject"
+            name="Add Filelist to Project">
       </command>
    </extension>
    <extension
@@ -1635,6 +1661,12 @@ endpackage
                </equals>
             </with>
          </activeWhen>
+      </handler>
+      <handler
+            commandId="net.sf.sveditor.ui.addFilelistToProject">
+         <class
+               class="net.sf.sveditor.ui.explorer.AddArgFileToProjectHandler">
+         </class>
       </handler>
    </extension>
 </plugin>

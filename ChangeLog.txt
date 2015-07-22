@@ -3,6 +3,12 @@
 
 - #(402) Arg File Parser error - PROJECT_LOC case sensitive
 
+-- 1.8.1 Release --
+
+- #(enh - 111) - Allow an argument file to be registered with the project 
+  from the project-explorer context menu
+
+------------------------------------------------------------------------------
 -- 1.8.0 Release --
 
 - #(395) - Indenter: forever followed by #delay not indented correctly

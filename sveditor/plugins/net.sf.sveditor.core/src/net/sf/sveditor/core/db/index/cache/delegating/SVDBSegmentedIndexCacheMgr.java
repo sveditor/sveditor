@@ -117,7 +117,7 @@ public class SVDBSegmentedIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			}
 		}
 
-		return false;
+		return true;
 	}
 	
 	private void write_state(SVDBFileSystemDataOutput dat) throws IOException, DBWriteException {
@@ -294,7 +294,7 @@ public class SVDBSegmentedIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 
 		ret = new SVDBSegmentedIndexCache(this, id, project_name, base_location);
 		
-		// TODO: create a filesystem for this cache
+		// Create a filesystem for this cache
 		SVDBFileSystem fs = openFileSystem(id);
 		ret.setFS(fs);
 		
