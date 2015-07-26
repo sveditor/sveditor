@@ -15,7 +15,6 @@ package net.sf.sveditor.ui.prop_pages;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.Dialog;

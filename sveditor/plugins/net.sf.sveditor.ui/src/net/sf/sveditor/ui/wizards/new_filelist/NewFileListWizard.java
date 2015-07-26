@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -12,12 +13,15 @@ import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.model.WorkbenchContentProvider;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 public class NewFileListWizard extends Wizard implements INewWizard {
 	private IStructuredSelection					fSel;
@@ -35,7 +39,12 @@ public class NewFileListWizard extends Wizard implements INewWizard {
 	
 	public void addPages() {
 		addPage((fFirstPage = new NewFileListWizardFirstPage()));
-		addPage((fAddFilesPage = new NewFileListWizardAddFilesPage()));
+		addPage((fAddFilesPage = new NewFileListWizardAddFilesPage(
+				new WorkbenchContentProvider(),
+				new WorkbenchLabelProvider(),
+				new SVDBWSFileSystemProvider(),
+				ResourcesPlugin.getWorkspace().getRoot()
+				)));
 		
 		fFirstPage.init(fSel);
 	}

@@ -121,8 +121,12 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 			if (fFSProvider.isDir(path)) {
 				discover_files(new SubProgressMonitor(monitor, 1000), path);
 			} else {
-				if (fDiscoveredPaths.add(path)) {
-					fFileList.add(new SrcFileInfo(path));
+				String ext = SVFileUtils.getPathExt(path);
+				
+				if (ext != null && fFileExts.contains(ext)) {
+					if (fDiscoveredPaths.add(path)) {
+						fFileList.add(new SrcFileInfo(path));
+					}
 				}
 			}
 			
@@ -146,7 +150,7 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 				}
 			} else {
 				String ext = SVFileUtils.getPathExt(p);
-				
+			
 				if (ext != null && fFileExts.contains(ext)) {
 					if (fDiscoveredPaths.add(p)) {
 						// Only add paths that we haven't encountered yet

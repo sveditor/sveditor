@@ -10,17 +10,17 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.argfile.creator.SVArgFileCreator;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.ui.ResourceSelCheckboxMgr;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -35,8 +35,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.model.WorkbenchContentProvider;
-import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 public class NewFileListWizardAddFilesPage extends WizardPage {
 	private CheckboxTreeViewer			fTreeView;
@@ -48,12 +46,23 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 	private boolean						fUpdateRequired = true;
 	private SVArgFileCreator			fArgFileCreator;
 	private ISVDBFileSystemProvider		fFSProvider;
+	private Object						fInput;
 	private Set<String>					fSVFileExts;
+	private ITreeContentProvider		fContentProvider;
+	private ILabelProvider				fLabelProvider;
 	
-	public NewFileListWizardAddFilesPage() {
+	public NewFileListWizardAddFilesPage(
+			ITreeContentProvider		cp,
+			ILabelProvider				lp,
+			ISVDBFileSystemProvider		fs_provider,
+			Object						input) {
 		super("Add Files", 
 				"Locate SystemVerilog files to populate the filelist", null);
-		fFSProvider = new SVDBWSFileSystemProvider();
+		fContentProvider = cp;
+		fLabelProvider = lp;
+		
+		fFSProvider = fs_provider;
+		fInput = input;
 		fArgFileCreator = new SVArgFileCreator(fFSProvider);
 		fSVFileExts = new HashSet<String>();
 		
@@ -110,8 +119,8 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		g.setLayout(new GridLayout(2, false));
 //		g.setLayout(new GridLayout());
 		fTreeView = new CheckboxTreeViewer(g);
-		fTreeView.setLabelProvider(new WorkbenchLabelProvider());
-		fTreeView.setContentProvider(new WorkbenchContentProvider());
+		fTreeView.setLabelProvider(fLabelProvider);
+		fTreeView.setContentProvider(fContentProvider);
 		
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 2;
@@ -131,7 +140,7 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		};
 		fTreeView.addCheckStateListener(fCheckMgr);
 		
-		fTreeView.setInput(ResourcesPlugin.getWorkspace());
+		fTreeView.setInput(fInput);
 
 		l = new Label(g, SWT.NONE);
 		l.setText("Organize Files: ");
@@ -199,7 +208,7 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 			setMessage(msg_info, INFORMATION);
 		}
 		
-		setPageComplete(msg == null);
+		setPageComplete(msg == null && msg_info == null);
 	}
 	
 	public void runUpdateOperation() {
@@ -209,6 +218,8 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 				// We've pre-filtered files here
 				if (r instanceof IFile) {
 					search_paths.add("${workspace_loc}" + ((IResource)r).getFullPath());
+				} else if (r instanceof String) {
+					search_paths.add((String)r);
 				}
 			}
 					

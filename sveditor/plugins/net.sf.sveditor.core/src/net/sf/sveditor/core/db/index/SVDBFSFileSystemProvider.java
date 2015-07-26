@@ -62,7 +62,7 @@ public class SVDBFSFileSystemProvider implements ISVDBFileSystemProvider {
 			if (f_l != null) {
 				for (File f : p.listFiles()) {
 					if (!f.getName().equals(".") && !f.getName().equals("..")) {
-						ret.add(f.getAbsolutePath());
+						ret.add(f.getAbsolutePath().replace('\\', '/'));
 					}
 				}
 			}

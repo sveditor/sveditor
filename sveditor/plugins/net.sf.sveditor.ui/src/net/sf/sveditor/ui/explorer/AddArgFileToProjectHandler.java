@@ -1,6 +1,7 @@
 package net.sf.sveditor.ui.explorer;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.db.project.SVDBPath;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -55,6 +56,10 @@ public class AddArgFileToProjectHandler extends AbstractHandler implements
 				}
 				
 				IViewSite vsite = (site instanceof IViewSite)?(IViewSite)site:null;
+			
+				// Ensure the project has the SVE nature added. This is important
+				// for the builder to work correctly
+				SVProjectNature.ensureHasSvProjectNature(p);
 				
 				if (!have) {
 					fw.addArgFilePath("${project_loc}/" + proj_path.toOSString());
