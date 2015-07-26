@@ -605,6 +605,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			
 			if (tok.isId(end)) {
 				break;
+			} else if (tok.isId("virtual")) {
+				tok = next_s();
+				
+				// Swallow virtual interface
+				if (tok.isId("interface"))  {
+					tok = next_s();
+				}
 			} else if (tok.getType() == SVIndentTokenType.Identifier &&
 					fQualifierMap.containsKey(tok.getImage())) {
 				fQualifiers |= fQualifierMap.get(tok.getImage());

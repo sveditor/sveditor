@@ -1,7 +1,7 @@
 -- 1.8.1 Release --
-- #(402) Arg File Parser error - PROJECT_LOC case sensitive
+- #(403) Indenter: Indenter error for class containing virtual interface 
 
--- 1.8.1 Release --
+- #(402) Arg File Parser error - PROJECT_LOC case sensitive
 
 - #(enh - 111) - Allow an argument file to be registered with the project 
   from the project-explorer context menu
