@@ -14,10 +14,15 @@ public class NewFilelistWizard extends Wizard {
 	private NewFilelistWizardFirstPage			fNamePage;
 	private NewFileListWizardAddFilesPage		fAddFilesPage;
 	private File								fRoot;
+	private String								fProjectName;
 	private Set<String>							fExistingPaths;
 	
-	public NewFilelistWizard(File root, Set<String> existing_paths) {
+	public NewFilelistWizard(
+			File 			root, 
+			String			pname,
+			Set<String> 	existing_paths) {
 		fRoot = root;
+		fProjectName = pname;
 		fExistingPaths = existing_paths;
 	}
 	
@@ -34,6 +39,9 @@ public class NewFilelistWizard extends Wizard {
 				new SVDBFileSystemLabelProvider(fs_provider),
 				fs_provider,
 				fs_provider);
+	
+		// The path used by AddFilesPage is /<project_name>
+		fAddFilesPage.setPrefix(".", fProjectName.length()+1);
 		addPage(fAddFilesPage);
 	}
 	

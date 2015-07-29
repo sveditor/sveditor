@@ -50,6 +50,8 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 	private Set<String>					fSVFileExts;
 	private ITreeContentProvider		fContentProvider;
 	private ILabelProvider				fLabelProvider;
+	private String						fPrefix;
+	private int							fPrefixSubLen;
 	
 	public NewFileListWizardAddFilesPage(
 			ITreeContentProvider		cp,
@@ -71,21 +73,35 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		}
 	}
 	
+	public void setPrefix(String prefix, int len) {
+		fPrefix = prefix;
+		fPrefixSubLen = len;
+	}
+	
 	public String getArgFileContent() {
 		StringBuilder sb = new StringBuilder();
 
 		if (fOrganizeFiles) {
 			for (String incdir : fArgFileCreator.getIncDirs()) {
+				if (fPrefix != null) {
+					incdir = fPrefix + incdir.substring(fPrefixSubLen);
+				}
 				sb.append("+incdir+" + incdir + "\n");
 			}
 		}
 	
 		if (fOrganizeFiles) {
 			for (String path : fArgFileCreator.getRootFiles()) {
+				if (fPrefix != null) {
+					path = fPrefix + path.substring(fPrefixSubLen);
+				}
 				sb.append(path + "\n");
 			}
 		} else {
 			for (String path : fArgFileCreator.getFiles()) {
+				if (fPrefix != null) {
+					path = fPrefix + path.substring(fPrefixSubLen);
+				}
 				sb.append(path + "\n");
 			}
 		}

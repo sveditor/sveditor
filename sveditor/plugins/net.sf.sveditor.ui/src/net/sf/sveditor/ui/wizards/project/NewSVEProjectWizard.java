@@ -49,9 +49,7 @@ public class NewSVEProjectWizard extends BasicNewProjectResourceWizard {
 			for (NewSVEProjectFilelistPage.PathInfo pi : fFilelistPage.getPathList()) {
 				if (pi.fNewContent != null) {
 					// Create 
-					System.out.println("path: " + pi.fPath);
 					String rpath = SVFileUtils.expandVars(pi.fPath, project.getName(), true);
-					System.out.println("rpath: " + rpath);
 					OutputStream os = fs_provider.openStreamWrite(rpath);
 					
 					if (os != null) {

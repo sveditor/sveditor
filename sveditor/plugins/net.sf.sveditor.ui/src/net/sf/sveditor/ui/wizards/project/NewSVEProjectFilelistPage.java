@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.ui.WorkspaceFileDialog;
-import net.sf.sveditor.ui.prop_pages.ProjectFileDialog;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
@@ -166,7 +165,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 				existing_paths.add(p);
 			}
 			NewFilelistWizard wiz = new NewFilelistWizard(
-					project_path, existing_paths);
+					project_path, fNamePage.getProjectName(), existing_paths);
 			WizardDialog dlg = new WizardDialog(getShell(), wiz);
 			dlg.setPageSize(530, 560);
 			
