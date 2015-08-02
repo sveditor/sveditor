@@ -36,12 +36,6 @@ public class SVDBFile extends SVDBScopeItem {
 		
 		if (file != null) {
 			setName(new File(file).getName());
-		} else {
-			try {
-				throw new Exception();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 		fFile               = file;
 		setLocation(-1);		
