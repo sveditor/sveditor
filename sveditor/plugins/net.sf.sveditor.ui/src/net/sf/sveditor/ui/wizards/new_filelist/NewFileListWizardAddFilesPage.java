@@ -52,6 +52,7 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 	private ILabelProvider				fLabelProvider;
 	private String						fPrefix;
 	private int							fPrefixSubLen;
+	private boolean						fRequireFiles = true;
 	
 	public NewFileListWizardAddFilesPage(
 			ITreeContentProvider		cp,
@@ -73,6 +74,10 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		}
 	}
 	
+	public void setRequireFiles(boolean req) {
+		fRequireFiles = req;
+	}
+	
 	public void setPrefix(String prefix, int len) {
 		fPrefix = prefix;
 		fPrefixSubLen = len;
@@ -88,6 +93,13 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 				}
 				sb.append("+incdir+" + incdir + "\n");
 			}
+		}
+		
+		for (String path : fArgFileCreator.getArgFiles()) {
+			if (fPrefix != null) {
+				path = fPrefix + path.substring(fPrefixSubLen);
+			}
+			sb.append(path + "\n");
 		}
 	
 		if (fOrganizeFiles) {
@@ -201,7 +213,7 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		String msg_info = null;
 		List<Object> items = fCheckMgr.getCheckedItems();
 	
-		if (items.size() == 0) {
+		if (items.size() == 0 && fRequireFiles) {
 			if (msg == null) {
 				msg = "Select Source Folders and Files";
 			}

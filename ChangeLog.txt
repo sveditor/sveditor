@@ -1,6 +1,9 @@
 
 -- 1.8.2 Release --
 
+- #(enh) - Add New SVE Project wizard that assists in setup of new SVE
+  projects, including specifying and creating the filelist.
+
 ------------------------------------------------------------------------------
 -- 1.8.1 Release --
 

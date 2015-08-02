@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -156,7 +157,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 		
 		if (project_path.isDirectory()) {
 			// Launch more-involved new-filelist wizard
-			Set<String> existing_paths = new HashSet<String>();
+			final Set<String> existing_paths = new HashSet<String>();
 			for (PathInfo pi : fPathList) {
 				String p = pi.fPath;
 				if (p.startsWith("${project_loc}/")) {
@@ -164,8 +165,31 @@ public class NewSVEProjectFilelistPage extends WizardPage
 				}
 				existing_paths.add(p);
 			}
+			
+			INewFilelistWizardPathValidator validator = new INewFilelistWizardPathValidator() {
+				
+				@Override
+				public Tuple<String, String> isValid(String path) {
+					Tuple<String, String> ret = new Tuple<String, String>(null, null);
+					
+					if (existing_paths.contains(path)) {
+						ret.second("Duplicate filelist name \"" + path + "\"");
+					} else {
+						// See if the path already exists in the directory
+						File file = new File(project_path, path);
+						
+						if (file.isFile()) {
+							ret.first("Duplicate filelist name \"" + path + "\"");
+						} else if (file.isDirectory()) {
+							ret.second("Path is a directory");
+						}
+					}
+
+					return ret;
+				}
+			};
 			NewFilelistWizard wiz = new NewFilelistWizard(
-					project_path, fNamePage.getProjectName(), existing_paths);
+					project_path, fNamePage.getProjectName(), validator);
 			WizardDialog dlg = new WizardDialog(getShell(), wiz);
 			dlg.setPageSize(530, 560);
 			

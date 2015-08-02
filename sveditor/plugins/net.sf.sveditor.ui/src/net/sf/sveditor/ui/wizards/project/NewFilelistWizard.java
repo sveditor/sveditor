@@ -1,7 +1,6 @@
 package net.sf.sveditor.ui.wizards.project;
 
 import java.io.File;
-import java.util.Set;
 
 import net.sf.sveditor.core.db.index.SVDBScopedFileSystemProvider;
 import net.sf.sveditor.ui.content_providers.SVDBFileSystemContentProvider;
@@ -15,20 +14,20 @@ public class NewFilelistWizard extends Wizard {
 	private NewFileListWizardAddFilesPage		fAddFilesPage;
 	private File								fRoot;
 	private String								fProjectName;
-	private Set<String>							fExistingPaths;
+	private INewFilelistWizardPathValidator		fValidator;
 	
 	public NewFilelistWizard(
-			File 			root, 
-			String			pname,
-			Set<String> 	existing_paths) {
+			File 								root, 
+			String								pname,
+			INewFilelistWizardPathValidator		validator) {
 		fRoot = root;
 		fProjectName = pname;
-		fExistingPaths = existing_paths;
+		fValidator = validator;
 	}
 	
 	@Override
 	public void addPages() {
-		fNamePage = new NewFilelistWizardFirstPage(fExistingPaths);
+		fNamePage = new NewFilelistWizardFirstPage(fValidator);
 		addPage(fNamePage);
 
 		SVDBScopedFileSystemProvider fs_provider = new SVDBScopedFileSystemProvider();
@@ -39,6 +38,7 @@ public class NewFilelistWizard extends Wizard {
 				new SVDBFileSystemLabelProvider(fs_provider),
 				fs_provider,
 				fs_provider);
+		fAddFilesPage.setRequireFiles(false);
 	
 		// The path used by AddFilesPage is /<project_name>
 		fAddFilesPage.setPrefix(".", fProjectName.length()+1);

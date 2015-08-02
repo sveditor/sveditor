@@ -458,18 +458,18 @@ public class SVDBArgFileIndex2 implements
 			file_list.addAll(plan.getFileList());
 		} else if (plan.getFileListType() == FileListType.Filelist) {
 			NullProgressMonitor m = new NullProgressMonitor();
-			System.out.println("Plan: FileList");
+//			System.out.println("Plan: FileList");
 			for (String f_file : plan.getFileList()) {
 				synchronized (fBuildData) {
 				SVDBFile argfile = fBuildData.getFile(m, f_file);
-				System.out.println("file: " + f_file + " argfile=" + argfile);
+//				System.out.println("file: " + f_file + " argfile=" + argfile);
 				if (argfile != null) {
 					fArgFileParser.collectSourceFiles(fBuildData, 
 							(SVDBArgFile)argfile, existing_files);
 				}
 				}
 			}
-			System.out.println("Source Files: " + existing_files.size());
+//			System.out.println("Source Files: " + existing_files.size());
 		
 			// Process the new versions of the argument files
 			Set<String> processed_paths = new HashSet<String>();
@@ -488,7 +488,7 @@ public class SVDBArgFileIndex2 implements
 			for (String f_file : plan.getFileList()) {
 				synchronized (fBuildData) {
 					SVDBFile argfile = build_data.getFile(m, f_file);
-					System.out.println("file: " + f_file + " argfile=" + argfile);
+//					System.out.println("file: " + f_file + " argfile=" + argfile);
 					if (argfile != null) {
 						fArgFileParser.collectSourceFiles(build_data, 
 								(SVDBArgFile)argfile, file_list);
@@ -496,10 +496,10 @@ public class SVDBArgFileIndex2 implements
 				}
 			}
 		
-			System.out.println("New Files: ");
-			for (String path : file_list) {
-				System.out.println("    Path: " + path);
-			}
+//			System.out.println("New Files: ");
+//			for (String path : file_list) {
+//				System.out.println("    Path: " + path);
+//			}
 		} else if (plan.getFileListType() == FileListType.Hybrid) {
 			// Both filelists and files changed
 			
@@ -641,10 +641,10 @@ public class SVDBArgFileIndex2 implements
 				// TODO: collect declaration info from these files and remove
 				// from the declaration cache
 				for (String path : existing_files) {
-					System.out.println("Remove: " + path);
+//					System.out.println("Remove: " + path);
 					fBuildData.removeFile(path, false);
 					SVDBFile file = fBuildData.getFile(new NullProgressMonitor(), path);
-					System.out.println("  Post-remove: " + file);
+//					System.out.println("  Post-remove: " + file);
 				}
 			}
 		} finally {

@@ -32,10 +32,16 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 	static class SrcFileInfo {
 		public String			fPath;
 		public boolean			fRootFile;
+		public boolean			fArgFile;
+	
+		public SrcFileInfo(String path, boolean argfile) {
+			fPath = path;
+			fArgFile = argfile;
+			reset();
+		}
 		
 		public SrcFileInfo(String path) {
-			fPath = path;
-			reset();
+			this(path, false);
 		}
 		
 		public void reset() {
@@ -47,6 +53,7 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 	private ISVDBFileSystemProvider		fFSProvider;
 	private List<String>				fSearchPaths;
 	private Set<String>					fFileExts;
+	private Set<String>					fArgFileExts;
 	private Set<String>					fDiscoveredPaths;
 	private Set<String>					fIncDirs;
 	private List<SrcFileInfo>			fFileList;
@@ -56,6 +63,7 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 		fFSProvider = fs_provider;
 		fSearchPaths = new ArrayList<String>();
 		fFileExts = new HashSet<String>();
+		fArgFileExts = new HashSet<String>();
 		fFileList = new ArrayList<SVArgFileCreator.SrcFileInfo>();
 		fDiscoveredPaths = new HashSet<String>();
 		fIncDirs = new HashSet<String>();
@@ -64,6 +72,10 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 
 		for (String ext : SVCorePlugin.getDefault().getDefaultSVExts()) {
 			fFileExts.add(ext);
+		}
+		
+		for (String ext : SVCorePlugin.getDefault().getDefaultArgFileExts()) {
+			fArgFileExts.add(ext);
 		}
 	}
 	
@@ -123,9 +135,16 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 			} else {
 				String ext = SVFileUtils.getPathExt(path);
 				
-				if (ext != null && fFileExts.contains(ext)) {
-					if (fDiscoveredPaths.add(path)) {
-						fFileList.add(new SrcFileInfo(path));
+				if (ext != null) {
+					if (fFileExts.contains(ext)) {
+						if (fDiscoveredPaths.add(path)) {
+							fFileList.add(new SrcFileInfo(path));
+						}
+					} else if (fArgFileExts.contains(ext)) {
+						if (fDiscoveredPaths.add(path)) {
+							fFileList.add(new SrcFileInfo(path, true));
+						}
+
 					}
 				}
 			}
@@ -151,10 +170,16 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 			} else {
 				String ext = SVFileUtils.getPathExt(p);
 			
-				if (ext != null && fFileExts.contains(ext)) {
-					if (fDiscoveredPaths.add(p)) {
-						// Only add paths that we haven't encountered yet
-						fFileList.add(new SrcFileInfo(p));
+				if (ext != null) {
+					if (fFileExts.contains(ext)) {
+						if (fDiscoveredPaths.add(p)) {
+							// Only add paths that we haven't encountered yet
+							fFileList.add(new SrcFileInfo(p));
+						}
+					} else if (fArgFileExts.contains(ext)) {
+						if (fDiscoveredPaths.add(p)) {
+							fFileList.add(new SrcFileInfo(p, true));
+						}
 					}
 				}
 				monitor.worked(100);
@@ -179,16 +204,18 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 		}
 		
 		for (SrcFileInfo info : fFileList) {
-			fActiveSrcFile = info;
-			InputStream in = fFSProvider.openStream(info.fPath);
-			if (in == null) {
-				fLog.error("Failed to open file \"" + info.fPath + "\"");
-				continue;
+			if (!info.fArgFile) { // No point in parsing argument files
+				fActiveSrcFile = info;
+				InputStream in = fFSProvider.openStream(info.fPath);
+				if (in == null) {
+					fLog.error("Failed to open file \"" + info.fPath + "\"");
+					continue;
+				}
+
+				SVPreProcessor2 pp = new SVPreProcessor2(info.fPath, in, this, null);
+
+				pp.preprocess();
 			}
-			
-			SVPreProcessor2 pp = new SVPreProcessor2(info.fPath, in, this, null);
-			
-			pp.preprocess();
 		}
 	
 		monitor.done();
@@ -198,7 +225,7 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 		List<String> ret = new ArrayList<String>();
 		
 		for (SrcFileInfo info : fFileList) {
-			if (info.fRootFile) {
+			if (info.fRootFile && !info.fArgFile) {
 				ret.add(info.fPath);
 			}
 		}
@@ -210,7 +237,21 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 		List<String> ret = new ArrayList<String>();
 		
 		for (SrcFileInfo info : fFileList) {
-			ret.add(info.fPath);
+			if (!info.fArgFile) {
+				ret.add(info.fPath);
+			}
+		}
+		
+		return ret;
+	}
+	
+	public List<String> getArgFiles() {
+		List<String> ret = new ArrayList<String>();
+		
+		for (SrcFileInfo info : fFileList) {
+			if (info.fArgFile) {
+				ret.add(info.fPath);
+			}
 		}
 		
 		return ret;
