@@ -39,6 +39,7 @@ import net.sf.sveditor.core.tests.job_mgr.JobMgrTests;
 import net.sf.sveditor.core.tests.logscanner.LogScannerTests;
 import net.sf.sveditor.core.tests.open_decl.OpenDeclTests;
 import net.sf.sveditor.core.tests.parser.ParserTests;
+import net.sf.sveditor.core.tests.parser.db.ParserDBTests;
 import net.sf.sveditor.core.tests.preproc.PreProcTests;
 import net.sf.sveditor.core.tests.primitives.PrimitivesTests;
 import net.sf.sveditor.core.tests.project_settings.ProjectSettingsTests;
@@ -76,6 +77,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(ArgFileParserTests.suite());
 		addTest(new TestSuite(SVScannerTests.class));
 		addTest(ParserTests.suite());
+		addTest(ParserDBTests.suite());
 		addTest(new TestSuite(PreProcMacroTests.class));
 		addTest(PreProcTests.suite());
 		addTest(IndentTests.suite());

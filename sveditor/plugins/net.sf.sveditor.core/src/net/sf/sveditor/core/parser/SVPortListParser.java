@@ -56,8 +56,10 @@ public class SVPortListParser extends SVParserBase {
 					fParsers.attrParser().parse(null);
 				}
 			} catch (SVParseException e) {}
-			
+
+			boolean have_dir = false;
 			if (fLexer.peekKeyword(KW.INPUT, KW.OUTPUT, KW.INOUT, KW.REF)) {
+				have_dir = true;
 				it_start = fLexer.getStartLocation();
 				String dir_s = fLexer.eatTokenR();
 				is_ansi = true;
@@ -95,12 +97,18 @@ public class SVPortListParser extends SVParserBase {
 				// Handle the case where a single type and a 
 				// list of parameters is declared
 				if (fLexer.peekOperator(OP.COMMA, OP.RPAREN, OP.EQ, OP.LBRACKET)) {
-					// use previous type
-					id = type.getName();
-					if (last_type == null) {
-						// this is an untyped parameter. 
+					if (have_dir) {
+						// This is a single-bit port. Specifically, the form will be something like this:
+						// input foo,
+						type = new SVDBTypeInfoBuiltin("wire");
+					} else {
+						// use previous type
+						id = type.getName();
+						if (last_type == null) {
+							// this is an untyped parameter. 
+						}
+						type = last_type;
 					}
-					type = last_type;
 				} else {
 					// Relax to allow use of SV keywords
 					id = fLexer.readIdOrKeyword();

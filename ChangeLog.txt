@@ -3,6 +3,9 @@
 
 - #(enh) - Add New SVE Project wizard that assists in setup of new SVE
   projects, including specifying and creating the filelist.
+  
+- #(nobug) - Correct handling of module ports with a direction, but no 
+  explicit type. These are now interpreted as single-bit ports.
 
 ------------------------------------------------------------------------------
 -- 1.8.1 Release --
