@@ -14,8 +14,30 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 
+/**
+ * - Need to break down the ArgFileIndex
+ * -> Need to be able to perform operations 
+ * @author ballance
+ *
+ */
 
 public class ExternalIndexer {
+	private SVDBFileSystem				fFS;
+	
+	public ExternalIndexer(File fs_path) {
+		fFS = new SVDBFileSystem(fs_path, SVCorePlugin.getVersion());
+	
+		try {
+			fFS.init();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void full_build() {
+		
+	}
 
 	public static synchronized File createTempDir() {
 		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
@@ -34,6 +56,17 @@ public class ExternalIndexer {
 	}
 	
 	/**
+	 * - Path to the cache filesystem
+	 * - Server socket to connect to
+	 * - Use special log message listener, so messages are channeled back to 'super'
+	 * - Have 'super' setup initial filesystem
+	 * -> Include paths
+	 * -> Macro definitions
+	 * -> List of files to parse
+	 * - Have 'super' send build directives to 'sub'
+	 * -> 
+	 * -->  
+	 * 
 	 * - List of root files to parse
 	 * - Directives (+define, +include, etc)
 	 * - Filemap will need to be communicated in some form
@@ -41,6 +74,10 @@ public class ExternalIndexer {
 	 * - Path to cache file
 	 * --> Upper level deals with argument files and path resolution
 	 * --> External Indexer just processes SV files
+	 * 
+	 * There is an overhead to creating the persistence factory. 
+	 * I'm uncertain what the overhead is. Perhaps, in the 
+	 * grand scheme of things, the overhead isn't too bad.
 	 * @param args
 	 */
 	public static final void main(String args[]) {

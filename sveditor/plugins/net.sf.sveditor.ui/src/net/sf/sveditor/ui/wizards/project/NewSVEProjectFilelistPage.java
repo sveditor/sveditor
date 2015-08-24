@@ -151,9 +151,10 @@ public class NewSVEProjectFilelistPage extends WizardPage
 	
 	private PathInfo newFileList() {
 		PathInfo path = null;
-		File parent_path = fNamePage.getLocationPath().toFile();
-		File project_path = new File(parent_path, fNamePage.getProjectName());
 		
+		File parent_path = fNamePage.getLocationPath().toFile();
+		final File project_path = (!fNamePage.useDefaults())?parent_path:
+			new File(parent_path, fNamePage.getProjectName());
 		
 		if (project_path.isDirectory()) {
 			// Launch more-involved new-filelist wizard
@@ -213,7 +214,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 							}
 							
 							for (PathInfo p : fPathList) {
-								if (p.fPath.equals(path.trim())) {
+								if (p.fPath.equals("${project_loc}/" + path.trim())) {
 									return "Duplicate filelist";
 								}
 							}
@@ -221,9 +222,17 @@ public class NewSVEProjectFilelistPage extends WizardPage
 							return null;
 						}
 					});
-			
+
 			if (dlg.open() == Dialog.OK) {
 				path = new PathInfo("${project_loc}/" + dlg.getValue().trim());
+				path.fNewContent = 
+						"//***************************************************************************\n" +
+				        "//* " + dlg.getValue().trim() + "\n" +
+						"//***************************************************************************\n" +
+				        "\n" +
+						" // List file paths and processing directives here\n" +
+				        "\n"
+						;
 			}				
 		}
 

@@ -222,6 +222,12 @@
             wizardId="net.sf.sveditor.ui.newSVFilelist">
          <enablement></enablement>
       </commonWizard>
+      <commonWizard
+            menuGroupId="net.sf.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="net.sf.sveditor.ui.newSVEProject">
+         <enablement></enablement>
+      </commonWizard>
    </extension>
    <extension
          id="net.sf.sveditor.ui.SVNavigatorContentBinding"

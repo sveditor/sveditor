@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -20,6 +21,7 @@ import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 
 public class NewSVEProjectWizard extends BasicNewProjectResourceWizard {
+	public static final String ID = SVUiPlugin.PLUGIN_ID + ".newSVEProject";
 	
 	private WizardNewProjectCreationPage		fNameLocationPage;
 	private NewSVEProjectFilelistPage			fFilelistPage;
@@ -44,7 +46,7 @@ public class NewSVEProjectWizard extends BasicNewProjectResourceWizard {
 			SVProjectNature.ensureHasSvProjectNature(project);
 			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 			SVDBProjectData pdata = pmgr.getProjectData(project);
-			SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+			SVProjectFileWrapper fw = new SVProjectFileWrapper();
 			
 			for (NewSVEProjectFilelistPage.PathInfo pi : fFilelistPage.getPathList()) {
 				if (pi.fNewContent != null) {

@@ -342,7 +342,7 @@ public class SVDBArgFileIndex2 implements
 			 */
 
 			// Register all files with the directory set
-			for (String f : fBuildData.fCache.getFileList(false)) {
+			for (String f : fBuildData.getCache().getFileList(false)) {
 				fBuildData.addFileDir(f);
 			}
 		} else {
@@ -375,16 +375,17 @@ public class SVDBArgFileIndex2 implements
 //		if (!fIndexRefreshed) {
 //			refresh_index(new NullProgressMonitor());
 //		}
-		
+
+		ISVDBIndexCacheMgr c_mgr = fBuildData.getCacheMgr();
 		ISVDBIndexCache new_cache = 
-				fBuildData.fCacheMgr.createIndexCache(getProject(), getBaseLocation());
+				c_mgr.createIndexCache(getProject(), getBaseLocation());
 		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(
 				new_cache, getBaseLocation());
 		
 		synchronized (fBuildData) {
 			// Copy in relevant information
 			build_data.getGlobalDefines().putAll(fBuildData.getGlobalDefines());
-			build_data.fFileSystemProvider = fFileSystemProvider;
+			build_data.setFSProvider(fFileSystemProvider);
 		}
 	
 		monitor.beginTask("Rebuild " + getBaseLocation(), 10000);
@@ -406,8 +407,14 @@ public class SVDBArgFileIndex2 implements
 			
 			// Notify clients that the index has new data
 			synchronized (fIndexChangeListeners) {
-				for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-					l.index_rebuilt();
+				for (int i=0; i<fIndexChangeListeners.size(); i++) {
+					ISVDBIndexChangeListener l = fIndexChangeListeners.get(i);
+					if (l == null) {
+						fIndexChangeListeners.remove(i);
+						i--;
+					} else {
+						l.index_rebuilt();
+					}
 				}
 			}
 			
@@ -437,7 +444,7 @@ public class SVDBArgFileIndex2 implements
 		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(cache, getBaseLocation());
 		SVDBLinkedArgFileIndexBuildData build_data_l = new SVDBLinkedArgFileIndexBuildData(
 				build_data, fBuildData);
-		build_data.fFileSystemProvider = fFileSystemProvider;
+		build_data.setFSProvider(fFileSystemProvider);
 		
 		synchronized (fBuildData) {
 			// Must initialize the file mapper state so any
@@ -571,11 +578,11 @@ public class SVDBArgFileIndex2 implements
 				SVDBFile file = f.parse(language_level, out, path, markers);
 				
 				// Now, set the new root-file info to the cache
-				build_data.fCache.setFile(path, file, false);
-				build_data.fCache.setFileTree(path, ft, false);
-				build_data.fCache.setMarkers(path, markers, false);
+				build_data.getCache().setFile(path, file, false);
+				build_data.getCache().setFileTree(path, ft, false);
+				build_data.getCache().setMarkers(path, markers, false);
 				long last_modified = fFileSystemProvider.getLastModifiedTime(path);
-				build_data.fCache.setLastModified(path, last_modified, false);
+				build_data.getCache().setLastModified(path, last_modified, false);
 				
 				cacheDeclarations(build_data, file, ft);
 				
@@ -603,7 +610,7 @@ public class SVDBArgFileIndex2 implements
 					List<SVDBMarker> markers = cache.getMarkers(path);
 				
 					if (file != null) {
-						fBuildData.fCache.setFile(path, file, false);
+						fBuildData.getCache().setFile(path, file, false);
 					} else {
 						System.out.println("[ERROR] file " + path + " is null");
 						try {
@@ -613,18 +620,18 @@ public class SVDBArgFileIndex2 implements
 						}
 					}
 					if (ft != null) {
-						fBuildData.fCache.setFileTree(path, ft, false);
+						fBuildData.getCache().setFileTree(path, ft, false);
 					} else {
 						System.out.println("[ERROR] ft " + path + " is null");
 					}
 					if (markers != null) {
-						fBuildData.fCache.setMarkers(path, markers, false);
+						fBuildData.getCache().setMarkers(path, markers, false);
 					} else {
 						System.out.println("[ERROR] markers " + path + " is null");
 					}
 				
 					long last_modified = cache.getLastModified(path);
-					fBuildData.fCache.setLastModified(path, last_modified, false);
+					fBuildData.getCache().setLastModified(path, last_modified, false);
 					
 					// Update the cached declarations
 					patch_decl_cache(ft, decl_cache, new_decl_cache);
@@ -829,10 +836,10 @@ public class SVDBArgFileIndex2 implements
 			}
 		}
 
-		if (fBuildData.fCache.getFileList(false).size() > 0) {
-			for (String path : fBuildData.fCache.getFileList(false)) {
+		if (fBuildData.getCache().getFileList(false).size() > 0) {
+			for (String path : fBuildData.getCache().getFileList(false)) {
 				long fs_timestamp = fFileSystemProvider.getLastModifiedTime(path);
-				long cache_timestamp = fBuildData.fCache.getLastModified(path);
+				long cache_timestamp = fBuildData.getCache().getLastModified(path);
 				if (fs_timestamp != cache_timestamp) {
 
 					if (fDebugEn) {
@@ -879,10 +886,10 @@ public class SVDBArgFileIndex2 implements
 
 		if (valid) {
 			synchronized (fBuildData) {
-				for (String arg_file : fBuildData.fCache.getFileList(true)) {
+				for (String arg_file : fBuildData.getCache().getFileList(true)) {
 					long ts = getFileSystemProvider().getLastModifiedTime(
 							arg_file);
-					long ts_c = fBuildData.fCache.getLastModified(arg_file);
+					long ts_c = fBuildData.getCache().getLastModified(arg_file);
 					if (ts > ts_c) {
 						fLog.debug("    arg_file " + arg_file + " ts=" + ts
 								+ " cached ts=" + ts_c);
@@ -912,7 +919,7 @@ public class SVDBArgFileIndex2 implements
 		fIndexBuilder = builder;
 
 		fBuildData.fIndexCacheData = new SVDBArgFileIndexCacheData(getBaseLocation());
-		fCacheDataValid = fBuildData.fCache.init(
+		fCacheDataValid = fBuildData.getCache().init(
 				new NullProgressMonitor(), 
 				fBuildData.fIndexCacheData, 
 				fBaseLocation);
@@ -1034,7 +1041,7 @@ public class SVDBArgFileIndex2 implements
 	}
 
 	public ISVDBIndexCache getCache() {
-		return fBuildData.fCache;
+		return fBuildData.getCache();
 	}
 
 	public SVDBIndexConfig getConfig() {
@@ -1047,7 +1054,7 @@ public class SVDBArgFileIndex2 implements
 
 	public void setFileSystemProvider(ISVDBFileSystemProvider fs_provider) {
 		fFileSystemProvider = fs_provider;
-		fBuildData.fFileSystemProvider = fs_provider;
+		fBuildData.setFSProvider(fs_provider);
 		if (fArgFileParser != null) {
 			fArgFileParser.setFileSystemProvider(fs_provider);
 		}
@@ -1157,12 +1164,12 @@ public class SVDBArgFileIndex2 implements
 		
 		checkInIndexOp("findFile");
 		
-		ISVDBIndexCache.FileType ft = fBuildData.fCache.getFileType(r_path);
+		ISVDBIndexCache.FileType ft = fBuildData.getCache().getFileType(r_path);
 		
 		if (ft == FileType.ArgFile) {
 			// Just return the file
 			synchronized (fBuildData) {
-				ret = fBuildData.fCache.getFile(new NullProgressMonitor(), r_path);
+				ret = fBuildData.getCache().getFile(new NullProgressMonitor(), r_path);
 			}
 		} else {
 			// We assume the file is SystemVerilog
@@ -1174,11 +1181,11 @@ public class SVDBArgFileIndex2 implements
 			
 			if (root_path != null) {
 				// Get the FileMap
-				Map<Integer, SVDBFile> map = fBuildData.fCache.getSubFileMap(root_path);
+				Map<Integer, SVDBFile> map = fBuildData.getCache().getSubFileMap(root_path);
 				
 				if (map == null) {
 					// re-create the map
-					SVDBFile file = fBuildData.fCache.getFile(new NullProgressMonitor(), root_path);
+					SVDBFile file = fBuildData.getCache().getFile(new NullProgressMonitor(), root_path);
 					
 					if (file != null) {
 						map = new HashMap<Integer, SVDBFile>();
@@ -1189,7 +1196,7 @@ public class SVDBArgFileIndex2 implements
 						//					long start = System.currentTimeMillis();
 						createSubFileMap(fBuildData, map, file, root_id, f);
 						//					long end = System.currentTimeMillis();
-						fBuildData.fCache.setSubFileMap(root_path, map);
+						fBuildData.getCache().setSubFileMap(root_path, map);
 						
 					}
 				}
@@ -1271,7 +1278,7 @@ public class SVDBArgFileIndex2 implements
 		synchronized (build_data) {
 			if (build_data.fIndexCacheData.fArgFilePaths.contains(path)) {
 				// This is an argfile path
-				ret = build_data.fCache.getFileTree(new NullProgressMonitor(), path, true);
+				ret = build_data.getCache().getFileTree(new NullProgressMonitor(), path, true);
 			} else {
 				boolean is_root = false;
 				Map<String, List<String>> inc_map = build_data.fIndexCacheData.fRootIncludeMap;
@@ -1288,7 +1295,7 @@ public class SVDBArgFileIndex2 implements
 				}
 
 				if (root != null) {
-					SVDBFileTree ft = build_data.fCache.getFileTree(
+					SVDBFileTree ft = build_data.getCache().getFileTree(
 							new NullProgressMonitor(), root, false);
 					if (ft != null) {
 						if (is_root) {
@@ -1304,11 +1311,11 @@ public class SVDBArgFileIndex2 implements
 		
 			/*
 			// Search the file tree of each root file
-			Set<String> file_list = build_data.fCache.getFileList(false);
+			Set<String> file_list = build_data.getCache().getFileList(false);
 //			System.out.println("file_list: " + file_list.size());
 			for (String root_path : file_list) {
 				long start = System.currentTimeMillis();
-				SVDBFileTree ft = build_data.fCache.getFileTree(
+				SVDBFileTree ft = build_data.getCache().getFileTree(
 						new NullProgressMonitor(), root_path, false);
 //				System.out.println("Check: " + root_path + " " + ft + " " + paths);
 				ret = findTargetFileTree(ft, paths);
@@ -1457,7 +1464,7 @@ public class SVDBArgFileIndex2 implements
 			}
 			
 			if (root != null) {
-				ret = build_data.fCache.getFileTree(
+				ret = build_data.getCache().getFileTree(
 						new NullProgressMonitor(), root, false);
 			}
 		}
@@ -1534,7 +1541,7 @@ public class SVDBArgFileIndex2 implements
 		
 		if (is_argfile) {
 			synchronized (fBuildData) {
-				markers.addAll(fBuildData.fCache.getMarkers(r_path));
+				markers.addAll(fBuildData.getCache().getMarkers(r_path));
 			}
 		} else {
 			findFileMarkersInt(markers, path);
@@ -1577,24 +1584,24 @@ public class SVDBArgFileIndex2 implements
 			String root_file = findRootFilePath(fBuildData, r_path);
 			
 			if (root_file != null) {
-				SVDBFileTree ft = fBuildData.fCache.getFileTree(
+				SVDBFileTree ft = fBuildData.getCache().getFileTree(
 						new NullProgressMonitor(), root_file, false);
 				
 				if (ft != null) {
 					target_ft = findTargetFileTree(ft, r_path);
 					file_id = fBuildData.mapFilePathToId(r_path, false);
-					root_markers = fBuildData.fCache.getMarkers(root_file);
+					root_markers = fBuildData.getCache().getMarkers(root_file);
 				}
 			}
 			
 			// Search the file tree of each root file
 			/*
-			for (String root_path : fBuildData.fCache.getFileList(false)) {
-				SVDBFileTree ft = fBuildData.fCache.getFileTree(
+			for (String root_path : fBuildData.getCache().getFileList(false)) {
+				SVDBFileTree ft = fBuildData.getCache().getFileTree(
 						new NullProgressMonitor(), root_path, false);
 				if ((target_ft = findTargetFileTree(ft, paths)) != null) {
 					file_id = fBuildData.mapFilePathToId(root_path, false);
-					root_markers = fBuildData.fCache.getMarkers(root_path);
+					root_markers = fBuildData.getCache().getMarkers(root_path);
 					break;
 				}
 			}
@@ -2041,8 +2048,8 @@ public class SVDBArgFileIndex2 implements
 		Tuple<SVDBFileTree, ISVDBItemBase> ret = null;
 		
 		for (String af_path  : build_data.fIndexCacheData.getFileList(FILE_ATTR_ARG_FILE)) {
-			SVDBFileTree af_ft = build_data.fCache.getFileTree(new NullProgressMonitor(), af_path, true);
-			SVDBFile af_f = build_data.fCache.getFile(new NullProgressMonitor(), af_path);
+			SVDBFileTree af_ft = build_data.getCache().getFileTree(new NullProgressMonitor(), af_path, true);
+			SVDBFile af_f = build_data.getCache().getFile(new NullProgressMonitor(), af_path);
 			
 			for (ISVDBChildItem ci : af_f.getChildren()) {
 				if (is_argfile) {
@@ -2088,7 +2095,7 @@ public class SVDBArgFileIndex2 implements
 
 		SVDBFileTree ft = null;
 		synchronized (fBuildData) {
-			ft = fBuildData.fCache.getFileTree(
+			ft = fBuildData.getCache().getFileTree(
 					new NullProgressMonitor(), path, is_argfile);
 		}
 
@@ -2099,8 +2106,8 @@ public class SVDBArgFileIndex2 implements
 		fLog.debug("dispose() - " + getBaseLocation());
 
 		synchronized (fBuildData) {
-			if (fBuildData.fCache != null) {
-				fBuildData.fCache.sync();
+			if (fBuildData.getCache() != null) {
+				fBuildData.getCache().sync();
 			}
 			if (fFileSystemProvider != null) {
 				fFileSystemProvider.dispose();
@@ -2569,10 +2576,10 @@ public class SVDBArgFileIndex2 implements
 		
 		start = System.currentTimeMillis();
 		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
-		build_data.fCache.setFile(path, file, false);
-		build_data.fCache.setFileTree(path, ft, false);
-		build_data.fCache.setMarkers(path, markers, false);
-		build_data.fCache.setLastModified(path, last_modified, false);
+		build_data.getCache().setFile(path, file, false);
+		build_data.getCache().setFileTree(path, ft, false);
+		build_data.getCache().setMarkers(path, markers, false);
+		build_data.getCache().setLastModified(path, last_modified, false);
 		
 		// Update source file attributes
 		updateSrcFileAttr(build_data, ft, markers);

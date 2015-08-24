@@ -97,13 +97,14 @@ public class SVPortListParser extends SVParserBase {
 				// Handle the case where a single type and a 
 				// list of parameters is declared
 				if (fLexer.peekOperator(OP.COMMA, OP.RPAREN, OP.EQ, OP.LBRACKET)) {
+					id = type.getName();
+					
 					if (have_dir) {
 						// This is a single-bit port. Specifically, the form will be something like this:
 						// input foo,
 						type = new SVDBTypeInfoBuiltin("wire");
 					} else {
 						// use previous type
-						id = type.getName();
 						if (last_type == null) {
 							// this is an untyped parameter. 
 						}

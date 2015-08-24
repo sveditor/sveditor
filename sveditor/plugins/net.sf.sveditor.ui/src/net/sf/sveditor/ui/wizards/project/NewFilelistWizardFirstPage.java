@@ -80,10 +80,10 @@ public class NewFilelistWizardFirstPage extends WizardPage {
 			List<String> exts = SVCorePlugin.getDefault().getDefaultArgFileExts();
 			int last_dot = text.lastIndexOf('.');
 			
-			if (last_dot != -1) {
+			if (last_dot == -1) {
 				msg_warn = "filename doesn't have an extension";
 			} else {
-				String ext = text.substring(last_dot);
+				String ext = text.substring(last_dot+1);
 				if (!exts.contains(ext)) {
 					msg_warn = "extension \"" + ext + "\" is not a recognized filelist extension";
 				}

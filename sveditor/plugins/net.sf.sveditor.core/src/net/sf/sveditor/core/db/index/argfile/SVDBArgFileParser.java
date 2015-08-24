@@ -101,7 +101,7 @@ public class SVDBArgFileParser implements ILogLevelListener {
 			Set<String>					processed_files,
 			List<String>				src_files) {
 		String sub_base_location_dir = argfile.getBaseLocation();
-		System.out.println("sub_base_location: " + sub_base_location_dir);
+//		System.out.println("sub_base_location: " + sub_base_location_dir);
 		
 		for (ISVDBChildItem ci : argfile.getChildren()) {
 			if (ci.getType() == SVDBItemType.ArgFileIncFileStmt) {

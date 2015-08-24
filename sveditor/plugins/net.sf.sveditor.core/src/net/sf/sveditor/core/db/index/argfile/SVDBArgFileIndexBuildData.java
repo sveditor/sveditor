@@ -33,15 +33,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class SVDBArgFileIndexBuildData implements 
 	ISVDBArgFileIndexBuildData, ISVPreProcFileMapper, ISVPreProcIncFileProvider {
 
-	ISVDBFileSystemProvider						fFileSystemProvider;
+	private ISVDBFileSystemProvider				fFileSystemProvider;
 	SVDBArgFileIndexCacheData					fIndexCacheData;
-	ISVDBIndexCache								fCache;
-	ISVDBIndexCacheMgr							fCacheMgr;
-	Set<String>									fFileDirs;
-	Set<String>									fMissingIncludes;
+	private ISVDBIndexCache						fCache;
+	private Set<String>							fFileDirs;
+	private Set<String>							fMissingIncludes;
 	SVDBIndexStats								fIndexStats;
-	SVDBLexerListenerRefCollector				fRefCollector;
-	LogHandle									fLog = LogFactory.getLogHandle("SVDBArgFileIndexBuildData");
+	private SVDBLexerListenerRefCollector		fRefCollector;
+	private LogHandle							fLog = LogFactory.getLogHandle("SVDBArgFileIndexBuildData");
 	private static boolean						fEnableIncludeCache = true;
 	
 	// Map of leaf file to resolved include directory
@@ -55,7 +54,6 @@ public class SVDBArgFileIndexBuildData implements
 	
 	public SVDBArgFileIndexBuildData(ISVDBIndexCache cache, String base_location) {
 		fCache = cache;
-		fCacheMgr = cache.getCacheMgr();
 		
 		fFileDirs = new HashSet<String>();
 		fMissingIncludes = new HashSet<String>();
@@ -72,6 +70,18 @@ public class SVDBArgFileIndexBuildData implements
 		fFailedSearches = new HashSet<String>();		
 	}
 	
+	public ISVDBIndexCacheMgr getCacheMgr() {
+		return fCache.getCacheMgr();
+	}
+	
+	public ISVDBFileSystemProvider getFSProvider() {
+		return fFileSystemProvider;
+	}
+	
+	public void setFSProvider(ISVDBFileSystemProvider fs_provider) {
+		fFileSystemProvider = fs_provider;
+	}
+	
 	public int getNumSrcFiles() {
 		return fIndexCacheData.fSrcFileList.size();
 	}
@@ -83,7 +93,6 @@ public class SVDBArgFileIndexBuildData implements
 		fFileSystemProvider = build_data.fFileSystemProvider;
 		fIndexCacheData = build_data.fIndexCacheData;
 		fCache = build_data.fCache;
-		fCacheMgr = build_data.fCacheMgr;
 		fFileDirs = build_data.fFileDirs;
 		fMissingIncludes = build_data.fMissingIncludes;
 		fIndexStats = build_data.fIndexStats;
@@ -496,3 +505,6 @@ public class SVDBArgFileIndexBuildData implements
 	}
 	
 }
+
+
+

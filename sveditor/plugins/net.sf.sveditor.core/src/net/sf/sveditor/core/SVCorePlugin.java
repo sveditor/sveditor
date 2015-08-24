@@ -100,6 +100,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private ISVDBIndexCacheMgr				fCacheMgr;
 	private static boolean					fTestModeBuilderDisabled = false;
+	private static final boolean			fUseDelegatingIndexCache = false;
 	
 	// Listeners
 	private List<ILineListener>				fStdoutLineListeners = new ArrayList<ILineListener>();
@@ -110,7 +111,6 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private int								fMaxIndexThreads = 0;
 	private static boolean					fEnableAsyncCacheClear;
 	private static List<String>				fPersistenceClassPkgList;
-	private static final boolean			fUseDelegatingIndexCache = false;
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
