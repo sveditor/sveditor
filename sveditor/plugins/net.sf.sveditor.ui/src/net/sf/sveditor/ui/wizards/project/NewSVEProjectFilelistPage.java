@@ -128,8 +128,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		
-		File parent_path = fNamePage.getLocationPath().toFile();
-		File project_path = new File(parent_path, fNamePage.getProjectName());
+		File project_path = getProjectPath();
 		
 		fAddProjectPath.setEnabled(project_path.isDirectory());
 		fAddWorkspacePath.setEnabled(ResourcesPlugin.getWorkspace().getRoot().getProjects().length > 0);
@@ -149,12 +148,18 @@ public class NewSVEProjectFilelistPage extends WizardPage
 		}
 	};
 	
-	private PathInfo newFileList() {
-		PathInfo path = null;
-		
+	private File getProjectPath() {
 		File parent_path = fNamePage.getLocationPath().toFile();
 		final File project_path = (!fNamePage.useDefaults())?parent_path:
 			new File(parent_path, fNamePage.getProjectName());
+
+		return project_path;
+	}
+	
+	private PathInfo newFileList() {
+		PathInfo path = null;
+		
+		final File project_path = getProjectPath();
 		
 		if (project_path.isDirectory()) {
 			// Launch more-involved new-filelist wizard
@@ -247,8 +252,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 		if (e.widget == fNewFilelistButton) {
 			path = newFileList();
 		} else if (e.widget == fAddProjectPath) {
-			File parent_path = fNamePage.getLocationPath().toFile();
-			File project_path = new File(parent_path, fNamePage.getProjectName());
+			File project_path = getProjectPath();
 			
 			ScopedFileSelectionDialog dlg = new ScopedFileSelectionDialog(getShell(), project_path);
 			
