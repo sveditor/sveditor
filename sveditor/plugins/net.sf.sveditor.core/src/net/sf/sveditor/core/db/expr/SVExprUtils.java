@@ -129,7 +129,15 @@ public class SVExprUtils {
 	}
 	
 	protected boolean unary(PrintStream ps, SVDBUnaryExpr expr) {
-		ps.print(expr.getOp());
+		String op = expr.getOp();
+		ps.print(op);
+		
+		// If this is an alpha character, then we probably have a
+		// unary expression like "posedge ..."
+		if (op.length() > 0 && Character.isAlphabetic(op.charAt(0))) {
+			ps.print(' ');
+		}
+		
 		expr_to_string(ps, expr.getExpr());
 		return true;
 	}
@@ -183,12 +191,28 @@ public class SVExprUtils {
 		return true;
 	}
 	
+	
 	protected boolean cast(PrintStream ps, SVDBCastExpr expr) {
 		expr_to_string(ps, expr.getCastType());
 		ps.print("'(");
 		expr_to_string(ps, expr.getExpr());
 		ps.print(")");
 		
+		return true;
+	}
+	
+	protected boolean clocking_event(PrintStream ps, SVDBClockingEventExpr expr) {
+		switch (expr.getClockingEventType()) {
+		case Any:
+			ps.print("@*");
+			break;
+		case Expr:
+			ps.print("@");
+			ps.print("" + expr.getExpr());
+			break;
+		case None:
+			break;
+		}
 		return true;
 	}
 	
@@ -285,7 +309,7 @@ public class SVExprUtils {
 			case BinaryExpr: ret = binary(ps, (SVDBBinaryExpr)expr); break;
 			case CastExpr: ret = cast(ps, (SVDBCastExpr)expr); break;
 			case ClockingEventExpr:
-				// TODO:
+				ret = clocking_event(ps, (SVDBClockingEventExpr)expr);
 				break;
 			case ConcatenationExpr: ret = concatenation(ps, (SVDBConcatenationExpr)expr); break;
 			case CondExpr: ret = cond(ps, (SVDBCondExpr)expr); break;

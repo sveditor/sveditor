@@ -4,6 +4,9 @@
 - #(nobug) - Correct an issue with the New SVE Project wizard, existing
   project directories, and the 'Add Project Path...' route to adding 
   an existing filelist. The button now functions as expected.
+  
+- #(SR - 17) - Correct issue with displaying the labels in the outline
+  view for labeled blocks
 
 ------------------------------------------------------------------------------
 -- 1.8.2 Release --

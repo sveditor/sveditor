@@ -254,10 +254,20 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			
 			if (it.getType() == SVDBItemType.AlwaysStmt) {
 				SVDBAlwaysStmt always = (SVDBAlwaysStmt)it;
+				String block_name = "";
+				
+				if (always.getBody() != null && 
+						always.getBody().getType() == SVDBItemType.BlockStmt) {
+					block_name = ((SVDBBlockStmt)always.getBody()).getBlockName();
+					if (block_name == null) {
+						block_name = "";
+					}
+				}
+
 				if (always.getBody() != null && always.getBody().getType() == SVDBItemType.EventControlStmt) {
 					SVDBEventControlStmt stmt = (SVDBEventControlStmt)always.getBody();
 					ret = new StyledString(getBodyStmtText(
-							stmt.getExpr().toString().trim(), it));
+							stmt.getExpr().toString().trim(), stmt));
 				} else {
 					ret = new StyledString(getBodyStmtText("always", it));
 				}
@@ -327,7 +337,12 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			if (stmt.getBody() instanceof SVDBBlockStmt) {
 				SVDBBlockStmt block = (SVDBBlockStmt)stmt.getBody();
 				if (block.getBlockName() != null && !block.getBlockName().equals("")) {
-					return base + " : " + block.getBlockName();
+					if (base.equals("")) {
+						return block.getBlockName();
+					} else {
+						return block.getBlockName() + " : " + base;
+					}
+//					return base + " : " + block.getBlockName();
 				}
 			}
 		}
