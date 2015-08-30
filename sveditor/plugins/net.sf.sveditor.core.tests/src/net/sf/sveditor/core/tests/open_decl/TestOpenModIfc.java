@@ -399,5 +399,81 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 		assertNotNull(ret.get(0).first().getLocation());
 		assertEquals(3, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
 	}	
+	
+	public void testModuleParameter() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module m #(parameter int P1=1, parameter int P2=2) (\n" +					// 1
+			"	input		clk_i,\n" +
+			"	input		rst_n\n" +
+			");\n" +
+			"\n" +							// 5	
+			"	initial begin\n" +
+			"		repeat (P1) begin\n" +
+			"		end\n" +
+			"	end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "m");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("(P1)");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+1);
+
+
+		int lineno = 7;
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = 
+				OpenDeclTests.runOpenDeclOp(fCacheFactory, file, lineno, scanner);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.ModIfcClassParam, ret.get(0).first().getType());
+		assertEquals("P1", SVDBItem.getName(ret.get(0).first()));
+		assertEquals(1, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
+		
+		OpenDeclTests.validatePathToFile(ret.get(0).first());
+	}	
+
+	public void testModuleParameter_1() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module m (\n" +					// 1
+			"	input		clk_i,\n" +
+			"	input		rst_n\n" +
+			");\n" +
+			"	parameter P1=1;\n" +							// 5	
+			"	parameter P2=1;\n" +							// 6	
+			"	initial begin\n" +
+			"		repeat (P1) begin\n" +
+			"		end\n" +
+			"	end\n" +
+			"\n" +
+			"endmodule\n"
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "m");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("(P1)");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+1);
+
+
+		int lineno = 8;
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = 
+				OpenDeclTests.runOpenDeclOp(fCacheFactory, file, lineno, scanner);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.VarDeclItem, ret.get(0).first().getType());
+		assertEquals("P1", SVDBItem.getName(ret.get(0).first()));
+		assertEquals(5, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
+		
+	}
 }
 

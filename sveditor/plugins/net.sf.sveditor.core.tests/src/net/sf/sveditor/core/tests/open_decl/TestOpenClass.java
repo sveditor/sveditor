@@ -16,6 +16,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -615,4 +616,37 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 			assertEquals(name, SVDBItem.getName(ret.get(0).first()));
 		}
 	}
+	
+	public void testOpenClassParameterDecl() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class bar #(type REQ=foo, RSP=bar);\n" + // 1
+			"\n" +
+			"    function new();\n" +
+			"		REQ v;\n" + // 4
+			"    endfunction\n" +
+			"\n" +
+			"endclass\n" 
+			;
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "bar");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("REQ v");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+1);
+
+		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
+		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 4, scanner, target_index);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.ModIfcClassParam, ret.get(0).first().getType());
+		assertEquals("REQ", SVDBItem.getName(ret.get(0).first()));
+	
+		OpenDeclTests.validatePathToFile(ret.get(0).first());
+	}	
 }

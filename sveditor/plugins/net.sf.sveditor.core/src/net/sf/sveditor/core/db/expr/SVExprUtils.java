@@ -84,7 +84,15 @@ public class SVExprUtils {
 	
 	protected boolean binary(PrintStream ps, SVDBBinaryExpr expr) {
 		expr_to_string(ps, expr.getLhs());
-		ps.print(expr.getOp());
+		String op = expr.getOp();
+		
+		if (op.length() > 0 && Character.isJavaIdentifierStart(op.charAt(0))) {
+			ps.print(' ');
+			ps.print(op);
+			ps.print(' ');
+		} else {
+			ps.print(op);
+		}
 		expr_to_string(ps, expr.getRhs());
 		return true;
 	}
@@ -134,7 +142,7 @@ public class SVExprUtils {
 		
 		// If this is an alpha character, then we probably have a
 		// unary expression like "posedge ..."
-		if (op.length() > 0 && Character.isAlphabetic(op.charAt(0))) {
+		if (op.length() > 0 && Character.isJavaIdentifierStart(op.charAt(0))) {
 			ps.print(' ');
 		}
 		

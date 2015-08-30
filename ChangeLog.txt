@@ -7,6 +7,8 @@
   
 - #(SR - 17) - Correct issue with displaying the labels in the outline
   view for labeled blocks
+  
+- #(SR - 16) - Correct Open Declaration for class parameters
 
 ------------------------------------------------------------------------------
 -- 1.8.2 Release --

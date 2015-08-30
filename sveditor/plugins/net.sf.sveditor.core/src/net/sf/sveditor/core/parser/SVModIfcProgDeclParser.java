@@ -103,7 +103,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		// Handle modules with parameters
 		if (fLexer.peekOperator(OP.HASH)) {
 			// Handle in-line parameter declarations
-			module.getParameters().addAll(parsers().paramPortListParser().parse());
+			module.addParameters(parsers().paramPortListParser().parse());
 		}
 
 		if (fLexer.peekOperator(OP.LPAREN)) {

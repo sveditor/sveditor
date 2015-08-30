@@ -38,7 +38,10 @@ public class SVDBClassDecl extends SVDBScopeItem {
 		if (fParams == null) {
 			fParams = new ArrayList<SVDBModIfcClassParam>();
 		}
-		fParams.addAll(params);
+		for (SVDBModIfcClassParam p : params) {
+			p.setParent(this);
+			fParams.add(p);
+		}
 	}
 	
 	public SVDBTypeInfoClassType getClassType() {

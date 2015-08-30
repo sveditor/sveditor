@@ -33,6 +33,17 @@ public class SVDBModIfcDecl extends SVDBScopeItem {
 		return fParams;
 	}
 	
+	public void addParameters(List<SVDBModIfcClassParam> params) {
+		if (fParams == null) {
+			fParams = new ArrayList<SVDBModIfcClassParam>();
+		}
+		
+		for (SVDBModIfcClassParam p : params) {
+			p.setParent(this);
+			fParams.add(p);
+		}
+	}
+	
 	public List<SVDBParamPortDecl> getPorts() {
 		return fPorts;
 	}
