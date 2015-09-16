@@ -16,14 +16,14 @@ public class TestIndentAssertions extends SVCoreTestCaseBase {
 			"	endproperty: p_property\n" +
 			"\n" +
 			"	ap_thing:\n" +
-			"	assert property (p_property (thevar)) \n" +
-			"	begin\n" +
-			"		a.sample ();\n" +
-			"	end\n" +
-			"	else\n" +
-			"	begin\n" +
-			"		$display (\"thing is %b\");\n" +
-			"	end\n" +
+			"		assert property (p_property (thevar)) \n" +
+			"		begin\n" +
+			"			a.sample ();\n" +
+			"		end\n" +
+			"		else\n" +
+			"		begin\n" +
+			"			$display (\"thing is %b\");\n" +
+			"		end\n" +
 			"endmodule\n"
 			;
 		

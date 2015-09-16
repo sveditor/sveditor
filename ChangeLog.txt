@@ -1,6 +1,7 @@
 
 -- 1.8.3 Release --
-
+- #(406) Indenter: always with bussed operation invalid indent
+ 
 - #(nobug) - Correct an issue with the New SVE Project wizard, existing
   project directories, and the 'Add Project Path...' route to adding 
   an existing filelist. The button now functions as expected.

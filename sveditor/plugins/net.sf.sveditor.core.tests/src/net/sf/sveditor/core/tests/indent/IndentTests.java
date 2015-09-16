@@ -341,6 +341,49 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testBussedInAlways() throws Exception {
+		LogHandle log = LogFactory.getLogHandle("testBussedInAlways");
+		String content =
+				"module t;\n" +
+				"always @(posedge clk)\n" +
+				"begin\n" +
+				"{a} <= 1;\n" +
+				"end\n" +
+				"endmodule\n"
+				;
+		String expected =
+				"module t;\n" +
+				"	always @(posedge clk)\n" +
+				"	begin\n" +
+				"		{a} <= 1;\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		log.debug("--> testBussedInAlways()");
+		try {
+			SVIndentScanner scanner = new SVIndentScanner(
+					new StringTextScanner(content));
+			
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+			indenter.init(scanner);
+			indenter.setTestMode(true);
+			
+			String result = indenter.indent();
+			
+			log.debug("Result:");
+			log.debug(result);
+			IndentComparator.compare("testBussedInAlways", expected, result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			log.debug("<-- testBussedInAlways()");
+		}
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testInitialBlock() {
 		LogHandle log = LogFactory.getLogHandle("testInitialBlock");
 		String content =
