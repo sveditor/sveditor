@@ -138,6 +138,7 @@ public class SVEditorCompletionProcessor extends AbstractCompletionProcessor
 						SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE));
 
 		fProposals.clear();
+		fCompletionProposals.clear();
 		final IBIDITextScanner scanner = createScanner(viewer, offset);
 		
 		Tuple<Integer, Integer> line_pos = computeLineOffset(viewer, offset);
