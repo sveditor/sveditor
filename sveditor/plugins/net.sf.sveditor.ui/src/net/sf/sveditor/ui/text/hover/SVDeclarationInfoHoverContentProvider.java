@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
+import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBProgramDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -33,6 +34,7 @@ public class SVDeclarationInfoHoverContentProvider extends
 		SUPPORTED_TYPES.add(SVDBItemType.ModuleDecl);
 		SUPPORTED_TYPES.add(SVDBItemType.ProgramDecl);
 		SUPPORTED_TYPES.add(SVDBItemType.MacroDef);
+		SUPPORTED_TYPES.add(SVDBItemType.ModIfcClassParam);
 	}
 	
 	public SVDeclarationInfoHoverContentProvider() {
@@ -65,6 +67,15 @@ public class SVDeclarationInfoHoverContentProvider extends
 			if (ci != null) {
 				sb.append(" - " + SVDBItem.getName(ci));
 			}
+		} else if (item.getType() == SVDBItemType.ModIfcClassParam) {
+			SVDBModIfcClassParam p = (SVDBModIfcClassParam)item;
+			
+			sb.append(p.getName());
+			
+			if (p.getDefault() != null) {
+//TODO:				sb.append(" = ")
+			}
+			
 		} else if (item.getType() == SVDBItemType.MacroDef) {
 			SVDBMacroDef d = (SVDBMacroDef)item;
 			sb.append("Macro " + d.getName());
