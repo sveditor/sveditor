@@ -1246,27 +1246,38 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_loop_stmt();
 		} else if (tok.isOp("#")) {
 			tok = indent_delay(parent, parent_is_block);
-		} else {
-			boolean is_label = false;
-			// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
+		} 
+		// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
+		else {
 			if (!parent_is_block)  {
-				tok = next_s(); // grab the next token, this was probably the first token of a new statement
-				// add the indent, so that if the statement runs over multi-lines, we get a bit of an indent here
-				if (tok.getImage().equals(":")) {
-					is_label = true;
+				// Check and consume first token, we need to indent after this because
+				// user could have multi line code such as:
+				// a = 
+				//   b + c;
+				if (is_open_brace(tok))  {
+					tok = indent_braced_subexpression();
 				}
-
-				// Don't indent after a labeled statement
-				if (!is_label) {
-					start_of_scope (tok);
-					enter_scope (tok);
+				else  {
+					tok = next_s(); // grab the next token, this was probably the first token of a new statement
 				}
+				// Next token will be indented by default in case multi-line comment
+				start_of_scope (tok);
+				enter_scope (tok);
+				
 			}
+			// Need to check if we are at a label... for example a labeled property
+			// 	ap_thing: 
+			//   assert property (p_property (thevar)); 
+			if (tok.getImage().equals(":")) {
+				tok = next_s(); // grab the next token, this is the first token after the :
+				tok = indent_stmt(parent, parent_is_block);
+				leave_scope (tok);	// Out-dent post - probable assert
+			}
+			// Just a regular statement "a = b;" etc
+			else  {
 			
-			if (!is_label) {
 				boolean do_next = true;
-				int brace_level = 0;
-				while (!tok.isOp(";") || brace_level > 0) {
+				while (!tok.isOp(";"))  {
 					if (parent != null) {
 						if ((parent.equals("begin") && tok.isId("end")) ||
 								tok.isId("end" + parent)) {
@@ -1278,23 +1289,14 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 							break;
 						}
 					}
-					// Check for and propery indent things that are in brackets
-					// for example
-					// assign a = (
-					//        b + (
-					//           (d + e)
-					//        )
-					//     );
-					// Indent on successive (
+
+					// Check for and property indent things that are in brackets
 					if (is_open_brace(tok)) {
-						start_of_scope(tok);
-						brace_level++;
-						// Out-dent on successive )
-					} else if (is_close_brace(tok)) {
-						leave_scope(tok);
-						brace_level--;
+						tok = indent_braced_subexpression();
 					}
-					tok = next_s();
+					else  {
+						tok = next_s();
+					}
 				}
 				// Un-indent after we indented
 				if (!parent_is_block)  {
@@ -1304,8 +1306,6 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				if (do_next) {
 					tok = next_s();
 				}
-			} else {
-				tok = next_s();
 			}
 		}
 		
@@ -1770,7 +1770,39 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		
 		return tok;
 	}
-	
+
+	/**
+	 * indent_braced_subexpression
+	 * 
+	 * This function will indent a sub-expression that has braces in it.  Typically
+	 * this will be if statements with (), assign statements with complex assign terms etc.
+	 * Check for and property indent things that are in brackets for example:
+	 * assign a = (
+	 *    b + (
+	 *    (d + e)
+	 *    )
+	 *    );
+	 * 
+	 * Call this on when is_open_brace() returns true
+	 * 
+	 * @return Next Token
+	 */
+	private SVIndentToken indent_braced_subexpression() {
+		SVIndentToken tok = current();
+		int brace_level = 0;
+		do {
+			if (is_open_brace(tok)) {
+				start_of_scope(tok);
+				brace_level++;
+				// Out-dent on successive )
+			} else if (is_close_brace(tok)) {
+				leave_scope(tok);
+				brace_level--;
+			}
+			tok = next_s();
+		} while (brace_level > 0);
+		return (tok);
+	}
 
 	private boolean isAdaptiveTraining(SVIndentToken tok) {
 		return (fAdaptiveIndentEnd != -1 && tok.getLineno() <= fAdaptiveIndentEnd);
