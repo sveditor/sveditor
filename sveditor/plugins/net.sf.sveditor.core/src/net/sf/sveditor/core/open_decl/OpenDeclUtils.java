@@ -22,6 +22,9 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -199,7 +202,23 @@ public class OpenDeclUtils {
 				SVContentAssistExprVisitor v = new SVContentAssistExprVisitor(
 						active_scope, SVDBFindDefaultNameMatcher.getDefault(), index_it);
 				ISVDBItemBase item = v.findItem(expr);
-				
+			
+				// It's legal for a module/interface instance to have the
+				// same name as its type. Correct for this here.
+				if (item.getType() == SVDBItemType.ModIfcInstItem) {
+					SVDBModIfcInstItem inst_it = (SVDBModIfcInstItem)item;
+					SVDBModIfcInst mod = (SVDBModIfcInst)inst_it.getParent();
+					SVDBTypeInfoModuleIfc mod_t = (SVDBTypeInfoModuleIfc)mod.getTypeInfo();
+					
+					log.debug("Result is a module instance: inst_name=" + 
+							SVDBItem.getName(item) + " type_name=" + mod_t.getName());
+					
+					if (mod_t.getName().equals(SVDBItem.getName(item))) {
+						log.debug("Type and instance name are the same. The user probably " +
+								"wanted to locate the type");
+						item = v.findTypeItem(expr);
+					}
+				}
 				
 				if (item != null) {
 					ret.add(new OpenDeclResult(

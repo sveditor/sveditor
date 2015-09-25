@@ -21,6 +21,9 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBModIfcInst;
+import net.sf.sveditor.core.db.SVDBModIfcInstItem;
+import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
@@ -474,6 +477,55 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 		assertEquals("P1", SVDBItem.getName(ret.get(0).first()));
 		assertEquals(5, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
 		
+	}
+	
+	public void testOpenModuleTypeWithInstanceSameName() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String doc =
+			"module foo (\n" + // 1
+			"	input a,\n" +
+			"	output b\n" +
+			");\n" +
+			"\n" +
+			"	assign a = b;\n" +
+			"endmodule\n" +
+			"\n" +
+			"module foo_test;\n" +
+			"	// Open declaration works\n" + // 10
+			"	foo foo1\n" +
+			"	(\n" +
+			"		.a(),\n" +
+			"		.b()\n" +
+			"	);\n" +
+			"\n" +
+			"	// Does not work\n" +
+			"	foo foo\n" +				// 18
+			"	(\n" +
+			"		.a(),\n" +
+			"		.b()\n" +
+			"	);\n" +
+			"endmodule\n" 
+			;
+		
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "foo");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("foo foo");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+1);
+
+
+		int lineno = 18;
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = 
+				OpenDeclTests.runOpenDeclOp(fCacheFactory, file, lineno, scanner);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.ModuleDecl, ret.get(0).first().getType());
+		assertEquals("foo", SVDBItem.getName(ret.get(0).first()));
+		assertEquals(1, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
 	}
 }
 
