@@ -1,4 +1,7 @@
 
+-- 1.8.4 Release --
+
+------------------------------------------------------------------------------
 -- 1.8.3 Release --
 
 - #(407) Code Completion - Code completion returns previous result if no hit is found
