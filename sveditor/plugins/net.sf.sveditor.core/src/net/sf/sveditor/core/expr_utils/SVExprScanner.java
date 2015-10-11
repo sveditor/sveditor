@@ -384,7 +384,7 @@ public class SVExprScanner {
 		} while (true); // ((trigger = readTriggerStr(scanner, false)) != null);
 		
 		fLog.debug("<-- readExpression");
-		
+	
 		return scanner.get_str(start_pos, (int)(end_pos-start_pos+1)).trim();
 	}
 

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.tests.open_decl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -21,14 +22,13 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
-import net.sf.sveditor.core.db.SVDBTypeInfo;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
+import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -480,7 +480,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 	}
 	
 	public void testOpenModuleTypeWithInstanceSameName() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"module foo (\n" + // 1
 			"	input a,\n" +
@@ -527,5 +527,51 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 		assertEquals("foo", SVDBItem.getName(ret.get(0).first()));
 		assertEquals(1, SVDBLocation.unpackLineno(ret.get(0).first().getLocation()));
 	}
+	
+	public void testOpenMacroRootedTaskPathDecl() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"`define TOP m2\n" + // 1
+			"module s1;\n" +
+			"	task t1;\n" +
+			"	endtask\n" +
+			"endmodule\n" +
+			"module m1;\n" +
+			"	s1		s1_i();\n" +
+			"endmodule\n" +
+			"\n" +
+			"module m2;\n" + // 10
+			"	m1		m1_i();\n" +
+			"endmodule\n" +
+			"module top;\n" +
+			"	initial begin\n" +
+			"		`TOP.m1_i.s1_i.t1();\n" + // 15
+			"	end\n" +
+			"endmodule\n"
+			;
+		SVStringPreProcessor p = new SVStringPreProcessor(
+				new SVDBMacroDef("TOP", "m2")
+				);
+
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "m1", "m2");
+		
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		int idx = doc.indexOf("`TOP");
+		fLog.debug("index: " + idx);
+		scanner.seek(idx+"`TOP.m1_i.s1_i.t".length());
+
+		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
+		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 15, scanner, p, target_index);
+		
+		fLog.debug(ret.size() + " items");
+		assertEquals(1, ret.size());
+		assertEquals(SVDBItemType.Task, ret.get(0).first().getType());
+		assertEquals("t1", SVDBItem.getName(ret.get(0).first()));
+
+	}	
 }
 

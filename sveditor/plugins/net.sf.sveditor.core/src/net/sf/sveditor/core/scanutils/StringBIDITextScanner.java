@@ -15,13 +15,22 @@ package net.sf.sveditor.core.scanutils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ * @author ballance
+ *
+ */
 public class StringBIDITextScanner 
 	extends AbstractTextScanner implements IBIDITextScanner {
 	private String				fData;
 	private int				fIdx;
 	private int				fUngetCh;
 	List<Integer>				fLineOffsets;
-	
+
+	/**
+	 * Constructor 
+	 * @param data
+	 */
 	public StringBIDITextScanner(String data) {
 		fData    = data;
 		fIdx     = 0;
@@ -37,10 +46,20 @@ public class StringBIDITextScanner
 		}
 	}
 
+	/**
+	 * Sets or resets the scan direction
+	 */
 	public void setScanFwd(boolean scanFwd) {
 		if (fScanFwd != scanFwd) {
 			fUngetCh = -1;
 		}
+
+		// Only reset the index if we're moving to
+		// scanning forward
+		if (fIdx < 0 && scanFwd) {
+			fIdx = 0;
+		}
+		
 		fScanFwd = scanFwd;
 	}
 

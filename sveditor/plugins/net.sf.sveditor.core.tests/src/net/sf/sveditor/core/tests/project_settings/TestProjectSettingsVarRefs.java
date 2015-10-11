@@ -125,7 +125,7 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 	public void testResourceVarProjVarRef() throws CoreException {
 		// Ignore auto-builds
 		SVCorePlugin.setTestModeBuilderDisabled();
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		fLog.debug("BEGIN testResourceVarProjVarRef");
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());

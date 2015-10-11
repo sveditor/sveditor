@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
@@ -99,10 +100,14 @@ public class OpenDeclarationAction extends TextEditorAction {
 		SVDocumentTextScanner 	scanner = new SVDocumentTextScanner(doc, offset);
 		scanner.setSkipComments(true);
 		
+		ISVStringPreProcessor preproc = fEditor.createPreProcessor(
+				getTextSel().getStartLine());
+		
 		List<Tuple<ISVDBItemBase, SVDBFile>> items = OpenDeclUtils.openDecl_2(
 				getTargetFile(), 
 				getTextSel().getStartLine(),
 				scanner,
+				preproc,
 				getIndexIt());
 
 		if (items.size() > 0) {

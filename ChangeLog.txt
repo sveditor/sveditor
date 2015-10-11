@@ -14,8 +14,17 @@
   
 - #(SR - 16) - Correct Open Declaration for class parameters
 
-- #(323) Correct Open Declaration issue when the instance name of a 
+- #(323) - Correct Open Declaration issue when the instance name of a 
   module/interface instance is the same as the typename
+  
+- #(409) - Correct Open Declaration and Hover issue when the selected
+  element begins with a macro. Now, the macro is correctly expanded
+  and the complete target is opened.
+  
+- #(308) - Correct an issue with Open Declaration navigation and
+  Eclipse's navigation history. Sometimes using Open Declaration for 
+  a location in the same file as the source resulted in the Eclipse
+  'Back' button not working properly.
 
 ------------------------------------------------------------------------------
 -- 1.8.2 Release --
