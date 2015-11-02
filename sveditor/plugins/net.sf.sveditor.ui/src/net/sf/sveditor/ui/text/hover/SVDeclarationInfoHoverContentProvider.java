@@ -56,8 +56,13 @@ public class SVDeclarationInfoHoverContentProvider extends
 			SVDBVarDeclItem var_item = (SVDBVarDeclItem)item;
 			SVDBVarDeclStmt var_stmt = (SVDBVarDeclStmt)var_item.getParent();
 
-			sb.append(var_stmt.getTypeName() + " " + var_item.getName());
-	
+			if (var_stmt.getTypeName() != null) {
+				sb.append(var_stmt.getTypeName() + " ");
+			}
+			
+			sb.append(var_item.getName());
+
+			// Append the name of the scope that contains the declaration
 			ISVDBChildItem ci = var_stmt.getParent();
 			while (ci != null && !(ci instanceof ISVDBScopeItem) && 
 					!(ci instanceof ISVDBNamedItem)) {
@@ -73,7 +78,8 @@ public class SVDeclarationInfoHoverContentProvider extends
 			sb.append(p.getName());
 			
 			if (p.getDefault() != null) {
-//TODO:				sb.append(" = ")
+				sb.append(" = ");
+				sb.append(p.getDefault().toString());
 			}
 			
 		} else if (item.getType() == SVDBItemType.MacroDef) {

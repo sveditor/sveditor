@@ -15,6 +15,7 @@ package net.sf.sveditor.core.open_decl;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -38,20 +39,49 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class OpenDeclUtils {
+
+	public static List<Tuple<ISVDBItemBase, SVDBFile>> openDecl_2(
+			SVDBFile					file,
+			int							line,
+			IBIDITextScanner			scanner,
+			ISVDBIndexIterator			index_it) {
+		return openDecl_2(file, line, scanner, null, index_it);
+	}
 	
 	public static List<Tuple<ISVDBItemBase, SVDBFile>> openDecl_2(
-			SVDBFile			file,
-			int					line,
-			IBIDITextScanner	scanner,
-			ISVDBIndexIterator	index_it) {
+			SVDBFile					file,
+			int							line,
+			IBIDITextScanner			scanner,
+			ISVStringPreProcessor		preproc,
+			ISVDBIndexIterator			index_it) {
+		LogHandle log = LogFactory.getLogHandle("OpenDeclUtils.openDecl_2");
 		Tuple<SVExprContext, ISVDBScopeItem> context_scope = getContextScope(file, line, scanner);
+	
+		SVExprContext ctxt = context_scope.first();
+
+		// Triggered open-decl calls with a macro present
+		// need to have the macro expanded
+		if (ctxt.fRoot != null && ctxt.fRoot.indexOf('`') != -1 &&
+				ctxt.fTrigger != null && preproc != null) {
+			String str = ctxt.fRoot;
+			String result = preproc.preprocess(new StringInputStream(str));
+			result = result.trim();
+			
+			log.debug("Preproc: " + str + " => " + result);
+			
+			ctxt.fRoot = result;
+		}
 		
-		List<OpenDeclResult> result = openDecl(context_scope.first(), context_scope.second(), index_it);
+		List<OpenDeclResult> result = openDecl(
+				context_scope.first(), 
+				context_scope.second(), 
+				index_it);
 		
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = new ArrayList<Tuple<ISVDBItemBase,SVDBFile>>();
 		for (OpenDeclResult r : result) {
@@ -205,7 +235,7 @@ public class OpenDeclUtils {
 			
 				// It's legal for a module/interface instance to have the
 				// same name as its type. Correct for this here.
-				if (item.getType() == SVDBItemType.ModIfcInstItem) {
+				if (item != null && item.getType() == SVDBItemType.ModIfcInstItem) {
 					SVDBModIfcInstItem inst_it = (SVDBModIfcInstItem)item;
 					SVDBModIfcInst mod = (SVDBModIfcInst)inst_it.getParent();
 					SVDBTypeInfoModuleIfc mod_t = (SVDBTypeInfoModuleIfc)mod.getTypeInfo();

@@ -30,8 +30,8 @@ import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.open_decl.OpenDeclResult;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
@@ -138,7 +138,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 */
 	@Override
 	public Object getHoverInfo2(ITextViewer textViewer, IRegion hoverRegion) {
-		List<OpenDeclResult> items = null;
+		List<Tuple<ISVDBItemBase, SVDBFile>> items = null;
 		SVEditor editor = ((SVEditor)getEditor()) ;
 		IDocument doc = editor.getDocument() ;
 		
@@ -159,20 +159,31 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 		SVHoverInformationControlInput ret = null;
 //		Tuple<ISVDBItemBase, SVDBFile>  target = findTarget(hoverRegion);
 		
+		ISVStringPreProcessor preproc = editor.createPreProcessor(line);
+	
+		items = OpenDeclUtils.openDecl_2(
+				file, 
+				line, 
+				scanner, 
+				preproc, 
+				editor.getIndexIterator());
+		
 		Tuple<SVExprContext, ISVDBScopeItem> context_scope = OpenDeclUtils.getContextScope(
 				file, line, scanner);
 		SVExprContext ctxt = context_scope.first();
-		
-		items = OpenDeclUtils.openDecl(context_scope.first(), 
-				context_scope.second(), editor.getIndexIterator());
+//		
+//		
+//		items = OpenDeclUtils.openDecl(context_scope.first(), 
+//				context_scope.second(), editor.getIndexIterator());
 		
 		if (items == null || items.size() == 0) {
 			return null;
 		}
-		OpenDeclResult result = items.get(0);
+	
+		Tuple<ISVDBItemBase, SVDBFile> result = items.get(0);
 		
 		ret = new SVHoverInformationControlInput(
-				result.getItem(), 
+				result.first(),
 				context_scope.second(), // active scope
 				editor.getIndexIterator());
 		SVHoverContentProvider cp = null;
@@ -207,9 +218,9 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	 * @return the HTML hover info for the given element(s) or <code>null</code> if no information is available
 	 */
 	private SVNaturalDocHoverContentProvider getNaturalDocHoverContent(
-			OpenDeclResult						target,
+			Tuple<ISVDBItemBase, SVDBFile>		target,
 			IRegion 							hoverRegion) {
-		ISVDBItemBase element = target.getItem();
+		ISVDBItemBase element = target.first();
 		
 		if(!(element instanceof ISVDBNamedItem )) {
 			return null;
@@ -231,9 +242,9 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	}
 	
 	private SVDeclarationInfoHoverContentProvider getDeclarationHoverContent(
-			OpenDeclResult						target,
+			Tuple<ISVDBItemBase, SVDBFile>		target,
 			IRegion								hoverRegion) {
-		ISVDBItemBase element = target.getItem();
+		ISVDBItemBase element = target.first();
 		
 		if (!(element instanceof ISVDBNamedItem)) {
 			return null;
@@ -249,11 +260,11 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 	private SVMacroExpansionHoverContentProvider getMacroExpansionHoverContent(
 			SVExprContext						ctxt,
 			int									lineno,
-			OpenDeclResult						target) {
+			Tuple<ISVDBItemBase, SVDBFile>		target) {
 		
 		if (ctxt.fTrigger != null && ctxt.fTrigger.equals("`") &&
-				ctxt.fLeaf != null && target.getItem() != null && 
-				target.getItem().getType() == SVDBItemType.MacroDef) {
+				ctxt.fLeaf != null && target.first() != null && 
+				target.first().getType() == SVDBItemType.MacroDef) {
 			SVEditor editor = ((SVEditor)getEditor()) ;
 			IDocument doc = editor.getDocument() ;
 
@@ -268,7 +279,7 @@ public class SVDocHover extends AbstractSVEditorTextHover {
 			scanner.setScanFwd(true);
 			
 			// Macro call
-			SVDBMacroDef m = (SVDBMacroDef)target.getItem();
+			SVDBMacroDef m = (SVDBMacroDef)target.first();
 			
 			String macro_call = OpenDeclUtils.extractMacroCall(scanner, 
 					(m.getParameters() != null && m.getParameters().size() > 0));

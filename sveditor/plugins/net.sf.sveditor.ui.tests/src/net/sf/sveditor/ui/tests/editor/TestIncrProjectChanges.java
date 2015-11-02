@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.Path;
 public class TestIncrProjectChanges extends SVEditorTestCaseBase {
 	
 	public void testIncrParse() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<IProject, SVDBProjectData> pinfo = TestUtils.createSVEProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(pinfo.first());
@@ -92,7 +92,7 @@ public class TestIncrProjectChanges extends SVEditorTestCaseBase {
 	}
 
 	public void testIncrParseRemoveFile() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<IProject, SVDBProjectData> pinfo = TestUtils.createSVEProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(pinfo.first());
@@ -158,7 +158,7 @@ public class TestIncrProjectChanges extends SVEditorTestCaseBase {
 	}
 
 	public void testIncrParseRemoveIncLevel1File() throws CoreException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		Tuple<IProject, SVDBProjectData> pinfo = TestUtils.createSVEProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(pinfo.first());

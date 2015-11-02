@@ -22,6 +22,14 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 		fLocked = true;
 	}
 	
+	public SVStringPreProcessor(SVDBMacroDef ... incoming_macros) {
+		fMacroMap = new HashMap<String, SVDBMacroDef>();
+		for (SVDBMacroDef m : incoming_macros) {
+			addMacro(m);
+		}
+		fLocked = true;
+	}
+	
 	public SVStringPreProcessor(IPreProcMacroProvider macro_provider) {
 		fMacroProvider = macro_provider;
 		fLocked = true;

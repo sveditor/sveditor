@@ -1104,6 +1104,10 @@ public class SVEditor extends TextEditor
 		if (end == -1) {
 			end = start;
 		}
+	
+		// Mark the current location
+		markInNavigationHistory();
+		
 		try {
 			int offset    = doc.getLineOffset(start);
 			int last_line = doc.getLineOfOffset(doc.getLength()-1);
@@ -1116,6 +1120,7 @@ public class SVEditor extends TextEditor
 			if (set_cursor) {
 				getSourceViewer().getTextWidget().setCaretOffset(offset);
 			}
+			
 			selectAndReveal(offset, 0, offset, (offset_e-offset));
 		} catch (BadLocationException e) {
 			e.printStackTrace();
