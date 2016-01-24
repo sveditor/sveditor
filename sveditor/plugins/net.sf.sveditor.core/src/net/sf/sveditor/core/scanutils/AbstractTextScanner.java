@@ -12,6 +12,10 @@
 
 package net.sf.sveditor.core.scanutils;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import net.sf.sveditor.core.scanner.SVCharacter;
 
 
@@ -61,7 +65,7 @@ public abstract class AbstractTextScanner implements ITextScanner {
 	public int getFileId() {
 		return -1;
 	}
-
+	
 	public int skipWhite(int ch) {
 		
 		while (Character.isWhitespace(ch) || ch == '\\') {
@@ -229,6 +233,54 @@ public abstract class AbstractTextScanner implements ITextScanner {
 		} while (matchLevel > 0 && ch != -1);
 		
 		return get_ch();
+	}
+	
+	private static final Map<Integer, Character>		Unicode2ASCI;
+	static {
+		Unicode2ASCI = new HashMap<Integer,Character>();
+		Unicode2ASCI.put(0xAB, '"');
+		Unicode2ASCI.put(0xAD, '-');
+		Unicode2ASCI.put(0xB4, '\'');
+		Unicode2ASCI.put(0xBB, '"');
+		Unicode2ASCI.put(0xF7, '/');
+		Unicode2ASCI.put(0x1C0, '|');
+		Unicode2ASCI.put(0x1C3, '!');
+		Unicode2ASCI.put(0x2B9, '\'');
+		Unicode2ASCI.put(0x2BA, '"');
+		Unicode2ASCI.put(0x2BC, '\'');
+		Unicode2ASCI.put(0x2C4, '^');
+		Unicode2ASCI.put(0x2C6, '^');
+		Unicode2ASCI.put(0x2C8, '\'');
+		Unicode2ASCI.put(0x2CB, '`');
+		Unicode2ASCI.put(0x2CD, '_');
+		Unicode2ASCI.put(0x2DC, '~');
+		Unicode2ASCI.put(0x300, '`');
+		Unicode2ASCI.put(0x301, '\'');
+		// More here...
+		Unicode2ASCI.put(0x2019, '\'');
+		Unicode2ASCI.put(0x201B, '\'');
+		Unicode2ASCI.put(0x201C, '"');
+		Unicode2ASCI.put(0x201D, '"');
+		Unicode2ASCI.put(0x201E, '"');
+		Unicode2ASCI.put(0x201F, '"');
+		Unicode2ASCI.put(0x2032, '\'');
+		Unicode2ASCI.put(0x2033, '"');
+		Unicode2ASCI.put(0x2036, '"');
+		// More here...
+		Unicode2ASCI.put(0x301D, '"');
+		Unicode2ASCI.put(0x301E, '"');
+		
+	}
+	
+	public static int unicode2ascii(int ch) {
+		Character ch_a = Unicode2ASCI.get(ch);
+		if (ch_a != null) {
+//			System.out.println("Map: " + (char)ch + " => " + ch_a.charValue());
+			return ch_a.charValue();
+		} else {
+//			System.out.println("Unmapped unicode char: " + (char)ch + " " + ch);
+			return ch;
+		}
 	}
 
 }

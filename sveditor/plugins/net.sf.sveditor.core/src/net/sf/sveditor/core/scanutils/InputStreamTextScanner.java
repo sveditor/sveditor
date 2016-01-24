@@ -71,6 +71,10 @@ public class InputStreamTextScanner extends AbstractTextScanner {
 		
 		fPos++;
 		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
+		
 		return ch;
 	}
 

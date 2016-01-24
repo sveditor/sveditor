@@ -26,10 +26,13 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
@@ -89,6 +92,53 @@ public class TestOpenFile extends UVMExampleTestCaseBase {
 			fLog.debug("File Path: " + SVDBItem.getName(ret.get(0).first()));
 		} finally {
 		}
+	}
+
+	public void testBasicRelPathOpenDecl() throws IOException {
+		SVCorePlugin.getDefault().enableDebug(false);
+
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		utils.copyBundleDirToFS("/data/basic_rel_path_include/", fTmpDir);
+
+		File basic_rel_path_include = new File(fTmpDir, "basic_rel_path_include");
+
+		//			String subdir2 = "${workspace_loc}/pkg_rel_path_include/subdir1/subdir2";
+
+		IProject project = TestUtils.createProject(
+				"basic_rel_path_include", basic_rel_path_include);
+		addProject(project);
+
+		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+
+		index.rebuildIndex(new NullProgressMonitor());
+
+		ISVDBFileSystemProvider fs_provider = new SVDBWSFileSystemProvider();
+		//				((SVDBArgFileIndex2)target_index).getFileSystemProvider();
+
+		List<SVDBSearchResult<SVDBFile>> f_result = index.findFile(
+				"${workspace_loc}/basic_rel_path_include/my_pkg.sv");
+		assertNotNull(f_result);
+		assertEquals(1, f_result.size());
+		SVDBFile file = f_result.get(0).getItem();
+		assertNotNull(file);
+
+		InputStream in = fs_provider.openStream(
+				"${workspace_loc}/basic_rel_path_include/my_pkg.sv");
+		String content = SVCoreTestsPlugin.readStream(in);
+		StringBIDITextScanner scanner = new StringBIDITextScanner(content);
+		scanner.seek(content.indexOf("src/my_pkg_file1.svh")+1);
+		fs_provider.closeStream(in);
+
+		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
+				file, 4, scanner, index);
+
+		assertEquals(1, ret.size());
+
+		fLog.debug("ret.size=" + ret.size());
+
+		fLog.debug("File Path: " + SVDBItem.getName(ret.get(0).first()));
 	}
 	
 	public void testOpenFileOutsideWorkspace() {

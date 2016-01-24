@@ -313,6 +313,10 @@ public class SVArgFilePreProcessor extends AbstractTextScanner {
 		if (ch != -1 && fCaptureEnabled) {
 			fCaptureBuffer.append((char)ch);
 		}
+		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
 
 		return ch;
 	}

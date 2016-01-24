@@ -54,6 +54,11 @@ public class SVArgFilePreProcOutput extends AbstractTextScanner {
 			ch = fText.charAt(fIdx++);
 			fLinenoValid = false;
 		}
+		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
+		
 		return ch;
 	}
 

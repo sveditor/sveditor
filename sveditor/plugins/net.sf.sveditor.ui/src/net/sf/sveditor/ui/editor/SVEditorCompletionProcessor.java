@@ -677,7 +677,7 @@ public class SVEditorCompletionProcessor extends AbstractCompletionProcessor
 		}
 	
 		String description = "";
-		if (var.getParent() != null) {
+		if (var.getParent() != null && var.getParent() instanceof SVDBVarDeclStmt) {
 			SVDBVarDeclStmt var_stmt = (SVDBVarDeclStmt)var.getParent();
 			if (var_stmt.getTypeInfo() != null) {
 				d.append(" : " + var_stmt.getTypeInfo().toString());

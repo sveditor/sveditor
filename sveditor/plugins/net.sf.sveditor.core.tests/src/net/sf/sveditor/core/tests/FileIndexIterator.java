@@ -19,6 +19,7 @@ import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildDataUtils;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -74,7 +75,8 @@ public class FileIndexIterator extends SVDBArgFileIndex2 {
 		
 		build_data.addFile(fFile.getFilePath(), false);
 		
-		cacheDeclarations(build_data, fFile, fFileTree);
+		SVDBArgFileBuildDataUtils.cacheDeclarations(
+				build_data, this, fFile, fFileTree);
 		
 		build_data.getCache().setFile(fFile.getFilePath(), fFile, false);
 	}

@@ -1059,7 +1059,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				SVPreProc2InputData in = fInputStack.peek();
 
 				ch = in.get_ch();
-
+				
 				if (ch == -1 && fInputStack.size() > 1) {
 					leave_file();
 					continue;
@@ -1069,6 +1069,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 			}
 		} 
+		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
 	
 		return ch;
 	}

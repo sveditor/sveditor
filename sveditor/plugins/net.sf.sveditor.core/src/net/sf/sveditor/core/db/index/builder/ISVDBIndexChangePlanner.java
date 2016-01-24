@@ -8,8 +8,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndexChangePlanner {
 	
-	void setIndexBuilder(ISVDBIndexBuilder builder);
-	
 	ISVDBIndexChangePlan createIndexChangePlan(List<SVDBIndexResourceChangeEvent> changes);
 	
 	void execIndexChangePlan(IProgressMonitor monitor, ISVDBIndexChangePlan plan);

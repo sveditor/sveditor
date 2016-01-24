@@ -81,7 +81,25 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
 				"MY_PARAM_A", "MY_PARAM_B");
 	}
-	
+
+	public void testModuleParameters_2() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module m #(\n" +
+			"	parameter int MY_PARAM_A = 1,\n" +
+			"	parameter int MY_PARAM_B = 2\n" +
+			"	) (a, b);\n" +
+			"    \n" +
+			"	initial begin\n" +
+			"		int a;\n" +
+			"		$display(\"MY_PARAM_A=%0d\", MY_<<MARK>>\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"MY_PARAM_A", "MY_PARAM_B");
+	}
 }
 
 

@@ -87,6 +87,10 @@ public class StringBIDITextScanner
 				}
 			}
 		}
+		
+		if (ret > 127) {
+			ret = AbstractTextScanner.unicode2ascii(ret);
+		}
 
 		return ret;
 	}

@@ -31,8 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFileOverrideIndex 
-	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel,
-		ISVDBIncludeFileProviderObsolete {
+	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel {
 	private SVDBFile					fFile;
 	private SVDBFile					fFilePP;
 	private SVDBFileTree				fFileTree;
@@ -220,18 +219,6 @@ public class SVDBFileOverrideIndex
 		}
 	}
 
-	public SVDBSearchResult<SVDBFile> findIncludedFile(String leaf) {
-		if (fIndex instanceof ISVDBIncludeFileProviderObsolete) {
-			return ((ISVDBIncludeFileProviderObsolete)fIndex).findIncludedFile(leaf);
-		} else {
-			return null;
-		}
-	}
-	
-	public SVDBSearchResult<String> findIncludedFilePath(String leaf) {
-		return fIndex.findIncludedFilePath(leaf);
-	}
-
 	public ISVDBFileSystemProvider getFileSystemProvider() {
 		return fIndex.getFileSystemProvider();
 	}
@@ -262,14 +249,6 @@ public class SVDBFileOverrideIndex
 		return null;
 	}
 
-	public void setEnableAutoRebuild(boolean en) {
-		fIndex.setEnableAutoRebuild(en);
-	}
-
-	public boolean isDirty() {
-		return fIndex.isDirty();
-	}
-
 	public void dispose() {
 		fIndex.dispose();
 	}
@@ -292,10 +271,6 @@ public class SVDBFileOverrideIndex
 
 	public String getTypeID() {
 		return fIndex.getTypeID();
-	}
-
-	public void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider) {
-		fIndex.setIncludeFileProvider(inc_provider);
 	}
 
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
