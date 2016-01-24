@@ -28,7 +28,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
@@ -70,7 +70,7 @@ public class TestOpenFile extends UVMExampleTestCaseBase {
 			target_index.loadIndex(new NullProgressMonitor());
 
 			ISVDBFileSystemProvider fs_provider = 
-				((SVDBArgFileIndex2)target_index).getFileSystemProvider();
+				((SVDBArgFileIndex)target_index).getFileSystemProvider();
 
 			SVDBFile file = target_index.findFile(subdir2 + "/pkg_rel_path_include.sv");
 			

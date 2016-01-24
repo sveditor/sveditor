@@ -7,7 +7,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -49,7 +49,7 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 
 		ISVDBIndexCache cache = fCacheFactory.createIndexCache(
 				"GLOBAL", argfile_f_path);
-		ISVDBIndex index = new SVDBArgFileIndex2("GLOBAL", 
+		ISVDBIndex index = new SVDBArgFileIndex("GLOBAL", 
 				argfile_f_path,
 				new SVDBWSFileSystemProvider(),
 				cache, null);
@@ -111,7 +111,7 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 
 		ISVDBIndexCache cache = fCacheFactory.createIndexCache(
 				"GLOBAL", argfile_f_path);
-		ISVDBIndex index = new SVDBArgFileIndex2("GLOBAL", 
+		ISVDBIndex index = new SVDBArgFileIndex("GLOBAL", 
 				argfile_f_path,
 				new SVDBWSFileSystemProvider(),
 				cache, null);

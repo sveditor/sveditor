@@ -13,7 +13,6 @@ package net.sf.sveditor.core.db.index.argfile;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,6 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles.Fil
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
@@ -88,7 +86,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 
-public class SVDBArgFileIndex2 implements 
+public class SVDBArgFileIndex implements 
 		ISVDBIndex, ISVDBIndexInt,  
 		ILogLevelListener, ILogLevel {
 
@@ -126,7 +124,7 @@ public class SVDBArgFileIndex2 implements
 	private SVDBArgFileParser					fArgFileParser;
 	
 	
-	private SVDBArgFileIndex2(String project) {
+	private SVDBArgFileIndex(String project) {
 		fIndexChangeListeners = new ArrayList<ISVDBIndexChangeListener>();
 		fProjectName = project;
 		fLog = LogFactory.getLogHandle("SVDBArgFileIndex2");
@@ -142,7 +140,7 @@ public class SVDBArgFileIndex2 implements
 		}
 	}
 
-	public SVDBArgFileIndex2(
+	public SVDBArgFileIndex(
 			String 						project, 
 			String 						base_location,
 			ISVDBFileSystemProvider 	fs_provider, 
@@ -1106,6 +1104,7 @@ public class SVDBArgFileIndex2 implements
 
 	/**
 	 * getFileList() -- returns a list of all source files
+	 * TODO: Do we really need both methods?
 	 */
 	@Override
 	public Iterable<String> getFileList(IProgressMonitor monitor) {
@@ -1124,70 +1123,11 @@ public class SVDBArgFileIndex2 implements
 	 */
 	@Override
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
-		String r_path = path;
-		SVDBFile ret = null;
-		if (fDebugEn) {
-			fLog.debug("--> findFile: " + path);
-		}
-		
 		checkInIndexOp("findFile");
 		
-		ISVDBIndexCache.FileType ft = fBuildData.getCache().getFileType(r_path);
-		
-		if (ft == FileType.ArgFile) {
-			// Just return the file
-			synchronized (fBuildData) {
-				ret = fBuildData.getCache().getFile(new NullProgressMonitor(), r_path);
-			}
-		} else {
-			// We assume the file is SystemVerilog
-			int id = fBuildData.mapFilePathToId(r_path, false);
-			
-			// See if we can find the root file
-			String root_path = SVDBArgFileBuildDataUtils.findRootFilePath(
-					fBuildData, r_path);
-			int root_id = fBuildData.mapFilePathToId(root_path, false);
-			
-			if (root_path != null) {
-				// Get the FileMap
-				Map<Integer, SVDBFile> map = fBuildData.getCache().getSubFileMap(root_path);
-				
-				if (map == null) {
-					// re-create the map
-					SVDBFile file = fBuildData.getCache().getFile(new NullProgressMonitor(), root_path);
-					
-					if (file != null) {
-						map = new HashMap<Integer, SVDBFile>();
-
-						SVDBFile f = new SVDBFile(root_path);
-						f.setLocation(SVDBLocation.pack(root_id, -1, -1));
-						map.put(root_id, f);
-						//					long start = System.currentTimeMillis();
-						SVDBArgFileBuildDataUtils.createSubFileMap(
-								fBuildData, map, file, root_id, f);
-						//					long end = System.currentTimeMillis();
-						fBuildData.getCache().setSubFileMap(root_path, map);
-						
-					}
-				}
-				
-				ret = (map != null)?map.get(id):null;
-				
-				
-				
-//				if (ret == null) {
-//					System.out.println("id=" + id + " => null containsKey=" + map.containsKey(id));
-//				}
-			}
+		synchronized (fBuildData) {
+			return SVDBArgFileBuildDataUtils.findFile(fBuildData, monitor, path);
 		}
-
-		monitor.done();
-
-		if (fDebugEn) {
-			fLog.debug("<-- findFile: " + path + " ret=" + ret);
-		}
-
-		return ret;
 	}
 
 	/**
@@ -1288,34 +1228,12 @@ public class SVDBArgFileIndex2 implements
 
 	@Override
 	public List<SVDBMarker> getMarkers(String path) {
-		if (fDebugEn) {
-			fLog.debug("-> getMarkers: " + path);
-		}
-		
 		checkInIndexOp("getMarkers");
-
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		
-		// TODO: Doesn't consider that root file isn't necessarily what we're after
-		boolean is_argfile = false;
-		String r_path = path;
-	
 		synchronized (fBuildData) {
-			is_argfile = fBuildData.containsFile(path, FILE_ATTR_ARG_FILE);
-
-			if (is_argfile) {
-				markers.addAll(fBuildData.getCache().getMarkers(r_path));
-			} else {
-				SVDBArgFileBuildDataUtils.findFileMarkers(
-						fBuildData, markers, path);
-			}
+			return SVDBArgFileBuildDataUtils.getMarkers(
+					fBuildData, new NullProgressMonitor(), path);
 		}
-			
-		if (fDebugEn) {
-			fLog.debug("<- getMarkers: " + path + ": " + markers.size());
-		}
-
-		return markers;
 	}
 
 	@Override
@@ -1592,6 +1510,9 @@ public class SVDBArgFileIndex2 implements
 		return ret;
 	}
 
+	/**
+	 * TODO: need both flavors?
+	 */
 	@Override
 	public SVDBFile findFile(String path) {
 		return findFile(new NullProgressMonitor(), path);
@@ -1622,18 +1543,10 @@ public class SVDBArgFileIndex2 implements
 	@Override
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
-		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
-		Map<String, List<SVDBDeclCacheItem>> pkg_cache = fBuildData.getPackageCacheMap();
-
 		checkInIndexOp("findPackageDecl");
-
-		List<SVDBDeclCacheItem> pkg_content = pkg_cache.get(pkg_item.getName());
-
-		if (pkg_content != null) {
-			ret.addAll(pkg_content);
-		}
-
-		return ret;
+		
+		return SVDBArgFileBuildDataUtils.findPackageDecl(
+				fBuildData, monitor, pkg_item);
 	}
 
 	@Override
@@ -1641,21 +1554,11 @@ public class SVDBArgFileIndex2 implements
 			IProgressMonitor 		monitor, 
 			String 					name, 
 			ISVDBFindNameMatcher 	matcher) {
-		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
 		
 		checkInIndexOp("findGlobalScopeDecl");
-		
-		Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
-
-		for (Entry<String, List<SVDBDeclCacheItem>> e : decl_cache.entrySet()) {
-			for (SVDBDeclCacheItem item : e.getValue()) {
-				if (matcher.match(item, name)) {
-					ret.add(item);
-				}
-			}
-		}
-
-		return ret;
+	
+		return SVDBArgFileBuildDataUtils.findGlobalScopeDecl(
+				fBuildData, monitor, name, matcher);
 	}
 
 	@Override
@@ -1806,8 +1709,6 @@ public class SVDBArgFileIndex2 implements
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {
 		checkInIndexOp("findIncludeFiles");
 		
-//		List<String> inc_paths = fBuildData.getIncludePathList();
-
 		return SVDBFindIncFileUtils.findIncludeFiles(
 				this,
 				fFileSystemProvider,

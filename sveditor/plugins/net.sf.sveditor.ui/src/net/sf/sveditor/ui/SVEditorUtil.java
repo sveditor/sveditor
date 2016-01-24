@@ -19,7 +19,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.plugin_lib.PluginFileStore;
+import net.sf.sveditor.core.db.index.plugin.PluginFileStore;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;

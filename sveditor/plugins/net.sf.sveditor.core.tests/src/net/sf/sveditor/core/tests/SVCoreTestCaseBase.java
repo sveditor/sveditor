@@ -10,7 +10,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -143,7 +143,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		return p;
 	}
 	
-	protected SVDBArgFileIndex2 createArgFileIndex(
+	protected SVDBArgFileIndex createArgFileIndex(
 			String						project,
 			String						base_location,
 			ISVDBFileSystemProvider		fs_provider
@@ -156,13 +156,13 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		return createArgFileIndex(project, base_location, fs_provider, cache);
 	}
 
-	protected SVDBArgFileIndex2 createArgFileIndex(
+	protected SVDBArgFileIndex createArgFileIndex(
 			String						project,
 			String						base_location,
 			ISVDBFileSystemProvider		fs_provider,
 			ISVDBIndexCache				cache
 			) {
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(project, base_location, 
+		SVDBArgFileIndex index = new SVDBArgFileIndex(project, base_location, 
 				fs_provider, cache, null);
 		// TODO: may wish to track and tear down
 		return index;

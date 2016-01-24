@@ -12,7 +12,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -69,7 +69,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		
 		String base_location = new File(fTmpDir, "uvm.f").getAbsolutePath();
 		
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
 				fPrvCacheMgr.createIndexCache(getName(), base_location),
@@ -366,7 +366,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		
 		String base_location = new File(fTmpDir, "mfcu.f").getAbsolutePath();
 		
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
 				fPrvCacheMgr.createIndexCache(getName(), base_location),
@@ -402,7 +402,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 		
 		String base_location = new File(fTmpDir, "mfcu.f").getAbsolutePath();
 		
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
 				fPrvCacheMgr.createIndexCache(getName(), base_location),
@@ -437,7 +437,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 	
 		String base_location = "/home/ballance.2/Downloads/OpenSPARCT2/design/design.f";
 		
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
 				fPrvCacheMgr.createIndexCache(getName(), base_location),
@@ -514,7 +514,7 @@ public class TestBasicParsing extends SVCoreTestCaseBase {
 	
 		base_location = argfile.getAbsolutePath();
 		
-		SVDBArgFileIndex2 index = new SVDBArgFileIndex2(
+		SVDBArgFileIndex index = new SVDBArgFileIndex(
 				getName(), base_location,
 				new SVDBWSFileSystemProvider(),
 				fPrvCacheMgr.createIndexCache(getName(), base_location),

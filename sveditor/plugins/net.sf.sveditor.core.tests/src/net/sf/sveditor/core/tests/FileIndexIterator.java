@@ -20,7 +20,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildDataUtils;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -28,7 +28,7 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class FileIndexIterator extends SVDBArgFileIndex2 {
+public class FileIndexIterator extends SVDBArgFileIndex {
 	
 	private SVDBFile				fFile;
 	private SVDBFileTree			fFileTree;

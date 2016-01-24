@@ -19,7 +19,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -97,7 +97,7 @@ public class RebuildSvIndexAction extends CommonActionProvider implements ILogLe
 				
 				for (ISVDBIndex index : index_list) {
 					fLog.debug(LEVEL_MIN, "  Rebuild index " + index.getBaseLocation());
-					if (index instanceof SVDBArgFileIndex2) {
+					if (index instanceof SVDBArgFileIndex) {
 						rebuild_list.add(index);
 					} else {
 						refresh_list.add(index);

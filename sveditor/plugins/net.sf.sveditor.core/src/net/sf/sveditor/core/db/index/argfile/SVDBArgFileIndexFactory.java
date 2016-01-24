@@ -32,7 +32,7 @@ public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 		
 		fs_provider = new SVDBWSFileSystemProvider();
 		
-		ISVDBIndex ret = new SVDBArgFileIndex2(
+		ISVDBIndex ret = new SVDBArgFileIndex(
 				projectName, base_location, fs_provider, cache, config);
 		
 		return ret;

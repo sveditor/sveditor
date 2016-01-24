@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
@@ -99,7 +99,7 @@ public class ExternalIndexer {
 		SVDBArgFileIndexFactory f = new SVDBArgFileIndexFactory();
 	
 		String project = "GLOBAL";
-		ISVDBIndex index = new SVDBArgFileIndex2(
+		ISVDBIndex index = new SVDBArgFileIndex(
 				project,
 				argfile,
 				new SVDBFSFileSystemProvider(),
