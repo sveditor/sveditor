@@ -2,12 +2,15 @@ package net.sf.sveditor.core.db.index.plugin;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -20,11 +23,15 @@ import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildDataUtils;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildUtils;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexBuildJob;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
@@ -46,6 +53,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 	private String								fIndexId;
 	private String								fRootFile;
 	private boolean								fDebugEn;
+	private boolean								fIndexValid;
 	private SVDBArgFileIndexBuildData			fBuildData;
 	private SVDBPluginFileSystemProvider		fFSProvider;
 	private int									fInIndexOp;
@@ -60,7 +68,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 			ISVDBIndexCache	cache) {
 		fProject = project;
 		fIndexId = index_id;
-		fRootFile = root;
+		fRootFile = "plugin:/" + plugin_ns + "/" + root;
 		
 		fLog = LogFactory.getLogHandle("SVDBPluginLibIndex");
 		logLevelChanged(fLog);
@@ -69,10 +77,6 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 		fFSProvider = new SVDBPluginFileSystemProvider(bundle, plugin_ns);
 		
 		fBuildData = new SVDBArgFileIndexBuildData(cache, index_id);
-		
-		System.out.println("index_id: " + index_id + 
-				" plugin_ns: " + plugin_ns + 
-				" root: " + root);
 	}
 	
 	@Override
@@ -86,12 +90,35 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 				fBuildData.getIndexCacheData(),
 				getBaseLocation());
 
+		// Queue a job to rebuild this index
+//		fIndexBuilder.build(new SVDBIndexChangePlanRebuild(this));
+
 		monitor.done(); // ?
 	}
 
 	// TODO:
 	private void ensureIndexUpToDate(IProgressMonitor monitor) {
-		
+		SubProgressMonitor sub_m = new SubProgressMonitor(monitor, 1);
+		sub_m.beginTask("Ensure Index State for " + getBaseLocation(), 4);
+	
+		if (!fIndexValid /*|| !fIndexRefreshed */) {
+			SVDBIndexBuildJob build_job = null;
+			
+			if (fIndexBuilder != null) {
+				// See if there is an active job 
+				build_job = fIndexBuilder.findJob(this);
+				
+				if (build_job == null) {
+					build_job = fIndexBuilder.build(
+							new SVDBIndexChangePlanRebuild(this));
+				}
+				build_job.waitComplete();
+			} else {
+//				System.out.println("[ERROR] no builder and invalid");
+			}
+		}
+
+		monitor.done();		
 	}
 
 	@Override
@@ -240,15 +267,50 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 	@Override
 	public ISVDBIndexChangePlan createIndexChangePlan(
 			List<SVDBIndexResourceChangeEvent> changes) {
-		// TODO Auto-generated method stub
-		return null;
+		return new SVDBIndexChangePlanRebuild(this);
 	}
 
 	@Override
-	public void execIndexChangePlan(IProgressMonitor monitor,
-			ISVDBIndexChangePlan plan) {
-		// TODO Auto-generated method stub
-
+	public void execIndexChangePlan(
+			IProgressMonitor 		monitor,
+			ISVDBIndexChangePlan 	plan) {
+		ISVDBIndexCacheMgr c_mgr = fBuildData.getCacheMgr();
+		ISVDBIndexCache new_cache = 
+				c_mgr.createIndexCache(getProject(), getBaseLocation());
+		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(
+				new_cache, getBaseLocation());
+		
+		// Copy in relevant information
+		build_data.setFSProvider(fFSProvider);
+	
+		build_data.addIncludePath(SVFileUtils.getPathParent(fRootFile));
+		
+		SVDBArgFileBuildUtils.parseFile(
+				fRootFile, build_data, this, 
+				new HashMap<String, SVDBMacroDef>());		
+		
+		if (!monitor.isCanceled()) {
+			synchronized (fBuildData) {
+				fBuildData.apply(build_data);
+			}
+			
+			// Notify clients that the index has new data
+//			synchronized (fIndexChangeListeners) {
+//				for (int i=0; i<fIndexChangeListeners.size(); i++) {
+//					ISVDBIndexChangeListener l = fIndexChangeListeners.get(i);
+//					if (l == null) {
+//						fIndexChangeListeners.remove(i);
+//						i--;
+//					} else {
+//						l.index_rebuilt();
+//					}
+//				}
+//			}
+			
+			fIndexValid = true;
+		} else {
+			build_data.dispose();
+		}			
 	}
 
 	@Override
@@ -341,12 +403,12 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 	@Override
 	public void rebuildIndex(IProgressMonitor monitor) {
 		// TODO:
-//		if (fIndexBuilder != null) {
-//			SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
-//			fIndexBuilder.build(plan);
-//		} else {
-//			// ??
-//		}		
+		if (fIndexBuilder != null) {
+			SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(this);
+			fIndexBuilder.build(plan);
+		} else {
+			// ??
+		}		
 	}
 
 	@Override
@@ -368,20 +430,17 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 
 	@Override
 	public void loadIndex(IProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-
+		ensureIndexUpToDate(monitor);
 	}
 
 	@Override
 	public boolean isLoaded() {
-		// TODO Auto-generated method stub
-		return false;
+		return fIndexValid;
 	}
 
 	@Override
 	public boolean isFileListLoaded() {
-		// TODO Auto-generated method stub
-		return false;
+		return fIndexValid;
 	}
 
 	@Override

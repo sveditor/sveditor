@@ -35,7 +35,6 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -66,10 +65,11 @@ public class TestIndexCache extends SVCoreTestCaseBase {
 		IProject project = TestUtils.createProject("uvm", uvm);
 		addProject(project);
 
-		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
-		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
-		TestNullIndexCacheFactory test_cache_f = new TestNullIndexCacheFactory();
-		rgy.init(test_cache_f);
+		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
+//		SVDBIndexRegistry rgy = new SVDBIndexRegistry();
+//		SVCorePlugin.getDefault().setSVDBIndexRegistry(rgy);
+//		TestNullIndexCacheFactory test_cache_f = new TestNullIndexCacheFactory();
+//		rgy.init(test_cache_f);
 		
 		long start, end;
 		ISVDBIndex index;

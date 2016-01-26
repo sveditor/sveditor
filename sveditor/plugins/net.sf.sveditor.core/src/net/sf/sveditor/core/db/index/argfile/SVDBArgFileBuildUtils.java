@@ -14,7 +14,9 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
@@ -28,9 +30,18 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 public class SVDBArgFileBuildUtils implements ILogLevel {
 	private static boolean				fDebugEn;
 	private static final LogHandle		fLog;
+	private static final ILogLevelListener fLogLevelListener = new ILogLevelListener() {
+		
+		@Override
+		public void logLevelChanged(ILogHandle handle) {
+			fDebugEn = (handle.getDebugLevel() > 0);
+		}
+	};
 	
 	static {
 		fLog = LogFactory.getLogHandle("SVDBArgFileBuildUtils");
+		fLog.addLogLevelListener(fLogLevelListener);
+		fLogLevelListener.logLevelChanged(fLog);
 	}
 	
 	public static void buildIndex(
@@ -192,7 +203,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		monitor.done();		
 	}
 
-	private static Map<String, SVDBMacroDef> parseFile(
+	public static Map<String, SVDBMacroDef> parseFile(
 			String 						path, 
 			SVDBArgFileIndexBuildData 	build_data,
 			ISVDBDeclCache				parent,

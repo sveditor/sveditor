@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -76,7 +77,21 @@ public class SVDBPluginFileSystemProvider implements ISVDBFileSystemProvider {
 	@Override
 	public List<String> getFiles(String path) {
 		// TODO: Don't support this currently for plugin library
-		return new ArrayList<String>();
+		List<String> ret = new ArrayList<String>();
+		
+		if (path.startsWith("plugin:/")) {
+			String prefix = "plugin:/" + fPluginNS;
+			String leaf = path.substring(("plugin:/" + fPluginNS).length());
+
+			Enumeration<URL> entries = fBundle.findEntries(leaf, "*", false);
+	
+			while (entries.hasMoreElements()) {
+				URL url = entries.nextElement();
+				ret.add(prefix + url.getPath());
+			}
+		}
+		
+		return ret;
 	}
 
 	@Override

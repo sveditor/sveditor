@@ -17,20 +17,17 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tagproc.TagProcessor;
 import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
@@ -38,20 +35,8 @@ import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestMethodologyTemplates extends TestCase {
+public class TestMethodologyTemplates extends SVCoreTestCaseBase {
 	
-	private File				fTmpDir;
-	
-	@Override
-	protected void setUp() throws Exception {
-		fTmpDir = TestUtils.createTempDir();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		TestUtils.delete(fTmpDir);
-	}
-
 	public void testUvmAgent() {
 		LogHandle log = LogFactory.getLogHandle("testUvmAgent");
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -83,9 +68,6 @@ public class TestMethodologyTemplates extends TestCase {
 
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);		
 
-		SVDBIndexRegistry i_rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		i_rgy.init(new TestNullIndexCacheFactory());
-		
 		try {
 			PrintStream ps = new PrintStream(new File(fTmpDir, "test_agent_pkg.f"));
 			ps.println("+define+QUESTA");
@@ -95,8 +77,8 @@ public class TestMethodologyTemplates extends TestCase {
 		} catch (IOException e) {
 			fail("Problem creating test_agent_pkg.f: " + e.getMessage());
 		}
-		
-		ISVDBIndex index = i_rgy.findCreateIndex(new NullProgressMonitor(), 
+
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
 				"GLOBAL", new File(fTmpDir, "test_agent_pkg.f").getAbsolutePath(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		

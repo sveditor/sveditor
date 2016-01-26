@@ -154,7 +154,7 @@ public class SVDBArgFileIndexBuildData implements
 	 * 
 	 * @param build_data
 	 */
-	void apply(SVDBArgFileIndexBuildData build_data) {
+	public void apply(SVDBArgFileIndexBuildData build_data) {
 		ISVDBIndexCache old_cache = fCache;
 	
 		fFileSystemProvider = build_data.fFileSystemProvider;
@@ -263,7 +263,7 @@ public class SVDBArgFileIndexBuildData implements
 	/**
 	 * Clean up after this data. This is typically 
 	 */
-	void dispose() {
+	public void dispose() {
 		if (fCache != null) {
 			fCache.dispose();
 		}

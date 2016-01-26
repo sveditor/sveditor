@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -36,7 +35,6 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -49,9 +47,9 @@ import net.sf.sveditor.core.db.persistence.SVDBDelegatingPersistenceRW;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -60,30 +58,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.osgi.framework.Bundle;
 
-public class TestPersistencePerformance extends TestCase {
+public class TestPersistencePerformance extends SVCoreTestCaseBase {
 
-	private File			fTmpDir;
-	private IProject		fProject;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fTmpDir = TestUtils.createTempDir();
-		fProject = null;
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		
-		if (fProject != null) {
-			TestUtils.deleteProject(getName(), fProject);
-		}
-		if (fTmpDir != null && fTmpDir.exists()) {
-			TestUtils.delete(fTmpDir);
-		}
-	}
-	
 	public void testJITPersistence() throws Exception {
 		SVDBInclude inc = new SVDBInclude("foo");
 		inc.setLocation(SVDBLocation.pack(0, 1, 1));
@@ -194,16 +170,14 @@ public class TestPersistencePerformance extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File ubus = new File(test_dir, "uvm/examples/integrated/ubus");
 		
-		fProject = TestUtils.createProject("ubus", ubus);
+		IProject project = TestUtils.createProject("ubus", ubus);
+		addProject(project);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
 			db.delete();
 		}
 		db.mkdirs();
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestNullIndexCacheFactory());
 		
 		PrintStream ps = new PrintStream(new File(ubus, "/examples/questa.f"));
 		ps.println("+incdir+../sv");
@@ -213,7 +187,7 @@ public class TestPersistencePerformance extends TestCase {
 		ps.flush();
 		ps.close();
 		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/ubus/examples/questa.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 
@@ -324,16 +298,14 @@ public class TestPersistencePerformance extends TestCase {
 		utils.unpackBundleZipToFS("/uvm.zip", test_dir);		
 		File ubus = new File(test_dir, "uvm/examples/integrated/ubus");
 		
-		fProject = TestUtils.createProject("ubus", ubus);
+		IProject project = TestUtils.createProject("ubus", ubus);
+		addProject(project);
 		
 		File db = new File(fTmpDir, "db");
 		if (db.exists()) {
 			db.delete();
 		}
 		db.mkdirs();
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestNullIndexCacheFactory());
 		
 		PrintStream ps = new PrintStream(new File(ubus, "/examples/questa.f"));
 		ps.println("+incdir+../sv");
@@ -343,7 +315,8 @@ public class TestPersistencePerformance extends TestCase {
 		ps.flush();
 		ps.close();
 		
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+		ISVDBIndex index = fIndexRgy.findCreateIndex(
+				new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/ubus/examples/questa.f",
 				SVDBArgFileIndexFactory.TYPE, null);
 

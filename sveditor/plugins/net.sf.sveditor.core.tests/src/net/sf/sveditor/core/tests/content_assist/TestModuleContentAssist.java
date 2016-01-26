@@ -15,9 +15,6 @@ package net.sf.sveditor.core.tests.content_assist;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
@@ -25,19 +22,20 @@ import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 
-public class TestModuleContentAssist extends TestCase {
+import org.eclipse.core.runtime.NullProgressMonitor;
+
+public class TestModuleContentAssist extends SVCoreTestCaseBase {
 	private ContentAssistIndex			fIndex;
 
-	public void setUp() {
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestNullIndexCacheFactory());
+	public void setUp() throws Exception {
+		super.setUp();
+		
 		fIndex = new ContentAssistIndex();
 		fIndex.init(new NullProgressMonitor());
 	}
