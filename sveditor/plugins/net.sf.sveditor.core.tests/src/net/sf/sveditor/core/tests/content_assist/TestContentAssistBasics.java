@@ -137,6 +137,9 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	/**
+	 * Fails: Is the failure due to the PluginLib or to VMM?
+	 */
 	public void testVMMMacroContentAssist() {
 		String doc1 = 
 			"class my_class;\n" +

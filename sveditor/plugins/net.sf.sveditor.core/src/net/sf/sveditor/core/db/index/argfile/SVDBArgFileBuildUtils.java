@@ -180,7 +180,8 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 				monitor.worked(per_file_work);
 			}			
 		}
-		
+
+		// End of the total index
 		end_time = System.currentTimeMillis();
 		
 		build_data.getIndexStats().incLastIndexTotalTime(end_time-start_time);
