@@ -5,7 +5,7 @@ import java.io.File;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -86,7 +86,7 @@ public class TestUVMParsePerformance extends SVCoreTestCaseBase {
 		for (int i=0; i<n_rebuilds; i++) {
 			index.execIndexChangePlan(new NullProgressMonitor(), 
 					new SVDBIndexChangePlanRebuild(index));
-			SVDBIndexStats stats = ((SVDBArgFileIndex2)index).getIndexStats();
+			SVDBIndexStats stats = ((SVDBArgFileIndex)index).getIndexStats();
 			parse_time += stats.getLastIndexParseTime();
 			decl_cache_time += stats.getLastIndexDeclCacheTime();
 			ref_cache_time += stats.getLastIndexRefCacheTime();

@@ -460,7 +460,6 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			
 			if (ch == '/') {
 				int ch2 = scanner.get_ch();
-				System.out.println("ch=" + (char)ch + " ch2=" + (char)ch2);
 				if (ch2 == '/') {
 					while ((ch = scanner.get_ch()) != -1 && ch != '\n') { }
 					ch = scanner.skipWhite(ch);

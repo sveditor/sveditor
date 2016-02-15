@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBIndex extends 
-	ISVDBIndexIterator, ISVDBIncludeFileProvider, ISVDBDeclCache,
+	ISVDBIndexIterator, ISVDBDeclCache,
 	ISVDBIndexChangePlanner, ISVDBIndexOperationRunner,
 	ISVDBIndexParse {
 	
@@ -34,19 +34,6 @@ public interface ISVDBIndex extends
 	
 	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder);
 
-	
-	/**
-	 * setEnableAutoRebuild()
-	 * 
-	 * Controls whether invalidating the index will
-	 * trigger a rebuild. Defaults to 'true'
-	 * 
-	 * @param en
-	 */
-	void setEnableAutoRebuild(boolean en);
-	
-	boolean isDirty();
-	
 	/**
 	 * Cleans up this entry
 	 */
@@ -69,13 +56,6 @@ public interface ISVDBIndex extends
 	 * typically used in conjunction with the database factory
 	 */
 	String getTypeID();
-	
-	/**
-	 * Sets the include provider
-	 * 
-	 * @param index
-	 */
-	void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider);
 	
 	Iterable<String> getFileList(IProgressMonitor monitor);
 	

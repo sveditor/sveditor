@@ -79,9 +79,9 @@ public class NewFileListWizardFirstPage extends WizardPage {
 		
 			if (r != null) {
 				if (r instanceof IContainer) {
-					fInitialSel = (IContainer)sel.getFirstElement();
+					fInitialSel = (IContainer)r;
 				} else if (r instanceof IFile) {
-					fInitialSel = ((IFile)sel.getFirstElement()).getParent();
+					fInitialSel = ((IFile)r).getParent();
 				}
 			}
 		}

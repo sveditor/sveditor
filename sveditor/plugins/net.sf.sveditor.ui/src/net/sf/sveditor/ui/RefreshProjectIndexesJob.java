@@ -18,7 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 
@@ -45,7 +45,7 @@ public class RefreshProjectIndexesJob extends Job {
 				// Only rebuild non-'new' indexes
 				List<ISVDBIndex> index_list_1 = new ArrayList<ISVDBIndex>();
 				for (ISVDBIndex i : index_list) {
-					if (!(i instanceof SVDBArgFileIndex2)) {
+					if (!(i instanceof SVDBArgFileIndex)) {
 						index_list_1.add(i);
 					}
 				}

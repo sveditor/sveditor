@@ -10,21 +10,21 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index;
+package net.sf.sveditor.core.db.index.plugin;
 
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.search.SVDBSearchResult;
+import java.net.URI;
 
-public interface ISVDBIncludeFileProviderObsolete extends ISVDBIncludeFileProvider {
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.provider.FileSystem;
 
-	/**
-	 * Locates a file with the following leaf. If the file cannot be
-	 * found, returns 'null'
-	 * 
-	 * @param suffix
-	 * @return
-	 */
-	SVDBSearchResult<SVDBFile> findIncludedFile(String leaf);
+public class PluginFilesystem extends FileSystem {
 
+	public PluginFilesystem() {
+		// TODO Auto-generated constructor stub
+	}
 
+	@Override
+	public IFileStore getStore(URI uri) {
+		return new PluginFileStore(uri);
+	}
 }

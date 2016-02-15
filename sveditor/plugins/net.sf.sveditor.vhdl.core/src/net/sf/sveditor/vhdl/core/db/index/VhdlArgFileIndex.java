@@ -9,7 +9,6 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIncludeFileProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
@@ -25,7 +24,6 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBSearchResult;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -133,18 +131,6 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 	}
 
 	@Override
-	public SVDBSearchResult<String> findIncludedFilePath(String leaf) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setIndexBuilder(ISVDBIndexBuilder builder) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public ISVDBIndexChangePlan createIndexChangePlan(
 			List<SVDBIndexResourceChangeEvent> changes) {
 		// TODO Auto-generated method stub
@@ -197,15 +183,6 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void setEnableAutoRebuild(boolean en) { }
-
-	@Override
-	public boolean isDirty() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
@@ -314,10 +291,6 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 		return false;
 	}
 
-	// Methods not applicable to 
-	@Override
-	public void setIncludeFileProvider(ISVDBIncludeFileProvider inc_provider) { }
-	
 	@Override
 	public void setGlobalDefine(String key, String val) { }
 

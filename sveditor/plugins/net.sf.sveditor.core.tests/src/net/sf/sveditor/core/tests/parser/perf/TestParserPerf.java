@@ -33,7 +33,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -175,7 +175,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		ISVDBIndex index;
 		
-			index = new SVDBArgFileIndex2("GENERIC", 
+			index = new SVDBArgFileIndex("GENERIC", 
 					uvm_f.getAbsolutePath(),
 					new SVDBFSFileSystemProvider(),
 					factory.createIndexCache("GENERIC",  uvm_f.getAbsolutePath()),
@@ -349,7 +349,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		
 		ISVDBIndex index;
 		
-			index = new SVDBArgFileIndex2("GENERIC", opensparc_design.getAbsolutePath(), 
+			index = new SVDBArgFileIndex("GENERIC", opensparc_design.getAbsolutePath(), 
 					new SVDBFSFileSystemProvider(), 
 					cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
 					null);
@@ -368,7 +368,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		TestIndexCacheFactory cache_f = fCacheFactory;
 		
-		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
+		ISVDBIndex index = new SVDBArgFileIndex("GENERIC", 
 				opensparc_design.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
@@ -397,7 +397,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		TestIndexCacheFactory cache_f = fCacheFactory;
 		
-		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
+		ISVDBIndex index = new SVDBArgFileIndex("GENERIC", 
 				opensparc_design.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
@@ -440,7 +440,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		TestIndexCacheFactory cache_f = fCacheFactory;
 		
-		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
+		ISVDBIndex index = new SVDBArgFileIndex("GENERIC", 
 				opensparc_design.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
@@ -458,7 +458,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 
 		TestIndexCacheFactory cache_f = fCacheFactory;
 		
-		ISVDBIndex index = new SVDBArgFileIndex2("GENERIC", 
+		ISVDBIndex index = new SVDBArgFileIndex("GENERIC", 
 				opensparc_design.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", opensparc_design.getAbsolutePath()),
@@ -498,7 +498,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		
 		ISVDBIndex index = null;
 		
-			index = new SVDBArgFileIndex2("GENERIC", 
+			index = new SVDBArgFileIndex("GENERIC", 
 				ethernet_f.getAbsolutePath(),
 				new SVDBFSFileSystemProvider(),
 				cache_f.createIndexCache("GENERIC", ethernet_f.getAbsolutePath()),

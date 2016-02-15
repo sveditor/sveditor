@@ -21,6 +21,16 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 
+/**
+ * Collects data about an index that should be saved in the cache.
+ * <ul>
+ * <li>Root source files (from the parsed argument file tree)</li>
+ * <li>Library files</li>
+ * <li>Parse settings, such as MFCU</li>
+ * <ul>
+ * @author ballance
+ *
+ */
 public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	
 	public List<String>						fArgFilePaths;

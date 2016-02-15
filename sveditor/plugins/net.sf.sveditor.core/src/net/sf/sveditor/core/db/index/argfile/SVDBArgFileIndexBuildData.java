@@ -30,20 +30,45 @@ import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+/**
+ * Collects data used during index parsing. A new instance of this class is
+ * created for each build operation. Things managed by this class include
+ * <ul>
+ * <li>File IDs -- both for full and incremental build</li>
+ * <li>Include-file search
+ * 		<ul>
+ * 		<li>Data comes from index cache</li>
+ * 		<li>Build up some context information that should increase search efficiency</li>
+ * 		</ul>
+ * </li>
+ * <li>Statistics for the last build operation</li>
+ * </ul>
+ * 
+ * TODO:
+ * <ul>
+ * <li>Determine whether addFileDir adds value</li>
+ * <li>Determine whether fMissingIncludes add value</li>
+ * </ul>
+ * @author ballance
+ *
+ */
 public class SVDBArgFileIndexBuildData implements 
 	ISVDBArgFileIndexBuildData, ISVPreProcFileMapper, ISVPreProcIncFileProvider {
 
 	private ISVDBFileSystemProvider				fFileSystemProvider;
-	SVDBArgFileIndexCacheData					fIndexCacheData;
+	private SVDBArgFileIndexCacheData			fIndexCacheData;
 	private ISVDBIndexCache						fCache;
-	private Set<String>							fFileDirs;
-	private Set<String>							fMissingIncludes;
-	SVDBIndexStats								fIndexStats;
-	private SVDBLexerListenerRefCollector		fRefCollector;
+//	private Set<String>							fFileDirs;
+//	private Set<String>							fMissingIncludes;
+	private SVDBIndexStats						fIndexStats;
+//	private SVDBLexerListenerRefCollector		fRefCollector;
 	private LogHandle							fLog = LogFactory.getLogHandle("SVDBArgFileIndexBuildData");
-	private static boolean						fEnableIncludeCache = true;
-	
+
+	/**
+	 * Fields used to find include files
+	 */
 	// Map of leaf file to resolved include directory
+	private static boolean				fEnableIncludeCache = true;
 	private Map<String, String>			fIncludeMap;
 	private List<String>				fResolvedIncDirs;
 	private List<Set<String>>			fIncDirFiles;
@@ -55,19 +80,49 @@ public class SVDBArgFileIndexBuildData implements
 	public SVDBArgFileIndexBuildData(ISVDBIndexCache cache, String base_location) {
 		fCache = cache;
 		
-		fFileDirs = new HashSet<String>();
-		fMissingIncludes = new HashSet<String>();
+//		fFileDirs = new HashSet<String>();
+//		fMissingIncludes = new HashSet<String>();
 		fIndexCacheData = new SVDBArgFileIndexCacheData(base_location);
-		
+	
+		// Initializes the content of fIndexCacheData from the cache
 		fCache.init(new NullProgressMonitor(), fIndexCacheData, base_location);
 		fIndexStats = new SVDBIndexStats();
-		fRefCollector = new SVDBLexerListenerRefCollector();
+//		fRefCollector = new SVDBLexerListenerRefCollector();
 		
 		fIncludeMap = new HashMap<String, String>();
 		fResolvedIncDirs = new ArrayList<String>();
 		fIncDirFiles = new ArrayList<Set<String>>();
 		fIncDirDirs = new ArrayList<Set<String>>();
 		fFailedSearches = new HashSet<String>();		
+	}
+	
+	public String getBaseLocation() {
+		return fIndexCacheData.getBaseLocation();
+	}
+	
+	public boolean containsFile(String path, int attr) {
+		return fIndexCacheData.containsFile(path, attr);
+	}
+	
+	public SVDBIndexStats getIndexStats() {
+		return fIndexStats;
+	}
+	
+	public SVDBArgFileIndexCacheData getIndexCacheData() {
+		return fIndexCacheData;
+	}
+	
+	public void setIndexCacheData(SVDBArgFileIndexCacheData data) {
+		// TODO: Should we check if an existing one exists?
+		fIndexCacheData = data;
+	}
+	
+	public List<String> getFileList(int flags) {
+		return fIndexCacheData.getFileList(flags);
+	}
+	
+	public Map<String, List<SVDBDeclCacheItem>> getPackageCacheMap() {
+		return fIndexCacheData.getPackageCacheMap();
 	}
 	
 	public ISVDBIndexCacheMgr getCacheMgr() {
@@ -85,16 +140,28 @@ public class SVDBArgFileIndexBuildData implements
 	public int getNumSrcFiles() {
 		return fIndexCacheData.fSrcFileList.size();
 	}
-	
-	void apply(SVDBArgFileIndexBuildData build_data) {
+
+	/**
+	 * Transfer data from <em>build_data</em> to this build data.
+	 * <ul>
+	 * <li>After this method completes, the build_data passed in is invalid.</li>
+	 * <li>After this method completes, the state of <em>this</em> is 
+	 * completely replaced by the state of <em>build_data</em>.</li>
+	 * </ul>
+	 *
+	 * This method is typically used to update the index BuildData after
+	 * a full build
+	 * 
+	 * @param build_data
+	 */
+	public void apply(SVDBArgFileIndexBuildData build_data) {
 		ISVDBIndexCache old_cache = fCache;
-//		ISVDBIndexCacheMgr old_cache_mgr = fCacheMgr;
 	
 		fFileSystemProvider = build_data.fFileSystemProvider;
 		fIndexCacheData = build_data.fIndexCacheData;
 		fCache = build_data.fCache;
-		fFileDirs = build_data.fFileDirs;
-		fMissingIncludes = build_data.fMissingIncludes;
+//		fFileDirs = build_data.fFileDirs;
+//		fMissingIncludes = build_data.fMissingIncludes;
 		fIndexStats = build_data.fIndexStats;
 		
 		fIncludeMap = build_data.fIncludeMap;
@@ -125,6 +192,14 @@ public class SVDBArgFileIndexBuildData implements
 		}
 
 		addFileDir(path);		
+	}
+	
+	public int getFileAttr(String path) {
+		return fIndexCacheData.getFileAttr(path);
+	}
+	
+	public void addFile(String path, int attr) {
+		fIndexCacheData.addFile(path, attr);
 	}
 	
 	public void removeFile(String path, boolean is_argfile) {
@@ -168,13 +243,17 @@ public class SVDBArgFileIndexBuildData implements
 		addFileDir(path);
 	}
 
+	/**
+	 * Doesn't appear that fFileDirs is used at all here
+	 * @param file_path
+	 */
 	public void addFileDir(String file_path) {
 		File f = new File(file_path);
 		File p = f.getParentFile();
 
-		if (p != null && !fFileDirs.contains(p.getPath())) {
-			fFileDirs.add(p.getPath());
-		}
+//		if (p != null && !fFileDirs.contains(p.getPath())) {
+//			fFileDirs.add(p.getPath());
+//		}
 	}
 	
 	public ISVDBIndexCache getCache() {
@@ -184,7 +263,7 @@ public class SVDBArgFileIndexBuildData implements
 	/**
 	 * Clean up after this data. This is typically 
 	 */
-	void dispose() {
+	public void dispose() {
 		if (fCache != null) {
 			fCache.dispose();
 		}
@@ -192,7 +271,7 @@ public class SVDBArgFileIndexBuildData implements
 
 	/**
 	 * Initializes the file list, so the file mapper returns 
-	 * correct IDs during an incremental build
+	 * correct IDs during an incremental build. 
 	 * 
 	 * @param other
 	 */
@@ -212,8 +291,12 @@ public class SVDBArgFileIndexBuildData implements
 		fIncludeCacheValid = false;
 	}
 	
-	List<String> getIncludePathList() {
+	public List<String> getIncludePathList() {
 		return fIndexCacheData.getIncludePaths();
+	}
+	
+	public Map<String, List<String>> getRootIncludeMap() {
+		return fIndexCacheData.fRootIncludeMap;
 	}
 	
 	public void addDefine(String key, String val) {
@@ -252,6 +335,14 @@ public class SVDBArgFileIndexBuildData implements
 		return fIndexCacheData.fGlobalDefines;
 	}
 	
+	public void clearGlobalDefines() {
+		fIndexCacheData.clearGlobalDefines();
+	}
+	
+	public void setGlobalDefine(String key, String val) {
+		fIndexCacheData.setGlobalDefine(key, val);
+	}
+	
 	Map<String, String> getDefines() {
 		return fIndexCacheData.fDefineMap;
 	}
@@ -259,7 +350,18 @@ public class SVDBArgFileIndexBuildData implements
 	Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
 		return fIndexCacheData.getDeclCacheMap();
 	}
+
+	public Map<String, List<Integer>> getReferenceCacheMap() {
+		return fIndexCacheData.getReferenceCacheMap();
+	}
 	
+	public void setFileAttrBits(String path, int attr) {
+		fIndexCacheData.setFileAttrBits(path, attr);
+	}
+	
+	public void clrFileAttrBits(String path, int attr) {
+		fIndexCacheData.clrFileAttrBits(path, attr);
+	}
 	
 	// FileMapper API
 	public int mapFilePathToId(String path, boolean add) {

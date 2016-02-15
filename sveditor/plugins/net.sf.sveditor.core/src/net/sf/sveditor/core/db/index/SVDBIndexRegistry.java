@@ -24,7 +24,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -59,7 +59,6 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	private SVDBIndexCollection								fGlobalIndexMgr;
 	private List<ISVDBIndex>								fIndexList;
 	private ISVDBIndexCacheMgr								fCacheFactory;
-	private boolean											fAutoRebuildEn;
 	private LogHandle										fLog;
 
 	/**
@@ -74,18 +73,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	public SVDBIndexRegistry(boolean standalone_test_mode) {
 		fIndexList = new ArrayList<ISVDBIndex>();
 		fLog = LogFactory.getLogHandle("SVDBIndexRegistry");
-		fAutoRebuildEn = true;
 		fIndexCollectionMgr = new SVDBIndexCollectionMgr();
-	}
-	
-	public void setEnableAutoRebuild(boolean en) {
-		fAutoRebuildEn = en;
-		
-		clearStaleIndexes();
-		
-		for (ISVDBIndex i : fIndexList) {
-			i.setEnableAutoRebuild(fAutoRebuildEn);
-		}
 	}
 	
 	public ISVDBIndexCacheMgr getCacheMgr() {
@@ -265,7 +253,6 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			}
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
-			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
 			fLog.debug(LEVEL_MIN, "    Index " + base_location + 
 					" does not exist -- creating: " + ret);
@@ -337,7 +324,6 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			
 			// See about creating a new index
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
-			ret.setEnableAutoRebuild(fAutoRebuildEn);
 			
 			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
 			ret.init(m, SVCorePlugin.getDefault().getIndexBuilder());

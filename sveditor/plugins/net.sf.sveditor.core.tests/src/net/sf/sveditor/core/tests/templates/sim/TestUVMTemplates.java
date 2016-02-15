@@ -6,19 +6,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tagproc.TagProcessor;
 import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 import net.sf.sveditor.core.tests.ISimToolchain;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SimBuildSpec;
 import net.sf.sveditor.core.tests.SimRunSpec;
 import net.sf.sveditor.core.tests.SimToolchainUtils;
-import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
@@ -26,25 +22,8 @@ import net.sf.sveditor.svt.core.templates.TemplateInfo;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
 import net.sf.sveditor.svt.core.templates.TemplateRegistry;
 
-public class TestUVMTemplates extends TestCase {
-	private LogHandle				fLog;
-	private File					fTmpDir;
+public class TestUVMTemplates extends SVCoreTestCaseBase {
 
-	@Override
-	protected void setUp() throws Exception {
-		fLog = LogFactory.getLogHandle(getName());
-		fTmpDir = TestUtils.createTempDir();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		if (fTmpDir != null && fTmpDir.isDirectory()) {
-			TestUtils.delete(fTmpDir);
-		}
-		
-		LogFactory.removeLogHandle(fLog);
-	}
-	
 	public void testUVMAgent_Questa() throws IOException {
 		core_testUVMAgent(SimToolchainUtils.QUESTA);
 	}
@@ -70,9 +49,6 @@ public class TestUVMTemplates extends TestCase {
 		tp.process(tmpl, proc);
 
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);		
-
-		SVDBIndexRegistry i_rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		i_rgy.init(new TestNullIndexCacheFactory());
 
 		// Create stub testbench and environment
 		for (String file : new String[] { 

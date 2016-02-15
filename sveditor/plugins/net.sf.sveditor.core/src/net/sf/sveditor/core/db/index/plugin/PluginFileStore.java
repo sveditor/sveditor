@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index.plugin_lib;
+package net.sf.sveditor.core.db.index.plugin;
 
 import java.io.InputStream;
 import java.net.URI;

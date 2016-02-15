@@ -60,14 +60,14 @@
       <filesystem
             scheme="plugin">
          <run
-               class="net.sf.sveditor.core.db.index.plugin_lib.PluginFilesystem">
+               class="net.sf.sveditor.core.db.index.plugin.PluginFilesystem">
          </run>
       </filesystem>
    </extension>
    <extension
          point="net.sf.sveditor.core.SVDBIndexFactories">
       <SVDBIndexFactory
-            class="net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory"
+            class="net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory"
             id="net.sf.sveditor.pluginLibIndex">
       </SVDBIndexFactory>
       <SVDBIndexFactory

@@ -11,7 +11,7 @@ import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBOverrideFilesystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex2;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.expr_utils.SVExprContext;
 import net.sf.sveditor.core.open_decl.OpenDeclResult;
@@ -52,7 +52,7 @@ public class TestOpenMethod extends SVCoreTestCaseBase {
 		fs.addFile("/foobar_pkg.sv", doc);
 		fs.addFile("/sve.f", "/foobar_pkg.sv\n");
 	
-		SVDBArgFileIndex2 index = createArgFileIndex("GLOBAL", "/sve.f", fs);
+		SVDBArgFileIndex index = createArgFileIndex("GLOBAL", "/sve.f", fs);
 	
 		index.execIndexChangePlan(new NullProgressMonitor(), 
 				new SVDBIndexChangePlanRebuild(index));
@@ -116,7 +116,7 @@ public class TestOpenMethod extends SVCoreTestCaseBase {
 		fs.addFile("/foobar_pkg.sv", doc);
 		fs.addFile("/sve.f", "/foobar_pkg.sv\n");
 	
-		SVDBArgFileIndex2 index = createArgFileIndex("GLOBAL", "/sve.f", fs);
+		SVDBArgFileIndex index = createArgFileIndex("GLOBAL", "/sve.f", fs);
 	
 		index.execIndexChangePlan(new NullProgressMonitor(), 
 				new SVDBIndexChangePlanRebuild(index));

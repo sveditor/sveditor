@@ -51,7 +51,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
 import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;

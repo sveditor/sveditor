@@ -107,6 +107,10 @@ public class StringTextScanner extends AbstractTextScanner
 			fIdx++;
 		}
 		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
+		
 		if (ch != -1 && fCaptureEnabled) {
 			fCaptureBuffer.append((char)ch);
 		}
@@ -117,6 +121,10 @@ public class StringTextScanner extends AbstractTextScanner
 			fLinepos = 0;
 		}
 		fLastCh = ch;
+		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
 		
 		return ch;
 	}

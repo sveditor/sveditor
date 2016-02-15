@@ -22,21 +22,15 @@ import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.content_assist.SVCompletionProposal;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -44,32 +38,31 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.SVKeywords;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.IndexTestUtils;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBIndexValidator;
-import net.sf.sveditor.core.tests.TestNullIndexCacheFactory;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class TestContentAssistBasics extends TestCase {
+public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	private SVDBIndexCollection		fIndexCollectionOVMMgr;
 	private SVDBIndexCollection		fIndexCollectionVMMMgr;
 	private SVDBIndexCollection		fIndexCollectionStandalone;
 	private ContentAssistIndex			fIndex;
-	private File						fTmpDir;
 	
 	@Override
-	public void setUp() {
-		fTmpDir = TestUtils.createTempDir();
+	public void setUp() throws Exception {
+		super.setUp();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
 		utils.copyBundleDirToFS("/data/basic_content_assist_project", fTmpDir);
 
 		String pname = "basic_content_assist_project";
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(new TestNullIndexCacheFactory());
+//		rgy.init(new TestNullIndexCacheFactory());
 		fIndex = new ContentAssistIndex();
 		fIndex.init(new NullProgressMonitor());
 
@@ -102,14 +95,6 @@ public class TestContentAssistBasics extends TestCase {
 		}
 		return fIndexCollectionOVMMgr;
 	}
-	
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		
-		TestUtils.delete(fTmpDir);
-	}
-	
 	
 	/**
 	 * Test that basic macro content assist works
@@ -152,6 +137,9 @@ public class TestContentAssistBasics extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	/**
+	 * Fails: Is the failure due to the PluginLib or to VMM?
+	 */
 	public void testVMMMacroContentAssist() {
 		String doc1 = 
 			"class my_class;\n" +

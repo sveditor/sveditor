@@ -11,8 +11,14 @@ public class SVDBIndexBuildJob extends Job {
 	private Object								fSyncObj;
 	private boolean								fIsStarted;
 	private boolean								fIsDone;
-	
-	public SVDBIndexBuildJob(
+
+	/**
+	 * Build Jobs are only created by the build manager
+	 * 
+	 * @param index_builder
+	 * @param plan
+	 */
+	SVDBIndexBuildJob(
 			SVDBIndexBuilder		index_builder,
 			ISVDBIndexChangePlan 	plan) {
 		super("SVDBIndexBuildJob");

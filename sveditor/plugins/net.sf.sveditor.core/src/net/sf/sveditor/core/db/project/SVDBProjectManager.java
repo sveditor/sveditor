@@ -31,7 +31,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
 import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
-import net.sf.sveditor.core.db.index.plugin_lib.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;

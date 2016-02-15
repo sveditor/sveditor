@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index.plugin_lib;
+package net.sf.sveditor.core.db.index.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
-public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemProvider {
+public class SVDBPluginLibIndexOld extends SVDBLibIndex implements ISVDBFileSystemProvider {
 	private Bundle					fBundle;
 	private String					fPluginNS;
 	private String					fRootFile;
@@ -59,7 +59,7 @@ public class SVDBPluginLibIndex extends SVDBLibIndex implements ISVDBFileSystemP
 	}
 	 */
 	
-	public SVDBPluginLibIndex(
+	public SVDBPluginLibIndexOld(
 			String 			project, 
 			String			index_id,
 			String			plugin_ns,

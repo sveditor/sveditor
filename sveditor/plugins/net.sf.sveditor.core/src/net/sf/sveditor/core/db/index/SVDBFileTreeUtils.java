@@ -14,15 +14,18 @@ package net.sf.sveditor.core.db.index;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.scanner.IDefineProvider;
@@ -297,6 +300,187 @@ public class SVDBFileTreeUtils {
 		
 		return inc_file;
 	}
+	
+	public static void collectIncludedFiles(List<String> included_files, SVDBFileTree ft) {
+		for (SVDBFileTree ft_i : ft.getIncludedFileTreeList()) {
+			if (!included_files.contains(ft_i.getFilePath())) {
+				included_files.add(ft_i.getFilePath());
+				collectIncludedFiles(included_files, ft_i);
+			}
+		}
+	}
+
+	/**
+	 * Collect macros defined by files included in the specified file tree
+	 * 
+	 * @param defines
+	 * @param ft
+	 */
+	public static void collectFileTreeMacros(Map<String, SVDBMacroDef> defines, SVDBFileTree ft) {
+//		if (fDebugEn) {
+//			fLog.debug("--> collectFileTreeMacros: " + ft.getFilePath());
+//		}
+
+		for (int i=ft.fIncludedFileTrees.size(); i>=0; i--) {
+			SVDBFileTreeMacroList ml = ft.fMacroSetList.get(i);
+			
+			for (SVDBMacroDef m : ml.getMacroList()) {
+//				if (fDebugEn) {
+//					fLog.debug("  -- collectFileTreeMacros: " + m.getName());
+//				}
+				
+				if (!defines.containsKey(m.getName())) {
+					defines.put(m.getName(), m);
+				}
+			}
+			
+			if (i < ft.fIncludedFileTrees.size()) {
+				SVDBFileTree ft_i = ft.fIncludedFileTrees.get(i);
+				// Now, recurse and collect from included file trees
+				collectFileTreeMacros(defines, ft_i);
+			}
+		}
+	
+//		if (fDebugEn) {
+//			fLog.debug("<-- collectFileTreeMacros: " + ft.getFilePath());
+//		}
+	}
+
+	public static SVDBFileTree findTargetFileTree(SVDBFileTree ft, String paths[]) {
+		SVDBFileTree ret = null;
+				
+		for (String path : paths) {
+			if (path == null) {
+				continue;
+			}
+			
+			if (ft.getFilePath().equals(path)) {
+				ret = ft;
+				break;
+			} else {
+				for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
+					if ((ret = findTargetFileTree(ft_s, paths)) != null) {
+						break;
+					}
+				}
+			}
+			if (ret != null) {
+				break;
+			}
+		}
+		
+		return ret;
+	}
+
+	public static SVDBFileTree findTargetFileTree(SVDBFileTree ft, String path) {
+		SVDBFileTree ret = null;
+				
+		if (ft.getFilePath().equals(path)) {
+			ret = ft;
+		} else {
+			for (SVDBFileTree ft_s : ft.fIncludedFileTrees) {
+				if ((ret = findTargetFileTree(ft_s, path)) != null) {
+					break;
+				}
+			}
+		}
+		
+		return ret;
+	}
+
+	@SuppressWarnings("unused")
+	private static SVDBFileTree findRootFileTree(SVDBFileTree parent, String paths[]) {
+		for (String path : paths) {
+			if (path == null) {
+				continue;
+			}
+			
+			if (parent.getFilePath().equals(path)) {
+				return parent;
+			} else {
+				for (SVDBFileTree ft_s : parent.getIncludedFileTreeList()) {
+					if (findRootFileTree(ft_s, paths) != null) {
+						return parent;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Collects the macros defined by files in the containing
+	 * root file prior to inclusion of this file. 
+	 * 
+	 * This method is used only by the parse() method
+	 * 
+	 * @param defines
+	 * @param ft
+	 */
+	public static void collectRootFileTreeMacros(
+			Map<String, SVDBMacroDef> 		defines, 
+			SVDBFileTree					ft) {
+		
+//		if (fDebugEn) {
+//			fLog.debug("--> collectRootFileTreeMacros: " + ft.getFilePath());
+//		}
+	
+		while (ft.getParent() != null) {
+			// Find the index where this file is included
+			int include_idx = -1;
+			
+			SVDBFileTree p_ft = ft.getParent();
+			for (int i=0; i<p_ft.getIncludedFileTreeList().size(); i++) {
+				SVDBFileTree ft_i = p_ft.getIncludedFileTreeList().get(i);
+				if (ft_i == ft) {
+					include_idx = i;
+					break;
+				}
+			}
+			
+//			if (fDebugEn) {
+//				fLog.debug("  Search for file in parent " + p_ft.getFilePath() + " index=" + include_idx);
+//			}
+			
+			if (include_idx == -1) {
+				break;
+			}
+			
+			for (int i=include_idx; i>=0; i--) {
+				// Collect the macros from defined at this level
+				SVDBFileTree ft_i = p_ft.getIncludedFileTreeList().get(i);
+				
+//				if (fDebugEn) {
+//					fLog.debug("  Process preceding file: " +  ft_i.getFilePath());
+//				}
+				
+				SVDBFileTreeMacroList ml = p_ft.fMacroSetList.get(i);
+				
+				for (SVDBMacroDef m : ml.getMacroList()) {
+//					if (fDebugEn) {
+//						fLog.debug("    Add macro: " + m.getName());
+//					}
+					if (!defines.containsKey(m.getName())) {
+						defines.put(m.getName(), m);
+					}
+				}
+
+				// Collect the macros defined by files included
+				// in this file tree
+			
+				if (i < include_idx) {
+					collectFileTreeMacros(defines, ft_i);
+				}
+			}
+		
+			// Move up a level
+			ft = p_ft;
+		}
+		
+//		if (fDebugEn) {
+//			fLog.debug("<-- collectRootFileTreeMacros: " + ft.getFilePath());
+//		}
+	}	
 	
 	private void debug(String msg) {
 		if (fDebugEn) {

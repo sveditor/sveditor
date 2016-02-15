@@ -602,6 +602,10 @@ public class SVPreProcessor extends AbstractTextScanner implements ISVPreProcess
 			fLastCh = ch;
 		}
 		
+		if (ch > 127) {
+			ch = AbstractTextScanner.unicode2ascii(ch);
+		}
+		
 		if (ch != -1 && fCaptureEnabled) {
 			fCaptureBuffer.append((char)ch);
 		}
