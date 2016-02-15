@@ -145,7 +145,22 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				case CASE: {
 					ret = property_statement();
 				} break;
-				
+				case FIRST_MATCH: {
+					// first_match ( sequence_expr {, sequence_match_item} )
+					SVDBFirstMatchExpr first_match = new SVDBFirstMatchExpr();
+					first_match.setLocation(fLexer.getStartLocation());
+					fLexer.eatToken();
+					
+					fLexer.readOperator(OP.LPAREN);
+					first_match.setExpr(sequence_expr());
+					while (fLexer.peekOperator(OP.COMMA)) {
+						fLexer.eatToken();
+						first_match.addSequenceMatchItem(sequence_match_item());
+					}
+					fLexer.readOperator(OP.RPAREN);
+					ret = first_match;
+				} break;
+
 //		} else if (fLexer.peekKeyword("nexttime", "s_nexttime")) {
 //			// nexttime expression
 //		} else if (fLexer.peekKeyword("always", "s_always", "eventually", "s_eventually")) {
