@@ -229,6 +229,10 @@ public class TestParseAssertions extends TestCase {
 			"			(|be) && (bus2[14]==1'b1)) ##1\n" +
 			"			first_match	(##[1:2] $fell(sig1)) |=>@(posedge sig1) (sig2 == bus3[14]) ; \n" +
 			"  endproperty\n" +
+			"  property some_prop;\n" +
+			"		@(posedge clk)\n" +
+			"			first_match	(##[1:2] $fell(sig1)) |=>@(posedge sig1) (sig2 == bus3[14]) ; \n" +
+			"  endproperty\n" +
 			"endmodule\n"
 			;
 
