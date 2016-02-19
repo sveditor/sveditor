@@ -5,7 +5,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-public class SVDBIndexBuildJob extends Job {
+public class SVDBIndexBuildJob extends Job implements ISVDBIndexBuildJob {
 	private SVDBIndexBuilder					fIndexBuilder;
 	private ISVDBIndexChangePlan				fPlan;
 	private Object								fSyncObj;

@@ -3,28 +3,108 @@ package net.sf.sveditor.core.db.index.external;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.osgi.framework.Bundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class ExternalIndexerRunner {
-	private ExternalIndexerServer		fServer;
+	private static List<ExternalIndexerRunner>		fRunnerList;
+	private ExternalIndexerServer					fServer;
+	private Process									fProcess;
+	private int										fBusyCount;
+	private Listener								fStdout;
+	private Listener								fStderr;
+	private LogHandle								fLog;
+	// TODO: timeout thread
 	
-	public ExternalIndexerRunner() {
-		
+	static {
+		fRunnerList = new ArrayList<ExternalIndexerRunner>();
 	}
+	
+	public static synchronized ExternalIndexerRunner allocRunner() {
+		ExternalIndexerRunner runner = null;
+		
+		while (fRunnerList.size() > 0) {
+			runner = fRunnerList.remove(0);
+		
+			// Mark the runner active so it's not automatically 
+			// killed for a little bit
+			if (runner.markActive()) {
+				break;
+			}
+		}
+		
+		if (runner == null) {
+			runner = new ExternalIndexerRunner();
+			// TODO: startup
+			runner.start();
+		}
+		
+		return runner;
+	}
+	
+	public static synchronized void freeRunner(ExternalIndexerRunner runner) {
+		fRunnerList.add(runner);
+	}
+	
+	public static void shutdownRunners() {
+		synchronized (fRunnerList) {
+			for (ExternalIndexerRunner runner : fRunnerList) {
+				runner.shutdown();
+			}
+		}
+	}
+	
+	private ExternalIndexerRunner() {
+		fLog = LogFactory.getLogHandle("ExternalIndexRunner");
 
-	public void run(
-			String						argfile,
-			IProgressMonitor			monitor,
-			SVDBArgFileIndexBuildData	build_data) {
+	}
+	
+	public void shutdown() {
+		// Should mark as a dead runner
+		
+		// Send a shutdown request
+		fServer.send_exit_msg();
+		
+		ExternalIndexerMsg msg = new ExternalIndexerMsg();
+		msg.write_str(ExternalIndexerMsgType.EXIT_MSG.toString());
+		
+		// Wait for a bit for the process to exit
+		try { fStdout.join(10000); } catch (InterruptedException e) { }
+		try { fStderr.join(10000); } catch (InterruptedException e) { }
+
+		// Somehow the process didn't actually die
+		if (fProcess.isAlive()) {
+			fLog.error("Remote Index Process failed to terminate");
+			fProcess.destroyForcibly();
+		}
+		
+		try {
+			fProcess.waitFor();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		// Finally, wait for the server thread to exit
+		try { 
+			fServer.join(10000);
+		} catch (InterruptedException e) { }
+		
+		if (fServer.isAlive()) {
+			System.out.println("Error: server still alive");
+		}
+	}
+	
+	private void start() {
 		try {
 			fServer = new ExternalIndexerServer();
 		} catch (IOException e) {
@@ -42,13 +122,22 @@ public class ExternalIndexerRunner {
 		List<String> cmdline = new ArrayList<String>();
 		cmdline.add(jre.getAbsolutePath());
 		
-//		for (Entry<Object, Object> pp : System.getProperties().entrySet()) {
-//			System.out.println("Property: " + pp.getKey().toString() + " ; " + pp.getValue().toString());
-//		}
-	
 		String cp = buildClassPath();
 		cmdline.add("-cp");
 		cmdline.add(cp.toString());
+		
+		for (String opt : new String[] {
+//				"-XX:+UseLargePages",
+				"-XX:+AggressiveOpts",
+				"-XX:+UseFastAccessorMethods",
+//				"-XX:+UseStringCache",
+//				"-XX:+OptimizeStringConcat",
+//				"-XX:SoftRefLRUPolicyMSPerMB=10000"
+//				"-XX:+UseCompressedStrings"
+//				"-XX:+OptimizeStringConcat"
+				}) {
+			cmdline.add(opt);
+		}
 		
 	
 		// Next, add the main class
@@ -57,30 +146,21 @@ public class ExternalIndexerRunner {
 		// Finally, add arguments to the main class
 		cmdline.add("-port");
 		cmdline.add("" + fServer.getListeningPort());
-		cmdline.add(argfile);
-		 
-		for (String arg : cmdline) {
-			System.out.println("Arg: " + arg);
-		}
 		
-		Process p = null;
-		long start = System.currentTimeMillis();
 		try {
-			p = Runtime.getRuntime().exec(
+			fProcess = Runtime.getRuntime().exec(
 					cmdline.toArray(new String[cmdline.size()])
 					);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	
-			Listener stdin = new Listener(p.getInputStream());
-			Listener stderr = new Listener(p.getErrorStream());
+		fStdout = new Listener(fProcess.getInputStream());
+		fStderr = new Listener(fProcess.getErrorStream());
 			
-			stdin.start();
-			stderr.start();
-		
+		fStdout.start();
+		fStderr.start();
 			
-	
 		try {
 			System.out.println("--> Connect");
 			fServer.connect();
@@ -88,19 +168,23 @@ public class ExternalIndexerRunner {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-			try { stdin.join(); } catch (InterruptedException e) { }
-			try { stderr.join(); } catch (InterruptedException e) { }
 			
-			try {
-				p.waitFor();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-		long end = System.currentTimeMillis();
+		//
+		markActive();
 		
-		System.out.println("Exec Time: " + (end-start));
+		// TODO: Launch timeout thread
+	}
+
+	public void build_index(
+			String						argfile,
+			IProgressMonitor			monitor,
+			SVDBArgFileIndexBuildData	build_data) {
+		fServer.do_index(argfile, monitor, build_data);
+	}
+	
+	private boolean markActive() {
+		// TODO:
+		return true;
 	}
 
 	private static final class Listener extends Thread {

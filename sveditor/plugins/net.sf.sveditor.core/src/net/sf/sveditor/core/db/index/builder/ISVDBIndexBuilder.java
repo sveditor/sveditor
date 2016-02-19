@@ -2,7 +2,7 @@ package net.sf.sveditor.core.db.index.builder;
 
 public interface ISVDBIndexBuilder {
 
-	SVDBIndexBuildJob build(ISVDBIndexChangePlan plan);
+	ISVDBIndexBuildJob build(ISVDBIndexChangePlan plan);
 
-	SVDBIndexBuildJob findJob(ISVDBIndexChangePlanner planner);
+	ISVDBIndexBuildJob findJob(ISVDBIndexChangePlanner planner);
 }

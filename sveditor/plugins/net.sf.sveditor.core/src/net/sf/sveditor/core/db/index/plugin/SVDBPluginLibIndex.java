@@ -4,7 +4,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.SubProgressMonitor;
+import org.osgi.framework.Bundle;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
@@ -26,9 +31,9 @@ import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildDataUtils;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildUtils;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -40,12 +45,6 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.osgi.framework.Bundle;
 
 public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 	private LogHandle							fLog;
@@ -102,7 +101,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 		sub_m.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 	
 		if (!fIndexValid /*|| !fIndexRefreshed */) {
-			SVDBIndexBuildJob build_job = null;
+			ISVDBIndexBuildJob build_job = null;
 			
 			if (fIndexBuilder != null) {
 				// See if there is an active job 

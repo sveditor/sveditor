@@ -19,9 +19,26 @@ public class TestExternalIndexerBasics extends SVCoreTestCaseBase {
 				"module top;\n" +
 				"endmodule",
 				test_sv);
+	
+		long start, end;
 		
-		ExternalIndexerRunner runner = new ExternalIndexerRunner();
-		runner.run(argfile.toString(), null, null);
+		start = System.currentTimeMillis();
+		ExternalIndexerRunner runner = ExternalIndexerRunner.allocRunner();
+		end = System.currentTimeMillis();
+		
+		System.out.println("Spinup time: " + (end-start));
+
+		start = System.currentTimeMillis();
+		runner.build_index(argfile.toString(), null, null);
+		end = System.currentTimeMillis();
+		System.out.println("Build1 Time: " + (end-start));
+		
+		start = System.currentTimeMillis();
+		runner.build_index(argfile.toString(), null, null);
+		end = System.currentTimeMillis();
+		System.out.println("Build2 Time: " + (end-start));
+		
+		runner.shutdown();
 	}
 
 }
