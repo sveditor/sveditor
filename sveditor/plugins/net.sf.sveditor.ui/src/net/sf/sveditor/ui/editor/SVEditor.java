@@ -13,6 +13,7 @@
 package net.sf.sveditor.ui.editor;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,6 +94,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -143,6 +145,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AddTaskAction;
@@ -156,6 +159,9 @@ public class SVEditor extends TextEditor
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
 			ISVDBIndexChangeListener, IResourceChangeListener,
 			IPartListener, CaretListener {
+
+	// Flag notes whether the editor is active
+	private boolean							fIsOpen;
 
 	private SVOutlinePage					fOutline;
 	private SVHighlightingManager			fHighlightManager;
@@ -173,6 +179,7 @@ public class SVEditor extends TextEditor
 	private List<SVDBMarker>				fMarkers;
 	
 	private String							fFile;
+	private IContentType					fContentType;
 	
 	// The FileIndexParser is responsible for parsing file content
 	// in a way consistent with the containing scope
@@ -194,9 +201,9 @@ public class SVEditor extends TextEditor
 	
 	private Map<String, Boolean>			fFoldingPrefs = new HashMap<String, Boolean>();
 	
-	IInformationPresenter fQuickObjectsPresenter;
-	IInformationPresenter fQuickOutlinePresenter;
-	IInformationPresenter fQuickHierarchyPresenter;
+	private IInformationPresenter 			fQuickObjectsPresenter;
+	private IInformationPresenter 			fQuickOutlinePresenter;
+	private IInformationPresenter 			fQuickHierarchyPresenter;
 	
 	private ProjectionSupport				fProjectionSupport;
 	private boolean							fInitialFolding = true;
@@ -255,10 +262,16 @@ public class SVEditor extends TextEditor
 			fDocument = doc;
 		}
 
+		// Note: This thread may be running after the editor exits
+		// Periodic checks short-circuit this thread
 		@Override
 		protected IStatus run(IProgressMonitor monitor) {
 			long start, end;
 			IDocument doc;
+			
+			if (!fIsOpen) {
+				return Status.OK_STATUS;
+			}
 			
 			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.GetDocument");
 			start = System.currentTimeMillis();
@@ -270,11 +283,7 @@ public class SVEditor extends TextEditor
 			}
 		
 			if (doc == null) {
-				try {
-					throw new Exception();
-				} catch (Exception e) {
-					fLog.error("Document NULL during UpdateSVDBFileJob", e);
-				}
+				return Status.OK_STATUS;
 			}
 			
 			StringInputStream sin = new StringInputStream(doc.get());
@@ -286,11 +295,24 @@ public class SVEditor extends TextEditor
 			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.Re-parse file");
 			start = System.currentTimeMillis();
 //			try { Thread.sleep(10000); } catch (InterruptedException e) {}
+
+			// Bail out if the editor has already closed
+			if (!fIsOpen) {
+				if (sin != null) {
+					try { sin.close(); } catch (IOException e) {}
+				}
+				return Status.OK_STATUS;
+			}
+			
 			Tuple<SVDBFile, SVDBFile> new_in = fFileIndexParser.parse(
 					monitor, sin, fSVDBFilePath, markers);
 			fSVDBFile.clearChildren();
 			end = System.currentTimeMillis();
 			fLog.debug(LEVEL_MID, "<-- UpdateSVDBFile.Re-parse file: " + (end-start));
+			
+			if (!fIsOpen) {
+				return Status.OK_STATUS;
+			}
 		
 			fLog.debug(LEVEL_MID, "--> UpdateSVDBFile.Re-incorporate content");
 			start = System.currentTimeMillis();
@@ -334,10 +356,10 @@ public class SVEditor extends TextEditor
 		super();
 		
 		fMarkers = new ArrayList<SVDBMarker>();
+		fCodeScanner = new SVCodeScanner(null);
 		
 		setDocumentProvider(SVEditorDocumentProvider.getDefault());
 		
-		fCodeScanner = new SVCodeScanner();
 		fCharacterMatcher = new SVCharacterPairMatcher();
 		SVUiPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(
 				fPropertyChangeListener);
@@ -349,6 +371,7 @@ public class SVEditor extends TextEditor
 		
 		updateFoldingPrefs();
 		updateAutoIndexDelayPref();
+		
 	}
 	
 	protected void updateAutoIndexDelayPref() {
@@ -373,11 +396,14 @@ public class SVEditor extends TextEditor
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.init(site, input);
 		
+		IFile file = null;
+
 		site.getPage().addPartListener(this);
 	
 		if (input instanceof IFileEditorInput) {
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
+			file = ((IFileEditorInput)input).getFile();
 		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
 			if (uri.getScheme().equals("plugin")) {
@@ -395,6 +421,11 @@ public class SVEditor extends TextEditor
 				fLog.error("Failed to get storage for IStorageEditorInput file", e);
 			}
 		}
+		
+		if (file != null) {
+			fContentType = IDE.getContentType(file);
+		}
+		fCodeScanner.updateRules(fContentType);
 
 		/**
 		 * Confirm that the document has an associated partitioner. If not,
@@ -446,6 +477,7 @@ public class SVEditor extends TextEditor
 		initSVDBMgr();
 		
 		updateAutoIndexDelayPref();
+		fIsOpen = true;
 	}
 	
 	
@@ -923,6 +955,8 @@ public class SVEditor extends TextEditor
 	@Override
 	public void dispose() {
 		super.dispose();
+	
+		fIsOpen = false;
 		
 		getSite().getPage().removePartListener(this);
 		
@@ -1710,7 +1744,7 @@ public class SVEditor extends TextEditor
 
 			public void propertyChange(PropertyChangeEvent event) {
 				SVColorManager.clear();
-				getCodeScanner().updateRules();
+				getCodeScanner().updateRules(fContentType);
 				if (getSourceViewer() != null && getSourceViewer().getTextWidget() != null) {
 					getSourceViewer().getTextWidget().redraw();
 					getSourceViewer().getTextWidget().update();

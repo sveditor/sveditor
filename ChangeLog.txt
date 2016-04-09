@@ -3,7 +3,18 @@
 
 - #(nobug) - Correct an issue with the New Filelist wizard, when invoked
   on a resource within an Eclipse CDT project
+  
+- #(enh) - Change editor to use different keyword set based on the 
+  file type. For example, a SystemVerilog file will highlight the 'int'
+  keyword, while a Verilog file will not.
+  
+- #(420) - Correct a bug involving processing of a macro call with
+  a multi-line string as a parameter
 
+- #(421) - Correct an issue that occurs when a file is modified 
+  and saved before the re-parse thread runs. Now, the re-parse thread
+  checks whether the editor is still open before proceeding to re-parse
+  
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 

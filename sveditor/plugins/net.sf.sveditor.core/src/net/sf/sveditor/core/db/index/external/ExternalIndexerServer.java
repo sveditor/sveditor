@@ -22,6 +22,7 @@ public class ExternalIndexerServer extends Thread {
 	private int							fBufSz;
 	private int							fBufIdx;
 	private List<ExternalIndexerMsg>	fMsgMailbox;
+	private boolean						fIsAlive;
 	
 	public ExternalIndexerServer() throws IOException {
 		fServerSock = new ServerSocket(0);
@@ -48,7 +49,14 @@ public class ExternalIndexerServer extends Thread {
 		} catch (IOException e) { 
 			e.printStackTrace();
 		}
+		fIsAlive = true;
 		start();
+	}
+	
+	public void shutdown() {
+		synchronized (this) {
+			fIsAlive = false;
+		}
 	}
 	
 	public void run() {
@@ -68,6 +76,10 @@ public class ExternalIndexerServer extends Thread {
 				msg.recv(fIn);
 			} catch (IOException e) {
 				System.out.println("Recv Thread: IOException");
+				break;
+			}
+			
+			if (!fIsAlive) {
 				break;
 			}
 			

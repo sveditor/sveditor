@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -21,12 +23,14 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogListener;
 
 public class ExternalIndexerClient implements ILogListener {
-	private Socket					fSock;
-	private InputStream				fIn;
-	private OutputStream			fOut;
+	private Socket						fSock;
+	private InputStream					fIn;
+	private OutputStream				fOut;
+	private List<ExternalIndexerMsg>	fMailbox;
 	
 	public ExternalIndexerClient() {
 		fSock = new Socket();
+		fMailbox = new ArrayList<ExternalIndexerMsg>();
 	}
 	
 	public void connect(int port) throws IOException {
@@ -38,7 +42,7 @@ public class ExternalIndexerClient implements ILogListener {
 	
 	@Override
 	public void message(ILogHandle handle, int type, int level, String message) {
-		System.out.println("MESSAGE: " + message);
+//		System.out.println("MESSAGE: " + message);
 		
 		if (fOut != null) {
 			synchronized (fOut) {
@@ -123,7 +127,8 @@ public class ExternalIndexerClient implements ILogListener {
 			ExternalIndexerMsgType mt = ExternalIndexerMsgType.valueOf(mt_s);
 			
 			System.out.println("Client MT: " + mt);
-		
+	
+			// Fork off as a thread so we can detect if the parent exits
 			if (mt == ExternalIndexerMsgType.EXIT_MSG) {
 				break;
 			} else if (mt == ExternalIndexerMsgType.INDEX_MSG) {
@@ -142,6 +147,8 @@ public class ExternalIndexerClient implements ILogListener {
 		}
 		
 		try {
+			fIn.close();
+			fOut.close();
 			fSock.close();
 		} catch (IOException e) {
 			

@@ -500,7 +500,7 @@ public class SVKeywords implements ISVKeywords {
 		KW.REALTIME,
 		KW.SIGNED,
 		KW.STRING,
-		KW.UNSIGNED
+		KW.UNSIGNED,
 	};
 
 	public static final Set<String>					fBuiltinTypes;
@@ -518,6 +518,7 @@ public class SVKeywords implements ISVKeywords {
 	public static final Set<KW>						fStrength1;
 	public static final Set<KW>						fStrengthC;
 	public static final Set<KW>						fStrength;
+	public static final Set<KW>						fAMSFilterFuncs;
 	
 	static {
 		fKeywordMap = new HashMap<String, Boolean>();
@@ -621,7 +622,59 @@ public class SVKeywords implements ISVKeywords {
 		fStrength.addAll(fStrength1);
 		fStrength.addAll(fStrengthC);
 		
-
+		fAMSFilterFuncs = new HashSet<KW>();
+		
+		fAMSFilterFuncs.add(KW.LN);
+		fAMSFilterFuncs.add(KW.LOG);
+		fAMSFilterFuncs.add(KW.EXP);
+		fAMSFilterFuncs.add(KW.SQRT);
+		fAMSFilterFuncs.add(KW.MIN);
+		fAMSFilterFuncs.add(KW.MAX);
+		fAMSFilterFuncs.add(KW.ABS);
+		fAMSFilterFuncs.add(KW.POW);
+		fAMSFilterFuncs.add(KW.FLOOR);
+		fAMSFilterFuncs.add(KW.CEIL);
+		fAMSFilterFuncs.add(KW.SIN);
+		fAMSFilterFuncs.add(KW.COS);
+		fAMSFilterFuncs.add(KW.TAN);
+		fAMSFilterFuncs.add(KW.ASIN);
+		fAMSFilterFuncs.add(KW.ACOS);
+		fAMSFilterFuncs.add(KW.ATAN);
+		fAMSFilterFuncs.add(KW.ATAN2);
+		fAMSFilterFuncs.add(KW.HYPOT);
+		fAMSFilterFuncs.add(KW.SINH);
+		fAMSFilterFuncs.add(KW.COSH);
+		fAMSFilterFuncs.add(KW.TANH);
+		fAMSFilterFuncs.add(KW.ASINH);
+		fAMSFilterFuncs.add(KW.ACOSH);
+		fAMSFilterFuncs.add(KW.ATANH);
+		
+		fAMSFilterFuncs.add(KW.ANALYSIS);
+		
+		fAMSFilterFuncs.add(KW.LAPLACE_ZD);
+		fAMSFilterFuncs.add(KW.LAPLACE_ZP);
+		fAMSFilterFuncs.add(KW.LAPLACE_NP);
+		fAMSFilterFuncs.add(KW.LAPLACE_ND);
+		fAMSFilterFuncs.add(KW.ZI_ZP);
+		fAMSFilterFuncs.add(KW.ZI_ZD);
+		fAMSFilterFuncs.add(KW.ZI_NP);
+		fAMSFilterFuncs.add(KW.ZI_ND);
+		
+		fAMSFilterFuncs.add(KW.DDT);
+		fAMSFilterFuncs.add(KW.DDX);
+		fAMSFilterFuncs.add(KW.IDT);
+		fAMSFilterFuncs.add(KW.IDTMOD);
+		fAMSFilterFuncs.add(KW.ABSDELAY);
+		fAMSFilterFuncs.add(KW.TRANSITION);
+		fAMSFilterFuncs.add(KW.SLEW);
+		fAMSFilterFuncs.add(KW.LAST_CROSSING);
+		fAMSFilterFuncs.add(KW.LIMEXP);
+		
+		fAMSFilterFuncs.add(KW.AC_STIM);
+		fAMSFilterFuncs.add(KW.WHITE_NOISE);
+		fAMSFilterFuncs.add(KW.FLICKER_NOISE);
+		fAMSFilterFuncs.add(KW.NOISE_TABLE);
+		fAMSFilterFuncs.add(KW.NOISE_TABLE_LOG);
 	};
 
 	/**

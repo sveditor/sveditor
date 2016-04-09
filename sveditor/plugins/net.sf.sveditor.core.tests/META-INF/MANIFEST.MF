@@ -21,3 +21,5 @@ Export-Package: net.sf.sveditor.core.tests,
  net.sf.sveditor.core.tests.index.persistence,
  net.sf.sveditor.core.tests.scanner,
  net.sf.sveditor.core.tests.utils
+Bundle-ClassPath: libs/commons-compress-1.10.jar,
+ .

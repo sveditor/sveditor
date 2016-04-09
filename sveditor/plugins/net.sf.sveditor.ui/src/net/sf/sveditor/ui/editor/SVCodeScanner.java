@@ -14,11 +14,9 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import net.sf.sveditor.core.parser.SVOperators;
-import net.sf.sveditor.core.scanner.SVCharacter;
-import net.sf.sveditor.core.scanner.SVKeywords;
-
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;
@@ -30,13 +28,18 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
+import net.sf.sveditor.core.parser.ISVKeywords;
+import net.sf.sveditor.core.parser.SVOperators;
+import net.sf.sveditor.core.scanner.SVCharacter;
+import net.sf.sveditor.core.scanner.SVKeywords;
+
 public class SVCodeScanner extends RuleBasedScanner {
 	
-	public SVCodeScanner() {
-		updateRules();
+	public SVCodeScanner(IContentType ct) {
+		updateRules(ct);
 	}
 	
-	public void updateRules() {
+	public void updateRules(IContentType ct) {
 		IToken keyword = new Token(new TextAttribute(
 				SVEditorColors.getColor(SVEditorColors.KEYWORD),
 				null, SVEditorColors.getStyle(SVEditorColors.KEYWORD)));
@@ -111,13 +114,27 @@ public class SVCodeScanner extends RuleBasedScanner {
 		
 		
 		// SV Keywords
-		for (String kw :SVKeywords.getKeywords()) {
-			String kw_p = kw;
-			if (kw.endsWith("*")) {
-				kw_p = kw.substring(0, kw.length()-1);
+		Set<ISVKeywords.KW> keywords = null;
+		
+		if (ct != null) {
+			if (ct.getId().endsWith(".systemverilog")) {
+				keywords = ISVKeywords.KW.getSVKeywords();
+			} else if (ct.getId().endsWith(".verilog")) {
+				keywords = ISVKeywords.KW.getVLKeywords();
+			} else if (ct.getId().endsWith(".verilogams")) {
+				keywords = ISVKeywords.KW.getAMSKeywords();
 			}
-			wordRule.addWord(kw_p, keyword);
+		} 
+		
+		if (keywords == null) {
+			keywords = ISVKeywords.KW.getSVKeywords();
 		}
+		
+		for (ISVKeywords.KW kw : keywords) {
+			String kw_s = kw.getImg();
+			wordRule.addWord(kw_s, keyword);
+		}
+		
 		// SV System Calls
 		for (String kw :SVKeywords.getSystemCalls()) {
 			String kw_p = kw;

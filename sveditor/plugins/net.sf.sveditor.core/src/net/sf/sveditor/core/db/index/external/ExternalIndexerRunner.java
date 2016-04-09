@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -78,30 +79,41 @@ public class ExternalIndexerRunner {
 		ExternalIndexerMsg msg = new ExternalIndexerMsg();
 		msg.write_str(ExternalIndexerMsgType.EXIT_MSG.toString());
 		
-		// Wait for a bit for the process to exit
-		try { fStdout.join(10000); } catch (InterruptedException e) { }
-		try { fStderr.join(10000); } catch (InterruptedException e) { }
+		System.out.println("--> Wait process");
+		try {
+			fProcess.waitFor(10000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("<-- Wait process");
 
 		// Somehow the process didn't actually die
 		if (fProcess.isAlive()) {
 			fLog.error("Remote Index Process failed to terminate");
 			fProcess.destroyForcibly();
 		}
+	
+		// Ensure process is reaped
+		fProcess.exitValue();
+	
+		System.out.println("--> Shutdown I/O threads");
+		// Wait for a bit for the process to exit
+		try { fStdout.join(10000); } catch (InterruptedException e) { }
+		try { fStderr.join(10000); } catch (InterruptedException e) { }
+		System.out.println("<-- Shutdown I/O threads");
 		
-		try {
-			fProcess.waitFor();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		fServer.shutdown();
 		
-		// Finally, wait for the server thread to exit
-		try { 
-			fServer.join(10000);
-		} catch (InterruptedException e) { }
-		
-		if (fServer.isAlive()) {
-			System.out.println("Error: server still alive");
-		}
+//		// Finally, wait for the server thread to exit
+//		System.out.println("--> Wait server");
+//		try { 
+//			fServer.join(10000);
+//		} catch (InterruptedException e) { }
+//		System.out.println("<-- Wait server");
+//		
+//		if (fServer.isAlive()) {
+//			System.out.println("Error: server still alive");
+//		}
 	}
 	
 	private void start() {
@@ -130,6 +142,7 @@ public class ExternalIndexerRunner {
 //				"-XX:+UseLargePages",
 				"-XX:+AggressiveOpts",
 				"-XX:+UseFastAccessorMethods",
+//				"-Xmx4096m",
 //				"-XX:+UseStringCache",
 //				"-XX:+OptimizeStringConcat",
 //				"-XX:SoftRefLRUPolicyMSPerMB=10000"

@@ -1269,7 +1269,9 @@ public class SVExprParser extends SVParserBase {
 				ret = new SVDBNullExpr();
 			} else if (fLexer.isIdentifier() || 
 					SVKeywords.isBuiltInType(fLexer.peek()) ||
-					fLexer.peekKeyword(KW.NEW, KW.DEFAULT, KW.LOCAL, KW.CONST)) {
+					fLexer.peekKeyword(KW.NEW, KW.DEFAULT, KW.LOCAL, KW.CONST) ||
+					// TODO: optimize
+					fLexer.peekKeyword(SVKeywords.fAMSFilterFuncs)) {
 				if (fDebugEn) {
 					debug("  primary \"" + fLexer.getImage() + "\" is identifier or built-in type");
 				}

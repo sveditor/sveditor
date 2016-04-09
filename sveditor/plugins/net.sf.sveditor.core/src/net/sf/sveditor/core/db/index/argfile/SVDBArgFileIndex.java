@@ -479,7 +479,10 @@ public class SVDBArgFileIndex implements
 			for (String f_file : plan.getFileList()) {
 				SVDBArgFile argfile = null;
 				synchronized (fBuildData) {
-					argfile = (SVDBArgFile)fBuildData.getFile(m, f_file);
+					SVDBFile f = fBuildData.getFile(m, f_file);
+					if (f != null && f instanceof SVDBArgFile) {
+						argfile = (SVDBArgFile)f;
+					}
 				}
 				
 				fArgFileParser.processArgFile(monitor, build_data, null, processed_paths, 
