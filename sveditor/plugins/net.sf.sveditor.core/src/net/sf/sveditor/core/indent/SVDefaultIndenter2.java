@@ -1369,7 +1369,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private SVIndentToken indent_constraint_stmt() {
 		SVIndentToken tok = current_s();
 		
-		if (tok.isId("if")) {
+		if (tok.isId("if") || tok.isId("foreach")) {
 			tok = indent_constraint_if(false);
 		} else if (tok.isOp("(")) {
 			// very likely an implication statement
@@ -1385,7 +1385,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// expression_or_dist ::= expression [ dist { dist_list } ];
 			tok = next_skip_over_hier();
 			// check if we have a distribution here
-			if (tok.isId("dist"))  {
+			if (tok.isId("dist") | tok.isId("inside"))  {
 				tok = next_s();			// move onto '{'
 				tok = consume_expression();
 				tok = next_s();			// consume trailing ;
