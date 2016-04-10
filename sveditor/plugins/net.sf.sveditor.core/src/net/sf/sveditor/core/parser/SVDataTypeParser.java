@@ -100,6 +100,20 @@ public class SVDataTypeParser extends SVParserBase {
 		super(parser);
 	}
 	
+	private static final Set<KW>		fWireDataTypes;
+	
+	static {
+		fWireDataTypes = new HashSet<KW>();
+		fWireDataTypes.add(KW.LOGIC);
+		fWireDataTypes.add(KW.BIT);
+		fWireDataTypes.add(KW.REG);
+		fWireDataTypes.add(KW.INT);
+		fWireDataTypes.add(KW.SHORTINT);
+		fWireDataTypes.add(KW.LONGINT);
+		fWireDataTypes.add(KW.REAL);
+		fWireDataTypes.add(KW.SHORTREAL);
+	}
+	
 	public SVDBTypeInfo data_type(int qualifiers) throws SVParseException {
 		SVDBTypeInfo type = null;
 		SVToken tok;
@@ -176,6 +190,13 @@ public class SVDataTypeParser extends SVParserBase {
 							fLexer.ungetToken(tok);// restore the (
 						}
 					}
+					
+					// Datatype or implicit
+					if (fLexer.peekKeyword(fWireDataTypes)) {
+						// TODO: ignore explicit datatype for now
+						fLexer.eatToken();
+					}
+						
 					// Array dimensions
 					if (fLexer.peekOperator(OP.LBRACKET)) {
 						if (fDebugEn) {
