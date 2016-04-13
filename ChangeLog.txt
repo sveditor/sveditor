@@ -24,6 +24,8 @@
 - #(nobug) - Forum discussion reported an issue with typed wires. Typed 
   wires (with primitive data types) are now supported.
   
+- #(299) "Select Enclosing Element" shortcut does not work [minor] 
+
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 
