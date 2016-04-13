@@ -58,6 +58,9 @@ public class FileSetTests extends TestCase {
 		String dflt_include = SVCorePlugin.getDefault().getDefaultSourceCollectionIncludes();
 		String dflt_exclude = SVCorePlugin.getDefault().getDefaultSourceCollectionExcludes();
 		
+		log.debug("dflt_include: " + dflt_include);
+		log.debug("dflt_exclude: " + dflt_exclude);
+		
 		fs.getIncludes().addAll(SVDBSourceCollection.parsePatternList(dflt_include));
 		fs.getExcludes().addAll(SVDBSourceCollection.parsePatternList(dflt_exclude));
 		

@@ -100,7 +100,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private ISVDBIndexCacheMgr				fCacheMgr;
 	private static boolean					fTestModeBuilderDisabled = false;
-	private static final boolean			fUseDelegatingIndexCache = true;
+	// SVEditor currently supports two cache models:
+	// - A unified cache that handles all projects and indexes with a single database
+	// - A delegating cache that uses independent databases to handle each index
+	private static final boolean			fUseDelegatingIndexCache = false;
 	
 	// Listeners
 	private List<ILineListener>				fStdoutLineListeners = new ArrayList<ILineListener>();
@@ -466,12 +469,37 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
-		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");
-		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
-
 		List<String> ret = new ArrayList<String>();
-		for (String e : exts) {
-			ret.add(e);
+		
+		for (String type_s : new String[] {
+				PLUGIN_ID + ".systemverilog",
+				PLUGIN_ID + ".verilog",
+				PLUGIN_ID + ".verilogams"}) {
+			IContentType type = mgr.getContentType(type_s);
+			String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+
+			for (String e : exts) {
+				ret.add(e);
+			}
+		}
+		
+		return ret;
+	}
+	
+	public Map<String, IContentType> getContentTypes() {
+		Map<String, IContentType> ret = new HashMap<String, IContentType>();
+		IContentTypeManager mgr = Platform.getContentTypeManager();
+		
+		for (String type_s : new String[] {
+				PLUGIN_ID + ".systemverilog",
+				PLUGIN_ID + ".verilog",
+				PLUGIN_ID + ".verilogams"}) {
+			IContentType type = mgr.getContentType(type_s);
+			String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+			
+			for (String ext : exts) {
+				ret.put(ext, type);
+			}
 		}
 		
 		return ret;
@@ -492,17 +520,24 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 
 	public String getDefaultSourceCollectionIncludes() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
-		IContentType type = mgr.getContentType(PLUGIN_ID + ".systemverilog");
-		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 		StringBuilder ret = new StringBuilder();
+			
+		for (String type_s : new String[] {".systemverilog", ".verilog", ".verilogams"}) {
+			IContentType type = mgr.getContentType(PLUGIN_ID + type_s);
+			if (type == null) {
+				System.out.println("Failed to get type: " + PLUGIN_ID + type_s);
+			}
+			String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 
-		for (int i=0; i<exts.length; i++) {
-			ret.append("**/*.");
-			ret.append(exts[i]);
-			if (i+1 < exts.length) {
+			for (int i=0; i<exts.length; i++) {
+				ret.append("**/*.");
+				ret.append(exts[i]);
 				ret.append(", ");
 			}
 		}
+		
+		ret.setLength(ret.length()-2);
+		
 		return ret.toString();
 	}
 	

@@ -187,7 +187,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 		if (fEditor != null) {
 			dr = new DefaultDamagerRepairer(fEditor.getCodeScanner());
 		} else {
-			dr = new DefaultDamagerRepairer(new SVCodeScanner());
+			dr = new DefaultDamagerRepairer(new SVCodeScanner(null));
 		}
 		
 		r.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);

@@ -249,8 +249,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						output((char)ch);
 					}
 				}
-			} else {
-				// In String
+			} else { // In String
 				if (ch == '"' && last_ch != '\\') {
 					in_string = false;
 				}
@@ -734,8 +733,24 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							}
 
 							if (ch != -1) {
-								fTmpBuffer.append((char)ch);
+								// Found an escaped newline. Just get rid of it
+								if (ch == '\n' && last_ch == '\\') {
+									// Something to skip
+									if (fTmpBuffer.length() > 0 && 
+											fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\r') {
+										// Remove extra line feed
+										fTmpBuffer.setLength(fTmpBuffer.length()-1);
+									}
+									if (fTmpBuffer.length() > 0 && 
+											fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
+										// Remove escape char
+										fTmpBuffer.setLength(fTmpBuffer.length()-1);
+									}
+								} else {
+									fTmpBuffer.append((char)ch);
+								}
 							}
+							last_ch = ch;
 						} while (ch != -1 && matchLevel > 0);
 					} else if (is_defined) {
 						unget_ch(ch);

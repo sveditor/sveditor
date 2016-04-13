@@ -84,6 +84,7 @@ public enum SVDBItemType {
 	// Statement items
 	ActionBlockStmt,
 	AlwaysStmt,
+	AnalogStmt,
 	AssertStmt,
 	AssignStmt,
 	AssumeStmt,

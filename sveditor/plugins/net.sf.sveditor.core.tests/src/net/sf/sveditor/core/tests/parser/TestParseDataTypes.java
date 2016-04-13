@@ -21,6 +21,21 @@ import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseDataTypes extends TestCase {
+	
+	public void testWireLogicInputPort() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+				"`default_nettype none\n" +
+				"module top(\n" +
+				"	input wire logic rstb\n" +
+				");\n" +
+				"endmodule\n" +
+				"`default_nettype wire\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), content, 
+				new String[] {"top"});
+	}
 
 	public void testTypedefVirtual() throws SVParseException {
 		LogHandle log = LogFactory.getLogHandle("testTypedefVirtual");

@@ -12,7 +12,7 @@ public class SVDBIndexBuilder implements ISVDBIndexBuilder {
 		fJobList = new ArrayList<SVDBIndexBuildJob>();
 	}
 	
-	public SVDBIndexBuildJob build(ISVDBIndexChangePlan plan) {
+	public ISVDBIndexBuildJob build(ISVDBIndexChangePlan plan) {
 		SVDBIndexBuildJob job = null;
 		
 		synchronized (fJobList) {
@@ -37,7 +37,7 @@ public class SVDBIndexBuilder implements ISVDBIndexBuilder {
 		return job;
 	}
 	
-	public SVDBIndexBuildJob findJob(ISVDBIndexChangePlanner planner) {
+	public ISVDBIndexBuildJob findJob(ISVDBIndexChangePlanner planner) {
 		SVDBIndexBuildJob job = null;
 		
 		synchronized (fJobList) {

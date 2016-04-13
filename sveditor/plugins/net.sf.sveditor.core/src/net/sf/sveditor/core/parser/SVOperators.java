@@ -69,6 +69,7 @@ public class SVOperators {
 		fAssignmentOps.add(OP.LSHIFT3_EQ);
 		fAssignmentOps.add(OP.RSHIFT3_EQ);
 		fAssignmentOps.add(OP.LE);
+		fAssignmentOps.add(OP.LT_PLUS);
 //		fAssignmentOps.add("->");				// force an event		
 	}
 	

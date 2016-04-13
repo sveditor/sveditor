@@ -19,6 +19,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -48,6 +55,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuildJob;
@@ -78,13 +86,6 @@ import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBArgFileIndex implements 
 		ISVDBIndex, ISVDBIndexInt,  
@@ -478,7 +479,10 @@ public class SVDBArgFileIndex implements
 			for (String f_file : plan.getFileList()) {
 				SVDBArgFile argfile = null;
 				synchronized (fBuildData) {
-					argfile = (SVDBArgFile)fBuildData.getFile(m, f_file);
+					SVDBFile f = fBuildData.getFile(m, f_file);
+					if (f != null && f instanceof SVDBArgFile) {
+						argfile = (SVDBArgFile)f;
+					}
 				}
 				
 				fArgFileParser.processArgFile(monitor, build_data, null, processed_paths, 
@@ -931,7 +935,7 @@ public class SVDBArgFileIndex implements
 	public void loadIndex(IProgressMonitor monitor) {
 		
 		if (fIndexBuilder != null) {
-			SVDBIndexBuildJob build_job = null;
+			ISVDBIndexBuildJob build_job = null;
 			ensureIndexUpToDate(monitor);
 			
 			if (!fIndexRefreshed) {
@@ -976,7 +980,7 @@ public class SVDBArgFileIndex implements
 		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
 	
 		if (!fIndexValid || !fIndexRefreshed) {
-			SVDBIndexBuildJob build_job = null;
+			ISVDBIndexBuildJob build_job = null;
 			
 			if (fIndexBuilder != null) {
 				// See if there is an active job 

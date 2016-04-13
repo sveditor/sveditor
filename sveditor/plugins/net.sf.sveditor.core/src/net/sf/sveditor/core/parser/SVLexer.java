@@ -96,15 +96,26 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 			fOperatorSet.add(op);
 		}
 
-//		for (String kw : SVKeywords.getKeywords()) {
 		for (ISVKeywords.KW kw : ISVKeywords.KW.values()) {
-			if (kw.isSV()) {
-				// Don't add SystemVerilog keywords if the language level is Verilog
-				if (fLanguageLevel == SVLanguageLevel.SystemVerilog) {
-					fDefaultKeywordSet.put(kw.getImg(), kw);
-				}
-			} else {
-				fDefaultKeywordSet.put(kw.getImg(), kw);
+			switch (fLanguageLevel) {
+				case SystemVerilog:
+					if (kw.isSV() || !kw.isAMS()) {
+						fDefaultKeywordSet.put(kw.getImg(), kw);
+					}
+					break;
+					
+				case VerilogAMS:
+					if (!kw.isSV() || kw.isAMS()) {
+						fDefaultKeywordSet.put(kw.getImg(), kw);
+					}
+					break;
+					
+				default:
+				case Verilog2005:
+					if (!kw.isSV() && !kw.isAMS()) {
+						fDefaultKeywordSet.put(kw.getImg(), kw);
+					}
+					break;
 			}
 		}
 	

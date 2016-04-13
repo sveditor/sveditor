@@ -9,7 +9,14 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.core.runtime.text"
-            file-extensions="v, vl, vlog, sv, svh, vh, vp, vs, svp, svi, v95, v95p"
+            file-extensions="v, vl, vlog, vh, vp, vs, v95, v95p"
+            id="verilog"
+            name="Verilog"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="net.sf.sveditor.core.verilog"
+            file-extensions="sv, svh, svp, svi"
             id="systemverilog"
             name="SystemVerilog"
             priority="normal">
@@ -28,6 +35,13 @@
                default="true"
                name="net.sf.sveditor.core.sv_argfile">
          </property>
+      </content-type>
+      <content-type
+            base-type="net.sf.sveditor.core.verilog"
+            file-extensions="va, vams"
+            id="verilogams"
+            name="VerilogAMS"
+            priority="normal">
       </content-type>
    </extension>
    <extension

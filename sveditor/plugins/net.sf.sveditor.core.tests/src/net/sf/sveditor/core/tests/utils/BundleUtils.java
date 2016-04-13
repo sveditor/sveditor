@@ -25,6 +25,12 @@ import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.tools.ant.taskdefs.Zip;
+import org.apache.tools.tar.TarEntry;
+import org.apache.tools.zip.ZipUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -164,6 +170,123 @@ public class BundleUtils {
 		}
 	}
 
+	public void unpackBundleTgzToFS(
+			String			bundle_path,
+			File			fs_path) {
+		URL url = fBundle.getEntry(bundle_path);
+		TestCase.assertNotNull(url);
+		
+		if (!fs_path.isDirectory()) {
+			TestCase.assertTrue(fs_path.mkdirs());
+		}
+		InputStream in = null;
+		GzipCompressorInputStream gz_stream = null; 
+		TarArchiveInputStream tar_stream = null;
+		
+		try {
+			in = url.openStream();
+		} catch (IOException e) {
+			TestCase.fail("Failed to open data file " + bundle_path + " : " + e.getMessage());
+		}
+		
+		try {
+			gz_stream = new GzipCompressorInputStream(in);
+		} catch (IOException e) {
+			TestCase.fail("Failed to uncompress data file " + bundle_path + " : " + e.getMessage());
+		}
+		
+		tar_stream = new TarArchiveInputStream(gz_stream);
+		
+		try {
+			byte tmp[] = new byte[4*1024];
+			int cnt;
+
+			ArchiveEntry te;
+
+			while ((te = tar_stream.getNextEntry()) != null) {
+				// System.out.println("Entry: \"" + ze.getName() + "\"");
+				File entry_f = new File(fs_path, te.getName());
+				if (te.getName().endsWith("/")) {
+					// Directory
+					continue;
+				}
+				if (!entry_f.getParentFile().exists()) {
+					TestCase.assertTrue(entry_f.getParentFile().mkdirs());
+				}
+				FileOutputStream fos = new FileOutputStream(entry_f);
+				BufferedOutputStream bos = new BufferedOutputStream(fos, tmp.length);
+				
+				while ((cnt = tar_stream.read(tmp, 0, tmp.length)) > 0) {
+					bos.write(tmp, 0, cnt);
+				}
+				bos.flush();
+				bos.close();
+				fos.close();
+		
+//				tar_stream.closeEntry();
+			}
+			tar_stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			TestCase.fail("Failed to unpack tar file: " + e.getMessage());
+		}
+	}
+
+	public void unpackBundleTarToFS(
+			String			bundle_path,
+			File			fs_path) {
+		URL url = fBundle.getEntry(bundle_path);
+		TestCase.assertNotNull(url);
+		
+		if (!fs_path.isDirectory()) {
+			TestCase.assertTrue(fs_path.mkdirs());
+		}
+		InputStream in = null;
+		TarArchiveInputStream tar_stream = null;
+		
+		try {
+			in = url.openStream();
+		} catch (IOException e) {
+			TestCase.fail("Failed to open data file " + bundle_path + " : " + e.getMessage());
+		}
+		
+		tar_stream = new TarArchiveInputStream(in);
+		
+		try {
+			byte tmp[] = new byte[4*1024];
+			int cnt;
+
+			ArchiveEntry te;
+
+			while ((te = tar_stream.getNextEntry()) != null) {
+				// System.out.println("Entry: \"" + ze.getName() + "\"");
+				File entry_f = new File(fs_path, te.getName());
+				if (te.getName().endsWith("/")) {
+					// Directory
+					continue;
+				}
+				if (!entry_f.getParentFile().exists()) {
+					TestCase.assertTrue(entry_f.getParentFile().mkdirs());
+				}
+				FileOutputStream fos = new FileOutputStream(entry_f);
+				BufferedOutputStream bos = new BufferedOutputStream(fos, tmp.length);
+				
+				while ((cnt = tar_stream.read(tmp, 0, tmp.length)) > 0) {
+					bos.write(tmp, 0, cnt);
+				}
+				bos.flush();
+				bos.close();
+				fos.close();
+		
+//				tar_stream.closeEntry();
+			}
+			tar_stream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			TestCase.fail("Failed to unpack tar file: " + e.getMessage());
+		}
+	}
+	
 	public void copyBundleFileToWS(
 			String			bundle_path,
 			IContainer		ws_path) {

@@ -5,21 +5,29 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
 
 public class ExternalIndexerServer extends Thread {
 	private ServerSocket				fServerSock;
 	private Socket						fSocket;
 	private InputStream					fIn;
+	private OutputStream				fOut;
 	private IProgressMonitor			fMonitor;
 	private byte						fBuf[];
 	private int							fBufSz;
 	private int							fBufIdx;
+	private List<ExternalIndexerMsg>	fMsgMailbox;
+	private boolean						fIsAlive;
 	
 	public ExternalIndexerServer() throws IOException {
 		fServerSock = new ServerSocket(0);
 		fBuf = new byte[1024];
+		fMsgMailbox = new ArrayList<ExternalIndexerMsg>();
 	}
 	
 	public void setProgressMonitor(IProgressMonitor monitor) {
@@ -34,39 +42,117 @@ public class ExternalIndexerServer extends Thread {
 		System.out.println("--> accept");
 		fSocket = fServerSock.accept();
 		System.out.println("<-- accept");
-		start();
-	}
-
-	public void run() {
+		
 		try {
 			fIn = fSocket.getInputStream();
-			OutputStream os = fSocket.getOutputStream();
-			System.out.println("--> write");
-			os.write('B');
-			os.flush();
-			System.out.println("<-- write");
-		} catch (IOException e) { }
-
-		int c = getch();
+			fOut = fSocket.getOutputStream();
+		} catch (IOException e) { 
+			e.printStackTrace();
+		}
+		fIsAlive = true;
+		start();
+	}
+	
+	public void shutdown() {
+		synchronized (this) {
+			fIsAlive = false;
+		}
+	}
+	
+	public void run() {
+		ExternalIndexerMsg msg = new ExternalIndexerMsg();
+		ExternalIndexerMsg s_msg = new ExternalIndexerMsg();
+	
+//		s_msg.write_str(ExternalIndexerMsgType.INIT_MSG.toString());
+//		try {
+//			s_msg.send(fOut);
+//			fOut.flush();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
-		System.out.println("c=" + c);
+		while (true) {
+			try {
+				msg.recv(fIn);
+			} catch (IOException e) {
+				System.out.println("Recv Thread: IOException");
+				break;
+			}
+			
+			if (!fIsAlive) {
+				break;
+			}
+			
+			String mt_s = msg.read_str();
+			ExternalIndexerMsgType mt = ExternalIndexerMsgType.valueOf(mt_s);
+			
+			System.out.println("mt: " + mt);
+			switch (mt) {
+				case INDEX_RSP_MSG:
+					synchronized (fMsgMailbox) {
+						fMsgMailbox.add(msg);
+						msg = new ExternalIndexerMsg();
+						fMsgMailbox.notifyAll();
+					}
+					break;
+				case DEBUG_MSG:
+					System.out.println("Debug:");
+					break;
+			}
+		}
+	}
+	
+	public void send_exit_msg() {
+		ExternalIndexerMsg msg = new ExternalIndexerMsg();
+	
+		msg.write_str(ExternalIndexerMsgType.EXIT_MSG.toString());
+		
+		try {
+			msg.send(fOut);
+			fOut.flush();
+		} catch (IOException e) { }
+	}
+	
+	public void do_index(
+			String						argfile,
+			IProgressMonitor			monitor,
+			SVDBArgFileIndexBuildData	build_data) {
+		ExternalIndexerMsg msg = new ExternalIndexerMsg();
+		msg.write_str(ExternalIndexerMsgType.INDEX_MSG.toString());
+		msg.write_str(argfile);
+	
+		try {
+			msg.send(fOut);
+			fOut.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		ExternalIndexerMsg rsp = get_msg();
+		System.out.println("Received index response");
 	}
 
-	private int getch() {
-		int ret = -1;
+	private ExternalIndexerMsg get_msg() {
+		ExternalIndexerMsg msg = null;
 		
-		if (fBufIdx >= fBufSz) {
-			fBufIdx = 0;
-			fBufSz = 0;
-			try {
-				fBufSz = fIn.read(fBuf, 0, fBuf.length);
-			} catch (IOException e) {}
-		}
+		do {
+			synchronized (fMsgMailbox) {
+				if (fMsgMailbox.size() > 0) {
+					msg = fMsgMailbox.remove(0);
+				}
+			}
+			
+			if (msg == null) {
+				synchronized (fMsgMailbox) {
+					try {
+						fMsgMailbox.wait();
+					} catch (InterruptedException e) {
+						break;
+					}
+				}
+			}
+		} while (msg == null);
 		
-		if (fBufIdx < fBufSz) {
-			ret = fBuf[fBufIdx++];
-		}
-		
-		return ret;
+		return msg;
 	}
 }

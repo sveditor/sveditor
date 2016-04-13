@@ -30,7 +30,7 @@ public class SVArgFileLexer extends SVArgFileToken {
 	private boolean 					fTokenConsumed;
 
 	private StringBuilder 				fStringBuffer;
-	private static final boolean		fDebugEn = true;
+	private static final boolean		fDebugEn = false;
 	private boolean 					fEOF;
 
 	private StringBuilder				fCaptureBuffer;

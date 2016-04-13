@@ -24,6 +24,7 @@ public interface ISVOperators {
 		NEG_OR("~|"),
 		TERNARY("?"),
 		LT("<"),
+		LT_PLUS("<+"),
 		LSHIFT("<<"),
 		LE("<="),
 		LSHIFT3("<<<"),

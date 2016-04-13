@@ -216,11 +216,13 @@ class SVOperatorLexer implements ISVOperators {
       case ';': {
         op = OP.SEMICOLON;
         } break;
-// OPS: << <<< <<<= <<= <= 
+// OPS: <+ << <<< <<<= <<= <= 
       case '<': {
         int c1 = scanner.get_ch();
+          if (c1 == '+') {
+            op = OP.LT_PLUS;
 // OPS: <<< <<<= <<= 
-          if (c1 == '<') {
+          } else if (c1 == '<') {
             int c2 = scanner.get_ch();
 // OPS: <<<= 
               if (c2 == '<') {

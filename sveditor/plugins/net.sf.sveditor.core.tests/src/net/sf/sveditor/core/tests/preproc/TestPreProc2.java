@@ -21,6 +21,25 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestPreProc2 extends SVCoreTestCaseBase {
 	
+	public void testMultiLineStringMacro() {
+		String content = 
+				"`define uvm_error(t, str) \\\n" +
+				"string type = t;\\\n" +
+				"string msg = str;\\\n" +
+				"\n" +
+				"`uvm_error(\"foo\", \"More than 256 items have accumulated in the \\\n" +
+				"transaction layer, and a sequence continues to send items\")\n" 
+				;
+		String exp = 
+				"string type = \"foo\";\n" +
+				"string msg = \"More than 256 items have accumulated in the transaction layer, and a sequence continues to send items\";";
+		SVPathPreProcIncFileProvider inc_provider =
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+		
+		
+		runTestTrim(content, inc_provider, exp);
+	}
+	
 	public void testBasicInclude() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		File dir1 = new File(fTmpDir, "dir1");
@@ -411,16 +430,47 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		}
 		
 		printFileTree("", output.getFileTree());
+		
+//		String out = output.toString().trim();
+		String out = output.toString();
 
 		fLog.debug("==");
-		fLog.debug("Output:\n" + output.toString());
+		fLog.debug("Output:\n" + out);
 		fLog.debug("==");
 		fLog.debug("Exp:\n" + exp);
 		fLog.debug("==");
 		
-		assertEquals(exp, output.toString());
+		assertEquals(exp, out);
 	}
 
+	private void runTestTrim(
+			String							doc,
+			ISVPreProcIncFileProvider		inc_provider,
+			String							exp) {
+		
+		SVPreProcessor2 preproc = new SVPreProcessor2(
+				getName(), new StringInputStream(doc), 
+				inc_provider, null);
+	
+		SVPreProcOutput output = preproc.preprocess();
+		
+		for (String file : output.getFileList()) {
+			fLog.debug("File: " + file);
+		}
+		
+		printFileTree("", output.getFileTree());
+		
+		String out = output.toString().trim();
+
+		fLog.debug("==");
+		fLog.debug("Output:\n" + out);
+		fLog.debug("==");
+		fLog.debug("Exp:\n" + exp);
+		fLog.debug("==");
+		
+		assertEquals(exp, out);
+	}
+	
 	private void runTestExpErrors(
 			String							doc,
 			ISVPreProcIncFileProvider		inc_provider,

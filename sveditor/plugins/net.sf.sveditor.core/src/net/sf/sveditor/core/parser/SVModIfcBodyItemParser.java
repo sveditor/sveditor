@@ -41,6 +41,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
 import net.sf.sveditor.core.db.SVDBTypeInfoModuleIfc;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import net.sf.sveditor.core.db.stmt.SVDBAnalogStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
@@ -134,6 +135,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				case ALWAYS_FF:
 				case INITIAL:
 					parse_initial_always(parent);
+					break;
+					
+				case ANALOG:
+					parse_analog(parent);
 					break;
 					
 				case FINAL:
@@ -318,7 +323,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 	public void parse_parameter_decl(ISVDBAddChildItem parent) throws SVParseException {
 		long param_start = fLexer.getStartLocation();
 		// local parameter
-		fLexer.readKeyword(KW.PARAMETER, KW.LOCALPARAM);
+		KW kw = fLexer.readKeyword(KW.PARAMETER, KW.LOCALPARAM);
 		
 		if (fLexer.peekKeyword(KW.TYPE)) {
 			fLexer.eatToken();
@@ -911,6 +916,20 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		ret.setLocation(start);
 		
 		parent.addChildItem(ret);
+		fParsers.behavioralBlockParser().statement((SVDBBodyStmt)ret);
+	}
+
+	private void parse_analog(ISVDBAddChildItem parent) throws SVParseException {
+		ISVDBChildItem ret = null;
+		long start = fLexer.getStartLocation();
+		
+		fLexer.consumeToken();
+
+		ret = new SVDBAnalogStmt();
+		ret.setLocation(start);
+		
+		parent.addChildItem(ret);
+		// TODO: this might not be entirely accurate
 		fParsers.behavioralBlockParser().statement((SVDBBodyStmt)ret);
 	}
 }

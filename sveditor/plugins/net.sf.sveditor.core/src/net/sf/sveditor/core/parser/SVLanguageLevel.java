@@ -8,11 +8,14 @@ import net.sf.sveditor.core.SVCorePlugin;
 public enum SVLanguageLevel {
 	Verilog2005,
 	
+	VerilogAMS,
+	
 	// Default version of SystemVerilog
 	SystemVerilog;
 	
 
 	public static final Set<String>			fVerilog2005Exts;
+	public static final Set<String>			fVerilogAMSExts;
 	
 	static {
 		fVerilog2005Exts = new HashSet<String>();
@@ -20,6 +23,9 @@ public enum SVLanguageLevel {
 		fVerilog2005Exts.add(".vl");
 		fVerilog2005Exts.add(".vlog");
 		
+		fVerilogAMSExts = new HashSet<String>();
+		fVerilogAMSExts.add(".va");
+		fVerilogAMSExts.add(".vams");
 	}
 	
 	public static SVLanguageLevel computeLanguageLevel(String path) {
@@ -38,6 +44,8 @@ public enum SVLanguageLevel {
 			return SystemVerilog;
 		} else if (fVerilog2005Exts.contains(ext)) {
 			return Verilog2005;
+		} else if (fVerilogAMSExts.contains(ext)) {
+			return VerilogAMS;
 		} else {
 			return SystemVerilog;
 		}

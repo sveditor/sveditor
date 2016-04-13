@@ -44,34 +44,34 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDimItem.DimType;
 import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVDataTypeParser extends SVParserBase {
-	public static final Set<String>			IntegerAtomType;
-	public static final Set<String>			IntegerVectorType;
-	public static final Set<String>			IntegerTypes;
-	public static final Set<String>			NonIntegerType;
+//	public static final Set<String>			IntegerAtomType;
+//	public static final Set<String>			IntegerVectorType;
+//	public static final Set<String>			IntegerTypes;
+//	public static final Set<String>			NonIntegerType;
 	public static final Set<KW>				NetTypeE;
 	public static final Set<String>			BuiltInTypes;
 	
 	static {
-		IntegerAtomType = new HashSet<String>();
-		IntegerAtomType.add("byte");
-		IntegerAtomType.add("shortint");
-		IntegerAtomType.add("int");
-		IntegerAtomType.add("longint");
-		IntegerAtomType.add("integer");
-		IntegerAtomType.add("time");
-		IntegerAtomType.add("genvar"); // Treat genvar as an integer
-		IntegerVectorType = new HashSet<String>();
-		IntegerVectorType.add("bit");
-		IntegerVectorType.add("logic");
-		IntegerVectorType.add("reg");
-		IntegerTypes = new HashSet<String>();
-		IntegerTypes.addAll(IntegerAtomType);
-		IntegerTypes.addAll(IntegerVectorType);
+//		IntegerAtomType = new HashSet<String>();
+//		IntegerAtomType.add("byte");
+//		IntegerAtomType.add("shortint");
+//		IntegerAtomType.add("int");
+//		IntegerAtomType.add("longint");
+//		IntegerAtomType.add("integer");
+//		IntegerAtomType.add("time");
+//		IntegerAtomType.add("genvar"); // Treat genvar as an integer
+//		IntegerVectorType = new HashSet<String>();
+//		IntegerVectorType.add("bit");
+//		IntegerVectorType.add("logic");
+//		IntegerVectorType.add("reg");
+//		IntegerTypes = new HashSet<String>();
+//		IntegerTypes.addAll(IntegerAtomType);
+//		IntegerTypes.addAll(IntegerVectorType);
 		
-		NonIntegerType = new HashSet<String>();
-		NonIntegerType.add("shortreal");
-		NonIntegerType.add("real");
-		NonIntegerType.add("realtime");
+//		NonIntegerType = new HashSet<String>();
+//		NonIntegerType.add("shortreal");
+//		NonIntegerType.add("real");
+//		NonIntegerType.add("realtime");
 		
 		NetTypeE = new HashSet<KW>();
 		NetTypeE.add(KW.SUPPLY0);
@@ -98,6 +98,20 @@ public class SVDataTypeParser extends SVParserBase {
 	
 	public SVDataTypeParser(ISVParser parser) {
 		super(parser);
+	}
+	
+	private static final Set<KW>		fWireDataTypes;
+	
+	static {
+		fWireDataTypes = new HashSet<KW>();
+		fWireDataTypes.add(KW.LOGIC);
+		fWireDataTypes.add(KW.BIT);
+		fWireDataTypes.add(KW.REG);
+		fWireDataTypes.add(KW.INT);
+		fWireDataTypes.add(KW.SHORTINT);
+		fWireDataTypes.add(KW.LONGINT);
+		fWireDataTypes.add(KW.REAL);
+		fWireDataTypes.add(KW.SHORTREAL);
 	}
 	
 	public SVDBTypeInfo data_type(int qualifiers) throws SVParseException {
@@ -176,6 +190,13 @@ public class SVDataTypeParser extends SVParserBase {
 							fLexer.ungetToken(tok);// restore the (
 						}
 					}
+					
+					// Datatype or implicit
+					if (fLexer.peekKeyword(fWireDataTypes)) {
+						// TODO: ignore explicit datatype for now
+						fLexer.eatToken();
+					}
+						
 					// Array dimensions
 					if (fLexer.peekOperator(OP.LBRACKET)) {
 						if (fDebugEn) {
