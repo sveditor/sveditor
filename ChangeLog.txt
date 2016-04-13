@@ -26,6 +26,8 @@
   
 - #(299) "Select Enclosing Element" shortcut does not work [minor] 
 
+- #(421) Eclipse Preference not importing correctly from preference file 
+
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 
