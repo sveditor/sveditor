@@ -28,6 +28,8 @@
 
 - #(421) Eclipse Preference not importing correctly from preference file 
 
+- #(422) Absolute path for `include file not recognized - added testcase
+ 
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 

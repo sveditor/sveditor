@@ -20,18 +20,32 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 	public void testFindSVFilePath() {
 		
 		File project = new File(fTmpDir, "project");
+		File project2= new File(fTmpDir, "project2");
+		File inc1    = new File(project, "inc");
+		File inc2    = new File(project, "inc2");
 		
 		assertTrue(project.mkdirs());
+		assertTrue(project2.mkdirs());
+		assertTrue(inc1.mkdirs());
+		assertTrue(inc2.mkdirs());
 	
 		File argfile_f = new File(project, "argfile.f");
 		TestUtils.copy(
+				"+incdir+.\n" +
+				"+incdir+inc2\n" +
+				"+incdir+inc\n" +
 				"root_pkg.sv",
 				argfile_f);
 		
 		File root_pkg_sv = new File(project, "root_pkg.sv");
 		TestUtils.copy(
 				"package root_pkg;\n" +
-				"	`include \"cls1.svh\"\n" +
+				"	`include \"cls1.svh\"\n" +		// In the root 
+				"	`include \"cls2.svh\"\n" +		// In inc1 (copy in inc2)
+				"	`include \"./cls3.svh\"\n" +	// In inc1
+				"	`include \"" + fTmpDir + "/project/inc/cls4.svh\"\n" +	// Full path to file in inc 
+				"	`include \"../project/cls5.svh\"\n" +	// relative path outside of the project
+				"	`include \"" + fTmpDir + "/project2/cls6.svh\"\n" +	// Full path outside of the project 
 				"endpackage\n",
 				root_pkg_sv);
 		
@@ -41,11 +55,58 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 				"endclass\n",
 				cls1_svh);
 		
+		// cls2.svh has been placed in both inc1 and inc2 directories.  The inc1 should NOT be picked up because
+		// the incdir order is inc2 then inc1
+		File cls2_svh = new File(inc1, "cls2.svh");
+		TestUtils.copy(
+				"class cls2;\n" +
+				"endclass\n",
+				cls2_svh);
+
+		// cls2 file ... will be picked up
+		File cls2_2_svh = new File(inc2, "cls2.svh");
+		TestUtils.copy(
+				"class cls2;\n" +
+				"endclass\n",
+				cls2_2_svh);
+		
+		File cls3_svh = new File(inc1, "cls3.svh");
+		TestUtils.copy(
+				"class cls3;\n" +
+				"endclass\n",
+				cls3_svh);
+		
+		File cls4_svh = new File(inc1, "cls4.svh");
+		TestUtils.copy(
+				"class cls4;\n" +
+				"endclass\n",
+				cls4_svh);
+		
+		File cls5_svh = new File(project, "cls5.svh");
+		TestUtils.copy(
+				"class cls5;\n" +
+						"endclass\n",
+						cls5_svh);
+		
+		File cls6_svh = new File(project2, "cls6.svh");
+		TestUtils.copy(
+				"class cls6;\n" +
+						"endclass\n",
+						cls6_svh);
+		
 		IProject p = TestUtils.createProject("project", project);
 		addProject(p);
 		
 		String argfile_f_path = "${workspace_loc}/project/argfile.f";
-		String cls1_svh_path = "${workspace_loc}/project/cls1.svh";
+		String inc_paths [] =  {
+				// TODO - some of these are probably not right
+			"${workspace_loc}/project/cls1.svh",
+			"${workspace_loc}/project/inc2/cls2.svh",
+			"${workspace_loc}/project/inc/./cls3.svh",
+			"${workspace_loc}/project/inc/cls4.svh",
+			"${workspace_loc}/project/cls5.sv",
+			"${workspace_loc}/project2/cls6.svh"
+			};
 
 		ISVDBIndexCache cache = fCacheFactory.createIndexCache(
 				"GLOBAL", argfile_f_path);
@@ -56,16 +117,18 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 		index.init(new NullProgressMonitor(), null);
 	
 		index.loadIndex(new NullProgressMonitor());
-		
-		List<SVDBFilePath> paths = index.getFilePath(cls1_svh_path);
-		
-		assertNotNull(paths);
-		
-		assertEquals(1, paths.size());
-		
-		SVDBFilePath path = paths.get(0);
-		assertEquals(3, path.getPath().size());
-		
+
+		for (String path : inc_paths)  {
+			
+			List<SVDBFilePath> paths = index.getFilePath(path);
+			
+			assertNotNull("Paths are null - '" + path +"'", paths);
+			
+			assertEquals("At least 1 element expected - '" + path +"'", 1, paths.size());
+			
+			SVDBFilePath pathh = paths.get(0);
+			assertEquals("Expecting path size to be 3 - '" + path +"'", 3, pathh.getPath().size());
+		}
 	}
 
 	public void testFindArgFilePath() {
