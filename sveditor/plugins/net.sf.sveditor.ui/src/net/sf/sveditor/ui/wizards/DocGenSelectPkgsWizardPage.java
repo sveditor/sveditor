@@ -78,7 +78,8 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	}
 
 	protected DocGenSelectPkgsWizardPage() {
-		super("Select Packages") ;
+		super("Select Packages", "Select Packages", null) ;
+		setDescription("Select the packages for which the documentation is to be generated for");
 		fPackagesLeft = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
 		fPackagesRight = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
 		fPkgMap = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
@@ -106,7 +107,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		container.setLayout(gridLayout) ;
 		setControl(container) ;
 		
-		createLabel(container);
 		createLeftTable(container) ;		
 		createSelectionControls(container) ;
 		createRightTable(container) ;		
@@ -261,14 +261,6 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 		fButtonAddSelected.setEnabled(fSelectPackages);
 		fButtonRemoveSelected.setEnabled(fSelectPackages);
 		
-	}
-
-	private void createLabel(Composite container) {
-		final Label label = new Label(container, SWT.NONE) ; 
-		final GridData gridData = new GridData() ;
-		gridData.horizontalSpan = 3 ;
-		label.setLayoutData(gridData) ;
-		label.setText( "Select the packages for which the documentation is to be generated for" ) ;
 	}
 
 	private void createLeftTable(Composite parent) {

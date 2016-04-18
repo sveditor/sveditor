@@ -34,7 +34,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 	}
 
 	protected DocGenBasicOptionsWizardPage() {
-		super("Basic Options") ;
+		super("Basic Options", "Basic Options", null) ;
 	}
 
 	public void createControl(Composite parent) {
