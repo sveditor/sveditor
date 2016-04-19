@@ -31,6 +31,8 @@
 - #(422) Absolute path for `include file not recognized - added testcase
 
 - #(nobug) - Minor tweaks to "Natural Docs Generation Wizard"
+
+- #(307) Natural Doc Parser - Constraint Icon not showing 
  
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --

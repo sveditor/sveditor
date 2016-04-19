@@ -42,7 +42,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 //		fImgDescMap.put(DocTopicManager.CoverpointCross, COVERPOINT_CROSS_OBJ);
 //		fImgDescMap.put(DocTopicManager.Sequence, SEQUENCE_OBJ);
 //		fImgDescMap.put(DocTopicManager.Property, PROPERTY_OBJ);
-//		fImgDescMap.put(DocTopicManager.Constraint, CONSTRAINT_OBJ);
+		fImgDescMap.put(DocTopicManager.TOPIC_CONSTRAINT, CONSTRAINT_OBJ);
 //		fImgDescMap.put(DocTopicManager.AlwaysStmt, ALWAYS_BLOCK_OBJ);
 //		fImgDescMap.put(DocTopicManager.InitialStmt, INITIAL_OBJ);
 //		fImgDescMap.put(DocTopicManager.Assign, ASSIGN_OBJ);
@@ -70,7 +70,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 //		fImgDescMap.put(DocItemType.CoverpointCross, COVERPOINT_CROSS_OBJ);
 //		fImgDescMap.put(DocItemType.Sequence, SEQUENCE_OBJ);
 //		fImgDescMap.put(DocItemType.Property, PROPERTY_OBJ);
-//		fImgDescMap.put(DocItemType.Constraint, CONSTRAINT_OBJ);
+		fImgDescMap.put(DocItemType.Constraint, CONSTRAINT_OBJ);
 //		fImgDescMap.put(DocItemType.AlwaysStmt, ALWAYS_BLOCK_OBJ);
 //		fImgDescMap.put(DocItemType.InitialStmt, INITIAL_OBJ);
 //		fImgDescMap.put(DocItemType.Assign, ASSIGN_OBJ);
