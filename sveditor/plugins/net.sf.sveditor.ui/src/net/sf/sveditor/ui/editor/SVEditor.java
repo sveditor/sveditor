@@ -81,6 +81,7 @@ import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
 import net.sf.sveditor.ui.editor.actions.SVRulerAnnotationAction;
 import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
+import net.sf.sveditor.ui.editor.actions.SelectEnclosingElementAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -862,6 +863,11 @@ public class SVEditor extends TextEditor
 				bundle, "GotoMatchingBracket.", this);
 		goto_mb_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".gotoMatchingBracket");
 		setAction(SVUiPlugin.PLUGIN_ID + ".gotoMatchingBracket", goto_mb_action);
+		
+		SelectEnclosingElementAction sel_ee_action = new SelectEnclosingElementAction(
+				bundle, "SelectEnclosingElement.", this);
+		sel_ee_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".SelectEnclosingElement");
+		setAction(SVUiPlugin.PLUGIN_ID + ".SelectEnclosingElement", sel_ee_action);
 		
 		// Add annotation-action
 		SVRulerAnnotationAction action = new SVRulerAnnotationAction(bundle, 

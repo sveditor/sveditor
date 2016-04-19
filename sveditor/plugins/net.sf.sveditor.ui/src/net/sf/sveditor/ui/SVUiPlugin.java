@@ -277,8 +277,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_SV_CODE_STYLE_PREFS)) {
 			update_parser_prefs();
 		} else if (event.getProperty().equals(SVEditorPrefsConstants.P_OVERRIDE_FILE_EXTENSION_LANGUAGE_LEVEL)) {
-			SVCorePlugin.getDefault().setFileExtLanguageLevelOverride(
-					(Boolean)event.getNewValue());
+			SVCorePlugin.getDefault().setFileExtLanguageLevelOverride(event.getNewValue().equals("true"));
 		}
 
 	}

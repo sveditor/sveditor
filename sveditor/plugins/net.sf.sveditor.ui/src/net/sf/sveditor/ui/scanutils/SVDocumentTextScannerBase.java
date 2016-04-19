@@ -71,6 +71,10 @@ public class SVDocumentTextScannerBase
 		return (long)((fIdx>0)?fIdx:0);
 	}
 	
+	public long getRealPos() {
+		return (long)fIdx;
+	}
+	
 	public void seek(long pos) {
 		fIdx = (int)pos;
 		fUngetCh = -1;

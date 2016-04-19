@@ -400,7 +400,12 @@
       <command
             categoryId="org.eclipse.ui.category.navigate"
             id="net.sf.sveditor.ui.gotoMatchingBracket"
-            name="Goto Matching Bracket">
+            name="Go to Matching Bracket">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.SelectEnclosingElement"
+            name="Select Enclosing Element">
       </command>
    </extension>
    <extension
@@ -469,7 +474,7 @@
             commandId="net.sf.sveditor.ui.editor.open.diag.selection"
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+SHIFT+D">
+            sequence="SHIFT+CTRL+D">
       </key>
       <key
             commandId="net.sf.sveditor.ui.editor.open.type"
@@ -481,7 +486,13 @@
             commandId="net.sf.sveditor.ui.gotoMatchingBracket"
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+SHIFT+P">
+            sequence="SHIFT+CTRL+P">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.SelectEnclosingElement"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+ALT+ARROW_UP">
       </key>
    </extension>
    <extension

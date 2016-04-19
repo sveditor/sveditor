@@ -69,24 +69,30 @@ The following zip file contains two "dummy" chips, '''chip1''' and '''chip2'''. 
 ## [[EclipseTutorialRTL.zip]]
 # Unzip the source code to the following location, "C:\<some_place_other_than_workspace>\Tutorial".  You should have 2 top level folders - chip1 & chip2
 # Start a new project:
-## ''File>New>Other>General>Project''
+## ''File>New>Other>SVEditor>SVE Project''
+## "Next"
 ## [[File:NewProject.png|frame|New Project Step 1]]
-# "Next"
-# Set the ''Project name'' to ''Chip 1''
-# Un-check ''Use Default Location''
-# Browse to the un-zipped project location, in this case: 
-## "C:\ <some_place_other_than_workspace>\chip1"
-# Hit Next  
+# Set up the project name and root of the project
+## Set the ''Project name'' to ''Chip 1''.  The name is a way to uniquely identify the project.
+## Un-check ''Use Default Location''
+## Browse to the un-zipped project location, in this case: 
+## "C:\<some_place_other_than_workspace>\chip1"
+## Hit Next  
 ## [[File:NewProject2.png|frame|New Project Step 2]]
-# Hit Finish (no referenced projects)
+# At this point you need to give Eclipse the information it needs to properly parse your design.  This is usually some sort of ".f" file.  Depending on your place of work you may have one or more of these.  In this tutorial there is are two  .f files, one for RTL and another for the test bench.
+## You will be brought to the "Specify File Lists" dialog where argument (.f) files can be added.
+## Select "Add Project Path"
+## Select the "sim/files_rtl.f" file which contains an inventory of all the RTL in the design.  
+### At this point we won't reference the test bench files, these will be added later showing a different way to do this same task.
+## Hit Next  
+## [[File:NewProject3.png|frame|Add an argument file]]
+# Finish the project creation
+## Hit Finish (no referenced projects)
 # Eclipse will scan the file system, creating an inventory of all files from '''chip1''' down.
-## [[File:NewProject3.png|frame|Project Imported!]]
-# At this point you need to give Eclipse the information it needs to properly parse your design.  This is usually some sort of ".f" file.  Depending on your place of work you may have one or more of these.  In this tutorial there is a single .f file.
-# Right click on "Chip 1" and go to Properties
-## [[File:ProjectProperties.png|frame|Open Project Properties]]
-# Click on ''System Verilog Project > Argument files> Add>Add Project Path''  Browse your way to ''chip1/sim/files.f''
-## [[File:ArgumentFile.png|frame|Select files.f]]
-# Hit OK
+# Now we will add an argument file (files_tb.f) from the Project Explorer window (which is an alternative to the previous steps)
+## In the Project Explorer window, browse to "sim/files_tb.f"
+## Right-click on files_tb.f, and select "Add Argument file to Project" 
+## [[File:NewProject4.png|frame|Add files_tb.f to project]]
 
 At this point, Eclipse knows what files matter to your design, and parses them appropriately.
 

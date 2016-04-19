@@ -8,6 +8,8 @@
 - #(nobug) - Correct an issue with the New Filelist wizard, when invoked
   on a resource within an Eclipse CDT project
   
+- #(nobug) Tutorial updated to use "SVE New Project Wizard" for project creation
+
 - #(enh) - Change editor to use different keyword set based on the 
   file type. For example, a SystemVerilog file will highlight the 'int'
   keyword, while a Verilog file will not.
@@ -22,6 +24,14 @@
 - #(nobug) - Forum discussion reported an issue with typed wires. Typed 
   wires (with primitive data types) are now supported.
   
+- #(299) "Select Enclosing Element" shortcut does not work [minor] 
+
+- #(421) Eclipse Preference not importing correctly from preference file 
+
+- #(422) Absolute path for `include file not recognized - added testcase
+
+- #(nobug) - Minor tweaks to "Natural Docs Generation Wizard"
+ 
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 
