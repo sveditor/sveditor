@@ -44,11 +44,21 @@
       <classpath path="${basedir}/xmltask.jar"/>
     </taskdef>
         
-    <target name="build" depends="compile, mkarchive">
+    <target name="build" depends="compile,mkarchive">
 		<delete dir="${buildDirectory}"/>
     </target>
 
+    <target name="mk_rn">
+        <mkdir dir="${rlsdir}"/>
+        <exec executable="perl" output="${buildResult}/rn.txt">
+            <arg value="${basedir}/mk_rn.pl"/>
+            <arg value="${feature.version}"/>
+            <arg value="${basedir}/../ChangeLog.txt"/>
+        </exec>
+    </target>
+
     <target name="compile"> 
+    	<echo message="==&gt; Compile"/>
         <delete dir="${buildDirectory}"/>
         <mkdir dir="${buildDirectory}"/>
         <mkdir dir="${buildResult}"/>
@@ -85,10 +95,12 @@
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor"/>
         </antcall>
+    	<echo message="&lt;== Compile"/>
     </target>
 
     <target name="build_feature">
-    	<echo message="==> buildScript type=${type} id=${feature.id}"/>
+    	<echo message="==&gt; build_feature id=${feature.id}"/>
+    	<echo message="==&gt; buildScript type=${type} id=${feature.id}"/>
         <eclipse.buildScript
             elements="${type}@${feature.id}"
             buildDirectory="${buildDirectory}"
@@ -98,13 +110,16 @@
             generateFeatureVersionSuffix="true"/>
     	<echo message="&lt;== buildScript type=${type} id=${feature.id}"/>
 
+    	<echo message="==&gt; build.xml type=${type} id=${feature.id}"/>
         <ant antfile="${buildDirectory}/features/${feature.id}/build.xml"
             dir="${buildDirectory}/features/${feature.id}"
             target="build.jars"/>
+    	<echo message="&lt;== build.xml type=${type} id=${feature.id}"/>
         <ant antfile="${buildDirectory}/assemble.${feature.id}.${os}.${ws}.${arch}.xml"
              dir="${buildDirectory}"/>
-	<copy tofile="${buildResult}/sveditor-feature-${feature.version}.zip"
-		file="${buildDirectory}/${feature.id}-${feature.version}-${os}.${ws}.${arch}.zip"/>
+		<copy tofile="${buildResult}/sveditor-feature-${feature.version}.zip"
+			file="${buildDirectory}/${feature.id}-${feature.version}-${os}.${ws}.${arch}.zip"/>
+    	<echo message="&lt;== build_feature id=${feature.id}"/>
     </target>
 
 

@@ -127,7 +127,8 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 			assertEquals("At least 1 element expected - '" + path +"'", 1, paths.size());
 			
 			SVDBFilePath pathh = paths.get(0);
-			assertEquals("Expecting path size to be 3 - '" + path +"'", 3, pathh.getPath().size());
+			assertEquals("Expecting path size to be 3 - '" + 
+					path + "'", 3, pathh.getPath().size());
 		}
 	}
 

@@ -2,12 +2,10 @@ package net.sf.sveditor.vhdl.core.parser;
 
 import java.io.InputStream;
 
-import org.eclipse.swt.internal.C;
-
-import net.sf.sveditor.core.db.SVDBFile;
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import antlr.collections.AST;
+import net.sf.sveditor.core.db.SVDBFile;
 
 public class VhdlFileFactory {
 	
