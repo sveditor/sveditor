@@ -11,6 +11,8 @@
 
 package net.sf.sveditor.ui.wizards;
 
+import net.sf.sveditor.ui.SVUiPlugin;
+
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -34,7 +36,7 @@ public class DocGenBasicOptionsWizardPage extends WizardPage {
 	}
 
 	protected DocGenBasicOptionsWizardPage() {
-		super("Basic Options", "Basic Options", null) ;
+		super("Basic Options", "Basic Options", SVUiPlugin.getImageDescriptor("/icons/wizards/ndoc_wiz.png")) ;
 	}
 
 	public void createControl(Composite parent) {

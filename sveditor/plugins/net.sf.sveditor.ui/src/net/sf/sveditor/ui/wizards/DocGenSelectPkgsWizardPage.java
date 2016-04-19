@@ -22,8 +22,10 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindPackageMatcher;
 import net.sf.sveditor.ui.SVDBIconUtils;
+import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -40,7 +42,6 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
@@ -78,7 +79,7 @@ public class DocGenSelectPkgsWizardPage extends WizardPage {
 	}
 
 	protected DocGenSelectPkgsWizardPage() {
-		super("Select Packages", "Select Packages", null) ;
+		super("Select Packages", "Select Packages", SVUiPlugin.getImageDescriptor("/icons/wizards/ndoc_wiz.png")) ;
 		setDescription("Select the packages for which the documentation is to be generated for");
 		fPackagesLeft = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
 		fPackagesRight = new HashMap<SVDBDeclCacheItem,Tuple<SVDBDeclCacheItem, ISVDBIndex>>() ;
