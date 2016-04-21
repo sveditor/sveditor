@@ -3,6 +3,8 @@
 
 - #(nobug) Allow variables to be used in run / debug configurations
 
+- #(307) Natural Doc Parser - Constraint Icon not showing 
+ 
 ------------------------------------------------------------------------------
 -- 1.8.4 Release --
 
@@ -37,8 +39,6 @@
 
 - #(nobug) - Minor tweaks to "Natural Docs Generation Wizard"
 
-- #(307) Natural Doc Parser - Constraint Icon not showing 
- 
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 
