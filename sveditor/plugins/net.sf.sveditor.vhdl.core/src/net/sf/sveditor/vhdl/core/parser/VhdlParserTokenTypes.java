@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (2006-11-01): "vhdl.g" -> "VhdlLexer.java"$
+// $ANTLR 2.7.7 (2006-11-01): "net.sf.sveditor.vhdl.core/src/net/sf/sveditor/vhdl/core/parser/vhdl.g" -> "VhdlLexer.java"$
 
 package net.sf.sveditor.vhdl.core.parser;
 
