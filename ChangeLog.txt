@@ -3,7 +3,9 @@
 
 - #(nobug) Allow variables to be used in run / debug configurations
 
-- #(307) Natural Doc Parser - Constraint Icon not showing 
+- #(307) Natural Doc Parser - Constraint Icon not showing
+
+- #(nobug) Cleaned up titles of some dialogs in wizards. Added Keyboard shortcuts to buttons of same. 
  
 ------------------------------------------------------------------------------
 -- 1.8.4 Release --
