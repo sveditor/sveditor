@@ -834,7 +834,7 @@ public class SVFileUtils {
 		 *   project_loc into a workspace_loc.
 		 * 
 		 */
-		boolean project_prefix = path.startsWith("${project_loc}");
+		boolean project_prefix = path.startsWith("${project_loc}") && (projectname != null);
 		if (project_prefix) {
 			exp_path = "/" + projectname + exp_path.substring("${project_loc}".length());
 			workspace_prefix = true;

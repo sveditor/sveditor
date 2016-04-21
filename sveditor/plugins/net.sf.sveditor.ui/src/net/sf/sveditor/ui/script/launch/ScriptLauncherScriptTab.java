@@ -153,6 +153,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		setMessage(null);
 	
 		String scr = fScriptText.getText();
+		scr = SVFileUtils.expandVars(scr, null, false);
 		
 		if (scr.trim().equals("")) {
 			if (getErrorMessage() == null) {
@@ -169,6 +170,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		}
 
 		String wd = fWorkingDirText.getText();
+		wd = SVFileUtils.expandVars(wd, null, false);
 		if (wd.trim().equals("")) {
 			if (getErrorMessage() == null) {
 				setErrorMessage("Must specify a working directory");
