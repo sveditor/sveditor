@@ -116,8 +116,8 @@ public class BuildJavaDocTocTask extends MatchingTask {
 			SAXTransformerFactory tf = (SAXTransformerFactory)SAXTransformerFactory.newInstance();
 			DOMSource ds = new DOMSource(doc_o);
 			StreamResult sr = new StreamResult(fos);
-			tf.setAttribute("indent-number", new Integer(2));
 			TransformerHandler th = tf.newTransformerHandler();
+			th.getTransformer().setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			Properties format = new Properties();
 			format.put(OutputKeys.METHOD, "xml");

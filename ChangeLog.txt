@@ -7,6 +7,8 @@
 
 - #(nobug) Cleaned up titles of some dialogs in wizards. Added Keyboard shortcuts to buttons of same. 
  
+- #(nobug) Fixed exception created when attempting to write xml - "indent-number" not recognized
+ 
 ------------------------------------------------------------------------------
 -- 1.8.4 Release --
 

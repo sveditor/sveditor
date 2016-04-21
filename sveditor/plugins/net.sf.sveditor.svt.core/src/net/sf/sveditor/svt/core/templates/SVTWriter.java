@@ -45,9 +45,9 @@ public class SVTWriter {
 			
 			DOMSource ds = new DOMSource(fDocument);
 			StreamResult sr = new StreamResult(out);
-			tf.setAttribute("indent-number", new Integer(4));
 			TransformerHandler th = tf.newTransformerHandler();
-			
+			th.getTransformer().setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
 			Properties format = new Properties();
 			format.put(OutputKeys.METHOD, "xml");
 //			format.put("{http://xml. customer .org/xslt}indent-amount", "4");
