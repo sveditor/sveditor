@@ -761,7 +761,7 @@
             class="net.sf.sveditor.ui.wizards.NewSVClassWizard"
             icon="icons/edecl16/class_obj.gif"
             id="net.sf.sveditor.ui.newSVClassWizard"
-            name="SystemVerilog &amp;Class"
+            name="SystemVerilog Class"
             project="false">
       </wizard>
 
@@ -771,7 +771,7 @@
             class="net.sf.sveditor.ui.wizards.NewSVPackageWizard"
             icon="icons/edecl16/package.gif"
             id="net.sf.sveditor.ui.newSVPackageWizard"
-            name="SystemVerilog &amp;Package"
+            name="SystemVerilog Package"
             project="false">
       </wizard>
       <wizard
@@ -780,7 +780,7 @@
             class="net.sf.sveditor.ui.wizards.NewSVInterfaceWizard"
             icon="icons/edecl16/int_obj.gif"
             id="net.sf.sveditor.ui.newSVInterfaceWizard"
-            name="SystemVerilog &amp;Interface"
+            name="SystemVerilog Interface"
             project="false">
       </wizard>
       <wizard
@@ -789,7 +789,7 @@
             class="net.sf.sveditor.ui.wizards.NewSVModuleWizard"
             icon="icons/edecl16/module_obj.gif"
             id="net.sf.sveditor.ui.newSVModuleWizard"
-            name="SystemVerilog &amp;Module"
+            name="SystemVerilog Module"
             project="false">
       </wizard>
       <wizard
@@ -799,7 +799,7 @@
             hasPages="true"
             icon="icons/eview16/configs.gif"
             id="net.sf.sveditor.ui.newSVFilelist"
-            name="SystemVerilog &amp;Filelist"
+            name="SystemVerilog Filelist"
             project="false">
          <description>
             Creates a new SystemVerilog filelist (argument file). Provides the option to initialize this file from files discovered in user-specified directories
@@ -812,7 +812,7 @@
             finalPerspective="net.sf.sveditor.ui.svPerspective"
             icon="icons/vlog_16_16.gif"
             id="net.sf.sveditor.ui.newSVEProject"
-            name="SVE P&amp;roject"
+            name="SVE Project"
             project="true">
       </wizard>      
    </extension>
