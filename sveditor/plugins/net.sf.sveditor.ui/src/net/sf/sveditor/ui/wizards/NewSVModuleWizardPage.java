@@ -34,10 +34,8 @@ public class NewSVModuleWizardPage extends AbstractNewSVItemFileWizardPage {
 		Composite c = new Composite(src_c, SWT.NONE);
 		c.setLayout(new GridLayout(2, false));
 		
-		Label l = new Label(c, SWT.NONE);
-		l.setText("Create Verilog Module:");
-		
 		final Button b = new Button(c, SWT.CHECK);
+		b.setText("&Create Verilog Module");
 		b.addSelectionListener(new SelectionListener() {
 			
 			@Override

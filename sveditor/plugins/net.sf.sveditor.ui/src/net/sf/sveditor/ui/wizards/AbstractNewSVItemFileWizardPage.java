@@ -97,7 +97,7 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 		src_c.setLayout(new GridLayout(3, false));
 		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Source Folder:");
+		l.setText("&Source Folder:");
 		
 		fSourceFolder = new Text(src_c, SWT.BORDER);
 		fSourceFolder.setText(getOption(SOURCE_FOLDER, ""));
@@ -111,7 +111,7 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 			}
 		});
 		final Button sf_browse = new Button(src_c, SWT.PUSH);
-		sf_browse.setText("Browse");
+		sf_browse.setText("&Browse");
 		sf_browse.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(
@@ -131,7 +131,7 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 		s.setLayoutData(gd);
 
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Name:");
+		l.setText("&Name:");
 		
 		fName = new Text(src_c, SWT.BORDER);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -146,7 +146,7 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 		});
 
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Filename:");
+		l.setText("&Filename:");
 		
 		fFileName = new Text(src_c, SWT.BORDER);
 		fFileName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -158,7 +158,7 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 		});
 		
 		fFileNameDefault = new Button(src_c, SWT.CHECK);
-		fFileNameDefault.setText("Default Filename");
+		fFileNameDefault.setText("&Default Filename");
 		fFileNameDefault.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				if (!fFileNameDefault.getSelection()) {
