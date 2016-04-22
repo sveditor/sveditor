@@ -48,9 +48,9 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 		general_group.setLayoutData(gd);
 		general_group.setText("General");
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT, 
-				"Content Assist Timeout (ms)", general_group));
+				"&Content Assist Timeout (ms)", general_group));
 		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER, 
-				"Hover Uses Browser:", general_group));
+				"&Hover Uses Browser:", general_group));
 
 		
 		Group tf_group = new Group(getFieldEditorParent(), SWT.NONE);
@@ -60,11 +60,11 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 		tf_group.setText("Task/Function Settings");
 		tf_group.setLayoutData(gd);
 		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_NAMED_PORTS_EN, 
-				"Enable Named Parameters:", tf_group));
+				"&Enable Named Parameters:", tf_group));
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_LINE_WRAP_LIMIT, 
-				"Line-Wrap Limit: ", tf_group));
+				"&Line-Wrap Limit: ", tf_group));
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TF_MAX_PARAMS_PER_LINE, 
-				"Max Parameters Per Line:", tf_group));
+				"&Max Parameters Per Line:", tf_group));
 		
 		Group mod_ifc_group = new Group(getFieldEditorParent(), SWT.NONE);
 		gd = new GridData(GridData.FILL, GridData.CENTER, true, false);
@@ -73,11 +73,11 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 		mod_ifc_group.setText("Module/Interface Settings");
 		mod_ifc_group.setLayoutData(gd);
 		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_NAMED_PORTS_EN, 
-				"Enable Named Port Map:", mod_ifc_group));
+				"E&nable Named Port Map:", mod_ifc_group));
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_LINE_WRAP_LIMIT, 
-				"Line-Wrap Limit: ", mod_ifc_group));
+				"L&ine-Wrap Limit: ", mod_ifc_group));
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_MODIFCINST_MAX_PORTS_PER_LINE, 
-				"Max Ports Per Line:", mod_ifc_group));
+				"Max &Ports Per Line:", mod_ifc_group));
 		
 	}
 

@@ -33,9 +33,16 @@ import org.eclipse.swt.widgets.Text;
 public class AddDirectoryPathDialog extends Dialog {
 	private Text				fPath;
 	private String				fPathStr;
+	private String				fTitle;
+	
+	public AddDirectoryPathDialog(Shell shell, int style, String title) {
+		super(shell);
+		fTitle = title;
+	}
 	
 	public AddDirectoryPathDialog(Shell shell, int style) {
 		super(shell);
+		fTitle = "";
 	}
 	
 	public void setInitialPath(String path) {
@@ -44,6 +51,11 @@ public class AddDirectoryPathDialog extends Dialog {
 	
 	public String getPath() {
 		return fPathStr;
+	}
+
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
 	}
 
 	@Override
@@ -72,14 +84,14 @@ public class AddDirectoryPathDialog extends Dialog {
 		button_bar.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, true));
 
 		Button add_ws_path = new Button(button_bar, SWT.PUSH);
-		add_ws_path.setText("Add Workspace Path");
+		add_ws_path.setText("Add &Workspace Path");
 		add_ws_path.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		add_ws_path.addSelectionListener(new SelectionListener() {
 
 			public void widgetDefaultSelected(SelectionEvent e) {}
 
 			public void widgetSelected(SelectionEvent e) {
-				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(getShell());
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(getShell(), fTitle);
 				
 				if (dlg.open() == Window.OK) {
 					if (dlg.getPath() != null) {
@@ -90,7 +102,7 @@ public class AddDirectoryPathDialog extends Dialog {
 		});
 		
 		Button add_fs_path = new Button(button_bar, SWT.PUSH);
-		add_fs_path.setText("Add Filesystem Path");
+		add_fs_path.setText("Add &Filesystem Path");
 		add_fs_path.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		add_fs_path.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {}
@@ -98,7 +110,7 @@ public class AddDirectoryPathDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dlg = new DirectoryDialog(getShell());
 				
-				dlg.setText("Select a Directory");
+				dlg.setText(fTitle);
 				
 				String result = dlg.open();
 				
