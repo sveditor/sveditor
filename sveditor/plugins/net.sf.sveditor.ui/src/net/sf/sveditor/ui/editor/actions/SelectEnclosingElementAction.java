@@ -193,7 +193,6 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 					SetScannerDirection(scanner, true);
 					if ((tt = GetNextString(scanner)) != null) {
 						end_pos = (int) scanner.getPos();
-						fLog.debug("SGD - Got '" + tt + "'");
 					} else {
 						return;
 					}
@@ -233,7 +232,19 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 			else {
 				scanner.setScanFwd(true); // Haven't scanned yet... don't call
 											// direction changer function
-				String tt = GetNextString(scanner);
+				String tt;
+				// Check if we are in the middle of a word...
+				if (!IsWhitespace(prevch))  {
+					// If so ... head to the start of the word before continuing
+					// Scan back to start of word
+					scanner.setScanFwd(false);		// Start by scanning backwards
+					// Scan for word
+					if ((tt = GetNextString(scanner)) == null) {
+						return;
+					}
+					SetScannerDirection(scanner, true);
+				}
+				tt = GetNextString(scanner);
 				fLog.debug("Selected - found first word '" + tt + "'");
 				// Check if we have a "open brace"
 				if (fBeginCharMap.containsKey(tt)) {
@@ -277,8 +288,29 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 					n_en = 0;
 
 				} else {
-					// TODO - just select the current word
-					return;
+					// Something is selected, but not a start / end ... just select the current word
+					scanner.seek(sel_offset);		// Start at the start of the selection
+					if (!IsWhitespace(prevch))  {
+						// Scan back to start of word
+						scanner.setScanFwd(false);		// Start by scanning backwards
+						// Scan for word
+						if ((tt = GetNextString(scanner)) == null) {
+							return;
+						}
+						SetScannerDirection(scanner, true);
+					}
+					start_pos = (int) scanner.getPos();
+					// Search to end of string
+					if ((tt = GetNextString(scanner)) == null) {
+						return;
+					}
+					scanner.unget_ch(0);
+					end_pos = (int) scanner.getPos();	// Get end position
+					
+					// Mark & return
+					MarkRange(sv, start_pos, end_pos);
+
+					
 				}
 			}
 
@@ -306,7 +338,11 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 			if (scanner.getScanFwd()) {
 				end_pos = (int) scanner.getPos();
 			} else {
-				start_pos = (int) scanner.getPos() + 1;
+				start_pos = (int) scanner.getPos();
+				// If we aren't at the start of the file, advance the cursor one position
+				if (start_pos != 0)  {
+					start_pos ++;
+				}
 			}
 			MarkRange(sv, start_pos, end_pos);
 
