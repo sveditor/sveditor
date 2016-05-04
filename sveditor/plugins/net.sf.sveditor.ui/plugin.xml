@@ -740,7 +740,7 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="*">
+            targetID="net.sf.sveditor.ui.svPerspective">
          <view
                id="net.sf.sveditor.ui.hierarchyView"
                minimized="false"

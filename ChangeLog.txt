@@ -1,6 +1,8 @@
 ------------------------------------------------------------------------------
 -- 1.8.5 Release --
 
+- #(SR - 21) - Scope Hierarchy view to the SystemVerilog perspective. It no
+  longer appears in all perspectives.
 
 ------------------------------------------------------------------------------
 -- 1.8.4 Release --
