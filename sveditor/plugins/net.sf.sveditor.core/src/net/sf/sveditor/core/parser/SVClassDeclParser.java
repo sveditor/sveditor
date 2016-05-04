@@ -25,7 +25,7 @@ public class SVClassDeclParser extends SVParserBase {
 	
 	/**
 	 * 
-	 * [ virtual ] class [ lifetime ] class_identifier [ parameter_port_list ]
+	 * [ virtual|interface ] class [ lifetime ] class_identifier [ parameter_port_list ]
 	 * [ extends class_type [ ( list_of_arguments ) ] ];
 	 * @param qualifiers
 	 * @return

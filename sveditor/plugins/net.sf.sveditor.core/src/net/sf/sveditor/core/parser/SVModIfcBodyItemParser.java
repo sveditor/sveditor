@@ -190,7 +190,16 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				case INTERFACE:
 					if (kw == KW.INTERFACE) {
 						if ((modifiers & SVDBFieldItem.FieldAttr_Virtual) == 0) {
-							parsers().modIfcProgParser().parse(parent, modifiers);
+							SVToken t = fLexer.consumeToken();
+							if (fLexer.peekKeyword(KW.CLASS)) {
+								// Actually an interface class declaration
+								modifiers += SVDBFieldItem.FieldAttr_Interface;
+								parsers().classParser().parse(parent, modifiers);
+							} else {
+								// Interface declaration after all
+								fLexer.ungetToken(t);
+								parsers().modIfcProgParser().parse(parent, modifiers);
+							}
 						} else {
 							parse_var_decl_module_inst(parent, modifiers);
 						}

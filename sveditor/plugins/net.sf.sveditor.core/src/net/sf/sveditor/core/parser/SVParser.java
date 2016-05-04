@@ -178,6 +178,17 @@ public class SVParser implements ISVScanner,
 				case MODULE:
 				case MACROMODULE:
 				case INTERFACE:
+					SVToken t = fLexer.consumeToken();
+					if (fLexer.peekKeyword(KW.CLASS)) {
+						// interface class
+						modifiers += IFieldItemAttr.FieldAttr_Interface;
+						parsers().classParser().parse(parent, modifiers); break;
+					} else {
+						// Nope, actually an interface
+						fLexer.ungetToken(t);
+						parsers().modIfcProgParser().parse(parent, modifiers);
+					}
+					break;
 				case PROGRAM:
 					// enter module scope
 					parsers().modIfcProgParser().parse(parent, modifiers);
