@@ -1,14 +1,18 @@
 package net.sf.sveditor.core.tests.index.argfile2;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -18,6 +22,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestGetFilePath extends SVCoreTestCaseBase {
 	
 	public void testFindSVFilePath() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		File project = new File(fTmpDir, "project");
 		File project2= new File(fTmpDir, "project2");
@@ -43,9 +48,10 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 				"	`include \"cls1.svh\"\n" +		// In the root 
 				"	`include \"cls2.svh\"\n" +		// In inc1 (copy in inc2)
 				"	`include \"./cls3.svh\"\n" +	// In inc1
-				"	`include \"" + fTmpDir + "/project/inc/cls4.svh\"\n" +	// Full path to file in inc 
+				"	`include \"" + fTmpDir.toString().replace('\\', '/') + 
+						"/project/inc/cls4.svh\"\n" +	// Full path to file in inc 
 				"	`include \"../project/cls5.svh\"\n" +	// relative path outside of the project
-				"	`include \"" + fTmpDir + "/project2/cls6.svh\"\n" +	// Full path outside of the project 
+				"	`include \"" + fTmpDir.toString().replace('\\', '/') + "/project2/cls6.svh\"\n" +	// Full path outside of the project 
 				"endpackage\n",
 				root_pkg_sv);
 		
@@ -117,19 +123,17 @@ public class TestGetFilePath extends SVCoreTestCaseBase {
 		index.init(new NullProgressMonitor(), null);
 	
 		index.loadIndex(new NullProgressMonitor());
-
-		for (String path : inc_paths)  {
-			
-			List<SVDBFilePath> paths = index.getFilePath(path);
-			
-			assertNotNull("Paths are null - '" + path +"'", paths);
-			
-			assertEquals("At least 1 element expected - '" + path +"'", 1, paths.size());
-			
-			SVDBFilePath pathh = paths.get(0);
-			assertEquals("Expecting path size to be 3 - '" + 
-					path + "'", 3, pathh.getPath().size());
+		
+		for (String path : index.getFileList(new NullProgressMonitor())) {
+			List<SVDBMarker> markers = index.getMarkers(path);
+			for (SVDBMarker m : markers) {
+				fLog.debug("Marker: " + m.getMessage());
+			}
+			assertEquals(0, markers.size());
 		}
+	
+		IndexTestUtils.assertFileHasElements(index, 
+				new String[] {"cls1", "cls2", "cls3", "cls4", "cls5"});
 	}
 
 	public void testFindArgFilePath() {

@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -21,14 +24,10 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.refs.SVDBLexerListenerRefCollector;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * Collects data used during index parsing. A new instance of this class is
@@ -480,6 +479,13 @@ public class SVDBArgFileIndexBuildData implements
 			buildIncludeCache();
 		}
 		
+		if (incfile.length() >= 2 && incfile.charAt(0) == '.' &&
+				(incfile.charAt(1) == '/' || incfile.charAt(1) == '\\')) {
+			// starts with ./
+			// Treat as a regular relative path
+			incfile = incfile.substring(2);
+		}
+		
 		if (fIncludeMap.containsKey(incfile)) {
 			// Already have a candidate
 			String path = fIncludeMap.get(incfile);
@@ -506,7 +512,7 @@ public class SVDBArgFileIndexBuildData implements
 						ret = new Tuple<String, InputStream>(try_path, in);
 						fIncludeMap.put(incfile, try_path);
 					}
-				}				
+				}
 			} else {
 				for (int i=0; i<fResolvedIncDirs.size(); i++) {
 					String try_path = null;
@@ -539,6 +545,15 @@ public class SVDBArgFileIndexBuildData implements
 					if (ret != null) {
 						break;
 					}
+				}
+			}
+		
+			// Absolute path
+			if (ret == null && incfile.length() >= 2 && (incfile.charAt(0) == '/' || 
+					(Character.isAlphabetic(incfile.charAt(0)) && incfile.charAt(1) == ':'))) {
+				InputStream in = fFileSystemProvider.openStream(incfile);
+				if (in != null) {
+					ret = new Tuple<String, InputStream>(incfile, in);
 				}
 			}
 			
