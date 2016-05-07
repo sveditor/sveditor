@@ -3,6 +3,8 @@
 
 - #(SR - 21) - Scope Hierarchy view to the SystemVerilog perspective. It no
   longer appears in all perspectives.
+  
+- #(enh) - Add support for SV 2012 'interface class'
 
 ------------------------------------------------------------------------------
 -- 1.8.4 Release --
