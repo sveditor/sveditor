@@ -119,7 +119,7 @@ public class NewFileListWizardFirstPage extends WizardPage {
 		});
 		
 		Label l = new Label(c, SWT.NONE);
-		l.setText("Filename: ");
+		l.setText("&Filename: ");
 		
 		fFilenameText = new Text(c, SWT.BORDER);
 		fFilenameText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -143,7 +143,7 @@ public class NewFileListWizardFirstPage extends WizardPage {
 		});
 	
 		l = new Label(c, SWT.NONE);
-		l.setText("Add to Project Settings: ");
+		l.setText("&Add to Project Settings: ");
 		fAddToProjectCheck = new Button(c, SWT.CHECK);
 		fAddToProject = true;
 		fAddToProjectCheck.addSelectionListener(new SelectionListener() {

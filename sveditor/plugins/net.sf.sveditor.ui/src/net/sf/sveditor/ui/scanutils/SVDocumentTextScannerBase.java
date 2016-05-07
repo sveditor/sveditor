@@ -147,7 +147,9 @@ public class SVDocumentTextScannerBase
 							}
 						}
 					}
-				} else {
+				}
+				// Scanning backwards
+				else {
 					while (fIdx >= fOffset) {
 						ITypedRegion r = null;
 						try {

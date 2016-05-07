@@ -72,7 +72,7 @@ public class SVTemplateSelectionPage extends WizardPage {
 		Group g;
 
 		g = new Group(src_c, SWT.NONE);
-		g.setText("Available Templates");
+		g.setText("A&vailable Templates");
 		g.setLayout(new GridLayout());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 3;

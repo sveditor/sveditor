@@ -496,8 +496,8 @@ public class SVProjectFileWrapper {
 			
 			DOMSource ds = new DOMSource(fDocument);
 			StreamResult sr = new StreamResult(out);
-			tf.setAttribute("indent-number", new Integer(2));
 			TransformerHandler th = tf.newTransformerHandler();
+			th.getTransformer().setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			Properties format = new Properties();
 			format.put(OutputKeys.METHOD, "xml");

@@ -105,7 +105,7 @@ public class TemplatePropertiesEditor extends ListEditor {
 		fPreview.setLayoutData(gd);
 		
 		fModify = new Button(parent, SWT.PUSH);
-		fModify.setText("Modify...");
+		fModify.setText("Modif&y...");
 		fModify.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		fModify.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {}
@@ -140,7 +140,7 @@ public class TemplatePropertiesEditor extends ListEditor {
 		String val = fParamValMap.get(id);
 		
 		TemplatePropertyDialog prefs = new TemplatePropertyDialog(
-				getShell(), SWT.SHEET, new HashSet<String>(), false);
+				getShell(), SWT.SHEET, new HashSet<String>(), false, "Update Template");
 		prefs.setParameterId(id);
 		prefs.setValue(val);
 		
@@ -160,7 +160,7 @@ public class TemplatePropertiesEditor extends ListEditor {
 		
 		String id = null;
 		TemplatePropertyDialog prefs = new TemplatePropertyDialog(
-				getShell(), SWT.SHEET, taken_ids, true);
+				getShell(), SWT.SHEET, taken_ids, true, "Describe Template");
 		
 		if (prefs.open() == Dialog.OK) {
 			id = prefs.getParameterId();

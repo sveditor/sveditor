@@ -36,6 +36,20 @@ public class TemplatePropertyDialog extends Dialog {
 	private String				fValueStr;
 	private Set<String>			fTakenIds;
 	private boolean			fCanModifyId;
+	private String				fTitle;
+	
+	public TemplatePropertyDialog(
+			Shell shell, 
+			int style, 
+			Set<String> taken_ids,
+			boolean		modify_id,
+			String title
+			) {
+		super(shell);
+		fTakenIds = taken_ids;
+		fCanModifyId = modify_id;
+		fTitle = title;
+	}
 	
 	public TemplatePropertyDialog(
 			Shell shell, 
@@ -45,8 +59,14 @@ public class TemplatePropertyDialog extends Dialog {
 		super(shell);
 		fTakenIds = taken_ids;
 		fCanModifyId = modify_id;
+		fTitle = "";
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	@Override
 	protected boolean isResizable() {
 		return true;

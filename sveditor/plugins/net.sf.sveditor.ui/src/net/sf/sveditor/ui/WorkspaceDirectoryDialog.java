@@ -36,10 +36,16 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 public class WorkspaceDirectoryDialog extends Dialog {
 	private String 				fPathStr;
 	private TreeViewer			fTreeViewer;
+	private String				fTitle;
 	
 	
+	public WorkspaceDirectoryDialog(Shell shell, String title) {
+		super(shell);
+		fTitle = title;
+	}
 	public WorkspaceDirectoryDialog(Shell shell) {
 		super(shell);
+		fTitle = "Select Directory";
 	}
 
 	public String getPath() {
@@ -57,6 +63,11 @@ public class WorkspaceDirectoryDialog extends Dialog {
 		}
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	@Override
 	protected Control createDialogArea(Composite p) {
 		Composite parent = new Composite(p, SWT.NONE);

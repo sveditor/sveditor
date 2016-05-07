@@ -60,7 +60,7 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 	
 		// Script Group
 		Group script_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		script_group.setText("JavaScript");
+		script_group.setText("&JavaScript");
 		script_group.setLayout(new GridLayout(2, false));
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		script_group.setLayoutData(gd);
@@ -72,16 +72,16 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 		fScriptText.addModifyListener(modifyListener);
 		
 		fScriptBrowseWS = new Button(script_group, SWT.PUSH);
-		fScriptBrowseWS.setText("Browse Workspace...");
+		fScriptBrowseWS.setText("&Browse Workspace...");
 		fScriptBrowseWS.addSelectionListener(selectionListener);
 		
 		fScriptBrowseFS = new Button(script_group, SWT.PUSH);
-		fScriptBrowseFS.setText("Browse Filesystem...");
+		fScriptBrowseFS.setText("Browse &Filesystem...");
 		fScriptBrowseFS.addSelectionListener(selectionListener);
 	
 		// Working Directory Group
 		Group wd_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		wd_group.setText("Working Directory");
+		wd_group.setText("W&orking Directory");
 		wd_group.setLayout(new GridLayout(2, false));
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		wd_group.setLayoutData(gd);
@@ -93,16 +93,16 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 		fWorkingDirText.addModifyListener(modifyListener);
 		
 		fWorkingDirBrowseWS = new Button(wd_group, SWT.PUSH);
-		fWorkingDirBrowseWS.setText("Browse Workspace...");
+		fWorkingDirBrowseWS.setText("B&rowse Workspace...");
 		fWorkingDirBrowseWS.addSelectionListener(selectionListener);
 		
 		fWorkingDirBrowseFS = new Button(wd_group, SWT.PUSH);
-		fWorkingDirBrowseFS.setText("Browse Filesystem...");
+		fWorkingDirBrowseFS.setText("Browse F&ilesystem...");
 		fWorkingDirBrowseFS.addSelectionListener(selectionListener);
 		
 		// Script Arguments
 		Group args_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		args_group.setText("Arguments");
+		args_group.setText("&Arguments");
 		args_group.setLayout(new GridLayout());
 		args_group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -146,7 +146,7 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 
 	@Override
 	public String getName() {
-		return "Script";
+		return "&Script";
 	}
 	
 	@Override
@@ -235,12 +235,13 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == fScriptBrowseWS) {
-				WorkspaceFileDialog dlg = new WorkspaceFileDialog(fScriptBrowseWS.getShell());
+				WorkspaceFileDialog dlg = new WorkspaceFileDialog(fScriptBrowseWS.getShell(), "Select Script");
 				if (dlg.open() == Window.OK) {
 					fScriptText.setText("${workspace_loc}" + dlg.getPath());
 				}
 			} else if (e.getSource() == fScriptBrowseFS) {
 				FileDialog dlg = new FileDialog(fScriptBrowseFS.getShell());
+				dlg.setText("Select Script");
 				
 				String path = dlg.open();
 				
@@ -248,12 +249,13 @@ public class JavaScriptLauncherScriptTab extends AbstractLaunchConfigurationTab 
 					fScriptText.setText(path);
 				}
 			} else if (e.getSource() == fWorkingDirBrowseWS) {
-				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(fWorkingDirBrowseWS.getShell());
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(fWorkingDirBrowseWS.getShell(), "Select Working Directory");
 				if (dlg.open() == Window.OK) {
 					fWorkingDirText.setText("${workspace_loc}" + dlg.getPath());
 				}
 			} else if (e.getSource() == fWorkingDirBrowseFS) {
 				DirectoryDialog dlg = new DirectoryDialog(fWorkingDirBrowseFS.getShell());
+				dlg.setText("Select Working Directory");
 				
 				String path = dlg.open();
 				

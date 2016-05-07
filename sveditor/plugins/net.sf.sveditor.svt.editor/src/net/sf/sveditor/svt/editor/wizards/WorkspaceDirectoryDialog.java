@@ -22,17 +22,30 @@ import org.eclipse.ui.model.WorkbenchLabelProvider;
 public class WorkspaceDirectoryDialog extends Dialog {
 	private TreeViewer			fTreeViewer;
 	private IContainer			fContainer;
+	private String				fTitle;
 	
+	
+	public WorkspaceDirectoryDialog(Shell shell, IContainer container, String title) {
+		super(shell);
+		fContainer = container;
+		fTitle = title;
+	}
 	
 	public WorkspaceDirectoryDialog(Shell shell, IContainer container) {
 		super(shell);
 		fContainer = container;
+		fTitle = "Select Folder";
 	}
 
 	public IContainer getContainer() {
 		return fContainer;
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	@Override
 	protected Control createDialogArea(Composite p) {
 		Composite parent = new Composite(p, SWT.NONE);

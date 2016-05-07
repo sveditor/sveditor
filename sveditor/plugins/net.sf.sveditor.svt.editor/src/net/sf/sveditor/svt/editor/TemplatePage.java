@@ -256,37 +256,37 @@ public class TemplatePage extends FormPage {
 		fParameterButtons = tk.createComposite(bb);
 		fParameterButtons.setLayout(new GridLayout());
 		
-		fAddParameterButton = tk.createButton(fParameterButtons, "Add Parameter", SWT.PUSH);
+		fAddParameterButton = tk.createButton(fParameterButtons, "Add Para&meter", SWT.PUSH);
 		fAddParameterButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fAddParameterButton);
-		fAddParameterGroupButton = tk.createButton(fParameterButtons, "Add Group", SWT.PUSH);
+		fAddParameterGroupButton = tk.createButton(fParameterButtons, "Add &Group", SWT.PUSH);
 		fAddParameterGroupButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fAddParameterGroupButton);
-		fRemoveParameterButton = tk.createButton(fParameterButtons, "Remove", SWT.PUSH);
+		fRemoveParameterButton = tk.createButton(fParameterButtons, "R&emove", SWT.PUSH);
 		fRemoveParameterButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fRemoveParameterButton);
-		fMoveParameterUpButton = tk.createButton(fParameterButtons, "Up", SWT.PUSH);
+		fMoveParameterUpButton = tk.createButton(fParameterButtons, "&Up", SWT.PUSH);
 		fMoveParameterUpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fMoveParameterUpButton);
-		fMoveParameterDownButton = tk.createButton(fParameterButtons, "Down", SWT.PUSH);
+		fMoveParameterDownButton = tk.createButton(fParameterButtons, "D&own", SWT.PUSH);
 		fMoveParameterDownButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fMoveParameterDownButton);
 		
 		// Create the default buttons
 		fDefaultButtons = tk.createComposite(bb);
 		fDefaultButtons.setLayout(new GridLayout());
-		fAddButton = tk.createButton(fDefaultButtons, "Add", SWT.PUSH);
+		fAddButton = tk.createButton(fDefaultButtons, "A&dd", SWT.PUSH);
 		fAddButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fAddButton);
-		fRemoveButton = tk.createButton(fDefaultButtons, "Remove", SWT.PUSH);
+		fRemoveButton = tk.createButton(fDefaultButtons, "Remo&ve", SWT.PUSH);
 		fRemoveButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fRemoveButton);
 		
-		fUpButton = tk.createButton(fDefaultButtons, "Up", SWT.PUSH);
+		fUpButton = tk.createButton(fDefaultButtons, "&Up", SWT.PUSH);
 		fUpButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fUpButton);
 		
-		fDownButton = tk.createButton(fDefaultButtons, "Down", SWT.PUSH);
+		fDownButton = tk.createButton(fDefaultButtons, "D&own", SWT.PUSH);
 		fDownButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		initButton(fDownButton);
 		
@@ -315,21 +315,21 @@ public class TemplatePage extends FormPage {
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		c.setLayout(new GridLayout(3, false));
 		
-		tk.createLabel(c, "Name:");
+		tk.createLabel(c, "Na&me:");
 		fTemplateName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateName.setLayoutData(gd);
 		addTextListeners(fTemplateName, "name");
 		
-		tk.createLabel(c, "Id:");
+		tk.createLabel(c, "&Id:");
 		fTemplateId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		fTemplateId.setLayoutData(gd);
 		addTextListeners(fTemplateId, "id");
 		
-		tk.createLabel(c, "Category:");
+		tk.createLabel(c, "&Category:");
 		fTemplateCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		// TODO:
@@ -342,7 +342,7 @@ public class TemplatePage extends FormPage {
 		 */
 		
 		Group g = new Group(c, SWT.NONE);
-		g.setText("Description");
+		g.setText("Descrip&tion");
 		tk.adapt(g);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 3;
@@ -374,7 +374,7 @@ public class TemplatePage extends FormPage {
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		c.setLayout(new GridLayout(3, false));
 		
-		tk.createLabel(c, "Name:");
+		tk.createLabel(c, "Na&me:");
 		fParameterName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
@@ -422,7 +422,7 @@ public class TemplatePage extends FormPage {
 		fAttrMap.put(fParameterDefault, "default");
 		
 		Group g = new Group(c, SWT.NONE);
-		g.setText("Description");
+		g.setText("Descrip&tion");
 		tk.adapt(g);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 3;
@@ -446,7 +446,7 @@ public class TemplatePage extends FormPage {
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		c.setLayout(new GridLayout(3, false));
 		
-		tk.createLabel(c, "Name:");
+		tk.createLabel(c, "Na&me:");
 		fParameterGroupName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
@@ -463,7 +463,7 @@ public class TemplatePage extends FormPage {
 		fAttrMap.put(fParameterGroupHidden, "hidden");
 		
 		Group g = new Group(c, SWT.NONE);
-		g.setText("Description");
+		g.setText("Descrip&tion");
 		tk.adapt(g);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 3;
@@ -487,7 +487,7 @@ public class TemplatePage extends FormPage {
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		c.setLayout(new GridLayout(3, false));
 
-		tk.createLabel(c, "Name:");
+		tk.createLabel(c, "Na&me:");
 		fFileName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
@@ -524,14 +524,14 @@ public class TemplatePage extends FormPage {
 		c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		c.setLayout(new GridLayout(2, false));
 
-		tk.createLabel(c, "Id:");
+		tk.createLabel(c, "&Id:");
 		fCategoryId = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fCategoryId.setLayoutData(gd);
 		fCategoryId.addModifyListener(modifyListener);
 		fAttrMap.put(fCategoryId, "id");
 		
-		tk.createLabel(c, "Name:");
+		tk.createLabel(c, "Na&me:");
 		fCategoryName = tk.createText(c, "", SWT.BORDER+SWT.SINGLE);
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		fCategoryName.setLayoutData(gd);
@@ -543,7 +543,7 @@ public class TemplatePage extends FormPage {
 		gd.horizontalSpan = 2;
 		g.setLayoutData(gd);
 		g.setLayout(new GridLayout());
-		g.setText("Description");
+		g.setText("Descrip&tion");
 		fCategoryDescription = tk.createText(g, "", 
 				SWT.BORDER+SWT.MULTI+SWT.WRAP+SWT.V_SCROLL);
 		fCategoryDescription.addModifyListener(modifyListener);

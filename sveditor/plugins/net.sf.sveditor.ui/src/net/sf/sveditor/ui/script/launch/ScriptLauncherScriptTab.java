@@ -55,7 +55,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		Group script_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		script_group.setText("Script");
+		script_group.setText("Scri&pt Name");
 		script_group.setLayout(new GridLayout(2, false));
 		script_group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
@@ -66,16 +66,16 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		fScriptText.addModifyListener(modifyListener);
 		
 		fScriptBrowseWS = new Button(script_group, SWT.PUSH);
-		fScriptBrowseWS.setText("Browse Workspace...");
+		fScriptBrowseWS.setText("&Browse Workspace...");
 		fScriptBrowseWS.addSelectionListener(scrSelectionListener);
 		
 		fScriptBrowseFS = new Button(script_group, SWT.PUSH);
-		fScriptBrowseFS.setText("Browse Filesystem...");
+		fScriptBrowseFS.setText("Browse &Filesystem...");
 		fScriptBrowseFS.addSelectionListener(scrSelectionListener);
 	
 		// Working Directory Group
 		Group wd_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		wd_group.setText("Working Directory");
+		wd_group.setText("W&orking Directory");
 		wd_group.setLayout(new GridLayout(2, false));
 		gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		wd_group.setLayoutData(gd);
@@ -87,16 +87,16 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		fWorkingDirText.addModifyListener(modifyListener);
 		
 		fWorkingDirBrowseWS = new Button(wd_group, SWT.PUSH);
-		fWorkingDirBrowseWS.setText("Browse Workspace...");
+		fWorkingDirBrowseWS.setText("B&rowse Workspace...");
 		fWorkingDirBrowseWS.addSelectionListener(wdSelectionListener);
 		
 		fWorkingDirBrowseFS = new Button(wd_group, SWT.PUSH);
-		fWorkingDirBrowseFS.setText("Browse Filesystem...");
+		fWorkingDirBrowseFS.setText("Browse F&ilesystem...");
 		fWorkingDirBrowseFS.addSelectionListener(wdSelectionListener);
 		
 		// Script Arguments
 		Group args_group = new Group(top, SWT.SHADOW_ETCHED_IN);
-		args_group.setText("Command line");
+		args_group.setText("Co&mmand line");
 		args_group.setLayout(new GridLayout());
 		args_group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
@@ -139,7 +139,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 
 	@Override
 	public String getName() {
-		return "Script";
+		return "&Script";
 	}
 	
 	@Override
@@ -153,6 +153,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		setMessage(null);
 	
 		String scr = fScriptText.getText();
+		scr = SVFileUtils.expandVars(scr, null, false);
 		
 		if (scr.trim().equals("")) {
 			if (getErrorMessage() == null) {
@@ -169,6 +170,7 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		}
 
 		String wd = fWorkingDirText.getText();
+		wd = SVFileUtils.expandVars(wd, null, false);
 		if (wd.trim().equals("")) {
 			if (getErrorMessage() == null) {
 				setErrorMessage("Must specify a working directory");
@@ -210,12 +212,13 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == fWorkingDirBrowseWS) {
-				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(fWorkingDirBrowseWS.getShell());
+				WorkspaceDirectoryDialog dlg = new WorkspaceDirectoryDialog(fWorkingDirBrowseWS.getShell(), "Select Working Directory");
 				if (dlg.open() == Window.OK) {
 					fWorkingDirText.setText("${workspace_loc}" + dlg.getPath());
 				}
 			} else if (e.getSource() == fWorkingDirBrowseFS) {
 				DirectoryDialog dlg = new DirectoryDialog(fWorkingDirBrowseFS.getShell());
+				dlg.setText("Select Working Directory");
 				
 				String path = dlg.open();
 				
@@ -234,12 +237,13 @@ public class ScriptLauncherScriptTab extends AbstractLaunchConfigurationTab impl
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.getSource() == fScriptBrowseWS) {
-				WorkspaceFileDialog dlg = new WorkspaceFileDialog(fScriptBrowseWS.getShell());
+				WorkspaceFileDialog dlg = new WorkspaceFileDialog(fScriptBrowseWS.getShell(), "Select Script");
 				if (dlg.open() == Window.OK) {
 					fScriptText.setText("${workspace_loc}" + dlg.getPath());
 				}
 			} else if (e.getSource() == fScriptBrowseFS) {
 				FileDialog dlg = new FileDialog(fScriptBrowseFS.getShell());
+				dlg.setText("Select Script");
 				
 				String path = dlg.open();
 				

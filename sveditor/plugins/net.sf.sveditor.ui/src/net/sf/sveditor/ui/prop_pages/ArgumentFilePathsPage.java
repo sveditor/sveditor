@@ -88,7 +88,7 @@ public class ArgumentFilePathsPage implements ISVProjectPropsPage,
 		button_bar.setLayout(new GridLayout(1, true));
 		
 		fAdd = new Button(button_bar, SWT.PUSH);
-		fAdd.setText("Add");
+		fAdd.setText("&Add");
 		fAdd.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fAdd.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {}
@@ -98,7 +98,7 @@ public class ArgumentFilePathsPage implements ISVProjectPropsPage,
 		});
 
 		fEdit = new Button(button_bar, SWT.PUSH);
-		fEdit.setText("Edit");
+		fEdit.setText("&Edit");
 		fEdit.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fEdit.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {}
@@ -109,7 +109,7 @@ public class ArgumentFilePathsPage implements ISVProjectPropsPage,
 		});
 
 		fRemove = new Button(button_bar, SWT.PUSH);
-		fRemove.setText("Remove");
+		fRemove.setText("&Remove");
 		fRemove.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fRemove.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {}
@@ -163,7 +163,7 @@ public class ArgumentFilePathsPage implements ISVProjectPropsPage,
 	}
 	
 	private void add() {
-		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject);
+		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject, "Add File");
 		
 		if (dlg.open() == Window.OK) {
 			SVDBPath path = new SVDBPath(dlg.getPath(), false);
@@ -176,7 +176,7 @@ public class ArgumentFilePathsPage implements ISVProjectPropsPage,
 		IStructuredSelection sel = (IStructuredSelection)fArgFilePathViewer.getSelection();
 		SVDBPath elem = (SVDBPath)sel.getFirstElement();
 
-		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject);
+		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject, "Edit Path");
 		dlg.setInitialPath(elem.getPath());
 		
 		if (dlg.open() == Window.OK) {

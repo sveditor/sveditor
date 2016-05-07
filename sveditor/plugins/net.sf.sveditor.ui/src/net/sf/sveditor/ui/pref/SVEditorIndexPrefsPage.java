@@ -30,17 +30,17 @@ public class SVEditorIndexPrefsPage extends FieldEditorPreferencePage implements
 	@Override
 	protected void createFieldEditors() {
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_OVERRIDE_FILE_EXTENSION_LANGUAGE_LEVEL, 
-				"Override Language Level based on file extension. Treat all source as SystemVerilog", 
+				"&Override Language Level based on file extension. Treat all source as SystemVerilog", 
 				getFieldEditorParent()));
 		
 		fEditorAutoIndexEn = new BooleanFieldEditor(
 				SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_ENABLE,
-				"Enable Editor Auto-Index", getFieldEditorParent());
+				"&Enable Editor Auto-Index", getFieldEditorParent());
 		addField(fEditorAutoIndexEn);
 		
 		fEditorAutoIndexDelay = new IntegerFieldEditor(
 				SVEditorPrefsConstants.P_EDITOR_AUTOINDEX_DELAY, 
-				"Editor Auto-Index Delay (mS):", getFieldEditorParent());
+				"Ed&itor Auto-Index Delay (mS):", getFieldEditorParent());
 		fEditorAutoIndexDelay.setValidRange(0, Integer.MAX_VALUE);
 		addField(fEditorAutoIndexDelay);
 	}

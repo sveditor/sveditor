@@ -163,7 +163,7 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 	}
 	
 	private void add() {
-		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject);
+		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject, "Add File");
 		
 		if (dlg.open() == Window.OK) {
 			SVDBPath path = new SVDBPath(dlg.getPath(), false);
@@ -176,7 +176,7 @@ public class LibraryPathsPage implements ISVProjectPropsPage,
 		IStructuredSelection sel = (IStructuredSelection)fLibraryPathViewer.getSelection();
 		SVDBPath elem = (SVDBPath)sel.getFirstElement();
 
-		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject);
+		AddFilePathDialog dlg = new AddFilePathDialog(fAdd.getShell(), fProject, "Edit Path");
 		dlg.setInitialPath(elem.getPath());
 		
 		if (dlg.open() == Window.OK) {

@@ -1,89 +1,88 @@
-=Tutorial - Switching from Vi/Emacs to Eclipse using SVEditor=
+=Tutorial - Switching from Vi/EMACS to Eclipse using SVEditor=
 
 ==Background==
-This tutorial is intended to help an HDL user transition to using Eclipse with SVEditor as a plug-in.  The tutorial will cover setup and installation of SVE and then take you through a quick tour of what Eclipse offers you over and above a normal editor like VI / EMACS.
+This tutorial is intended to help an HDL user transition to using Eclipse with SVEditor as a plug-in.  The tutorial will cover setup and installation of Eclipse and the SystemVerilog Editor and then take you through a quick tour of what Eclipse offers you over and above a normal editor like VI / EMACS.
 
-First off Eclipse is an IDE, as opposed to an editor.  Hopefully as the tutorial progresses the distinction will become more clear, but in it's simplest terms, an IDE is aware of the all the files in the project, and not just the file(s) that is/are open.  It is also truly syntax aware, highlighting errors as you type, no more waiting 5 minutes for a compile to complete to discover you missed a semi-colon!
+First off Eclipse is an IDE, as opposed to an editor.  Hopefully as the tutorial progresses the distinction will become more clear, but in it's simplest terms, an IDE is aware of the all the files in the project, and not just the file(s) that is/are open.  This brings:
+* True syntax awareness, highlighting errors as you type, no more waiting 5 minutes for a compile to complete to discover you missed a semi-colon!
+* Easy navigation through the entire design
+* Class and class hierarchy awareness
+* Easy module / class member instantiation
+* Platform independence, delivering the same experience whether you work on Windows / Unix / Linux or Apple.
 
-Another perk for us RTL designers, you are no longer necessarily limited to Windows / Unix / Linux / Apple.  You can work wherever you want and have the same experience.  Personally I have Eclipse running on a Windows XP machine and my Linux box.  I have the same user experience in either environment.
+==Setting Expectations==
+Eclipse is to Vi/EMACS what Vi/EMACS is to Notepad.  This is really good news, hang on to that thought.  That said, this is a significant jump in functionality, and will take a bit of getting used to and to learn to take advantage of.  Remember that it took a while to ''really'' start taking advantage of the features Vi/EMACS.  Now you'd never go back to Notepad,  would you.
 
-==User Beware==
-Eclipse is to Vi/Emacs what Vi/Emacs is to Notepad.  This is good news.  That said, this is a significant jump in functionality, and will take a bit of getting used to.
-
-It is going to take a little while to re-train your fingers.  There are GOING to be functions that you are used to using that you either behave ''differently'', or, occasionally are missing entirely in Eclipse.  I am going to say that by the same token I have found things in Eclipse that my previous editor didn't have.  In my experience, Eclipse brings enough "good" that it significantly outweighs the "bad".  
+It is going to take a little while to re-train your fingers.  There are GOING to be functions that you are used to using that you either behave ''differently'', or, occasionally are missing entirely in Eclipse.  Eclipse has a significant number of features that your previous editor didn't have.  In my experience, Eclipse brings enough "extra" that it significantly outweighs the "missing/different".  
 
 == Table of Contents ==
 __TOC__
 
 == Installing Eclipse==
+There are several ways of installing Eclipse and the SVEditor plugin for Eclipse.  These are detailed on the [http://sveditor.org/Installing_SVEditor.html Installing SVEditor] page.  If you do not have Eclipse and the SVEditor plugin installed please follow the directions on the link above.
 
-There are several ways of installing Eclipse and the SVEditor plugin for Eclipse.  These are detailed on the [http://sveditor.org/Installing_SVEditor.html Installing SVEditor] page.  This tutorial focuses on downloading Eclipse from the Eclipse site, and then installing the SVEditor plugin as a seperate step.  
+== First Eclipse Launch==
+The following sections take you through launching Eclipse, and some of the concepts that you'll come across when you first launch Eclipse including:
+* The Workspace
+* Perspectives
+* Projects
+=== The Workspace ===
+The first thing Eclipse asks you to do when launched is to "Choose a Workspace".  For this tutorial, choose the default location.  
 
-The two alternative methods are:
-* Installing a version of Eclipse that comes pre-packaged with SVEditor (arguably the simplest way to get going)
-* Installing '''DVKit''', which is an installation that not only includes SVEditor as a part of the Eclipse installation, but other plugins commonly used by designers (such as TCL, Shell scritps etc.).
+If you are asking yourself what a workspace is...  a workspace is a place that Eclipse uses to do it's cache'ing.  The following is an example of items that may be stored in the cache:
+* All your preferences
+** The color scheme you are using for this workspace
+** The keybindings you are using in this workspace
+** Tabs vs spaces, indent size etc.
+** Code formatting preferences
+** etc. etc. etc.
+* The list of files you have open at any given time so that next time you launch Eclipse, you pick up where you left off
+* Eclipse's "compiled code"
+** In the same way that a simulator compiles code before running, Eclipse "indexes" your code and stores the compiled output in the workspace
 
-=== Installing Eclipse from Eclipse.org ===
+Please refer to the Appendix "[[#Workspace vs. Projects]]" for more details.
 
-Download a version of Eclipse from [http://eclipse.org/downloads/ http://eclipse.org/downloads/].  Any of them will do.  If you do more C++ than Java, use that version.  If you don't know what to do, Eclipse Standard will work just fine.  Eclipse is usually just a zip file, which you extract.  At the top of the extracted data, there is an executable (called eclipse).  Just run it and eclipse should launch.
-
-You will first be to select a "workspace".  To all intense purposes, a workspace is a place where Eclipse 
-* Stores project information
-* Stores preferences (key bindings, colors, etc.)
-* Does it's caching (more on this later)
-* Keeps track of a list of open files, window layouts, repository configurations etc.
-* '''This should NOT be where your RTL lives.  Place this in your home area (usually the default).'''
-
-[[File:WorkspaceLauncher.png|frame|Workspace Launcher Dialog]]
-
-Once a workspace has been selected, the Eclipse startup screen shown below comes up, and is the least intuitive thing I have seen in a long time.  Best to kill this window and move on (hit the "X" circled at the top of the welcome tab in the picture below).
-
-[[File:Welcome.png|frame|Eclipse Welcome Screen]]
-
-
-===Installing the SVEditor Plug-in===
-Now it is time to install the SVEditor plug-in.  
-# This can be installed from the Eclipse Marketplace as follows:
-## ''Help>Eclipse Marketplace''
-# Once this dialog is up, search for and install the SVEditor plug-in as shown below.  
-# Next, Accept/Finish your way through this process.
-# Once done, you will be prompted to restart Eclipse, do so.
-
-[[File:MarketPlace.png|frame|Eclipse Marketplace]]
-
-
-=== Opening the SVEditor Perspective===
-What is a perspective?  In its simplest terms a perspective is a combination of:
+=== Opening the SVEditor Perspective ===
+First off, What is a perspective?  In its simplest terms a perspective is a combination of:
 * Window layout
 * Menus
-That are applicable for a given task.  When doing java programming, you'll commonly switch between a JAVA perspective (where the window layout is primarily dominated by your code) and a DEBUG perspective where the window layout is likely dominated by Watch windows, Breakpoint lists, console etc.
 
-To open the SVE perspective ''Window>Open Perspective>Other>SystemVerilog''.  You can also open the System Verilog perspective using the icon in the picture below.  Unused perspectives can be closed by right-clicking on the perspective and hitting "Close".
+A perspective customizes the user interface for a given task.  Developers will commonly switch between a '''JAVA perspective''' (where the window layout is primarily dominated by the code being edited) and a '''DEBUG perspective''' where the window layout is likely dominated by Watch windows, Breakpoint lists, console etc.  You can change perspectives within a given workspace
+
+To open the SVE perspective ''Window>Open Perspective>Other>SystemVerilog''.  The System Verilog perspective can also be opened using the icon in the picture below.  Unused perspectives can be closed by right-clicking on the perspective and hitting "Close".
 
 [[File:OpenPerspective.png|frame|Open SVEditor Perspective]]
 
+=== Eclipse Projects ===
+A project in Eclipse terminology is a group of code that needs to be treated as a set.  As HDL designers this is usually a group of files that we can synthesize and or simulate. Examples of projects include:
+* A piece of RTL IP
+* A piece of IP, including both RTL and test bench
+* A full chip, containing multiple pieces of IP, the supporting infrastructure and supporting code that may be external to the project on the file system
 
-== Loading Your First Project==
-The following zip file contains two "dummy" chips, '''chip1''' and '''chip2'''.  These could be chips, modules, or any other piece of IP.
+A workspace could contain multiple projects.  For example if you are working on 2 separate pieces of IP, they can both be open in Eclipse simultaneously.
+
+== Loading Your First Project ==
+This section of the tutorial will walk you through creating an SVEditor project in Eclipse, setting some environment variables and guiding you through the point where Eclipse has "compiled" or "indexed" your code.  The following zip file contains two "dummy" chips, '''chip1''' and '''chip2'''.  These could be chips, modules, or any other piece of IP.
+
 # Download the zip file
 ## [[EclipseTutorialRTL.zip]]
-# Unzip the source code to the following location, "C:\<some_place_other_than_workspace>\Tutorial".  You should have 2 top level folders - chip1 & chip2
-# Start a new project:
+# Unzip the source code to the following location, "C:\<some_place_other_than_workspace>\Tutorial".  There will be 2 top level folders - chip1 & chip2
+# Next we will create a new SVEditor project:
 ## ''File>New>Other>SVEditor>SVE Project''
 ## "Next"
 ## [[File:NewProject.png|frame|New Project Step 1]]
 # Set up the project name and root of the project
-## Set the ''Project name'' to ''Chip 1''.  The name is a way to uniquely identify the project.
+## Set the ''Project name'' to ''Chip 1''.  The name is a way to uniquely identify the project.  Any string can be used here.
 ## Un-check ''Use Default Location''
 ## Browse to the un-zipped project location, in this case: 
-## "C:\<some_place_other_than_workspace>\chip1"
+## "C:\<some_place_other_than_workspace>\Tutorial\chip1"
 ## Hit Next  
 ## [[File:NewProject2.png|frame|New Project Step 2]]
-# At this point you need to give Eclipse the information it needs to properly parse your design.  This is usually some sort of ".f" file.  Depending on your place of work you may have one or more of these.  In this tutorial there is are two  .f files, one for RTL and another for the test bench.
-## You will be brought to the "Specify File Lists" dialog where argument (.f) files can be added.
+# Next give Eclipse the information it needs to properly parse files in the design.  This is usually a argument (".f") file.  There may be one or more of argument file in real-world projects.  In this tutorial there is are two  argument files, one for RTL and another for the test bench.
+## The "Specify Filelists" dialog is one place where an argument (.f) file(s) can be added.
 ## Select "Add Project Path"
 ## Select the "sim/files_rtl.f" file which contains an inventory of all the RTL in the design.  
-### At this point we won't reference the test bench files, these will be added later showing a different way to do this same task.
+### The argument file referencing test bench files can be added here, but will be skipped in this step to show a different way to do this same task.
 ## Hit Next  
 ## [[File:NewProject3.png|frame|Add an argument file]]
 # Finish the project creation
@@ -97,27 +96,30 @@ The following zip file contains two "dummy" chips, '''chip1''' and '''chip2'''. 
 At this point, Eclipse knows what files matter to your design, and parses them appropriately.
 
 === Setting Environment Variables===
-Now to set up some environment variables for the project.  This step isn't strictly necessary.  Eclipse 
-will look for variables in the environment if they aren't set in a project file.  Often times though, environment 
-variables are used to distinguish between user areas, where all paths will typically be relative to a given 
-spot within a user area (sandbox etc).
+Environment variables are often used for various things in a design project.  An environment variable could be used to point to a given place on the file system where libraries are used, or can be used to point to a location on the file system which contains locally checked out code.
 
-More on this later.  For now though, we are going to set an environment variable that '''chip1''' uses in it's ''files.f''.
+Eclipse has the ability to store environment variables in it's .project file (which was created by Eclipse earlier in the tutorial).  When an environment variable is called Eclipse will look:
+# In the Project's configuration file
+# In the environment available when Eclipse was launched
+
+For now though, we are going to set an environment variable that '''chip1''' uses in it's ''files.f''.
 # Open the project properties by right clicking on the Chip1 in the ''Project Explorer > Properties''
-## Why would we want to set environment variables in Eclipse?  Depending on your work environment you may or may not need to.  In its simplest case, if your file system is on a linux drive, and you usually work on a linux drive, your paths in files.f will look something like "/home/data/chip/top.sv".  If you were trying to use Eclipse on a Windows machine, the equivalent path would look something like "L:\chip\top.sv".  By setting an environment variable, $PATH_TO_CHIP in your files .f - which would look like "$\{PATH_TO_CHIP\}/chip/top.sv" you'd be able to use the same files.f in both Windows & Linux.
 ## [[File:ProjectProperties.png|frame|Open Project Properties]]
 # Open the Linked resources ''Resource>Linked Resources> Path Variables>New''
 # We are going to set what is a project environment variable called "CHIP".  Chip is used by files.f and is the root of the project.
 ## [[File:NewVariable.png|frame|Setting Environment Variables]]
 # At this point you will have a screen that looks something like this
-## [[File:NewProject3.png|frame|Imported Project]]
+## [[File:Chip1.png|frame|Imported Project]]
 
-=== Compiling (Indexing) your Code ===
-Eclipse is aware of more than what is required to do basic code colorization.  Eclipse is aware of your design hierarchy, class hierarchy and so on. To do this Eclipse needs to compile your code.  The ''compiled output'' will be stored in your workspace (note that this is not the same location as where the project is stored) leaving your user area unaffected. 
+==== Advanced Notes ====
+Eclipse stores it's project settings at the root of your project (these are the only files that Eclipse generates outside the workspace).  The two files are .project and .svproject.  These are xml files and can be browsed at your convenience.
 
-As you work (type) Eclipse will continually update the index, so you do not need to re-compile each time you edit your code.  This is done in real time after an initial compile.
+=== Compiling (Indexing) the Code ===
+Eclipse is aware of more than what is required to do basic code colorization.  Eclipse is aware of the design hierarchy, class hierarchy and so on. To do this Eclipse needs to compile the code in your project.  The ''compiled output'' will be stored in the workspace (note that this is not the same location as where the project is stored) leaving the area where the source code resides unaffected. 
 
-You can force a re-compile at any time, simply by following the same step you follow to compile your code in the first place:
+As you work (type) Eclipse will continually update the index, so you do not need to re-compile each time the code is edited.
+
+A complete rebuild of all the code can be forced at any time by:
 
 # ''Project>Clean''
 
@@ -125,53 +127,56 @@ You can force a re-compile at any time, simply by following the same step you fo
 
 '''Congratulations.  You've just loaded and compiled your first project bit of Verilog code!!!'''
 
-'''Terminology Note:''' SVEditor stores the compiled code in an ''Index'', hence the fact that index is used somewhat interchangeably with ''compile''.  
+''Terminology Note:'' SVEditor stores the compiled code in an ''Index'', hence the fact that index is used somewhat interchangeably with ''compile''.  
 
 
-== Playing with your New Project==
+== Playing with the New Project==
 
-===Basic Key bindings===
-In its simplest terms, editing in Eclipse is the same as editing in any Microsoft product (no, don't run away screaming, 
-it isn't that bad, there are alternatives.  I ask that you bear with me for now.)  
+===Basic Key Bindings===
+Editing in Eclipse with the default keybindings is the same as editing in any Microsoft product (no, don't run away screaming, 
+it isn't that bad, there are alternatives.  Just go with it for now.)  
 
 Here are some common key bindings that will get you around for now:
 {|  border="1"  cellpadding="2" 
 |'''Key binding'''||'''Command'''
 |-
-|Shift-Arrow, CTRL-SHIFT-Arrow||Select Text
+|Shift+Arrow, Ctrl+Shift+Arrow||Select Text
 |-
-|Ctrl-C, Ctrl-X, Ctrl-V||Copy, Cut, Paste
+|Ctrl+C, Ctrl+X, Ctrl+V||Copy, Cut, Paste
 |-
-|Ctrl-Z, Ctrl-Y||Undo/Redo
+|Ctrl+Z, Ctrl+Y||Undo/Redo
 |-
-|Ctrl-E, Ctrl-Tab, Ctrl+Shift+Tab, Ctrl-Shift-E, Ctrl-Shift-R||Buffer and File management - Try them all when you have a bunch of files open
-|-
-|Ctrl-F, Ctrl-J, Ctrl-H||Find, Incremental Search (search while I type), Find & Grep
+|Ctrl+F, Ctrl+J, Ctrl+H||Find, Incremental Search (search while typing ), Find & Grep
 |-
 |}
 
 
-=== Opening Files===
-There are many ways of opening files.  The obvious one is to use your mouse!  You can mouse through your hierarchy in the "Project Explorer" view that comes up on the left hand side of the screen, expanding and collapsing directories.
+=== Opening Files - Ctrl+Shift+R===
+There are many ways of opening files in Eclipse.  The obvious one is to use the mouse!  The mouse can be used to traverse 
+through the hierarchy in the "Project Explorer" view that comes up on the left hand side of the screen, 
+expanding and collapsing directories.  Double clicking on a file will open it.
 
 [[File:ProjectExplorer.png|frame|Project Explorer]]
 
-Now for something fun.  Type '''Ctrl-Shift-R''', and start typing the name of the file you are looking for (in this case type "*mod").  
+Now for something fun.  Type '''Ctrl+Shift+R''', and start typing the name of the file you are looking for (in this case type "*mod").  
  
 [[File:OpenResource.png|frame|Open Random Resource (File)]]
 
-Note that eclipse will filter all files in your project, narrowing your choices down as you go.  Wildcarding etc makes finding 
-a file anywhere in your design a breeze.  Where I work we have a naming convention where the module name must 
-match the file name.  This makes it really easy to open up any module in the design.  
+Note that eclipse will filter all files in the project, narrowing the choices down as additional information is entered.  Wildcarding etc makes finding 
+a file anywhere in the design a breeze.  No longer do you have to traverse the hierarchy to open a file.  Naming conventions often dictate that module/class names match the file name.  Thes makes opening up any module or class in the design a breeze.  
 
-Eclipse does a great job of parsing your directory tree to find all the files in it, and creates a really 
-fast index of files.  No more browsing through the entire hierarchy as you switch files in your project!!!
+'''Command Line''': The command line also works believe it or not: '''eclipse <filename>'''
 
 === Outline View===
-The outline view is a birds-eye view of items within a given file.  There are a number of icons on the top of the view that allow you to filter out various constructs.  For instance, always blocks are typically not named, so including these in an outline view is just clutter.  Module instantiations on the other hand are useful.  Clicking on items within the outline view will take you to that location in the file.
+This portion of the tutorial will introduce you to the outline view and covers:
+* A description of the outline view
+* Filtering in the outline view
+* Navigtion in the outline view
+
+The outline view is a birds-eye view of items within a given file.  There are a number of icons on the top of the view that allow filtering of various constructs.  For instance, always blocks are typically not named, so including these in an outline view is just clutter.  Module instantiations on the other hand are useful.  Clicking on items within the outline view will take you to that location in the file.
 # Open up top_module:
-## '''Ctrl+shift+R''', '''top_module.sv'''
-# Bring up the outline view (this is likely already up)
+## '''Ctrl+Shift+R''', '''top_module.sv'''
+# Bring up the outline view (this is likely already up in the lower left corner of the screen)
 ## ''Window>Show View>Other>General>Outline''
 ## [[File:ShowViewOutline.png|frame|Open Outline View]]
 # Click on various items in the outline view, turn items off on the icons at the top of the view
@@ -181,7 +186,7 @@ The outline view is a birds-eye view of items within a given file.  There are a 
 ===Instantiating a Module, Function or Task - Ctrl+Space===
 The goal of this exercise is to instantiate a sub-module (called sub_module) in the design.  To instantiate a sub-module:
 # Open "top_module.sv"
-## Keystrokes: '''Ctrl-Shift-R''', "top_module.sv"
+## Keystrokes: '''Ctrl+Shift+R''', "top_module.sv"
 # Open "sub_module.sv"
 ## Keystrokes: '''Ctrl+Shift+R''', "sub_module.sv
 ## Note that this could have been done by wildcarding \*mod\* and selecting both modules simultaneously.
@@ -191,9 +196,9 @@ The goal of this exercise is to instantiate a sub-module (called sub_module) in 
 # Search	for the "Exercise_Submodule"
 ## Keystrokes: '''Ctrl+F'''
 # Go to the insertion point shown below and type:
-## sub_mod<CTRL-SPACE>
+## sub_mod<Ctrl+Space>
 ## [[File:CodeCompletionSub.png|frame|Submodule Instantiation]]
-# You should see code that looks like one of the following depending on the preferences you have selected as described further down.
+# You will see code that looks like one of the following depending on the preferences you have selected as described further down.
 
  sub_module1 sub_module1 (clk, rst, a, b, y); 
  sub_module1 sub_module1 (.clk (clk), .rst (rst), .a (a), .b (b), .y (y));
@@ -204,18 +209,15 @@ The goal of this exercise is to instantiate a sub-module (called sub_module) in 
  	.b    (b   ), 
  	.y    (y   ));
 
-The way modules, tasks & functions are instantiated is specified by your preferences: ''Window>Preferences>SVEditor>ContentAssist''. For the above we have the following settings:
-# Enable Named Task/Function Parameters unchecked.  Line wrap 80, Max Task/Function Parameters Per Line 0
-# Same as 1, but Enable Named Task/Function Parameters checked.
-# Same as 2, but with Max Task / Function Parameters Per Line set to 1.
+The way modules, tasks & functions are instantiated as specified in the SVEditor preferences: ''Window>Preferences>SVEditor>ContentAssist''. 
 
 [[File:PrefsContentAssist.png|frame|Outline Filters]]
 
 === Instantiating Common Constructs - Ctrl+Space===
-You can save yourself some time by hitting ''Ctrl+Space'' on all common constructs (if, else, always_ff etc.).  Try instantiate an always_ff block.
+''Ctrl+Space'' supports all common constructs (if, else, always_ff etc.).  Try instantiate an always_ff block.
 # Type "'''always<Ctrl+Space>'''"
-# Select the always block you want, and hit '''Enter'''
-These templates can be modified in the code templates selection of the preferences.  At the time of writing this, the default templates were being put together, so these screenshots are going to be dated pretty quickly.
+# Select the always block required, and hit '''Enter'''
+These templates can be modified in the code templates selection of the preferences.  
 
 These can be edited/removed pretty easily as follows:
 # Open up the SVEditor Code Template preferences
@@ -224,10 +226,10 @@ These can be edited/removed pretty easily as follows:
  
 [[File:PrefsCodeTemplates.png|frame|Code Templates]]
 
-=== Class Member Instantiation ===
-For you verification types, you'll love this one.
+=== Class Member Instantiation - Ctrl+Space===
+SVEditor is also class aware, and is able to instantiate class members (functions and variables) for you using ''Ctrl+Space''.
 # Open up top_module.sv
-## '''Ctrl+shift+R''' (or '''Ctrl+E''')
+## '''Ctrl+Shift+R''' (or '''Ctrl+E''')
 # Search for '''Exercise_ClassCompletion'''
 # In this area you'll see an instance of a class (another_package_class - acp) that has two functions in it.  
 # Call the function div within acp
@@ -238,14 +240,17 @@ For you verification types, you'll love this one.
 
 ===Code Completion - Alt+/===
 Another way to do code completion, similar to Ctrl+Space is to hit '''Alt+/'''. This differs from code completion in that the index isn't searched, but text is extracted from anywhere in the code above.
+
+A good place to use '''Alt+/''' is to save time on typos.  Using '''Alt+/''' like you use the Linux command line Tab completion when typing variable names that are local to the file.  This will ensure that variable names are correctly spelled, saving valuable debug time.
 # Search for "Exercise_CodeCompletion"
 ## Keystrokes "Ctrl+F"
-# Duplicate the assign statement there
-## Assign this_<Alt+/>
-Each time Alt+/ is typed, the editor will cycle through items that match what you initially typed.
+# Type the following:
+## "assign this_<Alt+/>"
+## Release the '''/''', holding '''Alt'''.  Each time '''/''' is typed, a new suggestion will be displayed.
+## Fix your selection by releasing '''Alt'''
 
 ===Indentation - Ctrl+I===
-Eclipse does a decent job with code indentation as you type.  As you type, Eclipse will take it's best guess as to what you want the indentation to look like.  Type in the initial block below, watching how Eclipse moves begin / end etc as you type (most leading whitespace will work out without having to ''Tab'' or ''Shift+Tab'' to fix it). 
+Eclipse will auto-indent code as it is typed.  Type in the initial block below, watching how Eclipse moves begin / end etc as you type (most leading whitespace will work out without having to ''Tab'' or ''Shift+Tab'' to fix it). 
 
 i.e. Don't indent / out-dent as you type.  You'll find that as you type the "d" in "end" the end statement will out-dent automatically.  
 
@@ -260,56 +265,61 @@ Try pasting this un-indented code into top_module.  Eclipse will fix the indenta
  end</pre>
 
 ====Fixing Indentation - Ctrl+I====
-If you come across a piece of code that is poorly indented, select this code (mouse or keyboard) and type "'''Ctrl+I'''".  Eclipse will fix the indentation.  
-# Search for "Exercise_CodeIndentation" and follow the instructions in the comment.
-BEWARE: If Ctrl+I is typed with nothing selected, the '''indentation of the entire file will be fixed, which is usually NOT what you intended!!!'''
+Code that is poorly indented can be easily fixed.  Select the block of code (mouse or keyboard) that is poorly indented and type "'''Ctrl+I'''".  Eclipse will fix the indentation.  
+
+# Search for '''Exercise_CodeIndentation''' and follow the instructions in the comment.
+
+If Ctrl+I is typed with nothing selected, the indentation of the entire file will be fixed.  You can try this out as follows:
+
+# Remove all leading whitespace in the file
+## Bring up the search dialog box ''' Ctrl+F'''
+## Set the find string to "'''\n[ \t]*'''"
+## Set the replace string to "'''\n'''"
+## Make sure ''Regular Expressions'' is enabled
+## Hit '''Replace All'''
+# Now to fix the indentation:
+## Type '''Ctrl+I'''
 
 ===Commenting out code - Ctrl+/===
 Code can easily be commented out.
 # Select a couple of lines of code.  
-## Use your mouse
+## Use the mouse ''OR''
 ## '''Shift+Up''' or '''Shift+Down'''
 # Comment these lines out
 ## '''Ctrl+/'''
-# Put them back in again
+# Restore these lines
 ## '''Ctrl+/'''
-# You can also use block commenting (/\*...\*/) to comment out your code.
+# You can also use block commenting (/\*...\*/) to comment out code.
 ## '''Ctrl+Shift+/'''
-# Restore it
-## Select at least one character within the block that is commented out
+# Restore the code
 ## '''Ctrl+Shift+\'''
 
-===Opening a Random file in the Environment - Ctrl+Shift+R===
+===Opening a Random file in the Environment===
 This is so awesome it deserves it's own chapter!!!
 
-'''Ctrl-Shift-R''' 
+*''Ctrl+Shift+R'' 
 
 === Code Browsing===
-This is one area where Eclipse starts differentiating itself from a "normal" Editor.  Because Eclipse parses your entire design, you are able to navigate through the design.  The following sections describe the primary means of navigating your design.
+This is one area where Eclipse starts differentiating itself from a "normal" Editor.  Because Eclipse parses the entire design that is loaded, it is able to navigate through the design.  The following sections describe the primary means of navigating a design.
 
 ====Open Declaration - F3====
-Source code browsing is done using the F3 button.  Open "top_module.sv" (Ctrl-Shift-R).  Find where the module "sub_module1".  Put your cursor in on the module name and hit F3.  The file containing "sub_module1" should open up.  Hitting ''F3'' on any signal name, class instance etc. will take you to it's declaration.
+Source code browsing is done using the F3 button.  Open "top_module.sv" (Ctrl+Shift+R).  Find where the module "sub_module1".  Put the cursor in on the module name and hit F3.  The file containing "sub_module1" will open up.  Hitting ''F3'' on any signal name, class instance etc. will take you to it's declaration.
 
-Hit '''Alt-Left Arrow''' which will bring you "back in history", the same way as Firefox/Internet Explorer allow you to go back and forward through web pages you have worked through.  
+F3 works on most items:
+* Modules
+* Classes
+* Variables
+* Functions / Tasks
 
-'''Ctrl+Q''' will take you to your last edit location, which is also huge.
+Hit '''Alt+Left Arrow''' which will bring the cursor "back in history", the same way as Firefox/Internet Explorer allow you to go back and forward through web pages.  
+
+'''Ctrl+Q''' will take the cursor to the last edit location, which is a huge timesaver.
 
 [[File:CodeNavigation.png|frame|Code Navigation]]
  
 
-==== Design Hierarchy====
-System Verilog Editor will show you the design hierarchy if Enabled.  To open the design hierarchy view:
-# ''Window>Show View>Other>SVEditor>Design Hierarchy''
-## [[File:ShowViewDesignHierarchy.png|frame|Open Design Hierarchy View]]
-# Move the view to on top of the project explorer view
-# Hit the "Refresh" icon to populate the view
-# Browse the hierarchy
-# Double-click on any of the files, they should open
-## [[File:DesignHierarchy.png|frame|Design Hierarchy Navigation]]
- 
-
 ==== Class Hierarchy - F4====
-This one is for you verification types.  You can browse class hierarchy as follows.  Open up the package "my_package.sv".  While the class hierarchy view is open, you can click up and down any class hierarchy that exists, double click on any of the class names, will open up the class.  Clicking on any of the functions will take you to that function in the class.
+This feature is awesome for verification engineers.  You can browse class hierarchy as follows.  
 # Ctrl+Shift+R
 # my_package.sv
 # Search for the class "another_class_package" using incremental search (Ctrl+J)
@@ -318,92 +328,102 @@ This one is for you verification types.  You can browse class hierarchy as follo
 # While on the class name hit
 ## '''F4'''
 
+While the class hierarchy view is open, you can click up and down any class hierarchy that exists, double click on any of the class names, will open up the class.  Clicking on any of the functions will take you to that function in the class.
+
 [[File:ClassHierarchy.png|frame|Class Hierarchy]]
 
-===Splitting Windows===
-This is an area that Eclipse doesn't do particularly well in my opinion.  To split a window you have to go to ''Window>New Editor''.  This will create a duplicate buffer within the same window.  Then you have to use your mouse (which kills me) to grab the tab and drag it either left, right, top or bottom to split the window.  There are a couple of plugins that do a decent job doing this via the Keyboard if this is critical to you.
-
-=== Find & Grep===
-This is pretty awesome.  No longer do you have to go to the command line to do a search through your directory tree.  Hit Ctrl-H.  This will bring up a very complicated dialog box that looks something like this:
+==== Design Hierarchy====
+System Verilog Editor can show the complete design hierarchy.  To open the design hierarchy view:
+# ''Window>Show View>Other>SVEditor>Design Hierarchy''
+## [[File:ShowViewDesignHierarchy.png|frame|Open Design Hierarchy View]]
+# Move the view to on top of the project explorer view
+# Hit the "Refresh" icon to populate the view
+## This view is not dynamically maintained and you will need to hit refresh to rebuild the view
+# Browse the hierarchy
+# Double-click on any of the modules in the hierarchy window to open the source
+## [[File:DesignHierarchy.png|frame|Design Hierarchy Navigation]]
+ 
+=== Find & Grep - Ctrl+H===
+This is pretty awesome.  No longer do you have to go to the command line to do a search through the directory tree of a project to find the file containing a cryptic log message.  Hit '''Ctrl+H'''.  This will bring up a very complicated dialog box that looks something like this:
 
 [[File:FindGrep.png|frame|Code Search]]
 
-Every language that you have installed has its own search dialog.  In general I have found that they are mostly redundant and I use the "File Search" tab exclusively.  You can hide the other search boxes by clicking on the "Customize..." button in the lower left which will help keep you sane.
+Every language installed probably has its own search dialog.  Search boxes that you don't use can be hidden by clicking on the "Customize..." button in the lower left.
 
-Another cool thing I accidentally discovered is that as you edit things, the search dialog box updates dynamically.  Search for "RESET_STATE1_DEFINE". You should end up with a screen that looks like this:
- 
-[[File:FindGrepResults.png|frame|Code Search Results]]
-
-Now go ahead and double click on the one in top_module.sv.  If you modify RESET_STATE1_DEFINE, the search box will update when you "save" and the entry will disappear.
+# Type '''Ctrl+H'''
+# Search for "RESET_STATE1_DEFINE". You will end up with a screen that looks like this:
+## [[File:FindGrepResults.png|frame|Code Search Results]]
+# Now go ahead and double click on the one in top_module.sv.
+## You will be taken to the appropriate place in the design  
+# If you modify RESET_STATE1_DEFINE, the search box will update when you "save" and the entry will disappear.
 
 === Column Mode===
-Eclipse supports column editing!  Of all the features in Eclipse, this function epitomizes my struggle with the transition.  When I first tried Eclipse's column mode, I HATED it.  Hated the way it works, the way to switch in & out of it was cumbersome (fingers couldn't learn the key sequence etc. etc.).  Later on I discovered that there are things that it does that weren't available to me in my previous editor, and that my biggest issue with it wasn't that Eclipse was bad, it was just different.
+Eclipse supports column editing.
 
 Firstly the default key-binding is pretty much never available... so it needs to be re-bound.
 
-''Window>Preferences>General>Keys''.  Re-bind Toggle Block Selection to ''Alt-C''
+''Window>Preferences>General>Keys''.  Re-bind ''Toggle Block Selection'' to ''Alt+C''
 
 [[File:PrefsKeysBlockSelect.png|frame|Block Selection Key Binding]]
  
-Without further adieu...
-# Enter Column Mode ('''Alt-C''').  You'll see your cursor change to a "+".  Note that this is a toggle function, and '''Alt-C''' will get you back out again.
+Trying it out:
+# Enter Column Mode ('''Alt+C''').  The cursor will change to a "+".  Note that this is a toggle function, and '''Alt+C''' will return to normal mode.
 # Now select some code.  VI users will recognize the "start position" and stop position concept, and the area selected is just the square of that code.
-# Cut the code out '''Ctrl-X'''.  The Block will disappear.
-# Paste it back in '''Ctrl-V'''.  Block will re-appear
+# Toggle back to normal mode '''Alt+C'''
+# Toggle back to column mode '''Alt+C'''
+# Cut the code out '''Ctrl+X'''.  The Block will disappear.
+# Paste it back in '''Ctrl+V'''.  Block will re-appear
 # Go to the start of a line 
-## Type "'''Home'''" till you get there
-# Select a couple of lines (you should just see a thin vertical strip appear).  
+## Type "'''Home'''" till the cursor is at the start of the line
+# Select a couple of lines (you will just see a thin vertical strip appear).  
 ## '''Shift+Down'''
 # Start typing.  The typing will appear on every line that you have selected.  Hit '''<BackSpace>'''.  Backspace works on all lines too!
 ##[[File:BlockSelectExample.png|frame|Example of Block Selection]]
 
-Likely the font changed when you switched into column mode.  If this annoys you, it can be changed in the preferences:
+The font in the editor probably changed when column mode was enabled.  The column mode font can be changed in the preferences:
 
-# Open preferences
+# Open font preferences
 ## ''Window>Preferences>General>Appearance>Colors and Fonts''
 # Set "'''Text Editor Block Selection Font'''" the same as "'''Text Font'''".
 ## [[File:PrefsFontBlockSelect.png|frame|Block Selection Font]]
 
-
 ===Diff'ing files===
-The in-editor diff feature is convenient.  Eclipse keeps a history of the file as you are working.  If you want to diff a file against an earlier edit, or against a version in the repository, it's easy as pie.  Just Right-Click the file you are editing, ''Compare With> Local History'' (or repository version if enabled) which will give you a screen that looks as follows.  Click on the time you saved the file and the diff will appear.  In this case between 3:36pm and December 12, 2011, I removed a comma after "out2".
+The in-editor diff feature is convenient.  Eclipse keeps a history of the file as it is edited.  To diff a file against an earlier edit, or against a version in the repository is easy.  Just Right-Click the file being edited, ''Compare With> Local History'' (or repository version if enabled) which will give the following screen.  Click on the saved of choice and the diff will appear.  In this case between 3:36pm and December 12, 2011, a comma was removed after "out2".
+
 [[File:Compare.png|frame|Diffing Code]]
 
-
-=== Documentation pop-ups (DocHover)===
-You will find that if you document your code using a "Natural Docs" style of coding, you will find pop-ups appear as you mouse over constructs.  If you hold your mouse over the mult function in top_module as shown below, a pop-up will appear showing you a description of the function.  
-
-Jump to the mult function by putting your cursor on the mult instantiation and hitting F3.  If you at the comment above the mult function, you'll see that this code has been replicated in this pop-up.  The syntax is pretty intuitive, and the long term benefit to people unfamiliar with your code base will pay huge dividends in the longer term.
-
-You can document variables, functions, tasks, modules etc. this way.
-
-[[File:DocHoverClass.png|frame|Natural Docs Doc Hover]]
-
-
 ===Multiple Projects & Environment Variables ===
-Environment Variables were touched on earlier in the Tutorial.  Now say I have 2 chips that I want to work on, semi-simultaneously.  I don't want to have to go and reboot my machine each time I want to switch projects (think changing environment variables here).  
+Environment Variables were touched on earlier in the Tutorial.  Now say there are 2 chips that you want to work on, semi-simultaneously.  
 
-In the following example I am going to a second design (Project).  Note that the files.f in these two projects reference environment variables (''Ctrl+Shift+R>files.f'').  
+The following example loads a second design (Project).
 
-It is also worth noting that you could do this in separate work-spaces, the setup would be the same.  It's just cool to see both projects, with the same environment variables working simultaneously.
-# ''File>New>Project>General>Project''
+# ''File>New>SVE Project''
 # Next
 # Set the "Project Name" to "chip2"
-# Uncheck "Use Default Location" and browse to where you unzipped the project.  In this should be something like "C:\<...>\chip2"  
+# Uncheck "Use Default Location" and browse to where you unzipped the project.  In this will be something like "C:\<...>\chip2"  
+# Add the files.f in "chip2/sim/files.f"
 # Hit Finish
-# You should now have a screen that has both Chip1 and chip2 loaded
+# At this point Chip1 and Chip2 will be loaded
 # [[File:Chip2.png|frame|Second Chip Loaded]]
-# Right Click on chip2>Properties>Resource>Linked Resources.  Note that the environment variable "CHIP" references PROJECT_LOC, which should reference "C:\<somes_path>\chip2"!
-# Now Right click on ''Project Explorer>chip2>Properties>SystemVerilog Project > Argument Files''. 
-# Update this to point to "$\{workspace_loc\}\chip2\sim\files.f".  You now have 2 different projects open, with their own "files.f"!
+# Open chip2's files.f
+## Ctrl+Shift+R>files.f
+## Note that this also refers to the environment variable "CHIP" in the paths to the files
+## This has not been defined for ''chip2'' which results in error markers being shown in the argument file
+# Add the variable "CHIP" to the project "chip2"
+## Right Click on chip2>Properties>Resource>Linked Resources.  
+## Set the variable  "CHIP" to reference the variable ''${project_loc}''
 # Now have Eclipse compile Chip 2
 ## ''Project>Clean''
 
 
 ===Code Checking as you Edit===
-Now that you have opened the second project, you'll note that due to some poor coding I have an error in top_module.  The "x's" in the Project Explorer window highlight files that have issues.  This is kinda cool, makes it easy to find issues when you first update a file.  The error checking isn't exhaustive, and at this point there are still some false errors, error misses etc.  That said, it is quite nice to not have to wait for a 5 minute compile to discover that you forgot a semicolon.
+Now that you have opened the second project, you'll note that due to some poor coding there is an error in top_module.  The "x's" in the Project 
+Explorer window highlight files that have issues.  This makes it easy to find issues when in the design.  
 
-As a rule, keep track of changes in errors, rather than errors that exist.  If you find issues with the parser, please file a bug on Sourceforge.  The parser is continually being improved.
+The error checking isn't exhaustive, and at this point there are still some false errors, error misses etc.  That said, it is pretty good and
+will catch most syntax errors saving you a 5 minute compile to find a missing semicolon.
+
+If you find issues with the parser, please [https://sourceforge.net/p/sveditor/bugs/|file a bug] on Sourceforge.  The parser is continually being improved.
 
 [[File:ErrorIndicators.png|frame|Error checking as you type]]
 
@@ -413,15 +433,15 @@ One of the things that you'll need to get used to when you first start using Ecl
 Before starting this exercise open up lots of .sv files
 # '''Ctrl+Shift+R'''
 # Type in ''*.sv''
-# Select multiple files using ''Shift'' or ''Ctrl'' and either your mouse or keyboard
+# Select multiple files using ''Shift'' or ''Ctrl'' and either the mouse or keyboard
 # Hit '''Enter'''
 
-You can switch between any of the open files in any of the following ways:
+Buffer switching can be accomplished in any of the following ways:
 * '''Ctrl+Shift+R''' 
-** I use this, even if a file is open.  If the file is already open, Eclipse will simply switch to this file
+** Use this even if a file is open.  If the file is already open, Eclipse will simply switch to this file, without reloading it.
 * '''Ctrl+E'''
 ** Type '''Ctrl+E'''
-** You will get a dialog that allows you to wild-card your way to any file you currently have open
+** A dialog that allows wild-cards makes it easy to find an open buffer
 ** Type ''*odule''
 ** Use keyboard / mouse to get to sub_module1.sv
 ** Type '''Ctrl+E'''
@@ -429,11 +449,11 @@ You can switch between any of the open files in any of the following ways:
 ** Hit the '''Delete''' button - this is a convenient way of closing open buffers!!!
 * '''Ctrl+Shift+E'''
 ** Type '''Ctrl+Shift+E'''
-** Going to leave this dialog for you to play with on your own :-)
+** A varaiation of the '''Ctrl+E''' dialog
 * Cycling between buffers
-** This is similar to ''Alt+Tab'' for switching between windows applications on your PC
+** This is similar to ''Alt+Tab'' for switching between windows applications on a PC
 ** Type '''Ctrl+F6''', releasing '''F6''' but keeping '''Ctrl''' depressed
-** You should see a dialog pop-up that shows you a list of buffers, in the order they were most recently used
+** You will see a dialog pop-up that shows you a list of buffers, in the order they were most recently used
 ** Press '''F6''' till you get to the buffer you want to edit
 ** Release '''Ctrl''' at this point
 ** Type '''Ctrl+Shift+F6'''
@@ -441,9 +461,18 @@ You can switch between any of the open files in any of the following ways:
 ** This will cycle backwards through buffers
 ** '''Note:''' These are often re-bound to '''Ctrl+Tab''' and '''Ctrl+Shift+Tab'''
 
+==== Splitting Windows ====
+# Type Ctrl+Shift+[
+# This will toggle splitting the window vertically
+# Type Ctrl+Shift+-
+# This will split the window horizontally
+
+==== Duplicating Editors ====
+An editor can be duplicated (opened twice).  Once cloned, these are viewed as seperate entities, and can be move around the screen independently.  Editing in one, will impact the other.  An editor can be cloned as follows:
+*Window>Editor>Clone
 
 == Project Management==
-In Eclipse terms a project is a group of related files.  As a Verilog designer / verification engineer, this can be:
+In Eclipse terms, ''a project is a group of related files''.  As a Verilog designer / verification engineer, this can be:
 * A chip
 * A piece of synthesizable IP
 * A piece of verification IP
@@ -451,19 +480,19 @@ In Eclipse terms a project is a group of related files.  As a Verilog designer /
 As designers/verification engineers we continually switch between "Projects" so project management is an important part of what we do.  Projects can either be 
 * Closed and opened (still visible within the workspace)
 * Deleted & Imported (Removed from the workspace)
-Not sure if there is a significant advantage to using one technique or the other.  Personally I close/open projects that I commonly switch between, and delete ones that I am not going to be using in the near future.
+
 
 ===Closing a project===
-To stop Eclipse tracking a given project in a workspace (Ctrl+Shift+R will no longer bring up files from that project etc) without removing the project entirely from the workspace:
+To stop Eclipse tracking a given project in a workspace ('''Ctrl+Shift+R''' will no longer bring up files from that project etc) without removing the project entirely from the workspace:
 # Select the project in the project Explorer window
-# Right-click on the project name and select "'''Close Project"'''
+# Right-click on the project name and select '''Close Project'''
 [[File:ProjectClose.png|frame|Close a Project]]
 
 
 === Opening a closed project===
 # Select the project in the Project Explorer window
-# Right-click on the project name and select "Open Project"
-# Don't forget to re-build it by ''Project>Clean''
+# Right-click on the project name and select '''Open Project'''
+# Don't forget to re-build it by '''Project>Clean'''
 [[File:ProjectOpen.png|frame|Open a Project]]
 
 === Removing Projects===
@@ -474,52 +503,31 @@ From time to time you may want to remove a project from the Eclipse workspace yo
 # The dialog that comes up here is the tricky one.  Do ''NOT'' check the "Delete project contents on disk".  This option is useful for people who create and control their entire projects (from check-out to check in and so on) from within Eclipse.  If you check this check-box, the files on the file system will be removed.
 ## [[File:ProjectDelete2.png|frame|Delete Project - Deleting Resources]]
 
-
 === Re-importing projects that have been deleted===
 This is trivial.
 # Import the project
 ## ''File>Import>General>Existing Projects into Workspace''
 ## [[File:ProjectImport.png|frame|Import a Project Step 1]]
-# Browse to the top of your project (i.e. where .svproject and .project reside).  In this tutorial, this will be the directory where "chip1" resides
+# Browse to the top of the project (i.e. where .svproject and .project reside).  In this tutorial, this will be the directory where "chip1" resides
 ## [[File:ProjectImport2.png|frame|Import a Project Step 2]]
-# Hitting "Finish" should complete the project import
+# Hitting "Finish" will complete the project import
 # Force a re-compile (Re-index) of the project
 ## ''Project>Clean''
 
 
-== Other Stuff==
+==Appendix==
 
-===Code Colorization ===
-Code colorization isn't anything new.  Eclipse can be configured to color things any way you like.  What is pretty cool though is that when you copy & paste into an email, the formatting is usually retained as follows:
-
-   <span style="color: green;">////////////////////////////////////////////////////////////////////////////////////////////////////
-   // FF that is a serial shift register with an odd reset state
-   ////////////////////////////////////////////////////////////////////////////////////////////////////</span>
-   <span style="color: purple;">'''always_ff'''</span> @(<span style="color: purple;">'''posedge'''</span> clk <span style="color: purple;">'''or posedge'''</span> rst)
-      <span style="color: purple;">'''begin'''</span>
-         <span style="color: purple;">'''if'''</span> (rst)
-         <span style="color: purple;">'''begin'''</span>
-            out1 <= '''`RESET_STATE1_DEFINE''';
-            out2 <= RESET_STATE0_PARAM;
-         <span style="color: purple;">'''end'''</span>
-         <span style="color: purple;">'''else'''</span>
-         <span style="color: purple;">'''begin'''</span>
-            out1 <= in3;
-            out2 <= out1;
-         <span style="color: purple;">'''end'''</span>
-      <span style="color: purple;">'''end'''</span>
-=== Some Eclipse Concepts===
-
-====Workspace vs. Projects====
+===Workspace vs. Projects===
 A ''Project'' is the equivalent of a chip or a design you are working on.
 
 A ''Workspace'', is an Eclipse concept which specifies:
 * A location to do caching
 * A set of window-layouts
-* A set of ''Projects'' that are opened (there can be multiple projects open at any given time)
+* A set of ''Projects'' that are loaded (there can be multiple projects loaded at any given time)
 * Switching between workspaces is as easy as ''File>Switch>Workspace''
 
-A common question is "Should I have multiple ''Workspaces'' with a single project per ''Workspace'' or a single ''Workspace'' with multiple ''Projects'' loaded. I can see arguments for both scenarios, and have done both over time.  I don't see a significant advantage to either usage model.
+A common question is "Should I have multiple ''Workspaces'' with a single project per ''Workspace'' or a single ''Workspace'' with multiple ''Projects'' loaded. For
+most scenarios it doesn't matter.  The following table highlights some of the pros and cons of each usage model.  
 {|  border="1"  cellpadding="2"
 |'''Action'''||'''Single Workspace, Multiple Projects'''||'''Multiple Workspaces, Single Project'''
 |-
@@ -531,18 +539,21 @@ A common question is "Should I have multiple ''Workspaces'' with a single projec
 |-
 |}
 
-====Refreshing the Design / Workspace / SV Database====
-Once in a while you may choose to do things outside of the workspace (copy in a directory tree etc).  F5 is your friend to get Eclipse to do a refresh on the disk.  The time I most commonly use this is when I do a fresh check-out / update of the entire design outside of Eclipse.  Just go to the Project Explorer, and hit F5.  Eclipse will go off and re-build the file tree.
+''Usage Tip:''  On larger projects you can speed Eclipse up by making sure that your workspace local to the computer you are running on.  i.e. Not on the network.  
+
+===Refreshing the Design / Workspace / SV Database===
+Once in a while you may choose to do things outside of the workspace (copy in a directory tree etc).  F5 is used througout Eclipse ''refresh'', in this 
+case refresh the data on the disk.  For example, if you refresh your design from the revision control system on the command line, outside of Eclipse.  Go to the Project 
+Explorer, and hit F5.  Eclipse will refresh the file tree.
 
 At times like this it is also worth re-building the System Verilog Database.  Note that this is a separate activity from a file-system refresh.
 # Make sure you are in the System Verilog Perspective (ribbon near the top right of the screen)
 # ''Project>Clean''
-Eclipse will automatically "Rebuild the SV Index" from time to time (when file system differences are detected).  You can disable this in the SV Preferences Screen.
-
-''Window>Preferences>SVEditor>Enable Index Auto-Rebuild''
+Eclipse will automatically "Rebuild the SV Index" from time to time (when file system differences are detected).  You can disable this in the SV Preferences Screen: '''Window>Preferences>SVEditor>Enable Index Auto-Rebuild'''
 
 ===Eclipse Preferences===
-Eclipse preferences are managed in ''Window>Preferences''.  It can be somewhat difficult to find a specific preference.  The search box is invaluable.  Here are some of the commonly requested preferences:
+Eclipse preferences are managed in ''Window>Preferences''.  It can be somewhat difficult to find a specific preference.  The search box is 
+invaluable.  Here are some of the commonly used preferences:
 * Line Numbers: ''General>Editors>Text Editors>Show line numbers''
 * Tab Width: ''General>Editors>Text Editors>Displayed tab width''
 * Spaces vs.Tabs: ''General>Editors>Text Editors>Insert spaces for tabs''
@@ -559,89 +570,111 @@ Eclipse preferences are managed in ''Window>Preferences''.  It can be somewhat d
 
 [[File:PrefsColors.png|frame|SVEditor Preferences]]
 
+===Natural Docs===
+If code is documented using a "Natural Docs" style of coding, pop-ups will appear as the mouse moves over documented constructs.  If 
+the mouse is held over the ''mult'' function in ''top_module'' as shown below, a pop-up will appear showing a description of the function.  
+
+How is this done?  Jump to the mult function by putting the cursor on the mult instantiation and hitting '''F3'''.  Look at the comment above the mult function, 
+you'll see that this code has been replicated in this pop-up.  The syntax is pretty intuitive.  The long term benefit to people 
+unfamiliar with the code base will pay huge dividends in the longer term.
+
+Natural docs allows you to document variables, functions, tasks, modules etc. this way.
+
+[[File:DocHoverClass.png|frame|Natural Docs Doc Hover]]
+
+===Preference Management===
+Preferences are stored in the workspace.  Switching between workspaces or creating new ones doesn't port preferences (key-bindings, colors etc.) automatically. This is both good and bad.  On the one had it allows a different color scheme for each workspace, on the other they need to be managed.  Fortunately this is really simple.  It is also a good idea to back up preferences as you customize Eclipse.  
+
+Exporting preferences is easy:
+# ''File>Export>General>Preferences''
+# Save the preference file somewhere you can find it easily (MyDocuments or ~).  
+
+Importing preferences in a new workspace is just as easy:
+# ''File>Import>General>Preferences''
+# Browse to the preference file that was exported (MyDocuments or ~).
+# Select the perferences to import (typically all)
+# Restart Eclipse to make sure all preferences are applied
+## File>Restart  
+
 ===Revision Control Support===
-Eclipse does an excellent job of connecting to various revision control systems.  Personally I have used Git and CVS, and both are well supported.
+Eclipse does an excellent job of connecting to various revision control systems.  
 
 ===Short Cuts===
-Here are a list of short-cuts that I have started using which are handy:
+
+Below is a short list of keyboard shortcuts to get you going.
+
 {|  border="1"  cellpadding="2" 
 |'''Key'''||'''Shortcut'''
 |-
-|Ctrl-L||List of shortcuts
+|Ctrl+L||List of shortcuts
 |-
 |'''Text Manipulation'''
 |-
-|Ctrl-Alt-Up/Down Arrow||Copy selected lines above / below.  Didn't know what to make of this feature initially, but I find myself using it a ton.  I use it in combination with Alt-Up/Down arrows which move the code up or down.
+|Ctrl+Alt+Up/Down Arrow||Copy selected lines above / below.
 |-
-|Alt-Up/Down||Move selected code up or down in the file
+|Alt+Up/Down||Move selected code up or down in the file
 |-
-|Alt-Shift-A||Toggle Column Mode
+|Alt+Shift+A||Toggle Column Mode
 |-
-|Shift Arrows, Ctrl-Shift-Arrows||Select stuff
+|Shift Arrows, Ctrl+Shift+Arrows||Select stuff
 |-
 |Ctrl+/, Ctrl+Shift+/, Ctrl+Shift+\||Controls commenting
 |-
 |'''Buffer Management'''
 |-
-|Ctrl-Shift-R||Open any file in library
+|Ctrl+Shift+R||Open any file in library
 |-
-|Ctrl-E||Easily switch between open files
+|Ctrl+Shift+E, Ctrl+E||Easily switch between open files
 |-
-|Ctrl-Shift-E||Similar to Ctrl-E.  This pop-up is a good window to use to cleanup your buffers.  Hitting delete here will close the buffer, without wiping it off the disk.
+|Ctrl+W||Close current buffer
 |-
-|Ctrl-W||Close current buffer
+|Ctrl+F6||Switch between tabs in an editor.  Similar to switching between programs in Windows, or Tabs in your favorite Browser.  Often remapped to "Ctrl+Tab"
 |-
-|Ctrl-F6||Switch between tabs in an editor, the same way you can switch between programs in Windows, or Tabs in your favorite Browser.  Most people (myself included) remap this to "Ctrl-Tab"
+|Ctrl+PgUp/Ctrl+PgDn||Switch between tabs in an editor
 |-
-|Alt-Left/Right Arrows||Browse through history, similar to browsing through history in a web-browser.
+|Alt+Left/Right Arrows||Browse through history, similar to browsing through history in a web-browser.
 |-
 |F5||Refresh File / Database
 |-
+|Ctrl+Shift+[, Ctrl+Shift+_||Split window horizontally or vertically
+|-
 |'''Code Manipulation'''
 |-
-|Ctrl-Space/Alt+/||Code Complete
+|Ctrl+Space/Alt+/||Code Complete
 |-
 |F3||Jump to definition
 |-
+|F4||Open Class Hierarchy
+|-
 |'''Search / Replace '''
 |-
-|Ctrl-H||Find & Grep dialog box
+|Ctrl+H||Find & Grep dialog box
 |-
-|Ctrl-J||Incremental Search
+|Ctrl+J||Incremental Search
 |-
-|Ctrl-F||Search / Search & Replace dialog box (irritating I know.  Surely this is something that is going to be re-vamped at some point in the future)
+|Ctrl+F||Search / Search & Replace dialog box
 |-
-|Ctrl-K, Ctrl-Shift-K||Search on whatever I have selected, or if nothing selected, search again.
+|Ctrl+K, Ctrl+Shift+K||Search on whatever is selected, or if nothing selected, search again.
+|-
+|Alt+Shift+Up||Select enclosing element.  Do this repeatedly to widen scope
+|-
+|Ctrl+Shift+P||Jump to matching brace
 |-
 |}
 
-====Changing your Keybindings====
-Like any good editor, key bindings can be remapped.  For the EMACS & VI users (which is pretty much all of us) there are plugins that will allow you to map your key bindings to EMACS & VI key bindings.  My initial reaction to you is "don't".
-
-Give the tool a chance.  The key bindings in Eclipse are pretty good.  It'll take you about 2 weeks to re-train your fingers, and in many ways the key bindings are more efficient than VI / EMACS (i.e. do the same stuff with less typing).
-
-If after 2 weeks you discover that your fingers can't be re-trained, take your chances and install the plug-in.
+===Changing Keybindings===
+Like any good editor, key bindings can be remapped.  For the EMACS & VI users (which is pretty much all of us) there are plugins that give Eclipse a EMACS/VI keybindgs and feel.
 
 Keybindings can be changed at:
 
 ''Window>Preferences>General>Keys''
 
-===Preference Management===
-Preferences are stored in your workspace.  As you switch between work-spaces (or occasionally decide you HAVE to delete your workspace for whatever reason) you'll find all your key-bindings, colors etc. don't come across automatically.
-
-This is both good and bad.  On the one had you can have a different color scheme for each workspace / language you typically code in, on the other you need to manage them.  Fortunately this is really simple.  
-
-You should back-up your preference file from time to time.  To do this you will need to export your preferences.
-# ''File>Export>General>Preferences''
-# Save the preference file somewhere you can find it easily (MyDocuments / or your home area \~).  
-
-Importing your preferences in a new workspace is just as easy:
-# ''File>Import>General>Preferences''
-# Save the preference file somewhere you can find it easily (MyDocuments / or your home area \~).  
-
 ===Updating Eclipse===
-The SVEditor plugin is being actively developed.  Updates based on user feedback are released fairly frequently.  To update both your Eclipse installation and all installed plugins:
+The SVEditor plugin is being actively developed.  Updates based on user feedback are released fairly frequently.  To update both the Eclipse installation and all installed plugins:
 * ''Help>Check for Updates''
 
 To update a specific plug-in:
 * ''Help>About>Installation Details>Select the plugin>Update''
+
+
+''Last updated April 2016, 1.8.4''
