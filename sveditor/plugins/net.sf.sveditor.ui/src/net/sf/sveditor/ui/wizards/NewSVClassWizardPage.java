@@ -52,7 +52,7 @@ public class NewSVClassWizardPage extends AbstractNewSVItemFileWizardPage {
 		GridData gd;
 		
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Super Class:");
+		l.setText("Super &Class:");
 		
 		fSuperClass = new Text(src_c, SWT.BORDER);
 		fSuperClass.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
@@ -63,7 +63,7 @@ public class NewSVClassWizardPage extends AbstractNewSVItemFileWizardPage {
 			}
 		});
 		fSuperClassBrowse = new Button(src_c, SWT.NONE);
-		fSuperClassBrowse.setText("Browse");
+		fSuperClassBrowse.setText("Bro&wse");
 		fSuperClassBrowse.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				browseClass();
@@ -74,14 +74,14 @@ public class NewSVClassWizardPage extends AbstractNewSVItemFileWizardPage {
 		});
 		
 		Group group = new Group(src_c, SWT.BORDER);
-		group.setText("Style Options");
+		group.setText("Style &Options");
 		group.setLayout(new GridLayout());
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 3;
 		group.setLayoutData(gd);
 		
 		fOverrideNew = new Button(group, SWT.CHECK);
-		fOverrideNew.setText("Implement new()");
+		fOverrideNew.setText("I&mplement new()");
 		fOverrideNew.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				setOption(OVERRIDE_NEW, (fOverrideNew.getSelection())?"true":"false");

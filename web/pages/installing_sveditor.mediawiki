@@ -4,10 +4,13 @@ There are several ways to install SVEditor:
 * Install the 'DVKit' package made available by the DVKit project, which bundles Eclipse and many helpful editors together.
 * Install the SVEditor feature into an existing Eclipse environment from the update site.
 
-== Installing SVE ==
+= Table of Contents =
+__TOC__
+
+= Installing SVE =
 SVE is a combination of Eclipse and SVEditor that provides a complete development environment for SystemVerilog. SVE is provided as an installable package for Windows and Debian operating systems. SVE is the simplest way to get started with SVEditor if you are not already an Eclipse user. Download SVE from the SVEditor project page: [https://sourceforge.net/projects/sveditor/files/sve/ https://sourceforge.net/projects/sveditor/files/sve/]
 
-== Installing DVKit ==
+= Installing DVKit =
 DVKit is a combination of Eclipse, SVEditor, and other helpful plug-ins for design verification. 
 DVKit is provided as installable packages and archives (.zip / .tar.gz) for Windows, Mac OSX, and Debian Linux operating systems. 
 You can learn more about DVKit on the DVKit project page: [http://dvkit.org http://dvkit.org]
@@ -15,22 +18,38 @@ Download DVKit from the DVKit project page:
 [https://sourceforge.net/projects/dvkit/files/ https://sourceforge.net/projects/dvkit/files/]
 
 
-== Installing SVEditor in an Existing Eclipse Environment ==
+= Installing Eclipse from Eclipse.org =
+Download a version of Eclipse from [http://eclipse.org/downloads/ http://eclipse.org/downloads/].  Any of them will do.  If you do more C++ than Java, use that version.  If you don't know what to do, Eclipse Standard will work just fine.  Eclipse is usually just a zip file, which you extract.  At the top of the extracted data, there is an executable (called eclipse).  Just run it and eclipse should launch.
+
+You will first be to select a "workspace".  To all intense purposes, a workspace is an Eclipse scratchpad.  The workspace gives eclipse a location to:
+* Store project information
+* Store preferences (key bindings, colors, etc.)
+* Cache data (more on this later)
+* Keeps track of a list of open files, window layouts, repository configurations etc.
+* '''This should NOT be where your RTL lives.  Place the workspace in your home area (usually the default).'''
+
+[[File:WorkspaceLauncher.png|frame|Workspace Launcher Dialog]]
+
+Once a workspace has been selected, the Eclipse startup screen shown below comes up.  It is useless.  Best to kill this window and move on (hit the "X" circled at the top of the welcome tab in the picture below).
+
+[[File:Welcome.png|frame|Eclipse Welcome Screen]]
+
+At this point you would need to install the SVEditor plugin from the marketplace as described below.
+
+= Installing SVEditor in an Existing Eclipse Environment =
 SVEditor can be installed into an existing Eclipse environment via the SVEditor Update Site: http://sveditor.sourceforge.net/update 
 
-[[Image:install_new_software_menu.gif]]
+Now it is time to install the SVEditor plug-in.  
+# This can be installed from the Eclipse Marketplace as follows:
+## ''Help>Eclipse Marketplace''
+# Once this dialog is up, search for and install the SVEditor plug-in as shown below.  
+# Next, Accept/Finish your way through this process.
+# Once done, you will be prompted to restart Eclipse, do so.
 
-Open the Install New Software dialog by selecting Help->Install New Software... in Eclipse.
+[[File:MarketPlace.png|frame|Eclipse Marketplace]]
 
-[[Image:install_new_software_specify_site.gif]]
 
-Select 'Add' and specify the URL of the SVEditor update site, as shown. Select OK.
-
-[[Image:install_new_software_sveditor_shown.gif]]
-
-The Install wizard will update to show the SVEditor Feature, as shown above. Select the SVEditor Feature, then select Next. You will be prompted to agree to SVEditor's license (EPL). Continue selecting Next until the install process completes.
-
-== Updating SVEditor ==
+= Updating SVEditor =
 
 SVEditor continues to grow and improve, with a new release (on average) every other week. Staying current with the latest version will provide you access to the latest features and bug fixes. 
 
@@ -38,15 +57,15 @@ Updating an Eclipse plug-in is simple. Simply select Help->Check for Updates fro
 
 [[Image:help_check_for_updates.gif]]
 
-=== Updating DVKit ===
+== Updating DVKit ==
 If you installed one of the DVKit packages, the procedure to update the SVEditor plug-in will be nearly identical to that described above. When DVKit is installed, it is typically installed by the system administrator. Consequently, a normal user cannot update the SVEditor plug-in. In order to update the SVEditor plug-in, DVKit must be started by an administrator.
 
-==== Windows 7====
+== Windows 7==
 On Windows 7, locate the DVKit executable in the Start menu. Instead of directly launching DVKit, however, select Run as Administrator from the context menu. Running DVKit in this way provides sufficient permissions to update the SVEditor plug-in.
 
 [[Image:windows7_start_sve_as_admin.gif]]
 
-==== Ubuntu Linux ====
+== Ubuntu Linux ==
 On Ubuntu, run the following command either from a terminal or from the quick-launch prompt (Alt+F2):
 
 gksu dvkit

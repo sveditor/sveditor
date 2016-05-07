@@ -34,10 +34,16 @@ public class WorkspaceFileDialog extends Dialog {
 	private String 				fPathStr;
 	private TreeViewer			fTreeViewer;
 	private boolean				fSelectFiles = true;
+	private String				fTitle;
 	
 	
+	public WorkspaceFileDialog(Shell shell, String title) {
+		super(shell);
+		fTitle = title;
+	}
 	public WorkspaceFileDialog(Shell shell) {
 		super(shell);
+		fTitle = "Select File";
 	}
 
 	public String getPath() {
@@ -48,6 +54,11 @@ public class WorkspaceFileDialog extends Dialog {
 		fSelectFiles = sel_files;
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	@Override
 	protected Control createDialogArea(Composite p) {
 		Composite parent = new Composite(p, SWT.NONE);

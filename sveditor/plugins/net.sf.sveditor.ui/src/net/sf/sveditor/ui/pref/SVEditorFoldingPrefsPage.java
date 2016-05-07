@@ -25,25 +25,25 @@ public class SVEditorFoldingPrefsPage extends FieldEditorPreferencePage implemen
 	@Override
 	protected void createFieldEditors() {
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_ENABLE, 
-				"Enable folding when opening a new editor", getFieldEditorParent()));
+				"&Enable folding when opening a new editor", getFieldEditorParent()));
 		
 		Group g = new Group(getFieldEditorParent(), SWT.NONE);
 		g.setText("Initially fold these regions");
 		
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_CLASSES, 
-				"Classes", g));
+				"&Classes", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_INTERFACES, 
-				"Interfaces", g));
+				"&Interfaces", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_MODULES, 
-				"Modules", g));
+				"&Modules", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_TF, 
-				"Tasks/Functions", g));
+				"&Tasks/Functions", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED, 
-				"Unprocessed Regions", g));
+				"&Unprocessed Regions", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_HEADER_COMMENTS, 
-				"Header Comments", g));
+				"&Header Comments", g));
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_FOLDING_INIT_BLOCK_COMMENTS,
-				"Block Comments", g));
+				"&Block Comments", g));
 		
 	}
 

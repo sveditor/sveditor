@@ -193,7 +193,6 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 					SetScannerDirection(scanner, true);
 					if ((tt = GetNextString(scanner)) != null) {
 						end_pos = (int) scanner.getPos();
-						fLog.debug("SGD - Got '" + tt + "'");
 					} else {
 						return;
 					}
@@ -233,11 +232,23 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 			else {
 				scanner.setScanFwd(true); // Haven't scanned yet... don't call
 											// direction changer function
-				String tt = GetNextString(scanner);
+				String tt;
+				// Check if we are in the middle of a word...
+				if (!IsWhitespace(prevch))  {
+					// If so ... head to the start of the word before continuing
+					// Scan back to start of word
+					scanner.setScanFwd(false);		// Start by scanning backwards
+					// Scan for word
+					if ((tt = GetNextString(scanner)) == null) {
+						return;
+					}
+					SetScannerDirection(scanner, true);
+				}
+				tt = GetNextString(scanner);
 				fLog.debug("Selected - found first word '" + tt + "'");
 				// Check if we have a "open brace"
 				if (fBeginCharMap.containsKey(tt)) {
-					// Let's see if we can find a
+					// Let's see if we can find an open brace
 					SetScannerDirection(scanner, false);
 
 					// Reset the scanner start location
@@ -268,17 +279,42 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 					}
 
 					// We have found the start...
-					start_pos = (int) scanner.getPos() + 1;
+					start_pos = (int) scanner.getPos();
+					if (scanner.getPos() != 0)  {		// Don't increment if start of file
+						start_pos ++;
+					}
 					SetScannerDirection(scanner, true);
 					n_st = 0;
 					n_en = 0;
 
 				} else {
-					// TODO - just select the current word
-					return;
+					// Something is selected, but not a start / end ... just select the current word
+					scanner.seek(sel_offset);		// Start at the start of the selection
+					if (!IsWhitespace(prevch))  {
+						// Scan back to start of word
+						scanner.setScanFwd(false);		// Start by scanning backwards
+						// Scan for word
+						if ((tt = GetNextString(scanner)) == null) {
+							return;
+						}
+						SetScannerDirection(scanner, true);
+					}
+					start_pos = (int) scanner.getPos();
+					// Search to end of string
+					if ((tt = GetNextString(scanner)) == null) {
+						return;
+					}
+					scanner.unget_ch(0);
+					end_pos = (int) scanner.getPos();	// Get end position
+					
+					// Mark & return
+					MarkRange(sv, start_pos, end_pos);
+
+					
 				}
 			}
 
+			// By the time we get here, the scanner is going to scan till the start and end brace counts match
 			do {
 				String tt;
 				if ((tt = GetNextString(scanner)) == null) {
@@ -302,7 +338,11 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 			if (scanner.getScanFwd()) {
 				end_pos = (int) scanner.getPos();
 			} else {
-				start_pos = (int) scanner.getPos() + 1;
+				start_pos = (int) scanner.getPos();
+				// If we aren't at the start of the file, advance the cursor one position
+				if (start_pos != 0)  {
+					start_pos ++;
+				}
 			}
 			MarkRange(sv, start_pos, end_pos);
 
@@ -387,14 +427,19 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 	 */
 	private void SetScannerDirection(SVDocumentTextScanner scanner,
 			boolean scan_forward) {
+		// Check if we are already pointed in the right direction
 		if (scanner.getScanFwd() == scan_forward) {
+			// do nothing if so ... and return
 			return;
+		}
+		else  {
+			// Scanner will have advanced already, undo it unless we are already at the start of the file
+			if (scanner.getPos() > 0)
+				scanner.unget_ch(0);
 		}
 
 		// Change of direction required
 		scanner.setScanFwd(scan_forward);
-		scanner.get_ch();
-
 	}
 
 }

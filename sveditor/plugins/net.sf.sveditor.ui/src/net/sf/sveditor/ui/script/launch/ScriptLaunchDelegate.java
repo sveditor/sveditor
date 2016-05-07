@@ -74,6 +74,13 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		String script = configuration.getAttribute(BuildScriptLauncherConstants.SCRIPT_LIST, "");
 		String wd = configuration.getAttribute(BuildScriptLauncherConstants.WORKING_DIR, System.getProperty("user.dir"));
 		String args_str = configuration.getAttribute(BuildScriptLauncherConstants.ARGUMENTS, "");
+		
+		// Expand any variables
+		script = SVFileUtils.expandVars(script, null, false);
+		wd = SVFileUtils.expandVars(wd, null, false);
+		args_str = SVFileUtils.expandVars(args_str, null, false);
+
+		
 		String scanners = configuration.getAttribute(BuildScriptLauncherConstants.SCANNERS, "");
 		String save_output_file = configuration.getAttribute("org.eclipse.debug.ui.ATTR_CAPTURE_IN_FILE", (String)null);
 		ScriptMessageScannerRegistry rgy = new ScriptMessageScannerRegistry();

@@ -51,7 +51,7 @@ public class NewSVTDescriptorPage extends WizardPage {
 		c.setLayout(new GridLayout(3, false));
 		
 		l = new Label(c, SWT.NONE);
-		l.setText("Folder:");
+		l.setText("F&older:");
 		fFolderPath = new Text(c, SWT.SINGLE+SWT.BORDER);
 		fFolderPath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fFolderPath.addModifyListener(modifyListener);
@@ -61,11 +61,11 @@ public class NewSVTDescriptorPage extends WizardPage {
 		}
 		
 		fFolderBrowse = new Button(c, SWT.PUSH);
-		fFolderBrowse.setText("Browse...");
+		fFolderBrowse.setText("B&rowse...");
 		fFolderBrowse.addSelectionListener(selectionListener);
 		
 		l = new Label(c, SWT.NONE);
-		l.setText("Name:");
+		l.setText("&Name:");
 		fFilePath = new Text(c, SWT.SINGLE+SWT.BORDER);
 		fFilePath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		fFilePath.addModifyListener(modifyListener);

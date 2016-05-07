@@ -25,17 +25,29 @@ public class ScopedFileSelectionDialog extends Dialog implements ITreeContentPro
 	private String 				fPathStr;
 	private TreeViewer			fTreeViewer;
 	private File				fProject;
+	private String 				fTitle;
 	
 	
+	public ScopedFileSelectionDialog(Shell shell, File project, String title) {
+		super(shell);
+		fProject = project;
+		fTitle = title;
+	}
 	public ScopedFileSelectionDialog(Shell shell, File project) {
 		super(shell);
 		fProject = project;
+		fTitle = "";
 	}
 
 	public String getPath() {
 		return fPathStr;
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	@Override
 	protected Control createDialogArea(Composite p) {
 		Composite parent = new Composite(p, SWT.NONE);

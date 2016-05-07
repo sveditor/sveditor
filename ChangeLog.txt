@@ -6,6 +6,14 @@
   
 - #(enh) - Add support for SV 2012 'interface class'
 
+- #(nobug) Allow variables to be used in run / debug configurations
+
+- #(307) Natural Doc Parser - Constraint Icon not showing
+
+- #(nobug) Cleaned up titles of some dialogs in wizards. Added Keyboard shortcuts to buttons of same. 
+ 
+- #(nobug) Fixed exception created when attempting to write xml - "indent-number" not recognized
+ 
 ------------------------------------------------------------------------------
 -- 1.8.4 Release --
 
@@ -39,7 +47,7 @@
 - #(422) Absolute path for `include file not recognized - added testcase
 
 - #(nobug) - Minor tweaks to "Natural Docs Generation Wizard"
- 
+
 ------------------------------------------------------------------------------
 -- 1.8.3 Release --
 

@@ -97,17 +97,17 @@ public class NewSVEProjectFilelistPage extends WizardPage
 		
 		fNewFilelistButton = new Button(c, SWT.PUSH);
 		fNewFilelistButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
-		fNewFilelistButton.setText("New...");
+		fNewFilelistButton.setText("&New...");
 		fNewFilelistButton.addSelectionListener(this);
 		
 		fAddProjectPath = new Button(c, SWT.PUSH);
 		fAddProjectPath.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
-		fAddProjectPath.setText("Add Project Path...");
+		fAddProjectPath.setText("Add &Project Path...");
 		fAddProjectPath.addSelectionListener(this);
 		
 		fAddWorkspacePath = new Button(c, SWT.PUSH);
 		fAddWorkspacePath.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
-		fAddWorkspacePath.setText("Add Workspace Path...");
+		fAddWorkspacePath.setText("Add &Workspace Path...");
 		fAddWorkspacePath.addSelectionListener(this);
 		
 //		fAddFilesystemPath = new Button(c, SWT.PUSH);
@@ -117,7 +117,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 		
 		fRemove = new Button(c, SWT.PUSH);
 		fRemove.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
-		fRemove.setText("Remove");
+		fRemove.setText("&Remove");
 		fRemove.addSelectionListener(this);
 		fRemove.setEnabled(false);
 		
@@ -254,13 +254,13 @@ public class NewSVEProjectFilelistPage extends WizardPage
 		} else if (e.widget == fAddProjectPath) {
 			File project_path = getProjectPath();
 			
-			ScopedFileSelectionDialog dlg = new ScopedFileSelectionDialog(getShell(), project_path);
+			ScopedFileSelectionDialog dlg = new ScopedFileSelectionDialog(getShell(), project_path, "Select Filelist");
 			
 			if (dlg.open() == Window.OK) {
 				path = new PathInfo("${project_loc}" + dlg.getPath().replace('\\', '/'));
 			}
 		} else if (e.widget == fAddWorkspacePath) {
-			WorkspaceFileDialog dlg = new WorkspaceFileDialog(getShell());
+			WorkspaceFileDialog dlg = new WorkspaceFileDialog(getShell(), "Select Filelist");
 			
 			if (dlg.open() == Window.OK) {
 				path = new PathInfo("${workspace_loc}" + 

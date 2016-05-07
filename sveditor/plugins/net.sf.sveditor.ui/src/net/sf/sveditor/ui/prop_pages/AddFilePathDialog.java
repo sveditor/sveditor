@@ -37,16 +37,28 @@ public class AddFilePathDialog extends Dialog {
 	private Text				fPath;
 	private String				fPathStr;
 	private IProject			fProject;
+	private String				fTitle;
+	
+	public AddFilePathDialog(Shell shell, IProject p, String title) {
+		super(shell);
+		fTitle = title;
+	}
 	
 	public AddFilePathDialog(Shell shell, IProject p) {
 		super(shell);
 		fProject = p;
+		fTitle="";
 	}
 	
 	public void setInitialPath(String path) {
 		fPathStr = path;
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	public String getPath() {
 		return fPathStr;
 	}
@@ -77,7 +89,7 @@ public class AddFilePathDialog extends Dialog {
 		button_bar.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, true));
 
 		Button add_proj_path = new Button(button_bar, SWT.PUSH);
-		add_proj_path.setText("Add Project Path");
+		add_proj_path.setText("Add &Project Path");
 		add_proj_path.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		add_proj_path.addSelectionListener(new SelectionListener() {
 
@@ -96,7 +108,7 @@ public class AddFilePathDialog extends Dialog {
 		});
 
 		Button add_ws_path = new Button(button_bar, SWT.PUSH);
-		add_ws_path.setText("Add Workspace Path");
+		add_ws_path.setText("Add &Workspace Path");
 		add_ws_path.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		add_ws_path.addSelectionListener(new SelectionListener() {
 
@@ -104,6 +116,7 @@ public class AddFilePathDialog extends Dialog {
 
 			public void widgetSelected(SelectionEvent e) {
 				WorkspaceFileDialog dlg = new WorkspaceFileDialog(getShell());
+				getShell().setText("Select a File");
 				
 				if (dlg.open() == Window.OK) {
 					if (dlg.getPath() != null) {
@@ -114,14 +127,13 @@ public class AddFilePathDialog extends Dialog {
 		});
 		
 		Button add_fs_path = new Button(button_bar, SWT.PUSH);
-		add_fs_path.setText("Add Filesystem Path");
+		add_fs_path.setText("Add &Filesystem Path");
 		add_fs_path.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		add_fs_path.addSelectionListener(new SelectionListener() {
 			public void widgetDefaultSelected(SelectionEvent e) {}
 
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dlg = new FileDialog(getShell());
-				
 				dlg.setText("Select a File");
 				
 				String result = dlg.open();

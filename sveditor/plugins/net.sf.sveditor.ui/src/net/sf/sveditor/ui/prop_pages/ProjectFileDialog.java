@@ -26,17 +26,29 @@ public class ProjectFileDialog extends Dialog {
 	private String 				fPathStr;
 	private TreeViewer			fTreeViewer;
 	private IProject			fProject;
+	private String				fTitle;
 	
 	
+	public ProjectFileDialog(Shell shell, IProject project, String title) {
+		super(shell);
+		fProject = project;
+		fTitle = title;
+	}
 	public ProjectFileDialog(Shell shell, IProject project) {
 		super(shell);
 		fProject = project;
+		fTitle = "Select File";
 	}
 
 	public String getPath() {
 		return fPathStr;
 	}
 	
+	public void configureShell (Shell shell) {
+		super.configureShell(shell);
+		shell.setText(fTitle);
+	}
+
 	@Override
 	protected Control createDialogArea(Composite p) {
 		Composite parent = new Composite(p, SWT.NONE);

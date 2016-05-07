@@ -14,7 +14,7 @@ public class TemplatePathsEditor extends PathEditor {
 
 	@Override
 	protected String getNewInputObject() {
-		AddDirectoryPathDialog prefs = new AddDirectoryPathDialog(getShell(), SWT.SHEET);
+		AddDirectoryPathDialog prefs = new AddDirectoryPathDialog(getShell(), SWT.SHEET, "Select Path");
 		
 		String dir = null;
 		

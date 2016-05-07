@@ -124,7 +124,7 @@ public class SVNameFilesPage extends WizardPage {
 		
 		/** Select the destination location */
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Source Folder:");
+		l.setText("&Source Folder:");
 		
 		fSourceFolder = new Text(src_c, SWT.BORDER);
 		if (fSourceFolderStr != null) {
@@ -134,12 +134,12 @@ public class SVNameFilesPage extends WizardPage {
 		fSourceFolder.addModifyListener(modifyListener);
 		
 		fBrowse = new Button(src_c, SWT.PUSH);
-		fBrowse.setText("Browse");
+		fBrowse.setText("B&rowse");
 		fBrowse.addSelectionListener(selectionListener);
 		
 		// Name
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Name:");
+		l.setText("Na&me:");
 		fName = new Text(src_c, SWT.BORDER);
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 2;
@@ -148,13 +148,13 @@ public class SVNameFilesPage extends WizardPage {
 		
 		// Overwrite Files
 		l = new Label(src_c, SWT.NONE);
-		l.setText("Overwrite Files:");
+		l.setText("&Overwrite Files:");
 		fOverwrite = new Button(src_c, SWT.CHECK);
 		fOverwrite.addSelectionListener(selectionListener);
 		
 
 		g = new Group(sash, SWT.BORDER);
-		g.setText("Filenames");
+		g.setText("&Filenames");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = 100;
 		gd.horizontalSpan = 3;

@@ -83,7 +83,7 @@ public class SVEditorCodeStylePrefsPage extends PreferencePage implements
 		
 		Group upper_group = new Group(frame, SWT.FLAT);
 		upper_group.setLayout(new GridLayout());
-		upper_group.setText("Code Style Options");
+		upper_group.setText("&Code Style Options");
 		upper_group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		fTableViewer = CheckboxTableViewer.newCheckList(upper_group, SWT.WRAP);
