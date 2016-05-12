@@ -213,8 +213,12 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						while ((ch = get_ch()) != -1) {
 							end_comment1 = end_comment2;
 							end_comment2 = ch;
+							
+							String S = fCommentBuffer.toString(); 
 
 							if (end_comment1 == '*' && end_comment2 == '/') {
+								// Remove trailing *
+								fCommentBuffer.deleteCharAt(fCommentBuffer.length()-1);
 								endComment();
 								break;
 							} else {

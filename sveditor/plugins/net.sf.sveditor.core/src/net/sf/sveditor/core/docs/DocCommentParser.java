@@ -54,22 +54,22 @@ public class DocCommentParser implements IDocCommentParser {
 	}
 	
 	private static Pattern fPatternHeaderLine = 
-			Pattern.compile("^ *([a-z0-9 ]*[a-z0-9]): +(.*)$",Pattern.CASE_INSENSITIVE) ;
+			Pattern.compile("^\\s*([a-z0-9 ]*[a-z0-9]):\\s+(.*)$",Pattern.CASE_INSENSITIVE) ;
 	
 	private static Pattern fPatternIsDocComment = 
-			Pattern.compile(".*? *([a-z0-9 ]*[a-z0-9]): +(.*?) *$",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
+			Pattern.compile(".*?\\s*([a-z0-9 ]*[a-z0-9]):\\s+(.*?)\\s*$",Pattern.CASE_INSENSITIVE|Pattern.DOTALL) ;
 	
 	private static Pattern fPatternIsTaskTagComment =
-			Pattern.compile(".*?([A-Z][A-Z]*) +(.*?) *$", Pattern.DOTALL) ;
+			Pattern.compile(".*?([A-Z][A-Z]*)\\s*(.*?)\\s*$", Pattern.DOTALL) ;
 	
 	private static Pattern fPatternCodeSectionEnd = 
-			Pattern.compile("^ *\\( *(?:end|finish|done)(?: +(?:table|code|example|diagram))? *\\)$", Pattern.CASE_INSENSITIVE ) ;
+			Pattern.compile("^\\s*\\(\\s*(?:end|finish|done)(?:\\s+(?:table|code|example|diagram))?\\s*\\)$", Pattern.CASE_INSENSITIVE ) ;
 	
 	private static Pattern fPatternDefinition =
-			Pattern.compile("^(.+?) +- +([^ ].*)$") ;
+			Pattern.compile("^(.+?)\\s+-\\s+([^ ].*)$") ;
 	
 	private static Pattern fPatternCodeSectionStart = 
-			Pattern.compile("^ *\\( *(?:(?:start|begin)? +)?(?:table|code|example|diagram) *\\)$", Pattern.CASE_INSENSITIVE) ;
+			Pattern.compile("^\\s*\\(\\s*(?:(?:start|begin)?\\s+)?(?:table|code|example|diagram)\\s*\\)$", Pattern.CASE_INSENSITIVE) ;
 	
 	private static Pattern headerLinePattern = 
 			Pattern.compile("^(.*)([^ ]):$") ;
@@ -110,6 +110,7 @@ public class DocCommentParser implements IDocCommentParser {
 
 			for(String line: lines) {
 				if (line.indexOf(':') != -1) {
+					// Check for XXX: Name
 					Matcher matcher = fPatternIsDocComment.matcher(line);
 					if(matcher.matches()) {
 						if(fDocTopics == null) {
@@ -124,10 +125,26 @@ public class DocCommentParser implements IDocCommentParser {
 							return CommentType.DocComment;
 						}
 					}
+					// No match... we could have FIXME: or TASK: here
+					// Check for XXX:
+					// May still be a task tag.
+					Matcher task_matcher = fPatternIsTaskTagComment.matcher(line);
+
+					if (task_matcher.matches()) {
+						info.first(task_matcher.group(1));
+						if (task_matcher.groupCount()>1)  {
+							info.second(task_matcher.group(2));
+						}
+						else  {
+							info.second("");
+						}
+						return CommentType.TaskTag;
+					}					
 				} else {
 					int idx=0;
 					char ch;
 
+					// Move through leading whitespace
 					while (idx < line.length()) {
 						ch = line.charAt(idx);
 						if (!Character.isWhitespace(ch) && ch != '*') {
@@ -150,7 +167,12 @@ public class DocCommentParser implements IDocCommentParser {
 
 						if (task_matcher.matches()) {
 							info.first(task_matcher.group(1));
-							info.second(task_matcher.group(2));
+							if (task_matcher.groupCount()>1)  {
+								info.second(task_matcher.group(2));
+							}
+							else  {
+								info.second("");
+							}
 							return CommentType.TaskTag;
 						}					
 					}
