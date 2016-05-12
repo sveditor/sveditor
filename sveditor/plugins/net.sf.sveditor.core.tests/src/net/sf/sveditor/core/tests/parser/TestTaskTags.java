@@ -3,6 +3,7 @@ package net.sf.sveditor.core.tests.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
@@ -99,25 +100,26 @@ public class TestTaskTags extends SVCoreTestCaseBase {
 	
 	public void testTaskNoReason() {
 		String doc =
-				"module top;\n" +
-						"	/**\n" +
-						"	 * FIXME\n" +
-						"	 */\n" +
-						"	always @(posedge clk) begin end\n" +
-						"	/**\n" +
-						"	 * FIXME:\n" +
-						"	 */\n" +
-						"	always @(posedge clk) begin end\n" +
-						"	/**\n" +
-						"	 * FIXME: \n" +
-						"	 */\n" +
-						"	always @(posedge clk) begin end\n" +
-						"	/**\n" +
-						"	 * FIXME: thing\n" +
-						"	 */\n" +
-						"	always @(posedge clk) begin\n" +
-						"	end\n" +
-						"endmodule\n"
+				"module top;\n" +                                       // line 1
+						"	/**\n" +                                    // line .
+						"	 * FIXME\n" +                               // line .
+						"	 */\n" +                                    // line .
+						"	always @(posedge clk) begin end\n" +        // line 5
+						"	/**\n" +                                    // line .
+						"	 * FIXME:\n" +                              // line .
+						"	 */\n" +                                    // line .
+						"	always @(posedge clk) begin end\n" +        // line .
+						"	/**\n" +                                    // line 10
+						"	 * FIXME: \n" +                             // line .
+						"	 */\n" +                                    // line .
+						"	always @(posedge clk) begin end\n" +        // line .
+						"	/**\n" +                                    // line .
+						"	 * leading comment here\n" +                // line 15
+						"	 * FIXME: thing\n" +                        // line .
+						"	 */\n" +                                    // line .
+						"	always @(posedge clk) begin\n" +            // line .
+						"	end\n" +                                    // line .
+						"endmodule\n"                                   // line 20
 						;
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -129,12 +131,19 @@ public class TestTaskTags extends SVCoreTestCaseBase {
 		assertEquals(4, markers.size());
 		assertEquals(SVDBMarker.MarkerType.Task, markers.get(0).getMarkerType());
 		assertEquals("FIXME ", markers.get(0).getMessage());
+		assertEquals(3, SVDBLocation.unpackLineno(markers.get(0).getLocation()));
+
 		assertEquals(SVDBMarker.MarkerType.Task, markers.get(1).getMarkerType());
 		assertEquals("FIXME :", markers.get(1).getMessage());
+		assertEquals(7, SVDBLocation.unpackLineno(markers.get(1).getLocation()));
+
 		assertEquals(SVDBMarker.MarkerType.Task, markers.get(2).getMarkerType());
 		assertEquals("FIXME: ", markers.get(2).getMessage());
+		assertEquals(11, SVDBLocation.unpackLineno(markers.get(2).getLocation()));
+
 		assertEquals(SVDBMarker.MarkerType.Task, markers.get(3).getMarkerType());
 		assertEquals("FIXME: thing", markers.get(3).getMessage());
+		assertEquals(16, SVDBLocation.unpackLineno(markers.get(3).getLocation()));
 	}
 	
 
