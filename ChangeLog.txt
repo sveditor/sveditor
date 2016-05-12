@@ -4,6 +4,10 @@
 
 - #(425) - Correct an issue with the plugin-library indexer. Resolved a NPE
   issue during indexing
+------------------------------------------------------------------------------
+-- 1.8.6 Release --
+
+- #(426) Task markers (TODO/FIXME) not detected in multi-line comment
 
 ------------------------------------------------------------------------------
 -- 1.8.5 Release --
