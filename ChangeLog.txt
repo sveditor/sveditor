@@ -2,6 +2,9 @@
 ------------------------------------------------------------------------------
 -- 1.8.6 Release --
 
+- #(425) - Correct an issue with the plugin-library indexer. Resolved a NPE
+  issue during indexing
+
 ------------------------------------------------------------------------------
 -- 1.8.5 Release --
 

@@ -76,6 +76,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 		fFSProvider = new SVDBPluginFileSystemProvider(bundle, plugin_ns);
 		
 		fBuildData = new SVDBArgFileIndexBuildData(cache, index_id);
+		fBuildData.setFSProvider(fFSProvider);
 	}
 	
 	@Override
