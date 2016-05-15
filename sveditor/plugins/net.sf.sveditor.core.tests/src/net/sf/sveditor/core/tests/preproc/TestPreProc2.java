@@ -75,6 +75,32 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"\n" +
 				"post-file2.svh\n");
 	}
+
+	public void testMacroInclude() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		File dir1 = new File(fTmpDir, "dir1");
+		
+		assertTrue(dir1.mkdirs());
+		
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+			
+		inc_provider.addIncdir(dir1.getAbsolutePath());
+
+		TestUtils.copy(
+				"class classb;\n" +
+				"endclass\n",
+				new File(dir1, "classb.svh"));
+		
+		runTest(
+				"`define CLASSB_SV \"classb.svh\"\n" +
+				"`include `CLASSB_SV\n" +
+				"class top_class; \n" +
+				"endclass\n",
+				inc_provider,
+				""
+				);
+	}
 	
 	public void testBasicDefine() {
 		SVCorePlugin.getDefault().enableDebug(false);

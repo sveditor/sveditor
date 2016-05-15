@@ -980,6 +980,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testRecursiveMacroRef() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testRecursiveMacroRef";
 		String doc =
 				"//Overly simplistic example\n" +
@@ -990,12 +991,11 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 		String expected = 
 				"task abc();\n" +
-				"	`M1\n" +
+				"\t\n" +
 				" endtask\n";
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(false);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
@@ -1004,6 +1004,33 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		assertEquals(expected.trim(), result.trim());
 		LogFactory.removeLogHandle(log);		
 	}
+	
+	public void testRecursiveMacroRef2() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = getName(); 
+		String doc =
+				"//Overly simplistic example\n" +
+				"`define M1 `M2\n" +
+				"`define M2 `M1\n" +
+				" task abc();\n" +
+				"	`M1\n" +
+				" endtask\n"
+				;
+		String expected = 
+				"task abc();\n" +
+				"\t\n" +
+				" endtask\n";
+		
+		LogHandle log = LogFactory.getLogHandle(testname);
+		String result = SVDBTestUtils.preprocess(doc, testname);
+			
+		log.debug("Result:\n" + result.trim());
+		log.debug("====");
+		log.debug("Expected:\n" + expected.trim());
+		log.debug("====");
+		assertEquals(expected.trim(), result.trim());
+		LogFactory.removeLogHandle(log);		
+	}	
 	
 	public void testUVMFieldArrayIntExpansion() throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);

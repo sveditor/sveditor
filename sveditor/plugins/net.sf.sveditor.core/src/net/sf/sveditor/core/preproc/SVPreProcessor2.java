@@ -66,6 +66,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private boolean									fDebugEn = false;
 	
 	private Stack<SVPreProc2InputData>				fInputStack;
+	private Set<String>								fMacroExpSet;
 	private SVPreProc2InputData						fInputCurr;
 	private ISVPreProcFileMapper					fFileMapper;
 	private Map<String, SVDBMacroDef>				fMacroMap = new HashMap<String, SVDBMacroDef>();
@@ -116,6 +117,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			ISVPreProcIncFileProvider		inc_provider,
 			ISVPreProcFileMapper			file_mapper) {
 		fInputStack = new Stack<SVPreProc2InputData>();
+		fMacroExpSet = new HashSet<String>();
 		fOutput = new StringBuilder();
 		fCommentBuffer = new StringBuilder();
 		fDocCommentParser = new DocCommentParser();
@@ -390,9 +392,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		long scan_loc = getLocation();
 	
 		String type;
+		String buffer_macro_name = null;
 		if (ch == -1) {
 			type = "";
 		} else {
+			buffer_macro_name = (fInputCurr != null)?fInputCurr.getFileName():null;
 			type = readPreProcIdentifier(ch);
 	
 			if (type == null) {
@@ -679,9 +683,15 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			
 			fTmpBuffer.append('`');
 			fTmpBuffer.append(type);
-
+		
+			boolean skip_recursive =
+					(buffer_macro_name != null && buffer_macro_name.equals("Macro: " + type)) ||
+					(fMacroExpSet.contains("Macro: " + type));
+			
 			// If we're in a disabled section, don't try to expand
-			if (ifdef_enabled()) {
+			if (skip_recursive) {
+				// Omit input
+			} else if (ifdef_enabled()) {
 				// Read the full string
 			
 				// Add a reference for this macro
@@ -778,9 +788,10 @@ public class SVPreProcessor2 extends AbstractTextScanner
 
 						SVPreProc2InputData in = new SVPreProc2InputData(
 								this, new StringInputStream(exp), 
-								"ANONYMOUS", fInputCurr.getFileId(), false);
+								"Macro: " + type, fInputCurr.getFileId(), false);
 						fInputStack.push(in);
 						fInputCurr = in;
+						update_macro_exp_set();
 					} catch (Exception e) {
 						/*
 							System.out.println("Exception while expanding \"" + 
@@ -828,6 +839,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 
 		fInputStack.push(in_data);
+		update_macro_exp_set();
 		fInputCurr = in_data;
 	}
 	
@@ -879,6 +891,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		}
 		
 		/*SVPreProc2InputData curr_in =*/ fInputStack.pop();
+		update_macro_exp_set();
 		
 		SVPreProc2InputData new_file = fInputStack.peek();
 		fInputCurr = new_file;
@@ -1217,6 +1230,17 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fMacroMap.put(macro.getName(), macro);
 		}
 	};
+	
+	private void update_macro_exp_set() {
+		fMacroExpSet.clear();
+		
+		for (int i=0; i<fInputStack.size(); i++) {
+			String name = fInputStack.get(i).getFileName();
+			if (name.startsWith("Macro: ")) {
+				fMacroExpSet.add(name);
+			}
+		}
+	}
 
 	@Override
 	public void preProcError(String msg, String filename, int lineno) {

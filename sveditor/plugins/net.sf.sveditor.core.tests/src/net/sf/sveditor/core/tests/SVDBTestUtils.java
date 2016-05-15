@@ -46,12 +46,11 @@ import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
@@ -364,7 +363,10 @@ public class SVDBTestUtils {
 		
 			in = copier.copy();
 			 */
-			SVPreProcessor preproc = new SVPreProcessor(in, filename, dp);
+			SVPreProcessor2 preproc = new SVPreProcessor2(
+					filename, in, null, null);
+			preproc.setMacroProvider(macro_provider);
+			
 			log.debug("Content (SVPreProc):");
 			log.debug(preproc.preprocess().toString());
 		}
@@ -418,7 +420,7 @@ public class SVDBTestUtils {
 			}
 			
 		};
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
+//		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		/*
 		pp_scanner = new SVPreProcScanner();
 		pp_scanner.init(new StringInputStream(content), filename);
@@ -431,8 +433,11 @@ public class SVDBTestUtils {
 			result.append((char)c);
 		}
 		 */
-		SVPreProcessor pp = new SVPreProcessor(
-				new StringInputStream(content), filename, dp);
+		SVPreProcessor2 pp = new SVPreProcessor2(
+				filename, 
+				new StringInputStream(content), 
+				null, null);
+		pp.setMacroProvider(macro_provider);
 		SVPreProcOutput out = pp.preprocess();
 	
 		return out.toString();
