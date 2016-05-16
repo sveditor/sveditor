@@ -360,6 +360,23 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				// Actually a task marker
 				String msg = tag + " " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
+
+				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
+				int fileid = SVDBLocation.unpackFileId(loc);
+				int line   = SVDBLocation.unpackLineno(loc);
+				int pos    = SVDBLocation.unpackPos(loc);
+				String lines[] = comment.split("\\n");
+				for (String cl: lines)  {
+					if (cl.contains(tag))  {
+						break;
+					}
+					else  {
+						line ++;
+					}
+				}
+				loc = SVDBLocation.pack(fileid, line, pos);
+
+				// Set location
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {
 					in.getFileTree().fMarkers.add(m);
@@ -367,6 +384,23 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
 				String msg = tag + ": " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
+				
+				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
+				int fileid = SVDBLocation.unpackFileId(loc);
+				int line   = SVDBLocation.unpackLineno(loc);
+				int pos    = SVDBLocation.unpackPos(loc);
+				String lines[] = comment.split("\\n");
+				for (String cl: lines)  {
+					if (cl.contains(tag))  {
+						break;
+					}
+					else  {
+						line ++;
+					}
+				}
+				loc = SVDBLocation.pack(fileid, line, pos);
+
+				// Set location
 				m.setLocation(loc);
 				if (in.getFileTree() != null) {
 					in.getFileTree().fMarkers.add(m);
