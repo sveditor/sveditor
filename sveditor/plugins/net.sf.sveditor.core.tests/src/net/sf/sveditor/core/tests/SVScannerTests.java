@@ -58,7 +58,7 @@ public class SVScannerTests extends TestCase {
 		};
 		int idx = 0;
 		
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, new StringInputStream(in_data), "testVariableLists", markers);
 

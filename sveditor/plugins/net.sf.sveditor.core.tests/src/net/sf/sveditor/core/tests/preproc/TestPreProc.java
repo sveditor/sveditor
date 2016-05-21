@@ -885,12 +885,12 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 			String expected =
 				"int LINE1;\n" +
-				"	// int LINE2;\n" +
+				"	 \n" +
 				"	int LINE3;\n"
 				;
 				
-			LogHandle log = LogFactory.getLogHandle("testSingleLineCommentMacro");
-			String result = SVDBTestUtils.preprocess(doc, "testSingleLineCommentMacro");
+			LogHandle log = LogFactory.getLogHandle(getName());
+			String result = SVDBTestUtils.preprocess(doc, getName());
 			SVCorePlugin.getDefault().enableDebug(false);
 			
 			log.debug("Result:\n" + result.trim());

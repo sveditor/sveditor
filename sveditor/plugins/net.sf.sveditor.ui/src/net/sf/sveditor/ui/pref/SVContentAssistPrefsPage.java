@@ -49,8 +49,10 @@ public class SVContentAssistPrefsPage extends FieldEditorPreferencePage implemen
 		general_group.setText("General");
 		addField(new IntegerFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_TIMEOUT, 
 				"&Content Assist Timeout (ms)", general_group));
+		/** No value in preserving this for users to play with. 
 		addField(new BooleanFieldEditor(SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_USES_BROWSER, 
 				"&Hover Uses Browser:", general_group));
+		 */
 
 		
 		Group tf_group = new Group(getFieldEditorParent(), SWT.NONE);

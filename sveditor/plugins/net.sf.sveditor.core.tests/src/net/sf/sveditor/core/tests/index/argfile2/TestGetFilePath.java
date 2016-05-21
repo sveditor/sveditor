@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 public class TestGetFilePath extends SVCoreTestCaseBase {
 	
 	public void testFindSVFilePath() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		File project = new File(fTmpDir, "project");
 		File project2= new File(fTmpDir, "project2");

@@ -28,7 +28,7 @@ public class TestMethodGenerator extends TestCase {
 	
 	private SVDBTask parse_tf(String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		SVParser parser = new SVParser(null);
+		SVParser parser = new SVParser();
 		parser.init(new StringInputStream(content), name);
 		
 		parser.parsers().taskFuncParser().parse(scope, -1, 0);

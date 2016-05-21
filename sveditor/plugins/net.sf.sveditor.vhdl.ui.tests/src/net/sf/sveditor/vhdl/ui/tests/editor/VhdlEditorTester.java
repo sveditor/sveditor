@@ -53,7 +53,7 @@ public class VhdlEditorTester {
 		fAutoEditTester = VhdlUiReleaseTests.createAutoEditTester();
 		fAutoEditTester.setContent(doc);
 
-//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 //		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 //		fSVDBFile = factory.parse(new StringInputStream(doc), filename, markers);

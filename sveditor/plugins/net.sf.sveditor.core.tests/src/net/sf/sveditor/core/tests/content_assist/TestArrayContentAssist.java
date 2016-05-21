@@ -312,7 +312,7 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);

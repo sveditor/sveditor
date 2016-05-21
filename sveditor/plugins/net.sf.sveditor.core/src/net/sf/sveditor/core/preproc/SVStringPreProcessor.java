@@ -14,6 +14,11 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 	private IPreProcMacroProvider		fMacroProvider;
 	private boolean						fLocked;
 	
+	public SVStringPreProcessor() {
+		fMacroMap = new HashMap<String, SVDBMacroDef>();
+		fLocked = false;
+	}
+	
 	public SVStringPreProcessor(List<SVDBMacroDef> incoming_macros) {
 		fMacroMap = new HashMap<String, SVDBMacroDef>();
 		for (SVDBMacroDef m : incoming_macros) {
@@ -34,7 +39,7 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 		fMacroProvider = macro_provider;
 		fLocked = true;
 	}
-
+	
 	@Override
 	public String preprocess(InputStream in) {
 		SVPreProcessor2 preproc = new SVPreProcessor2("", in, null, null);

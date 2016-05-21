@@ -23,7 +23,7 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 public class TestParseDataTypes extends TestCase {
 	
 	public void testWireLogicInputPort() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"`default_nettype none\n" +
 				"module top(\n" +

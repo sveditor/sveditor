@@ -54,7 +54,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 				"m_field");
 		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
@@ -104,7 +104,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 		
 		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
@@ -158,7 +158,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			
 		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);
@@ -202,7 +202,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 				"m_field1", "m_field2");
 		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), testname, markers);

@@ -34,7 +34,7 @@ public class testSVScannerLineNumbers implements IApplication {
 		// InputStream in = Activator.openFile("data/ovm_tlm/ovm_ports.svh");
 		InputStream in = SVCoreTestsPlugin.openFile("data/tlm_imps.svh");
 		
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile f =  factory.parse(SVLanguageLevel.SystemVerilog, in, "tlm_imps.svh", markers);
 		

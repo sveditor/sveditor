@@ -112,7 +112,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 		
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
 		TextTagPosUtils tt_utils = ini.second();
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
@@ -148,7 +148,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 
 		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc1);
 		TextTagPosUtils tt_utils = ini.second();
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc1", markers);
@@ -626,7 +626,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	/*************** Utility Methods ********************/
 	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);

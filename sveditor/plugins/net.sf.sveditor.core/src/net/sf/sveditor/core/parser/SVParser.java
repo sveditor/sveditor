@@ -41,9 +41,10 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.scanner.IDefineProvider;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.ISVPreProcScannerObserver;
 import net.sf.sveditor.core.scanner.ISVScanner;
 import net.sf.sveditor.core.scanner.SVKeywords;
@@ -70,7 +71,7 @@ public class SVParser implements ISVScanner,
 	private ScanLocation fStmtLocation;
 	private ScanLocation fStartLocation;
 
-	private IDefineProvider fDefineProvider;
+	private IPreProcMacroProvider		fMacroProvider;
 
 	private SVDBFile 					fFile;
 	private Stack<SVDBScopeItem> 		fScopeStack;
@@ -89,17 +90,12 @@ public class SVParser implements ISVScanner,
 	private SVLanguageLevel				fLanguageLevel;
 	
 	public SVParser() {
-		this(null);
-	}
-
-	public SVParser(IDefineProvider dp) {
 		// Setup logging
 		fLog = LogFactory.getLogHandle(
 				"ParserSVDBFileFactory", ILogHandle.LOG_CAT_PARSER);
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
 		
-		setDefineProvider(dp);
 		fScopeStack = new Stack<SVDBScopeItem>();
 
 		fParseErrorCount = 0;
@@ -118,8 +114,8 @@ public class SVParser implements ISVScanner,
 		return fConfig;
 	}
 
-	public void setDefineProvider(IDefineProvider p) {
-		fDefineProvider = p;
+	public void setMacroProvider(IPreProcMacroProvider mp) {
+		fMacroProvider = mp;
 	}
 	
 	public void setFileMapper(ISVPreProcFileMapper mapper) {
@@ -600,6 +596,10 @@ public class SVParser implements ISVScanner,
 			fLanguageLevel = language_level;
 		}
 		
+		if (fMacroProvider == null) {
+			fMacroProvider = new SVStringPreProcessor();
+		}
+		
 		fScopeStack.clear();
 		
 		fFile = new SVDBFile(filename);
@@ -612,12 +612,10 @@ public class SVParser implements ISVScanner,
 			fMarkers = new ArrayList<SVDBMarker>();
 		}
 
-		if (fDefineProvider != null) {
-			fDefineProvider.addErrorListener(this);
-		}
+		SVPreProcessor2 preproc = new SVPreProcessor2(
+				filename, in, null, null);
+		preproc.setMacroProvider(fMacroProvider);
 
-		SVPreProcessor preproc = new SVPreProcessor(
-				in, filename, fDefineProvider);
 		fInput = preproc.preprocess();
 		
 		fFile.setLocation(getLocationL());
@@ -650,10 +648,6 @@ public class SVParser implements ISVScanner,
 			fScopeStack.pop();
 		}
 
-		if (fDefineProvider != null) {
-			fDefineProvider.removeErrorListener(this);
-		}
-		
 		return fFile;
 	}
 
@@ -740,12 +734,10 @@ public class SVParser implements ISVScanner,
 		fFile = new SVDBFile(name);
 		fScopeStack.push(fFile);
 
-		if (fDefineProvider != null) {
-			fDefineProvider.addErrorListener(this);
-		}
-
-		SVPreProcessor preproc = new SVPreProcessor(
-				in, name, fDefineProvider);
+		SVPreProcessor2 preproc = new SVPreProcessor2(
+				name, in, null, null);
+		preproc.setMacroProvider(fMacroProvider);
+		
 		fInput = preproc.preprocess();
 		
 		fLexer = new SVLexer(fLanguageLevel);

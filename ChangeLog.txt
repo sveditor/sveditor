@@ -2,6 +2,10 @@
 ------------------------------------------------------------------------------
 -- 1.8.7 Release --
 
+- #(nobug) - Correct a recursive macro reference issue
+
+- #(nobug) - Remove the obsolete 'Hover Uses Browser' preference. 
+
 ------------------------------------------------------------------------------
 -- 1.8.6 Release --
 

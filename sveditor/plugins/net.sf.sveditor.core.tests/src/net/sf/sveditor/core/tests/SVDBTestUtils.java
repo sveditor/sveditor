@@ -53,7 +53,6 @@ import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 public class SVDBTestUtils {
 
@@ -339,7 +338,6 @@ public class SVDBTestUtils {
 			}
 		};
 		
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(macro_provider);
 		if (log != null) {
 			InputStream in = copier.copy();
 			
@@ -371,7 +369,7 @@ public class SVDBTestUtils {
 			log.debug(preproc.preprocess().toString());
 		}
 		
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(macro_provider);
 		
 		content = copier.copy();
 		file = factory.parse(SVLanguageLevel.SystemVerilog, content, filename, markers);

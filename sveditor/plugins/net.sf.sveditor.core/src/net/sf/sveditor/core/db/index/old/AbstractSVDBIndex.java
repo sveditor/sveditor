@@ -24,6 +24,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
@@ -88,22 +99,11 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
+import net.sf.sveditor.core.preproc.SVPreProcessor2;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
 
 public abstract class AbstractSVDBIndex implements 
 		ISVDBIndex, ISVDBIndexInt, ISVDBRefFinder,  
@@ -1875,8 +1875,7 @@ public abstract class AbstractSVDBIndex implements
 		if (markers == null) {
 			markers = new ArrayList<SVDBMarker>();
 		}
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(null);
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		path = SVFileUtils.normalize(path);
 
@@ -1954,7 +1953,8 @@ public abstract class AbstractSVDBIndex implements
 			System.out.println("file_tree path: " + path + " is null");
 		}
 
-		dp.setMacroProvider(createMacroProvider(file_tree));
+		factory = SVCorePlugin.createFileFactory(createMacroProvider(file_tree));
+//		dp.setMacroProvider(createMacroProvider(file_tree));
 		SVLanguageLevel language_level;
 		
 		if (fIndexCacheData.fForceSV) {
@@ -2003,8 +2003,7 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected void processFile(SVDBFileTree path, IPreProcMacroProvider mp) {
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(dp);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(mp);
 		
 		fLog.debug(LEVEL_MAX, "processFile: " + path.getFilePath());
 
@@ -2590,7 +2589,7 @@ public abstract class AbstractSVDBIndex implements
 		return file;
 	}
 	
-	public SVPreProcessor createPreProcScanner(String path) {
+	public SVPreProcessor2 createPreProcScanner(String path) {
 		
 		path = SVFileUtils.normalize(path);
 		fLog.debug("--> createPreProcScanner " + path);
@@ -2612,9 +2611,11 @@ public abstract class AbstractSVDBIndex implements
 
 		InputStream in = getFileSystemProvider().openStream(path);
 		IPreProcMacroProvider mp = createMacroProvider(ft);
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
+		
+		SVPreProcessor2 pp = new SVPreProcessor2(
+				path, in, null, null);
+		pp.setMacroProvider(mp);
 
-		SVPreProcessor pp = new SVPreProcessor(in, path, dp);
 
 		fLog.debug("<-- createPreProcScanner " + path);
 		return pp;

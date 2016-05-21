@@ -52,6 +52,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.scanner.IDefineProvider;
+import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -320,13 +321,19 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fIndexBuilder;
 	}
 	
-	public static ISVDBFileFactory createFileFactory(IDefineProvider dp) {
-		SVParser f = new SVParser(dp);
+	public static ISVDBFileFactory createFileFactory() {
+		return createFileFactory(null);
+	}
+	
+	public static ISVDBFileFactory createFileFactory(IPreProcMacroProvider mp) {
+		SVParser p = new SVParser();
+		p.setMacroProvider(mp);
+		
 		if (getDefault() != null) {
-			f.setConfig(getDefault().getParserConfig());
+			p.setConfig(getDefault().getParserConfig());
 		}
 		
-		return f;
+		return p;
 	}
 	
 	public ISVIndenter createIndenter() {

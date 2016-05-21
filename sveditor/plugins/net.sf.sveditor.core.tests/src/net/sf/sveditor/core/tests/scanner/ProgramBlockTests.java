@@ -40,7 +40,7 @@ public class ProgramBlockTests extends TestCase {
 				"class foo_c;\n" +
 				"endclass\n" +
 				"\n\n\n\n");
-		ISVDBFileFactory f = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory f = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = f.parse(in, "test", markers);

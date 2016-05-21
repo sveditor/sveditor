@@ -46,8 +46,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private StringBuilder							fOutput;
 	private int										fOutputLen;
 	private StringBuilder							fCommentBuffer;
-	private boolean									fCommentDocComment;
-	private boolean									fCommentTaskTag;
 	private boolean									fInComment;
 	private IDocCommentParser   					fDocCommentParser;
 	private long									fCommentStart;
@@ -66,8 +64,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private boolean									fDebugEn = false;
 	
 	private Stack<SVPreProc2InputData>				fInputStack;
-	private Set<String>								fMacroExpSet;
 	private SVPreProc2InputData						fInputCurr;
+	private Set<String>								fMacroExpSet;
 	private ISVPreProcFileMapper					fFileMapper;
 	private Map<String, SVDBMacroDef>				fMacroMap = new HashMap<String, SVDBMacroDef>();
 	
@@ -916,9 +914,12 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 	private void add_macro_reference(String macro) {
 		SVPreProc2InputData in = fInputCurr;
-		SVDBMacroDef def = fMacroProvider.findMacro(macro, -1);
+		
+		if (fMacroProvider != null) {
+			SVDBMacroDef def = fMacroProvider.findMacro(macro, -1);
 
-		in.addReferencedMacro(macro, def);
+			in.addReferencedMacro(macro, def);
+		}
 	}
 	
 	private void enter_ifdef(long scan_loc, boolean enabled) {

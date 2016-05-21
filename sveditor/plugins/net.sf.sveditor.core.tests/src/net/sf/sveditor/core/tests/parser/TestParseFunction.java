@@ -39,7 +39,7 @@ public class TestParseFunction extends TestCase {
 	
 	private SVDBTask parse_tf(SVParserConfig config, String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		SVParser parser = new SVParser(null);
+		SVParser parser = new SVParser();
 		parser.init(new StringInputStream(content), name);
 		
 		if (config != null) {
@@ -53,7 +53,7 @@ public class TestParseFunction extends TestCase {
 
 	private SVDBClassDecl parse_class(String content, String name) throws SVParseException {
 		SVDBScopeItem scope = new SVDBScopeItem();
-		SVParser parser = new SVParser(null);
+		SVParser parser = new SVParser();
 		parser.init(new StringInputStream(content), name);
 		
 		parser.parsers().classParser().parse(scope, 0);

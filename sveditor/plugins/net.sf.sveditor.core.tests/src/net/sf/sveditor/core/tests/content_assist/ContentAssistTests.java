@@ -122,7 +122,7 @@ public class ContentAssistTests extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVParser factory = new SVParser();
@@ -169,7 +169,7 @@ public class ContentAssistTests extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
@@ -205,7 +205,7 @@ public class ContentAssistTests extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
@@ -236,7 +236,7 @@ public class ContentAssistTests extends TestCase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory(null);
+		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
