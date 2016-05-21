@@ -753,6 +753,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testVmmErrorMacro() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 	        "`define vmm_error(log, msg)  \\\n" +
 	        "do \\\n" +
@@ -768,17 +769,17 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	        ;
 		String expected =
 			"do \n" + 
-			"	/* synopsys translate_off */ \n" + 
+			"	   \n" + 
 			"	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, \"testVmmErrorMacro\", 0)) begin \n" + 
 			"		void'(log.text({\"Self comparison failed: \", diff})); \n" + 
 			"		log.end_msg(); \n" + 
 			"	end \n" + 
-			"	/* synopsys translate_on */ \n" + 
+			"	   \n" +
 			"while (0); \n"
 			;
-			
-		LogHandle log = LogFactory.getLogHandle("testVmmErrorMacro");
-		String result = SVDBTestUtils.preprocess(doc, "testVmmErrorMacro");
+		
+		LogHandle log = LogFactory.getLogHandle(getName());
+		String result = SVDBTestUtils.preprocess(doc, getName());
 		
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
