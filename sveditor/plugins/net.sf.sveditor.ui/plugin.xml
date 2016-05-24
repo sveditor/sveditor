@@ -407,6 +407,12 @@
             id="net.sf.sveditor.ui.SelectEnclosingElement"
             name="Select Enclosing Element">
       </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Macro Expansion"
+            id="net.sf.sveditor.ui.editor.open.macro.expansion"
+            name="Open Macro Expansion">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -583,6 +589,12 @@
                label="Open Type"
                retarget="true">
          </action>
+         <action
+               definitionId="net.sf.sveditor.ui.editor.open.macro.expansion"
+               id="net.sf.sveditor.ui.svOpenMacroExpansion"
+               label="Open Macro Expansion"
+               retarget="true">
+         </action>
       </actionSet>
       <actionSet
             id="net.sf.sveditor.ui.source.menu.as"
@@ -679,6 +691,15 @@
             SystemVerilog Objects Viewer
          </description>
       </view>
+      <view
+            class="net.sf.sveditor.ui.views.MacroExpansionView"
+            icon="icons/edecl16/define_obj.gif"
+            id="net.sf.sveditor.ui.macroExpansionView"
+            name="Macro Expansion View"
+            restorable="true">
+      </view>
+      
+      
    </extension>
    <extension
          point="org.eclipse.ui.elementFactories">

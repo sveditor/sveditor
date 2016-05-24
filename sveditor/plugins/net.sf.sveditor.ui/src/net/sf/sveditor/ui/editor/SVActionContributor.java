@@ -16,6 +16,7 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -33,6 +34,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fIndentAction;
 	
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	protected RetargetTextEditorAction fOpenMacroExpansionAction;
 	protected RetargetTextEditorAction fOpenTypeAction;
 	protected RetargetTextEditorAction fFindReferencesAction;
 	protected RetargetTextEditorAction fOpenTypeHierarchyAction;
@@ -62,7 +64,11 @@ public class SVActionContributor extends TextEditorActionContributor {
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.editor.open.declaration");
-		
+
+		fOpenMacroExpansionAction = new RetargetTextEditorAction(
+				bundle, "OpenMacroExpansion.");
+		fOpenMacroExpansionAction.setActionDefinitionId(
+				"net.sf.sveditor.ui.editor.open.macro.expansion");
 		
 		fFindReferencesAction = new RetargetTextEditorAction(
 				bundle, "FindReferences.");
@@ -114,17 +120,19 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fSelPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
 		
 		fOpenSuperMethodAction = new RetargetTextEditorAction(bundle, "OpenSuperMethodAction.");
-		fOpenDeclarationAction.setActionDefinitionId("net.sf.sveditor.ui.open.super.method");
+		fOpenSuperMethodAction.setActionDefinitionId("net.sf.sveditor.ui.open.super.method");
 		
 	}
 
 	public void contributeToMenu(IMenuManager mm) {
 		IMenuManager editMenu = 
 			mm.findMenuUsingPath(IWorkbenchActionConstants.M_EDIT);
+		
 		if (editMenu != null) {
 			editMenu.add(new Separator());
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
+			editMenu.add(fOpenMacroExpansionAction);
 			editMenu.add(fOpenTypeHierarchyAction);
 			editMenu.add(fOpenTypeAction);
 			editMenu.add(fOpenObjectsAction);
@@ -148,6 +156,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 			editMenu.add(new Separator());
 			editMenu.add(fContentAssistProposal);
 			editMenu.add(fOpenDeclarationAction);
+			editMenu.add(fOpenMacroExpansionAction);
 			editMenu.add(fOpenTypeAction);
 			editMenu.add(fOpenTypeHierarchyAction);
 			editMenu.add(fOpenQuickObjectsAction);
@@ -161,11 +170,15 @@ public class SVActionContributor extends TextEditorActionContributor {
 		super.setActiveEditor(part);
 
 		ITextEditor editor= null;
-		if (part instanceof ITextEditor)
-			editor= (ITextEditor) part;
+		if (!(part instanceof ITextEditor)) {
+			// Not quite sure when this could happen, but...
+			return;
+		}
+		editor= (ITextEditor) part;
 
 		fContentAssistProposal.setAction(getAction(editor, "ContentAssistProposal")); //$NON-NLS-1$
 		fOpenDeclarationAction.setAction(getAction(editor, "OpenDeclaration"));
+		fOpenMacroExpansionAction.setAction(getAction(editor, "OpenMacroExpansion"));
 		fOpenTypeAction.setAction(getAction(editor, "OpenType"));
 		fOpenTypeHierarchyAction.setAction(getAction(editor, "OpenTypeHierarchy"));
 		fOpenObjectsAction.setAction(getAction(editor, "OpenObjects"));
