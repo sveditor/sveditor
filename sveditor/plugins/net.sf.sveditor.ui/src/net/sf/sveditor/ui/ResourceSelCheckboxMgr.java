@@ -1,6 +1,7 @@
 package net.sf.sveditor.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
@@ -9,22 +10,31 @@ import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 public class ResourceSelCheckboxMgr implements ICheckStateListener {
-	private boolean						fModifyingCheckState = false;
-	private CheckboxTreeViewer			fTreeViewer;
-	
+	private boolean fModifyingCheckState = false;
+	private CheckboxTreeViewer fTreeViewer;
+
 	public ResourceSelCheckboxMgr(CheckboxTreeViewer tv) {
 		fTreeViewer = tv;
 	}
-	
+
 	public List<Object> getCheckedItems() {
 		List<Object> ret = new ArrayList<Object>();
-		
-		for (Object o : fTreeViewer.getCheckedElements()) {
-			if (!fTreeViewer.getGrayed(o)) {
+
+		// Grab all the checked elements
+		Object ch[] = fTreeViewer.getCheckedElements();
+		// Grab all the grayed elements
+		List<Object> lgr = Arrays.asList(fTreeViewer.getGrayedElements());
+		// Loop through all objects that are checked checking for those that
+		// aren't grayed
+		for (Object o : ch) {
+			// Check if the list array of grayed elements contains the current
+			// element...
+			// if not add it to what we will be returning
+			if (!lgr.contains(o)) {
 				ret.add(o);
 			}
 		}
-		
+
 		return ret;
 	}
 
@@ -44,9 +54,9 @@ public class ResourceSelCheckboxMgr implements ICheckStateListener {
 		if (fModifyingCheckState) {
 			return;
 		}
-		
-		ITreeContentProvider cp = (ITreeContentProvider)fTreeViewer.getContentProvider();
-	
+
+		ITreeContentProvider cp = (ITreeContentProvider) fTreeViewer.getContentProvider();
+
 		try {
 			fModifyingCheckState = true;
 			boolean new_state_checked = event.getChecked();
@@ -55,22 +65,22 @@ public class ResourceSelCheckboxMgr implements ICheckStateListener {
 				// Check elements below
 				fTreeViewer.setGrayed(event.getElement(), false);
 				set_checked_below(event.getElement(), true, cp);
-			
+
 				// Now, check up the stack to set the state appropriately
 				Object parent, elem = event.getElement();
-				boolean any_greyed=false;
+				boolean any_greyed = false;
 				while ((parent = cp.getParent(elem)) != null) {
-					// See if all the siblings of this 
-					boolean has_siblings=false, all_siblings_checked=true;
-					
+					// See if all the siblings of this
+					boolean has_siblings = false, all_siblings_checked = true;
+
 					for (Object o : cp.getChildren(parent)) {
-						has_siblings=true;
+						has_siblings = true;
 						if (!fTreeViewer.getChecked(o)) {
-							all_siblings_checked=false;
+							all_siblings_checked = false;
 						}
 						any_greyed |= fTreeViewer.getGrayed(o);
 					}
-					
+
 					if (has_siblings && all_siblings_checked) {
 						fTreeViewer.setGrayed(parent, any_greyed);
 						fTreeViewer.setChecked(parent, true);
@@ -84,13 +94,13 @@ public class ResourceSelCheckboxMgr implements ICheckStateListener {
 				set_checked_below(event.getElement(), false, cp);
 
 				Object parent, elem = event.getElement();
-				boolean any_greyed=false;
+				boolean any_greyed = false;
 				while ((parent = cp.getParent(elem)) != null) {
-					// See if all the siblings of this 
-					boolean has_siblings=false, all_siblings_checked=true, any_siblings_checked=false;
-					
+					// See if all the siblings of this
+					boolean has_siblings = false, all_siblings_checked = true, any_siblings_checked = false;
+
 					for (Object o : cp.getChildren(parent)) {
-						has_siblings=true;
+						has_siblings = true;
 						if (!fTreeViewer.getChecked(o)) {
 							all_siblings_checked = false;
 						} else {
@@ -98,7 +108,7 @@ public class ResourceSelCheckboxMgr implements ICheckStateListener {
 						}
 						any_greyed |= fTreeViewer.getGrayed(o);
 					}
-					
+
 					if (has_siblings && all_siblings_checked) {
 						fTreeViewer.setGrayed(parent, any_greyed);
 						fTreeViewer.setChecked(parent, true);
@@ -118,10 +128,10 @@ public class ResourceSelCheckboxMgr implements ICheckStateListener {
 
 	private void set_checked_below(Object elem, boolean checked, ITreeContentProvider cp) {
 		boolean skipped = false;
-		
+
 		for (Object s : cp.getChildren(elem)) {
 			boolean checked_s = checked;
-			
+
 			if (checked) {
 				checked_s &= shouldIncludeInBlockSelection(elem, s);
 				if (!checked_s) {
@@ -133,7 +143,7 @@ public class ResourceSelCheckboxMgr implements ICheckStateListener {
 				set_checked_below(s, checked, cp);
 			}
 		}
-		
+
 		if (checked && skipped) {
 			fTreeViewer.setGrayed(elem, true);
 		}
