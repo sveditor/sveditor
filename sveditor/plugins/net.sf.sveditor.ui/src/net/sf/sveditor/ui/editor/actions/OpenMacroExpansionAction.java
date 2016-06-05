@@ -108,6 +108,8 @@ public class OpenMacroExpansionAction extends TextEditorAction {
 			return;
 		}
 		
+		m_view.setContext(fEditor);
+		
 //		fEditor.getSite().getWorkbenchWindow().
 
 //		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();

@@ -37,6 +37,7 @@ import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 
 
 public class SVPreProcessor2 extends AbstractTextScanner 
@@ -55,11 +56,13 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private List<SVPreProcOutput.FileChangeInfo>	fFileMap;
 	private List<String>							fFileList;
 	private StringBuilder							fTmpBuffer;
-	private List<Tuple<String, String>>				fParamList;
+	private List<String>							fMacroParams;
 	private Stack<Integer>							fPreProcEn;
 	private Stack<Long>								fPreProcLoc;
 	private IPreProcMacroProvider					fMacroProvider;
 	private SVPreProcDefineProvider					fDefineProvider;
+	private SVSingleLevelMacroExpander				fMacroExpander;
+	private static final boolean					fUseMacroExpander = false;
 	private LogHandle								fLog;
 	private boolean									fDebugEn = false;
 	
@@ -120,7 +123,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fCommentBuffer = new StringBuilder();
 		fDocCommentParser = new DocCommentParser();
 		fTmpBuffer = new StringBuilder();
-		fParamList = new ArrayList<Tuple<String,String>>();
+		fMacroParams = new ArrayList<String>();
 		fPreProcEn = new Stack<Integer>();
 		fPreProcLoc = new Stack<Long>();
 		fFileMap = new ArrayList<SVPreProcOutput.FileChangeInfo>();
@@ -133,6 +136,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		defaultMacroProvider.setMacro("SVEDITOR", "");
 		fDefineProvider = new SVPreProcDefineProvider(fMacroProvider);
 		fDefineProvider.addErrorListener(this);
+		fMacroExpander = new SVSingleLevelMacroExpander();
 		
 		fLog = LogFactory.getLogHandle("SVPreProcessor2");
 		fLog.addLogLevelListener(this);
@@ -141,7 +145,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fTaskTags = new HashSet<String>();
 		fTaskTags.add("TODO");
 		fTaskTags.add("FIXME");
-	
+		
 		// Add the first file
 		enter_file(filename, input);
 	}
@@ -245,7 +249,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						output(' ');
 					}
 				} else {
-					if (ch == '"' && last_ch != '\\') {
+					if (ch == '"' && last_ch != '\\' && last_ch != '`') {
 						// Enter string
 						in_string = true;
 					}
@@ -254,7 +258,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					}
 				}
 			} else { // In String
-				if (ch == '"' && last_ch != '\\') {
+				if (ch == '"' && last_ch != '\\' && last_ch != '`') {
 					in_string = false;
 				}
 				if (ifdef_enabled) {
@@ -419,8 +423,11 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 	private void handle_preproc_directive() {
 		int ch = -1;
+		boolean have_ws = false;
 		
-		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { }
+		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { 
+			have_ws = true;
+		}
 		long scan_loc = getLocation();
 	
 		String type;
@@ -429,14 +436,26 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			type = "";
 		} else {
 			buffer_macro_name = (fInputCurr != null)?fInputCurr.getFileName():null;
-			type = readPreProcIdentifier(ch);
+			// 
+			// Don't want to get thrown off by something like
+			// `  `MY_MACRO
+			if (!have_ws && (ch == '`' || ch == '"')) {
+				type = "" + (char)ch;
+			} else {
+				type = readPreProcIdentifier(ch);
+			}
 	
 			if (type == null) {
 				type = "";
 			}
 		}
-		
-		if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
+	
+		if (type.equals("\"")) {
+			// `" ==> "
+			output('"');
+		} else if (type.equals("`")) {
+			// `` => ""
+		} else if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
 		
 			// TODO: line number tracking
 			ch = skipWhite(get_ch());
@@ -452,24 +471,20 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 			// Add a new entry to the referenced macros 
 			add_macro_reference(remainder);
+			SVDBMacroDef m = fMacroProvider.findMacro(remainder, -1);
 
 			if (type.equals("ifdef")) {
 				if (fDebugEn) {
-					fLog.debug("ifdef \"" + remainder + "\": " +
-							fDefineProvider.isDefined(remainder, -1));
+					fLog.debug("ifdef \"" + remainder + "\": " + (m != null));
 				}
-				boolean active = fDefineProvider.isDefined(remainder, -1);
-				enter_ifdef(scan_loc, active);
+				enter_ifdef(scan_loc, (m != null));
 			} else if (type.equals("ifndef")) {
-				boolean active = !fDefineProvider.isDefined(remainder, -1);
 				if (fDebugEn) {
-					fLog.debug("ifndef \"" + remainder + "\": " + active);
+					fLog.debug("ifndef \"" + remainder + "\": " + (m == null));
 				}
-				enter_ifdef(scan_loc, active);
+				enter_ifdef(scan_loc, (m == null));
 			} else { // elsif
-				boolean active = fDefineProvider.isDefined(remainder, -1);
-				
-				enter_elsif(scan_loc, active);
+				enter_elsif(scan_loc, (m != null));
 			}
 		} else if (type.equals("else")) {
 			enter_else(scan_loc);
@@ -487,8 +502,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			
 			m.setName(readIdentifier(ch));
 			m.setLocation(scan_loc);
-			
-			fParamList.clear();
 			
 			ch = get_ch();
 			
@@ -674,13 +687,22 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					inc = "";
 				}
 			}
-		} else if (type.equals("__LINE__")) {
+		} else if (type.equals("__LINE__") || type.equals("__FILE__")) {
 			if (ifdef_enabled()) {
-				output("" + fInputCurr.getLineNo());
-			}
-		} else if (type.equals("__FILE__")) {
-			if (ifdef_enabled()) {
-				output("\"" + fInputCurr.getFileName() + "\"");
+				// Find the last non-macro output
+				SVPreProc2InputData input = null;
+				for (int i=fInputStack.size()-1; i>=0; i--) {
+					if (!fInputStack.get(i).getFileName().startsWith("Macro:")) {
+						input = fInputStack.get(i);
+						break;
+					}
+				}
+				
+				if (type.equals("__FILE__")) {
+					output("\"" + ((input!=null)?input.getFileName():"UNKNOWN") + "\"");
+				} else {
+					output("" + ((input!=null)?input.getLineNo():-1));
+				}
 			}
 		} else if (type.equals("pragma")) {
 			ch = skipWhite(get_ch());
@@ -715,10 +737,14 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			
 			fTmpBuffer.append('`');
 			fTmpBuffer.append(type);
-		
+	
 			boolean skip_recursive =
 					(buffer_macro_name != null && buffer_macro_name.equals("Macro: " + type)) ||
 					(fMacroExpSet.contains("Macro: " + type));
+//			System.out.println("type: \"" + type + "\" ; buffer_macro_name=\"" + buffer_macro_name + "\"");
+//			for (String k : fMacroExpSet) {
+//				System.out.println("  Macro: " + k);
+//			}
 			
 			// If we're in a disabled section, don't try to expand
 			if (skip_recursive) {
@@ -729,22 +755,21 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				// Add a reference for this macro
 				add_macro_reference(type);
 
-				boolean is_defined = fDefineProvider.isDefined(type, -1);
-				if (!is_defined) {
+				SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
+				if (md == null && fInputCurr.getFileTree() != null) {
 					SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 							MarkerKind.UndefinedMacro,
 							"Macro " + type + " undefined");
 					m.setLocation(scan_loc);
 
 					fInputCurr.getFileTree().fMarkers.add(m);
-
 				}
 				
-				if (fDefineProvider.hasParameters(type, fInputCurr.getLineNo()) || !is_defined) {
+				if ((md == null) || (md.getParameters() != null && md.getParameters().size() > 0)) {
 					// Try to read the parameter list
 					ch = get_ch();
 					// skip up to new-line or non-whitespace
-					if (!is_defined) {
+					if (md == null) {
 						// For undefined macros, only search up to end-of-line
 						while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
 							ch = get_ch();
@@ -755,59 +780,37 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							ch = get_ch();
 						}
 					}
-
-					if (ch == '(') {
-						fTmpBuffer.append((char)ch);
-
-						// Read the parameter list
-						int matchLevel=1, last_ch = -1;
-						boolean in_string = false;
-
-						do {
-							ch = get_ch();
-
-							if (!in_string) {
-								if (ch == '(') {
-									matchLevel++;
-								} else if (ch == ')') {
-									matchLevel--;
-								} else if (ch == '\"' && last_ch != '\\') {
-									in_string = true;
-								}
-							} else if (ch == '\"' && last_ch != '\\') {
-								in_string = false;
+					
+					if (md != null) {
+						if (fUseMacroExpander) {
+							// TODO: parse the parameter definitions into a list
+							fMacroParams.clear();
+							// Load up the default values. 
+							for (SVDBMacroDefParam p : md.getParameters()) {
+								fMacroParams.add(p.getValue());
 							}
-
-							if (ch != -1) {
-								// Found an escaped newline. Just get rid of it
-								if (ch == '\n' && last_ch == '\\') {
-									// Something to skip
-									if (fTmpBuffer.length() > 0 && 
-											fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\r') {
-										// Remove extra line feed
-										fTmpBuffer.setLength(fTmpBuffer.length()-1);
-									}
-									if (fTmpBuffer.length() > 0 && 
-											fTmpBuffer.charAt(fTmpBuffer.length()-1) == '\\') {
-										// Remove escape char
-										fTmpBuffer.setLength(fTmpBuffer.length()-1);
-									}
-								} else {
-									fTmpBuffer.append((char)ch);
-								}
-							}
-							last_ch = ch;
-						} while (ch != -1 && matchLevel > 0);
-					} else if (is_defined) {
-						unget_ch(ch);
+							SVMacroExpander.parseMacroCallParams(this, fMacroParams);
+						} else {
+							readMacroParameters(fTmpBuffer, ch);
+						}
+					} else if (ch == '(') { // undefined macro, but appears to be one with params
+						readMacroParameters(fTmpBuffer, ch);
 					} else {
 						unget_ch(ch);
 					}
 				}
 
-				if (!is_defined) {
+				if (md == null) {
 					// Leave a breadcrumb for the lexer
 					output("`undefined");
+				} else if (fUseMacroExpander) {
+					String exp = fMacroExpander.expandMacro(md, fMacroParams);
+					SVPreProc2InputData in = new SVPreProc2InputData(
+							this, new StringInputStream(exp), 
+							"Macro: " + type, fInputCurr.getFileId(), false);
+					fInputStack.push(in);
+					fInputCurr = in;
+					update_macro_exp_set();					
 				} else if (fDefineProvider != null) {
 					try {
 						String exp = fDefineProvider.expandMacro(
@@ -836,6 +839,140 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				}
 			}
 			
+		}
+	}
+	
+	private void readMacroParameters(StringBuilder sb, int ch) {
+		sb.append((char)ch);
+
+		// Read the parameter list
+		int matchLevel=1, last_ch = -1;
+		boolean in_string = false;
+
+		do {
+			ch = get_ch();
+
+			if (!in_string) {
+				if (ch == '(') {
+					matchLevel++;
+				} else if (ch == ')') {
+					matchLevel--;
+				} else if (ch == '\"' && last_ch != '\\') {
+					in_string = true;
+				}
+			} else if (ch == '\"' && last_ch != '\\') {
+				in_string = false;
+			}
+
+			if (ch != -1) {
+				// Found an escaped newline. Just get rid of it
+				if (ch == '\n' && last_ch == '\\') {
+					// Something to skip
+					if (sb.length() > 0 && 
+							sb.charAt(sb.length()-1) == '\r') {
+						// Remove extra line feed
+						sb.setLength(sb.length()-1);
+					}
+					if (sb.length() > 0 && 
+							sb.charAt(sb.length()-1) == '\\') {
+						// Remove escape char
+						sb.setLength(sb.length()-1);
+					}
+				} else {
+					sb.append((char)ch);
+				}
+			}
+			last_ch = ch;
+		} while (ch != -1 && matchLevel > 0);		
+	}
+	
+	public static void ReadMacroRef(
+			StringBuilder 			sb, 
+			ITextScanner 			s,
+			IPreProcMacroProvider	mp) {
+		int ch = s.get_ch();
+		
+		if (ch != '`') {
+			// doesn't look right
+			s.unget_ch(ch);
+			return;
+		}
+	
+		sb.append((char)ch);
+		
+		// Skip whitespace
+		while ((ch = s.get_ch()) != -1 && Character.isWhitespace(ch)) { }
+		
+		String type = AbstractTextScanner.readPreProcIdentifier(s, ch);
+		
+		if (type == null) {
+			type = "";
+		}
+		sb.append(type);
+	
+		SVDBMacroDef m = mp.findMacro(type, -1);
+		
+		if (m == null || m.getParameters().size() > 0) {
+			// Try to read the parameter list
+			ch = s.get_ch();
+			// skip up to new-line or non-whitespace
+			if (m == null) {
+				// For undefined macros, only search up to end-of-line
+				while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
+					ch = s.get_ch();
+				}
+			} else {
+				// For defined macros, skip all whitespace
+				while (ch != -1 && Character.isWhitespace(ch)) {
+					ch = s.get_ch();
+				}
+			}
+
+			if (ch == '(') {
+				sb.append((char)ch);
+
+				// Read the parameter list
+				int matchLevel=1, last_ch = -1;
+				boolean in_string = false;
+
+				do {
+					ch = s.get_ch();
+
+					if (!in_string) {
+						if (ch == '(') {
+							matchLevel++;
+						} else if (ch == ')') {
+							matchLevel--;
+						} else if (ch == '\"' && last_ch != '\\') {
+							in_string = true;
+						}
+					} else if (ch == '\"' && last_ch != '\\') {
+						in_string = false;
+					}
+
+					if (ch != -1) {
+						// Found an escaped newline. Just get rid of it
+						if (ch == '\n' && last_ch == '\\') {
+							// Something to skip
+							if (sb.length() > 0 && sb.charAt(sb.length()-1) == '\r') {
+								// Remove extra line feed
+								sb.setLength(sb.length()-1);
+							}
+							if (sb.length() > 0 && sb.charAt(sb.length()-1) == '\\') {
+								// Remove escape char
+								sb.setLength(sb.length()-1);
+							}
+						} else {
+							sb.append((char)ch);
+						}
+					}
+					last_ch = ch;
+				} while (ch != -1 && matchLevel > 0);
+			} else if (m != null) {
+				s.unget_ch(ch);
+			} else {
+				s.unget_ch(ch);
+			}
 		}
 	}
 	
@@ -922,7 +1059,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fIndexStats.incNumProcessedFiles();
 		}
 		
-		/*SVPreProc2InputData curr_in =*/ fInputStack.pop();
+		/* SVPreProc2InputData curr_in = */ fInputStack.pop();
+
 		update_macro_exp_set();
 		
 		SVPreProc2InputData new_file = fInputStack.peek();
@@ -1268,13 +1406,16 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	
 	private void update_macro_exp_set() {
 		fMacroExpSet.clear();
-		
+	
+//		System.out.println("--> update_macro_exp_set");
 		for (int i=0; i<fInputStack.size(); i++) {
 			String name = fInputStack.get(i).getFileName();
+//			System.out.println("  Name: " + name);
 			if (name.startsWith("Macro: ")) {
 				fMacroExpSet.add(name);
 			}
 		}
+//		System.out.println("<-- update_macro_exp_set");
 	}
 
 	@Override

@@ -38,6 +38,8 @@ public class TestLexer extends TestCase {
 	public void testParenContainingString() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
+			"`define ovm_file `__FILE__\n" +
+			"`define ovm_line `__LINE__\n" +
 			"`define ovm_warning(region, msg) \\\n" +
 			"   begin \\\n" +
 			"		if (ovm_report_enabled(OVM_NONE,OVM_WARNING,ID)) \\\n" +

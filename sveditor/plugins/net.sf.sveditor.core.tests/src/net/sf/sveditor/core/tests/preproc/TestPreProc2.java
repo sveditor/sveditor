@@ -77,7 +77,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMacroInclude() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		File dir1 = new File(fTmpDir, "dir1");
 		
 		assertTrue(dir1.mkdirs());

@@ -74,6 +74,9 @@ public class StringTextScanner extends AbstractTextScanner
 		if (length == 0) {
 			return "";
 		} else {
+			if (start+length > fStr.length()) {
+				length = (fStr.length()-(int)start+1);
+			}
 			return fStr.substring((int)start, (int)(start+length-1));
 		}
 	}
@@ -151,7 +154,11 @@ public class StringTextScanner extends AbstractTextScanner
 	}
 	
 	public int getLimit() {
-		return (fLimit != -1)?fLimit:fStr.length();
+		if (fLimit == -1 || fLimit > fStr.length()) {
+			return fStr.length();
+		} else {
+			return fLimit;
+		}
 	}
 	
 	private void update_idx_replace(int start, int end, int len) {

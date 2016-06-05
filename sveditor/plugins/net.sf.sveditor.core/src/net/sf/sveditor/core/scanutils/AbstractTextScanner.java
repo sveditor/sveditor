@@ -168,6 +168,42 @@ public abstract class AbstractTextScanner implements ITextScanner {
 
 		return (fTmpBuffer.length()>0)?fTmpBuffer.toString():null;
 	}
+	
+	public static int readPreProcIdentifier(
+			StringBuilder			sb,
+			ITextScanner			scanner,
+			int						ch) {
+		if (!SVCharacter.isSVIdentifierStart(ch)) {
+			return ch;
+		}
+
+		sb.append((char)ch);
+
+		while ((ch = scanner.get_ch()) != -1 && 
+				SVCharacter.isSVIdentifierPart(ch)) {
+			sb.append((char)ch);
+		}
+		
+		return ch;
+	}
+	
+	public static String readPreProcIdentifier(ITextScanner s, int ci) {
+		if (!SVCharacter.isSVIdentifierStart(ci)) {
+			s.unget_ch(ci);
+			return null;
+		}
+		
+		StringBuilder sb = new StringBuilder();
+
+		sb.append((char)ci);
+
+		while ((ci = s.get_ch()) != -1 && SVCharacter.isSVIdentifierPart(ci)) {
+			sb.append((char)ci);
+		}
+		s.unget_ch(ci);
+
+		return (sb.length()>0)?sb.toString():null;
+	}	
 
 	public String readString(int ch) {
 		fTmpBuffer.setLength(0);
