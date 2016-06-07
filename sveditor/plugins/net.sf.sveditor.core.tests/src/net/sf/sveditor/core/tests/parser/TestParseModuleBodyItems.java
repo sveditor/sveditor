@@ -1629,7 +1629,15 @@ public class TestParseModuleBodyItems extends TestCase {
 		String doc = 
 			"module my_module;\n" +
 			"	localparam logic [15:0]  TMR_SPB_ADDRL [PARAMETER_1 :0]  = { 16'h1600, 16'h1400 };      // ERROR: Crazy parameter construct\n" +
-			"endmodule\n"
+			"	// Bug 428\n" +
+			"	// LOL: I see your Crazy parameter construct and raise you THIS!\n" +
+			"	localparam integer WRSP_RPX_CREDIT_GEN [MAX_NUM_RP_ILL] = '{\n" +
+            "	WRSP_RP_PRESENT_MAX[0] ? WRSP_MAX_CREDIT_GEN : 0,\n" +
+            "	WRSP_RP_PRESENT_MAX[1] ? WRSP_MAX_CREDIT_GEN : 0,\n" +
+            "	WRSP_RP_PRESENT_MAX[2] ? WRSP_MAX_CREDIT_GEN : 0,\n" +
+            "	WRSP_RP_PRESENT_MAX[3] ? WRSP_MAX_CREDIT_GEN : 0,\n" +
+            "	WRSP_RP_PRESENT_MAX[4] ? WRSP_MAX_CREDIT_GEN : 0};\n" +
+            "endmodule\n"
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
 		runTest(testname, doc, new String[] {"my_module", "TMR_SPB_ADDRL"});
