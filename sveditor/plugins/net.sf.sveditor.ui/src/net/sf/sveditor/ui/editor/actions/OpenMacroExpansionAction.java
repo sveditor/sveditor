@@ -15,42 +15,63 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.TextEditorAction;
+
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
-import net.sf.sveditor.ui.SVEditorUtil;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import net.sf.sveditor.ui.views.MacroExpansionView;
 
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.texteditor.TextEditorAction;
-
-public class OpenDeclarationAction extends TextEditorAction {
+public class OpenMacroExpansionAction extends TextEditorAction {
 	private SVEditor				fEditor;
 	private LogHandle				fLog;
-	private boolean				fDebugEn = true;
+	private boolean					fDebugEn = true;
 
-	public OpenDeclarationAction(
+	public OpenMacroExpansionAction(
 			ResourceBundle			bundle,
 			SVEditor				editor) {
-		super(bundle, "OpenDeclaration.", editor);
-		fLog = LogFactory.getLogHandle("OpenDeclarationAction");
+		super(bundle, "OpenMacroExpansion.", editor);
+		fLog = LogFactory.getLogHandle("OpenMacroExpansionAction");
 		fEditor = editor;
-		
 		update();
 	}
 	
+	
+	@Override
+	public void update() {
+		System.out.println("update: " + fEditor);
+		if (fEditor != null) {
+			ITextSelection sel = getTextSel();
+			IDocument doc = getDocument();
+			try {
+			System.out.println("Selection: " + sel.getOffset() + 
+					doc.get(sel.getOffset(), 1));
+			} catch (BadLocationException e) { }
+			setEnabled(true);
+		} else {
+			setEnabled(false); // no editor
+		}
+	}
+
+
+
 	protected ITextSelection getTextSel() {
 		ITextSelection sel = null;
 		
@@ -67,20 +88,42 @@ public class OpenDeclarationAction extends TextEditorAction {
 
 	@Override
 	public void run() {
-		debug("OpenDeclarationAction.run()");
-
-		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();
-
+		debug("OpenMacroExpansionAction.run()");
+	
+		IWorkbenchWindow w = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchPage p = w.getActivePage();
+		MacroExpansionView m_view = null;
+		
 		try {
-			if (target.first() != null) {
-				fLog.debug("Open file for item \"" + SVDBItem.getName(target.first())); 
-				SVEditorUtil.openEditor(target.first());
-			} else if (target.second() != null) {
-				SVEditorUtil.openEditor(target.second().getFilePath());
+			IViewPart view = p.showView(SVUiPlugin.PLUGIN_ID + ".macroExpansionView");
+			
+			if (view != null) {
+				m_view = (MacroExpansionView)view;
 			}
 		} catch (PartInitException e) {
-			fLog.error("Failed to open declaration in editor", e);
+			e.printStackTrace();
 		}
+		
+		if (m_view == null) {
+			return;
+		}
+		
+		m_view.setContext(fEditor);
+		
+//		fEditor.getSite().getWorkbenchWindow().
+
+//		Tuple<ISVDBItemBase, SVDBFile> target = findTarget();
+//
+//		try {
+//			if (target.first() != null) {
+//				fLog.debug("Open file for item \"" + SVDBItem.getName(target.first())); 
+//				SVEditorUtil.openEditor(target.first());
+//			} else if (target.second() != null) {
+//				SVEditorUtil.openEditor(target.second().getFilePath());
+//			}
+//		} catch (PartInitException e) {
+//			fLog.error("Failed to open declaration in editor", e);
+//		}
 	}
 	
 	protected SVDBFile getTargetFile() {

@@ -69,6 +69,7 @@ import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
 import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
+import net.sf.sveditor.ui.editor.actions.OpenMacroExpansionAction;
 import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
 import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
@@ -776,6 +777,12 @@ public class SVEditor extends TextEditor
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction", false);
 		
+		OpenMacroExpansionAction me_action = new OpenMacroExpansionAction(bundle, this);
+		me_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.open.macro.expansion");
+		setAction(SVUiPlugin.PLUGIN_ID + ".svOpenMacroExpansionAction",  me_action);
+		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenMacroExpansionAction", true);
+		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svOpenMacroExpansionAction", true);
+		
 		
 		FindReferencesAction fr_action = new FindReferencesAction(bundle, this);
 		fr_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".editor.find.references");
@@ -915,6 +922,8 @@ public class SVEditor extends TextEditor
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenEditorAction");
+		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
+				SVUiPlugin.PLUGIN_ID + ".svOpenMacroExpansionAction");
 		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 

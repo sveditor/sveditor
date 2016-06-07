@@ -466,7 +466,7 @@ public class SVDBArgFileIndex implements
 				synchronized (fBuildData) {
 				SVDBFile argfile = fBuildData.getFile(m, f_file);
 //				System.out.println("file: " + f_file + " argfile=" + argfile);
-				if (argfile != null) {
+				if (argfile != null && argfile instanceof SVDBArgFile) {
 					fArgFileParser.collectSourceFiles(fBuildData, 
 							(SVDBArgFile)argfile, existing_files);
 				}
@@ -633,9 +633,11 @@ public class SVDBArgFileIndex implements
 				
 					long last_modified = cache.getLastModified(path);
 					fBuildData.getCache().setLastModified(path, last_modified, false);
-					
-					// Update the cached declarations
-					patch_decl_cache(ft, decl_cache, new_decl_cache);
+			
+					if (ft != null) {
+						// Update the cached declarations
+						patch_decl_cache(ft, decl_cache, new_decl_cache);
+					}
 
 					monitor.worked(1000);
 				}

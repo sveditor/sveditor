@@ -47,6 +47,8 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
+import junit.framework.TestCase;
+
 public class TestPreProc extends SVCoreTestCaseBase {
 
 	public void testUnbalancedConditionals_GreaterEndifs() {
@@ -212,7 +214,10 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testCommaContainingStringMacroParam() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
+				"`define uvm_file `__FILE__\n" +
+				"`define uvm_line `__LINE__\n" +
 				"`define uvm_fatal(ID,MSG) \\\n" +
 				"	begin \\\n" +
 				"	if (uvm_report_enabled(UVM_NONE,UVM_FATAL,ID)) \\\n" +
@@ -227,13 +232,13 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			String expected =
 				"begin \n" +
 				"	if (uvm_report_enabled(UVM_NONE,UVM_FATAL,\"PH_BAD_ADD\")) \n" + 
-				"		uvm_report_fatal (\"PH_BAD_ADD\", \"cannot add before begin node, after end node, or with end nodes\", UVM_NONE, e, e); \n" + 
+				"		uvm_report_fatal (\"PH_BAD_ADD\", \"cannot add before begin node, after end node, or with end nodes\", UVM_NONE, " +
+					"\"" + getName() + "\", 11); \n" + 
 				"	end\n"
 				;
 				
-			LogHandle log = LogFactory.getLogHandle("testCommaContainingStringMacroParam");
-			String result = SVDBTestUtils.preprocess(doc, "testCommaContainingStringMacroParam");
-			SVCorePlugin.getDefault().enableDebug(false);
+			LogHandle log = LogFactory.getLogHandle(getName());
+			String result = SVDBTestUtils.preprocess(doc, getName());
 			
 			log.debug("Result:\n" + result.trim());
 			log.debug("====");
@@ -288,6 +293,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 
 	public void testMacroBasics_3() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testMacroBasics_3";
 		String doc = 
 				"`define MACRO_A(a,b) a``b\n" +
@@ -298,7 +304,6 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
 			log.debug("Result:\n" + result.trim());
@@ -325,7 +330,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(false);
+			SVCorePlugin.getDefault().enableDebug(true);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
 			log.debug("Result:\n" + result.trim());
@@ -557,7 +562,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"int a4 = 5 + 2;\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(false);
+			SVCorePlugin.getDefault().enableDebug(true);
 			LogHandle log = LogFactory.getLogHandle(testname);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
@@ -903,6 +908,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 
 	public void testSpaceSeparatedMacroRef() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String testname = "testSpaceSeparatedMacroRef";
 		String doc = 
 				"`define MY_MACRO(P) ABC P\n" +
@@ -919,7 +925,6 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(false);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
@@ -943,7 +948,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
@@ -1021,6 +1026,8 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"task abc();\n" +
 				"\t\n" +
 				" endtask\n";
+		
+		TestCase.fail("Recursion currently broken");
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
