@@ -844,9 +844,11 @@ public class SVExprParser extends SVParserBase {
 		
 		if (fLexer.peekOperator(OP.TERNARY)) {
 			fLexer.eatToken();
-
 			SVDBExpr lhs = a;
+			// We are going to have a : here, make sure we don't mistake the : for a label identifier
+			fEnableNameMappedPrimary.push(false);
 			SVDBExpr mhs = expression();
+			fEnableNameMappedPrimary.pop();
 			fLexer.readOperator(OP.COLON);
 
 			SVDBExpr rhs = conditionalExpression();
