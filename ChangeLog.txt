@@ -1,5 +1,11 @@
+
+------------------------------------------------------------------------------
+-- 1.8.8 Release --
+
+
 ------------------------------------------------------------------------------
 -- 1.8.7 Release --
+
 - #(nobug) FIXME/TODO markers now placed on the correct line, previously placed
    on the first line of the enclosing comment
    
