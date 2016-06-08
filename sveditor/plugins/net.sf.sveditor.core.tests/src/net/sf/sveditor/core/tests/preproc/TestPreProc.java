@@ -1027,7 +1027,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"\t\n" +
 				" endtask\n";
 		
-		TestCase.fail("Recursion currently broken");
+//		TestCase.fail("Recursion currently broken");
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);

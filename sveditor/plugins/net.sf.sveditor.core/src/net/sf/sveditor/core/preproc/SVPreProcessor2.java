@@ -67,6 +67,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private boolean									fDebugEn = false;
 	
 	private Stack<SVPreProc2InputData>				fInputStack;
+	private boolean									fInputStackChanged;
 	private SVPreProc2InputData						fInputCurr;
 	private Set<String>								fMacroExpSet;
 	private ISVPreProcFileMapper					fFileMapper;
@@ -424,6 +425,12 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private void handle_preproc_directive() {
 		int ch = -1;
 		boolean have_ws = false;
+		String buffer_macro_name = (fInputCurr != null)?fInputCurr.getFileName():null;
+		
+		if (fInputStackChanged) {
+			update_macro_exp_set();
+			fInputStackChanged = false;
+		}
 		
 		while ((ch = get_ch()) != -1 && Character.isWhitespace(ch)) { 
 			have_ws = true;
@@ -431,11 +438,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		long scan_loc = getLocation();
 	
 		String type;
-		String buffer_macro_name = null;
 		if (ch == -1) {
 			type = "";
 		} else {
-			buffer_macro_name = (fInputCurr != null)?fInputCurr.getFileName():null;
 			// 
 			// Don't want to get thrown off by something like
 			// `  `MY_MACRO
@@ -741,10 +746,6 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			boolean skip_recursive =
 					(buffer_macro_name != null && buffer_macro_name.equals("Macro: " + type)) ||
 					(fMacroExpSet.contains("Macro: " + type));
-//			System.out.println("type: \"" + type + "\" ; buffer_macro_name=\"" + buffer_macro_name + "\"");
-//			for (String k : fMacroExpSet) {
-//				System.out.println("  Macro: " + k);
-//			}
 			
 			// If we're in a disabled section, don't try to expand
 			if (skip_recursive) {
@@ -805,12 +806,14 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					output("`undefined");
 				} else if (fUseMacroExpander) {
 					String exp = fMacroExpander.expandMacro(md, fMacroParams);
+					if (buffer_macro_name != null && buffer_macro_name.startsWith("Macro:")) {
+						push_input(new SVPreProc2InputData(
+								this, new StringInputStream(""), buffer_macro_name, -1, false));
+					}
 					SVPreProc2InputData in = new SVPreProc2InputData(
 							this, new StringInputStream(exp), 
 							"Macro: " + type, fInputCurr.getFileId(), false);
-					fInputStack.push(in);
-					fInputCurr = in;
-					update_macro_exp_set();					
+					push_input(in);
 				} else if (fDefineProvider != null) {
 					try {
 						String exp = fDefineProvider.expandMacro(
@@ -824,9 +827,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						SVPreProc2InputData in = new SVPreProc2InputData(
 								this, new StringInputStream(exp), 
 								"Macro: " + type, fInputCurr.getFileId(), false);
-						fInputStack.push(in);
-						fInputCurr = in;
-						update_macro_exp_set();
+						push_input(in);
 					} catch (Exception e) {
 						/*
 							System.out.println("Exception while expanding \"" + 
@@ -1007,9 +1008,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			p_data.getFileTree().addIncludedFileTree(in_data.getFileTree());
 		}
 
-		fInputStack.push(in_data);
-		update_macro_exp_set();
-		fInputCurr = in_data;
+		push_input(in_data);
 	}
 	
 	private void cleanup_preproc_leftovers() {
@@ -1059,10 +1058,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			fIndexStats.incNumProcessedFiles();
 		}
 		
-		/* SVPreProc2InputData curr_in = */ fInputStack.pop();
+		SVPreProc2InputData curr_in = fInputStack.pop();
+		fInputStackChanged = true;
 
-		update_macro_exp_set();
-		
 		SVPreProc2InputData new_file = fInputStack.peek();
 		fInputCurr = new_file;
 		
@@ -1082,6 +1080,12 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							fOutputLen, file_id, new_file.getLineNo());
 			fFileMap.add(file_info);
 		}
+	}
+	
+	private void push_input(SVPreProc2InputData in) {
+		fInputStack.push(in);
+		fInputCurr = in;
+		fInputStackChanged = true;
 	}
 	
 	private void add_macro_reference(String macro) {
@@ -1407,15 +1411,12 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private void update_macro_exp_set() {
 		fMacroExpSet.clear();
 	
-//		System.out.println("--> update_macro_exp_set");
 		for (int i=0; i<fInputStack.size(); i++) {
 			String name = fInputStack.get(i).getFileName();
-//			System.out.println("  Name: " + name);
 			if (name.startsWith("Macro: ")) {
 				fMacroExpSet.add(name);
 			}
 		}
-//		System.out.println("<-- update_macro_exp_set");
 	}
 
 	@Override
