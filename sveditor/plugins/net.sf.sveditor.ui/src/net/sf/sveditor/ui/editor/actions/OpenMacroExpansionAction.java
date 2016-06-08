@@ -56,14 +56,13 @@ public class OpenMacroExpansionAction extends TextEditorAction {
 	
 	@Override
 	public void update() {
-		System.out.println("update: " + fEditor);
 		if (fEditor != null) {
 			ITextSelection sel = getTextSel();
 			IDocument doc = getDocument();
-			try {
-			System.out.println("Selection: " + sel.getOffset() + 
-					doc.get(sel.getOffset(), 1));
-			} catch (BadLocationException e) { }
+//			try {
+//			System.out.println("Selection: " + sel.getOffset() + 
+//					doc.get(sel.getOffset(), 1));
+//			} catch (BadLocationException e) { }
 			setEnabled(true);
 		} else {
 			setEnabled(false); // no editor
