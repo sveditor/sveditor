@@ -22,6 +22,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 	public void testMultiLineStringMacro() {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 				"`define uvm_error(t, str) \\\n" +
 				"string type = t;\\\n" +
@@ -38,6 +39,43 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		
 		runTestTrim(content, inc_provider, exp);
+	}
+	
+	public void testUvmRecordFieldExpansion() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"`define UVM_USE_P_FORMAT\n" +
+			"`define uvm_record_field(NAME,VALUE) \\\n" +
+			"	if (recorder != null && recorder.tr_handle != 0) begin \\\n" +
+			"		if (recorder.get_type_name() != \"uvm_recorder\") begin \\\n" +
+			"			`uvm_record_attribute(recorder.tr_handle,NAME,VALUE) \\\n" +
+			"		end \\\n" +
+			"	else \\\n" +
+			"		`ifdef UVM_USE_P_FORMAT \\\n" +
+			"		recorder.m_set_attribute(recorder.tr_handle,NAME,$sformatf(\"%p\",VALUE)); \\\n" +
+			"		`else \\\n" +
+			"		recorder.m_set_attribute(recorder.tr_handle,NAME,`\"value of VALUE`\"); \\\n" +
+			"		`endif \\\n" +
+			"	end\n" +
+			"\n" +
+			"`uvm_record_field(\"address\",m_address)\n" +
+			"\n"
+			;
+		String exp = 
+				"if (recorder != null && recorder.tr_handle != 0) begin \n" +
+				"		if (recorder.get_type_name() != \"uvm_recorder\") begin \n" +
+				"			`undefined \n" +
+				"		end \n" +
+				"	else \n" +
+				"		 \n" +
+				"		recorder.m_set_attribute(recorder.tr_handle,\"address\",$sformatf(\"%p\",m_address)); \n" +
+				"		 \n" +
+				"	end";
+		
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+		
+		runTestTrim2(content, inc_provider, exp);
 	}
 	
 	public void testBasicInclude() {
@@ -77,7 +115,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMacroInclude() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File dir1 = new File(fTmpDir, "dir1");
 		
 		assertTrue(dir1.mkdirs());
@@ -495,6 +533,62 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		fLog.debug("==");
 		
 		assertEquals(exp, out);
+	}
+
+	private void runTestTrim2(
+			String							doc,
+			ISVPreProcIncFileProvider		inc_provider,
+			String							exp) {
+		
+		SVPreProcessor2 preproc = new SVPreProcessor2(
+				getName(), new StringInputStream(doc), 
+				inc_provider, null);
+	
+		SVPreProcOutput output = preproc.preprocess();
+		
+		for (String file : output.getFileList()) {
+			fLog.debug("File: " + file);
+		}
+		
+		printFileTree("", output.getFileTree());
+		
+		String out = trimLines(output.toString());
+		exp = trimLines(exp);
+		
+		fLog.debug("==");
+		fLog.debug("Output:\n" + out);
+		fLog.debug("==");
+		fLog.debug("Exp:\n" + exp);
+		fLog.debug("==");
+		
+		assertEquals(exp, out);
+	}
+	
+	public static String trimLines(String in) {
+		StringBuilder ret = new StringBuilder();
+		int idx=0, start=0;
+		
+		while (idx < in.length()) {
+			if (in.charAt(idx) == '\n') {
+				String line = in.substring(start, idx).trim();
+				if (!line.equals("")) {
+					ret.append(line);
+					ret.append('\n');
+				}
+				start = idx+1;
+			}
+			idx++;
+		}
+		if (start < idx) {
+			// Add the last line
+			String line = in.substring(start).trim();
+			if (!line.equals("")) {
+				ret.append(line);
+				ret.append('\n');
+			}
+		}
+		
+		return ret.toString();
 	}
 	
 	private void runTestExpErrors(

@@ -39,7 +39,7 @@ public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcL
 		
 		SVPreProcessor2 preproc = new SVPreProcessor2(getName(), 
 				new StringInputStream(doc), null, null);
-	//	preproc.addPreProcListener(this);
+		preproc.addListener(this);
 		
 		SVPreProcOutput out = preproc.preprocess();
 		System.out.println("Result:\n" + out.toString());

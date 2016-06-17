@@ -27,6 +27,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexStats;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
@@ -52,7 +54,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String test_name = "testBasicExamplePkg" ;
+		String test_name = getName();
 		
 		File test_dir  = new File(fTmpDir,  test_name) ;
 		File proj_dir  = new File(test_dir, "uvm/examples/simple/basic_examples/pkg") ;
@@ -435,6 +437,8 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 				listFile.toString(),
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.loadIndex(new NullProgressMonitor());
+		SVDBIndexStats stats = ((SVDBArgFileIndex)index).getIndexStats();
+		System.out.println("Stats:\n" + stats.toString());
 		
 		List<SVDBDeclCacheItem> items = SVDBFindDeclOp.op(index, "", 
 				new ISVDBFindNameMatcher() {

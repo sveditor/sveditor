@@ -62,7 +62,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private IPreProcMacroProvider					fMacroProvider;
 	private SVPreProcDefineProvider					fDefineProvider;
 	private SVSingleLevelMacroExpander				fMacroExpander;
-	private static final boolean					fUseMacroExpander = false;
+	private static final boolean					fUseMacroExpander = true;
 	private LogHandle								fLog;
 	private boolean									fDebugEn = false;
 	
@@ -72,6 +72,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	private Set<String>								fMacroExpSet;
 	private ISVPreProcFileMapper					fFileMapper;
 	private Map<String, SVDBMacroDef>				fMacroMap = new HashMap<String, SVDBMacroDef>();
+	private List<IPreProcListener>					fListeners;
+	private boolean									fHaveListeners;
 	
 	private static final int    PP_DISABLED 			= 0;
 	private static final int    PP_ENABLED  			= 1;
@@ -149,6 +151,22 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		
 		// Add the first file
 		enter_file(filename, input);
+	}
+	
+	public void addListener(IPreProcListener l) {
+		fListeners.add(l);
+		fHaveListeners = true;
+	}
+	
+	public void removeListener(IPreProcListener l) {
+		fListeners.remove(l);
+		fHaveListeners = (fListeners.size() > 0);
+	}
+	
+	private void sendEvent(PreProcEvent ev) {
+		for (IPreProcListener l : fListeners) {
+			l.preproc_event(ev);
+		}
 	}
 	
 	public Collection<SVDBMacroDef> getDefaultMacros() {
@@ -254,7 +272,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 						// Enter string
 						in_string = true;
 					}
-					if (ifdef_enabled) {
+					if (ifdef_enabled && ch != -1) {
 						output((char)ch);
 					}
 				}
@@ -262,7 +280,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 				if (ch == '"' && last_ch != '\\' && last_ch != '`') {
 					in_string = false;
 				}
-				if (ifdef_enabled) {
+				if (ifdef_enabled && ch != -1) {
 					output((char)ch);
 				}
 			}
@@ -790,7 +808,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 							for (SVDBMacroDefParam p : md.getParameters()) {
 								fMacroParams.add(p.getValue());
 							}
-							SVMacroExpander.parseMacroCallParams(this, fMacroParams);
+							SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
 						} else {
 							readMacroParameters(fTmpBuffer, ch);
 						}
@@ -805,7 +823,17 @@ public class SVPreProcessor2 extends AbstractTextScanner
 					// Leave a breadcrumb for the lexer
 					output("`undefined");
 				} else if (fUseMacroExpander) {
+					if (fDebugEn) {
+						fLog.debug("Use MacroExpander: \"" + 
+								fTmpBuffer.toString() + "\"");
+					}
+					
 					String exp = fMacroExpander.expandMacro(md, fMacroParams);
+					
+					if (fDebugEn) {
+						fLog.debug("Use MacroExpander: expansion=\"" + exp + "\"");
+					}
+					
 					if (buffer_macro_name != null && buffer_macro_name.startsWith("Macro:")) {
 						push_input(new SVPreProc2InputData(
 								this, new StringInputStream(""), buffer_macro_name, -1, false));

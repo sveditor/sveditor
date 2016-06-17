@@ -876,7 +876,6 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 				// Operators that can have up to three elements
 				fSeqPrefixes[1].contains(fStringBuffer.toString()) ||
 				fSeqPrefixes[2].contains(fStringBuffer.toString())) */ {
-			// Probably an operator in some form 
 			operator();
 		}
 		

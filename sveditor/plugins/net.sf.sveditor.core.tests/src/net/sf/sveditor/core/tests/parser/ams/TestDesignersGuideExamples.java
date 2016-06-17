@@ -49,7 +49,7 @@ public class TestDesignersGuideExamples extends SVCoreTestCaseBase {
 	}
 	
 	public void testCh3Listing14() throws IOException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		testExample("/data/ams/ch3-listing14.tar");
 	}
 	

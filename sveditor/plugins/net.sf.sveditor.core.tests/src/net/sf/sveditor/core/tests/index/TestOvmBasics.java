@@ -25,6 +25,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -65,10 +66,14 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		IProject p = TestUtils.createProject("xbus", xbus);
 		addProject(p);
 		
-		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
-				"${workspace_loc}/xbus/examples/compile_questa_sv.f",
-				SVDBArgFileIndexFactory.TYPE, null);
+		TestUtils.copy(
+				"+define+QUESTA\n" +
+				"-f ${workspace_loc}/xbus/examples/compile_questa_sv.f\n",
+				p.getFile("sve.f"));
 		
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
+				"${workspace_loc}/xbus/sve.f",
+				SVDBArgFileIndexFactory.TYPE, null);		
 		index.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertNoErrWarn(fLog, index);

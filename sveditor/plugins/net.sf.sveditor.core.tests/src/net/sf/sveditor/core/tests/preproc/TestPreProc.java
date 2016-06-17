@@ -214,7 +214,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testCommaContainingStringMacroParam() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 				"`define uvm_file `__FILE__\n" +
 				"`define uvm_line `__LINE__\n" +
@@ -330,7 +330,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
 			log.debug("Result:\n" + result.trim());
@@ -562,7 +562,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"int a4 = 5 + 2;\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle(testname);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
@@ -758,7 +758,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testVmmErrorMacro() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 	        "`define vmm_error(log, msg)  \\\n" +
 	        "do \\\n" +
@@ -775,7 +775,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		String expected =
 			"do \n" + 
 			"	   \n" + 
-			"	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, \"testVmmErrorMacro\", 0)) begin \n" + 
+			"	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, \"testVmmErrorMacro\", 11)) begin \n" + 
 			"		void'(log.text({\"Self comparison failed: \", diff})); \n" + 
 			"		log.end_msg(); \n" + 
 			"	end \n" + 
@@ -785,6 +785,9 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		
 		LogHandle log = LogFactory.getLogHandle(getName());
 		String result = SVDBTestUtils.preprocess(doc, getName());
+		
+		expected = TestPreProc2.trimLines(expected);
+		result = TestPreProc2.trimLines(result);
 		
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");
@@ -908,7 +911,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 
 	public void testSpaceSeparatedMacroRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testSpaceSeparatedMacroRef";
 		String doc = 
 				"`define MY_MACRO(P) ABC P\n" +
@@ -948,7 +951,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 			
 		log.debug("Result:\n" + result.trim());
 		log.debug("====");

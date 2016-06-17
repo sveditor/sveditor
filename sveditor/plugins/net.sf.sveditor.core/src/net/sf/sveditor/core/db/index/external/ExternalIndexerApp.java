@@ -101,7 +101,7 @@ public class ExternalIndexerApp {
 		
 		SVCorePlugin.testInit();
 		LogFactory.getDefault().addLogListener(client);
-//		SVCorePlugin.getDefault().enableDebug(true);
+//		SVCorePlugin.getDefault().enableDebug(false);
 		
 		try {
 			client.connect(port);
