@@ -2,6 +2,9 @@
 ------------------------------------------------------------------------------
 -- 1.8.8 Release --
 
+- #(414) - Correct issues with using pre-processor macro with `include. 
+  Macro expansion is now properly performed
+  
 
 ------------------------------------------------------------------------------
 -- 1.8.7 Release --
