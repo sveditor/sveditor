@@ -17,7 +17,7 @@ import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 
@@ -43,7 +43,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 			InputStream 			in, 
 			String 					path, 
 			List<SVDBMarker> 		markers) {
-		SVPreProcessor2 preproc = new SVPreProcessor2(path, in, null, fileMapper);
+		SVPreProcessor preproc = new SVPreProcessor(path, in, null, fileMapper);
 		preproc.setMacroProvider(new MacroProvider());
 		
 		SVPreProcOutput pp_out = preproc.preprocess();
@@ -68,7 +68,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 			String 			path, 
 			InputStream 	in,
 			int 			limit_lineno) {
-		SVPreProcessor2 preproc = new SVPreProcessor2(path, in, null, fileMapper);
+		SVPreProcessor preproc = new SVPreProcessor(path, in, null, fileMapper);
 		MacroProvider mp = new MacroProvider();
 		preproc.setMacroProvider(mp);
 		

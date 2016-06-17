@@ -12,7 +12,7 @@ import net.sf.sveditor.core.preproc.IPreProcListener;
 import net.sf.sveditor.core.preproc.PreProcEvent;
 import net.sf.sveditor.core.preproc.PreProcEvent.Type;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -37,7 +37,7 @@ public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcL
 			"`MY_MACRO(foo, bar)\n"
 			;
 		
-		SVPreProcessor2 preproc = new SVPreProcessor2(getName(), 
+		SVPreProcessor preproc = new SVPreProcessor(getName(), 
 				new StringInputStream(doc), null, null);
 		preproc.addListener(this);
 		

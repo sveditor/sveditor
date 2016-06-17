@@ -40,7 +40,7 @@ import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 
 
-public class SVPreProcessor2 extends AbstractTextScanner 
+public class SVPreProcessor extends AbstractTextScanner 
 		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener {
 	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
@@ -115,7 +115,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		fIgnoredDirectives.add("undefineall");
 	}
 
-	public SVPreProcessor2(
+	public SVPreProcessor(
 			String							filename,
 			InputStream	 					input, 
 			ISVPreProcIncFileProvider		inc_provider,
@@ -341,7 +341,8 @@ public class SVPreProcessor2 extends AbstractTextScanner
 	public SVPreProc2InputData currentRealFile() {
 		int i=fInputStack.size()-1;
 		
-		while (i>=0 && fInputStack.get(i).getFileId() == -1) {
+//		while (i>=0 && fInputStack.get(i).getFileId() == -1) {
+		while (i>=0 && fInputStack.get(i).getFileName().startsWith("Macro: ")) {
 			i--;
 		}
 		
@@ -479,36 +480,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		} else if (type.equals("`")) {
 			// `` => ""
 		} else if (type.equals("ifdef") || type.equals("ifndef") || type.equals("elsif")) {
-		
-			// TODO: line number tracking
-			ch = skipWhite(get_ch());
-			
-			// TODO: evaluate the expression?
-			String remainder = readPreProcIdentifier(ch);
-			
-			if (remainder != null) {
-				remainder = remainder.trim();
-			} else {
-				remainder = "";
-			}
-		
-			// Add a new entry to the referenced macros 
-			add_macro_reference(remainder);
-			SVDBMacroDef m = fMacroProvider.findMacro(remainder, -1);
-
-			if (type.equals("ifdef")) {
-				if (fDebugEn) {
-					fLog.debug("ifdef \"" + remainder + "\": " + (m != null));
-				}
-				enter_ifdef(scan_loc, (m != null));
-			} else if (type.equals("ifndef")) {
-				if (fDebugEn) {
-					fLog.debug("ifndef \"" + remainder + "\": " + (m == null));
-				}
-				enter_ifdef(scan_loc, (m == null));
-			} else { // elsif
-				enter_elsif(scan_loc, (m != null));
-			}
+			handle_if_directive(scan_loc, type);
 		} else if (type.equals("else")) {
 			enter_else(scan_loc);
 		} else if (type.equals("endif")) {
@@ -517,199 +489,9 @@ public class SVPreProcessor2 extends AbstractTextScanner
 			// Skip entire line 
 			readLine(get_ch());
 		} else if (type.equals("define")) {
-			SVDBMacroDef m = new SVDBMacroDef();
-			// TODO: save file?
-
-			// TODO: line numbers
-			ch = skipWhite(get_ch());
-			
-			m.setName(readIdentifier(ch));
-			m.setLocation(scan_loc);
-			
-			ch = get_ch();
-			
-			if (ch == '(') {
-				// Has parameters
-				List<SVDBMacroDefParam> param_list = new ArrayList<SVDBMacroDefParam>();
-				
-				do {
-					ch = skipWhite(get_ch());
-					
-					if (!(Character.isJavaIdentifierPart(ch))) {
-						break;
-					} else {
-						String p = readIdentifier(ch);
-						String dflt = null;
-
-						ch = skipWhite(get_ch());
-
-						if (ch == '=') {
-							// Read default value
-							ch = skipWhite(get_ch());
-							if (ch == '"') {
-								// String
-								dflt = readString(ch);
-								dflt = "\"" + dflt + "\"";
-							} else {
-								// Read up to comma or close bracket
-								startCapture(ch);
-								while ((ch = get_ch()) != -1 && ch != ',' && ch != ')') { }
-								unget_ch(ch);
-								dflt = endCapture();
-							}
-						} else {
-							unget_ch(ch);
-						}
-						
-						param_list.add(new SVDBMacroDefParam(p, dflt));
-					}
-					
-					ch = skipWhite(get_ch());
-				} while (ch == ',');
-				
-				m.setParameters(param_list);
-				
-				if (ch == ')') {
-					ch = get_ch();
-				}
-				
-			}
-
-			// Now, read the remainder of the definition
-			String define = readLine(ch);
-			
-			
-			if (define == null) {
-				define = ""; // define this macro as existing
-			}
-
-			/* We should carry-through the single-line comments. However, this is only
-			 * true in the case of a single-line macro. Multi-line macros get to keep
-			 * their single-line comments
-			 */ 
-			int last_comment;
-			if ((last_comment = define.lastIndexOf("//")) != -1) {
-				int lr = define.indexOf('\n', last_comment);
-				if (lr == -1) {
-					// Nothing beyond this comment
-					define = define.substring(0, define.indexOf("//"));
-				}
-			}
-			
-			m.setDef(define);
-		
-			// TODO: need to warn on re-definition?
-			if (ifdef_enabled()) {
-				addMacro(m);
-				
-				SVPreProc2InputData in = currentRealFile();
-				
-				// Add the macro to the pre-processor version of the file
-				if (in != null && in.getFileTree() != null && in.getFileTree().getSVDBFile() != null) {
-					in.getFileTree().getSVDBFile().addChildItem(m);
-					in.getFileTree().addToMacroSet(m);
-				}
-			}
-		} else if (type.equals("include")) {
-			ch = skipWhite(get_ch());
-			
-			if (ch == '"') {
-				String inc = readString(ch);
-
-				if (inc.length() > 2 && ifdef_enabled()) {
-					// TODO: need to save the include statement in the pre-proc view?
-					
-					// Process include and switch to new file
-					if (fIncFileProvider != null) {
-						Tuple<String, List<SVDBFileTreeMacroList>> defs;
-						Tuple<String, InputStream> in;
-					
-						// TODO: for now, assuming accumulated pre-processor state 
-						// doesn't change file content. This isn't precisely correct.
-						defs = fIncFileProvider.findCachedIncFile(inc);
-						
-						SVPreProc2InputData curr_in = fInputCurr;
-						if (defs != null) {
-							// Add in the macros from the included file
-							for (SVDBFileTreeMacroList l : defs.second()) {
-								for (SVDBMacroDef m : l.getMacroList()) {
-									addMacro(m);
-								}
-							}
-						
-							// TODO: Need to mark as a 'virtual' include?
-							SVDBInclude svdb_inc = new SVDBInclude(inc);
-							svdb_inc.setLocation(scan_loc);
-							
-							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
-							
-							SVDBFileTree ft_i = new SVDBFileTree(defs.first());
-							ft_i.setParent(curr_in.getFileTree());
-							curr_in.getFileTree().addIncludedFileTree(ft_i);
-					
-							for (SVDBFileTreeMacroList ml : defs.second()) {
-								for (SVDBMacroDef m : ml.getMacroList()) {
-									ft_i.addToMacroSet(m);
-								}
-							}
-						} else if ((in = fIncFileProvider.findIncFile(inc)) != null && in.second() != null) {
-							if (fDebugEn) {
-								fLog.debug("Switching from file " + 
-										curr_in.getFileName() + " to " + in.first());
-							}
-							
-							// TODO: Add tracking data for new file
-							
-							// Believe it or not, some recursive inclusion is functional...
-							int recursive_include_count = 0;
-							
-							if (fFileList.contains(in.first())) {
-								for (int i=0; i<fInputStack.size(); i++) {
-									if (fInputStack.get(i).getFileName().equals(in.first())) {
-										recursive_include_count++;
-									}
-								}
-							}
-							
-							if (recursive_include_count < 10) {
-								// Find the root file path
-								String rootfile = fInputStack.get(0).getFileName();
-								fIncFileProvider.addCachedIncFile(in.first(), rootfile);
-
-								SVDBInclude svdb_inc = new SVDBInclude(inc);
-								svdb_inc.setLocation(scan_loc);
-
-								curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
-
-								enter_file(in.first(), in.second());
-							} else {
-								// Recursive include and have exceeded the limit
-								SVDBMarker m = new SVDBMarker(MarkerType.Error, 
-										MarkerKind.MissingInclude,
-										"Recursive inclusion of file " + inc);
-								m.setLocation(scan_loc);
-								curr_in.getFileTree().fMarkers.add(m);
-								try {
-									in.second().close();
-								} catch (IOException e) {}
-							}
-						} else {
-							SVDBMarker m = new SVDBMarker(MarkerType.Error, 
-									MarkerKind.MissingInclude,
-									"Failed to find include file " + inc);
-							m.setLocation(scan_loc);
-							curr_in.getFileTree().fMarkers.add(m);
-
-							// TODO: add missing-include error
-							if (fDebugEn) {
-								fLog.debug("Failed to find include file " + inc);
-							}
-						}
-					}
-				} else {
-					inc = "";
-				}
-			}
+			handle_define_directive(scan_loc);
+		} else if (type.equals("include")) {		
+			handle_include_directive(scan_loc);
 		} else if (type.equals("__LINE__") || type.equals("__FILE__")) {
 			if (ifdef_enabled()) {
 				// Find the last non-macro output
@@ -753,121 +535,367 @@ public class SVPreProcessor2 extends AbstractTextScanner
 		} else if (type.equals("endprotected")) {
 			leave_ifdef(scan_loc);
 		} else if (!type.equals("")) {
-			// Note: type="" occurs when no identifier followed the tick
-			// macro expansion.
-			// TODO: is TmpBuffer available?
-			fTmpBuffer.setLength(0);
-			
-			fTmpBuffer.append('`');
-			fTmpBuffer.append(type);
+			handle_macro_directive(scan_loc, type, buffer_macro_name);
+		}
+	}
 	
-			boolean skip_recursive =
-					(buffer_macro_name != null && buffer_macro_name.equals("Macro: " + type)) ||
-					(fMacroExpSet.contains("Macro: " + type));
-			
-			// If we're in a disabled section, don't try to expand
-			if (skip_recursive) {
-				// Omit input
-			} else if (ifdef_enabled()) {
-				// Read the full string
-			
-				// Add a reference for this macro
-				add_macro_reference(type);
+	private void handle_define_directive(long scan_loc) {
+		SVDBMacroDef m = new SVDBMacroDef();
+		int ch;
+		// TODO: save file?
 
-				SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
-				if (md == null && fInputCurr.getFileTree() != null) {
-					SVDBMarker m = new SVDBMarker(MarkerType.Error, 
-							MarkerKind.UndefinedMacro,
-							"Macro " + type + " undefined");
-					m.setLocation(scan_loc);
-
-					fInputCurr.getFileTree().fMarkers.add(m);
-				}
+		// TODO: line numbers
+		ch = skipWhite(get_ch());
+		
+		m.setName(readIdentifier(ch));
+		m.setLocation(scan_loc);
+		
+		ch = get_ch();
+		
+		if (ch == '(') {
+			// Has parameters
+			List<SVDBMacroDefParam> param_list = new ArrayList<SVDBMacroDefParam>();
+			
+			do {
+				ch = skipWhite(get_ch());
 				
-				if ((md == null) || (md.getParameters() != null && md.getParameters().size() > 0)) {
-					// Try to read the parameter list
-					ch = get_ch();
-					// skip up to new-line or non-whitespace
-					if (md == null) {
-						// For undefined macros, only search up to end-of-line
-						while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
-							ch = get_ch();
-						}
-					} else {
-						// For defined macros, skip all whitespace
-						while (ch != -1 && Character.isWhitespace(ch)) {
-							ch = get_ch();
-						}
-					}
-					
-					if (md != null) {
-						if (fUseMacroExpander) {
-							// TODO: parse the parameter definitions into a list
-							fMacroParams.clear();
-							// Load up the default values. 
-							for (SVDBMacroDefParam p : md.getParameters()) {
-								fMacroParams.add(p.getValue());
-							}
-							SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
+				if (!(Character.isJavaIdentifierPart(ch))) {
+					break;
+				} else {
+					String p = readIdentifier(ch);
+					String dflt = null;
+
+					ch = skipWhite(get_ch());
+
+					if (ch == '=') {
+						// Read default value
+						ch = skipWhite(get_ch());
+						if (ch == '"') {
+							// String
+							dflt = readString(ch);
+							dflt = "\"" + dflt + "\"";
 						} else {
-							readMacroParameters(fTmpBuffer, ch);
+							// Read up to comma or close bracket
+							startCapture(ch);
+							while ((ch = get_ch()) != -1 && ch != ',' && ch != ')') { }
+							unget_ch(ch);
+							dflt = endCapture();
 						}
-					} else if (ch == '(') { // undefined macro, but appears to be one with params
-						readMacroParameters(fTmpBuffer, ch);
 					} else {
 						unget_ch(ch);
 					}
+					
+					param_list.add(new SVDBMacroDefParam(p, dflt));
 				}
+				
+				ch = skipWhite(get_ch());
+			} while (ch == ',');
+			
+			m.setParameters(param_list);
+			
+			if (ch == ')') {
+				ch = get_ch();
+			}
+			
+		}
 
+		// Now, read the remainder of the definition
+		String define = readLine(ch);
+		
+		
+		if (define == null) {
+			define = ""; // define this macro as existing
+		}
+
+		/* We should carry-through the single-line comments. However, this is only
+		 * true in the case of a single-line macro. Multi-line macros get to keep
+		 * their single-line comments
+		 */ 
+		int last_comment;
+		if ((last_comment = define.lastIndexOf("//")) != -1) {
+			int lr = define.indexOf('\n', last_comment);
+			if (lr == -1) {
+				// Nothing beyond this comment
+				define = define.substring(0, define.indexOf("//"));
+			}
+		}
+		
+		m.setDef(define);
+	
+		// TODO: need to warn on re-definition?
+		if (ifdef_enabled()) {
+			addMacro(m);
+			
+			SVPreProc2InputData in = currentRealFile();
+			
+			// Add the macro to the pre-processor version of the file
+			if (in != null && in.getFileTree() != null && in.getFileTree().getSVDBFile() != null) {
+				in.getFileTree().getSVDBFile().addChildItem(m);
+				in.getFileTree().addToMacroSet(m);
+			}
+		}
+	}
+	
+	private void handle_if_directive(long scan_loc, String type) {
+		// TODO: line number tracking
+		int ch = skipWhite(get_ch());
+		
+		// TODO: evaluate the expression?
+		String remainder = readPreProcIdentifier(ch);
+		
+		if (remainder != null) {
+			remainder = remainder.trim();
+		} else {
+			remainder = "";
+		}
+	
+		// Add a new entry to the referenced macros 
+		add_macro_reference(remainder);
+		SVDBMacroDef m = fMacroProvider.findMacro(remainder, -1);
+
+		if (type.equals("ifdef")) {
+			if (fDebugEn) {
+				fLog.debug("ifdef \"" + remainder + "\": " + (m != null));
+			}
+			enter_ifdef(scan_loc, (m != null));
+		} else if (type.equals("ifndef")) {
+			if (fDebugEn) {
+				fLog.debug("ifndef \"" + remainder + "\": " + (m == null));
+			}
+			enter_ifdef(scan_loc, (m == null));
+		} else { // elsif
+			enter_elsif(scan_loc, (m != null));
+		}		
+	}
+	
+	private void handle_include_directive(long scan_loc) {
+		int ch = skipWhite(get_ch());
+		
+		if (ch == '`') {
+			// Handle expanding macro call, then resume
+			handle_preproc_directive();
+			
+			ch = skipWhite(get_ch());
+		}
+		
+		if (ch == '"') {
+			String inc = readString(ch);
+
+			if (inc.length() > 2 && ifdef_enabled()) {
+				// TODO: need to save the include statement in the pre-proc view?
+				
+				// Process include and switch to new file
+				if (fIncFileProvider != null) {
+					Tuple<String, List<SVDBFileTreeMacroList>> defs;
+					Tuple<String, InputStream> in;
+				
+					// TODO: for now, assuming accumulated pre-processor state 
+					// doesn't change file content. This isn't precisely correct.
+					defs = fIncFileProvider.findCachedIncFile(inc);
+					
+					SVPreProc2InputData curr_in = currentRealFile();
+					if (defs != null) {
+						// Add in the macros from the included file
+						for (SVDBFileTreeMacroList l : defs.second()) {
+							for (SVDBMacroDef m : l.getMacroList()) {
+								addMacro(m);
+							}
+						}
+					
+						// TODO: Need to mark as a 'virtual' include?
+						SVDBInclude svdb_inc = new SVDBInclude(inc);
+						svdb_inc.setLocation(scan_loc);
+						
+						curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
+						
+						SVDBFileTree ft_i = new SVDBFileTree(defs.first());
+						ft_i.setParent(curr_in.getFileTree());
+						curr_in.getFileTree().addIncludedFileTree(ft_i);
+				
+						for (SVDBFileTreeMacroList ml : defs.second()) {
+							for (SVDBMacroDef m : ml.getMacroList()) {
+								ft_i.addToMacroSet(m);
+							}
+						}
+					} else if ((in = fIncFileProvider.findIncFile(inc)) != null && in.second() != null) {
+						if (fDebugEn) {
+							fLog.debug("Switching from file " + 
+									curr_in.getFileName() + " to " + in.first());
+						}
+						
+						// TODO: Add tracking data for new file
+						
+						// Believe it or not, some recursive inclusion is functional...
+						int recursive_include_count = 0;
+						
+						if (fFileList.contains(in.first())) {
+							for (int i=0; i<fInputStack.size(); i++) {
+								if (fInputStack.get(i).getFileName().equals(in.first())) {
+									recursive_include_count++;
+								}
+							}
+						}
+						
+						if (recursive_include_count < 10) {
+							// Find the root file path
+							String rootfile = fInputStack.get(0).getFileName();
+							fIncFileProvider.addCachedIncFile(in.first(), rootfile);
+
+							SVDBInclude svdb_inc = new SVDBInclude(inc);
+							svdb_inc.setLocation(scan_loc);
+
+							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
+
+							enter_file(in.first(), in.second());
+						} else {
+							// Recursive include and have exceeded the limit
+							SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+									MarkerKind.MissingInclude,
+									"Recursive inclusion of file " + inc);
+							m.setLocation(scan_loc);
+							curr_in.getFileTree().fMarkers.add(m);
+							try {
+								in.second().close();
+							} catch (IOException e) {}
+						}
+					} else {
+						SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+								MarkerKind.MissingInclude,
+								"Failed to find include file " + inc);
+						m.setLocation(scan_loc);
+						curr_in.getFileTree().fMarkers.add(m);
+
+						// TODO: add missing-include error
+						if (fDebugEn) {
+							fLog.debug("Failed to find include file " + inc);
+						}
+					}
+				}
+			} else {
+				inc = "";
+			}
+		}		
+	}
+	
+	private void handle_macro_directive(
+			long 		scan_loc, 
+			String 		type,
+			String		buffer_macro_name) {
+		int ch;
+		
+		// Note: type="" occurs when no identifier followed the tick
+		// macro expansion.
+		// TODO: is TmpBuffer available?
+		fTmpBuffer.setLength(0);
+		
+		fTmpBuffer.append('`');
+		fTmpBuffer.append(type);
+
+		boolean skip_recursive =
+				(buffer_macro_name != null && buffer_macro_name.equals("Macro: " + type)) ||
+				(fMacroExpSet.contains("Macro: " + type));
+		
+		// If we're in a disabled section, don't try to expand
+		if (skip_recursive) {
+			// Omit input
+		} else if (ifdef_enabled()) {
+			// Read the full string
+		
+			// Add a reference for this macro
+			add_macro_reference(type);
+
+			SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
+			if (md == null && fInputCurr.getFileTree() != null) {
+				SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+						MarkerKind.UndefinedMacro,
+						"Macro " + type + " undefined");
+				m.setLocation(scan_loc);
+
+				fInputCurr.getFileTree().fMarkers.add(m);
+			}
+			
+			if ((md == null) || (md.getParameters() != null && md.getParameters().size() > 0)) {
+				// Try to read the parameter list
+				ch = get_ch();
+				// skip up to new-line or non-whitespace
 				if (md == null) {
-					// Leave a breadcrumb for the lexer
-					output("`undefined");
-				} else if (fUseMacroExpander) {
+					// For undefined macros, only search up to end-of-line
+					while (ch != -1 && Character.isWhitespace(ch) && ch != '\n') {
+						ch = get_ch();
+					}
+				} else {
+					// For defined macros, skip all whitespace
+					while (ch != -1 && Character.isWhitespace(ch)) {
+						ch = get_ch();
+					}
+				}
+				
+				if (md != null) {
+					if (fUseMacroExpander) {
+						// TODO: parse the parameter definitions into a list
+						fMacroParams.clear();
+						// Load up the default values. 
+						for (SVDBMacroDefParam p : md.getParameters()) {
+							fMacroParams.add(p.getValue());
+						}
+						SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
+					} else {
+						readMacroParameters(fTmpBuffer, ch);
+					}
+				} else if (ch == '(') { // undefined macro, but appears to be one with params
+					readMacroParameters(fTmpBuffer, ch);
+				} else {
+					unget_ch(ch);
+				}
+			}
+
+			if (md == null) {
+				// Leave a breadcrumb for the lexer
+				output("`undefined");
+			} else if (fUseMacroExpander) {
+				if (fDebugEn) {
+					fLog.debug("Use MacroExpander: \"" + 
+							fTmpBuffer.toString() + "\"");
+				}
+				
+				String exp = fMacroExpander.expandMacro(md, fMacroParams);
+				
+				if (fDebugEn) {
+					fLog.debug("Use MacroExpander: expansion=\"" + exp + "\"");
+				}
+				
+				if (buffer_macro_name != null && buffer_macro_name.startsWith("Macro:")) {
+					push_input(new SVPreProc2InputData(
+							this, new StringInputStream(""), buffer_macro_name, -1, false));
+				}
+				SVPreProc2InputData in = new SVPreProc2InputData(
+						this, new StringInputStream(exp), 
+						"Macro: " + type, fInputCurr.getFileId(), false);
+				push_input(in);
+			} else if (fDefineProvider != null) {
+				try {
+					String exp = fDefineProvider.expandMacro(
+							fTmpBuffer.toString(), fInputCurr.getFileName(), fInputCurr.getLineNo());
+
 					if (fDebugEn) {
-						fLog.debug("Use MacroExpander: \"" + 
-								fTmpBuffer.toString() + "\"");
+						fLog.debug("Expansion of \"" + 
+								fTmpBuffer.toString() + "\" == " + exp);
 					}
-					
-					String exp = fMacroExpander.expandMacro(md, fMacroParams);
-					
-					if (fDebugEn) {
-						fLog.debug("Use MacroExpander: expansion=\"" + exp + "\"");
-					}
-					
-					if (buffer_macro_name != null && buffer_macro_name.startsWith("Macro:")) {
-						push_input(new SVPreProc2InputData(
-								this, new StringInputStream(""), buffer_macro_name, -1, false));
-					}
+
 					SVPreProc2InputData in = new SVPreProc2InputData(
 							this, new StringInputStream(exp), 
 							"Macro: " + type, fInputCurr.getFileId(), false);
 					push_input(in);
-				} else if (fDefineProvider != null) {
-					try {
-						String exp = fDefineProvider.expandMacro(
-								fTmpBuffer.toString(), fInputCurr.getFileName(), fInputCurr.getLineNo());
-
-						if (fDebugEn) {
-							fLog.debug("Expansion of \"" + 
-									fTmpBuffer.toString() + "\" == " + exp);
-						}
-
-						SVPreProc2InputData in = new SVPreProc2InputData(
-								this, new StringInputStream(exp), 
-								"Macro: " + type, fInputCurr.getFileId(), false);
-						push_input(in);
-					} catch (Exception e) {
-						/*
-							System.out.println("Exception while expanding \"" + 
-									fTmpBuffer.toString() + "\" @ " +
-									getLocation().getFileName() + ":" + 
-									getLocation().getLineNo());
-						 */
-						e.printStackTrace();
-					}
+				} catch (Exception e) {
+					/*
+						System.out.println("Exception while expanding \"" + 
+								fTmpBuffer.toString() + "\" @ " +
+								getLocation().getFileName() + ":" + 
+								getLocation().getLineNo());
+					 */
+					e.printStackTrace();
 				}
 			}
-			
 		}
 	}
 	
@@ -1031,7 +1059,7 @@ public class SVPreProcessor2 extends AbstractTextScanner
 //		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
 	
 		if (!fInputStack.empty()) {
-			SVPreProc2InputData p_data = fInputCurr;
+			SVPreProc2InputData p_data = currentRealFile();
 			in_data.getFileTree().setParent(p_data.getFileTree());
 			p_data.getFileTree().addIncludedFileTree(in_data.getFileTree());
 		}

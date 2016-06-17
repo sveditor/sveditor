@@ -12,7 +12,7 @@ import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 
 public class SVPreProc2InputData {
 
-	private SVPreProcessor2		fPreProc;
+	private SVPreProcessor		fPreProc;
 	private InputStream 		fInput;
 	private String 				fFilename;
 	private int 				fFileId;
@@ -28,7 +28,7 @@ public class SVPreProc2InputData {
 	private SVDBUnprocessedRegion fUnprocessedRegion;
 
 	SVPreProc2InputData(
-			SVPreProcessor2		preproc,
+			SVPreProcessor		preproc,
 			InputStream 		in, 
 			String 				filename, 
 			int 				file_id) {
@@ -36,7 +36,7 @@ public class SVPreProc2InputData {
 	}
 	
 	SVPreProc2InputData(
-			SVPreProcessor2		preproc,
+			SVPreProcessor		preproc,
 			InputStream 		in, 
 			String 				filename, 
 			int 				file_id, 

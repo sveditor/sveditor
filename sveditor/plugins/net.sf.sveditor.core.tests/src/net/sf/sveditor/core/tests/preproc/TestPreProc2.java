@@ -15,7 +15,7 @@ import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -136,7 +136,10 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"class top_class; \n" +
 				"endclass\n",
 				inc_provider,
-				""
+				"class classb;\n" +
+				"endclass\n" +
+				"class top_class;\n" +
+				"endclass\n"
 				);
 	}
 	
@@ -483,7 +486,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			ISVPreProcIncFileProvider		inc_provider,
 			String							exp) {
 		
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
@@ -496,7 +499,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		printFileTree("", output.getFileTree());
 		
 //		String out = output.toString().trim();
-		String out = output.toString();
+		String out = trimLines(output.toString());
+		exp = trimLines(exp);
 
 		fLog.debug("==");
 		fLog.debug("Output:\n" + out);
@@ -512,7 +516,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			ISVPreProcIncFileProvider		inc_provider,
 			String							exp) {
 		
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
@@ -540,7 +544,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			ISVPreProcIncFileProvider		inc_provider,
 			String							exp) {
 		
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
@@ -601,7 +605,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			unmatched.add(m);
 		}
 		
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	

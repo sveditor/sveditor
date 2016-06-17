@@ -99,7 +99,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVFileTreeMacroProvider;
@@ -2589,7 +2589,7 @@ public abstract class AbstractSVDBIndex implements
 		return file;
 	}
 	
-	public SVPreProcessor2 createPreProcScanner(String path) {
+	public SVPreProcessor createPreProcScanner(String path) {
 		
 		path = SVFileUtils.normalize(path);
 		fLog.debug("--> createPreProcScanner " + path);
@@ -2612,7 +2612,7 @@ public abstract class AbstractSVDBIndex implements
 		InputStream in = getFileSystemProvider().openStream(path);
 		IPreProcMacroProvider mp = createMacroProvider(ft);
 		
-		SVPreProcessor2 pp = new SVPreProcessor2(
+		SVPreProcessor pp = new SVPreProcessor(
 				path, in, null, null);
 		pp.setMacroProvider(mp);
 

@@ -37,7 +37,7 @@ import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -157,7 +157,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 
 		InputStream in = TestUtils.openFile(new File(fTmpDir, "foo_pkg.sv"));
 		
-		SVPreProcessor2 pp = new SVPreProcessor2(getName(), in, 
+		SVPreProcessor pp = new SVPreProcessor(getName(), in, 
 				new ISVPreProcIncFileProvider() {
 					
 					@Override
@@ -1167,7 +1167,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 //			SVCorePlugin.getDefault().enableDebug(false);
 
 			InputStream in = new StringInputStream(content);
-			SVPreProcessor2 pp = new SVPreProcessor2(getName(), in, null, null);
+			SVPreProcessor pp = new SVPreProcessor(getName(), in, null, null);
 			return pp.preprocess();
 	}
 }

@@ -438,7 +438,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 				SVDBArgFileIndexFactory.TYPE, null);
 		index.loadIndex(new NullProgressMonitor());
 		SVDBIndexStats stats = ((SVDBArgFileIndex)index).getIndexStats();
-		System.out.println("Stats:\n" + stats.toString());
+//		System.out.println("Stats:\n" + stats.toString());
 		
 		List<SVDBDeclCacheItem> items = SVDBFindDeclOp.op(index, "", 
 				new ISVDBFindNameMatcher() {

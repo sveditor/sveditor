@@ -22,7 +22,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -221,7 +221,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		start = System.currentTimeMillis();
 		
 		// Propagate defines to the pre-processor
-		SVPreProcessor2 pp = new SVPreProcessor2(path, in, build_data, build_data);
+		SVPreProcessor pp = new SVPreProcessor(path, in, build_data, build_data);
 		pp.setIndexStats(build_data.getIndexStats());
 
 		// Pass in defines

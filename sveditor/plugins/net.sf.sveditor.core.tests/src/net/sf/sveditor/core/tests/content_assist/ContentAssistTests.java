@@ -33,7 +33,7 @@ import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.FileIndexIterator;
@@ -126,7 +126,7 @@ public class ContentAssistTests extends TestCase {
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		SVParser factory = new SVParser();
-		SVPreProcessor2 preproc = new SVPreProcessor2(testname, tt_utils.openStream(), null, null);
+		SVPreProcessor preproc = new SVPreProcessor(testname, tt_utils.openStream(), null, null);
 		
 		SVPreProcOutput out = preproc.preprocess();
 

@@ -31,7 +31,7 @@ import net.sf.sveditor.core.preproc.IPreProcListener;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.PreProcEvent;
 import net.sf.sveditor.core.preproc.PreProcEvent.Type;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -142,7 +142,7 @@ public class MacroExpansionView extends ViewPart {
 				SVDocumentTextScanner s = new SVDocumentTextScanner(doc, offset);
 				StringBuilder sb = new StringBuilder();
 				
-				SVPreProcessor2.ReadMacroRef(sb, s, mp);
+				SVPreProcessor.ReadMacroRef(sb, s, mp);
 				
 				final Stack<PreProcEvent> ev_stack = new Stack<PreProcEvent>();
 				Set<ProjectionAnnotation> existing = 

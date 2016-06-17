@@ -15,7 +15,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -212,7 +212,7 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 					continue;
 				}
 
-				SVPreProcessor2 pp = new SVPreProcessor2(info.fPath, in, this, null);
+				SVPreProcessor pp = new SVPreProcessor(info.fPath, in, this, null);
 
 				pp.preprocess();
 			}

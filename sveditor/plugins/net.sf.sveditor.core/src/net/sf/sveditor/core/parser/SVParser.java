@@ -41,7 +41,7 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
@@ -612,7 +612,7 @@ public class SVParser implements ISVScanner,
 			fMarkers = new ArrayList<SVDBMarker>();
 		}
 
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				filename, in, null, null);
 		preproc.setMacroProvider(fMacroProvider);
 
@@ -734,7 +734,7 @@ public class SVParser implements ISVScanner,
 		fFile = new SVDBFile(name);
 		fScopeStack.push(fFile);
 
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				name, in, null, null);
 		preproc.setMacroProvider(fMacroProvider);
 		

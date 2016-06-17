@@ -43,7 +43,7 @@ import net.sf.sveditor.core.parser.SVLexer;
 import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -256,7 +256,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		SVPathPreProcIncFileProvider inc_provider = new SVPathPreProcIncFileProvider(
 				new SVDBFSFileSystemProvider());
 		inc_provider.addIncdir(new File(uvm, "src").getAbsolutePath());
-		SVPreProcessor2 pp = new SVPreProcessor2(uvm_pkg.getAbsolutePath(), 
+		SVPreProcessor pp = new SVPreProcessor(uvm_pkg.getAbsolutePath(), 
 				in, inc_provider, null);
 		
 		in.close();

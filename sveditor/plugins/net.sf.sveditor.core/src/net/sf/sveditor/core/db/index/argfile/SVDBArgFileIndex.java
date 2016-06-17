@@ -84,7 +84,7 @@ import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 
 public class SVDBArgFileIndex implements 
@@ -536,7 +536,7 @@ public class SVDBArgFileIndex implements
 					continue;
 				}
 				
-				SVPreProcessor2 preproc = new SVPreProcessor2(
+				SVPreProcessor preproc = new SVPreProcessor(
 						path, in, build_data, build_data);
 
 				fFileSystemProvider.closeStream(in);
@@ -1302,7 +1302,7 @@ public class SVDBArgFileIndex implements
 			//
 			// TODO: using 'this' as the include provider 
 			// may not be ideal
-			SVPreProcessor2 preproc = new SVPreProcessor2(
+			SVPreProcessor preproc = new SVPreProcessor(
 					r_path, in, fBuildData, fReadOnlyFileMapper);
 
 			// TODO: add macros from FT
@@ -1391,7 +1391,7 @@ public class SVDBArgFileIndex implements
 			//
 			// Note: Use the special read-only file mapper to 
 			// ensure that the file map is not changed
-			SVPreProcessor2 preproc = new SVPreProcessor2(
+			SVPreProcessor preproc = new SVPreProcessor(
 					r_path, in, fBuildData, fReadOnlyFileMapper);
 
 			// TODO: add macros from FT
@@ -1675,7 +1675,7 @@ public class SVDBArgFileIndex implements
 
 	@Override
 	public ISVPreProcessor createPreProcScanner(String path) {
-		SVPreProcessor2 ret = null;
+		SVPreProcessor ret = null;
 		
 		path = SVFileUtils.resolvePath(path, getBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
 		
@@ -1687,7 +1687,7 @@ public class SVDBArgFileIndex implements
 			List<SVDBFileTree> ft_l = new ArrayList<SVDBFileTree>();
 		
 			InputStream in = fFileSystemProvider.openStream(path);
-			ret = new SVPreProcessor2(ft.getFilePath(), in, null, null);
+			ret = new SVPreProcessor(ft.getFilePath(), in, null, null);
 			
 			while (ft != null) {
 				ft_l.add(ft);

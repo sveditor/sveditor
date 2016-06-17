@@ -46,7 +46,7 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 	
 	@Override
 	public String preprocess(InputStream in) {
-		SVPreProcessor2 preproc = new SVPreProcessor2("", in, null, null);
+		SVPreProcessor preproc = new SVPreProcessor("", in, null, null);
 		preproc.setMacroProvider(this);
 		
 		SVPreProcOutput out = preproc.preprocess();

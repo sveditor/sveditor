@@ -15,7 +15,7 @@ import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -189,7 +189,7 @@ public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 			String						images[],
 			SVDBLocation				locations[]) {
 		
-		SVPreProcessor2 preproc = new SVPreProcessor2(
+		SVPreProcessor preproc = new SVPreProcessor(
 				getName(),
 				new StringInputStream(doc),
 				inc_provider,

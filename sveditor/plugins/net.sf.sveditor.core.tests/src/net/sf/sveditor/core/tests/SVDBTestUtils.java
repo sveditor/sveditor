@@ -51,7 +51,7 @@ import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor2;
+import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 
 public class SVDBTestUtils {
@@ -258,7 +258,7 @@ public class SVDBTestUtils {
 			InputStream				content_i, 
 			String 					filename,
 			List<SVDBMarker>		markers) {
-		SVPreProcessor2 pp = new SVPreProcessor2(filename, content_i, null, null);
+		SVPreProcessor pp = new SVPreProcessor(filename, content_i, null, null);
 		
 		SVPreProcOutput pp_out = pp.preprocess();
 
@@ -361,7 +361,7 @@ public class SVDBTestUtils {
 		
 			in = copier.copy();
 			 */
-			SVPreProcessor2 preproc = new SVPreProcessor2(
+			SVPreProcessor preproc = new SVPreProcessor(
 					filename, in, null, null);
 			preproc.setMacroProvider(macro_provider);
 			
@@ -431,7 +431,7 @@ public class SVDBTestUtils {
 			result.append((char)c);
 		}
 		 */
-		SVPreProcessor2 pp = new SVPreProcessor2(
+		SVPreProcessor pp = new SVPreProcessor(
 				filename, 
 				new StringInputStream(content), 
 				null, null);
