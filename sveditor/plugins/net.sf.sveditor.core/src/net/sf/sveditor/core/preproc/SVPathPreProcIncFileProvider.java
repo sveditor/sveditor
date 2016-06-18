@@ -11,7 +11,6 @@ import java.util.Set;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
-import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 
 public class SVPathPreProcIncFileProvider implements ISVPreProcIncFileProvider {
@@ -48,10 +47,7 @@ public class SVPathPreProcIncFileProvider implements ISVPreProcIncFileProvider {
 	}
 	
 	@Override
-	public void addCachedIncFile(String incfile, String rootfile) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void addCachedIncFile(String incfile, String rootfile) { }
 
 	public Tuple<String, InputStream> findIncFile(String incfile) {
 		Tuple<String, InputStream> ret = null;

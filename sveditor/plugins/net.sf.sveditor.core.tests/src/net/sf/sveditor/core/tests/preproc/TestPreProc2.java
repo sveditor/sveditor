@@ -291,7 +291,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMissingIncludeWithIfdefs() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -307,7 +307,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				new SVDBMarker[] {
 						new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 								"Failed to find include file missing.svh",
-								SVDBLocation.pack(0, 4, 0))
+								SVDBLocation.pack(0, 2, 0))
 				}
 				);
 	}
@@ -449,6 +449,35 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				);		
 	}
 
+	/**
+	 * Tests the case where an included file ends with the 
+	 * include-guard endif and no endline
+	 */
+	public void testUnbalancedIfdefNoNewline() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVPathPreProcIncFileProvider inc_provider =
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+		inc_provider.addIncdir(fTmpDir.getAbsolutePath());
+		
+		TestUtils.copy(
+				"`ifndef bob\n" +
+				"`define bob\n" +
+				"int a;\n" +
+				"`endif",
+				new File(fTmpDir, "sub.sv"));
+	
+		String doc = 
+			"`include \"sub.sv\"\n";
+		
+		String exp = 
+				"int a;\n";
+		
+		runTestTrim2(
+				doc,
+				inc_provider,
+				exp);
+	}
+
 	/*
 	public void testIfdefFILE() {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -526,6 +555,15 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			fLog.debug("File: " + file);
 		}
 		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		collect_markers(markers, preproc.getFileTree());
+		
+		for (SVDBMarker m : markers) {
+			fLog.debug("Marker: " + m.getMessage());
+		}
+		
+		assertEquals(0, markers.size());
+		
 		printFileTree("", output.getFileTree());
 		
 		String out = output.toString().trim();
@@ -537,6 +575,16 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		fLog.debug("==");
 		
 		assertEquals(exp, out);
+	}
+	
+	private static void collect_markers(List<SVDBMarker> markers, SVDBFileTree ft) {
+		for (SVDBMarker m : ft.getMarkers()) {
+			markers.add(m);
+		}
+		
+		for (SVDBFileTree ft_p : ft.getIncludedFileTreeList()) {
+			collect_markers(markers, ft_p);
+		}
 	}
 
 	private void runTestTrim2(
@@ -553,6 +601,15 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		for (String file : output.getFileList()) {
 			fLog.debug("File: " + file);
 		}
+
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		collect_markers(markers, preproc.getFileTree());
+		
+		for (SVDBMarker m : markers) {
+			fLog.debug("Marker: " + m.getMessage());
+		}
+		
+		assertEquals(0, markers.size());
 		
 		printFileTree("", output.getFileTree());
 		

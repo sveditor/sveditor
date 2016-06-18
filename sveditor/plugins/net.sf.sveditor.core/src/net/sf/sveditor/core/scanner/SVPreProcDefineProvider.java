@@ -368,9 +368,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			macro_s = scanner.get_str(scanner.getOffset(), 
 					scanner.getLimit()-scanner.getOffset()+1);
 			PreProcEvent ev = new PreProcEvent(PreProcEvent.Type.BeginExpand);
-			if (scanner.getOffset() > 0) {
-				System.out.println("First part: " + scanner.substring(0, scanner.getOffset()));
-			}
+
 			ev.pos = scanner.getOffset();
 			ev.text = macro_s;
 			

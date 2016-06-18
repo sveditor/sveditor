@@ -233,18 +233,20 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"begin \n" +
 				"	if (uvm_report_enabled(UVM_NONE,UVM_FATAL,\"PH_BAD_ADD\")) \n" + 
 				"		uvm_report_fatal (\"PH_BAD_ADD\", \"cannot add before begin node, after end node, or with end nodes\", UVM_NONE, " +
-					"\"" + getName() + "\", 11); \n" + 
+					"\"" + getName() + "\", 8); \n" + 
 				"	end\n"
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(getName());
 			String result = SVDBTestUtils.preprocess(doc, getName());
-			
-			log.debug("Result:\n" + result.trim());
+		
+			result = TestPreProc2.trimLines(result);
+			expected = TestPreProc2.trimLines(expected);
+			log.debug("Result:\n" + result);
 			log.debug("====");
-			log.debug("Expected:\n" + expected.trim());
+			log.debug("Expected:\n" + expected);
 			log.debug("====");
-			assertEquals(expected.trim(), result.trim());
+			assertEquals(expected, result);
 			LogFactory.removeLogHandle(log);
 	}
 	
@@ -462,7 +464,9 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			log.debug("====");
 			log.debug("Expected:\n" + expected.trim());
 			log.debug("====");
-			assertEquals(expected.trim(), result.trim());
+			expected = TestPreProc2.trimLines(expected);
+			result = TestPreProc2.trimLines(result);
+			assertEquals(expected, result);
 			LogFactory.removeLogHandle(log);
 	}
 
@@ -511,11 +515,13 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
 
-		log.debug("Result:\n" + result.trim());
+		result = TestPreProc2.trimLines(result);
+		expected = TestPreProc2.trimLines(expected);
+		log.debug("Result:\n" + result);
 		log.debug("====");
-		log.debug("Expected:\n" + expected.trim());
+		log.debug("Expected:\n" + expected);
 		log.debug("====");
-		assertEquals(expected.trim(), result.trim());
+		assertEquals(expected, result);
 		LogFactory.removeLogHandle(log);
 	}
 	
@@ -567,12 +573,15 @@ public class TestPreProc extends SVCoreTestCaseBase {
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
 			assertEquals("Unexpected errors", 0, CoreReleaseTests.getErrors().size());
+		
+			result = TestPreProc2.trimLines(result);
+			expected = TestPreProc2.trimLines(expected);
 			
-			log.debug("Result:\n" + result.trim());
+			log.debug("Result:\n" + result);
 			log.debug("====");
-			log.debug("Expected:\n" + expected.trim());
+			log.debug("Expected:\n" + expected);
 			log.debug("====");
-			assertEquals(expected.trim(), result.trim());
+			assertEquals(expected, result);
 			LogFactory.removeLogHandle(log);
 	}
 	
@@ -775,7 +784,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 		String expected =
 			"do \n" + 
 			"	   \n" + 
-			"	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, \"testVmmErrorMacro\", 11)) begin \n" + 
+			"	if (log.start_msg(vmm_log::FAILURE_TYP, vmm_log::ERROR_SEV, \"testVmmErrorMacro\", 10)) begin \n" + 
 			"		void'(log.text({\"Self comparison failed: \", diff})); \n" + 
 			"		log.end_msg(); \n" + 
 			"	end \n" + 
@@ -928,12 +937,14 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-			
-		log.debug("Result:\n" + result.trim());
+		
+		expected = TestPreProc2.trimLines(expected);
+		result = TestPreProc2.trimLines(result);
+		log.debug("Result:\n" + result);
 		log.debug("====");
-		log.debug("Expected:\n" + expected.trim());
+		log.debug("Expected:\n" + expected);
 		log.debug("====");
-		assertEquals(expected.trim(), result.trim());
+		assertEquals(expected, result);
 		LogFactory.removeLogHandle(log);
 	}
 

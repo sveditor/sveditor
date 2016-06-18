@@ -23,7 +23,7 @@ public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcL
 	
 	@Override
 	public void preproc_event(PreProcEvent event) {
-		System.out.println("preproc_event: " + event.type + " " + event.text + " " + event.pos);
+		fLog.debug("preproc_event: " + event.type + " " + event.text + " " + event.pos);
 		fEvents.add(event);
 	}
 
@@ -37,67 +37,93 @@ public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcL
 			"`MY_MACRO(foo, bar)\n"
 			;
 		
-		SVPreProcessor preproc = new SVPreProcessor(getName(), 
-				new StringInputStream(doc), null, null);
-		preproc.addListener(this);
-		
-		SVPreProcOutput out = preproc.preprocess();
-		System.out.println("Result:\n" + out.toString());
-		
+		runExpandEventsTest(doc, null, 
+				new String[] {
+						"class foo;\n" +
+						"	int bar;\n" +
+						"endclass\n"
+				});
 	}
 	
 	public void testNestedMacroListener() {
-		SVCorePlugin.getDefault().enableDebug(false);
-		SVStringPreProcessor preproc = new SVStringPreProcessor();
-//		preproc.setLocked(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 
-		List<SVDBMacroDefParam> params = new ArrayList<SVDBMacroDefParam>();
-		SVDBMacroDef m = new SVDBMacroDef("MY_FIELD", "int A1");
-		params.clear();
-		params.add(new SVDBMacroDefParam("A1", ""));
-		m.setParameters(params);
-		preproc.addMacro(m);
+		List<SVDBMacroDefParam> params;
 		
-		m = new SVDBMacroDef("MY_MACRO", 
+		SVDBMacroDef my_field = new SVDBMacroDef("MY_FIELD", "int A1");
+		params = new ArrayList<SVDBMacroDefParam>();
+		params.add(new SVDBMacroDefParam("A1", ""));
+		my_field.setParameters(params);
+		
+		SVDBMacroDef my_macro = new SVDBMacroDef("MY_MACRO", 
 				"class A1;\n" +
 				"	`MY_FIELD(A2);\n" +
 				"endclass\n");
-		params.clear();
+		params = new ArrayList<SVDBMacroDefParam>();
 		params.add(new SVDBMacroDefParam("A1", ""));
 		params.add(new SVDBMacroDefParam("A2", ""));
-		m.setParameters(params);
-		preproc.addMacro(m);
+		my_macro.setParameters(params);
 		
 		String doc = "`MY_MACRO(foo, bar)\n";
-
-		SVPreProcDefineProvider dp = new SVPreProcDefineProvider(preproc);
-		dp.addPreProcListener(this);
 		
-		String result = dp.expandMacro(doc, getName(), 1);
-		
-		System.out.println("Macro subset(1):\n" +
-				result.substring(fEvents.get(1).pos, fEvents.get(2).pos));
-		
-		System.out.println("Macro subset(2):\n" +
-				result.substring(fEvents.get(0).pos, fEvents.get(3).pos));
+		runExpandEventsTest(doc, 
+				new SVDBMacroDef[] {
+					my_field,
+					my_macro
+				}, 
+				new String[] {
+					"int bar",
+					"class foo;\n" +
+					"	int bar;\n" +
+					"endclass\n"
+				});
+	}
 	
+	private void runExpandEventsTest(
+			String				doc,
+			SVDBMacroDef		macros[],
+			String				exp[]
+			) {
+		SVPreProcessor preproc = new SVPreProcessor(
+				getName(), new StringInputStream(doc), null, null);
+		fEvents.clear();
+	
+		if (macros != null) {
+			for (SVDBMacroDef m : macros) {
+				preproc.addMacro(m);
+			}
+		}
+		
+		preproc.addListener(this);
+		
+		String result = preproc.preprocess().toString();
+		
+		fLog.debug("Result:\n" + result);
+		
 		Stack<PreProcEvent>	stack = new Stack<PreProcEvent>();
+		List<String> results = new ArrayList<String>();
 		
 		for (PreProcEvent e : fEvents) {
 			if (e.type == Type.BeginExpand) {
 				stack.push(e);
 			} else if (e.type == Type.EndExpand) {
 				PreProcEvent be = stack.pop();
-				System.out.println("Scope: " + be.text + "\n" +
-						result.substring(be.pos, e.pos));
-			} else {
-				System.out.println("Unknown event: " + e.type);
+				results.add(result.substring(be.pos, e.pos));
 			}
 		}
-		// Keep pushing until 
 		
+		for (String r : results) {
+			r = TestPreProc2.trimLines(r);
+			fLog.debug("Result: \"" + r + "\"");
+		}
 		
-		System.out.println("Result:\n" + result);
-	}	
+		assertEquals(exp.length, results.size());
+		
+		for (int i=0; i<exp.length; i++) {
+			String r = TestPreProc2.trimLines(results.get(i));
+			String e = TestPreProc2.trimLines(exp[i]);
+			assertEquals(e, r);
+		}
+	}
 
 }

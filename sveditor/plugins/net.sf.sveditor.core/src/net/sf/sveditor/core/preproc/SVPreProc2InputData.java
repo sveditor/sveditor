@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 public class SVPreProc2InputData {
 
 	private SVPreProcessor		fPreProc;
+	private PreProcEvent		fBeginEv;
 	private InputStream 		fInput;
 	private String 				fFilename;
 	private int 				fFileId;
@@ -53,6 +54,14 @@ public class SVPreProc2InputData {
 		fUngetCh2 = -1;
 	}
 	
+	public PreProcEvent getBeginEv() {
+		return fBeginEv;
+	}
+	
+	public void setBeginEv(PreProcEvent ev) {
+		fBeginEv = ev;
+	}
+	
 	public boolean incPos() {
 		return fIncPos;
 	}
@@ -64,10 +73,12 @@ public class SVPreProc2InputData {
 			ch = fUngetCh1;
 			fUngetCh1 = fUngetCh2;
 			fUngetCh2 = -1;
+			fLastCh = -1;
 		} else {
 			try {
 				ch = fInput.read();
 			} catch (IOException e) {}
+			
 			if (ch != -1) {
 				if (fLastCh == '\n') {
 					if (fIncPos) {
@@ -80,6 +91,16 @@ public class SVPreProc2InputData {
 					fLineCount++;
 				}
 				fLastCh = ch;
+			} else {
+				// Handle the case where a file doesn't end with a newline
+				// Just go ahead and ensure that every file does
+				if (fLastCh != -1 && fLastCh != '\n') {
+					// Only do this for real files
+					if (!fFilename.startsWith("Macro:")) {
+						ch = '\n';
+					}
+				}
+				fLastCh = -1;
 			}
 		}
 		

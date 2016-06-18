@@ -134,6 +134,7 @@ public class SVPreProcessor extends AbstractTextScanner
 
 		fIncFileProvider 	= inc_provider;
 		fFileMapper			= file_mapper;
+		fListeners			= new ArrayList<IPreProcListener>();
 	
 		fMacroProvider  = defaultMacroProvider;
 		defaultMacroProvider.setMacro("SVEDITOR", "");
@@ -790,7 +791,9 @@ public class SVPreProcessor extends AbstractTextScanner
 		
 		fTmpBuffer.append('`');
 		fTmpBuffer.append(type);
-
+		
+		boolean do_event = fHaveListeners;
+		
 		boolean skip_recursive =
 				(buffer_macro_name != null && buffer_macro_name.equals("Macro: " + type)) ||
 				(fMacroExpSet.contains("Macro: " + type));
@@ -803,6 +806,10 @@ public class SVPreProcessor extends AbstractTextScanner
 		
 			// Add a reference for this macro
 			add_macro_reference(type);
+			
+			if (do_event) {
+				startCapture(-1);
+			}
 
 			SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
 			if (md == null && fInputCurr.getFileTree() != null) {
@@ -838,6 +845,7 @@ public class SVPreProcessor extends AbstractTextScanner
 						for (SVDBMacroDefParam p : md.getParameters()) {
 							fMacroParams.add(p.getValue());
 						}
+						
 						SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
 					} else {
 						readMacroParameters(fTmpBuffer, ch);
@@ -847,6 +855,15 @@ public class SVPreProcessor extends AbstractTextScanner
 				} else {
 					unget_ch(ch);
 				}
+			}
+			
+			PreProcEvent ev_s = null;
+			if (do_event) {
+				fTmpBuffer.append(endCapture());
+				ev_s = new PreProcEvent(PreProcEvent.Type.BeginExpand);
+				ev_s.pos = fOutput.length();
+				ev_s.text = fTmpBuffer.toString();
+				sendEvent(ev_s);
 			}
 
 			if (md == null) {
@@ -871,6 +888,7 @@ public class SVPreProcessor extends AbstractTextScanner
 				SVPreProc2InputData in = new SVPreProc2InputData(
 						this, new StringInputStream(exp), 
 						"Macro: " + type, fInputCurr.getFileId(), false);
+				in.setBeginEv(ev_s);
 				push_input(in);
 			} else if (fDefineProvider != null) {
 				try {
@@ -1115,6 +1133,17 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		SVPreProc2InputData curr_in = fInputStack.pop();
+
+		// Send expand-end events when the relevant document is complete
+		PreProcEvent ev_s;
+		if ((ev_s = curr_in.getBeginEv()) != null) {
+			if (fHaveListeners) {
+				PreProcEvent ev_e = new PreProcEvent(PreProcEvent.Type.EndExpand);
+				ev_e.pos = fOutput.length();
+				ev_e.text = ev_s.text;
+				sendEvent(ev_e);
+			}			
+		}
 		fInputStackChanged = true;
 
 		SVPreProc2InputData new_file = fInputStack.peek();
