@@ -28,56 +28,60 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class GotoMatchingBracketAction extends TextEditorAction {
 	private SVEditor fEditor;
-	private static final Map<String, String> fBeginCharMap;
-	private static final Map<String, String> fEndCharMap;
+	private static final Map<String, String[]> fBeginCharMap;
+	private static final Map<String, String[]> fEndCharMap;
 
 	static {
-		fBeginCharMap = new HashMap<String, String>();
-		fBeginCharMap.put("(", ")");
-		fBeginCharMap.put("{", "}");
-		fBeginCharMap.put("[", "]");
-		fBeginCharMap.put("begin", "end");
-		fBeginCharMap.put("module", "endmodule");
-		fBeginCharMap.put("function", "endfunction");
-		fBeginCharMap.put("task", "endtask");
-		fBeginCharMap.put("class", "endclass");
-		fBeginCharMap.put("generate", "endgenerate");
-		fBeginCharMap.put("package", "endpackage");
-		fBeginCharMap.put("case", "endcase");
-		fBeginCharMap.put("clocking", "endclocking");
-		fBeginCharMap.put("config", "endconfig");
-		fBeginCharMap.put("group", "endgroup");
-		fBeginCharMap.put("interface", "endinterface");
-		fBeginCharMap.put("primitive", "endprimitive");
-		fBeginCharMap.put("program", "endprogram");
-		fBeginCharMap.put("property", "endproperty");
-		fBeginCharMap.put("specify", "endspecify");
-		fBeginCharMap.put("sequence", "endsequence");
-		fBeginCharMap.put("table", "endtable");
+		fBeginCharMap = new HashMap<String, String[]>();
+		fBeginCharMap.put("("        , new String [] {")"});
+		fBeginCharMap.put("{"        , new String [] {"}"});
+		fBeginCharMap.put("["        , new String [] {"]"});
+		fBeginCharMap.put("begin"    , new String [] {"end"});
+		fBeginCharMap.put("module"   , new String [] {"endmodule"});
+		fBeginCharMap.put("function" , new String [] {"endfunction"});
+		fBeginCharMap.put("task"     , new String [] {"endtask"});
+		fBeginCharMap.put("class"    , new String [] {"endclass"});
+		fBeginCharMap.put("generate" , new String [] {"endgenerate"});
+		fBeginCharMap.put("package"  , new String [] {"endpackage"});
+		fBeginCharMap.put("case"     , new String [] {"endcase"});
+		fBeginCharMap.put("clocking" , new String [] {"endclocking"});
+		fBeginCharMap.put("config"   , new String [] {"endconfig"});
+		fBeginCharMap.put("group"    , new String [] {"endgroup"});
+		fBeginCharMap.put("interface", new String [] {"endinterface"});
+		fBeginCharMap.put("primitive", new String [] {"endprimitive"});
+		fBeginCharMap.put("program"  , new String [] {"endprogram"});
+		fBeginCharMap.put("property" , new String [] {"endproperty"});
+		fBeginCharMap.put("specify"  , new String [] {"endspecify"});
+		fBeginCharMap.put("sequence" , new String [] {"endsequence"});
+		fBeginCharMap.put("table"    , new String [] {"endtable"});
+		fBeginCharMap.put("fork"     , new String [] {"join", "join_any", "join_none"});
 	}
 	static {
-		fEndCharMap = new HashMap<String, String>();
-		fEndCharMap.put(")", "(");
-		fEndCharMap.put("}", "{");
-		fEndCharMap.put("]", "[");
-		fEndCharMap.put("end", "begin");
-		fEndCharMap.put("endmodule", "module");
-		fEndCharMap.put("endfunction", "function");
-		fEndCharMap.put("endtask", "task");
-		fEndCharMap.put("endclass", "class");
-		fEndCharMap.put("endgenerate", "generate");
-		fEndCharMap.put("endpackage", "package");
-		fEndCharMap.put("endcase", "case");
-		fEndCharMap.put("endclocking", "clocking");
-		fEndCharMap.put("endconfig", "config");
-		fEndCharMap.put("endgroup", "group");
-		fEndCharMap.put("endinterface", "interface");
-		fEndCharMap.put("endprimitive", "primitive");
-		fEndCharMap.put("endprogram", "program");
-		fEndCharMap.put("endproperty", "property");
-		fEndCharMap.put("endspecify", "specify");
-		fEndCharMap.put("endsequence", "sequence");
-		fEndCharMap.put("endtable", "table");
+		fEndCharMap = new HashMap<String, String[]>();
+		fEndCharMap.put(")"            , new String [] {"("});
+		fEndCharMap.put("}"            , new String [] {"{"});
+		fEndCharMap.put("]"            , new String [] {"["});
+		fEndCharMap.put("end"          , new String [] {"begin"});
+		fEndCharMap.put("endmodule"    , new String [] {"module"});
+		fEndCharMap.put("endfunction"  , new String [] {"function"});
+		fEndCharMap.put("endtask"      , new String [] {"task"});
+		fEndCharMap.put("endclass"     , new String [] {"class"});
+		fEndCharMap.put("endgenerate"  , new String [] {"generate"});
+		fEndCharMap.put("endpackage"   , new String [] {"package"});
+		fEndCharMap.put("endcase"      , new String [] {"case"});
+		fEndCharMap.put("endclocking"  , new String [] {"clocking"});
+		fEndCharMap.put("endconfig"    , new String [] {"config"});
+		fEndCharMap.put("endgroup"     , new String [] {"group"});
+		fEndCharMap.put("endinterface" , new String [] {"interface"});
+		fEndCharMap.put("endprimitive" , new String [] {"primitive"});
+		fEndCharMap.put("endprogram"   , new String [] {"program"});
+		fEndCharMap.put("endproperty"  , new String [] {"property"});
+		fEndCharMap.put("endspecify"   , new String [] {"specify"});
+		fEndCharMap.put("endsequence"  , new String [] {"sequence"});
+		fEndCharMap.put("endtable"     , new String [] {"table"});
+		fEndCharMap.put("join"         , new String [] {"fork"});
+		fEndCharMap.put("join_none"    , new String [] {"fork"});
+		fEndCharMap.put("join_any"     , new String [] {"fork"});
 	}
 
 	public GotoMatchingBracketAction(ResourceBundle bundle, String prefix,
@@ -104,7 +108,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		// Save the original offset for later
 		int sel_offset = offset;
 
-		String st = null, en = null;
+		String [] st = null, en = null;
 		boolean begin = false;
 		boolean valid = false;
 		int start_pos = -1;
@@ -135,7 +139,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 			// Search for normal open brace ([{
 			if (fBeginCharMap.containsKey(st_c)) {
 				begin = true;
-				st = st_c;
+				st = new String[] {st_c};
 				en = fBeginCharMap.get(st_c);
 				start_pos = offset;
 				offset++;
@@ -143,7 +147,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 				// Search for normal close brace (]}
 			} else if (fEndCharMap.containsKey(st_c)) {
 				begin = false;
-				st = st_c;
+				st = new String [] {st_c};
 				en = fEndCharMap.get(st_c);
 				valid = true;
 				start_pos = offset + 1;
@@ -151,14 +155,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 				// Search for normal open brace ([{
 			} else if (fBeginCharMap.containsKey(prev_st_c)) {
 				begin = true;
-				st = prev_st_c;
+				st = new String [] {prev_st_c};
 				en = fBeginCharMap.get(prev_st_c);
 				valid = true;
 				start_pos = offset - 1;
 				// Search for normal close brace (]}
 			} else if (fEndCharMap.containsKey(prev_st_c)) {
 				begin = false;
-				st = prev_st_c;
+				st = new String [] {prev_st_c};
 				en = fEndCharMap.get(prev_st_c);
 				valid = true;
 				start_pos = offset;
@@ -202,14 +206,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 					String str = doc.get(st_off, (en_off - st_off + 1));
 
 					if (fBeginCharMap.containsKey(str)) {
-						st = str;
+						st = new String [] {str};
 						en = fBeginCharMap.get(str);
 						offset = en_off + 1;
 						begin = true;
 						valid = true;
 						start_pos = offset;
 					} else if (fEndCharMap.containsKey(str)) {
-						st = str;
+						st = new String [] {str};
 						en = fEndCharMap.get(str);
 						offset = st_off - 1;
 						begin = false;
@@ -244,8 +248,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 
 					if (t.equals(st)) {
 						n_st++;
-					} else if (t.equals(en)) {
-						n_en++;
+					} else {
+						// Loop through all items in en checking for the keyword
+						for (String f_en : en)  {
+							if (t.equals(f_en)) {
+								n_en++;
+								break;
+							}
+						}
 					}
 				} while (n_st != n_en);
 
