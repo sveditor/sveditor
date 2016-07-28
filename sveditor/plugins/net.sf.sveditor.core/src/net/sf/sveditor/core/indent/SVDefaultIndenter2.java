@@ -9,7 +9,6 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-
 package net.sf.sveditor.core.indent;
 
 import java.io.ByteArrayOutputStream;
@@ -43,40 +42,40 @@ import net.sf.sveditor.core.log.LogHandle;
  *     be called with the last token of the scope, provided that can be determined
  */
 public class SVDefaultIndenter2 implements ISVIndenter {
-	private ISVIndentScanner				fScanner;
-	private Stack<Tuple<String, Boolean>>	fIndentStack;
-	private List<SVIndentToken>				fTokenList;
-	private SVIndentToken					fCurrent;
-	private String							fCurrentIndent = "";
-	private LogHandle						fLog;
-	private int								fQualifiers;
-	private static final boolean			fDebugEn = false;
-	private int								fNLeftParen, fNRightParen;
-	private String							fIndentIncr = "\t";
-	private Pattern							fTabReplacePattern;
-	
-	private int								fAdaptiveIndentEnd;
-	private boolean							fTestMode;
+	private ISVIndentScanner fScanner;
+	private Stack<Tuple<String, Boolean>> fIndentStack;
+	private List<SVIndentToken> fTokenList;
+	private SVIndentToken fCurrent;
+	private String fCurrentIndent = "";
+	private LogHandle fLog;
+	private int fQualifiers;
+	private static final boolean fDebugEn = false;
+	private int fNLeftParen, fNRightParen;
+	private String fIndentIncr = "\t";
+	private Pattern fTabReplacePattern;
+
+	private int fAdaptiveIndentEnd;
+	private boolean fTestMode;
 
 	private boolean							pref_IndentIfdef = true;		// TODO: Add this to the preferences
 
-	
-	static private Map<String, Integer>		fQualifierMap;
-	static private Set<String>				fPreProcDirectives;
-	
+
+	static private Map<String, Integer> fQualifierMap;
+	static private Set<String> fPreProcDirectives;
+
 	private class IndentEOFException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 	}
 
 	static {
 		fQualifierMap = new HashMap<String, Integer>();
-		fQualifierMap.put("static", 	1 << 0);
-		fQualifierMap.put("virtual", 	1 << 1);
-		fQualifierMap.put("local",		1 << 2);
-		fQualifierMap.put("protected",	1 << 3);
-		fQualifierMap.put("public",		1 << 4);
-		fQualifierMap.put("extern",		1 << 5);
-		
+		fQualifierMap.put("static", 1 << 0);
+		fQualifierMap.put("virtual", 1 << 1);
+		fQualifierMap.put("local", 1 << 2);
+		fQualifierMap.put("protected", 1 << 3);
+		fQualifierMap.put("public", 1 << 4);
+		fQualifierMap.put("extern", 1 << 5);
+
 		fPreProcDirectives = new HashSet<String>();
 		fPreProcDirectives.add("`define");
 		fPreProcDirectives.add("`undef");
@@ -89,17 +88,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		fPreProcDirectives.add("`begin_keywords");
 		fPreProcDirectives.add("`end_keywords");
 	}
-	
+
 	public SVDefaultIndenter2() {
-		fIndentStack = new Stack<Tuple<String,Boolean>>();
+		fIndentStack = new Stack<Tuple<String, Boolean>>();
 		fTokenList = new ArrayList<SVIndentToken>();
 		fLog = LogFactory.getLogHandle("SVDefaultIndenter");
 	}
-	
+
 	public void setAdaptiveIndent(boolean adaptive) {
 		// fAdaptiveIndent = adaptive;
 	}
-	
+
 	public void setIndentIncr(String incr) {
 		fIndentIncr = incr;
 		if (fIndentIncr.charAt(0) != '\t') {
@@ -110,11 +109,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			fTabReplacePattern = null;
 		}
 	}
-	
+
 	public void setAdaptiveIndentEnd(int lineno) {
 		fAdaptiveIndentEnd = lineno;
 	}
-	
+
 	public void setTestMode(boolean tm) {
 		fTestMode = tm;
 	}
@@ -123,20 +122,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		fScanner = scanner;
 		push_indent_stack("", true);
 	}
-	
+
 	public String indent() {
-		String thing = indent (-1, -1);
+		String thing = indent(-1, -1);
 		return (thing);
 	}
-	
+
 	public String indent(int start_line, int end_line) {
 		StringBuilder sb = new StringBuilder();
-		SVIndentToken 	tok;
-		
+		SVIndentToken tok;
+
 		fNLeftParen = fNRightParen = 1;
-		
+
 		while ((tok = next()) != null) {
-			
+
 			// Scan forward until the end of the token list or until we find
 			// a keyword
 			try {
@@ -167,7 +166,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						tok = next();
 					} else {
 						tok = next();
-					} 
+					}
 				} while ((tok = current()) != null);
 			} catch (IndentEOFException e) {
 				// e.printStackTrace();
@@ -178,7 +177,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 			}
 		}
-		
+
 		if (fTestMode) {
 			if (fIndentStack.size() != 1) {
 				debug("IndentStack size is " + 
@@ -187,7 +186,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						fIndentStack.size() + " rather than 1");
 			}
 		}
-		
+
 		if (fDebugEn) {
 			debug("Indent operation complete");
 		}
@@ -197,7 +196,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				if (fDebugEn) {
 					debug("tok \"" + t.getType() + "\" line=" + t.getLineno() + " image=" + t.getImage());
 				}
-//				String leading_ws = t.getLeadingWS();
+				// String leading_ws = t.getLeadingWS();
 				String leading_ws = t.getLeadingNonNewLineWS();
 				// Replace any tabs in the leading whitespace
 				// if we're inserting spaces instead of tabs
@@ -210,17 +209,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						((t.isEndLine())?"\n":""));
 			}
 		}
-		
+
 		return sb.toString();
 	}
 
 	public String getLineIndent(int lineno) {
 		String ret = null;
-		
+
 		for (SVIndentToken t : fTokenList) {
 			if (t.getLineno() == lineno) {
 				ret = t.getLeadingNonNewLineWS();
-				
+
 				// Replace any tabs in the leading whitespace
 				// if we're inserting spaces instead of tabs
 				if (t.isStartLine() && fTabReplacePattern != null) {
@@ -229,7 +228,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				break;
 			}
 		}
-		
+
 		return ret;
 	}
 
@@ -238,20 +237,34 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 
 	private SVIndentToken indent_if(boolean is_else_if) {
+		return (indent_if(is_else_if, false));
+	}
+
+	/**
+	 * 
+	 * @param is_else_if
+	 * @param dont_indent_first
+	 *            - Won't indent the if. Typically set when already indented by
+	 *            a "unique" or "priority" keyword
+	 * @return
+	 */
+	private SVIndentToken indent_if(boolean is_else_if,
+			boolean dont_indent_first) {
 		SVIndentToken tok = current();
 
 		if (fDebugEn) {
 			debug("--> indent_if() tok=" + tok.getImage());
 		}
 
-		start_of_scope(tok);
+		if (!dont_indent_first)
+			start_of_scope(tok);
 
 		tok = next_s();
 
 		if (tok.isOp("(")) {
 			tok = consume_expression();
 		} else {
-			//System.out.println("[ERROR] unsure what happened - tok=" + 
+			// System.out.println("[ERROR] unsure what happened - tok=" +
 			// tok.getImage());
 			// bail out -- not sure what happened...
 			return tok;
@@ -262,7 +275,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isId("else")) {
 			// Insert a dummy scope to prevent the token following the 'else'
 			// from re-setting the adaptive indent
-			start_of_scope(tok, false);
+			start_of_scope(tok, true);
+			
 			if (fDebugEn) {
 				debug("--> else next_s");
 			}
@@ -270,26 +284,25 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			if (fDebugEn) {
 				debug("<-- else next_s");
 			}
-			leave_scope();
 			if (tok.isId("if")) {
+				leave_scope(tok);
 				tok = indent_if(true);
 			} else {
-				start_of_scope(tok);
 				tok = indent_if_stmts(null);
 			}
 		}
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_if() tok=" + 
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		return tok;
 	}
-	
-	private SVIndentToken indent_assert (boolean is_else_if) {
+
+	private SVIndentToken indent_assert(boolean is_else_if) {
 		SVIndentToken tok = current();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_if() tok=" + tok.getImage());
 		}
@@ -303,13 +316,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		if (tok.isOp("(")) {
 			tok = consume_expression();
-			if (tok.isOp(";"))  {
+			if (tok.isOp(";")) {
 				tok = next_s();
-				leave_scope (tok);
+				leave_scope(tok);
 				return tok;
 			}
 		} else {
-			//System.out.println("[ERROR] unsure what happened - tok=" + 
+			// System.out.println("[ERROR] unsure what happened - tok=" +
 			// tok.getImage());
 			// bail out -- not sure what happened...
 			return tok;
@@ -320,7 +333,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		else if (tok.isId("else")) {
 			leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
-//			start_of_scope(tok);
+			// start_of_scope(tok);
 		}
 		else  {
 			tok = indent_if_stmts(null);
@@ -344,31 +357,31 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_if_stmts(null);
 			}
 		}
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_if() tok=" + 
 					((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_if_stmts(String parent) {
 		SVIndentToken tok = current_s();
-		
+
 		// Indent the statement or block inside the 'if' clause.
 		if (tok.isId("begin")) {
 			parent = "begin";
 			boolean begin_is_start_line = tok.isStartLine();
-			
+
 			if (begin_is_start_line) {
 				leave_scope(tok);		// un-indent, we already indented before we came here, assuming it was a single-line bit of code
 				start_of_scope(tok);
 			}
-			// begin often has : <label>  consume this if it is there
+			// begin often has : <label> consume this if it is there
 			tok = consume_labeled_block(next_s());
 			enter_scope(tok);
-			
+
 			while (tok != null) {
 				if (fDebugEn) {
 					debug("top of begin/end loop: " + tok.getType() + " " + tok.getImage());
@@ -389,22 +402,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		} else {
 			// No begin
 			enter_scope(tok);
-//			tok = indent_stmt(parent, true);
+			// tok = indent_stmt(parent, true);
 			tok = indent_stmt(parent, false);
 			leave_scope(tok);
-			
+
 			// Fixup the indent on any comments that came before 'tok'
 			fixupPreviousCommentIndent(tok);
 		}
-		
+
 		return tok;
 	}
-	
 
-	
 	private SVIndentToken indent_fork() {
 		SVIndentToken tok = current();
-		
+
 		start_of_scope(tok);
 		tok = consume_labeled_block(next_s());	// Forks can be named fork : some_name
 		enter_scope(tok);
@@ -413,15 +424,16 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				!tok.isId("join") && 
 				!tok.isId("join_none") && 
 				!tok.isId("join_any")) {
-			
+
 			tok = indent_block_or_statement("fork", true);
 		}
 		leave_scope(tok);
-		
+
 		tok = next_s();
-		
+
 		return tok;
 	}
+
 	/**
 	 * Function: indent_delay
 	 * 
@@ -433,33 +445,33 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_delay(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current();
-		
+
 		start_of_scope(tok);
-		tok=next_s();			// Consume the #
-		tok=next_s();			// Consume the number
+		tok = next_s(); // Consume the #
+		tok = next_s(); // Consume the number
 		if (tok.isId("s") || tok.isId("ms") || tok.isId("us") || tok.isId("ns") || tok.isId("ps") || tok.isId("fs") || tok.isId("step"))  {
-			tok = next_s();		// Consume the time_unit
+			tok = next_s(); // Consume the time_unit
 		}
 		enter_scope(tok);
-		if (!tok.isId(";"))  {
+		if (!tok.isId(";")) {
 			tok = indent_stmt(parent, true);
 		}
 		leave_scope(tok); // restore scope previously set
 		end_of_scope(tok);
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_loop_stmt() {
 		SVIndentToken tok, first;
-		
+
 		tok = first = current();
-		
+
 		start_of_scope(tok);
-		
+
 		if (fDebugEn) {
 			debug("--> indent_loop_stmt() tok=" + tok.getImage());
 		}
-		
+
 		if (!tok.isId("do") && !tok.isId("forever")) {
 			tok = next_s();
 			if (tok.isOp("(")) {
@@ -477,7 +489,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		} else {
 			tok = next_s();
 		}
-		
+
 		// tok = indent_block_or_statement(null, true);
 		tok = indent_if_stmts(null);
 
@@ -488,27 +500,27 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			tok = next_s();
 		}
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_loop_stmt() tok=" + 
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_typedef() {
 		SVIndentToken tok = current();
 		boolean enum_struct = false;
-		
+
 		start_of_scope(tok);
-		
+
 		if (fDebugEn) {
 			debug("--> indent_typedef()");
 		}
-		
+
 		tok = next_s();
-		
+
 		if (tok.isId("enum") || tok.isId("struct") || tok.isId("union")) {
 			tok = indent_struct_union_enum("typedef");
 			enum_struct = true;
@@ -519,13 +531,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = next_s();
 		}
 		tok = next_s();
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_typedef()");
 		}
 
 		if (!enum_struct) {
-			// We've already left the scope (adjusting the closing brace) 
+			// We've already left the scope (adjusting the closing brace)
 			// in the case of an enum or struct
 			leave_scope(tok);
 		}
@@ -534,15 +546,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 	private SVIndentToken indent_struct_union_enum(String parent) {
 		SVIndentToken tok = next_s(); // advance beyond struct/union
-		
+
 		if (!parent.equals("typedef")) {
 			start_of_scope(tok);
 		}
-		
+
 		while (!tok.isOp("{", ";")) {
 			tok = next_s();
 		}
-		
+
 		if (tok.isOp("{")) {
 			// Not a forward declaration
 			tok = next_s();
@@ -555,15 +567,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 		}
 		// Leave on the closing brace
-//		if (!parent.equals("typedef")) {
-			leave_scope(tok);
-//		}
-		
-//		tok = next_s();
-		
+		// if (!parent.equals("typedef")) {
+		leave_scope(tok);
+		// }
+
+		// tok = next_s();
+
 		return tok;
 	}
-	
+
 	/**
 	 * indent_ifc_module_class()
 	 * 
@@ -575,41 +587,41 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_ifc_module_class(String item) {
 		SVIndentToken tok = current_s();
-		
+
 		String end = get_end_kw(item);
 		if (fDebugEn) {
 			debug("--> indent_ifc_module_class(" + item + ")");
 		}
 
-		start_of_scope(tok); 	// establish the indent of this scope
-        // for adaptive-indent purposes
+		start_of_scope(tok); // establish the indent of this scope
+		// for adaptive-indent purposes
 
 		tok = next_s();
-		
-		// push a new scope for ports and parameters 
+
+		// push a new scope for ports and parameters
 		start_of_scope(tok);
-		
+
 		// Reach the end of the declaration
 		while (!tok.isOp(";")) {
 			tok = next_s();
 		}
-		leave_scope(tok); 
-		
+		leave_scope(tok);
+
 		tok = next_s();
 		enter_scope(tok); // enter the body of the module
-		
+
 		fQualifiers = 0;
-		
+
 		// Now, read body items
 		while (tok != null) {
-			
+
 			if (tok.isId(end)) {
 				break;
 			} else if (tok.isId("virtual")) {
 				tok = next_s();
-				
+
 				// Swallow virtual interface
-				if (tok.isId("interface"))  {
+				if (tok.isId("interface")) {
 					tok = next_s();
 				}
 			} else if (tok.getType() == SVIndentTokenType.Identifier &&
@@ -626,7 +638,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			} else if (tok.isId("struct") || tok.isId("union") || tok.isId("enum")) {
 				tok = indent_struct_union_enum("");
 				fQualifiers = 0;
-			} else if (is_always(tok))  {
+			} else if (is_always(tok)) {
 				tok = indent_always();
 			} else if (tok.isId("initial") || tok.isId("final")) {
 				tok = next_s();
@@ -655,20 +667,21 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_block_or_statement(item, true);
 			}
 		}
-		
+
 		leave_scope(tok);
 
 		end_of_scope(tok); // restore scope previously set
-		
+
 		tok = consume_labeled_block(next_s());
-		
+
 		if (fDebugEn) {
 			debug("--> indent_ifc_module_class(" + item + ") next=" + 
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		return tok;
 	}
+
 	/**
 	 * indent_ifc_module_class()
 	 * 
@@ -680,47 +693,47 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_config(String item) {
 		SVIndentToken tok = current_s();
-		
+
 		String end = "endconfig";
 		if (fDebugEn) {
 			debug("--> indent_config(" + item + ")");
 		}
 
-		start_of_scope(tok); 	// establish the indent of this scope
-        // for adaptive-indent purposes
+		start_of_scope(tok); // establish the indent of this scope
+		// for adaptive-indent purposes
 
 		tok = next_s();
-		
+
 		// Reach the end of the declaration
 		while (!tok.isOp(";")) {
 			tok = next_s();
 		}
-		
+
 		tok = next_s();
 		enter_scope(tok); // enter the body of the module
-		
+
 		fQualifiers = 0;
-		
+
 		// Now, read body items
 		while (tok != null) {
-			
+
 			if (tok.isId(end)) {
 				break;
 			} else {
 				tok = indent_block_or_statement(item, true);
 			}
 		}
-		
+
 		leave_scope(tok);
 		end_of_scope(tok); // restore scope previously set
-		
+
 		tok = consume_labeled_block(next_s());
-		
+
 		if (fDebugEn) {
 			debug("--> indent_config (" + item + ") next=" + 
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		return tok;
 	}
 
@@ -737,11 +750,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * @param tok - token to be evaluated
 	 * @return
 	 */
-	private static boolean is_open_brace (SVIndentToken tok) {
+	private static boolean is_open_brace(SVIndentToken tok) {
 		return (tok.isOp("(") || tok.isOp("{") ||
 				tok.isOp("["));
 	}
-	
+
 	/**
 	 * This function will check to see if the given token is an open brace
 	 * Currently checks for ({[
@@ -749,11 +762,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * @param tok - token to be evaluated
 	 * @return
 	 */
-	private static boolean is_close_brace (SVIndentToken tok) {
+	private static boolean is_close_brace(SVIndentToken tok) {
 		return (tok.isOp(")") || tok.isOp("}") ||
 				tok.isOp("]"));
 	}
-	
+
 	/**
 	 * Checks to see if id is one of the "normal" case statements:
 	 *  - case
@@ -763,34 +776,34 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * @return boolean, true if is a match
 	 */
 	private static boolean is_case(SVIndentToken tok) {
-//		return (tok.isId("case"));
+		// return (tok.isId("case"));
 		return (tok.isId("case") || tok.isId("casez") ||
 				tok.isId("casex"));
 	}
-	
+
 	private SVIndentToken indent_covergroup() {
 		int level = fIndentStack.size();
 		SVIndentToken tok = current_s();
-		
+
 		start_of_scope(tok);
-		
+
 		if (fDebugEn) {
 			debug("--> indent_covergroup()");
 		}
-		
+
 		start_of_scope(tok); // push a new scope for elements in the arg list
 		// Reach the end of the declaration
 		while (tok != null && !tok.isOp(";")) {
 			tok = next_s();
 		}
 		leave_scope(); // leave arg-list scope
-		
+
 		tok = next_s();
 		enter_scope(tok);
-		
+
 		// Now, read body items
 		while (tok != null) {
-		
+
 			if (tok.isId("endgroup")) {
 				leave_scope(tok);
 				break;
@@ -798,36 +811,36 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_covergroup_item();
 			}
 		}
-		
+
 		tok = next_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_covergroup() next=" +
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		if (fTestMode) {
 			if (level != fIndentStack.size()) {
 				throw new RuntimeException("Indent stack out-of-sync: " + 
 						"entry=" + level + " exit=" + fIndentStack.size());
 			}
 		}
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_specify() {
 		int level = fIndentStack.size();
 		SVIndentToken tok = current_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_specify() tok=" + tok.getImage());
 		}
-	
+
 		start_of_scope(tok);
 		tok = next_s();
 		enter_scope(tok);
-		
+
 		while (tok != null) {
 			if (tok.isId("endspecify")) {
 				break;
@@ -835,69 +848,69 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_specify_stmt();
 			}
 		}
-	
+
 		leave_scope(tok);
 		tok = next_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_specify() next=" +
 					((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		if (fTestMode) {
 			if (level != fIndentStack.size()) {
 				throw new RuntimeException("Indent stack out-of-sync: " + 
 						"entry=" + level + " exit=" + fIndentStack.size());
 			}
 		}
-		
-		return tok;		
+
+		return tok;
 	}
-	
+
 	private SVIndentToken indent_specify_stmt() {
 		SVIndentToken tok = current_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_specify_stmt tok=" + tok.getImage());
 		}
-		
+
 		if (tok.isId("if")) {
 			start_of_scope(tok);
-			
+
 			tok = next_s();
-			
+
 			if (tok.isOp("(")) {
 				tok = consume_expression();
 			} else {
 				return tok;
 			}
-			
+
 			tok = indent_specify_stmt();
-			
+
 			leave_scope(tok);
 		} else if (tok.isOp("(")) {
-			
+
 			tok = consume_expression();
-			
+
 			if (fDebugEn) {
 				debug(" -- post-consume_expression: tok=" + tok.getImage());
 			}
-			
+
 			if (tok.isOp("=")) {
 				tok = next_s();
-				
+
 				if (fDebugEn) {
 					debug(" -- post-=: tok=" + tok.getImage());
 				}
-				
+
 				if (tok.isOp("(")) {
 					tok = consume_expression();
 				}
-				
+
 				if (fDebugEn) {
 					debug(" -- post-consume_expression(2)=: tok=" + tok.getImage());
 				}
-				
+
 				if (tok.isOp(";")) {
 					tok = next_s();
 				}
@@ -911,65 +924,65 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				;
 			}
 		}
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_specify_stmt tok=" + tok.getImage());
 		}
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_generate() {
 		int level = fIndentStack.size();
 		SVIndentToken tok = current_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_generate()");
 		}
-		
+
 		while (tok != null) {
-			
+
 			if (tok.isId("endgenerate")) {
 				break;
 			} else {
 				tok = indent_block_or_statement(null, false);
 			}
 		}
-		
+
 		tok = next_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_generate() next=" +
 					((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		if (fTestMode) {
 			if (level != fIndentStack.size()) {
 				throw new RuntimeException("Indent stack out-of-sync: " + 
 						"entry=" + level + " exit=" + fIndentStack.size());
 			}
 		}
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_constraint() {
 		SVIndentToken tok = current_s();
-		
+
 		start_of_scope(tok);
-		
+
 		tok = next_s(); // name of constraint
-		
+
 		tok = next_s(); // Should be '{'
-		
+
 		if (!tok.isOp("{")) {
 			// Not sure what happened...
 			return tok;
 		}
-		
+
 		tok = next_s();
 		enter_scope(tok);
-		
+
 		while (!tok.isOp("}")) {
 			tok = indent_constraint_stmt();
 		}
@@ -977,27 +990,27 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		leave_scope(tok);
 
 		tok = next_s();
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_covergroup_item() {
 		int level = fIndentStack.size();
 		SVIndentToken tok = current();
 		int lb_count = 0, rb_count = 0;
-		
+
 		if (fDebugEn) {
 			debug("--> indent_covergroup_item: " + tok.getImage());
 		}
-		
+
 		// Scan to the end of the statement / beginning of the block
 		start_of_scope(tok);
 		tok = next_s();
-//MSB:		enter_scope(tok);
+		// MSB: enter_scope(tok);
 		boolean keep_going = true;
 		boolean block_leave_scope = false;
-		while (keep_going)  {
-			
+		while (keep_going) {
+
 			if (tok.isOp(";") && (lb_count == rb_count)) {
 				keep_going = false;
 				leave_scope(); // leave coverpoint-declaration indent scope
@@ -1009,7 +1022,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					leave_scope(); // leave coverpoint-declaration indent scope
 					block_leave_scope = true;
 				}
-				lb_count ++;
+				lb_count++;
 				start_of_scope(tok);
 				tok = next_s();
 				enter_scope(tok);
@@ -1018,56 +1031,56 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				leave_scope(tok);
 				tok = next_s();
 				// Check to see if we have a case where we have an } {
-				if (tok.isOp("{"))  {
-					lb_count ++;
+				if (tok.isOp("{")) {
+					lb_count++;
 					start_of_scope(tok);
 					tok = next_s();
 				}
-				if (lb_count == rb_count)  {
+				if (lb_count == rb_count) {
 					keep_going = false;
-//					leave_scope(tok);
+					// leave_scope(tok);
 				}
 			}
 			else  {
 				tok = next_s();
 			}
 		}
-//MSB:		leave_scope(tok);
-		
+		// MSB: leave_scope(tok);
+
 		if (fDebugEn) {
 			debug("<-- indent_covergroup_item: " + tok.getImage());
 		}
-		
+
 		if (fTestMode) {
 			if (level != fIndentStack.size()) {
 				throw new RuntimeException("Indent stack out-of-sync: " + 
 						"entry=" + level + " exit=" + fIndentStack.size());
 			}
 		}
-		
+
 		return tok;
 	}
 
 	private SVIndentToken indent_task_function(String item) {
 		SVIndentToken tok = current_s();
 		start_of_scope(tok);
-		
+
 		String end = get_end_kw(item);
 		if (fDebugEn) {
 			debug("--> indent_task_function(" + item + ")");
 		}
-		
+
 		while (tok != null && !tok.isOp(";")) {
 			tok = next_s();
 		}
-		
+
 		// If this is an extern function or task, we're done
 		if (!isQualifierSet("extern")) {
 			// Ensure that any comments at the beginning of the
 			// task/function are indented correctly
 			enter_scope(tok);
 			tok = next_s();
-			
+
 			while (tok != null) {
 				if (tok.isId(end)) {
 					break;
@@ -1076,7 +1089,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 			}
 			leave_scope(tok);
-			
+
 			tok = consume_labeled_block(next_s());
 		} else {
 			leave_scope();
@@ -1087,12 +1100,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			debug("--> indent_task_function(" + item + ") " +
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		end_of_scope();
-		
+
 		return tok;
 	}
-	
+
 	/**
 	 * 
 	 * @param parent - if parent is begin, will do appropriate things with begin statement
@@ -1104,18 +1117,18 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (fDebugEn) {
 			debug("--> indent_block_or_statement() parent_is_block_stmt=" + parent_is_block + " tok=" + tok.getImage());
 		}
-		
+
 		if (tok.isId("begin")) {
 			parent = "begin";
-			
+
 			// Ensure that any comments at the beginning of the
 			// block are indented correctly
 			start_of_scope(tok);
-			// begin often has : <label>  consume this if it is there
+			// begin often has : <label> consume this if it is there
 			tok = consume_labeled_block(next_s());
 
 			enter_scope(tok);
-			
+
 			while (tok != null) {
 				if (fDebugEn) {
 					debug("top of begin/end loop: " + tok.getType() + " " + tok.getImage());
@@ -1137,7 +1150,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				enter_scope(tok);
 			}
 			tok = indent_stmt(parent, !parent_is_block);
-			
+
 			if (!parent_is_block) {
 				leave_scope(tok);
 			}
@@ -1147,10 +1160,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			debug("<-- indent_block_or_statement() tok=" + 
 				((tok != null)?tok.getImage():"null") + " parent=" + parent);
 		}
-		
+
 		return tok;
 	}
-	
+
 	/**
 	 * This routine will handle pre-processor directives as follows: 
 	 * - `ifdef, ifndef - indent 
@@ -1164,31 +1177,31 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_preproc() {
 		SVIndentToken tok = fScanner.current();
-		
+
 		if (fDebugEn) {
 			debug("indent_preproc: " + tok.getImage() + " " + pref_IndentIfdef);
 		}
-		
+
 		// Test to see if we want the indenter to indent on ifdef's
-		if (pref_IndentIfdef)  {
+		if (pref_IndentIfdef) {
 			if (tok.isId("`ifdef") || tok.isId("`ifndef")) {
-				start_of_scope (tok);
+				start_of_scope(tok);
 				fTokenList.add(tok);
 				SVIndentToken n = fScanner.next();
 				if (n != null) {
 					fTokenList.add(n);
 				}
-				tok = fScanner.next();		// Add the next token being checked for
-				
+				tok = fScanner.next(); // Add the next token being checked for
+
 			} else if (tok.isId("`else")) {
 				leave_scope(tok);
 				fTokenList.add(tok);
-				tok = fScanner.next();		// Swallow ifdef/ifndef
+				tok = fScanner.next(); // Swallow ifdef/ifndef
 				start_of_scope(tok);
 			} else if (tok.isId("`endif")) {
 				leave_scope(tok);
 				fTokenList.add(tok);
-				tok = fScanner.next();		// Swallow ifdef/ifndef
+				tok = fScanner.next(); // Swallow ifdef/ifndef
 			}
 			// All other preprocessor directives run to end of line
 			else {
@@ -1215,11 +1228,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_stmt(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current_s();
-		
+
 		if (fDebugEn) {
 			debug("--> indent_stmt parent=" + parent + " tok=" + tok.getImage() + " parent_is_block=" + parent_is_block);
 		}
-		
+
 		// Just indent the statement
 		if (tok.isId("if")) {
 			tok = indent_if(false);
@@ -1229,7 +1242,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_fork();
 		} else if (is_case(tok) || tok.isId("randcase")) {
 			tok = indent_case();
-		} else if (is_always(tok))  {
+		} else if (is_always(tok)) {
 			tok = indent_always();
 		} else if (tok.isId("initial") || tok.isId("final")) {
 			// enter_scope(tok);
@@ -1246,38 +1259,40 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_loop_stmt();
 		} else if (tok.isOp("#")) {
 			tok = indent_delay(parent, parent_is_block);
-		} 
+		} else if (tok.isId("unique") || tok.isId("priority")) {
+			tok = indent_unique_priority();
+		}
 		// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
 		else {
-			if (!parent_is_block)  {
+			if (!parent_is_block) {
 				// Check and consume first token, we need to indent after this because
 				// user could have multi line code such as:
-				// a = 
-				//   b + c;
-				if (is_open_brace(tok))  {
+				// a =
+				// b + c;
+				if (is_open_brace(tok)) {
 					tok = indent_braced_subexpression();
 				}
 				else  {
 					tok = next_s(); // grab the next token, this was probably the first token of a new statement
 				}
 				// Next token will be indented by default in case multi-line comment
-				start_of_scope (tok);
-				enter_scope (tok);
-				
+				start_of_scope(tok);
+				enter_scope(tok);
+
 			}
 			// Need to check if we are at a label... for example a labeled property
-			// 	ap_thing: 
-			//   assert property (p_property (thevar)); 
+			// ap_thing:
+			// assert property (p_property (thevar));
 			if (tok.getImage().equals(":")) {
 				tok = next_s(); // grab the next token, this is the first token after the :
 				tok = indent_stmt(parent, parent_is_block);
-				leave_scope (tok);	// Out-dent post - probable assert
+				leave_scope(tok); // Out-dent post - probable assert
 			}
 			// Just a regular statement "a = b;" etc
-			else  {
-			
+			else {
+
 				boolean do_next = true;
-				while (!tok.isOp(";"))  {
+				while (!tok.isOp(";")) {
 					if (parent != null) {
 						if ((parent.equals("begin") && tok.isId("end")) ||
 								tok.isId("end" + parent)) {
@@ -1299,8 +1314,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					}
 				}
 				// Un-indent after we indented
-				if (!parent_is_block)  {
-					leave_scope (tok);
+				if (!parent_is_block) {
+					leave_scope(tok);
 				}
 
 				if (do_next) {
@@ -1308,41 +1323,41 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 			}
 		}
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_stmt parent=" + parent + " tok=" + tok.getImage());
 		}
-		
+
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_constraint_block_or_stmt() {
 		SVIndentToken tok = current_s();
-		
+
 		if (tok.isOp("{")) {
 			start_of_scope(tok);
 			tok = next_s();
 			enter_scope(tok);
-			
+
 			while (!tok.isOp("}")) {
 				tok = indent_constraint_block_or_stmt();
 			}
 			leave_scope(tok);
-			
+
 			tok = next_s();
 		} else {
 			tok = indent_constraint_stmt();
 		}
-		
+
 		return tok;
 	}
 
 	private SVIndentToken indent_constraint_if_block_or_stmt() {
 		SVIndentToken tok = current_s();
-		
+
 		if (tok.isOp("{")) {
 			boolean begin_is_start_line = tok.isStartLine();
-			
+
 			if (begin_is_start_line) {
 				enter_scope(tok);
 			}
@@ -1350,31 +1365,31 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			if (!begin_is_start_line) {
 				enter_scope(tok);
 			}
-			
+
 			while (!tok.isOp("}")) {
 				tok = indent_constraint_block_or_stmt();
 			}
 			leave_scope(tok);
-			
+
 			tok = next_s();
 		} else {
 			enter_scope(tok);
 			tok = indent_constraint_stmt();
 			leave_scope(tok);
 		}
-		
+
 		return tok;
 	}
 
 	private SVIndentToken indent_constraint_stmt() {
 		SVIndentToken tok = current_s();
-		
+
 		if (tok.isId("if") || tok.isId("foreach")) {
 			tok = indent_constraint_if(false);
 		} else if (tok.isOp("(")) {
 			// very likely an implication statement
 			tok = consume_expression();
-			
+
 			// (expr) -> [stmt | stmt_block]
 			if (tok.isOp("->") || tok.isOp("->>")) {
 				tok = next_s();
@@ -1385,33 +1400,33 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// expression_or_dist ::= expression [ dist { dist_list } ];
 			tok = next_skip_over_hier();
 			// check if we have a distribution here
-			if (tok.isId("dist") | tok.isId("inside"))  {
-				tok = next_s();			// move onto '{'
+			if (tok.isId("dist") | tok.isId("inside")) {
+				tok = next_s(); // move onto '{'
 				tok = consume_expression();
-				tok = next_s();			// consume trailing ;
+				tok = next_s(); // consume trailing ;
 			}
 			// Expression
-			else  {
+			else {
 				// Read a statement up to a semi-colon
 				while (!tok.isOp(";")) {
 					tok = next_s();
 				}
-				
+
 				tok = next_s();
 			}
 		}
 
 		return tok;
 	}
-	
+
 	private SVIndentToken indent_constraint_if(boolean is_else_if) {
 		SVIndentToken tok = current();
 		if (fDebugEn) {
 			debug("--> indent_constraint_if() tok=" + tok.getImage());
 		}
-		
+
 		start_of_scope(tok);
-		
+
 		tok = next_s();
 		if (tok.isOp("(")) {
 			tok = consume_expression();
@@ -1420,9 +1435,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			return tok;
 		}
 		enter_scope(tok);
-		
+
 		tok = indent_constraint_if_block_or_stmt();
-		
+
 		if (tok.isId("else")) {
 			tok = next_s();
 			if (tok.isId("if")) {
@@ -1431,16 +1446,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_constraint_block_or_stmt();
 			}
 		}
-		
+
 		if (fDebugEn) {
 			debug("<-- indent_constraint_if() tok=" + 
 				((tok != null)?tok.getImage():"null"));
 		}
-		
+
 		return tok;
 	}
-	
-	
+
 	/**
 	 * This will take a look at the various always... constructs and move through them, 
 	 * hopefully working through the rest of the line to either a begin or a statement...
@@ -1451,22 +1465,30 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_always() {
 		SVIndentToken tok = current();
-//		return (tok.isId("always") || tok.isId("always_comb") ||
-//				tok.isId("always_latch") || tok.isId("always_ff"));
+		// return (tok.isId("always") || tok.isId("always_comb") ||
+		// tok.isId("always_latch") || tok.isId("always_ff"));
 		if (tok.isId("always") || (tok.isId("always_ff") || tok.isId("always_latch") || tok.isId("always_comb")))  {
 			tok=next_s();	// on always, always_ff this will be an @, otherwise will be begin or start of statement
 		}
 		// If we have an @, make way to the end of the expression
-		if (tok.isOp("@"))  {
+		if (tok.isOp("@")) {
 			// swallow the expression (...) or @*
 			tok = next_s();
-			tok=consume_expression();
+			tok = consume_expression();
 		}
 		// By this point we should have reached a begin or statement
 		return (indent_block_or_statement(null, false));
 	}
-	
-	private SVIndentToken indent_case() {
+
+	/**
+	 * Used for <unique|priority> <if|case|casex|casez>
+	 * 
+	 * @param dont_indent_first
+	 *            - Use when already indented... typicall in a unique or
+	 *            priority case statement
+	 * @return
+	 */
+	private SVIndentToken indent_unique_priority() {
 		SVIndentToken tok = current();
 		String type = tok.getImage();
 		// Synchronize the indent on 'case'
@@ -1474,6 +1496,38 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 		// Push a new scope for the body of the case
 		start_of_scope(tok);
+		tok = next();
+
+		if (tok.isId("if")) {
+			tok = indent_if(false, true);
+		} else if (is_case(tok)) {
+			tok = indent_case(true);
+		}
+		return (tok);
+	}
+
+	private SVIndentToken indent_case() {
+		return (indent_case(false));
+	}
+
+	/**
+	 * 
+	 * @param dont_indent_first
+	 *            - Use when already indented... typicall in a unique or
+	 *            priority case statement
+	 * @return
+	 */
+	private SVIndentToken indent_case(boolean dont_indent_first) {
+		SVIndentToken tok = current();
+		String type = tok.getImage();
+		// Check if we need to indent the case
+		if (!dont_indent_first) {
+			// Synchronize the indent on 'case'
+			enter_scope(tok);
+
+			// Push a new scope for the body of the case
+			start_of_scope(tok);
+		}
 
 		// randcase does not have an expression
 		if (is_case(tok)) {
@@ -1481,39 +1535,39 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// Continue on till we get a closed brace.  We could have case (some_vec[3:2]).  
 			// This is important because below we just check for : to determine indentation, and
 			// a : in the indenter was throwing the indenter off
-			if (tok.isOp("("))  {
+			if (tok.isOp("(")) {
 				while (!next_s().isOp(")")); // should be expression
 			}
 		}
 
 		tok = next_s();
-		
+
 		// Synchronize indent
 		enter_scope(tok);
-		
+
 		while (!tok.isId("endcase")) {
 			while (!tok.isOp(":") && !tok.isId("endcase")) {
 				tok = next_s();
 			}
-			
+
 			if (tok.isOp(":")) {
 				tok = next_s();
 				tok = indent_block_or_statement("case", false);
 			}
 		}
-		
+
 		leave_scope();
 		if (tok.isId("endcase")) {
 			set_indent(tok, false, true);
 		}
-		
+
 		tok = next_s();
-		
-//		leave_scope();
-		
+
+		// leave_scope();
+
 		return tok;
 	}
-	
+
 	private void start_of_scope(SVIndentToken tok) {
 		start_of_scope(tok, true);
 	}
@@ -1540,9 +1594,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		 */
 
 		// if (is_top_scope) {
-		//	set_indent(tok, false);
+		// set_indent(tok, false);
 		// }
-		
+
 		if (fDebugEn) {
 			debug("[" + fIndentStack.size() + "] start_of_scope() - indent=\"" + peek_indent() + "\"");
 		}
@@ -1551,7 +1605,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private void end_of_scope() {
 		end_of_scope(null);
 	}
-	
+
 	private void end_of_scope(SVIndentToken tok) {
 		// leave_scope(tok);
 	}
@@ -1567,9 +1621,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private void enter_scope(SVIndentToken tok) {
 		// boolean is_top_scope = (fIndentStack.size() == 1);
 		// incr_indent(isAdaptiveTraining(tok));
-		
+
 		set_indent(tok, false, true);
-		
+
 		if (fDebugEn) {
 			debug("enter_scope() - indent=\"" + peek_indent() + "\"");
 		}
@@ -1578,7 +1632,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private void leave_scope() {
 		leave_scope(null);
 	}
-	
+
 	/**
 	 * leave_scope()
 	 * 
@@ -1590,7 +1644,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			debug("[" + fIndentStack.size() + "] leave_scope() - indent=\"" + peek_indent() + "\"");
 		}
 	}
-	
+
 	private void push_indent_stack(String indent, boolean provisional) {
 		if (fDebugEn) {
 			debug("[" + (fIndentStack.size() + 1) + 
@@ -1598,11 +1652,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		fIndentStack.push(new Tuple<String, Boolean>(indent, provisional));
 	}
-	
+
 	private String peek_indent() {
 		return fIndentStack.peek().first();
 	}
-	
+
 	private void incr_indent(boolean provisional) {
 		push_indent_stack(fIndentStack.peek().first() + fIndentIncr, provisional);
 		if (fDebugEn) {
@@ -1613,8 +1667,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 	private void pop_indent(SVIndentToken tok) {
 		if (fDebugEn) {
-			String img = (tok != null)?tok.getImage():"";
-			int level = fIndentStack.size()-1;
+			String img = (tok != null) ? tok.getImage() : "";
+			int level = fIndentStack.size() - 1;
 			if (level > 0) {
 				debug("[" + level + "] pop_indent: \"" + fIndentStack.get(level-1).first() + "\" (" + img + ")");
 			} else {
@@ -1627,7 +1681,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			if (fTestMode) {
 				throw new RuntimeException("Indent stack out of sync");
 			}
-			
+
 			if (fDebugEn) {
 				debug("[ERROR] indent stack out of sync");
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -1642,7 +1696,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				debug(bos.toString());
 			}
 		}
-		
+
 		if (tok != null) {
 			set_indent(tok, false, true);
 		}
@@ -1651,15 +1705,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			debug("pop_indent - indent=\"" + peek_indent() + "\"");
 		}
 	}
-	
+
 	private void set_indent(SVIndentToken tok, boolean implicit, boolean ok_to_reset_indent) {
 		if (tok.isStartLine()) {
-			// We handle blank lines, comments, and pre-processor tokens outside 
+			// We handle blank lines, comments, and pre-processor tokens outside
 			// of the normal indenter flow. Consequently, we the normal indenter
 			// flow must not interfere with these tokens
 			boolean is_exceptional_tok = 
 					(tok.isBlankLine() || tok.isComment() || tok.isPreProc());
-			
+
 			if (ok_to_reset_indent &&
 					isAdaptiveTraining(tok) && 
 					fIndentStack.peek().second() && !is_exceptional_tok) {
@@ -1677,10 +1731,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok.setLeadingWS(peek_indent());
 		}
 	}
-	
+
 	private void indent_multi_line_comment(SVIndentToken tok) {
-		SVMultiLineIndentToken ml_comment = (SVMultiLineIndentToken)tok;
-		
+		SVMultiLineIndentToken ml_comment = (SVMultiLineIndentToken) tok;
+
 		if (tok.isStartLine()) {
 			set_indent(tok, false, true);
 			for (SVIndentToken line : ml_comment.getCommentLines()) {
@@ -1694,7 +1748,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 		}
 	}
-	
+
 	/**
 	 * Call this function after begin, or end, endmodule etc. The function will check for a : some_label and consume it and move to the next token
 	 * 
@@ -1707,11 +1761,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken consume_labeled_block(SVIndentToken tok) {
 		if (tok.isOp(":")) {
-			tok = next_s();		// consume the label
-			tok = next_s();		// now move token to the next identifier ... 
+			tok = next_s(); // consume the label
+			tok = next_s(); // now move token to the next identifier ...
 		}
 		return tok;
 	}
+
 	/**
 	 * consume_expression
 	 * 
@@ -1742,7 +1797,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		do {
 			// braces on a new line get indented
-			if (tok.isStartLine() && (is_indent == false))  {
+			if (tok.isStartLine() && (is_indent == false)) {
 				is_indent = true;
 				start_of_scope(tok);
 				enter_scope(tok);
@@ -1754,20 +1809,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				// If we come back (will be on a brace, and we had just indented, 
 			} else if (is_close_brace(tok)) {
 				// Allow for ()
-			} else  {
+			} else {
 				tok = next_s();
 			}
 		} while (!is_close_brace(tok) && search_for_close_brace);
-		
-		// If we come back (will be on a brace, and we had just indented, 
+
+		// If we come back (will be on a brace, and we had just indented,
 		if (is_indent) {
 			leave_scope(tok);
 		}
-		
+
 		if (is_close_brace(tok)) {
 			tok = next_s();
 		}
-		
+
 		return tok;
 	}
 
@@ -1807,7 +1862,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private boolean isAdaptiveTraining(SVIndentToken tok) {
 		return (fAdaptiveIndentEnd != -1 && tok.getLineno() <= fAdaptiveIndentEnd);
 	}
-	
+
 	private SVIndentToken next() {
 		SVIndentToken tok = null;
 		boolean stay_in_while = true;
@@ -1834,21 +1889,21 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				set_indent(tok, true, true);
 				stay_in_while = true;
 				tok = indent_preproc();
-			} else  {
+			} else {
 				stay_in_while = false;
-			} 
+			}
 		}
 
 		if (tok != null) {
 			if (tok.isOp("(")) {
 				if (fNLeftParen == fNRightParen) {
-// TODO:					enter_scope(tok);
+					// TODO: enter_scope(tok);
 				}
 				fNLeftParen++;
 			} else if (tok.isOp(")")) {
 				fNRightParen++;
 				if (fNLeftParen == fNRightParen) {
-// TODO:					leave_scope(tok);
+					// TODO: leave_scope(tok);
 					fNLeftParen = fNRightParen = 0;
 				}
 			}
@@ -1858,27 +1913,27 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			fTokenList.add(tok);
 		}
-		
+
 		fCurrent = tok;
 
 		return tok;
 	}
-	
+
 	private SVIndentToken current() {
 		return fCurrent;
 	}
-	
+
 	private SVIndentToken current_s() {
 		if (current() == null) {
 			throw new RuntimeException();
 		}
-		
+
 		return current();
 	}
-	
+
 	private SVIndentToken next_s() {
 		SVIndentToken ret = next();
-		
+
 		if (fDebugEn) {
 			if (ret != null) {
 				debug("next_s: " + ret.getImage());
@@ -1886,7 +1941,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				debug("next_s: null");
 			}
 		}
-		
+
 		if (ret == null) {
 			throw new IndentEOFException();
 		}
@@ -1899,20 +1954,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 * for example:
 	 * top.bob = ... the function will run past the ., and return bob
 	 * 
-	 * @return The identifier in the hierarchy 
+	 * @return The identifier in the hierarchy
 	 */
-	private SVIndentToken next_skip_over_hier () {
+	private SVIndentToken next_skip_over_hier() {
 		SVIndentToken tok = current();
-		tok = next_s();						// get the next id (possibly a hierarchy delimiter '.') 
-		while (tok.isOp("."))  {
-			tok = next_s();					// identifier
-			tok = next_s();					// possible hierarchy delimiter '.'
+		tok = next_s(); // get the next id (possibly a hierarchy delimiter '.')
+		while (tok.isOp(".")) {
+			tok = next_s(); // identifier
+			tok = next_s(); // possible hierarchy delimiter '.'
 			// Check for bus values []
-			if (tok.isOp("["))  {
+			if (tok.isOp("[")) {
 				tok = consume_expression();
 			}
 		}
-		return (tok);				// return the last token in hierarchy
+		return (tok); // return the last token in hierarchy
 	}
 
 	/**
@@ -1929,9 +1984,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				fTokenList.add(tok);
 			}
 		}
-		
+
 		tok = fScanner.next();
-		
+
 		return (tok);
 	}
 
@@ -1942,23 +1997,23 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			return "end" + kw;
 		}
 	}
-	
+
 	private void debug(String msg) {
 		if (fDebugEn) {
 			fLog.debug(msg);
-//			System.out.println("[INDENT] " + msg);
+			// System.out.println("[INDENT] " + msg);
 		}
 	}
 
 	private void fixupPreviousCommentIndent(SVIndentToken tok) {
-		int i = fTokenList.size()-1;
-	
+		int i = fTokenList.size() - 1;
+
 		// Find the target token
 		while (i > 0 && fTokenList.get(i) != tok) {
 			i--;
 		}
-		
-		// Now, apply the indent of the token to any 
+
+		// Now, apply the indent of the token to any
 		i--;
 		while (i > 0 && 
 				(fTokenList.get(i).getType() == SVIndentTokenType.SingleLineComment ||

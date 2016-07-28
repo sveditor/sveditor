@@ -341,6 +341,149 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testPriorityUniqueStmt() throws Exception {
+		LogHandle log = LogFactory.getLogHandle("testPriorityUniqueStmt");
+		String content =
+				"module t;\n" +
+						"// comment\n" +
+						"logic a;\n" +
+						"// comment\n" +
+						"always @ (a) begin\n" +
+						"// comment\n" +
+						"unique if(a) begin\n" +
+						"// comment\n" +
+						"c = d;\n" + 
+						"end\n" + 
+						"// comment\n" +
+						"else\n" + 
+						"// comment\n" +
+						"c = d;\n" + 
+						"// comment\n" +
+						"priority if(a)\n" +
+						"begin\n" + 
+						"// comment\n" +
+						"c = d;\n" + 
+						"end\n" + 
+						"// comment\n" +
+						"else begin\n" + 
+						"// comment\n" +
+						"c = d;\n" + 
+						"end\n" + 
+						"// comment\n" +
+						"unique case(a)\n" + 
+						"// comment\n" +
+						"1: begin\n" + 
+						"// comment\n" +
+						"a = b;\n" + 
+						"end\n" +
+						"// comment\n" +
+						"2: a = b;\n" +
+						"// comment\n" +
+						"3:\n" +
+						"// comment\n" +
+						"a = b;\n" +
+						"endcase\n" +
+						"// comment\n" +
+						"priority case(a)\n" + 
+						"// comment\n" +
+						"1: begin\n" + 
+						"// comment\n" +
+						"a = b;\n" + 
+						"end\n" +
+						"// comment\n" +
+						"2: a = b;\n" +
+						"// comment\n" +
+						"3:\n" +
+						"// comment\n" +
+						"a = b;\n" +
+						"endcase\n" +
+						"// comment\n" +
+						"end\n" +
+						"endmodule\n"
+						;
+		String expected =
+						"module t;\n" +
+						"	// comment\n" +
+						"	logic a;\n" +
+						"	// comment\n" +
+						"	always @ (a) begin\n" +
+						"		// comment\n" +
+						"		unique if(a) begin\n" +
+						"			// comment\n" +
+						"			c = d;\n" + 
+						"		end\n" + 
+						"		// comment\n" +
+						"		else\n" + 
+						"			// comment\n" +
+						"			c = d;\n" + 
+						"		// comment\n" +
+						"		priority if(a)\n" +
+						"		begin\n" + 
+						"			// comment\n" +
+						"			c = d;\n" + 
+						"		end\n" + 
+						"		// comment\n" +
+						"		else begin\n" + 
+						"			// comment\n" +
+						"			c = d;\n" + 
+						"		end\n" + 
+						"		// comment\n" +
+						"		unique case(a)\n" + 
+						"			// comment\n" +
+						"			1: begin\n" + 
+						"				// comment\n" +
+						"				a = b;\n" + 
+						"			end\n" +
+						"			// comment\n" +
+						"			2: a = b;\n" +
+						"				// comment\n" +
+						"			3:\n" +
+						"			// comment\n" +
+						"				a = b;\n" +
+						"		endcase\n" +
+						"		// comment\n" +
+						"		priority case(a)\n" + 
+						"			// comment\n" +
+						"			1: begin\n" + 
+						"				// comment\n" +
+						"				a = b;\n" + 
+						"			end\n" +
+						"			// comment\n" +
+						"			2: a = b;\n" +
+						"				// comment\n" +
+						"			3:\n" +
+						"			// comment\n" +
+						"				a = b;\n" +
+						"		endcase\n" +
+						"		// comment\n" +
+						"	end\n" +
+						"endmodule\n"
+						;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		log.debug("--> testPriorityUniqueStmt()");
+		try {
+			SVIndentScanner scanner = new SVIndentScanner(
+					new StringTextScanner(content));
+			
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+			indenter.init(scanner);
+			indenter.setTestMode(true);
+			
+			String result = indenter.indent();
+			
+			log.debug("Result:");
+			log.debug(result);
+			IndentComparator.compare("testPriorityUniqueStmt", expected, result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			log.debug("<-- testPriorityUniqueStmt()");
+		}
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testBussedInAlways() throws Exception {
 		LogHandle log = LogFactory.getLogHandle("testBussedInAlways");
 		String content =
