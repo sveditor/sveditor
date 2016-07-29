@@ -59,6 +59,7 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 		fBeginCharMap.put("specify", "endspecify");
 		fBeginCharMap.put("sequence", "endsequence");
 		fBeginCharMap.put("table", "endtable");
+		fBeginCharMap.put("fork", "join join_none join_any");
 	}
 	
 	static {
@@ -84,6 +85,9 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 		fEndCharMap.put("endspecify", "specify");
 		fEndCharMap.put("endsequence", "sequence");
 		fEndCharMap.put("endtable", "table");
+		fEndCharMap.put("join", "fork");
+		fEndCharMap.put("join_none", "fork");
+		fEndCharMap.put("join_any", "fork");
 	}
 
 	public SelectEnclosingElementAction(ResourceBundle bundle, String prefix,
