@@ -41,7 +41,8 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 
 
 public class SVPreProcessor extends AbstractTextScanner 
-		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener {
+		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener,
+					ISVStringPreProcessor {
 	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private StringBuilder							fOutput;
@@ -151,9 +152,38 @@ public class SVPreProcessor extends AbstractTextScanner
 		fTaskTags.add("FIXME");
 		
 		// Add the first file
-		enter_file(filename, input);
+		if (input != null) {
+			enter_file(filename, input);
+		}
 	}
 	
+	private void init_vars() {
+		fInputStack.clear();
+		fMacroExpSet.clear();
+		fOutput.setLength(0);
+		fCommentBuffer.setLength(0);
+		fTmpBuffer.setLength(0);
+		fMacroParams.clear();
+		fPreProcEn.clear();
+		fPreProcLoc.clear();
+		fFileMap.clear();
+		fFileList.clear();
+	}
+
+	/**
+	 * Implementation of the ISVStringPreProcessor interface
+	 */
+	@Override
+	public String preprocess(InputStream in) {
+		init_vars();
+		
+		enter_file("", in);
+		
+		preprocess();
+		
+		return fOutput.toString();
+	}
+
 	public void addListener(IPreProcListener l) {
 		fListeners.add(l);
 		fHaveListeners = true;
@@ -200,6 +230,8 @@ public class SVPreProcessor extends AbstractTextScanner
 		boolean found_single_line_comment = false;
 		
 		start = System.currentTimeMillis();
+		fOutput.setLength(0);
+		fCommentBuffer.setLength(0);
 
 		while ((ch = get_ch()) != -1) {
 			found_single_line_comment = false;
@@ -820,7 +852,8 @@ public class SVPreProcessor extends AbstractTextScanner
 
 				fInputCurr.getFileTree().fMarkers.add(m);
 			}
-			
+		
+			boolean have_macro_params = false;
 			if ((md == null) || (md.getParameters() != null && md.getParameters().size() > 0)) {
 				// Try to read the parameter list
 				ch = get_ch();
@@ -847,6 +880,7 @@ public class SVPreProcessor extends AbstractTextScanner
 						}
 						
 						SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
+						have_macro_params = true;
 					} else {
 						readMacroParameters(fTmpBuffer, ch);
 					}
@@ -1367,12 +1401,23 @@ public class SVPreProcessor extends AbstractTextScanner
 		if (ch > 127) {
 			ch = AbstractTextScanner.unicode2ascii(ch);
 		}
+		
+		if (fCaptureEnabled && ch != -1) {
+			fCaptureBuffer.append((char)ch);
+		}
 	
 		return ch;
 	}
 	
 	public void unget_ch(int ch) {
 		fInputCurr.unget_ch(ch);
+		
+		if (fCaptureEnabled && ch != -1) {
+			if (fCaptureBuffer.length() > 0) {
+				fCaptureBuffer.setLength(fCaptureBuffer.length()-1);
+			}
+		}
+			
 
 		/*
 		if (ch != -1 && fCaptureEnabled && fCaptureBuffer.length() > 0) {

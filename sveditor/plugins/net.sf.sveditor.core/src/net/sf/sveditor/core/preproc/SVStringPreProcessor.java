@@ -44,6 +44,14 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 		fLocked = true;
 	}
 	
+	public void addListener(IPreProcListener l) {
+		// NOP
+	}
+	
+	public void removeListener(IPreProcListener l) {
+		// NOP
+	}
+	
 	@Override
 	public String preprocess(InputStream in) {
 		SVPreProcessor preproc = new SVPreProcessor("", in, null, null);

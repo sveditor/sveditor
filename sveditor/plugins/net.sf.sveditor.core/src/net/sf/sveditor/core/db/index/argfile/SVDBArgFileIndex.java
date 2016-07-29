@@ -1405,9 +1405,12 @@ public class SVDBArgFileIndex implements
 			}
 			
 			int this_fileid = fReadOnlyFileMapper.mapFilePathToId(r_path, false);
-			
+		
+			// Collect local macros from 'input'
 			preproc.preprocess();
-			
+
+			// How to handle this? 
+			// Do we remove the macros that don't match?
 			List<SVDBMacroDef> macros = new ArrayList<SVDBMacroDef>();
 			for (SVDBMacroDef m : preproc.getDefaultMacros()) {
 				if (m.getLocation() == -1 || limit_lineno == -1 ||
@@ -1416,8 +1419,9 @@ public class SVDBArgFileIndex implements
 					macros.add(m);
 				}
 			}
-			
-			ret = new SVStringPreProcessor(macros);
+
+			// No need to wrap anything up. 
+			ret = preproc; // new SVStringPreProcessor(macros);
 		}
 			
 		return ret;

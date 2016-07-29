@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -27,13 +29,14 @@ import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 
-import net.sf.sveditor.core.preproc.IPreProcListener;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.PreProcEvent;
-import net.sf.sveditor.core.preproc.PreProcEvent.Type;
+import net.sf.sveditor.core.preproc.SVPreProcModelFactory;
+import net.sf.sveditor.core.preproc.SVPreProcModelNode;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import net.sf.sveditor.ui.editor.SVDocumentPartitions;
+import net.sf.sveditor.ui.editor.SVDocumentSetupParticipant;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
@@ -42,6 +45,7 @@ public class MacroExpansionView extends ViewPart {
 	private ProjectionViewer						fProjectionViewer;
 	private Document								fDocument;
 	private Map<ProjectionAnnotation, Position>		fAnnotations;
+	private MacroExpansionSourceViewerConfiguration	fSourceViewConfig;
 
 	public MacroExpansionView() {
 		fAnnotations = new HashMap<ProjectionAnnotation, Position>();
@@ -54,6 +58,7 @@ public class MacroExpansionView extends ViewPart {
 		
 		CompositeRuler r = new CompositeRuler();
 		OverviewRuler or = null; // new OverviewRuler(annotationAccess, width, sharedColors);
+		fSourceViewConfig = new MacroExpansionSourceViewerConfiguration();
 		fProjectionViewer = new ProjectionViewer(
 				c, r, or, true, SWT.V_SCROLL+SWT.H_SCROLL);
 		
@@ -61,36 +66,29 @@ public class MacroExpansionView extends ViewPart {
 		IAnnotationAccess ann_access = new DefaultMarkerAnnotationAccess();
 		ProjectionSupport ps = new ProjectionSupport(fProjectionViewer, ann_access, 
 				EditorsPlugin.getDefault().getSharedTextColors());
-				
+		fProjectionViewer.getTextWidget().setFont(
+				JFaceResources.getFont(JFaceResources.TEXT_FONT));
+
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i=1; i<=20; i++) {
 			sb.append("Line " + i + "\n");
 		}
 		fDocument = new Document("");
+		IDocumentPartitioner p = SVDocumentSetupParticipant.createPartitioner();
+		fDocument.setDocumentPartitioner(SVDocumentPartitions.SV_PARTITIONING, p);
+		p.connect(fDocument);
 	
 		fProjectionViewer.setDocument(
 				fDocument, new ProjectionAnnotationModel());
+	
+		fProjectionViewer.configure(fSourceViewConfig);
 		
 		ps.install();
 		
 		// enableProjection must occur after setDocument, otherwise
 		// certain things don't get hooked up correctly...
 		fProjectionViewer.doOperation(ProjectionViewer.TOGGLE);
-//		pv.enableProjection();
-		
-//		ProjectionAnnotation ann = new ProjectionAnnotation(true);
-//		
-//		Map<ProjectionAnnotation, Position> newAnn = new HashMap<ProjectionAnnotation, Position>();
-//		newAnn.put(ann, new Position(10, 20));
-//		
-//		ProjectionAnnyotationModel pm = pv.getProjectionAnnotationModel();
-//		
-//		System.out.println("pm=" + pm);
-//		if (pm != null) {
-//		pm.modifyAnnotations(new Annotation[0], 
-//				newAnn, new Annotation[0]);
-//		}
 	}
 
 	@Override
@@ -103,8 +101,11 @@ public class MacroExpansionView extends ViewPart {
 		ITextSelection sel = editor.getTextSel();
 		ISVStringPreProcessor pp = editor.createPreProcessor(-1);
 		
-		if (pp instanceof IPreProcMacroProvider) {
-			IPreProcMacroProvider mp = (IPreProcMacroProvider)pp;
+		fSourceViewConfig.setContentType(editor.getContentType());
+		
+		if (pp instanceof SVPreProcessor) {
+//			IPreProcMacroProvider mp = (IPreProcMacroProvider)pp;
+			SVPreProcessor preproc = (SVPreProcessor)pp;
 			
 			IDocument doc = editor.getDocument();
 			int offset = -1, start = sel.getOffset();
@@ -142,7 +143,7 @@ public class MacroExpansionView extends ViewPart {
 				SVDocumentTextScanner s = new SVDocumentTextScanner(doc, offset);
 				StringBuilder sb = new StringBuilder();
 				
-				SVPreProcessor.ReadMacroRef(sb, s, mp);
+				SVPreProcessor.ReadMacroRef(sb, s, preproc.getMacroProvider());
 				
 				final Stack<PreProcEvent> ev_stack = new Stack<PreProcEvent>();
 				Set<ProjectionAnnotation> existing = 
@@ -150,42 +151,72 @@ public class MacroExpansionView extends ViewPart {
 				fAnnotations.clear();
 
 //				ProjectionAnnotation ann = new ProjectionAnnotation(true);
-				ProjectionAnnotationModel pm = fProjectionViewer.getProjectionAnnotationModel();
-				
-				SVPreProcDefineProvider dp = new SVPreProcDefineProvider(mp);
-				dp.addPreProcListener(new IPreProcListener() {
-					
-					@Override
-					public void preproc_event(PreProcEvent event) {
-						System.out.println("preproc_event: " + event.type + " " + event.text + " " + event.pos);
-						if (event.type == Type.BeginExpand) {
-							ev_stack.push(event);
-						} else if (event.type == Type.EndExpand) {
-							PreProcEvent begin_e = ev_stack.pop();
-							ProjectionAnnotation ann = new ProjectionAnnotation(true);
-							ann.getText();
-							ann.setText(begin_e.text);
-					
-							System.out.println("Range: " + begin_e.pos + ".." + event.pos);
-							fAnnotations.put(ann, new Position(
-									begin_e.pos, event.pos-begin_e.pos));
-						}
-					}
-				});
-			
-				System.out.println("Expand:\n" + sb.toString());
-				String result = dp.expandMacro(sb.toString(), "FOO", 0);
-				System.out.println("Result: " + result.length() + "\n" + result);
-				
-				fDocument.set(result);
 		
-				Annotation deletions[] = existing.toArray(
-						new Annotation[existing.size()]);
-				pm.modifyAnnotations(deletions, fAnnotations, new Annotation[0]);
+				SVPreProcModelFactory factory = new SVPreProcModelFactory(pp);
+				
+				Tuple<SVPreProcModelNode, String> result = factory.build(sb.toString());
+				
+				StringBuilder content = new StringBuilder(result.second());
+				
+				if (result != null && result.first() != null) {
+					update_model(0, result.first(), content);
+					fDocument.set(content.toString());
+
+					ProjectionAnnotationModel pm = fProjectionViewer.getProjectionAnnotationModel();
+					
+					build_annotations(result.first(), fAnnotations);
+					
+					Annotation deletions[] = existing.toArray(
+							new Annotation[existing.size()]);
+					pm.modifyAnnotations(deletions, fAnnotations, new Annotation[0]);
+				} else {
+					fDocument.set("Macro appears to be undefined");
+				}
 			}
 		} else {
-			System.out.println("Error: not instanceof IPreProcMacroProvider");
+			System.out.println("Error: not instanceof IPreProcMacroProvider: " +
+					((pp == null)?"null":pp.getClass()));
+//			fDocument.set("Internal Error: Failed to get a "
 		}
+	}
+	
+	private int update_model(int add, SVPreProcModelNode node, StringBuilder content) {
+		node.setStart(node.getStart()+add);
+		
+		content.insert(node.getStart(), node.getText());
+		
+		add += node.getText().length();
+		node.setEnd(node.getEnd()+add);
+		
+		for (SVPreProcModelNode n : node.getChildren()) {
+			add = update_model(add, n, content);
+		}
+		
+		return add;
+	}
+	
+	private void build_annotations(SVPreProcModelNode node, Map<ProjectionAnnotation, Position> annotations) {
+		ProjectionAnnotation ann;
+		ann = new ProjectionAnnotation(true);
+
+		annotations.put(ann,  new Position(node.getStart(), 
+				node.getEnd()-node.getStart()));
+		
+		for (SVPreProcModelNode n : node.getChildren()) {
+			build_annotations(n, annotations);
+		}
+		
+//		if (node.getChildren().size() > 0) {
+//			annotations.put(ann,  new Position(
+//					node.getStart(), node.getChildren().get(0).getStart()-node.getStart()));
+//			
+//			for (SVPreProcModelNode n : node.getChildren()) {
+//				build_annotations(n, annotations);
+//			}
+//		} else {
+//			annotations.put(ann,  new Position(
+//					node.getStart(), node.getEnd()-node.getStart()));
+//		}
 	}
 
 }

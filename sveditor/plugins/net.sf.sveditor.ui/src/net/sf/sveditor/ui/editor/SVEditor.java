@@ -481,7 +481,10 @@ public class SVEditor extends TextEditor
 		updateAutoIndexDelayPref();
 		fIsOpen = true;
 	}
-	
+
+	public IContentType getContentType() {
+		return fContentType;
+	}
 	
 	
 	@Override
