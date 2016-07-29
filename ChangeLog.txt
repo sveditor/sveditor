@@ -7,7 +7,9 @@
   
 - #(318) - Correct spurious pre-processor error when a file doesn't
   end with a newline.
-  
+
+- #(enh) - Add a basic Macro Expansion Viewer to assist in debugging 
+  macro-expansion issues
 
 ------------------------------------------------------------------------------
 -- 1.8.7 Release --
