@@ -71,31 +71,26 @@ public class SVSingleLevelMacroExpander {
 			List<String>				param_vals) {
 		int ch;
 		StringBuilder sb = new StringBuilder();
+		
+		if (fDebugEn) {
+			debug("expandParameterRefs: \"" + scanner.toString() + "\"");
+			for (int i=0; i<param_names.size(); i++) {
+				debug("  parameter name=\"" + param_names.get(i) + "\" value=\"" +
+						param_vals.get(i) + "\"");
+			}
+		}
 
-		// Read individual identifiers. Ignore un-escaped strings
+		// Read individual identifiers. Ignore string boundaries
 		int last_ch = -1;
 		while ((ch = scanner.get_ch()) != -1) {
 			if (fDebugChEn) {
 				debug("  ch=" + (char)ch + " last_ch=" + (char)last_ch);
 			}
-			if (ch == '"') {
-				if (last_ch == '`') {
-					// collapse to '"'
-					out.setLength(out.length()-1);
-					last_ch = -1;
-				} else {
-					// un-escaped string
-					out.append((char)ch);
-					// Skip until the end of this string
-					while ((ch = scanner.get_ch()) != -1 && ch != '"' && last_ch != '\\') {
-						out.append((char)ch);
-						last_ch = ch;
-					}
-					if (ch != -1) {
-						out.append((char)ch);
-					}
-					last_ch = ch;
-				}
+
+			if (ch == '"' && last_ch == '`') {
+				// collapse to '"'
+				out.setLength(out.length()-1);
+				last_ch = -1;
 			} else if (ch == '`' && last_ch == '`') {
 				// Handle `` as a token separator
 				if (fDebugEn) {
@@ -106,10 +101,13 @@ public class SVSingleLevelMacroExpander {
 			} else if (Character.isJavaIdentifierStart(ch)) {
 				sb.setLength(0);
 				ch = AbstractTextScanner.readPreProcIdentifier(sb, scanner, ch);
-				last_ch = -1;
 				scanner.unget_ch(ch);
 			
 				String key = sb.toString();
+				
+				if (fDebugEn) {
+					debug("  identifier=\"" + key + "\"");
+				}
 
 				if (param_names != null && param_vals != null &&
 						param_names.size() > 0 && param_vals.size() > 0) {

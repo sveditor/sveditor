@@ -77,6 +77,23 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		runTestTrim2(content, inc_provider, exp);
 	}
+
+	public void testDoubleTickProtection() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"`define MY_MACRO(MY_PARAM)\\\n" +
+            "    string foo = \"+``MY_PARAM``\";\n" +
+			"\n" +
+            "`MY_MACRO(FOOBAR)\n" +
+			"\n"
+            ;
+		String exp = "string foo = \"+FOOBAR\";";
+		
+		SVPathPreProcIncFileProvider inc_provider = 
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+		
+		runTestTrim2(content, inc_provider, exp);
+	}
 	
 	public void testBasicInclude() {
 		SVCorePlugin.getDefault().enableDebug(false);
