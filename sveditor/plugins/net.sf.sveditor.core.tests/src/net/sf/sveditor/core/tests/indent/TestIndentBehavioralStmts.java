@@ -22,7 +22,6 @@ public class TestIndentBehavioralStmts extends SVCoreTestCaseBase {
 			"			foo = 5;\n" +
 			"		//comment4\n" +
 			"		else\n" +
-			"		//comment5\n" +
 			"		if (foo2) begin\n" +
 			"			//comment6\n" +
 			"			foo = 6;\n" +

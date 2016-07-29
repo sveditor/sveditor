@@ -8,6 +8,12 @@
 - #(318) - Correct spurious pre-processor error when a file doesn't
   end with a newline.
 
+  
+- #(434) - Find matching brace /? select enclosing element doesn't pick up
+  fork /? join statements
+ 
+- #(435) - Indenter issue with "unique case()" 
+
 - #(enh) - Add a basic Macro Expansion Viewer to assist in debugging 
   macro-expansion issues
 
