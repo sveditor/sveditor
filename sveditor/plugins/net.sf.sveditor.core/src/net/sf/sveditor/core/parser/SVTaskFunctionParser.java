@@ -187,7 +187,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 
 			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
-				String id = fLexer.readIdOrKeyword(); // could be :new
+				String id = parsers().SVParser().scopedIdentifier(true); // could be :new
 
 				if (!id.equals(func.getName())) {
 					// TODO: endfunction label must match function name

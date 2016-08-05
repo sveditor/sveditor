@@ -4,6 +4,8 @@
 
 - #(enh - 116) - Add indenter support for move lines up/down action (ALT+UP/ALT+DOWN).
   Now, the lines being moved are properly indented based on the new containing scope.
+  
+- #(431) - Correct a parse error with task/function scoped end-block identifiers
 
 ------------------------------------------------------------------------------
 -- 1.8.8 Release --

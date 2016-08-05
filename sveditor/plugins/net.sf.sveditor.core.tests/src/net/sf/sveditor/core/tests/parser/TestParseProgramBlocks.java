@@ -77,6 +77,35 @@ public class TestParseProgramBlocks extends TestCase {
 
 		SVDBTestUtils.assertFileHasElements(file, "foo_t");
 	}
+	
+	public void testScopedIdentifyEndtaskTag() {
+		String doc =
+			"program p;\n" +
+			"	class c;\n" +
+			"		extern task ct ();\n" +
+			"		extern task ct2 ();\n" +
+			"	endclass\n" +
+			"\n" +
+			"	task c::ct ();\n" +
+			"	endtask : c::ct\n" +
+			"\n" +
+			"	task c::ct2 (); // Extra indentation here caused by the :: in the line above\n" +
+			"	endtask : c::ct2\n" +
+			"\n" +
+			"endprogram\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(doc, getName());
+		
+//		for (ISVDBItemBase it : file.getItems()) {
+//			if (it.getType() == SVDBItemType.Marker) {
+//				System.out.println("Marker: " + ((SVDBMarker)it).getMessage());
+//			}
+//		}
+
+		SVDBTestUtils.assertFileHasElements(file, "p", "c", "c::ct", "c::ct2");		
+	}
 
 
 }
