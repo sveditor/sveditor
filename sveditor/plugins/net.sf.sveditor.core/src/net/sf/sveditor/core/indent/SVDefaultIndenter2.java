@@ -286,6 +286,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 			if (tok.isId("if")) {
 				leave_scope(tok);
+//				start_of_scope(tok, true);
 				tok = indent_if(true);
 			} else {
 				tok = indent_if_stmts(null);
@@ -530,17 +531,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		while (!tok.isOp(";")) {
 			tok = next_s();
 		}
+		if (!enum_struct) {
+			// We've already left the scope (adjusting the closing brace)
+			// in the case of an enum or struct
+			leave_scope(tok);
+		}
 		tok = next_s();
 
 		if (fDebugEn) {
 			debug("<-- indent_typedef()");
 		}
 
-		if (!enum_struct) {
-			// We've already left the scope (adjusting the closing brace)
-			// in the case of an enum or struct
-			leave_scope(tok);
-		}
 		return tok;
 	}
 
@@ -1727,7 +1728,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				fIndentStack.peek().setFirst(fCurrentIndent);
 			}
-			debug("Set indent implicit=" + implicit + " \"" + tok.getImage() + "\" \"" + peek_indent() + "\"");
+			debug("Set indent implicit=" + implicit + " \"" + tok.getImage()
+					+ "\" \"" + peek_indent() + "\"");
 			tok.setLeadingWS(peek_indent());
 		}
 	}

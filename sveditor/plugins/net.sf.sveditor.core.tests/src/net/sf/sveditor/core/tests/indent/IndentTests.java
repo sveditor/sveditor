@@ -646,19 +646,35 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String content =
 			"module t;\n" +
+			"//comment1\n" +
 			"typedef struct {\n" +
+			"//comment2\n" +
 			"int a;\n" +
 			"int b;\n" +
+			"//comment3\n" +
 			"} foo_t;\n" +
+			"//comment4\n" +
+			"foo_t b;\n" +
+			"//comment5\n" +
+			"typedef someclass_c #(1) new_name;\n" +
+			"//comment6\n" +
 			"foo_t b;\n" +
 			"endmodule\n"
 			;
 		String expected =
 			"module t;\n" +
+			"	//comment1\n" +
 			"	typedef struct {\n" +
+			"		//comment2\n" +
 			"		int a;\n" +
 			"		int b;\n" +
+			"		//comment3\n" +
 			"	} foo_t;\n" +
+			"	//comment4\n" +
+			"	foo_t b;\n" +
+			"	//comment5\n" +
+			"	typedef someclass_c #(1) new_name;\n" +
+			"	//comment6\n" +
 			"	foo_t b;\n" +
 			"endmodule\n"
 			;
