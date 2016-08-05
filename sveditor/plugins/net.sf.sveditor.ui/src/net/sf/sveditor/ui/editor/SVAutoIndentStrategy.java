@@ -50,6 +50,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
 		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
 		fLog.debug("	content=\"" + cmd.text + "\"");
+		boolean added_extra_cr = false;
 
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
@@ -60,6 +61,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			}
 			int line_cnt = 0, result_line_cnt = 0;
 			
+			// Figure out how many lines are in the pasted text... need to copy these many lines out of the re-formatted data
 			for (int i=0; i<cmd.text.length(); i++) {
 				if (cmd.text.charAt(i) == '\n' || cmd.text.charAt(i) == '\r') {
 					if (i+1 < cmd.text.length() &&
@@ -77,10 +79,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			}
 
 			// If the pasted text doesn't end with a CR, then dummy up
-			// an extra line
+			// an extra line which we will remove at the end
 			if (cmd.text.charAt(cmd.text.length()-1) != '\n' &&
 					cmd.text.charAt(cmd.text.length()-1) != '\r') {
 				line_cnt++;
+				added_extra_cr = true;
+				cmd.text = cmd.text + "\n";
 			}
 
 			fLog.debug("Document line start=" + lineno);
@@ -91,6 +95,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			doc_str.append(doc.get(0, cmd.offset));
 			doc_str.append(cmd.text);
 			int start = cmd.offset+cmd.length;
+			// Not sure what this is for...
 			int len = (doc.getLength()-(cmd.offset+cmd.length)-1);
 			try {
 				if (len > 0) {
@@ -132,8 +137,13 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				}
 				
 				// If we changed the line count, then just
-				// go with what the user pasted
+				// go with what the user pasted, else use the updated code
 				if (result_line_cnt == line_cnt) {
+					if (added_extra_cr)  {
+						// Remove the trailing \n
+						result =  result.substring(0,result.length()-1);
+					}
+					// Change to indented code
 					cmd.text = result;
 				}
 			} catch (Exception e) {
