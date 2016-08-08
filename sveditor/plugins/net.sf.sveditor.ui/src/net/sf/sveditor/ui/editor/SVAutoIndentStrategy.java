@@ -50,26 +50,34 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
 		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
 		fLog.debug("	content=\"" + cmd.text + "\"");
-		boolean added_extra_cr = false;
 
 		try {
 			int lineno = doc.getLineOfOffset(cmd.offset);
 			int target_lineno = lineno;
-			if (doc.getLineOffset(lineno) != cmd.offset) {
-				// If this is a block copy
-				return;
-			}
+			boolean added_extra_cr = false;
+
 			int line_cnt = 0, result_line_cnt = 0;
+			int distance_to_sol = 0;		// Distance to start of line, used when we have leading whitespace
+			int trailing_whitespace = 0;	// number of WS characters after last \n
 			
 			// Figure out how many lines are in the pasted text... need to copy these many lines out of the re-formatted data
 			for (int i=0; i<cmd.text.length(); i++) {
 				if (cmd.text.charAt(i) == '\n' || cmd.text.charAt(i) == '\r') {
+					trailing_whitespace = 0;
 					if (i+1 < cmd.text.length() &&
 							cmd.text.charAt(i) == '\r' &&
 							cmd.text.charAt(i+1) == '\n') {
 						i++;
 					}
 					line_cnt++;
+				}
+				// Add
+				else if (trailing_whitespace != -1 && (cmd.text.charAt(i) == ' ' || cmd.text.charAt(i) == '\t'))  {
+					trailing_whitespace ++;
+				}
+				// Regular charater ... -1 shows no trailing
+				else  {
+					trailing_whitespace = -1;
 				}
 			}
 			
@@ -86,15 +94,36 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				added_extra_cr = true;
 				cmd.text = cmd.text + "\n";
 			}
+			
+			// This section checks to see if the document contains any leading whitespace
+			// If the line contains WS, we will want to move the insertion point to the start of line
+			// allowing the whitespace to stay with the existing line
+			for (int i=cmd.offset-1; i>=0; i--) {
+				char current_ch = doc.getChar(i);
+				// If we have a space or tab... we want to remove it
+				if ((current_ch == ' ') || (current_ch == '\t'))  {
+					distance_to_sol ++;
+				}
+				// reached end of line... we have the whitespace character count ... leave loop
+				else if ((current_ch == '\r') || (current_ch == '\n'))  {
+					break;
+				}
+				// non-white space characters... leave loop, don't want to touch whitespace
+				else  {
+					distance_to_sol = 0;
+					break;
+				}
+			}
+			
 
 			fLog.debug("Document line start=" + lineno);
 			
 			StringBuilder doc_str = new StringBuilder();
-			// Append what's before the
 			
-			doc_str.append(doc.get(0, cmd.offset));
-			doc_str.append(cmd.text);
+			doc_str.append(doc.get(0, cmd.offset));	// Append what's before the pasted code
+			doc_str.append(cmd.text);				// Add the pasted code
 			int start = cmd.offset+cmd.length;
+
 			// Not sure what this is for...
 			int len = (doc.getLength()-(cmd.offset+cmd.length)-1);
 			try {
@@ -106,6 +135,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				throw e;
 			}
 			
+			// Do the indent on the code
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());
 			
@@ -121,7 +151,6 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// The goal, here, is to format the entire document
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event
-			
 			try {
 				String result = indenter.indent(lineno+1, (lineno+line_cnt));
 				
@@ -138,12 +167,22 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				
 				// If we changed the line count, then just
 				// go with what the user pasted, else use the updated code
+				// else cmd.txt is returned, unchanged
 				if (result_line_cnt == line_cnt) {
 					if (added_extra_cr)  {
 						// Remove the trailing \n
 						result =  result.substring(0,result.length()-1);
 					}
-					// Change to indented code
+					
+					// Remove any trailing whitespace in the cmd
+					if (trailing_whitespace > 0)  {
+						result = result.substring(0,result.length()-trailing_whitespace);
+						// Need to adjust the cursor to account for the change in whitespace
+						// Oddly enough doesn't need result.length... presumably adjusted when the text is inserted
+						cmd.caretOffset = cmd.offset - distance_to_sol + trailing_whitespace;
+					}
+					// Move the insertion point to the start of line
+					cmd.offset -= distance_to_sol;
 					cmd.text = result;
 				}
 			} catch (Exception e) {
