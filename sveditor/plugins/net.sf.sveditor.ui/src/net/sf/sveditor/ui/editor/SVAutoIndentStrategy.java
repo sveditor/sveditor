@@ -24,6 +24,7 @@ import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -33,9 +34,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	
 	private LogHandle					fLog;
 	private boolean						fAutoIndentEnabled;
+	private SVEditor					editor; 
 	
 	public SVAutoIndentStrategy(SVEditor editor, String p) {
 		fLog = LogFactory.getLogHandle("SVAutoIndentStrategy");
+		this.editor = editor;
 		
 		fAutoIndentEnabled = SVUiPlugin.getDefault().getPreferenceStore().getBoolean(
 				SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S);
@@ -71,11 +74,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 					}
 					line_cnt++;
 				}
-				// Add
+				// Increment the number of whitespace characters found
 				else if (trailing_whitespace != -1 && (cmd.text.charAt(i) == ' ' || cmd.text.charAt(i) == '\t'))  {
 					trailing_whitespace ++;
 				}
-				// Regular charater ... -1 shows no trailing
+				// Regular character ... -1 shows no trailing
 				else  {
 					trailing_whitespace = -1;
 				}
@@ -169,7 +172,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				// go with what the user pasted, else use the updated code
 				// else cmd.txt is returned, unchanged
 				if (result_line_cnt == line_cnt) {
-					if (added_extra_cr)  {
+ 					if (added_extra_cr)  {
 						// Remove the trailing \n
 						result =  result.substring(0,result.length()-1);
 					}
@@ -180,6 +183,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 						// Need to adjust the cursor to account for the change in whitespace
 						// Oddly enough doesn't need result.length... presumably adjusted when the text is inserted
 						cmd.caretOffset = cmd.offset - distance_to_sol + trailing_whitespace;
+						if (((ITextSelection) editor.getSelectionProvider().getSelection()).getLength() > 0)
+							cmd.caretOffset += result.length();
 					}
 					// Move the insertion point to the start of line
 					cmd.offset -= distance_to_sol;
