@@ -318,8 +318,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isOp("(")) {
 			tok = consume_expression();
 			if (tok.isOp(";")) {
-				tok = next_s();
 				leave_scope(tok);
+				end_of_scope(tok);
+				tok = next_s();
 				return tok;
 			}
 		} else {
@@ -1288,6 +1289,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = next_s(); // grab the next token, this is the first token after the :
 				tok = indent_stmt(parent, parent_is_block);
 				leave_scope(tok); // Out-dent post - probable assert
+				fixupPreviousCommentIndent(tok);
 			}
 			// Just a regular statement "a = b;" etc
 			else {
