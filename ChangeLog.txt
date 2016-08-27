@@ -9,6 +9,14 @@
 
 - #(437) Indenter: Comment following inline typedef mis-indented
 
+- #(438) Paste error when pasting at the start of a line, trailing code duplicated
+
+- #(439) Indenter doesn't take care of leading whitespace on paste 
+
+- #(441) Find matching brace issue with nested begin/ends
+
+- #(442) SV format is not correct using ifdef after assert sv keyword
+
 ------------------------------------------------------------------------------
 -- 1.8.8 Release --
 

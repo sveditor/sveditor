@@ -108,7 +108,8 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		// Save the original offset for later
 		int sel_offset = offset;
 
-		String [] st = null, en = null;
+		String st = "undefined";
+		String [] en = null;
 		boolean begin = false;
 		boolean valid = false;
 		int start_pos = -1;
@@ -139,7 +140,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 			// Search for normal open brace ([{
 			if (fBeginCharMap.containsKey(st_c)) {
 				begin = true;
-				st = new String[] {st_c};
+				st = st_c;
 				en = fBeginCharMap.get(st_c);
 				start_pos = offset;
 				offset++;
@@ -147,7 +148,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 				// Search for normal close brace (]}
 			} else if (fEndCharMap.containsKey(st_c)) {
 				begin = false;
-				st = new String [] {st_c};
+				st = st_c;
 				en = fEndCharMap.get(st_c);
 				valid = true;
 				start_pos = offset + 1;
@@ -155,14 +156,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 				// Search for normal open brace ([{
 			} else if (fBeginCharMap.containsKey(prev_st_c)) {
 				begin = true;
-				st = new String [] {prev_st_c};
+				st = st_c;
 				en = fBeginCharMap.get(prev_st_c);
 				valid = true;
 				start_pos = offset - 1;
 				// Search for normal close brace (]}
 			} else if (fEndCharMap.containsKey(prev_st_c)) {
 				begin = false;
-				st = new String [] {prev_st_c};
+				st = st_c;
 				en = fEndCharMap.get(prev_st_c);
 				valid = true;
 				start_pos = offset;
@@ -206,14 +207,14 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 					String str = doc.get(st_off, (en_off - st_off + 1));
 
 					if (fBeginCharMap.containsKey(str)) {
-						st = new String [] {str};
+						st = str;
 						en = fBeginCharMap.get(str);
 						offset = en_off + 1;
 						begin = true;
 						valid = true;
 						start_pos = offset;
 					} else if (fEndCharMap.containsKey(str)) {
-						st = new String [] {str};
+						st = str;
 						en = fEndCharMap.get(str);
 						offset = st_off - 1;
 						begin = false;
