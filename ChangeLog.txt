@@ -17,6 +17,8 @@
 
 - #(442) SV format is not correct using ifdef after assert sv keyword
 
+- #(443) - Correct an issue parsing a sized cast ( (WIDTH)'(expr) )
+
 ------------------------------------------------------------------------------
 -- 1.8.8 Release --
 
