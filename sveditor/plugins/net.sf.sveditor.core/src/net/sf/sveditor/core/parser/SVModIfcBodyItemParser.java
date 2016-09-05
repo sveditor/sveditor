@@ -271,6 +271,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				case RTRANIF0:
 				case TRAN:
 				case RTRAN:
+				case BRANCH:
 					parsers().gateInstanceParser().parse(parent);
 					break;
 					
@@ -602,6 +603,10 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		// Parse the module instantiation
 		// Note: module instantiation includes the trailing ';'
 		fParsers.modIfcBodyItemParser().parse_var_decl_module_inst(bind, 0);
+	}
+	
+	public void parse_ams_branch(ISVDBAddChildItem parent) throws SVParseException {
+		parsers().gateInstanceParser().parse(parent);
 	}
 	
 	public void parse_var_decl_module_inst(ISVDBAddChildItem parent, int modifiers) throws SVParseException {

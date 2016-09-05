@@ -137,6 +137,11 @@ public class SVGateInstantiationParser extends SVParserBase {
 			max_strengths = 2;      // max number of strengths
 			max_delays    = 3;      // max number of delays
 		}
+		// branch (list_of_terminals)
+		else if (primitive_name.equals("branch")) {
+			min_ports = 1;
+			max_ports = -1;
+		}
 		// name that we don't have 
 		else  {
 			error("[Internal Error] gate-type " + primitive_name + " not recognized");

@@ -15,7 +15,7 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 
 public class FoldActionExpand extends AbstractHandler implements IHandler {
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		SVEditor sve = SVUiPlugin.getActiveSVEditor();
@@ -25,11 +25,11 @@ public class FoldActionExpand extends AbstractHandler implements IHandler {
 			ITextSelection tsel = sve.getTextSel();
 			
 			if (tsel != null) {
-				Iterator<Object> it = null;
+				Iterator it = null;
 				// Try a couple of offsets in case we're just outside a fold region
 				int offset = tsel.getOffset();
 				for (int i=0; i<2; i++) {
-					it = (Iterator<Object>)pm.getAnnotationIterator(offset, tsel.getLength(), true, true);
+					it = pm.getAnnotationIterator(offset, tsel.getLength(), true, true);
 					if (it.hasNext()) {
 						break;
 					}

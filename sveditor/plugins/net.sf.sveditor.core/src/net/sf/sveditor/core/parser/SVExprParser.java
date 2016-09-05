@@ -1235,6 +1235,7 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.isNumber() || fLexer.isIdentifier() ||
 					fLexer.peekOperator(OP.LPAREN, OP.NEG, OP.NOT) || 
 					fLexer.peekKeyword(KW.THIS, KW.SUPER, KW.NEW)) {
+				fLexer.eatToken(); // '
 				ret = new SVDBCastExpr(a, unaryExpression());
 			} else {
 				ret = new SVDBParenExpr(a);

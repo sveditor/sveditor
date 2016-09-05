@@ -169,6 +169,7 @@ public class SVParser implements ISVScanner,
 		if (kw != null) {
 			switch (kw) {
 				case BIND: parsers().modIfcBodyItemParser().parse_bind(parent); break;
+				case BRANCH: parsers().modIfcBodyItemParser().parse_ams_branch(parent); break;
 				case CONFIG: parsers().configParser().parse_config(parent); break;
 				case CLASS: parsers().classParser().parse(parent, modifiers); break;
 				case MODULE:

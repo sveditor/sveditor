@@ -66,6 +66,22 @@ public class TestParseDataTypes extends TestCase {
 				new String[] {"foobar", "f_func"});
 		LogFactory.removeLogHandle(log);
 	}
+	
+	public void testSizedCast() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"class foobar;\n" +
+			"	parameter FOO=5;\n" +
+			"	function void f_func;\n" +
+			"		int a, b;\n" +
+			"		a = (FOO+1)'(b);\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), content, 
+				new String[] {"foobar", "f_func"});		
+	}
 
 	public void testTypedefEnumFwdDecl() throws SVParseException {
 		String content =
