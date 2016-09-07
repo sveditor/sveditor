@@ -1230,6 +1230,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken indent_stmt(String parent, boolean parent_is_block) {
 		SVIndentToken tok = current_s();
+		boolean found_ifdef = false;
+		boolean fix_previous_comment = false;
 
 		if (fDebugEn) {
 			debug("--> indent_stmt parent=" + parent + " tok=" + tok.getImage() + " parent_is_block=" + parent_is_block);
@@ -1266,6 +1268,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
 		else {
+			if (tok.fImage.startsWith("`"))  {
+				found_ifdef = true;
+			}
 			if (!parent_is_block) {
 				// Check and consume first token, we need to indent after this because
 				// user could have multi line code such as:
@@ -1295,7 +1300,31 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			else {
 
 				boolean do_next = true;
-				while (!tok.isOp(";")) {
+				while (!tok.isOp(";"))  {
+					// In this section we deal with `uvm_macro () type things where a ; found at the end 
+					// of a typical end of line is not present.
+					// 
+					// Simply put, the rule here is that if you find a `MACRO check the next token
+					// - If it is followed by an operator, keep looking for a ;
+					// - If not an operator, and the token is at the beginning of a new line, treat this token as a ;
+					if (found_ifdef)  {
+						// if we have an operator, reset the flag
+						if (tok.isOp("") && !is_open_brace(tok))  {
+							found_ifdef = false;
+						}
+						else if (tok.fStartLine)  {
+							// Have an ifdef, and next token is at the start of a new line, we are done
+							do_next = false;				// Not a ;, don't skip forward
+							fix_previous_comment = true;	// Have passed a comment, need to fix
+							break;
+						}
+					}
+					// Haven't found an ifdef... check if this token is an ifdef
+					else if (tok.fImage.startsWith("`"))  {
+						found_ifdef = true;
+					}
+					
+					
 					if (parent != null) {
 						if ((parent.equals("begin") && tok.isId("end")) ||
 								tok.isId("end" + parent)) {
@@ -1319,6 +1348,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				// Un-indent after we indented
 				if (!parent_is_block) {
 					leave_scope(tok);
+					if (fix_previous_comment)
+						fixupPreviousCommentIndent(tok);
 				}
 
 				if (do_next) {
