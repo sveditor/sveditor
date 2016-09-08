@@ -24,6 +24,8 @@ public class SVMoveLinesAction extends MoveLinesAction implements IDocumentListe
 	private int			fStartLine;
 	private int			fEndLine;
 	private boolean		fChanging = false;
+	private int         fSelOffset;
+	private int         fSelLength;
 	
 	public SVMoveLinesAction(
 			ResourceBundle 	bundle, 
@@ -35,16 +37,23 @@ public class SVMoveLinesAction extends MoveLinesAction implements IDocumentListe
 		super(bundle, prefix, editor, textViewer, upwards, copy);
 		fTextViewer = textViewer;
 		fUpwards = upwards;
-	}
+}
 	
 	@Override
 	public void runWithEvent(Event event) {
 		ITextSelection sel = (ITextSelection)fTextViewer.getSelectionProvider().getSelection();
 		IDocument doc = fTextViewer.getDocument();
-	
+
 		try {
-			fStartLine = doc.getLineOfOffset(sel.getOffset());
-			fEndLine = doc.getLineOfOffset(sel.getOffset()+sel.getLength());
+			fSelOffset = sel.getOffset();
+			fSelLength = sel.getLength();
+			fStartLine = doc.getLineOfOffset(fSelOffset);
+			fEndLine = doc.getLineOfOffset(fSelOffset+fSelLength);
+			// If our cursor is at the start of a new line, don't include that line
+			// in the lines to be moved
+			if (fEndLine > doc.getLineOfOffset(fSelOffset+fSelLength-1))  {
+				fEndLine = doc.getLineOfOffset(fSelOffset+fSelLength-1);
+			}
 		} catch (BadLocationException e) {
 			// Something went wrong...
 			fStartLine = -1;
@@ -56,6 +65,8 @@ public class SVMoveLinesAction extends MoveLinesAction implements IDocumentListe
 		}
 		try {
 			super.runWithEvent(event);
+			fTextViewer.setSelectedRange(fSelOffset, fSelLength);
+			fTextViewer.revealRange(fSelOffset, fSelLength);
 		} finally {
 			if (fTextViewer.getDocument() != null) {
 				fTextViewer.getDocument().removeDocumentListener(this);
@@ -108,7 +119,10 @@ public class SVMoveLinesAction extends MoveLinesAction implements IDocumentListe
 			str = indenter.indent(fStartLine+1, fEndLine+1);
 			fChanging = true;
 			// Update the line content(s) with the properly-indented version
-			doc.replace(doc.getLineOffset(fStartLine), length, str); 
+			doc.replace(doc.getLineOffset(fStartLine), length, str);
+			fSelOffset = doc.getLineOffset(fStartLine);
+			fSelLength = str.length();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

@@ -1,7 +1,9 @@
 ------------------------------------------------------------------------------
 -- 1.9.0 Release --
 
-- #(392) Wrong indent in case of unrecognized macro
+- #392 Wrong indent in case of unrecognized macro
+
+- #445 Move lines "capturing extra lines" 
 
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
