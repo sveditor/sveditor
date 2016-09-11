@@ -1931,6 +1931,78 @@ public class IndentTests extends SVCoreTestCaseBase {
 	
 
 
+	public void testDefines() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+				"module bob ();\n" +
+						"initial\n" +
+						"begin\n" +
+						"// Comment1\n" +
+						"`A_MACRO_FUNCTION1 =\n" +
+						"asdf;\n" +
+						"// Comment2\n" +
+						"`A_MACRO_FUNCTION2 ();	// ; detected, unindents\n" +
+						"// Comment3\n" +
+						"`A_MACRO_FUNCTION3		// End of line, unindent\n" +
+						"// Comment4\n" +
+						"`A_MACRO_FUNCTION4 (argument)	// Parse through brace, unindent on ) if no ;\n" +
+						"// Comment5\n" +
+						"`A_MACRO_FUNCTION5 (\n" +
+						"argument\n" +
+						")		// Parse through brace, unindent on ) if no ;\n" +
+						"// Comment6\n" +
+						"a = `A_MACRO_FUNCTION6 ()	// Parse through brace, unindent on ) if no ;\n" +
+						"// Comment7\n" +
+						"a = `A_MACRO_FUNCTION7 		// Unindent on EOL\n" +
+						"// Comment8\n" +
+						"a = `A_MACRO_FUNCTION8 || 	// No EOL, carries on as normal\n" +
+						"something_else;\n" +
+						"// Comment9\n" +
+						"end\n" +
+						"endmodule\n";
+		String expected =
+				"module bob ();\n" +
+						"	initial\n" +
+						"	begin\n" +
+						"		// Comment1\n" +
+						"		`A_MACRO_FUNCTION1 =\n" +
+						"			asdf;\n" +
+						"		// Comment2\n" +
+						"		`A_MACRO_FUNCTION2 ();	// ; detected, unindents\n" +
+						"		// Comment3\n" +
+						"		`A_MACRO_FUNCTION3		// End of line, unindent\n" +
+						"		// Comment4\n" +
+						"		`A_MACRO_FUNCTION4 (argument)		// Parse through brace, unindent on ) if no ;\n" +
+						"		// Comment5\n" +
+						"		`A_MACRO_FUNCTION5 (\n" +
+						"				argument\n" +
+						"			)		// Parse through brace, unindent on ) if no ;\n" +
+						"		// Comment6\n" +
+						"		a = `A_MACRO_FUNCTION6 ()		// Parse through brace, unindent on ) if no ;\n" +
+						"		// Comment7\n" +
+						"		a = `A_MACRO_FUNCTION7		// Unindent on EOL\n" +
+						"		// Comment8\n" +
+						"		a = `A_MACRO_FUNCTION8 || 	// No EOL, carries on as normal\n" +
+						"			something_else;\n" +
+						"		// Comment9\n" +
+						"	end\n" +
+						"endmodule\n";
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}	
+	
+	
+	
 	public static void runTest(String name, LogHandle log, String doc) {
 		StringBuilder sb = removeLeadingWS(doc);
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
