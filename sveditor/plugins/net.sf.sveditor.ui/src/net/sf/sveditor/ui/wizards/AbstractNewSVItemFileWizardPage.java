@@ -45,6 +45,8 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 	public static final String	NAME 			= "NAME";
 	public static final String	FILE_NAME		= "FILE_NAME";
 	
+	protected AbstractNewSVItemFileWizard	fParent;
+	
 	protected Map<String, String>	fOptions;
 	
 	protected String				fFileExt;
@@ -54,9 +56,17 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 	private Text					fFileName;
 	private Button					fFileNameDefault;
 	
-	public AbstractNewSVItemFileWizardPage(String title, String type, String description) {
+	protected Composite				fRootComposite;
+	
+	public AbstractNewSVItemFileWizardPage(
+			AbstractNewSVItemFileWizard		parent,
+			String 							title, 
+			String 							type, 
+			String 							description) {
 		super(title, type, null);
 		setDescription(description);
+		
+		fParent = parent;
 		
 		fFileExt = ".svh";
 		fOptions = new HashMap<String, String>();
@@ -90,10 +100,10 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 	public void createControl(Composite parent) {
 		Label l;
 		
-		final Composite c = new Composite(parent, SWT.NONE);
-		c.setLayout(new GridLayout());
+		fRootComposite = new Composite(parent, SWT.NONE);
+		fRootComposite.setLayout(new GridLayout());
 
-		Composite src_c = new Composite(c, SWT.NONE);
+		Composite src_c = new Composite(fRootComposite, SWT.NONE);
 		src_c.setLayout(new GridLayout(3, false));
 		src_c.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		l = new Label(src_c, SWT.NONE);
@@ -184,13 +194,11 @@ abstract public class AbstractNewSVItemFileWizardPage extends WizardPage {
 	
 		createCustomContent(src_c);
 		
-		
-		
 		// Set focus on name field
 		fName.setFocus();
 		
 		setPageComplete(false);
-		setControl(c);
+		setControl(fRootComposite);
 	}
 	
 	protected void updateFilename() {

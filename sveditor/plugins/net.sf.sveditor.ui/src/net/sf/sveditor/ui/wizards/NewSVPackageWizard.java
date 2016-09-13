@@ -28,7 +28,7 @@ public class NewSVPackageWizard extends AbstractNewSVItemFileWizard {
 	
 	@Override
 	protected AbstractNewSVItemFileWizardPage createPage() {
-		return new NewSVPackageWizardPage();
+		return new NewSVPackageWizardPage(this);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.XMLTransformUtils;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.tagproc.DynamicTemplateParameterProvider;
 import net.sf.sveditor.core.tagproc.TagProcessor;
 import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
@@ -111,6 +112,13 @@ abstract public class AbstractNewSVItemFileWizard extends BasicNewResourceWizard
 		}
 
 		return index_it;
+	}
+	
+	protected SVDBIndexCollection getIndexCollection() {
+		if (fPage.getProjectData() != null) {
+			return fPage.getProjectData().getProjectIndexMgr();
+		}
+		return null;
 	}
 
 	@Override

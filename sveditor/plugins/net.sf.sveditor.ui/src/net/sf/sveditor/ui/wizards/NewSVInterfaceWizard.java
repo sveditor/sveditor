@@ -28,7 +28,7 @@ public class NewSVInterfaceWizard extends AbstractNewSVItemFileWizard {
 	
 	@Override
 	protected AbstractNewSVItemFileWizardPage createPage() {
-		return new NewSVInterfaceWizardPage();
+		return new NewSVInterfaceWizardPage(this);
 	}
 
 	@Override

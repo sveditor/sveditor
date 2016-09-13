@@ -23,8 +23,9 @@ import org.eclipse.swt.widgets.Label;
 
 public class NewSVModuleWizardPage extends AbstractNewSVItemFileWizardPage {
 	
-	public NewSVModuleWizardPage() {
-		super("New SystemVerilog Module", "SystemVerilog Module", 
+	public NewSVModuleWizardPage(AbstractNewSVItemFileWizard parent) {
+		super(parent, "New SystemVerilog Module", 
+				"SystemVerilog Module", 
 				"Create a new SystemVerilog module");
 		fFileExt = ".sv";
 	}

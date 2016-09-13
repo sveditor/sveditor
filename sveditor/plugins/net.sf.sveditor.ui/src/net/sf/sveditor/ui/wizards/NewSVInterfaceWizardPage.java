@@ -17,8 +17,9 @@ import org.eclipse.swt.widgets.Composite;
 
 public class NewSVInterfaceWizardPage extends AbstractNewSVItemFileWizardPage {
 	
-	public NewSVInterfaceWizardPage() {
-		super("New SystemVerilog Interface", "SystemVerilog Interface", 
+	public NewSVInterfaceWizardPage(AbstractNewSVItemFileWizard parent) {
+		super(parent, "New SystemVerilog Interface", 
+				"SystemVerilog Interface", 
 				"Create a new SystemVerilog interface");
 		fFileExt = ".sv";
 	}

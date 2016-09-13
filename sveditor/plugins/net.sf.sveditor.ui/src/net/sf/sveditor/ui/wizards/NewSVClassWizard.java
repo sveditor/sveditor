@@ -17,9 +17,11 @@ import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.wizard.IWizardPage;
 
 public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
 	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVClassWizard";
+	protected NewSVClassWizardAddToPackagePage	fAddToPackagePage;
 
 	public NewSVClassWizard() {
 		super();
@@ -28,8 +30,34 @@ public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
 	
 	@Override
 	protected AbstractNewSVItemFileWizardPage createPage() {
-		return new NewSVClassWizardPage();
+		return new NewSVClassWizardPage(this);
 	}
+	
+	@Override
+	public void addPages() {
+		// TODO Auto-generated method stub
+		super.addPages();
+		fAddToPackagePage = new NewSVClassWizardAddToPackagePage(this);
+		addPage(fAddToPackagePage);
+	}
+
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page == fPage && 
+				fPage.getOption(NewSVClassWizardPage.ADD_TO_PACKAGE, "false").equals("true")) {
+			return fAddToPackagePage;
+		}
+		return null;
+	}
+
+	@Override
+	public IWizardPage getPreviousPage(IWizardPage page) {
+		if (page == fAddToPackagePage) {
+			return fPage;
+		}
+		return null;
+	}
+
 
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
@@ -42,5 +70,16 @@ public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
 				fPage.getOption(NewSVClassWizardPage.OVERRIDE_NEW, "true").equals("true"),
 				monitor);
 	}
+
+	@Override
+	public boolean canFinish() {
+		if (fPage.getOption(NewSVClassWizardPage.ADD_TO_PACKAGE, "false").equals("true")) {
+			return fAddToPackagePage.isPageComplete();
+		} else {
+			return fPage.isPageComplete();
+		}
+	}
+	
+	
 
 }
