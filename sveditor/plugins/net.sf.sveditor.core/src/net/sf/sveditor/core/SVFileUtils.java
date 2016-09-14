@@ -12,20 +12,27 @@
 
 package net.sf.sveditor.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
@@ -724,6 +731,20 @@ public class SVFileUtils {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+	
+	public static List<String> readInputLines(InputStream in) {
+		List<String> ret = new ArrayList<String>();
+		BufferedReader rdr = new BufferedReader(new InputStreamReader(in));
+		String line;
+		
+		try {
+			while ((line = rdr.readLine()) != null) {
+				ret.add(line);
+			}
+		} catch (IOException e) { }
+		
+		return ret;
 	}
 
 	public static String readInput(InputStream in) {

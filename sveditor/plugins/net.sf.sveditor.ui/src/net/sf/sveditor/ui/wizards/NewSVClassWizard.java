@@ -12,8 +12,18 @@
 
 package net.sf.sveditor.ui.wizards;
 
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -69,6 +79,42 @@ public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
 				fPage.getOption(NewSVClassWizardPage.SUPER_CLASS, null),
 				fPage.getOption(NewSVClassWizardPage.OVERRIDE_NEW, "true").equals("true"),
 				monitor);
+		
+		if (getOption(NewSVClassWizardPage.ADD_TO_PACKAGE, "false").equals("true")) {
+			// Update package source
+			SVDBPackageDecl pkg = fAddToPackagePage.getPackage();
+			ISVDBIndex pkg_index = fAddToPackagePage.getPackageIndex();
+			String pkg_file = fAddToPackagePage.getPackageFile();
+			InputStream pkg_in = pkg_index.getFileSystemProvider().openStream(pkg_file);
+			List<String> pkg_content = SVFileUtils.readInputLines(pkg_in);
+			pkg_index.getFileSystemProvider().closeStream(pkg_in);
+			
+			OutputStream pkg_out = pkg_index.getFileSystemProvider().openStreamWrite(pkg_file);
+//			ByteArrayOutputStream pkg_out = new ByteArrayOutputStream();
+			PrintStream ps = new PrintStream(pkg_out);
+			
+			int pkg_start = SVDBLocation.unpackLineno(pkg.getLocation());
+			int pkg_end = SVDBLocation.unpackLineno(pkg.getEndLocation());
+			
+			// Now, iterate through the original package content
+
+			// Append lines before the target package
+			for (int i=0; i<pkg_start-1; i++) {
+				ps.println(pkg_content.get(i));
+			}
+			
+			ps.print(fAddToPackagePage.getContent());
+			
+			for (int i=pkg_end; i<pkg_content.size(); i++) {
+				ps.println(pkg_content.get(i));
+			}
+		
+//			System.out.println("New Package:\n" + pkg_out.toString());
+		
+			ps.flush();
+			pkg_index.getFileSystemProvider().closeStream(pkg_out);
+			
+		}
 	}
 
 	@Override

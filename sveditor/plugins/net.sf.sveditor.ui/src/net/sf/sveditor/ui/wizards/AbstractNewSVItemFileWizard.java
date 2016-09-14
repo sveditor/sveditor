@@ -75,6 +75,14 @@ abstract public class AbstractNewSVItemFileWizard extends BasicNewResourceWizard
 	
 	abstract protected void generate(IProgressMonitor monitor, IFile file_path);
 	
+	public String getOption(String key, String dflt) {
+		return fPage.getOption(key, dflt);
+	}
+	
+	public void setOption(String key, String val) {
+		fPage.setOption(key, val);
+	}
+	
 	public void addPages() {
 		super.addPages();
 		

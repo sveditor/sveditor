@@ -32,6 +32,9 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -166,6 +169,18 @@ public class NewSVClassWizardPage extends AbstractNewSVItemFileWizardPage {
 				}
 			
 				validate();
+			}
+		});
+		fPackageList.setComparator(new ViewerComparator() {
+
+			@Override
+			public int compare(Viewer viewer, Object e1, Object e2) {
+				if (e1 instanceof SVDBDeclCacheItem && e2 instanceof SVDBDeclCacheItem) {
+					SVDBDeclCacheItem i1 = (SVDBDeclCacheItem)e1;
+					SVDBDeclCacheItem i2 = (SVDBDeclCacheItem)e2;
+					return i1.getName().compareTo(i2.getName());
+				}
+				return super.compare(viewer, e1, e2);
 			}
 		});
 	

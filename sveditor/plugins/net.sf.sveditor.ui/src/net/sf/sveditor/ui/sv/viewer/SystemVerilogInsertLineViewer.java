@@ -17,6 +17,9 @@ public class SystemVerilogInsertLineViewer {
 	private SystemVerilogViewer	fViewer;
 	private Button				fUp;
 	private Button				fDown;
+	private Button				fEnableEdit;
+	private int					fInsertMin=-1;
+	private int					fInsertMax=-1;
 	
 	public SystemVerilogInsertLineViewer(
 			Composite 			parent,
@@ -24,8 +27,7 @@ public class SystemVerilogInsertLineViewer {
 		Composite c = new Composite(parent, SWT.NONE);
 		c.setLayout(new GridLayout(2, false));
 		
-		fViewer = new SystemVerilogViewer(c, 
-				SWT.V_SCROLL+SWT.H_SCROLL+SWT.READ_ONLY);
+		fViewer = new SystemVerilogViewer(c, style);
 		fViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		Composite button_bar = new Composite(c, SWT.NONE);
@@ -42,8 +44,20 @@ public class SystemVerilogInsertLineViewer {
 		fDown.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
 		fDown.addSelectionListener(fSelectionListener);
 		
+		fEnableEdit = new Button(c, SWT.CHECK);
+		fEnableEdit.setText("Enable Text Editing");
+		fEnableEdit.addSelectionListener(fSelectionListener);
+		
+		fEnableEdit.setSelection(false);
+		fViewer.setEditable(false);
+		
 		fContent = "";
 		fControl = c;
+	}
+	
+	public void setInsertRange(int min, int max) {
+		fInsertMin = min;
+		fInsertMax = max;
 	}
 	
 	public Control getControl() {
@@ -110,13 +124,21 @@ public class SystemVerilogInsertLineViewer {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (e.widget == fUp) {
-				if (fLineNo > 0) {
+				if (fLineNo > 0 && (fInsertMin == -1 || fLineNo > fInsertMin)) {
 					fLineNo--;
 				}
 			} else if (e.widget == fDown) {
-				fLineNo++;
+				if (fInsertMax == -1 || fLineNo+1 < fInsertMax) {
+					fLineNo++;
+				}
+			} else if (e.widget == fEnableEdit) {
+				fViewer.setEditable(fEnableEdit.getSelection());
+				fUp.setEnabled(!fEnableEdit.getSelection());
+				fDown.setEnabled(!fEnableEdit.getSelection());
 			}
 			updateDoc();
+			
+			// TODO: force the document to scroll
 		}
 		
 		@Override
