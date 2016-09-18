@@ -16,7 +16,7 @@ package net.sf.sveditor.ui.wizards.templates;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
 import net.sf.sveditor.svt.core.templates.TemplateCategory;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
-import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.WorkspaceTemplateRegistry;
 import net.sf.sveditor.ui.doc.NDText;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -87,7 +87,7 @@ public class SVTemplateSelectionPage extends WizardPage {
 				templateSelectionChanged(event);
 			}
 		});
-		TemplateRegistry rgy = SvtCorePlugin.getDefault().getTemplateRgy();
+		WorkspaceTemplateRegistry rgy = SvtCorePlugin.getDefault().getTemplateRgy();
 		fTemplateTree.setInput(TemplateCategoriesNode.create(rgy));
 		fTemplateTree.setSorter(SorterA);
 

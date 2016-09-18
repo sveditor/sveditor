@@ -7,7 +7,7 @@ import java.util.Map;
 
 import net.sf.sveditor.svt.core.templates.TemplateCategory;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
-import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.WorkspaceTemplateRegistry;
 
 public class TemplateCategoriesNode {
 	
@@ -31,7 +31,7 @@ public class TemplateCategoriesNode {
 		return ret;
 	}
 	
-	public static TemplateCategoriesNode create(TemplateRegistry rgy) {
+	public static TemplateCategoriesNode create(WorkspaceTemplateRegistry rgy) {
 		TemplateCategoriesNode ret = new TemplateCategoriesNode();
 		
 		for (TemplateCategory c : rgy.getCategories()) {

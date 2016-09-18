@@ -12,39 +12,28 @@
 
 package net.sf.sveditor.svt.core.templates;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-import org.eclipse.core.resources.IContainer;
-
 public class TemplateRegistry implements ILogLevel {
-	private static LogHandle						fLog;
-	private List<TemplateCategory>					fCategories;
-	private List<TemplateInfo>						fTemplates;
-	private Map<String, List<TemplateInfo>>			fCategoryMap;
-	private List<IExternalTemplatePathProvider>		fPathProviders;
-	private boolean									fLoadExtPoints;
+	protected static LogHandle						fLog;
+	protected List<TemplateCategory>				fCategories;
+	protected List<TemplateInfo>					fTemplates;
+	protected Map<String, List<TemplateInfo>>		fCategoryMap;
+	protected List<IExternalTemplatePathProvider>	fPathProviders;
 	
-	static {
-		fLog = LogFactory.getLogHandle("MethodologyTemplateRegistry");
-	}
-	
-	public TemplateRegistry(boolean load_exts) {
+	protected TemplateRegistry() {
 		fCategories = new ArrayList<TemplateCategory>();
 		fTemplates  = new ArrayList<TemplateInfo>();
 		fCategoryMap = new HashMap<String, List<TemplateInfo>>();
 		
 		fPathProviders = new ArrayList<IExternalTemplatePathProvider>();
-		fLoadExtPoints = load_exts;
 		
 		load_extensions();
 	}
@@ -109,6 +98,10 @@ public class TemplateRegistry implements ILogLevel {
 		
 		return null;
 	}
+	
+	protected void add_finders(List<AbstractTemplateFinder> finders) {
+		// Do nothing
+	}
 
 	public void load_extensions() {
 		fLog.debug(LEVEL_MID, "load_extensions");
@@ -116,26 +109,8 @@ public class TemplateRegistry implements ILogLevel {
 		fTemplates.clear();
 		fCategories.clear();
 		fCategoryMap.clear();
-		
-		// TODO: create template finders and load all templates
-		if (fLoadExtPoints) {
-			template_finders.add(new ExtensionTemplateFinder());
-		}
-		
-		if (fPathProviders.size() > 0) {
-			for (IExternalTemplatePathProvider p : fPathProviders) {
-				for (String path : p.getExternalTemplatePath()) {
-					fLog.debug(LEVEL_MID, "Processing path \"" + path + "\"");
-					if (path.startsWith("${workspace_loc}")) {
-						path = path.substring("${workspace_loc}".length());
-						IContainer c = SVFileUtils.getWorkspaceFolder(path);
-						template_finders.add(new WSExternalTemplateFinder(c));
-					} else {
-						template_finders.add(new FSExternalTemplateFinder(new File(path)));
-					}
-				}
-			}
-		}
+	
+		add_finders(template_finders);
 		
 		for (AbstractTemplateFinder f : template_finders) {
 			f.find();

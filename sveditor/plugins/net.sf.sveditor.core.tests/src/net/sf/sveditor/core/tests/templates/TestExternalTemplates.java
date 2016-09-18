@@ -20,7 +20,7 @@ import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
 import net.sf.sveditor.svt.core.templates.TemplateParameterBase;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
-import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.WorkspaceTemplateRegistry;
 
 public class TestExternalTemplates extends TestCase {
 	
@@ -46,7 +46,7 @@ public class TestExternalTemplates extends TestCase {
 		
 		utils.copyBundleDirToFS("/templates/collection1", tmpl_dir);
 		
-		TemplateRegistry rgy = new TemplateRegistry(false);
+		WorkspaceTemplateRegistry rgy = new WorkspaceTemplateRegistry();
 		rgy.addPathProvider(new IExternalTemplatePathProvider() {
 			
 			public List<String> getExternalTemplatePath() {
@@ -125,7 +125,7 @@ public class TestExternalTemplates extends TestCase {
 		
 		utils.copyBundleDirToFS("/data/templates/subdir_output", fTmpDir);
 		
-		TemplateRegistry rgy = new TemplateRegistry(false);
+		WorkspaceTemplateRegistry rgy = new WorkspaceTemplateRegistry();
 		rgy.addPathProvider(new IExternalTemplatePathProvider() {
 			public List<String> getExternalTemplatePath() {
 				List<String> ret = new ArrayList<String>();
@@ -169,7 +169,7 @@ public class TestExternalTemplates extends TestCase {
 		
 		utils.copyBundleDirToFS("/data/templates/space_containing_filenames", fTmpDir);
 		
-		TemplateRegistry rgy = new TemplateRegistry(false);
+		WorkspaceTemplateRegistry rgy = new WorkspaceTemplateRegistry();
 		rgy.addPathProvider(new IExternalTemplatePathProvider() {
 			public List<String> getExternalTemplatePath() {
 				List<String> ret = new ArrayList<String>();
@@ -213,7 +213,7 @@ public class TestExternalTemplates extends TestCase {
 		
 		utils.copyBundleDirToFS("/data/templates/javascript_genscript_basics", fTmpDir);
 		
-		TemplateRegistry rgy = new TemplateRegistry(false);
+		WorkspaceTemplateRegistry rgy = new WorkspaceTemplateRegistry();
 		rgy.addPathProvider(new IExternalTemplatePathProvider() {
 			public List<String> getExternalTemplatePath() {
 				List<String> ret = new ArrayList<String>();

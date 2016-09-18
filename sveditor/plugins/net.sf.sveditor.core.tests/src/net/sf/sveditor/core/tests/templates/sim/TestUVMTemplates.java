@@ -17,10 +17,11 @@ import net.sf.sveditor.core.tests.SimRunSpec;
 import net.sf.sveditor.core.tests.SimToolchainUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+import net.sf.sveditor.svt.core.templates.ExtensionPointTemplateRegistry;
 import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
-import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.WorkspaceTemplateRegistry;
 
 public class TestUVMTemplates extends SVCoreTestCaseBase {
 
@@ -30,7 +31,7 @@ public class TestUVMTemplates extends SVCoreTestCaseBase {
 
 	private void core_testUVMAgent(String sim) throws IOException {
 		SVCorePlugin.getDefault().enableDebug(false);
-		TemplateRegistry rgy = new TemplateRegistry(true);
+		WorkspaceTemplateRegistry rgy = new ExtensionPointTemplateRegistry();
 		TemplateInfo tmpl = rgy.findTemplate("org.uvmworld.uvm.uvm_agent");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		

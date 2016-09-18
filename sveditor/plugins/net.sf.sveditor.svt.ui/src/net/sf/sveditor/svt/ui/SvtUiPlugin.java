@@ -17,7 +17,7 @@ import net.sf.sveditor.core.tagproc.ITemplateParameterProvider;
 import net.sf.sveditor.core.tagproc.TemplateParameterProvider;
 import net.sf.sveditor.svt.core.SvtCorePlugin;
 import net.sf.sveditor.svt.core.templates.IExternalTemplatePathProvider;
-import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.WorkspaceTemplateRegistry;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
@@ -76,7 +76,7 @@ public class SvtUiPlugin extends AbstractUIPlugin
 			pstore.addPropertyChangeListener(this);
 		}
 		
-		TemplateRegistry rgy = SvtCorePlugin.getDefault().getTemplateRgy();
+		WorkspaceTemplateRegistry rgy = SvtCorePlugin.getDefault().getTemplateRgy();
 		update_template_paths();
 		rgy.addPathProvider(this);
 		

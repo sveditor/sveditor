@@ -28,10 +28,11 @@ import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
+import net.sf.sveditor.svt.core.templates.ExtensionPointTemplateRegistry;
 import net.sf.sveditor.svt.core.templates.TemplateFSFileCreator;
 import net.sf.sveditor.svt.core.templates.TemplateInfo;
 import net.sf.sveditor.svt.core.templates.TemplateProcessor;
-import net.sf.sveditor.svt.core.templates.TemplateRegistry;
+import net.sf.sveditor.svt.core.templates.WorkspaceTemplateRegistry;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -40,7 +41,7 @@ public class TestMethodologyTemplates extends SVCoreTestCaseBase {
 	public void testUvmAgent() {
 		LogHandle log = LogFactory.getLogHandle("testUvmAgent");
 		SVCorePlugin.getDefault().enableDebug(false);
-		TemplateRegistry rgy = new TemplateRegistry(true);
+		WorkspaceTemplateRegistry rgy = new ExtensionPointTemplateRegistry();
 		TemplateInfo tmpl = rgy.findTemplate("org.uvmworld.uvm.uvm_agent");
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		
