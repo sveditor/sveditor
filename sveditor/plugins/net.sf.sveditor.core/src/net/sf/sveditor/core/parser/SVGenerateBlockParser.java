@@ -39,7 +39,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 	}
 	
 	public void generate_block(ISVDBAddChildItem parent) throws SVParseException {
-		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("");
+		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("generate");
 		gen_blk.setLocation(fLexer.getStartLocation());
 		
 		fLexer.readKeyword(KW.GENERATE);
@@ -47,7 +47,9 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parent.addChildItem(gen_blk);
 		while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDGENERATE, KW.ENDMODULE)) {
 			if (fLexer.peekKeyword(KW.BEGIN)) {
-				gen_blk.fName = begin_end_block(gen_blk);
+				String strng = begin_end_block(gen_blk);
+				if (strng != null)
+				gen_blk.fName = "gen: " + strng;	// Shorten generate to gen: <name> 
 			} else {
 				fParsers.modIfcBodyItemParser().parse(gen_blk);
 			}
@@ -159,7 +161,11 @@ public class SVGenerateBlockParser extends SVParserBase {
 		parent.addChildItem(gen_blk);
 
 		if (fLexer.peekKeyword(KW.BEGIN)) {
-			gen_begin_end(gen_blk);
+			String strng = begin_end_block(gen_blk);
+			// Append name if available
+			if (strng != null)  {
+				gen_blk.fName += ": " + strng;
+			}
 		} else {
 			fParsers.modIfcBodyItemParser().parse(gen_blk);
 		}
@@ -167,7 +173,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 
 	public void gen_begin_end(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("begin");
-		gen_blk.setLocation(fLexer.getStartLocation());
+//		gen_blk.setLocation(fLexer.getStartLocation());
 		parent.addChildItem(gen_blk);
 		
 		fLexer.readKeyword(KW.BEGIN);

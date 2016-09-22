@@ -15,6 +15,8 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBGenerateBlock;
+import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.log.LogFactory;
@@ -76,20 +78,7 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 			Iterable<ISVDBChildItem> children = fEditor.getSVDBFile().getChildren();
 			for (ISVDBChildItem child : children) {
 				fLog.debug("Found type " + child.getType().toString());
-				switch (child.getType()) {
-				case ModuleDecl:
-					fLog.debug("line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-					CompareLocation(child);
-					ProcessModuleDecl((SVDBModIfcDecl) child);
-					break;
-				case ClassDecl:
-					fLog.debug("line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-					CompareLocation(child);
-					ProcessClassDecl((SVDBClassDecl) child);
-					break;
-				default:
-					break;
-				}
+				CheckChild(child);
 			}
 			fLog.debug("Start line: " + fNewline);
 			fLog.debug("New line: " + fNewline);
@@ -112,33 +101,8 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 	 */
 	private void ProcessModuleDecl(SVDBModIfcDecl parent) {
 		for (ISVDBChildItem child : parent.getChildren()) {
-			fLog.debug("line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-			switch (child.getType()) {
-			// TODO SGD - Have this follow the outline preferences
-			case ModIfcInst:
-			case Function:
-			case Task:
-			case Bind:
-			case ClassDecl:
-			case ClockingBlock:
-			case Constraint:
-			case Covergroup:
-			case Coverpoint:
-			case GenerateBlock:
-			case Property:
-			case AssertStmt:
-			case ModportDecl:
-			case ModuleDecl:
-			case PackageDecl:
-			case ProgramDecl:
-			case Sequence:
-			case TypedefStmt:
-			case TypeExpr:
-				CompareLocation(child);
-				break;
-			default:
-				break;
-			}
+			fLog.debug("ProcessModuleDecl: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
+			CheckChild(child);
 		}
 	}
 
@@ -149,33 +113,77 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 	 */
 	private void ProcessClassDecl(SVDBClassDecl parent) {
 		for (ISVDBChildItem child : parent.getChildren()) {
-			fLog.debug("line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-			switch (child.getType()) {
-			case ClassDecl:
-				ProcessClassDecl((SVDBClassDecl) child);
-				break;
-			// TODO SGD - Have this follow the outline preferences
-			case Function:
-			case Task:
-			case Bind:
-			case ClockingBlock:
-			case Constraint:
-			case Covergroup:
-			case Coverpoint:
-			case Property:
-			case AssertStmt:
-			case ModportDecl:
-			case ModuleDecl:
-			case PackageDecl:
-			case ProgramDecl:
-			case Sequence:
-			case TypedefStmt:
-			case TypeExpr:
-				CompareLocation(child);
-				break;
-			default:
-				break;
-			}
+			fLog.debug("ProcessClassDecl: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
+			CheckChild(child);
+		}
+	}
+
+	/**
+	 * Parses the children of the generate... filtering out what we want to stop
+	 * on
+	 * 
+	 * @param parent
+	 */
+	private void ProcessGenerate(SVDBGenerateBlock parent) {
+		for (ISVDBChildItem child : parent.getChildren()) {
+			fLog.debug("ProcessGenerate: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
+			CheckChild(child);
+		}
+	}
+
+	/**
+	 * Parses the children of the generate... filtering out what we want to stop
+	 * on
+	 * 
+	 * @param parent
+	 */
+	private void ProcessGenerateIf(SVDBGenerateIf parent) {
+		for (ISVDBChildItem child : parent.getChildren()) {
+			fLog.debug("ProcessGenerate: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
+			CheckChild(child);
+		}
+	}
+
+	private void CheckChild(ISVDBChildItem child) {
+		fLog.debug("line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
+		switch (child.getType()) {
+		case ModuleDecl:
+			CompareLocation(child);
+			ProcessModuleDecl((SVDBModIfcDecl) child);
+			break;
+		case ClassDecl:
+			CompareLocation(child);
+			ProcessClassDecl((SVDBClassDecl) child);
+			break;
+		case GenerateIf:
+			CompareLocation(child);
+			ProcessGenerateIf((SVDBGenerateIf) child);
+			break;
+		case GenerateBlock:
+			CompareLocation(child);
+			ProcessGenerate((SVDBGenerateBlock) child);
+			break;
+		// TODO SGD - Have this follow the outline preferences
+		case ModIfcInst:
+		case Function:
+		case Task:
+		case Bind:
+		case ClockingBlock:
+		case Constraint:
+		case Covergroup:
+		case Coverpoint:
+		case Property:
+		case AssertStmt:
+		case ModportDecl:
+		case PackageDecl:
+		case ProgramDecl:
+		case Sequence:
+		case TypedefStmt:
+		case TypeExpr:
+			CompareLocation(child);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -186,10 +194,10 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 	private void CompareLocation(ISVDBChildItem child) {
 		int childline = SVDBLocation.unpackLineno(child.getLocation());
 		fLog.debug("Comparing: StartLine/Newline/Childline/Type " + fStartline + "/" + fNewline + "/" + childline + " - " + child.getType().toString());
-		
+
 		// if we have an uninitialized line number
-		if (childline < 0)  {
-			return ;
+		if (childline < 0) {
+			return;
 		}
 
 		// Searching forward

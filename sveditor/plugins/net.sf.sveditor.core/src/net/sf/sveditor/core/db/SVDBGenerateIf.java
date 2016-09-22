@@ -12,6 +12,9 @@
 
 package net.sf.sveditor.core.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -50,6 +53,17 @@ public class SVDBGenerateIf extends SVDBChildItem implements ISVDBAddChildItem {
 			fElseBody = item;
 		}
 		fAddIdx++;
+	}
+	
+	public Iterable<ISVDBChildItem> getChildren()  {
+		List<ISVDBChildItem> ci = new ArrayList<ISVDBChildItem>();
+		if (fAddIdx > 0)  {
+			ci.add(fIfBody);
+		}
+		if (fAddIdx > 1)  {
+			ci.add(fElseBody);
+		}
+		return (ci);
 	}
 
 	
