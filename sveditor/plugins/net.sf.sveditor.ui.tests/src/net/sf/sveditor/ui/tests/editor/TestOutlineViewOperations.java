@@ -46,7 +46,7 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 	
-	public void disabled_testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
+	public void testOutlineViewSelectionPreservation_1() throws CoreException, InterruptedException, BadLocationException {
 		String testname = "testOutlineViewSelectionPreservation_1";
 		LogHandle log = LogFactory.getLogHandle(testname);
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -106,10 +106,10 @@ public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 		// Select the Function element
 		log.debug("--> Set selection to Function Definition");
 		outline.clearIgnoreSelectionChange();
-		assertTrue(roots[1] instanceof SVDBFunction);
-		assertEquals("cls1::f1", ((SVDBFunction)roots[1]).getName());
+		assertTrue(root_roots[1] instanceof SVDBFunction);
+		assertEquals("cls1::f1", ((SVDBFunction)root_roots[1]).getName());
 		
-		outline.setSelection(new StructuredSelection(roots[1]));
+		outline.setSelection(new StructuredSelection(root_roots[1]));
 		while (Display.getDefault().readAndDispatch()) {}
 		log.debug("<-- Set selection to Function Definition");
 		
