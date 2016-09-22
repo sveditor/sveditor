@@ -25,6 +25,70 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.StringInputStream;
+import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBEndLocation;
+import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.ISVDBIndexParse;
+import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
+import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
+import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
+import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
+import net.sf.sveditor.ui.editor.actions.GotoMatchingBracketAction;
+import net.sf.sveditor.ui.editor.actions.IndentAction;
+import net.sf.sveditor.ui.editor.actions.NextWordAction;
+import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
+import net.sf.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
+import net.sf.sveditor.ui.editor.actions.OpenMacroExpansionAction;
+import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
+import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
+import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
+import net.sf.sveditor.ui.editor.actions.OpenQuickOutlineAction;
+import net.sf.sveditor.ui.editor.actions.OpenTypeAction;
+import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
+import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
+import net.sf.sveditor.ui.editor.actions.PrevWordAction;
+import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.SVMoveLinesAction;
+import net.sf.sveditor.ui.editor.actions.SVRulerAnnotationAction;
+import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
+import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
+import net.sf.sveditor.ui.editor.actions.SelectEnclosingElementAction;
+import net.sf.sveditor.ui.editor.actions.GoToNextPrevElementAction;
+import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
+import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -87,7 +151,6 @@ import org.eclipse.ui.editors.text.ITextEditorHelpContextIds;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.IDEActionFactory;
-import org.eclipse.ui.internal.EditorMenuManager;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AddTaskAction;
 import org.eclipse.ui.texteditor.IAbstractTextEditorHelpContextIds;
@@ -96,69 +159,6 @@ import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ResourceAction;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBChildParent;
-import net.sf.sveditor.core.db.ISVDBEndLocation;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBIndexParse;
-import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
-import net.sf.sveditor.core.db.index.SVDBFilePath;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
-import net.sf.sveditor.core.db.index.SVDBShadowIndexParse;
-import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
-import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
-import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
-import net.sf.sveditor.ui.editor.actions.GotoMatchingBracketAction;
-import net.sf.sveditor.ui.editor.actions.IndentAction;
-import net.sf.sveditor.ui.editor.actions.NextWordAction;
-import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
-import net.sf.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
-import net.sf.sveditor.ui.editor.actions.OpenMacroExpansionAction;
-import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
-import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
-import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
-import net.sf.sveditor.ui.editor.actions.OpenQuickOutlineAction;
-import net.sf.sveditor.ui.editor.actions.OpenTypeAction;
-import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
-import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
-import net.sf.sveditor.ui.editor.actions.PrevWordAction;
-import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
-import net.sf.sveditor.ui.editor.actions.SVMoveLinesAction;
-import net.sf.sveditor.ui.editor.actions.SVRulerAnnotationAction;
-import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
-import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
-import net.sf.sveditor.ui.editor.actions.SelectEnclosingElementAction;
-import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
-import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
@@ -882,6 +882,16 @@ public class SVEditor extends TextEditor
 		sel_ee_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".SelectEnclosingElement");
 		setAction(SVUiPlugin.PLUGIN_ID + ".SelectEnclosingElement", sel_ee_action);
 		
+		GoToNextPrevElementAction sel_ne_action = new GoToNextPrevElementAction(
+				bundle, "GoToNextElement.", this, true);
+		sel_ne_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".GoToNextElement");
+		setAction(SVUiPlugin.PLUGIN_ID + ".GoToNextElement", sel_ne_action);
+		
+		GoToNextPrevElementAction sel_pe_action = new GoToNextPrevElementAction(
+				bundle, "GoToPrevElement.", this, false);
+		sel_pe_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".GoToPrevElement");
+		setAction(SVUiPlugin.PLUGIN_ID + ".GoToPrevElement", sel_pe_action);
+		
 		// Add annotation-action
 		SVRulerAnnotationAction action = new SVRulerAnnotationAction(bundle, 
 				"Editor.RulerAnnotationSelection.", this, getVerticalRuler());
@@ -1052,7 +1062,7 @@ public class SVEditor extends TextEditor
 					this);
 		}
 		
-		// Setup matching character highligher
+		// Setup matching character highlighter
 		if (fMatchingCharacterPainter == null) {
 			if (getSourceViewer() instanceof ISourceViewerExtension2) {
 				fMatchingCharacterPainter = new MatchingCharacterPainter(
