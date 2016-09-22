@@ -6,6 +6,7 @@
 - #445 Move lines "capturing extra lines" 
 
 - Feature request: #(114) Implement "Go to Previous/Next Member" command in SV
+- #446 Line number not captured in for generate loop
 
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --

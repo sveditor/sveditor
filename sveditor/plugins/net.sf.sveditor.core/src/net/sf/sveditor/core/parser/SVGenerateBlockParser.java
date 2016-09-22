@@ -135,6 +135,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 	
 	public void for_block(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("for");
+		gen_blk.setLocation(fLexer.getStartLocation());
 		boolean nested_begin = false;
 		
 		fLexer.readKeyword(KW.FOR);
@@ -166,6 +167,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 
 	public void gen_begin_end(ISVDBAddChildItem parent) throws SVParseException {
 		SVDBGenerateBlock gen_blk = new SVDBGenerateBlock("begin");
+		gen_blk.setLocation(fLexer.getStartLocation());
 		parent.addChildItem(gen_blk);
 		
 		fLexer.readKeyword(KW.BEGIN);
