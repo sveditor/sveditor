@@ -569,13 +569,21 @@ public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 		// Module containing a number of common items
 		String class_file =
 				"package p;\n" +
-						"		typedef enum { FALSE, TRUE } bool_t;\n" +
-						"	endpackage\n" +
+						"	typedef enum { FALSE, TRUE } bool_t;\n" +
+						"			struct {\n" +
+						"		bit b;\n" +
+						"	} plainstruct;\n" +
+						"	typedef struct {\n" +
+						"		bit b;\n" +
+						"	} typestruct;\n" +
+						"endpackage\n" +
 						"\n"
 						;
 		// Expected data
 		String [] expected_names = {
-				"bool_t"
+				"bool_t",
+				"plainstruct: <<ANONYMOUS>>",
+				"typestruct"
 		};
 		
 		TestUtils.copy(class_file, project.getFile("testfile.sv"));
@@ -617,6 +625,8 @@ public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 		
 		// Check the type and text in the outline
 		assertTrue(children0[ 0] instanceof SVDBTypedefStmt);
+		assertTrue(children0[ 1] instanceof SVDBVarDeclItem);
+		assertTrue(children0[ 2] instanceof SVDBTypedefStmt);
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
