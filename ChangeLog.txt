@@ -12,7 +12,8 @@
 - #448 Outline View: Modports not displaying correctly / cryptically 
 
 - #449 Outline View: No icon for final blocks
- 
+
+- #447 Indenter: Clocking blocks not indented  
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
 

@@ -2002,6 +2002,53 @@ public class IndentTests extends SVCoreTestCaseBase {
 	}	
 	
 	
+	public void testClocking() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+				"interface intfc ( input bit clk );\n" +
+						"wire req, gnt;\n" +
+						"wire [7:0] addr, data;\n" +
+						"clocking sb @(posedge clk);\n" +
+						"input gnt;\n" +
+						"output req, addr;\n" +
+						"inout data;\n" +
+						"property p1; \n" +
+						"req ##[1:3] gnt; \n" +
+						"endproperty\n" +
+						"endclocking\n" +
+						"modport STB ( clocking sb ); // synchronous testbench modport\n" +
+						"endinterface\n" +
+						"\n";
+		String expected =
+				"interface intfc ( input bit clk );\n" +
+						"	wire req, gnt;\n" +
+						"	wire [7:0] addr, data;\n" +
+						"	clocking sb @(posedge clk);\n" +
+						"		input gnt;\n" +
+						"		output req, addr;\n" +
+						"		inout data;\n" +
+						"		property p1; \n" +
+						"			req ##[1:3] gnt; \n" +
+						"		endproperty\n" +
+						"	endclocking\n" +
+						"	modport STB ( clocking sb ); // synchronous testbench modport\n" +
+						"endinterface\n" +
+						"\n";
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}	
+	
+	
 	
 	public static void runTest(String name, LogHandle log, String doc) {
 		StringBuilder sb = removeLeadingWS(doc);
