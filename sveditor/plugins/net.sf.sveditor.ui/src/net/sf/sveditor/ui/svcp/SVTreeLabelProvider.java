@@ -94,7 +94,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			StyledString ret = new StyledString(var.getName());
 			
 			if (var_r.getTypeInfo() != null) {
-				ret.append(" : " + var_r.getTypeName(), StyledString.QUALIFIER_STYLER);
+				ret.append(": " + var_r.getTypeName(), StyledString.QUALIFIER_STYLER);
 				
 				SVDBTypeInfo type = var_r.getTypeInfo();
 				
@@ -203,10 +203,10 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				SVDBModIfcInstItem mod_item = (SVDBModIfcInstItem)ni;
 				SVDBModIfcInst mod_inst = (SVDBModIfcInst)mod_item.getParent();
 				
-				ret.append(" : " + mod_inst.getTypeName(), StyledString.QUALIFIER_STYLER);
+				ret.append(": " + mod_inst.getTypeName(), StyledString.QUALIFIER_STYLER);
 			} else if (ni.getType() == SVDBItemType.CoverageOptionStmt) {
 //				SVDBCoverageOptionStmt option = (SVDBCoverageOptionStmt)ni;
-				ret.append(" : option", StyledString.QUALIFIER_STYLER);
+				ret.append(": option", StyledString.QUALIFIER_STYLER);
 			} else {
 //				ret = new StyledString("UNKNOWN NamedItem " + ((ISVDBNamedItem)element).getType());
 			}
@@ -281,6 +281,8 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 			} else if (it.getType() == SVDBItemType.ExportItem) {
 				SVDBExportItem exp = (SVDBExportItem)it;
 				ret = new StyledString("export " + exp.getExport());
+			} else if (it.getType() == SVDBItemType.ModportDecl) {
+				ret = new StyledString(getBodyStmtText("modport", it));
 			} else if (it.getType() == SVDBItemType.Assign) {
 				SVDBAssign assign = (SVDBAssign)it;
 				if (assign.getAssignList().size() > 0) {
@@ -304,10 +306,10 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				}
 			} else if (it.getType() == SVDBItemType.ArgFilePathStmt) {
 				SVDBArgFilePathStmt path = (SVDBArgFilePathStmt)it;
-				ret = new StyledString("path : " + path.getPath());
+				ret = new StyledString("path: " + path.getPath());
 			} else if (it.getType() == SVDBItemType.DefParamItem) {
 				SVDBDefParamItem dp = (SVDBDefParamItem)it;
-				String str = "defparam : ";
+				String str = "defparam: ";
 				
 				if (dp.getTarget() != null) {
 					str += dp.getTarget().toString();
@@ -318,7 +320,10 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				ret = new StyledString(str);
 			} else if (it.getType() == SVDBItemType.AssertStmt) {
 				SVDBAssertStmt asrt = (SVDBAssertStmt)it;
-				String str = "assert : " + asrt.getName();
+				String str = "assert";
+				if (asrt.getName() != null)  {
+					str += ": " + asrt.getName();
+				}
 				ret = new StyledString(str);
 			}
 			
@@ -340,7 +345,7 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 					if (base.equals("")) {
 						return block.getBlockName();
 					} else {
-						return block.getBlockName() + " : " + base;
+						return block.getBlockName() + ": " + base;
 					}
 //					return base + " : " + block.getBlockName();
 				}
