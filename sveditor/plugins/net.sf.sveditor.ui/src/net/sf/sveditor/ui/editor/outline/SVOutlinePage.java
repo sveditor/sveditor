@@ -661,7 +661,7 @@ public class SVOutlinePage extends ContentOutlinePage
 		pageSite.getActionBars().getToolBarManager().add(ToggleDefines);
 		
 		// Add button to toggle Initial statements on and off
-		ToggleInitial= new Action("Initial", Action.AS_CHECK_BOX) {
+		ToggleInitial= new Action("Initial/Final", Action.AS_CHECK_BOX) {
 			public void run() { 
 				ToggleInitial.setChecked(DefaultContentFilter.ToggleInitialBlocks());
 				SVUiPlugin.getDefault().getPreferenceStore().setValue(SVEditorPrefsConstants.P_OUTLINE_SHOW_INITIAL_BLOCKS, ToggleInitial.isChecked());

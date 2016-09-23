@@ -31,6 +31,7 @@ public class DocTopicManager implements IDocTopicManager {
 	public static String TOPIC_COVERGROUP	= "covergroup";
 	public static String TOPIC_COVERPOINT	= "coverpoint";
 	public static String TOPIC_INTERFACE 	= "interface";
+	public static String TOPIC_MODPORT 		= "modport";
 	public static String TOPIC_PACKAGE 	    = "package";
 //	public static String TOPIC_FILE 		= "file";
 	public static String TOPIC_SECTION 		= "section";

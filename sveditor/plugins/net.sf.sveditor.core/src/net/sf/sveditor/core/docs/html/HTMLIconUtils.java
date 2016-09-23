@@ -34,6 +34,7 @@ public class HTMLIconUtils implements IHTMLIcons {
 //		fImgDescMap.put(DocTopicManager.InterfaceDecl, INT_OBJ);
 //		fImgDescMap.put(DocTopicManager.ConfigDecl, CONFIG_OBJ);
 		fImgDescMap.put(DocTopicManager.TOPIC_CLASS, CLASS_OBJ);
+		fImgDescMap.put(DocTopicManager.TOPIC_MODPORT, MODPORT_OBJ);
 //		fImgDescMap.put(DocTopicManager.MacroDef, DEFINE_OBJ);
 //		fImgDescMap.put(DocTopicManager.Include, INCLUDE_OBJ);
 		fImgDescMap.put(DocTopicManager.TOPIC_PACKAGE, PACKAGE_OBJ);

@@ -34,6 +34,7 @@ import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
+import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -118,7 +119,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		}
 		
 		// Module initial declarations
-		else if ((hide_initial_blocks == true) && (element instanceof SVDBInitialStmt))  {
+		else if ((hide_initial_blocks == true) && ((element instanceof SVDBInitialStmt) || (element instanceof SVDBFinalStmt)))  {
 			return false;
 		}
 		
