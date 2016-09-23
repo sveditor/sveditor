@@ -33,6 +33,7 @@ import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
+import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -187,7 +188,8 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		
 		// This section contains miscellaneous stuff in the DB, that we don't want displayed
 		else if (
-						(element instanceof SVDBBlockStmt) // Begin / end pairs - always hide 
+					(element instanceof SVDBExprStmt) || // Statements in a property 
+					(element instanceof SVDBBlockStmt) // Begin / end pairs - always hide 
 				)  {
 			return false;		}
 		
