@@ -10,6 +10,9 @@
 - #446 Line number not captured in for generate loop
 
 - #448 Outline View: Modports not displaying correctly / cryptically 
+
+- #449 Outline View: No icon for final blocks
+ 
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
 

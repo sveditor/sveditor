@@ -53,6 +53,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);
 		fImgDescMap.put(SVDBItemType.AlwaysStmt, ALWAYS_BLOCK_OBJ);
 		fImgDescMap.put(SVDBItemType.InitialStmt, INITIAL_OBJ);
+		fImgDescMap.put(SVDBItemType.FinalStmt, INITIAL_OBJ);
 		fImgDescMap.put(SVDBItemType.Assign, ASSIGN_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateBlock, GENERATE_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateIf, GENERATE_OBJ);
