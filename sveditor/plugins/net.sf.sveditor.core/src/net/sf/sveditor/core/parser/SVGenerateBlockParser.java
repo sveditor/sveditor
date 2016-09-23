@@ -49,7 +49,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 			if (fLexer.peekKeyword(KW.BEGIN)) {
 				String strng = begin_end_block(gen_blk);
 				if (strng != null)
-				gen_blk.fName = strng + " : generate";	// Pre-pend name 
+				gen_blk.fName = strng + ": generate";	// Pre-pend name 
 			} else {
 				fParsers.modIfcBodyItemParser().parse(gen_blk);
 			}
@@ -92,7 +92,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 			if_blk.fName = "if";
 			String strng = begin_end_block(if_blk);
 			if (strng != null)  {
-				if_blk.fName = strng + " : if";
+				if_blk.fName = strng + ": if";
 			}
 			/*
 			fLexer.eatToken();
@@ -164,7 +164,7 @@ public class SVGenerateBlockParser extends SVParserBase {
 			String strng = begin_end_block(gen_blk);
 			// Append name if available
 			if (strng != null)  {
-				gen_blk.fName = strng + " : for";
+				gen_blk.fName = strng + ": for";
 			}
 		} else {
 			fParsers.modIfcBodyItemParser().parse(gen_blk);
