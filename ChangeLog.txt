@@ -13,7 +13,9 @@
 
 - #449 Outline View: No icon for final blocks
 
-- #447 Indenter: Clocking blocks not indented  
+- #447 Indenter: Clocking blocks not indented
+
+- #451 Outline View: No icon for program blocks  
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
 

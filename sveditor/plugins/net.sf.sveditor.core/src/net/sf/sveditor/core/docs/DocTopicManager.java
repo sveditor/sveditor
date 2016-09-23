@@ -26,6 +26,7 @@ public class DocTopicManager implements IDocTopicManager {
 	public static String TOPIC_MACRO		= "macro";
 	public static String TOPIC_MODULE 		= "module";
 	public static String TOPIC_CLASS 		= "class";
+	public static String TOPIC_PROGRAM 		= "program";
 	public static String TOPIC_CONSTRAINT	= "constraint";
 	public static String TOPIC_COVERGROUP	= "covergroup";
 	public static String TOPIC_COVERPOINT	= "coverpoint";
