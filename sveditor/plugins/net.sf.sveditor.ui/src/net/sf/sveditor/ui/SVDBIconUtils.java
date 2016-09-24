@@ -36,7 +36,10 @@ public class SVDBIconUtils implements ISVIcons {
 
 		fImgDescMap.put(SVDBItemType.File, FILE_OBJ);
 		fImgDescMap.put(SVDBItemType.ModuleDecl, MODULE_OBJ);
-		fImgDescMap.put(SVDBItemType.InterfaceDecl, INT_OBJ);
+		fImgDescMap.put(SVDBItemType.ProgramDecl, PROGRAM_OBJ);
+		fImgDescMap.put(SVDBItemType.InterfaceDecl, INTERFACE_OBJ);
+		fImgDescMap.put(SVDBItemType.ModportDecl, MODPORT_OBJ);
+		fImgDescMap.put(SVDBItemType.ModportItem, MODPORT_OBJ);
 		fImgDescMap.put(SVDBItemType.ConfigDecl, CONFIG_OBJ);
 		fImgDescMap.put(SVDBItemType.ClassDecl, CLASS_OBJ);
 		fImgDescMap.put(SVDBItemType.MacroDef, DEFINE_OBJ);
@@ -53,6 +56,7 @@ public class SVDBIconUtils implements ISVIcons {
 		fImgDescMap.put(SVDBItemType.Constraint, CONSTRAINT_OBJ);
 		fImgDescMap.put(SVDBItemType.AlwaysStmt, ALWAYS_BLOCK_OBJ);
 		fImgDescMap.put(SVDBItemType.InitialStmt, INITIAL_OBJ);
+		fImgDescMap.put(SVDBItemType.FinalStmt, INITIAL_OBJ);
 		fImgDescMap.put(SVDBItemType.Assign, ASSIGN_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateBlock, GENERATE_OBJ);
 		fImgDescMap.put(SVDBItemType.GenerateIf, GENERATE_OBJ);

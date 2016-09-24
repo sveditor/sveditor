@@ -147,7 +147,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 					} else if (tok.isId("class") || tok.isId("module") ||
 							tok.isId("interface") || tok.isId("program") ||
 							tok.isId("package") || tok.isId("sequence") ||
-							tok.isId("property")) {
+							tok.isId("property")|| tok.isId("clocking")) {
 						tok = indent_ifc_module_class(tok.getImage());
 						fQualifiers = 0;
 					} else if (tok.isId("config")) {
@@ -634,7 +634,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_task_function(tok.getImage());
 				fQualifiers = 0;
 			} else if (tok.isId("class") || tok.isId("module") || tok.isId("interface") ||
-					tok.isId("property") || tok.isId("sequence")) {
+					tok.isId("property") || tok.isId("sequence")|| tok.isId("clocking")) {
 				tok = indent_ifc_module_class(tok.getImage());
 				fQualifiers = 0;
 			} else if (tok.isId("struct") || tok.isId("union") || tok.isId("enum")) {
@@ -831,6 +831,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 
+	
 	private SVIndentToken indent_specify() {
 		int level = fIndentStack.size();
 		SVIndentToken tok = current_s();

@@ -4,6 +4,7 @@ import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
+import net.sf.sveditor.core.db.SVDBProgramDecl;
 import net.sf.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -24,6 +25,8 @@ public class DesignHierarchyLabelProvider extends LabelProvider {
 				return SVUiPlugin.getImage(SVDBIconUtils.MOD_IFC_INST_OBJ);
 			} else if (target instanceof SVDBModuleDecl) {
 				return SVUiPlugin.getImage(SVDBIconUtils.MODULE_OBJ);
+			} else if (target instanceof SVDBProgramDecl) {
+				return SVUiPlugin.getImage(SVDBIconUtils.PROGRAM_OBJ);
 			}
 		} else if (element instanceof IProject) {
 			return SVUiPlugin.getImage("/icons/obj16/prj_obj.gif");

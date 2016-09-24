@@ -125,7 +125,7 @@ public class SVCovergroupParser extends SVParserBase {
 	
 	private ISVDBChildItem coverage_spec() throws SVParseException {
 		ISVDBChildItem ret = null;
-		String name = "";
+		String name = null;
 		long start = fLexer.getStartLocation();
 		if (fLexer.peekId()) {
 			name = fLexer.readId();
@@ -134,11 +134,17 @@ public class SVCovergroupParser extends SVParserBase {
 		
 		KW type = fLexer.readKeyword(KW.COVERPOINT, KW.CROSS);
 		if (type == KW.COVERPOINT) {
+			if (name == null)  {
+				name = "coverpoint";
+			}
 			SVDBCoverpoint cp = new SVDBCoverpoint(name);
 			cp.setLocation(start);
 			cover_point(cp);
 			ret = cp;
 		} else {
+			if (name == null)  {
+				name = "cross";
+			}
 			SVDBCoverpointCross cp = new SVDBCoverpointCross(name);
 			cp.setLocation(start);
 			cover_cross(cp);

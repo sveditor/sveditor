@@ -400,12 +400,26 @@
       <command
             categoryId="org.eclipse.ui.category.navigate"
             id="net.sf.sveditor.ui.gotoMatchingBracket"
-            name="Go to Matching Bracket">
+            name="Go to Matching Bracket"
+            description="Moves the cursor to the matching bracket">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             id="net.sf.sveditor.ui.SelectEnclosingElement"
-            name="Select Enclosing Element">
+            name="Select Enclosing Element"
+            description="Expand selection to include enclosing element">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.GoToNextElement"
+            name="Go to Next Member"
+            description="Move the caret to the next member of the translation unit">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.GoToPrevElement"
+            name="Go to Previous Member"
+            description="Move the caret to the previous member of the translation unit">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
@@ -499,6 +513,18 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+ALT+ARROW_UP">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.GoToNextElement"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+ARROW_DOWN">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.GoToPrevElement"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+ARROW_UP">
       </key>
    </extension>
    <extension
