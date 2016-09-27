@@ -63,7 +63,9 @@ import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
+import net.sf.sveditor.ui.editor.actions.AddNdocsAction;
 import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
+import net.sf.sveditor.ui.editor.actions.GoToNextPrevElementAction;
 import net.sf.sveditor.ui.editor.actions.GotoMatchingBracketAction;
 import net.sf.sveditor.ui.editor.actions.IndentAction;
 import net.sf.sveditor.ui.editor.actions.NextWordAction;
@@ -84,7 +86,6 @@ import net.sf.sveditor.ui.editor.actions.SVRulerAnnotationAction;
 import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
 import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
 import net.sf.sveditor.ui.editor.actions.SelectEnclosingElementAction;
-import net.sf.sveditor.ui.editor.actions.GoToNextPrevElementAction;
 import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
@@ -891,6 +892,11 @@ public class SVEditor extends TextEditor
 				bundle, "GoToPrevElement.", this, false);
 		sel_pe_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".GoToPrevElement");
 		setAction(SVUiPlugin.PLUGIN_ID + ".GoToPrevElement", sel_pe_action);
+		
+		AddNdocsAction add_ndocs_action = new AddNdocsAction(
+				bundle, "Add NDOCS Action.", this, true);
+		add_ndocs_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".AddNdocsAction");
+		setAction(SVUiPlugin.PLUGIN_ID + ".AddNdocsAction", add_ndocs_action);
 		
 		// Add annotation-action
 		SVRulerAnnotationAction action = new SVRulerAnnotationAction(bundle, 

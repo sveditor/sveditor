@@ -43,8 +43,11 @@ import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
+import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
+import net.sf.sveditor.core.db.stmt.SVDBTimePrecisionStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTimeUnitsStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.ui.SVDBIconUtils;
@@ -323,6 +326,30 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				String str = "assert";
 				if (asrt.getName() != null)  {
 					str += ": " + asrt.getName();
+				}
+				ret = new StyledString(str);
+			} else if (it.getType() == SVDBItemType.TimePrecisionStmt) {
+				SVDBTimePrecisionStmt tps = (SVDBTimePrecisionStmt) it;
+				String str = "timeprecision";
+				if (tps.getArg1() != null)  {
+					str += ": " + tps.getArg1();
+				}
+				if (tps.getArg2() != null)  {
+					str += "/" + tps.getArg2();
+				}
+				ret = new StyledString(str);
+			} else if (it.getType() == SVDBItemType.TimeUnitsStmt) {
+				SVDBTimeUnitsStmt tus = (SVDBTimeUnitsStmt) it;
+				String str = "timeprecision";
+				if (tus.getUnits() != null)  {
+					str += ": " + tus.getUnits();
+				}
+				ret = new StyledString(str);
+			} else if (it.getType() == SVDBItemType.ExprStmt) {
+				SVDBExprStmt es = (SVDBExprStmt) it;
+				String str = "expression";
+				if (es.fExpr.toString() != null)  {
+					str = es.fExpr.toString();
 				}
 				ret = new StyledString(str);
 			}

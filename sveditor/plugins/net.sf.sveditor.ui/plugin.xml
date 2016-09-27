@@ -423,6 +423,12 @@
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.AddNdocsAction"
+            name="Add Natural Docs comment"
+            description="Adds a Natural Docs compliant comment for element(s) selected">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
             description="Open Macro Expansion"
             id="net.sf.sveditor.ui.editor.open.macro.expansion"
             name="Open Macro Expansion">
@@ -525,6 +531,12 @@
             contextId="net.sf.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+ARROW_UP">
+      </key>
+      <key
+            commandId="net.sf.sveditor.ui.AddNdocsAction"
+            contextId="net.sf.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+ALT+J">
       </key>
    </extension>
    <extension
