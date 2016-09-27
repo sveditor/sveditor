@@ -36,6 +36,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
+import com.sun.xml.internal.ws.util.StringUtils;
+
 public class AddNdocsAction extends TextEditorAction {
 	private SVEditor fEditor;
 	// These fields are used to help derive the direction to search in if we
@@ -74,13 +76,12 @@ public class AddNdocsAction extends TextEditorAction {
 		boolean foundit = false;
 
 		fStartline = tsel.getStartLine() + 1;
-		// Searching forward
 
 		try {
 			Iterable<ISVDBChildItem> children = fEditor.getSVDBFile().getChildren();
 			for (ISVDBChildItem child : children) {
 				if (child instanceof ISVDBScopeItem) {
-					fLog.note("Found type " + child.getType().toString());
+					fLog.debug("Found type " + child.getType().toString());
 					foundit = CheckChildren((ISVDBScopeItem) child);
 					if (!fFullFile && foundit) {
 						// Found the comment, don't parse through rest of stuff
@@ -89,13 +90,7 @@ public class AddNdocsAction extends TextEditorAction {
 					}
 				}
 			}
-			fLog.note("Start line: " + fStartline);
-
-			// Move the caret and reset the view
-			if ((fStartline < doc.getNumberOfLines() + 1) && (fStartline > -1)) {
-				text.setCaretOffset(doc.getLineOffset(fStartline - 1));
-				fEditor.sourceViewer().revealRange(doc.getLineOffset(fStartline - 1), 0);
-			}
+			fLog.debug("Start line: " + fStartline);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -114,7 +109,7 @@ public class AddNdocsAction extends TextEditorAction {
 						highest_index = i;
 						highest_line = (int) t.first();
 					}
-					fLog.note("Line[" + t.first() + "]");
+					fLog.debug("Line[" + t.first() + "]");
 				}
 				String leadingWS = "";
 				String current_line = text.getLine(highest_line-1);
@@ -134,6 +129,14 @@ public class AddNdocsAction extends TextEditorAction {
 				
 				doc.replace(doc.getLineOffset(highest_line - 1), 0, highest_comment);
 				fComments.remove(highest_index);
+				
+				// Move the caret and reset the view
+				if ((fStartline < doc.getNumberOfLines() + 1) && (fStartline > -1)) {
+					int length_of_comment = highest_comment.length() - highest_comment.replace("\n", "").length();
+					text.setCaretOffset(doc.getLineOffset(fStartline - 1+length_of_comment));
+					fEditor.sourceViewer().revealRange(doc.getLineOffset(fStartline - 1+length_of_comment), 0);
+				}
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -276,7 +279,7 @@ public class AddNdocsAction extends TextEditorAction {
 	 */
 	private boolean CheckChildren(ISVDBScopeItem parent) {
 		boolean foundit = false;
-		fLog.note("line [" + SVDBLocation.unpackLineno(parent.getLocation()) + "] contains type " + parent.getType().toString());
+		fLog.debug("line [" + SVDBLocation.unpackLineno(parent.getLocation()) + "] contains type " + parent.getType().toString());
 		foundit = CreateComment(parent);
 		// Not on this line ... keep digging
 		for (ISVDBChildItem child : parent.getChildren()) {
