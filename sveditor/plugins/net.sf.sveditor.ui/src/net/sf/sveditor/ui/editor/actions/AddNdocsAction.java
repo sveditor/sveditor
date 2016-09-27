@@ -32,11 +32,10 @@ import net.sf.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
-
-import com.sun.xml.internal.ws.util.StringUtils;
 
 public class AddNdocsAction extends TextEditorAction {
 	private SVEditor fEditor;
@@ -44,10 +43,11 @@ public class AddNdocsAction extends TextEditorAction {
 	// have text selected (presumably from the
 	// previous match that we are toggling between
 	private LogHandle fLog;
-	private int fStartline;
+	private int fCurrentLine;
 	private boolean fFullFile = false;
 	private boolean fPrefShowModuleInterfacePorts = false;
 	private ArrayList<Tuple<Object, String>> fComments = new ArrayList<Tuple<Object, String>>();
+	String fLineDelimiter = "\n";
 
 	/**
 	 * @param bundle
@@ -61,7 +61,7 @@ public class AddNdocsAction extends TextEditorAction {
 		fEditor = editor;
 		fLog = LogFactory.getLogHandle("SVEAddNdocs");
 		fFullFile = fullfile;
-
+		fLineDelimiter = TextUtilities.getDefaultLineDelimiter(editor.getDocument());
 	}
 
 	/**
@@ -73,28 +73,10 @@ public class AddNdocsAction extends TextEditorAction {
 		IDocument doc = sv.getDocument();
 		StyledText text = fEditor.sourceViewer().getTextWidget();
 		ITextSelection tsel = (ITextSelection) fEditor.getSite().getSelectionProvider().getSelection();
-		boolean foundit = false;
 
-		fStartline = tsel.getStartLine() + 1;
+		fCurrentLine = tsel.getStartLine() + 1;
 
-		try {
-			Iterable<ISVDBChildItem> children = fEditor.getSVDBFile().getChildren();
-			for (ISVDBChildItem child : children) {
-				if (child instanceof ISVDBScopeItem) {
-					fLog.debug("Found type " + child.getType().toString());
-					foundit = CheckChildren((ISVDBScopeItem) child);
-					if (!fFullFile && foundit) {
-						// Found the comment, don't parse through rest of stuff
-						// in file
-						break;
-					}
-				}
-			}
-			fLog.debug("Start line: " + fStartline);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		ComputeComments();
 
 		// Now insert the comment if it exists
 		try {
@@ -111,36 +93,43 @@ public class AddNdocsAction extends TextEditorAction {
 					}
 					fLog.debug("Line[" + t.first() + "]");
 				}
-				String leadingWS = "";
-				String current_line = text.getLine(highest_line-1);
-				for (int i=0; i<current_line.length(); i++)  {
-					char ch = current_line.charAt(i);
-					if ((ch == ' ') || (ch == '\t'))  {
-						leadingWS += ch;
-					}
-					// first non-whitespace character
-					else  {
-						break;
-					}
-				}
-				highest_comment = leadingWS + highest_comment;		// Whitespace added at start of string
-				highest_comment = highest_comment.replaceAll("\n", "\n" + leadingWS); // at each new line
-				highest_comment = highest_comment.substring(0, highest_comment.length()-leadingWS.length());	// remove the last indent...
-				
+				int length_of_comment = highest_comment.length() - highest_comment.replace(fLineDelimiter, "").length();
 				doc.replace(doc.getLineOffset(highest_line - 1), 0, highest_comment);
 				fComments.remove(highest_index);
-				
+
 				// Move the caret and reset the view
-				if ((fStartline < doc.getNumberOfLines() + 1) && (fStartline > -1)) {
-					int length_of_comment = highest_comment.length() - highest_comment.replace("\n", "").length();
-					text.setCaretOffset(doc.getLineOffset(fStartline - 1+length_of_comment));
-					fEditor.sourceViewer().revealRange(doc.getLineOffset(fStartline - 1+length_of_comment), 0);
+				if ((fCurrentLine < doc.getNumberOfLines() + 1) && (fCurrentLine > -1)) {
+					text.setCaretOffset(doc.getLineOffset(fCurrentLine - 1 + length_of_comment));
+					fEditor.sourceViewer().revealRange(doc.getLineOffset(fCurrentLine - 1 + length_of_comment), 0);
 				}
 
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private boolean ComputeComments() {
+		boolean foundit = false;
+		try {
+			Iterable<ISVDBChildItem> children = fEditor.getSVDBFile().getChildren();
+			for (ISVDBChildItem child : children) {
+				if (child instanceof ISVDBScopeItem) {
+					fLog.debug("Found type " + child.getType().toString());
+					foundit = CheckChildren((ISVDBScopeItem) child);
+					if (!fFullFile && foundit) {
+						// Found the comment, don't parse through rest of stuff
+						// in file
+						break;
+					}
+				}
+			}
+			fLog.debug("Start line: " + fCurrentLine);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return (foundit);
 	}
 
 	/**
@@ -154,11 +143,24 @@ public class AddNdocsAction extends TextEditorAction {
 		boolean foundit = false;
 		StringBuilder sb = new StringBuilder();
 
-		if (fFullFile || (fStartline == SVDBLocation.unpackLineno(child.getLocation()))) {
+		if (fFullFile || (fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
+			String leadingWS = "";
+			String current_line = fEditor.sourceViewer().getTextWidget().getLine(SVDBLocation.unpackLineno(child.getLocation())-1);
+			for (int i = 0; i < current_line.length(); i++) {
+				char ch = current_line.charAt(i);
+				if ((ch == ' ') || (ch == '\t')) {
+					leadingWS += ch;
+				}
+				// first non-whitespace character
+				else {
+					break;
+				}
+			}
+
 			switch (child.getType()) {
 			case InterfaceDecl:
 			case ModuleDecl:
-				sb.append("/**\n");
+				sb.append(leadingWS + "/**" + fLineDelimiter);
 				String typestring = "undefined";
 				switch (child.getType()) {
 				case InterfaceDecl:
@@ -171,69 +173,81 @@ public class AddNdocsAction extends TextEditorAction {
 					break;
 				}
 
-				sb.append(" * " + typestring + ": " + ((SVDBModIfcDecl) child).getName() + "\n");
-				sb.append(" * \n");
-				sb.append(" * " + typestring + " description needed\n");
-				sb.append(" * \n");
+				sb.append(leadingWS + " * " + typestring + ": " + ((SVDBModIfcDecl) child).getName() + fLineDelimiter);
+				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(leadingWS + " * " + typestring + " description needed" + fLineDelimiter);
+				sb.append(leadingWS + " * " + fLineDelimiter);
 				if (fPrefShowModuleInterfacePorts && ((SVDBModIfcDecl) child).getPorts().size() > 0) {
-					sb.append(" * Ports:\n");
+					sb.append(leadingWS + " * Ports:" + fLineDelimiter);
 					for (SVDBParamPortDecl pp : ((SVDBModIfcDecl) child).getPorts()) {
-						sb.append(GetParamPortString(pp));
+						sb.append(GetParamPortString(pp, leadingWS));
 					}
 				}
-				sb.append(" */\n");
+				sb.append(leadingWS + " */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
 			case ClassDecl:
-				comment = "/**\n" + " * Class: " + ((SVDBClassDecl) child).getName() + "\n" + " *\n" + " * Class description needed\n" + " */\n";
+				comment = leadingWS + "/**" + fLineDelimiter + 
+				leadingWS + " * Class: " + ((SVDBClassDecl) child).getName() + fLineDelimiter + 
+				leadingWS + " *" + fLineDelimiter + 
+				leadingWS + " * Class description needed" + fLineDelimiter + 
+				leadingWS + " */" + fLineDelimiter;
 				break;
 			case PackageDecl:
-				comment = "/**\n" + " * Package: " + ((SVDBPackageDecl) child).getName() + "\n" + " *\n" + " * Package description needed\n" + " */\n";
+				comment = leadingWS + "/**" + fLineDelimiter + 
+				leadingWS + " * Package: " + ((SVDBPackageDecl) child).getName() + fLineDelimiter + 
+				leadingWS + " *" + fLineDelimiter + 
+				leadingWS + " * Package description needed" + fLineDelimiter + 
+				leadingWS + " */" + fLineDelimiter;
 				break;
 			case ProgramDecl:
-				comment = "/**\n" + " * Program: " + ((SVDBProgramDecl) child).getName() + "\n" + " *\n" + " * Program description needed\n" + " */\n";
+				comment = leadingWS + "/**" + fLineDelimiter + 
+				leadingWS + " * Program: " + ((SVDBProgramDecl) child).getName() + fLineDelimiter + 
+				leadingWS + " *" + fLineDelimiter + 
+				leadingWS + " * Program description needed" + fLineDelimiter + 
+				leadingWS + " */" + fLineDelimiter;
 				break;
 			case Function:
-				sb.append("/**\n");
-				sb.append(" * Function: " + ((SVDBFunction) child).getName() + "\n");
-				sb.append(" * \n");
-				sb.append(" * Function description needed\n");
-				sb.append(" * \n");
-				sb.append(" * Parameters:\n");
+				sb.append(leadingWS + "/**" + fLineDelimiter);
+				sb.append(leadingWS + " * Function: " + ((SVDBFunction) child).getName() + fLineDelimiter);
+				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(leadingWS + " * Function description needed" + fLineDelimiter);
+				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(leadingWS + " * Parameters:" + fLineDelimiter);
 				for (SVDBParamPortDecl pp : ((SVDBFunction) child).getParams()) {
-					sb.append(GetParamPortString(pp));
+					sb.append(GetParamPortString(pp, leadingWS));
 				}
-				sb.append(" * \n");
-				sb.append(" * Returns:\n");
-				sb.append(" *   " + ((SVDBFunction) child).getReturnType().toString() + "\n");
-				sb.append(" */\n");
+				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(leadingWS + " * Returns:" + fLineDelimiter);
+				sb.append(leadingWS + " *   " + ((SVDBFunction) child).getReturnType().toString() + fLineDelimiter);
+				sb.append(leadingWS + " */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
 			case Task:
-				sb.append("/**\n");
-				sb.append(" * Task: " + ((SVDBTask) child).getName() + "\n");
-				sb.append(" * \n");
-				sb.append(" * Task description needed\n");
-				sb.append(" * \n");
-				sb.append(" * Parameters:\n");
+				sb.append(leadingWS + "/**" + fLineDelimiter);
+				sb.append(leadingWS + " * Task: " + ((SVDBTask) child).getName() + fLineDelimiter);
+				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(leadingWS + " * Task description needed" + fLineDelimiter);
+				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(leadingWS + " * Parameters:" + fLineDelimiter);
 				for (SVDBParamPortDecl pp : ((SVDBTask) child).getParams()) {
-					sb.append(GetParamPortString(pp));
+					sb.append(GetParamPortString(pp, leadingWS));
 				}
-				sb.append(" */\n");
+				sb.append(leadingWS + " */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
 			default:
 				break;
 			}
 		}
-		
-		if (fFullFile)  {
+
+		if (fFullFile) {
 			// Full file... keep the comment null so that we keep going through
 			// hierarchy
 			fComments.add(new Tuple<Object, String>(SVDBLocation.unpackLineno(child.getLocation()), comment));
 		}
-		// Specific location ... 
-		else if ((fStartline == SVDBLocation.unpackLineno(child.getLocation())))  {
+		// Specific location ...
+		else if ((fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
 			fComments.add(new Tuple<Object, String>(SVDBLocation.unpackLineno(child.getLocation()), comment));
 			foundit = true;
 		}
@@ -246,9 +260,9 @@ public class AddNdocsAction extends TextEditorAction {
 	 * @param pp
 	 * @return
 	 */
-	private String GetParamPortString(SVDBParamPortDecl pp) {
+	private String GetParamPortString(SVDBParamPortDecl pp, String leadingWS) {
 		String str;
-		str = " * - ";
+		str = leadingWS + " * - ";
 		switch (pp.getDir()) {
 		case 1:
 			str += "input ";
@@ -267,13 +281,12 @@ public class AddNdocsAction extends TextEditorAction {
 		for (SVDBVarDeclItem item : pp.fVarList) {
 			str += item.getName() + " ";
 		}
-		str += "\n";
+		str += fLineDelimiter;
 		return (str);
 	}
 
 	/**
-	 * This function loops through all the children of parent checking to see if
-	 * the children are on the appropriate line
+	 * This function loops through all the children of parent checking to see if the children are on the appropriate line
 	 * 
 	 * @param parent
 	 */
@@ -290,7 +303,6 @@ public class AddNdocsAction extends TextEditorAction {
 			case PackageDecl:
 			case ProgramDecl:
 				// Do we have a line match?
-//				foundit = CreateComment(child);
 				// Not on current line, keep checking for children
 				if (foundit == false) {
 					foundit = CheckChildren((ISVDBScopeItem) child);
@@ -310,5 +322,14 @@ public class AddNdocsAction extends TextEditorAction {
 			}
 		}
 		return (foundit);
+	}
+
+	public String GetNDocAtLine(int line) {
+		fCurrentLine = line;
+		if (ComputeComments()) {
+			return (fComments.get(0).second());
+		} else {
+			return ("");
+		}
 	}
 }
