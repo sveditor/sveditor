@@ -424,8 +424,8 @@
       <command
             categoryId="org.eclipse.ui.category.navigate"
             id="net.sf.sveditor.ui.AddNdocsAction"
-            name="Add Natural Docs comment"
-            description="Adds a Natural Docs compliant comment for element(s) selected">
+            name="Add Natural Docs Comment"
+            description="Add a Natural Docs comment stub to the member element">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
