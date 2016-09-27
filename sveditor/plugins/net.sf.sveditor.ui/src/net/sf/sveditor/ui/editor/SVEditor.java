@@ -894,7 +894,7 @@ public class SVEditor extends TextEditor
 		setAction(SVUiPlugin.PLUGIN_ID + ".GoToPrevElement", sel_pe_action);
 		
 		AddNdocsAction add_ndocs_action = new AddNdocsAction(
-				bundle, "Add NDOCS Action.", this, true);
+				bundle, "Add NDOCS Action.", this, false);
 		add_ndocs_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".AddNdocsAction");
 		setAction(SVUiPlugin.PLUGIN_ID + ".AddNdocsAction", add_ndocs_action);
 		
