@@ -36,7 +36,10 @@ import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
-
+// TODO: Break this out into a separate class, that can be called from this action (and others)
+// TODO: Check for comments above this:
+//       - If they are NDOC compliant ... skip
+//       - If not, assume that the comment is the "description field" and insert it there
 public class AddNdocsAction extends TextEditorAction {
 	private SVEditor fEditor;
 	// These fields are used to help derive the direction to search in if we
