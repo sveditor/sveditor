@@ -9,10 +9,9 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.editor.actions;
+package net.sf.sveditor.core.docs;
 
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
@@ -27,103 +26,77 @@ import net.sf.sveditor.core.db.SVDBProgramDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.docs.DocCommentAdder;
-import net.sf.sveditor.core.docs.IDocCommentAdder;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import net.sf.sveditor.core.scanutils.ITextScanner;
 
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.ui.texteditor.TextEditorAction;
-// TODO: Break this out into a separate class, that can be called from this action (and others)
 // TODO: Check for comments above this:
 //       - If they are NDOC compliant ... skip
 //       - If not, assume that the comment is the "description field" and insert it there
-public class AddNdocsAction extends TextEditorAction {
-	private SVEditor fEditor;
-	// These fields are used to help derive the direction to search in if we
-	// have text selected (presumably from the
-	// previous match that we are toggling between
+
+/**
+ * Adds NDOCS to a given file if "fullFile" is true, else adds a NDOC compliant
+ * comment above the current line
+ * 
+ * @author sdawson
+ *
+ */
+public class DocCommentAdder implements IDocCommentAdder {
+	private ITextScanner fScanner;
 	private LogHandle fLog;
 	private int fCurrentLine;
 	private boolean fFullFile = false;
 	private boolean fPrefShowModuleInterfacePorts = false;
 	private ArrayList<Tuple<Object, String>> fComments = new ArrayList<Tuple<Object, String>>();
+	private SVDBFile fSVDBFile;
 	String fLineDelimiter = "\n";
 
 	/**
-	 * @param bundle
-	 * @param prefix
-	 * @param editor
+	 * @param svdbfile - svdb file that we are going to be parsing for port information
+	 * @param scanner
 	 * @param fullfile
 	 *            - parse full file if true
 	 */
-	public AddNdocsAction(ResourceBundle bundle, String prefix, SVEditor editor, boolean fullfile) {
-		super(bundle, prefix, editor);
-		fEditor = editor;
-		fLog = LogFactory.getLogHandle("SVEAddNdocs");
+	public DocCommentAdder(SVDBFile svdbfile, ITextScanner scanner, boolean fullfile) {
+		fScanner = scanner;
 		fFullFile = fullfile;
-		fLineDelimiter = TextUtilities.getDefaultLineDelimiter(editor.getDocument());
+		fLog = LogFactory.getLogHandle("SVEDocCommentAdder");
+		fSVDBFile = svdbfile;
 	}
 
 	/**
+	 * Sets the line delimiter to be used.... defaults to \n
+	 * @param linedelimiter
+	 */
+	public void SetLineDelimiter(String linedelimiter) {
+		fLineDelimiter = linedelimiter;
+	}
+	
+	/**
 	 * Rules:
+	 * 
+	 * @return
+	 * An array list comprised of "Line number" and comments to be added
 	 */
 	@Override
-	public void run() {
-		ISourceViewer sv = fEditor.sourceViewer();
-		IDocument doc = sv.getDocument();
-		StyledText text = fEditor.sourceViewer().getTextWidget();
-		ITextSelection tsel = (ITextSelection) fEditor.getSite().getSelectionProvider().getSelection();
-		SVDBFile svdbf = fEditor.getSVDBFile();
+	public ArrayList<Tuple<Object, String>> addcomments (int currentline) {
+		fCurrentLine = currentline;
 
-		fCurrentLine = tsel.getStartLine() + 1;
+
 		// Now insert the comment if it exists
 		try {
-			SVDocumentTextScanner text_scanner =  new SVDocumentTextScanner(doc, 0);
-			IDocCommentAdder docadder = new DocCommentAdder(svdbf, text_scanner, false);
-			docadder.SetLineDelimiter(doc.getLineDelimiter(0));
-			ArrayList<Tuple<Object, String>> fComments = docadder.addcomments(fCurrentLine);
-			
-			while (fComments.size() != 0) {
-				int highest_index = 0;
-				int highest_line = 0;
-				String highest_comment = "";
-				for (int i = 0; i < fComments.size(); i++) {
-					Tuple<Object, String> t = fComments.get(i);
-					if ((int) t.first() > highest_line) {
-						highest_comment = t.second();
-						highest_index = i;
-						highest_line = (int) t.first();
-					}
-					fLog.debug("Line[" + t.first() + "]");
-				}
-				int length_of_comment = highest_comment.length() - highest_comment.replace(fLineDelimiter, "").length();
-				doc.replace(doc.getLineOffset(highest_line - 1), 0, highest_comment);
-				fComments.remove(highest_index);
-
-				// Move the caret and reset the view
-				if ((fCurrentLine < doc.getNumberOfLines() + 1) && (fCurrentLine > -1)) {
-					text.setCaretOffset(doc.getLineOffset(fCurrentLine - 1 + length_of_comment));
-					fEditor.sourceViewer().revealRange(doc.getLineOffset(fCurrentLine - 1 + length_of_comment), 0);
-				}
-
-			}
-			
+			ComputeComments();
+			return (fComments);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return (null);
 	}
 
 	private boolean ComputeComments() {
 		boolean foundit = false;
 		try {
-			Iterable<ISVDBChildItem> children = fEditor.getSVDBFile().getChildren();
+			Iterable<ISVDBChildItem> children = fSVDBFile.getChildren();
 			for (ISVDBChildItem child : children) {
 				if (child instanceof ISVDBScopeItem) {
 					fLog.debug("Found type " + child.getType().toString());
@@ -156,7 +129,24 @@ public class AddNdocsAction extends TextEditorAction {
 
 		if (fFullFile || (fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
 			String leadingWS = "";
-			String current_line = fEditor.sourceViewer().getTextWidget().getLine(SVDBLocation.unpackLineno(child.getLocation())-1);
+			// Figure out what the leading whitespace is on the current line
+			String current_line = "";
+//			StringBuilder sb1 = new StringBuilder();
+//			for (int i=0; i<10; i++)  {
+//				char chh = (char) fScanner.get_ch();
+//				sb1.append(chh);
+//			}
+//			
+//			String thing = sb1.toString();
+//			
+//			String [] lines = fScanner.toString().split("\n");
+//			if (lines.length > SVDBLocation.unpackLineno(child.getLocation())-1)  {
+//				current_line = lines[SVDBLocation.unpackLineno(child.getLocation())-1];
+//			}
+//			else {
+//				// Something wrong ... shouldn't get here
+//				return(foundit);
+//			}
 			for (int i = 0; i < current_line.length(); i++) {
 				char ch = current_line.charAt(i);
 				if ((ch == ' ') || (ch == '\t')) {
@@ -335,12 +325,4 @@ public class AddNdocsAction extends TextEditorAction {
 		return (foundit);
 	}
 
-	public String GetNDocAtLine(int line) {
-		fCurrentLine = line;
-		if (ComputeComments()) {
-			return (fComments.get(0).second());
-		} else {
-			return ("");
-		}
-	}
 }
