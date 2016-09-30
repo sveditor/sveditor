@@ -206,7 +206,12 @@ public class DocCommentAdder implements IDocCommentAdder {
 				}
 				sb.append(leadingWS + " * " + fLineDelimiter);
 				sb.append(leadingWS + " * Returns:" + fLineDelimiter);
-				sb.append(leadingWS + " *   " + ((SVDBFunction) child).getReturnType().toString() + fLineDelimiter);
+				if (((SVDBFunction) child).getReturnType() != null)  {
+					sb.append(leadingWS + " *   " + ((SVDBFunction) child).getReturnType().toString() + fLineDelimiter);
+				}
+				else  {
+					sb.append(leadingWS + " *   " + "void" + fLineDelimiter);
+				}
 				sb.append(leadingWS + " */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
@@ -291,7 +296,7 @@ public class DocCommentAdder implements IDocCommentAdder {
 			case ProgramDecl:
 				// Do we have a line match?
 				// Not on current line, keep checking for children
-				foundit = CheckChildren((ISVDBScopeItem) child);
+					foundit = CheckChildren((ISVDBScopeItem) child);
 				break;
 			case Function:
 			case Task:
