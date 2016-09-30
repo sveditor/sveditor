@@ -35,8 +35,7 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 //       - If not, assume that the comment is the "description field" and insert it there
 
 /**
- * Adds NDOCS to a given file if "fullFile" is true, else adds a NDOC compliant
- * comment above the current line
+ * Adds NDOCS to a given file if "fullFile" is true, else adds a NDOC compliant comment above the current line
  * 
  * @author sdawson
  *
@@ -50,9 +49,11 @@ public class DocCommentAdder implements IDocCommentAdder {
 	private ArrayList<Tuple<Object, String>> fComments = new ArrayList<Tuple<Object, String>>();
 	private SVDBFile fSVDBFile;
 	String fLineDelimiter = "\n";
+	private String[] fLines;
 
 	/**
-	 * @param svdbfile - svdb file that we are going to be parsing for port information
+	 * @param svdbfile
+	 *            - svdb file that we are going to be parsing for port information
 	 * @param scanner
 	 * @param fullfile
 	 *            - parse full file if true
@@ -66,22 +67,34 @@ public class DocCommentAdder implements IDocCommentAdder {
 
 	/**
 	 * Sets the line delimiter to be used.... defaults to \n
+	 * 
 	 * @param linedelimiter
 	 */
 	public void SetLineDelimiter(String linedelimiter) {
 		fLineDelimiter = linedelimiter;
 	}
-	
+
 	/**
 	 * Rules:
 	 * 
-	 * @return
-	 * An array list comprised of "Line number" and comments to be added
+	 * @return An array list comprised of "Line number" and comments to be added
 	 */
 	@Override
-	public ArrayList<Tuple<Object, String>> addcomments (int currentline) {
+	public ArrayList<Tuple<Object, String>> addcomments(int currentline) {
 		fCurrentLine = currentline;
 
+		// Convert the text into a string array which might be useful to us
+		// TODO: there must be a better way of doing this... this is painful
+		int ch = 0;
+		String thefile = "";
+		// Read in teh file
+		while (ch != -1) {
+			ch = fScanner.get_ch();
+			thefile += (char) ch;
+		}
+		thefile = thefile.substring(0, thefile.length() - 2); // Remove the -1 at the end of the file
+
+		fLines = thefile.split(fLineDelimiter);
 
 		// Now insert the comment if it exists
 		try {
@@ -130,23 +143,8 @@ public class DocCommentAdder implements IDocCommentAdder {
 		if (fFullFile || (fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
 			String leadingWS = "";
 			// Figure out what the leading whitespace is on the current line
-			String current_line = "";
-//			StringBuilder sb1 = new StringBuilder();
-//			for (int i=0; i<10; i++)  {
-//				char chh = (char) fScanner.get_ch();
-//				sb1.append(chh);
-//			}
-//			
-//			String thing = sb1.toString();
-//			
-//			String [] lines = fScanner.toString().split("\n");
-//			if (lines.length > SVDBLocation.unpackLineno(child.getLocation())-1)  {
-//				current_line = lines[SVDBLocation.unpackLineno(child.getLocation())-1];
-//			}
-//			else {
-//				// Something wrong ... shouldn't get here
-//				return(foundit);
-//			}
+			String current_line = fLines[SVDBLocation.unpackLineno(child.getLocation()) - 1];
+
 			for (int i = 0; i < current_line.length(); i++) {
 				char ch = current_line.charAt(i);
 				if ((ch == ' ') || (ch == '\t')) {
@@ -188,25 +186,13 @@ public class DocCommentAdder implements IDocCommentAdder {
 				comment = sb.toString();
 				break;
 			case ClassDecl:
-				comment = leadingWS + "/**" + fLineDelimiter + 
-				leadingWS + " * Class: " + ((SVDBClassDecl) child).getName() + fLineDelimiter + 
-				leadingWS + " *" + fLineDelimiter + 
-				leadingWS + " * Class description needed" + fLineDelimiter + 
-				leadingWS + " */" + fLineDelimiter;
+				comment = leadingWS + "/**" + fLineDelimiter + leadingWS + " * Class: " + ((SVDBClassDecl) child).getName() + fLineDelimiter + leadingWS + " *" + fLineDelimiter + leadingWS + " * Class description needed" + fLineDelimiter + leadingWS + " */" + fLineDelimiter;
 				break;
 			case PackageDecl:
-				comment = leadingWS + "/**" + fLineDelimiter + 
-				leadingWS + " * Package: " + ((SVDBPackageDecl) child).getName() + fLineDelimiter + 
-				leadingWS + " *" + fLineDelimiter + 
-				leadingWS + " * Package description needed" + fLineDelimiter + 
-				leadingWS + " */" + fLineDelimiter;
+				comment = leadingWS + "/**" + fLineDelimiter + leadingWS + " * Package: " + ((SVDBPackageDecl) child).getName() + fLineDelimiter + leadingWS + " *" + fLineDelimiter + leadingWS + " * Package description needed" + fLineDelimiter + leadingWS + " */" + fLineDelimiter;
 				break;
 			case ProgramDecl:
-				comment = leadingWS + "/**" + fLineDelimiter + 
-				leadingWS + " * Program: " + ((SVDBProgramDecl) child).getName() + fLineDelimiter + 
-				leadingWS + " *" + fLineDelimiter + 
-				leadingWS + " * Program description needed" + fLineDelimiter + 
-				leadingWS + " */" + fLineDelimiter;
+				comment = leadingWS + "/**" + fLineDelimiter + leadingWS + " * Program: " + ((SVDBProgramDecl) child).getName() + fLineDelimiter + leadingWS + " *" + fLineDelimiter + leadingWS + " * Program description needed" + fLineDelimiter + leadingWS + " */" + fLineDelimiter;
 				break;
 			case Function:
 				sb.append(leadingWS + "/**" + fLineDelimiter);
@@ -305,9 +291,7 @@ public class DocCommentAdder implements IDocCommentAdder {
 			case ProgramDecl:
 				// Do we have a line match?
 				// Not on current line, keep checking for children
-				if (foundit == false) {
-					foundit = CheckChildren((ISVDBScopeItem) child);
-				}
+				foundit = CheckChildren((ISVDBScopeItem) child);
 				break;
 			case Function:
 			case Task:

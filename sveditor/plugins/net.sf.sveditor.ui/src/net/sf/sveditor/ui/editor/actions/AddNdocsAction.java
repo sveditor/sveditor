@@ -81,6 +81,7 @@ public class AddNdocsAction extends TextEditorAction {
 		StyledText text = fEditor.sourceViewer().getTextWidget();
 		ITextSelection tsel = (ITextSelection) fEditor.getSite().getSelectionProvider().getSelection();
 		SVDBFile svdbf = fEditor.getSVDBFile();
+		int start_offset = tsel.getOffset();
 
 		fCurrentLine = tsel.getStartLine() + 1;
 		// Now insert the comment if it exists
@@ -90,29 +91,14 @@ public class AddNdocsAction extends TextEditorAction {
 			docadder.SetLineDelimiter(doc.getLineDelimiter(0));
 			ArrayList<Tuple<Object, String>> fComments = docadder.addcomments(fCurrentLine);
 			
-			while (fComments.size() != 0) {
-				int highest_index = 0;
-				int highest_line = 0;
-				String highest_comment = "";
-				for (int i = 0; i < fComments.size(); i++) {
-					Tuple<Object, String> t = fComments.get(i);
-					if ((int) t.first() > highest_line) {
-						highest_comment = t.second();
-						highest_index = i;
-						highest_line = (int) t.first();
-					}
-					fLog.debug("Line[" + t.first() + "]");
-				}
-				int length_of_comment = highest_comment.length() - highest_comment.replace(fLineDelimiter, "").length();
-				doc.replace(doc.getLineOffset(highest_line - 1), 0, highest_comment);
-				fComments.remove(highest_index);
-
-				// Move the caret and reset the view
-				if ((fCurrentLine < doc.getNumberOfLines() + 1) && (fCurrentLine > -1)) {
-					text.setCaretOffset(doc.getLineOffset(fCurrentLine - 1 + length_of_comment));
-					fEditor.sourceViewer().revealRange(doc.getLineOffset(fCurrentLine - 1 + length_of_comment), 0);
-				}
-
+			// Move the caret and reset the view
+			String comment = fComments.get(0).second();
+			int comment_length = comment.length();
+			doc.replace(doc.getLineOffset((int) fComments.get(0).first() - 1), 0, comment);
+			
+			if ((fCurrentLine < doc.getNumberOfLines() + 1) && (fCurrentLine > -1)) {
+				text.setCaretOffset(start_offset + comment_length);
+				fEditor.sourceViewer().revealRange(start_offset + comment_length, 0);
 			}
 			
 		} catch (Exception e) {
@@ -120,6 +106,9 @@ public class AddNdocsAction extends TextEditorAction {
 		}
 	}
 
+	/**
+	 * @return
+	 */
 	private boolean ComputeComments() {
 		boolean foundit = false;
 		try {
