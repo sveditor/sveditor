@@ -46,6 +46,25 @@ public class SVDBIndexUtil {
 	
 	private static LogHandle		fLog = LogFactory.getLogHandle("SVDBIndexUtil");
 	
+	public static SVDBFile findIndexFile(IFile file) {
+		SVDBFile ret = null;
+		
+		// First, find the project that manages this file
+		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pd = p_mgr.getProjectData(file.getProject());
+		
+		if (pd != null) {
+			List<SVDBSearchResult<SVDBFile>> result = 
+					pd.getProjectIndexMgr().findFile(
+							"${workspace_loc}" + file.getFullPath());
+			if (result.size() > 0) {
+				ret = result.get(0).getItem();
+			}
+		}
+		
+		return ret;
+	}
+	
 	/**
 	 * findIndexFile()
 	 * 
