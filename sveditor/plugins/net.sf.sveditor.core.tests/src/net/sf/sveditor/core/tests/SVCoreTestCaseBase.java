@@ -13,6 +13,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -21,7 +22,11 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 
 public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 	
@@ -135,6 +140,23 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		LogFactory.removeLogHandle(fLog);
 		
 		CoreReleaseTests.clearErrors();
+	}
+	
+	protected void rebuildProject(IProject p) {
+		Job j = new Job("Rebuild Index") {
+			
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+				pmgr.rebuildProject(new NullProgressMonitor(), p, true);
+				return Status.OK_STATUS;
+			}
+		};
+	
+		j.schedule();
+		try {
+			j.join();
+		} catch (InterruptedException e) {}		
 	}
 	
 	protected IProject createProject(String name, File path) {
