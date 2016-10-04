@@ -41,7 +41,6 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
  *
  */
 public class DocCommentAdder implements IDocCommentAdder {
-	private ITextScanner fScanner;
 	private LogHandle fLog;
 	private int fCurrentLine;
 	private boolean fFullFile = false;
@@ -50,6 +49,7 @@ public class DocCommentAdder implements IDocCommentAdder {
 	private SVDBFile fSVDBFile;
 	String fLineDelimiter = "\n";
 	private String[] fLines;
+	private String   fStringFullFile;
 
 	/**
 	 * @param svdbfile
@@ -59,10 +59,21 @@ public class DocCommentAdder implements IDocCommentAdder {
 	 *            - parse full file if true
 	 */
 	public DocCommentAdder(SVDBFile svdbfile, ITextScanner scanner, boolean fullfile) {
-		fScanner = scanner;
 		fFullFile = fullfile;
 		fLog = LogFactory.getLogHandle("SVEDocCommentAdder");
 		fSVDBFile = svdbfile;
+		fStringFullFile = "";
+
+		// Convert the text into a string array which might be useful to us
+		// TODO: there must be a better way of doing this... this is painful
+		int ch = 0;
+
+		// Read in the file
+		while (ch != -1) {
+			ch = scanner.get_ch();
+			fStringFullFile += (char) ch;
+		}
+		fStringFullFile = fStringFullFile.substring(0, fStringFullFile.length() - 2); // Remove the -1 at the end of the file
 	}
 
 	/**
@@ -80,21 +91,10 @@ public class DocCommentAdder implements IDocCommentAdder {
 	 * @return An array list comprised of "Line number" and comments to be added
 	 */
 	@Override
-	public ArrayList<Tuple<Object, String>> addcomments(int currentline) {
+	public ArrayList<Tuple<Object, String>> AddComments(int currentline) {
 		fCurrentLine = currentline;
 
-		// Convert the text into a string array which might be useful to us
-		// TODO: there must be a better way of doing this... this is painful
-		int ch = 0;
-		String thefile = "";
-		// Read in teh file
-		while (ch != -1) {
-			ch = fScanner.get_ch();
-			thefile += (char) ch;
-		}
-		thefile = thefile.substring(0, thefile.length() - 2); // Remove the -1 at the end of the file
-
-		fLines = thefile.split(fLineDelimiter);
+		fLines = fStringFullFile.split(fLineDelimiter);
 
 		// Now insert the comment if it exists
 		try {
@@ -143,7 +143,12 @@ public class DocCommentAdder implements IDocCommentAdder {
 		if (fFullFile || (fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
 			String leadingWS = "";
 			// Figure out what the leading whitespace is on the current line
-			String current_line = fLines[SVDBLocation.unpackLineno(child.getLocation()) - 1];
+			int line_no = SVDBLocation.unpackLineno(child.getLocation()) - 1;
+			String current_line;
+			if (line_no< fLines.length)
+				current_line = fLines[line_no];
+			else 
+				current_line = "";
 
 			for (int i = 0; i < current_line.length(); i++) {
 				char ch = current_line.charAt(i);
@@ -312,6 +317,22 @@ public class DocCommentAdder implements IDocCommentAdder {
 			}
 		}
 		return (foundit);
+	}
+	
+	/**
+	 * Returns the natural doc comment for the line specified
+	 * @param line
+	 * @return
+	 */
+	public String GetNDocAtLine (int line)  {
+		String s = "";
+		ArrayList<Tuple<Object, String>> al = AddComments(line);
+		if (al.size() > 0)  {
+			return (al.get(0).second());
+		}
+
+		return(s);
+		
 	}
 
 }

@@ -13,8 +13,9 @@ package net.sf.sveditor.ui.editor;
 
 import java.util.ResourceBundle;
 
+import net.sf.sveditor.core.docs.DocCommentAdder;
 import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.actions.AddNdocsAction;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
@@ -140,15 +141,15 @@ public class SVMultiLineCommentAutoIndentStrategy extends
 			}
 
 			if (!isCommentClosed(doc, offset)) {
-				ResourceBundle bundle = SVUiPlugin.getDefault().getResources();
-
-				AddNdocsAction and = new AddNdocsAction(bundle, "", fEditor, false);
+				SVDocumentTextScanner scanner =  new SVDocumentTextScanner(doc, 0);
+				DocCommentAdder dca= new DocCommentAdder(fEditor.getSVDBFile(), scanner, false);
 				String possible_str = "";
 				// This mad loop put here in case the DB hasn't been built in a while... the offsets could be off a couple of lines
 				// check if we are lucky (sorry Matt :-))
 				for (int i=0; i<3; i++)  {
-					possible_str = and.GetNDocAtLine (doc.getLineOfOffset(offset)+1+i);
+					possible_str = dca.GetNDocAtLine (doc.getLineOfOffset(offset)+1+i);
 					if (possible_str != "")  {
+						// Got it.. get out of here
 						break;
 					}
 				}

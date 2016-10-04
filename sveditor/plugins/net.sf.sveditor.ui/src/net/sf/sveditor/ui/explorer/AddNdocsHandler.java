@@ -90,7 +90,7 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 
 					StringTextScanner scanner = new StringTextScanner(contents);
 					IDocCommentAdder dca = new DocCommentAdder(svdbf, scanner, true);
-					ArrayList<Tuple<Object, String>> fComments = dca.addcomments(-1);
+					ArrayList<Tuple<Object, String>> fComments = dca.AddComments(-1);
 					ArrayList<String> lines = new ArrayList<String>(Arrays.asList(contents.split("\n")));
 					// Restore \n's
 					for (int i=0; i<lines.size(); i++)  {

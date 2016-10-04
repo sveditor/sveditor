@@ -25,7 +25,7 @@ public interface IDocCommentAdder {
 	 * @return
 	 * An array list comprised of "Line number" and comments to be added
 	 */
-	ArrayList<Tuple<Object, String>> addcomments (int startline);
+	ArrayList<Tuple<Object, String>> AddComments (int startline);
 	
 	/**
 	 * Sets the line delimiter to be used.... defaults to \n
