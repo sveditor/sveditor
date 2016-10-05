@@ -41,6 +41,14 @@ public class SVDBSearchUtils implements ILogLevel {
 		fLog = LogFactory.getLogHandle("SVDBSearchUtils");
 	}
 	
+	/**
+	 * Searches the given scope for children of a given type.  The
+	 * types are a comma-separated list of types
+	 * 
+	 * @param scope
+	 * @param types
+	 * @return
+	 */
 	public static List<ISVDBItemBase> findItemsByType(
 			SVDBScopeItem			scope,
 			SVDBItemType	...		types) {
@@ -63,7 +71,13 @@ public class SVDBSearchUtils implements ILogLevel {
 		
 		return ret;
 	}
-	
+
+	/**
+	 * Traverses UP the database, looking for the first class that it finds and then returns
+	 * 
+	 * @param scope
+	 * @return
+	 */
 	public static SVDBModIfcDecl findClassScope(ISVDBChildItem scope) {
 		while (scope != null && scope.getType() != SVDBItemType.ClassDecl) {
 			scope = scope.getParent();
@@ -330,7 +344,7 @@ public class SVDBSearchUtils implements ILogLevel {
 	 */
 
 	/**
-	 * Assumtpions:
+	 * Assumptions:
 	 * - it is not a Scope
 	 * - it_n may be a scope
 	 * 

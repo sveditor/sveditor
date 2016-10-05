@@ -37,6 +37,8 @@ import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBInitialStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTimePrecisionStmt;
+import net.sf.sveditor.core.db.stmt.SVDBTimeUnitsStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 
@@ -190,6 +192,8 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		// This section contains miscellaneous stuff in the DB, that we don't want displayed
 		else if (
 					(element instanceof SVDBExprStmt) || // Statements in a property 
+					(element instanceof SVDBTimePrecisionStmt) || // timeprecision 
+					(element instanceof SVDBTimeUnitsStmt) || // timeunits 
 					(element instanceof SVDBBlockStmt) // Begin / end pairs - always hide 
 				)  {
 			return false;		}

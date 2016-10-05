@@ -9,8 +9,6 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-
-
 package net.sf.sveditor.ui.editor;
 
 import java.util.ArrayList;
@@ -61,25 +59,25 @@ import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 
 public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
-	private SVEditor				fEditor;
-	private ContentAssistant		fContentAssist;
-	
+	private SVEditor fEditor;
+	private ContentAssistant fContentAssist;
+
 	public SVSourceViewerConfiguration(SVEditor editor, IPreferenceStore iPreferenceStore) {
-		super(EditorsUI.getPreferenceStore()) ;
+		super(EditorsUI.getPreferenceStore());
 		fEditor = editor;
 	}
-	
+
 	@Override
-	public String[] getIndentPrefixes(ISourceViewer sourceViewer,
+	public String[] getIndentPrefixes(ISourceViewer sourceViewer, 
 			String contentType) {
 		String prefix = SVUiPlugin.getDefault().getIndentIncr();
-		return new String[] {prefix, "\t", ""};
+		return new String[] { prefix, "\t", "" };
 	}
 
 	@Override
 	public int getTabWidth(ISourceViewer sourceViewer) {
 		IPreferenceStore chainedPrefs = SVUiPlugin.getDefault().getChainedPrefs();
-		/* boolean spaces_for_tabs = */ chainedPrefs.getBoolean(
+		/* boolean spaces_for_tabs = */chainedPrefs.getBoolean(
 				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS);
 		int tab_width = chainedPrefs.getInt(
 				AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
@@ -87,15 +85,13 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 		return tab_width;
 	}
 
-
-
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		if (fContentAssist == null) {
 			fContentAssist = new ContentAssistant();
 			SVTemplateCompletionProcessor p = new SVTemplateCompletionProcessor(fEditor);
 
-			fContentAssist.setContentAssistProcessor(p,
+			fContentAssist.setContentAssistProcessor(p, 
 					IDocument.DEFAULT_CONTENT_TYPE);
 			fContentAssist.setInformationControlCreator(
 					getContentAssistPresenterControlCreator(sourceViewer));
@@ -109,10 +105,10 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 			fContentAssist.setAutoActivationDelay(100);
 			 */
 		}
-		
+
 		return fContentAssist;
 	}
-	
+
 	private IInformationControlCreator getContentAssistPresenterControlCreator(ISourceViewer sourceViewer) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
@@ -120,7 +116,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 				Color bg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
 				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
-						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
+						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));
 
 				DefaultInformationControl c = new DefaultInformationControl(parent, EditorsUI.getTooltipAffordanceString());
 				c.setBackgroundColor(bg_color);
@@ -129,99 +125,98 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 				return c;
 			}
 		};
-	}		
-	
+	}
+
 	@Override
 	public IAutoEditStrategy[] getAutoEditStrategies(
 			ISourceViewer sourceViewer, String contentType) {
-        String partitioning = 
-            getConfiguredDocumentPartitioning(sourceViewer);
-        
-        if (contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT)) {
-        	return new IAutoEditStrategy[] {
-        			new SVMultiLineCommentAutoIndentStrategy(partitioning)
-        	};
-        } else {
-        	List<IAutoEditStrategy> ret = new ArrayList<IAutoEditStrategy>();
-        	
-        	IAutoEditStrategy ss[] = super.getAutoEditStrategies(sourceViewer, contentType);
-        	
-        	ret.add(new SVAutoIndentStrategy(fEditor, partitioning));
-        	for (IAutoEditStrategy si : ss) {
-        		ret.add(si);
-        	}
-        	
-    		return ret.toArray(new IAutoEditStrategy[ret.size()]); 
-        }
+		String partitioning = 
+				getConfiguredDocumentPartitioning(sourceViewer);
+
+		if (contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT)) {
+			return new IAutoEditStrategy[] { 
+					new SVMultiLineCommentAutoIndentStrategy(fEditor, partitioning) 
+					};
+		} else {
+			List<IAutoEditStrategy> ret = new ArrayList<IAutoEditStrategy>();
+
+			IAutoEditStrategy ss[] = super.getAutoEditStrategies(sourceViewer, contentType);
+
+			ret.add(new SVAutoIndentStrategy(fEditor, partitioning));
+			for (IAutoEditStrategy si : ss) {
+				ret.add(si);
+			}
+
+			return ret.toArray(new IAutoEditStrategy[ret.size()]);
+		}
 	}
-	
+
 	@Override
 	public String[] getConfiguredContentTypes(ISourceViewer viewer) {
-		return new String[] {
-				IDocument.DEFAULT_CONTENT_TYPE,
-				SVDocumentPartitions.SV_MULTILINE_COMMENT,
-				SVDocumentPartitions.SV_SINGLELINE_COMMENT,
-				SVDocumentPartitions.SV_STRING,
-				SVDocumentPartitions.SV_KEYWORD
-		};
+		return new String[] { 
+				IDocument.DEFAULT_CONTENT_TYPE, 
+				SVDocumentPartitions.SV_MULTILINE_COMMENT, 
+				SVDocumentPartitions.SV_SINGLELINE_COMMENT, 
+				SVDocumentPartitions.SV_STRING, 
+				SVDocumentPartitions.SV_KEYWORD 
+				};
 	}
-	
+
 	/*
-	@Override
-	public ITextDoubleClickStrategy getDoubleClickStrategy(
-			ISourceViewer sourceViewer, String contentType) {
+	 @Override 
+	 public ITextDoubleClickStrategy getDoubleClickStrategy(
+	 ISourceViewer sourceViewer, String contentType) { 
 		return new SVDoubleClickStrategy();
 	}
 	 */
 
 	@Override
 	public IPresentationReconciler getPresentationReconciler(
-			ISourceViewer		viewer) {
+			ISourceViewer viewer) {
 		PresentationReconciler r = new SVPresentationReconciler();
-		
+
 		r.setDocumentPartitioning(
 				getConfiguredDocumentPartitioning(viewer));
-		
+
 		DefaultDamagerRepairer dr;
-		
+
 		if (fEditor != null) {
 			dr = new DefaultDamagerRepairer(fEditor.getCodeScanner());
 		} else {
 			dr = new DefaultDamagerRepairer(new SVCodeScanner(null));
 		}
-		
+
 		r.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
 		r.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
-		
+
 		BufferedRuleBasedScanner scanner;
-		
-		scanner = new BufferedRuleBasedScanner(1); 
+
+		scanner = new BufferedRuleBasedScanner(1);
 		scanner.setDefaultReturnToken(new Token(new TextAttribute(
-				SVEditorColors.getColor(SVEditorColors.MULTI_LINE_COMMENT),
+				SVEditorColors.getColor(SVEditorColors.MULTI_LINE_COMMENT), 
 				null, SVEditorColors.getStyle(SVEditorColors.MULTI_LINE_COMMENT))));
 		dr = new DefaultDamagerRepairer(scanner);
 		r.setDamager(dr, SVDocumentPartitions.SV_MULTILINE_COMMENT);
 		r.setRepairer(dr, SVDocumentPartitions.SV_MULTILINE_COMMENT);
-		
+
 		scanner = new BufferedRuleBasedScanner(1);
 		scanner.setDefaultReturnToken(new Token(new TextAttribute(
-				SVEditorColors.getColor(SVEditorColors.SINGLE_LINE_COMMENT),
+				SVEditorColors.getColor(SVEditorColors.SINGLE_LINE_COMMENT), 
 				null, SVEditorColors.getStyle(SVEditorColors.SINGLE_LINE_COMMENT))));
 		dr = new DefaultDamagerRepairer(scanner);
 		r.setDamager(dr, SVDocumentPartitions.SV_SINGLELINE_COMMENT);
 		r.setRepairer(dr, SVDocumentPartitions.SV_SINGLELINE_COMMENT);
-		
+
 		/*
-		scanner = new BufferedRuleBasedScanner(1);
-		scanner.setDefaultReturnToken(new Token(new TextAttribute(
-				SVEditorColors.getColor(SVEditorColors.STRING),
-				null, SVEditorColors.getStyle(SVEditorColors.STRING))));
-		dr = new DefaultDamagerRepairer(scanner);
-		r.setDamager(dr, SVDocumentPartitions.SV_STRING);
-		r.setRepairer(dr, SVDocumentPartitions.SV_STRING);
+		 scanner = new BufferedRuleBasedScanner(1);
+		 scanner.setDefaultReturnToken(new Token(new TextAttribute(
+		 SVEditorColors.getColor(SVEditorColors.STRING), 
+		 null, SVEditorColors.getStyle(SVEditorColors.STRING)))); 
+		 dr = new DefaultDamagerRepairer(scanner); 
+		 r.setDamager(dr, SVDocumentPartitions.SV_STRING); 
+		 r.setRepairer(dr, SVDocumentPartitions.SV_STRING);
 		 */
-		
-		
+
 		return r;
 	}
 
@@ -236,7 +231,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
 		SVSpellingReconcileStrategy spelling_strategy = 
 				new SVSpellingReconcileStrategy(viewer, EditorsUI.getSpellingService());
-		
+
 		r.setReconcilingStrategy(spelling_strategy, 
 				SVDocumentPartitions.SV_SINGLELINE_COMMENT);
 		r.setReconcilingStrategy(spelling_strategy, 
@@ -247,7 +242,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
 		return r;
 	}
-	
+
 	@Override
 	public IAnnotationHover getAnnotationHover(ISourceViewer viewer) {
 		return new DefaultAnnotationHover();
@@ -255,22 +250,22 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 
 	@Override
 	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
-		return new String[] {"//", ""};
+		return new String[] { "//", "" };
 	}
-	
+
 	public ITextHover getTextHover(ISourceViewer viewer, String contentType) {
 		if (!contentType.equals(SVDocumentPartitions.SV_STRING) &&
 			!contentType.equals(SVDocumentPartitions.SV_MULTILINE_COMMENT) &&
 			!contentType.equals(SVDocumentPartitions.SV_SINGLELINE_COMMENT)) {
-//			return new SVEditorTextHover(fEditor, viewer) ;
-//			SVDocHover hover = new SVDocHover() ;
-			ISVEditorTextHover hover = new SVDocHover() ;
-			hover.setEditor(fEditor) ;
-			return hover ;
+			// return new SVEditorTextHover(fEditor, viewer) ;
+			// SVDocHover hover = new SVDocHover() ;
+			ISVEditorTextHover hover = new SVDocHover();
+			hover.setEditor(fEditor);
+			return hover;
 		}
 		return null;
 	}
-	
+
 	private IInformationControlCreator getObjectsPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
@@ -279,16 +274,16 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
 				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
-				int shellStyle= SWT.RESIZE;
-				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+				int shellStyle = SWT.RESIZE;
+				int treeStyle = SWT.V_SCROLL | SWT.H_SCROLL;
 				ObjectsInformationControl obj = new ObjectsInformationControl(parent, shellStyle, treeStyle, commandId);
 				obj.setBackgroundColor(bg_color);
 				obj.setForegroundColor(fg_color);
 				return obj;
 			}
 		};
-	}	
-	
+	}
+
 	private IInformationControlCreator getOutlinePresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
@@ -297,17 +292,17 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
 				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
-				int shellStyle= SWT.RESIZE;
-				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+				int shellStyle = SWT.RESIZE;
+				int treeStyle = SWT.V_SCROLL | SWT.H_SCROLL;
 				OutlineInformationControl outline = new OutlineInformationControl(parent, shellStyle, treeStyle, commandId);
 				outline.setBackgroundColor(bg_color);
 				outline.setForegroundColor(fg_color);
-				
+
 				return outline;
 			}
 		};
-	}	
-	
+	}
+
 	private IInformationControlCreator getHierarchyPresenterControlCreator(ISourceViewer sourceViewer, final String commandId) {
 		return new IInformationControlCreator() {
 			public IInformationControl createInformationControl(Shell parent) {
@@ -316,21 +311,21 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_BG_COLOR));
 				Color fg_color = SVColorManager.getColor(PreferenceConverter.getColor(
 						prefs, SVEditorPrefsConstants.P_CONTENT_ASSIST_HOVER_FG_COLOR));	
-				int shellStyle= SWT.RESIZE;
-				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
-				HierarchyInformationControl h = new HierarchyInformationControl(parent, shellStyle, treeStyle, commandId) ;
-				
+				int shellStyle = SWT.RESIZE;
+				int treeStyle = SWT.V_SCROLL | SWT.H_SCROLL;
+				HierarchyInformationControl h = new HierarchyInformationControl(parent, shellStyle, treeStyle, commandId);
+
 				h.setBackgroundColor(bg_color);
 				h.setForegroundColor(fg_color);
-				
+
 				return h;
 			}
 		};
-	}	
-	
+	}
+
 	public IInformationPresenter getObjectsPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
-		
+
 		presenter = new InformationPresenter(
 				getObjectsPresenterControlCreator(sourceViewer, 
 						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.objects")) ;
@@ -343,8 +338,8 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 		presenter.setSizeConstraints(50, 20, true, false);
 
 		return presenter;
-	}	
-	
+	}
+
 	public IInformationPresenter getOutlinePresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
 		presenter= new InformationPresenter(
@@ -358,8 +353,8 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 		}
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
-	}	
-	
+	}
+
 	public IInformationPresenter getHierarchyPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 		InformationPresenter presenter;
 		presenter= new InformationPresenter(
@@ -367,19 +362,19 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 						SVUiPlugin.PLUGIN_ID + ".editor.open.quick.hierarchy")) ;
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		presenter.setAnchor(AbstractInformationControlManager.ANCHOR_GLOBAL);
-		IInformationProvider provider = new SVElementProvider(fEditor); 
+		IInformationProvider provider = new SVElementProvider(fEditor);
 		for (String ct : getConfiguredContentTypes(sourceViewer)) {
 			presenter.setInformationProvider(provider, ct);
 		}
 		presenter.setSizeConstraints(50, 20, true, false);
 		return presenter;
-	}	
-	
-    @Override
-    protected Map<String, IAdaptable> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
-            Map<String, IAdaptable> targets= super.getHyperlinkDetectorTargets(sourceViewer);
-            targets.put("net.sf.sveditor.ui.svCode", fEditor); //$NON-NLS-1$
-            return targets;
-    }
+	}
+
+	@Override
+	protected Map<String, IAdaptable> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
+		Map<String, IAdaptable> targets = super.getHyperlinkDetectorTargets(sourceViewer);
+		targets.put("net.sf.sveditor.ui.svCode", fEditor); //$NON-NLS-1$
+		return targets;
+	}
 
 }
