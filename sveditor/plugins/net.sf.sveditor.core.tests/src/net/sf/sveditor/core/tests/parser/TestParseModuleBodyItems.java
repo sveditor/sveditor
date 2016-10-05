@@ -1655,6 +1655,19 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"top_module", "m1", "m2", "m3"});
 	}
 	
+	public void testModInstBasic() {
+		String testname = "testModInstArray";
+		String doc = 
+				"module top_module;\n" +
+						"	mymodule m1 (.a(a),.b, .c());\n" +
+						"	mymodule m2(c,d);\n" +
+						"	mymodule m3(in1, in2, /*out1 no-connect*/, out2);\n" +	// #453 Parser error: Unconnected ports being flagged as an error 
+						"endmodule\n"
+						;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"top_module", "m1", "m2", "m3"});
+	}
+	
 	public void testDPIExportImport() {
 		String testname = "testDPIExportImport";
 		String doc = 

@@ -21,6 +21,8 @@
 
 - Feature Request: Added ability to run the indenter on multiple files from
    the Project Explorer (Select file(s)>Right-Click>Source>Format)
+   
+- #453 Parser error: Unconnected ports being flagged as an error 
 
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
