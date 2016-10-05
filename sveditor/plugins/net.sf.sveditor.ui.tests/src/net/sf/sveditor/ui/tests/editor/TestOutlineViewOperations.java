@@ -720,6 +720,81 @@ public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 	}
 	
 	
+	/**
+	 * Check for items we intentionally hide
+	 * @throws CoreException
+	 * @throws InterruptedException
+	 * @throws BadLocationException
+	 */
+	public void testOutlineViewHidden() throws CoreException, InterruptedException, BadLocationException {
+		String testname = "testOutlineViewHidden";
+		LogHandle log = LogFactory.getLogHandle(testname);
+		log.setDebugLevel(LogHandle.LEVEL_MAX);
+		SVCorePlugin.getDefault().enableDebug(false);
+		cleanupWorkspace();
+		
+		CoreReleaseTests.clearErrors();
+//		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+		
+		IProject project = TestUtils.createProject(testname);
+		addProject(project);
+		
+		// Module containing a number of common items
+		String class_file =
+				"module amodule;\n" +
+						"	timeunit 1ns ;\n" +
+						"	timeprecision 1ps ;\n" +
+						"endmodule\n" +
+						"\n"
+						;
+		// Expected data
+		String [] expected_names = {
+		};
+		
+		TestUtils.copy(class_file, project.getFile("testfile.sv"));
+		
+		// Setup appropriate project settings
+		IEditorPart testfile_sv = SVEditorUtil.openEditor("${workspace_loc}/" + testname + "/testfile.sv");
+		assertNotNull(testfile_sv);
+		assertTrue((testfile_sv instanceof SVEditor));
+		SVEditor editor = (SVEditor)testfile_sv;
+		addEditor(editor);
+		
+		// Propagate events
+		while (Display.getDefault().readAndDispatch()) {}
+		
+		IViewPart outline_v = testfile_sv.getSite().getPage().showView("org.eclipse.ui.views.ContentOutline");
+		assertNotNull(outline_v);
+		while (Display.getDefault().readAndDispatch()) {}
+		
+		SVOutlinePage outline = (SVOutlinePage)editor.getAdapter(IContentOutlinePage.class);
+		
+		ITreeContentProvider cp = outline.getContentProvider();
+		SVOutlineContent content = new SVOutlineContent(editor.getSVDBFile(), null);
+		cp.inputChanged(null, null, content);
+		
+		Object root_roots[] = cp.getElements(content);
+		
+		// Checking top
+		Object children0[] = cp.getChildren(root_roots[0]);
+		assertEquals(1, root_roots.length);
+		assertTrue(root_roots[0] instanceof SVDBModuleDecl);
+		assertEquals(((SVDBItem) root_roots[0]).getName(), "amodule");
+		assertEquals(expected_names.length+2, children0.length);
+		
+		// Check the text
+		SVTreeLabelProvider lp = new SVTreeLabelProvider();
+		for (int i=0; i<expected_names.length; i++)  {
+			assertEquals(expected_names[i], lp.getStyledText(children0[i]).getString());
+		}
+		
+		// Check the type and text in the outline
+//		assertTrue(children0[ 0] instanceof SVDBProperty);
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}
+	
+	
 	public void testOutlineViewInterface() throws CoreException, InterruptedException, BadLocationException {
 		String testname = "testOutlineViewInterface";
 		LogHandle log = LogFactory.getLogHandle(testname);

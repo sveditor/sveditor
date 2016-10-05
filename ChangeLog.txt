@@ -7,6 +7,8 @@
 
 - Feature request: #(114) Implement "Go to Previous/Next Member" command in SV
 
+- Feature request: #117 Add "Create Javadoc/Natural DOC" keybinding - Alt+Shift+J 
+
 - #446 Line number not captured in for generate loop
 
 - #448 Outline View: Modports not displaying correctly / cryptically 
@@ -15,11 +17,14 @@
 
 - #447 Indenter: Clocking blocks not indented
 
-- #451 Outline View: No icon for program blocks  
-
 - #(nobug) - Correct an issue with the "Add Project Path" dialog on the
   SystemVerilog Project Properties page.
   
+- #451 Outline View: No icon for program blocks
+
+- Feature Request: Added ability to run the indenter on multiple files from
+   the Project Explorer (Select file(s)>Right-Click>Source>Format)
+
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
 
