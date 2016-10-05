@@ -41,13 +41,8 @@ public class AddFilePathDialog extends Dialog {
 	
 	public AddFilePathDialog(Shell shell, IProject p, String title) {
 		super(shell);
-		fTitle = title;
-	}
-	
-	public AddFilePathDialog(Shell shell, IProject p) {
-		super(shell);
 		fProject = p;
-		fTitle="";
+		fTitle = title;
 	}
 	
 	public void setInitialPath(String path) {

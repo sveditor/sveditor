@@ -16,6 +16,10 @@
 - #447 Indenter: Clocking blocks not indented
 
 - #451 Outline View: No icon for program blocks  
+
+- #(nobug) - Correct an issue with the "Add Project Path" dialog on the
+  SystemVerilog Project Properties page.
+  
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --
 
