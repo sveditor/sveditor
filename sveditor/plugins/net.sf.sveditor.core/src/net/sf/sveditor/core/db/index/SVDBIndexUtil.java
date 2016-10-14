@@ -46,6 +46,12 @@ public class SVDBIndexUtil {
 	
 	private static LogHandle		fLog = LogFactory.getLogHandle("SVDBIndexUtil");
 	
+	/**
+	 * Gets the SVDB file associated with a given file
+	 * 
+	 * @param file
+	 * @return
+	 */
 	public static SVDBFile findIndexFile(IFile file) {
 		SVDBFile ret = null;
 		
