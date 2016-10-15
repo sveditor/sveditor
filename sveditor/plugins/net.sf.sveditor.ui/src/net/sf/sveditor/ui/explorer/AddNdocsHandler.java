@@ -77,7 +77,7 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 					SVDBFile svdbf = SVDBIndexUtil.findIndexFile(file);
 
 					StringTextScanner scanner = new StringTextScanner(contents);
-					IDocCommentAdder dca = new DocCommentAdder(svdbf, scanner, true);
+					IDocCommentAdder dca = new DocCommentAdder(svdbf, SVDBIndexUtil.findIndexIterator(file), scanner, true);
 					ArrayList<Tuple<Object, String>> fComments = dca.AddComments(-1);
 					ArrayList<String> lines = new ArrayList<String>(Arrays.asList(contents.split("\n")));
 					// Restore \n's

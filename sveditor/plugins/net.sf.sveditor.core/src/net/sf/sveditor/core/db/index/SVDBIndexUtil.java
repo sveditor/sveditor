@@ -72,6 +72,32 @@ public class SVDBIndexUtil {
 	}
 	
 	/**
+	 * Gets the SVDB Iterator file associated with a given file
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static ISVDBIndexIterator findIndexIterator(IFile file) {
+		ISVDBIndexIterator ret = null;
+		
+		// First, find the project that manages this file
+		SVDBProjectManager p_mgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pd = p_mgr.getProjectData(file.getProject());
+		ret = pd.getProjectIndexMgr();
+		
+//		if (pd != null) {
+//			List<SVDBSearchResult<SVDBFile>> result = 
+//					pd.getProjectIndexMgr().findFile(
+//							"${workspace_loc}" + file.getFullPath());
+//			if (result.size() > 0) {
+//				ret = result.get(0).getItem();
+//			}
+//		}
+		
+		return ret;
+	}
+	
+	/**
 	 * findIndexFile()
 	 * 
 	 * @param path

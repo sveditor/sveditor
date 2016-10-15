@@ -13,19 +13,27 @@ package net.sf.sveditor.core.docs;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFunction;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBProgramDecl;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.search.SVDBFindDocComment;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.ITextScanner;
@@ -50,6 +58,7 @@ public class DocCommentAdder implements IDocCommentAdder {
 	String fLineDelimiter = "\n";
 	private String[] fLines;
 	private String   fStringFullFile;
+	private ISVDBIndexIterator fIndexIterator;
 
 	/**
 	 * @param svdbfile
@@ -58,11 +67,12 @@ public class DocCommentAdder implements IDocCommentAdder {
 	 * @param fullfile
 	 *            - parse full file if true
 	 */
-	public DocCommentAdder(SVDBFile svdbfile, ITextScanner scanner, boolean fullfile) {
+	public DocCommentAdder(SVDBFile svdbfile, ISVDBIndexIterator iterator, ITextScanner scanner, boolean fullfile) {
 		fFullFile = fullfile;
 		fLog = LogFactory.getLogHandle("SVEDocCommentAdder");
 		fSVDBFile = svdbfile;
 		fStringFullFile = "";
+		fIndexIterator = iterator;
 
 		// Convert the text into a string array which might be useful to us
 		// TODO: there must be a better way of doing this... this is painful
@@ -140,6 +150,18 @@ public class DocCommentAdder implements IDocCommentAdder {
 		boolean foundit = false;
 		StringBuilder sb = new StringBuilder();
 
+		// Check if we already have a NDOC comment
+		if (fIndexIterator != null)  {
+			SVDBFindDocComment finder = new SVDBFindDocComment(fIndexIterator);
+			SVDBDocComment docCom = finder.find(new NullProgressMonitor(), child);
+	
+			if(docCom != null) {
+				fLog.debug(ILogLevel.LEVEL_MID,
+					String.format("Did not find doc comment for(%s)", SVDBItem.getName(child)));
+				return false;
+			}
+		}
+		
 		if (fFullFile || (fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
 			String leadingWS = "";
 			// Figure out what the leading whitespace is on the current line
