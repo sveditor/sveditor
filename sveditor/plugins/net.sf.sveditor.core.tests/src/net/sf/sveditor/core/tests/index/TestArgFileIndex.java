@@ -857,7 +857,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String data_root = "/data/index/libdir_mfcu/";
 		utils.copyBundleDirToFS(data_root, fTmpDir);

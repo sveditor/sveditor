@@ -478,15 +478,12 @@ public class SVFileUtils {
 			} else if (path.startsWith(".")) {
 				path = base_location + "/" + path.substring(2);
 			} else {
-				if (!fs_provider.fileExists(path) && !fs_provider.isDir(path)) {
-					// See if this is an implicit path
-					String imp_path = base_location + "/" + path;
-
-					if (fs_provider.fileExists(imp_path) || fs_provider.isDir(imp_path)) {
-						// This path is an implicit relative path that is
-						// relative to the base directory
-						path = imp_path;
-					}
+				// First, check whether the file exists inside the base location
+				// Directly checking the unresolved path can result in strangeness
+				// when a relative path with the same name exists in the working directory
+				String try_path = base_location + "/" + path;
+				if (fs_provider.fileExists(try_path) || fs_provider.isDir(try_path)) {
+					path = try_path;
 				}
 			}
 			norm_path = normalizePath(path);

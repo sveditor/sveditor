@@ -126,14 +126,17 @@ public class SVDBArgFileParser implements ILogLevelListener {
 			} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 				SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
 
+				fLog.debug(LEVEL_MID, "Processing source-library path " + stmt.getSrcLibPath());
 				if (fFSProvider.isDir(stmt.getSrcLibPath())) {
 					List<String> paths = fFSProvider.getFiles(stmt.getSrcLibPath());
 					Set<String> exts = SVFScanner.getSrcExts();
 					for (String file_p : paths) {
+						fLog.debug(LEVEL_MID, "  Processing child path: " + file_p);
 						int last_dot = file_p.lastIndexOf('.');
 						if (last_dot != -1) {
 							String ext = file_p.substring(last_dot);
 							if (exts.contains(ext)) {
+								fLog.debug(LEVEL_MID, "  -> Adding to source file list");
 								src_files.add(file_p);
 							}
 						}
@@ -434,14 +437,20 @@ public class SVDBArgFileParser implements ILogLevelListener {
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
 
-					if (fFSProvider.isDir(stmt.getSrcLibPath())) {
-						List<String> paths = fFSProvider.getFiles(stmt.getSrcLibPath());
+					String res_p = SVFileUtils.resolvePath(stmt.getSrcLibPath(),
+							sub_base_location_dir, fFSProvider, fInWorkspaceOk);
+					fLog.debug(LEVEL_MID, "Processing LibPath " + res_p + 
+							" (sub_base_location_dir=" + sub_base_location_dir + ")");
+					if (fFSProvider.isDir(res_p)) {
+						List<String> paths = fFSProvider.getFiles(res_p);
 						Set<String> exts = SVFScanner.getSrcExts();
 						for (String file_p : paths) {
+							fLog.debug(LEVEL_MID, "  Processing LibPath file " + file_p);
 							int last_dot = file_p.lastIndexOf('.');
 							if (last_dot != -1) {
 								String ext = file_p.substring(last_dot);
 								if (exts.contains(ext)) {
+									fLog.debug(LEVEL_MID, "  -> Adding as libFile");
 									build_data.addLibFile(file_p);
 								}
 							}
