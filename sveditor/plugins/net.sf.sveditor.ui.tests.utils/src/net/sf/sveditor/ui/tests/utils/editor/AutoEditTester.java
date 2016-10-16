@@ -173,6 +173,10 @@ public class AutoEditTester {
 	public int getCaretLine() throws BadLocationException {
 		return fDoc.getLineOfOffset(fCaretOffset);
 	}
+	
+	public int getLineOfOffset(int offset) throws BadLocationException {
+		return fDoc.getLineOfOffset(offset);
+	}
 
 	public int getCaretColumn() throws BadLocationException {
 		IRegion region = fDoc.getLineInformationOfOffset(fCaretOffset);

@@ -155,7 +155,6 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	}
 	
 	private ISVDBItemBase findSVDBItem(ISVDBChildParent scope) {
-		
 		for (ISVDBChildItem c : scope.getChildren()) {
 			if (SVDBItem.getName(c).equals(fName) && c.getType() == getType()) {
 				return c;

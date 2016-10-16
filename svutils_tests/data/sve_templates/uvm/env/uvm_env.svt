@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="com.github.sve_templates.uvm" description="Sketon UVM Testbench Environment, including simulation scripts." id="com.github.sve_templates.uvm_env" name="Testbench Environment">
+<description/>
+<parameters/>
+<files>
+<file executable="false" name="env/env.sh" template="env/env.sh"/>
+<file executable="false" name="sim/scripts/Makefile" template="sim/scripts/Makefile"/>
+<file executable="true" name="sim/scripts/status.sh" template="sim/scripts/status.sh"/>
+<file executable="false" name="sim/scripts/vlog.f" template="sim/scripts/vlog.f"/>
+<file executable="false" name="sim/testlists/${name}_alltests.tl" template="sim/testlists/alltests.tl"/>
+<file executable="false" name="sim/tests/${name}_base_test.f" template="sim/tests/base_test.f"/>
+<file executable="false" name="simscripts/LICENSE" template="simscripts/LICENSE"/>
+<file executable="false" name="simscripts/README.md" template="simscripts/README.md"/>
+<file executable="true" name="simscripts/bin/runtest.pl" template="simscripts/bin/runtest.pl"/>
+<file executable="false" name="simscripts/mkfiles/common_defs.mk" template="simscripts/mkfiles/common_defs.mk"/>
+<file executable="false" name="simscripts/mkfiles/common_rules.mk" template="simscripts/mkfiles/common_rules.mk"/>
+<file executable="false" name="simscripts/mkfiles/common_sim.mk" template="simscripts/mkfiles/common_sim.mk"/>
+<file executable="false" name="simscripts/mkfiles/common_sim_target.mk" template="simscripts/mkfiles/common_sim_target.mk"/>
+<file executable="false" name="simscripts/mkfiles/plusargs.mk" template="simscripts/mkfiles/plusargs.mk"/>
+<file executable="false" name="simscripts/mkfiles/sim_mk/common_sim_qs.mk" template="simscripts/mkfiles/sim_mk/common_sim_qs.mk"/>
+<file executable="false" name="simscripts/set_env.csh" template="simscripts/set_env.csh"/>
+<file executable="false" name="simscripts/set_env.sh" template="simscripts/set_env.sh"/>
+<file executable="false" name="tb/${name}_env.svh" template="tb/env.svh"/>
+<file executable="false" name="tb/${name}_env_pkg.sv" template="tb/env_pkg.sv"/>
+<file executable="false" name="tb/${name}_tb.sv" template="tb/tb.sv"/>
+<file executable="false" name="tests/${name}_test_base.svh" template="tests/test_base.svh"/>
+<file executable="false" name="tests/${name}_tests_pkg.sv" template="tests/tests_pkg.sv"/>
+<file executable="false" name="sve.f" template="sve.f"/>
+</files>
+</template>
+</sv_template>

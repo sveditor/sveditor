@@ -95,7 +95,8 @@ public class AddNdocsAction extends TextEditorAction {
 			if (fComments.size() > 0) {
 				String comment = fComments.get(0).second();
 				int comment_length = comment.length();
-				doc.replace(doc.getLineOffset((int) fComments.get(0).first() - 1), 0, comment);
+				Integer offset = (Integer)fComments.get(0).first();
+				doc.replace(doc.getLineOffset(offset - 1), 0, comment);
 
 				if ((fCurrentLine < doc.getNumberOfLines() + 1) && (fCurrentLine > -1)) {
 					text.setCaretOffset(start_offset + comment_length);

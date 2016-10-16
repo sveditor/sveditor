@@ -377,6 +377,64 @@ public class TestAdaptiveIndent extends TestCase {
 		IndentComparator.compare(log, "testAdaptiveFirstLevelScope", expected, result);
 		LogFactory.removeLogHandle(log);
 	}
+
+	public void testAdaptiveDistCloseBrace() {
+		String content =
+				"class someclass;\n" +
+				"	constraint clock {\n" +
+				"		clk_cfg.period dist {\n" +
+				"			[1:10  ] :/ 1,\n" +
+				"			11       := 1,\n" +
+				"			12       := 1,\n" +
+				"			[13: 15] :/ 1\n" +
+				"};\n" + 
+				"clk_cfg.jitter < (3 * 1000);\n" +
+				"\n";
+		
+		String expected =
+				"class someclass;\n" +						// 1
+				"	constraint clock {\n" +
+				"		clk_cfg.period dist {\n" +
+				"			[1:10  ] :/ 1,\n" +
+				"			11       := 1,\n" +				// 5
+				"			12       := 1,\n" +
+				"			[13: 15] :/ 1\n" +				// 7
+				"		};\n" + 
+				"		clk_cfg.jitter < (3 * 1000);\n" +
+				"\n";
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		LogHandle log = LogFactory.getLogHandle(getName());
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(7);
+
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare(log, getName() + " - Adaptive", expected, result);
+
+		scanner = new SVIndentScanner(new StringTextScanner(content));
+		indenter.init(scanner);
+		
+		indenter.setAdaptiveIndent(false);
+		indenter.setAdaptiveIndentEnd(-1);
+
+		result = indenter.indent();
+		
+		log.debug("Result (Full):");
+		log.debug(result);
+		IndentComparator.compare(log, getName() + " - Full", expected, result);
+		
+		LogFactory.removeLogHandle(log);
+	}
 	
 	private void coreAutoIndentTest(
 			String testname, 

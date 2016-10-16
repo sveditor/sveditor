@@ -133,6 +133,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		SVIndentToken tok;
 
 		fNLeftParen = fNRightParen = 1;
+		
+		fTokenList.clear();
 
 		while ((tok = next()) != null) {
 
@@ -767,6 +769,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	private static boolean is_close_brace(SVIndentToken tok) {
 		return (tok.isOp(")") || tok.isOp("}") ||
 				tok.isOp("]"));
+	}
+	
+	public static boolean is_close_brace(String str) {
+		return (str.equals(")") || str.equals("}") ||
+				str.equals("]"));
 	}
 
 	/**
@@ -1762,7 +1769,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				fIndentStack.peek().setFirst(fCurrentIndent);
 			}
-			debug("Set indent implicit=" + implicit + " \"" + tok.getImage()
+			debug("Set indent implicit=" + implicit + " ok_to_reset=" + 
+					ok_to_reset_indent + " isAdativeTraining=" + 
+					isAdaptiveTraining(tok) + " is_exceptional=" + 
+					is_exceptional_tok + " \"" + tok.getImage()
 					+ "\" \"" + peek_indent() + "\"");
 			tok.setLeadingWS(peek_indent());
 		}
@@ -1821,21 +1831,35 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	 */
 	private SVIndentToken consume_expression() {
 		SVIndentToken tok = current();
+		
+		if (fDebugEn) {
+			fLog.debug("--> consume_expression tok=" + tok.getImage());
+		}
 		boolean is_indent = false;
 		boolean search_for_close_brace = false;
+		boolean scope_started = false;
 		// Get next token
 		if (is_open_brace(tok)) {
+			
+			// Open brace is just before the new scope
+			// start_of_scope captures the indent for this line, 
+			// since we'll want to restore that indent on exit
+			if (tok.isEndLine()) {
+				start_of_scope(tok);
+				scope_started = true;
+			}
+			
 			tok = next_s();
 			search_for_close_brace = true;
-			if (tok.isEndLine()) {
-				// Should indent (?)
-			}
 		}
+		
 		do {
 			// braces on a new line get indented
 			if (tok.isStartLine() && (is_indent == false)) {
 				is_indent = true;
-				start_of_scope(tok);
+				if (!scope_started) {
+					start_of_scope(tok);
+				}
 				enter_scope(tok);
 			}
 			// If we have an open brace, check if we need to indent, and call this function again to evaluate the expression
@@ -1853,12 +1877,16 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		// If we come back (will be on a brace, and we had just indented,
 		if (is_indent) {
 			leave_scope(tok);
+//			end_of_scope(tok);
 		}
 
 		if (is_close_brace(tok)) {
 			tok = next_s();
 		}
 
+		if (fDebugEn) {
+			fLog.debug("<-- consume_expression tok=" + tok.getImage());
+		}
 		return tok;
 	}
 
@@ -1909,7 +1937,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				stay_in_while = false;
 			} else if (tok.getType() == SVIndentTokenType.SingleLineComment) {
 				stay_in_while = true;
-				set_indent(tok, true, true);
+				// Only sample or set the indent if the comment is 
+				// at the beginning of a line.
+				if (tok.isStartLine()) {
+					set_indent(tok, true, true);
+				}
 				fTokenList.add(tok);
 				tok = fScanner.next();
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
@@ -2054,7 +2086,13 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		while (i > 0 && 
 				(fTokenList.get(i).getType() == SVIndentTokenType.SingleLineComment ||
 				fTokenList.get(i).getType() == SVIndentTokenType.MultiLineComment)) {
-			fTokenList.get(i).setLeadingWS(tok.getLeadingWS());
+			
+			// Don't set leading whitespace for single-line non-start-of-line
+			// comments
+			if (fTokenList.get(i).getType() == SVIndentTokenType.MultiLineComment ||
+					fTokenList.get(i).isStartLine()) {
+				fTokenList.get(i).setLeadingWS(tok.getLeadingWS());
+			}
 			i--;
 		}
 	}

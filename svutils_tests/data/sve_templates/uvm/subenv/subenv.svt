@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="com.github.sve_templates.uvm" description="UVM sub-environment. A sub-environment does not include the scripting environment&#13;&#10;" id="com.github.sve_templates.uvm.subenv" name="Sub-environment">
+<description/>
+<parameters/>
+<files>
+
+<file executable="false" name="sim/scripts/Makefile" template="sim/scripts/Makefile"/>
+<file executable="true" name="sim/scripts/status.sh" template="sim/scripts/status.sh"/>
+<file executable="false" name="sim/scripts/vlog.f" template="sim/scripts/vlog.f"/>
+<file executable="false" name="sim/testlists/${name}_alltests.tl" template="sim/testlists/alltests.tl"/>
+<file executable="false" name="sim/tests/${name}_base_test.f" template="sim/tests/base_test.f"/>
+
+
+
+
+
+
+
+
+
+
+
+<file executable="false" name="tb/${name}_env.svh" template="tb/env.svh"/>
+<file executable="false" name="tb/${name}_env_pkg.sv" template="tb/env_pkg.sv"/>
+<file executable="false" name="tb/${name}_tb.sv" template="tb/tb.sv"/>
+<file executable="false" name="tests/${name}_test_base.svh" template="tests/test_base.svh"/>
+<file executable="false" name="tests/${name}_tests_pkg.sv" template="tests/tests_pkg.sv"/>
+<file executable="false" name="sve.F" template="sve.F"/>
+</files>
+</template>
+</sv_template>

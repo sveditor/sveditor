@@ -918,7 +918,9 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 			}
 			fTokenConsumed = false;
 			if (fDebugEn) {
-				fLog.debug("next_token(): \"" + fImage + "\"");
+				fLog.debug("next_token(): \"" + fImage + "\" @ " +
+						SVDBLocation.unpackFileId(fStartLocation) + ":" +
+						SVDBLocation.unpackLineno(fStartLocation));
 				fLog.debug("<-- next_token_int()");
 			}
 			return true;

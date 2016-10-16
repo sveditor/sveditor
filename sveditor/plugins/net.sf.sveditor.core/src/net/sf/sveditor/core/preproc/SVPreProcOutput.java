@@ -23,49 +23,21 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	private StringBuilder					fText;
 	private int								fTextLength;
 	private SVDBFileTree					fFileTree;
-	private List<Integer>					fLineMap;
-	private int								fLineIdx;
-	private int								fNextLinePos;
-	private List<FileChangeInfo>			fFileMap;
-	private List<String>					fFileList;
+
 	private int								fFileId;
-	private int								fFileIdx;
-	private int								fNextFilePos;
 	private int								fIdx;
+	private int								fLastCh;
+	private boolean							fIncLineno;
 	private int								fUngetCh1, fUngetCh2;
-	private boolean							fLineValid;
 	
-	public SVPreProcOutput(
-			StringBuilder 			text,
-			List<Integer>			line_map,
-			List<FileChangeInfo>	file_map,
-			List<String>			file_list) {
+	public SVPreProcOutput(StringBuilder text) {
 		fText = text;
 		fIdx = 0;
 		
-		fLineIdx = 0;
-		fLineMap = line_map;
-		if (line_map != null && line_map.size() > 1) {
-			fNextLinePos = line_map.get(1);
-		} else {
-			fNextLinePos = Integer.MAX_VALUE;
-			fLineMap = new ArrayList<Integer>();
-		}
 		fLineno = 1;
+		fIncLineno = true;
+		fFileId = 0;
 		
-		fFileIdx = 0;
-		fFileMap = file_map;
-		fFileList = file_list;
-		
-		/*
-		if (file_map.size() > 0) {
-			fNextFilePos = line_map.get(1);
-		} else {
-			fNextFilePos = Integer.MAX_VALUE;
-		}
-		 */
-		fNextFilePos = -1;
-	
 		int length = fText.length();
 		for (int i=0; i<length; i++) {
 			if (fText.charAt(i) == '\r') {
@@ -78,11 +50,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	}
 	
 	public SVPreProcOutput duplicate() {
-		return new SVPreProcOutput(
-				fText, 
-				fLineMap,
-				fFileMap,
-				fFileList);
+		return new SVPreProcOutput(fText);
 	}
 	
 	public void setFileTree(SVDBFileTree ft) {
@@ -93,14 +61,6 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		return fFileTree;
 	}
 	
-	public List<String> getFileList() {
-		return fFileList;
-	}
-	
-	public List<FileChangeInfo> getFileMap() {
-		return fFileMap;
-	}
-
 	/*
 	public void setFileIdList(List<Integer> id_list) {
 		fFileIdList = id_list;
@@ -115,7 +75,50 @@ public class SVPreProcOutput extends AbstractTextScanner {
 			fUngetCh2 = -1;
 		} else if (fIdx < fTextLength) {
 			ch = fText.charAt(fIdx++);
-			fLineValid = false;
+		
+			// Only expect `line directives
+			if (ch == '`' && fIdx < fText.length() && fText.charAt(fIdx) == 'l') {
+				int start = fIdx;
+				// Directive
+				String line;
+				
+				while (fIdx < fText.length() && fText.charAt(fIdx++) != '\n') { }
+				line = fText.substring(start, fIdx-1);
+				
+				int ws_idx = line.indexOf(' ');
+				int colon_idx = line.indexOf(':', ws_idx);
+				int colon2_idx = line.indexOf(':', colon_idx+1);
+				
+				try {
+					if (ws_idx != -1 && colon_idx != -1) {
+						fFileId = Integer.parseInt(line.substring(ws_idx+1, colon_idx));
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					if (colon_idx != -1 && colon2_idx != -1) {
+						fLineno = Integer.parseInt(line.substring(colon_idx+1, colon2_idx));
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				}
+				
+				try {
+					if (colon2_idx != -1) {
+						int inc = Integer.parseInt(line.substring(colon2_idx+1));
+						fIncLineno = (inc==1);
+					}
+				} catch (NumberFormatException e) {
+					e.printStackTrace();
+				}
+				
+				ch = (fIdx < fText.length())?fText.charAt(fIdx++):-1;
+			} else if (fLastCh == '\n' && fIncLineno) {
+				fLineno++;
+			}
+			fLastCh = ch;
 		}
 		return ch;
 	}
@@ -128,71 +131,17 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	
 	@Override
 	public int getFileId() {
-		if (!fLineValid) {
-			update_location();
-		}
 		return fFileId;
 	}
 
 	@Override
 	public int getLineno() {
-		if (!fLineValid) {
-			update_location();
-		}
 		return fLineno;
 	}
 
 	@Override
 	public int getLinepos() {
-		if (!fLineValid) {
-			update_location();
-		}
 		return fLinepos;
-	}
-
-	public void update_location() {
-		// Spin the line location forward if necessary
-		if (fIdx >= fNextLinePos) {
-			// Need to move forward
-			while (fLineIdx < fLineMap.size() &&
-					fLineMap.get(fLineIdx) < fIdx) {
-				fLineIdx++;
-				fLineno++;
-			}
-		
-			// Once we reach the last line, ensure we
-			// don't keep doing this
-			if (fLineIdx >= fLineMap.size()) {
-				fNextLinePos = Integer.MAX_VALUE;
-			} else {
-				fNextLinePos = fLineMap.get(fLineIdx);
-			}
-		} 
-		
-		if (fIdx >= fNextFilePos && fFileMap.size() > 0) {
-			// Move forward to find the next file ID
-			while (fFileIdx < fFileMap.size() &&
-					fFileMap.get(fFileIdx).fStartIdx < fIdx) {
-				fFileIdx++;
-			}
-			
-			if (fFileIdx >= fFileMap.size()) {
-				fNextFilePos = Integer.MAX_VALUE;
-				fFileId = fFileMap.get(fFileIdx-1).fFileId;
-				fLineno = fFileMap.get(fFileIdx-1).fLineno;
-			} else {
-				fNextFilePos = fFileMap.get(fFileIdx).fStartIdx;
-				if (fFileIdx > 0) {
-					fFileId = fFileMap.get(fFileIdx-1).fFileId;
-					fLineno = fFileMap.get(fFileIdx-1).fLineno;
-				} else {
-					fFileId = fFileMap.get(fFileIdx).fFileId;
-					fLineno = fFileMap.get(fFileIdx).fLineno;
-				}
-			}
-		}
-		
-		fLineValid = true;
 	}
 
 	public long getPos() {

@@ -73,6 +73,13 @@ public class SVPreProc2InputData {
 			ch = fUngetCh1;
 			fUngetCh1 = fUngetCh2;
 			fUngetCh2 = -1;
+		
+			if (fIncPos) {
+				if (fLastCh == '\n') {
+					fLineno++;
+					fLineCount++;
+				}
+			}
 			fLastCh = -1;
 		} else {
 			try {

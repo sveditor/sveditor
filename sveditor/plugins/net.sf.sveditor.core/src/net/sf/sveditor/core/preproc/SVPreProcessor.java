@@ -30,19 +30,19 @@ import net.sf.sveditor.core.docs.DocCommentParser;
 import net.sf.sveditor.core.docs.DocTopicManager;
 import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 
 
 public class SVPreProcessor extends AbstractTextScanner 
 		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener,
-					ISVStringPreProcessor {
+					ISVStringPreProcessor, ILogLevel {
 	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private StringBuilder							fOutput;
@@ -61,9 +61,7 @@ public class SVPreProcessor extends AbstractTextScanner
 	private Stack<Integer>							fPreProcEn;
 	private Stack<Long>								fPreProcLoc;
 	private IPreProcMacroProvider					fMacroProvider;
-	private SVPreProcDefineProvider					fDefineProvider;
 	private SVSingleLevelMacroExpander				fMacroExpander;
-	private static final boolean					fUseMacroExpander = true;
 	private LogHandle								fLog;
 	private boolean									fDebugEn = false;
 	
@@ -75,6 +73,12 @@ public class SVPreProcessor extends AbstractTextScanner
 	private Map<String, SVDBMacroDef>				fMacroMap = new HashMap<String, SVDBMacroDef>();
 	private List<IPreProcListener>					fListeners;
 	private boolean									fHaveListeners;
+	
+	private boolean									fEmitLineDirectives;
+	
+	private int										fLastFileId = 0;
+	private int										fLastLineNo = 0;
+	private boolean									fLastIncEn = false;
 	
 	private static final int    PP_DISABLED 			= 0;
 	private static final int    PP_ENABLED  			= 1;
@@ -132,6 +136,8 @@ public class SVPreProcessor extends AbstractTextScanner
 		fPreProcLoc = new Stack<Long>();
 		fFileMap = new ArrayList<SVPreProcOutput.FileChangeInfo>();
 		fFileList = new ArrayList<String>();
+		
+		fEmitLineDirectives = true;
 
 		fIncFileProvider 	= inc_provider;
 		fFileMapper			= file_mapper;
@@ -139,8 +145,6 @@ public class SVPreProcessor extends AbstractTextScanner
 	
 		fMacroProvider  = defaultMacroProvider;
 		defaultMacroProvider.setMacro("SVEDITOR", "");
-		fDefineProvider = new SVPreProcDefineProvider(fMacroProvider);
-		fDefineProvider.addErrorListener(this);
 		fMacroExpander = new SVSingleLevelMacroExpander();
 		
 		fLog = LogFactory.getLogHandle("SVPreProcessor2");
@@ -193,6 +197,12 @@ public class SVPreProcessor extends AbstractTextScanner
 		fListeners.remove(l);
 		fHaveListeners = (fListeners.size() > 0);
 	}
+
+	@Override
+	public void setEmitLineDirectives(boolean emit) {
+		System.out.println("setEmitLineDirectives: " + emit);
+		fEmitLineDirectives = emit;
+	}
 	
 	private void sendEvent(PreProcEvent ev) {
 		for (IPreProcListener l : fListeners) {
@@ -214,7 +224,6 @@ public class SVPreProcessor extends AbstractTextScanner
 
 	public void setMacroProvider(IPreProcMacroProvider mp) {
 		fMacroProvider = mp;
-		fDefineProvider.setMacroProvider(mp);
 	}
 	
 	public IPreProcMacroProvider getMacroProvider() {
@@ -232,6 +241,10 @@ public class SVPreProcessor extends AbstractTextScanner
 		start = System.currentTimeMillis();
 		fOutput.setLength(0);
 		fCommentBuffer.setLength(0);
+		
+		// First thing we do is emit a line directive.
+		// This initializes everything for the output 
+		emit_line();
 
 		while ((ch = get_ch()) != -1) {
 			found_single_line_comment = false;
@@ -278,6 +291,9 @@ public class SVPreProcessor extends AbstractTextScanner
 								endComment();
 								break;
 							} else {
+								if (ch == '\n') {
+									fOutput.append('\n');
+								}
 								fCommentBuffer.append((char)ch);
 							}
 						}
@@ -332,8 +348,7 @@ public class SVPreProcessor extends AbstractTextScanner
 			}
 		}
 		
-		SVPreProcOutput ret = new SVPreProcOutput(
-				fOutput, null, fFileMap, fFileList);
+		SVPreProcOutput ret = new SVPreProcOutput(fOutput);
 		ret.setFileTree(fInputCurr.getFileTree());
 		
 		// Clean up after any unbalanced pre-processor directives
@@ -341,16 +356,6 @@ public class SVPreProcessor extends AbstractTextScanner
 	
 		// Leave final file
 		fInputCurr.close();
-		
-		// Finally, save the full pre-processor state to the final file
-		/*
-		last_file.fFileTree.fDefinedMacros.clear();
-		for (Entry<String, SVDBMacroDef> e : fMacroMap.entrySet()) {
-			if (!e.getKey().equals("__FILE__") && !e.getKey().equals("__LINE__")) {
-				last_file.fFileTree.fDefinedMacros.put(e.getKey(), e.getValue());
-			}
-		}
-		 */
 		
 		end = System.currentTimeMillis();
 		
@@ -363,6 +368,11 @@ public class SVPreProcessor extends AbstractTextScanner
 			fIndexStats.incLastIndexPreProcessTime(end-start);
 			fIndexStats.incNumProcessedFiles();
 		}
+		
+//		if (fDebugEn && fLog.getDebugLevel() >= ILogLevel.LEVEL_MAX) {
+//			fLog.debug(ILogLevel.LEVEL_MAX, "PreProcessor Result:\n" + 
+//					fOutput.toString() + "\n");
+//		}
 		
 		return ret;
 	}
@@ -470,8 +480,6 @@ public class SVPreProcessor extends AbstractTextScanner
 				}
 			}
 		} 
-		/*
-		 */
 	}
 	
 	private void handle_preproc_directive() {
@@ -523,6 +531,7 @@ public class SVPreProcessor extends AbstractTextScanner
 			readLine(get_ch());
 		} else if (type.equals("define")) {
 			handle_define_directive(scan_loc);
+			emit_line();
 		} else if (type.equals("include")) {		
 			handle_include_directive(scan_loc);
 		} else if (type.equals("__LINE__") || type.equals("__FILE__")) {
@@ -871,19 +880,15 @@ public class SVPreProcessor extends AbstractTextScanner
 				}
 				
 				if (md != null) {
-					if (fUseMacroExpander) {
-						// TODO: parse the parameter definitions into a list
-						fMacroParams.clear();
-						// Load up the default values. 
-						for (SVDBMacroDefParam p : md.getParameters()) {
-							fMacroParams.add(p.getValue());
-						}
-						
-						SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
-						have_macro_params = true;
-					} else {
-						readMacroParameters(fTmpBuffer, ch);
+					// TODO: parse the parameter definitions into a list
+					fMacroParams.clear();
+					// Load up the default values. 
+					for (SVDBMacroDefParam p : md.getParameters()) {
+						fMacroParams.add(p.getValue());
 					}
+
+					SVSingleLevelMacroExpander.parseMacroCallParams(this, fMacroParams);
+					have_macro_params = true;
 				} else if (ch == '(') { // undefined macro, but appears to be one with params
 					readMacroParameters(fTmpBuffer, ch);
 				} else {
@@ -903,7 +908,7 @@ public class SVPreProcessor extends AbstractTextScanner
 			if (md == null) {
 				// Leave a breadcrumb for the lexer
 				output("`undefined");
-			} else if (fUseMacroExpander) {
+			} else {
 				if (fDebugEn) {
 					fLog.debug("Use MacroExpander: \"" + 
 							fTmpBuffer.toString() + "\"");
@@ -919,34 +924,12 @@ public class SVPreProcessor extends AbstractTextScanner
 					push_input(new SVPreProc2InputData(
 							this, new StringInputStream(""), buffer_macro_name, -1, false));
 				}
+				
 				SVPreProc2InputData in = new SVPreProc2InputData(
 						this, new StringInputStream(exp), 
 						"Macro: " + type, fInputCurr.getFileId(), false);
 				in.setBeginEv(ev_s);
 				push_input(in);
-			} else if (fDefineProvider != null) {
-				try {
-					String exp = fDefineProvider.expandMacro(
-							fTmpBuffer.toString(), fInputCurr.getFileName(), fInputCurr.getLineNo());
-
-					if (fDebugEn) {
-						fLog.debug("Expansion of \"" + 
-								fTmpBuffer.toString() + "\" == " + exp);
-					}
-
-					SVPreProc2InputData in = new SVPreProc2InputData(
-							this, new StringInputStream(exp), 
-							"Macro: " + type, fInputCurr.getFileId(), false);
-					push_input(in);
-				} catch (Exception e) {
-					/*
-						System.out.println("Exception while expanding \"" + 
-								fTmpBuffer.toString() + "\" @ " +
-								getLocation().getFileName() + ":" + 
-								getLocation().getLineNo());
-					 */
-					e.printStackTrace();
-				}
 			}
 		}
 	}
@@ -1101,7 +1084,8 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		SVFileBuffer in_b = new SVFileBuffer(in);
-		SVPreProc2InputData in_data = new SVPreProc2InputData(this, in_b, filename, file_id);
+		SVPreProc2InputData in_data = new SVPreProc2InputData(
+				this, in_b, filename, file_id);
 		add_file_change_info(file_id, in_data.getLineNo());
 
 		
@@ -1183,6 +1167,10 @@ public class SVPreProcessor extends AbstractTextScanner
 		SVPreProc2InputData new_file = fInputStack.peek();
 		fInputCurr = new_file;
 		
+		if (fInputStack.size() == 1) {
+			emit_line();
+		}
+		
 		int file_idx = fFileList.indexOf(new_file.getFileName());
 
 		// We will not have registered ANONYMOUS files
@@ -1194,14 +1182,22 @@ public class SVPreProcessor extends AbstractTextScanner
 			}
 			
 			// Add a marker noting that we're switching to a new file
-			SVPreProcOutput.FileChangeInfo file_info =
-					new SVPreProcOutput.FileChangeInfo(
-							fOutputLen, file_id, new_file.getLineNo());
-			fFileMap.add(file_info);
+			emit_line(file_id, new_file.getLineNo(), 
+					!new_file.getFileName().startsWith("Macro:"));
 		}
 	}
 	
 	private void push_input(SVPreProc2InputData in) {
+		// Macro the beginning of the new file
+		if (fInputCurr != null && !fInputCurr.getFileName().startsWith("Macro:")) {
+			if (in.getFileName().startsWith("Macro:")) {
+				// If we're entering a macro, then stamp the current file and lineno
+				emit_line(fInputCurr.getFileId(), fInputCurr.getLineNo(), false);
+			} else {
+				// If not, then stamp the new file and lineno
+				emit_line(in.getFileId(), in.getLineNo(), true);
+			}
+		}
 		fInputStack.push(in);
 		fInputCurr = in;
 		fInputStackChanged = true;
@@ -1369,7 +1365,7 @@ public class SVPreProcessor extends AbstractTextScanner
 
 			ci = get_ch();
 		}
-		
+
 		unget_ch(ci);
 
 		if (fTmpBuffer.length() == 0) {
@@ -1537,6 +1533,20 @@ public class SVPreProcessor extends AbstractTextScanner
 			fMacroMap.put(macro.getName(), macro);
 		}
 	};
+	
+	private void emit_line() {
+		emit_line(fInputCurr.getFileId(), fInputCurr.getLineNo(), 
+				!fInputCurr.getFileName().startsWith("Macro:"));
+	}
+	
+	private void emit_line(
+			int			fileid,
+			int			lineno,
+			boolean		en_inc) {
+		if (fEmitLineDirectives) {
+			fOutput.append("\n`line " + fileid + ":" + lineno + ":" + ((en_inc)?1:0) + "\n");
+		}
+	}
 	
 	private void update_macro_exp_set() {
 		fMacroExpSet.clear();

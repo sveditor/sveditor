@@ -78,7 +78,7 @@ public class TestParseErrors extends SVCoreTestCaseBase {
 	}	
 
 	public void testUndefinedMacroTFParam() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content = 
 			"\n" +
 			"class my_class;\n" +

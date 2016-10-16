@@ -70,6 +70,7 @@ public class OpenDeclUtils {
 		if (ctxt.fRoot != null && ctxt.fRoot.indexOf('`') != -1 &&
 				ctxt.fTrigger != null && preproc != null) {
 			String str = ctxt.fRoot;
+			preproc.setEmitLineDirectives(false);
 			String result = preproc.preprocess(new StringInputStream(str));
 			result = result.trim();
 			

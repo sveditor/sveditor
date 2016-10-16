@@ -12,7 +12,11 @@ package net.sf.sveditor.ui.editor;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.indent.ISVIndenter;
+import net.sf.sveditor.core.indent.SVDefaultIndenter2;
 import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.ILogListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
@@ -30,20 +34,29 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
 public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy 
-	implements IPropertyChangeListener {
+	implements IPropertyChangeListener, ILogLevelListener {
 	
 	private LogHandle					fLog;
+	private boolean						fDebugEn;
 	private boolean						fAutoIndentEnabled;
 	private SVEditor					editor; 
 	
 	public SVAutoIndentStrategy(SVEditor editor, String p) {
 		fLog = LogFactory.getLogHandle("SVAutoIndentStrategy");
+		logLevelChanged(fLog);
 		this.editor = editor;
 		
 		fAutoIndentEnabled = SVUiPlugin.getDefault().getPreferenceStore().getBoolean(
 				SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S);
 	}
-	
+
+	@Override
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = (fLog.getDebugLevel() > 0);
+	}
+
+
+
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S)) {
 			fAutoIndentEnabled = event.getNewValue().toString().equals("true");
@@ -142,6 +155,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());
 			
+			fLog.debug("    doc_str:\n" + doc_str.toString());
+			
 			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 			SVIndentScanner scanner = new SVIndentScanner(text_scanner);
 			
@@ -155,6 +170,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event
 			try {
+				fLog.debug("    lineno=" + lineno + " target_lineno=" + target_lineno);
 				String result = indenter.indent(lineno+1, (lineno+line_cnt));
 				
 				for (int i=0; i<result.length(); i++) {
@@ -189,6 +205,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 					// Move the insertion point to the start of line
 					cmd.offset -= distance_to_sol;
 					cmd.text = result;
+					
+					fLog.debug("    Modifying offset by " + distance_to_sol + 
+							" setting cmd.text=\"" + result + "\"");
 				}
 			} catch (Exception e) {
 			}
@@ -197,14 +216,19 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+		
 	}
 	
 	private void indentOnKeypress(IDocument doc, DocumentCommand cmd) {
 		StringBuilder doc_str = new StringBuilder();
-		boolean indent_newline;
+		boolean indent_newline = false;
+		boolean is_closebrace = false;
 		
 		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
 			indent_newline = true;
+		} else if (SVDefaultIndenter2.is_close_brace(cmd.text) && 
+				is_beginning_of_line(doc, cmd.offset)) {
+			is_closebrace = true;
 		} else if (cmd.text.length() == 1) {
 			indent_newline = false;
 		} else {
@@ -235,7 +259,12 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// If we're moving to a new line, put a dummy statement in place
 			// as a marker
 			if (indent_newline) {
-				fLog.debug("indent_newline");
+				if (fDebugEn) {
+					fLog.debug("indent_newline");
+				}
+				doc_str.append("DUMMY=5;\n");
+			} else if (is_closebrace) {
+				doc_str.append(";\n");
 				doc_str.append("DUMMY=5;\n");
 			}
 			
@@ -254,21 +283,24 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			// Determine the appropriate indent increment
 			indenter.setIndentIncr(SVUiPlugin.getDefault().getIndentIncr());
-			
 			indenter.init(scanner);
-			
 			indenter.setAdaptiveIndent(true);
-			/*
-			if (cmd.text.equals("\n")) {
-				target_lineno++;
-			}
-			 */
+			
 			if (indent_newline) {
 				target_lineno++;
 				fLog.debug("target_lineno=" + target_lineno);
+			} else if (is_closebrace) {
+				// A close bra
+				target_lineno--;
+				System.out.println("Found close-brace target_lineno=" + target_lineno);
 			}
+			
 			indenter.setAdaptiveIndentEnd(target_lineno);
-			indenter.indent();
+			String ind_result = indenter.indent();
+			
+			if (is_closebrace) {
+				System.out.println("Indented Content:\n" + ind_result);
+			}
 
 			IRegion cmd_line = doc.getLineInformationOfOffset(cmd.offset);
 			String indent = null;
@@ -352,6 +384,23 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		} catch (BadLocationException e) {
 			fLog.error("Problem with auto-indent", e);
 		}
+	}
+	
+	private boolean is_beginning_of_line(IDocument doc, int offset) {
+		boolean ret = false;
+		try {
+			for (int i=offset-1; i>=0; i--) {
+				if (doc.getChar(i) == '\n') {
+					ret = true;
+					break;
+				} else if (!Character.isWhitespace(doc.getChar(i))) {
+					break;
+				}
+			}
+			
+		} catch (BadLocationException e) { }
+		
+		return ret;
 	}
 	
 	public void customizeDocumentCommand(IDocument doc, DocumentCommand cmd) {

@@ -275,6 +275,11 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					parsers().gateInstanceParser().parse(parent);
 					break;
 					
+				case BEGIN:
+					// Really only legal if begin/end is in a generate block
+					fParsers.generateBlockParser().gen_begin_end(parent);
+					break;
+					
 				default:
 					if (SVDataTypeParser.NetTypeE.contains(kw)) {
 						parse_var_decl_net_type (parent);

@@ -142,7 +142,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 		CoreReleaseTests.clearErrors();
 	}
 	
-	protected void rebuildProject(IProject p) {
+	protected void rebuildProject(final IProject p) {
 		Job j = new Job("Rebuild Index") {
 			
 			@Override

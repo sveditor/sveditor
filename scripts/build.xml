@@ -87,10 +87,12 @@
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor.ui.feature"/>
         </antcall>
-    
+
+<!--	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor.svt.feature"/>
-        </antcall>
+	</antcall>
+  -->
     	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor"/>

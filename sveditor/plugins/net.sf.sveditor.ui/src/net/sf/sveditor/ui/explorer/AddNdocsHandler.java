@@ -106,9 +106,10 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 
 						// Find the comment closest to the end of the file
 						for (int i=0; i<fComments.size(); i++)  {
-							if ((int) fComments.get(i).first() > highest_comment)  {
+							Integer offset = (Integer)fComments.get(i).first();
+							if (offset > highest_comment)  {
 								// Get comment and line number
-								highest_comment = (int) fComments.get(i).first();
+								highest_comment = offset;
 								highest_string = fComments.get(i).second();
 								highest_index = i;
 							}

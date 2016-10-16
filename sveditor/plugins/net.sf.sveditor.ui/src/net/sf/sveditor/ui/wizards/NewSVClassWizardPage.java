@@ -153,6 +153,9 @@ public class NewSVClassWizardPage extends AbstractNewSVItemFileWizardPage {
 					return new Object[0];
 				}
 			}
+			
+			public void dispose() { }
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) { }
 		});
 		fPackageList.setLabelProvider(new SVOutlineLabelProvider());
 		fPackageList.setInput(fParent.getIndexIterator(new NullProgressMonitor()));

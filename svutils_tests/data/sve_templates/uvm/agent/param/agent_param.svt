@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<template category="com.github.sve_templates.uvm" description="Template for a parameterized agent. Agent parameters are specified as macros in the package file." id="com.github.sve_templates.uvm.agent_param" name="Parameterized Agent">
+    <description/>
+    <parameters/>
+    <files>
+      <file executable="false" name="${name}_agent.svh" template="agent.svh"/>
+      <file executable="false" name="${name}_agent_pkg.sv" template="agent_pkg.sv"/>
+      <file executable="false" name="${name}_config.svh" template="config.svh"/>
+      <file executable="false" name="${name}_driver.svh" template="driver.svh"/>
+      <file executable="false" name="${name}_monitor.svh" template="monitor.svh"/>
+      <file executable="false" name="${name}_seq_base.svh" template="seq_base.svh"/>
+      <file executable="false" name="${name}_seq_item.svh" template="seq_item.svh"/>
+      <file executable="false" name="sve.F" template="sve.F"/>
+    </files>
+  </template>
+</sv_template>

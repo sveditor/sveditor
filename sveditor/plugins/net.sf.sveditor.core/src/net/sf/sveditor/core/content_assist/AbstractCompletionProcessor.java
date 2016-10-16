@@ -156,6 +156,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 			// Pre-process
 			ISVStringPreProcessor preproc = getPreProcessor(lineno);
 			if (preproc != null) {
+				preproc.setEmitLineDirectives(false);
 				ctxt.fRoot = preproc.preprocess(new StringInputStream(ctxt.fRoot));
 				ctxt.fRoot = ctxt.fRoot.trim();
 				fLog.debug(LEVEL_MID, "Post-expansion ctxt: type=" + ctxt.fType + 

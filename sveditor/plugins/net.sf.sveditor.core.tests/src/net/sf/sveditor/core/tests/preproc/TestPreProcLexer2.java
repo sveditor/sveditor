@@ -22,7 +22,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 	
 	public void testBasicInclude() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		File dir1 = new File(fTmpDir, "dir1");
 		File dir2 = new File(fTmpDir, "dir2");
 		
@@ -196,12 +196,6 @@ public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 				new FileMapper());
 	
 		SVPreProcOutput output = preproc.preprocess();
-		
-		List<SVPreProcOutput.FileChangeInfo> file_map = output.getFileMap();
-		
-		for (SVPreProcOutput.FileChangeInfo e : file_map) {
-			fLog.debug("FileMap Entry: " + e.fStartIdx + " " + e.fFileId + " " + e.fLineno);
-		}
 		
 		SVLexer lexer = new SVLexer();
 		lexer.init(null, output);

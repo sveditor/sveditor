@@ -15,13 +15,17 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
+import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
+import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
 import net.sf.sveditor.ui.editor.SVCodeScanner;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.editor.SVDocumentSetupParticipant;
 
 public class SystemVerilogViewer extends SourceViewer {
-	protected Document				fDocument;
+	protected Document							fDocument;
+	protected SourceViewerDecorationSupport		fDecorationSupport;
 	
 	public SystemVerilogViewer(Composite parent, int style) {
 		super(parent, new CompositeRuler(), null, true, style);
@@ -35,6 +39,15 @@ public class SystemVerilogViewer extends SourceViewer {
 	
 		setDocument(fDocument, new AnnotationModel());
 		configure(new SourceViewerConfig());
+		
+		fDecorationSupport = new SourceViewerDecorationSupport(
+				this, null, new DefaultMarkerAnnotationAccess(), 
+				EditorsPlugin.getDefault().getSharedTextColors());
+		configureSourceViewerDecorationSupport();
+	}
+	
+	protected void configureSourceViewerDecorationSupport() {
+		fDecorationSupport.setSymbolicFontName(JFaceResources.TEXT_FONT);
 	}
 	
 	public void setContent(String content) {

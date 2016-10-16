@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sv_template>
+<category category="category.id" id="com.github.sve_templates.uvm" name="UVM">
+<description>Templates for UVM elements</description>
+</category>
+</sv_template>

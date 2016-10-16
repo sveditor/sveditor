@@ -17,6 +17,7 @@ public class CommandTemplate extends CommandBase {
 	
 	@Override
 	public int run(List<Argument> args) {
+		System.out.println("template command");
 		
 		// First, check whether we have a '-help' switch
 		boolean help_requested = false;
@@ -37,6 +38,7 @@ public class CommandTemplate extends CommandBase {
 			print_help();
 			return 0;
 		}
+		
 		
 		return 0;
 	}

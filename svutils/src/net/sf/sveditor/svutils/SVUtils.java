@@ -10,8 +10,12 @@ import net.sf.sveditor.core.log.LogFactory;
 public class SVUtils implements ILogListener {
 	
 	private String			commands[] = {
-			"template          - Generate sources using SV Templates"
+			"template", "          - Generate sources using SV Templates"
 	};
+	private CommandBase		command_h[] = {
+			new CommandTemplate()
+	};
+	
 	private boolean			fHookLog = true;
 	
 	public SVUtils() {
@@ -22,7 +26,7 @@ public class SVUtils implements ILogListener {
 	public void message(ILogHandle handle, int type, int level, String message) {
 		switch (type) {
 		case ILogListener.Type_Info:
-			System.out.println("[INFO: " + handle.getName() + "] " + message);
+			System.out.println(message);
 			break;
 			
 		case ILogListener.Type_Error:
@@ -70,11 +74,21 @@ public class SVUtils implements ILogListener {
 	
 		// Process arguments
 		int idx=0;
+		int ret=1;
+	
+		String cmd = all_args.get(0).fArg;
+		
+		for (int i=0; i<command_h.length; i++) {
+			if (commands[2*i].equals(cmd)) {
+				ret = command_h[i].run(all_args);
+				break;
+			}
+		}
 		
 		
 		LogFactory.getDefault().removeLogListener(this);
 		
-		return 0;
+		return ret;
 	}
 	
 	private void print_help() {

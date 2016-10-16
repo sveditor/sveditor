@@ -56,4 +56,22 @@ public class TestIndentBehavioralStmts extends SVCoreTestCaseBase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		IndentTests.runTest(getName(), fLog, ref);
 	}
+	
+	public void testAssertRandomizeWith_2() {
+		String expected =
+				"class someclass;\n" +
+				"	function void my_func;\n" +
+				"		my_class cls1; \n" +
+				"		assert(cls1.randomize() with {\n" +
+				"				cls1.a == 2;\n" +
+				"			})\n" +
+				"		else $display (\"ERROR\");\n" +
+				"	endfunction\n" +
+				"endclass\n"
+				;		
+		
+		SVCorePlugin.getDefault().enableDebug(true);
+		IndentTests.runTest(getName(), fLog, expected);
+	}
+	
 }

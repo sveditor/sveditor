@@ -22,7 +22,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 	public void testMultiLineStringMacro() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content = 
 				"`define uvm_error(t, str) \\\n" +
 				"string type = t;\\\n" +
@@ -274,7 +274,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testBitRangeMacroExpansion() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -284,7 +284,9 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"wire    [`SPI_CHAR_LEN_BITS:0] tx_bit_pos;\n",
 				inc_provider,
 				"\n" +
-				"wire    [     7:0] tx_bit_pos;\n"
+				"wire    [ \n" +
+				"7\n" +
+				":0] tx_bit_pos;\n"
 				);
 	}
 
@@ -324,7 +326,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				new SVDBMarker[] {
 						new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 								"Failed to find include file missing.svh",
-								SVDBLocation.pack(0, 2, 0))
+								SVDBLocation.pack(0, 4, 0))
 				}
 				);
 	}
@@ -364,7 +366,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testMacroInString() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"`define macro foo\n" +
 			"`define msg(ID, MSG) report(ID, MSG)\n" +
@@ -373,7 +375,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		String exp =
 			"\n" +
 			"\n" +
-			" report(\"id\", \"don't expand `macro\");\n"
+			" report(\"id\", \"don't expand `macro\")\n" +
+			";\n"
 			;
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -386,7 +389,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testCommentInMacroCall() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"`define macro foo\n" +
 			"`define msg(ID, MSG, VERB) report(ID, MSG, VERB)\n" +
@@ -399,7 +402,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		String exp =
 			"\n" +
 			"\n" +
-			" report(\"id\", \"does not\", VERBOSITY);\n"
+			" report(\"id\", \"does not\", VERBOSITY)\n" +
+			";\n"
 			;
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -412,7 +416,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMacroExternFunctionClassname() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"`define CLS myclass\n" +
 			"function `CLS::myfunction;\n" +
@@ -420,7 +424,9 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			;
 		String exp =
 			"\n" +
-			"function  myclass::myfunction;\n" +
+			"function\n" +
+			"myclass\n" +
+			"::myfunction;\n" +
 			"endfunction\n"
 			;
 		SVPathPreProcIncFileProvider inc_provider = 
@@ -434,7 +440,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testIfndefElse() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"`define VMM_SCENARIO foo_scenario\n" +
 			"`ifndef MACRO_DEFINED\n" +
@@ -452,7 +458,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 			"\n" +
 			"task vmm_channel::put(vmm_data obj,\n" +
 			"					int offset=-1,\n" +
-			"					 foo_scenario grabber=null);\n" +
+			"					 foo_scenario\n" +
+			"grabber=null);\n" +
 			" \n" +
 			"section_3\n"
 			;
@@ -538,15 +545,11 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
-		for (String file : output.getFileList()) {
-			fLog.debug("File: " + file);
-		}
-		
 		printFileTree("", output.getFileTree());
 		
 //		String out = output.toString().trim();
-		String out = trimLines(output.toString());
-		exp = trimLines(exp);
+		String out = TestPreProc2.trimLines(output.toString());
+		exp = TestPreProc2.trimLines(exp);
 
 		fLog.debug("==");
 		fLog.debug("Output:\n" + out);
@@ -568,10 +571,6 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
-		for (String file : output.getFileList()) {
-			fLog.debug("File: " + file);
-		}
-		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		collect_markers(markers, preproc.getFileTree());
 		
@@ -583,7 +582,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		printFileTree("", output.getFileTree());
 		
-		String out = output.toString().trim();
+		String out = TestPreProc2.trimLines(output.toString());
+		exp = TestPreProc2.trimLines(exp);
 
 		fLog.debug("==");
 		fLog.debug("Output:\n" + out);
@@ -615,10 +615,6 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
-		for (String file : output.getFileList()) {
-			fLog.debug("File: " + file);
-		}
-
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 		collect_markers(markers, preproc.getFileTree());
 		
@@ -649,7 +645,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		while (idx < in.length()) {
 			if (in.charAt(idx) == '\n') {
 				String line = in.substring(start, idx).trim();
-				if (!line.equals("")) {
+				if (!line.equals("") && !line.startsWith("`line")) {
 					ret.append(line);
 					ret.append('\n');
 				}
@@ -660,7 +656,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		if (start < idx) {
 			// Add the last line
 			String line = in.substring(start).trim();
-			if (!line.equals("")) {
+			if (!line.equals("") && !line.startsWith("`line")) {
 				ret.append(line);
 				ret.append('\n');
 			}
@@ -684,10 +680,6 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				inc_provider, null);
 	
 		SVPreProcOutput output = preproc.preprocess();
-		
-		for (String file : output.getFileList()) {
-			fLog.debug("File: " + file);
-		}
 		
 		printFileTree("", output.getFileTree());
 

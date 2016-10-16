@@ -529,7 +529,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 	}
 	
 	public void testOpenMacroRootedTaskPathDecl() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"`define TOP m2\n" + // 1
 			"module s1;\n" +

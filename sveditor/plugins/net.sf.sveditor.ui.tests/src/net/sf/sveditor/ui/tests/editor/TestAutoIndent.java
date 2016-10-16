@@ -12,14 +12,17 @@
 
 package net.sf.sveditor.ui.tests.editor;
 
+import org.eclipse.jface.text.BadLocationException;
+
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.indent.SVDefaultIndenter2;
+import net.sf.sveditor.core.indent.SVIndentScanner;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.ui.tests.UiReleaseTests;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
-
-import org.eclipse.jface.text.BadLocationException;
 
 public class TestAutoIndent extends SVCoreTestCaseBase {
 	
@@ -370,7 +373,8 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"	`VMM_NOTIFY notify;\n"
 			;
 			
-		
+
+		SVCorePlugin.getDefault().enableDebug(true);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
 		tester.paste(text);
@@ -396,22 +400,29 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"	logic a;\n" +
 			"endmodule\n";
 		String expected_text = 
-			"	logic a;\n" 
+				expected + 
+				expected + 
+				"\n" +
+			"logic a;\n" 
 			;
 		
+		SVCorePlugin.getDefault().enableDebug(true);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
 		tester.paste(first);		// Paste to make sure we get an identical result to when we type stuff
-		tester.setCaretOffset(first.length()*2+1);
 		tester.paste(text);
 		
 		String content = tester.getContent();
+		
+		SVCorePlugin.getDefault().enableDebug(true);
 
 		fLog.debug("content=\"" + content + "\"");
-		IndentComparator.compare("testPasteModule", expected+expected+expected_text, content);
+		IndentComparator.compare("testPasteModule", expected_text, content);
 	}
 	
 	public void testPasteAlwaysComb() throws BadLocationException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		
 		String content =
 			"module t;\n" +
 			"logic a;\n" +
@@ -455,7 +466,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 				"	logic a;\n" +
 				"	always_comb begin\n" +
 				"		a = 0;\n" +
-				"	end\n" +
+				"	end	\n" +
 				"	always_comb begin\n" +
 				"		a = 0;\n" +
 				"	end\n" +
@@ -681,7 +692,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 	
 	
 	public void testCovergroup() throws BadLocationException {
-		String input = 
+		String input2 = 
 			"class foobar;\n\n" +
 			"covergroup foobar;\n\n" +
 			"var_cp : coverpoint (var) iff (var_cond);\n" +
@@ -723,16 +734,19 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"	covergroup cg_1;\n" +
 			"		cp_3: coverpoint \n" +
 			"			{\n" +
-			"				top.bit1,\n" +
-			"				top.bit2\n" +
+			"			top.bit1,\n" + // TODO: should be indented?
+			"			top.bit2\n" +
 			"			} {\n" +
-			"				wildcard bins bin_0 = {2'b?0};\n" +
-			"				wildcard bins bin_1 = {2'b?1};\n" +
+			"			wildcard bins bin_0 = {2'b?0};\n" + // TODO: should be indented?
+			"			wildcard bins bin_1 = {2'b?1};\n" +
 			"			}\n" +
 			"	endgroup\n";
-		
+	
+		SVCorePlugin.getDefault().enableDebug(true);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
-		tester.type(input);
+		
+		StringBuilder input = IndentTests.removeLeadingWS(expected);
+		tester.type(input.toString());
 		String result = tester.getContent();
 		
 
@@ -1232,27 +1246,6 @@ public void testIndentCase() throws BadLocationException {
 }
 // This test checks constraints
 public void testIndentConstraint() throws BadLocationException {
-//	String input =
-//			"class someclass;\n" +
-//			"constraint clock {\n" +
-//			"clk_cfg.period dist {\n" +
-//			"[1:10  ] :/ 1,\n" +
-//			"11       := 1,\n" +
-//			"12       := 1,\n" +
-//			"[13: 15] :/ 1\n" +
-//			"};\n" +
-//			"clk_cfg.jitter < (3 * 1000);\n" +
-//			"}\n" +
-//			"function void my_func;\n" +
-//			"my_class cls1; \n" +
-//			"assert(cls1.randomize() with {\n" +
-//			"cls1.a == 2;\n" +
-//			"})\n" +
-//			"else $display (\"ERROR\");\n" +
-//			"endfunction\n" +
-//			"endclass\n"
-//			;
-
 	String expected =
 			"class someclass;\n" +
 			"	constraint clock {\n" +
@@ -1261,32 +1254,44 @@ public void testIndentConstraint() throws BadLocationException {
 			"			11       := 1,\n" +
 			"			12       := 1,\n" +
 			"			[13: 15] :/ 1\n" +
-			"		};\n" +
+			"		};\n" + 
 			"		clk_cfg.jitter < (3 * 1000);\n" +
 			"	}\n" +
 			"	function void my_func;\n" +
 			"		my_class cls1; \n" +
 			"		assert(cls1.randomize() with {\n" +
 			"				cls1.a == 2;\n" +
-			"				})\n" +
+			"			})\n" +
 			"		else $display (\"ERROR\");\n" +
 			"	endfunction\n" +
 			"endclass\n"
 			;
 	
 	String input = IndentTests.removeLeadingWS(expected).toString();
+
+	SVCorePlugin.getDefault().enableDebug(true);
+	SVDefaultIndenter2 indenter = new SVDefaultIndenter2();
+	indenter.init(new SVIndentScanner(new StringTextScanner(input)));
+	String full_indent = indenter.indent();
+
+	IndentComparator.compare(fLog, getName() + " - full", expected, full_indent);
 	
+	SVCorePlugin.getDefault().enableDebug(true);
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 	tester.type(input);
 	String result_type = tester.getContent();
 	
-	IndentComparator.compare("testIndentConstraint - type", expected, result_type);
+	SVCorePlugin.getDefault().enableDebug(true);
+	IndentComparator.compare(fLog, getName() + " - type", expected, result_type);
+	
+	SVCorePlugin.getDefault().enableDebug(false);
+	tester.reset();
 	tester.paste(input);
 	String result_paste = tester.getContent();
 	
-	SVCorePlugin.getDefault().enableDebug(false);
+	SVCorePlugin.getDefault().enableDebug(true);
 	
-	IndentComparator.compare("testIndentConstraint - paste", expected, result_paste);
+	IndentComparator.compare(fLog, getName() + " - paste", expected, result_paste);
 }
 
 //This test checks assign statements, these can run onto multiple lines

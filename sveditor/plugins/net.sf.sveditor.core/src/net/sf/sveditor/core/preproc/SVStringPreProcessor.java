@@ -13,6 +13,7 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 	private Map<String, SVDBMacroDef>	fMacroMap;
 	private IPreProcMacroProvider		fMacroProvider;
 	private boolean						fLocked;
+	private boolean						fEmitLineDirectives = true;
 	
 	public SVStringPreProcessor() {
 		fMacroMap = new HashMap<String, SVDBMacroDef>();
@@ -55,11 +56,16 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 	@Override
 	public String preprocess(InputStream in) {
 		SVPreProcessor preproc = new SVPreProcessor("", in, null, null);
+		preproc.setEmitLineDirectives(fEmitLineDirectives);
 		preproc.setMacroProvider(this);
 		
 		SVPreProcOutput out = preproc.preprocess();
 		
 		return out.toString();
+	}
+	
+	public void setEmitLineDirectives(boolean emit) {
+		fEmitLineDirectives = emit;
 	}
 
 	@Override
