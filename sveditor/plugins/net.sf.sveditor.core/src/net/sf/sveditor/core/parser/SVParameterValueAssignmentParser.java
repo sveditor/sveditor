@@ -83,7 +83,15 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 						fLexer.ungetToken(id_list);
 						SVDBTypeInfo type = parsers().dataTypeParser().data_type(0);
 						ret.addParameter(new SVDBParamValueAssign(name, type));
-					} else {
+					}
+					// Fix for: #453 Parser error: Unconnected ports being flagged as an error 
+					// Could have the following code where ports are not named, and not connected
+					// e.g. submodule sm (in1, in2, /*out1*/, out2);
+					else if ((id_list.size() == 0) && !is_mapped && fLexer.peekOperator(OP.COMMA))  {
+						// TODO: Matt: is this what we should be adding to the database?
+						ret.addParameter("unconnected", null);
+					}
+					else {
 						fLexer.ungetToken(id_list);
 						SVDBExpr val = parsers().exprParser().datatype_or_expression();
 						ret.addParameter(new SVDBParamValueAssign(name, val));

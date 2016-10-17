@@ -142,7 +142,7 @@ public class SVMultiLineCommentAutoIndentStrategy extends
 
 			if (!isCommentClosed(doc, offset)) {
 				SVDocumentTextScanner scanner =  new SVDocumentTextScanner(doc, 0);
-				DocCommentAdder dca= new DocCommentAdder(fEditor.getSVDBFile(), scanner, false);
+				DocCommentAdder dca= new DocCommentAdder(fEditor.getSVDBFile(), null, scanner, false);
 				String possible_str = "";
 				// This mad loop put here in case the DB hasn't been built in a while... the offsets could be off a couple of lines
 				// check if we are lucky (sorry Matt :-))
