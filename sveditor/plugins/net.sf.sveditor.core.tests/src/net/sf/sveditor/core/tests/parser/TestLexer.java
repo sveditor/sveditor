@@ -57,7 +57,7 @@ public class TestLexer extends TestCase {
 		
 
 	public void testDefinedMacroCallWithStatement() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testDefinedMacroCallWithStatement";
 		String content = 
 			"`define MY_ASSERT(stmt) assert(stmt)\n" +

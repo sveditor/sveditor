@@ -212,7 +212,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testCommaContainingStringMacroParam() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 				"`define uvm_file `__FILE__\n" +
 				"`define uvm_line `__LINE__\n" +
@@ -262,7 +262,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
 			String result = SVDBTestUtils.preprocess(doc, testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 		
 			result = TestPreProc2.trimLines(result);
 			expected = TestPreProc2.trimLines(expected);
@@ -288,7 +288,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
 			String result = SVDBTestUtils.preprocess(doc, testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			
 			result = TestPreProc2.trimLines(result);
 			expected = TestPreProc2.trimLines(expected);
@@ -343,7 +343,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 		
 			result = TestPreProc2.trimLines(result);
@@ -373,7 +373,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 		
 			result = TestPreProc2.trimLines(result);
@@ -403,7 +403,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 		
 			result = TestPreProc2.trimLines(result);
@@ -432,7 +432,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				;
 				
 			LogHandle log = LogFactory.getLogHandle(testname);
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 		
 			result = TestPreProc2.trimLines(result);
@@ -458,7 +458,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 			LogHandle log = LogFactory.getLogHandle("testMacroArgExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgExpansion");
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 		
 			result = TestPreProc2.trimLines(result);
 			expected = TestPreProc2.trimLines(expected);
@@ -483,7 +483,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				";\n"
 				;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
 			
 			expected = TestPreProc2.trimLines(expected);
@@ -508,7 +508,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				";\n"
 				;
 	
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle(getName());
 			String result = SVDBTestUtils.preprocess(doc, getName());
 		
@@ -565,7 +565,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"$display(\"FOO\", \"BAR\");\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testMacroArgMacroExpansion");
 			String result = SVDBTestUtils.preprocess(doc, "testMacroArgMacroExpansion");
 			
@@ -607,7 +607,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				";\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle(testname);
 			String result = SVDBTestUtils.preprocess(doc, testname);
 			
@@ -634,7 +634,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"uvm_report_warning(\"FOO\", stg,,\"testFileLine\",1);\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testFileLine");
 			String result = SVDBTestUtils.preprocess(doc, "testFileLine");
 			
@@ -663,7 +663,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				"content_2\n"
 					;
 				
-			SVCorePlugin.getDefault().enableDebug(true);
+			SVCorePlugin.getDefault().enableDebug(false);
 			LogHandle log = LogFactory.getLogHandle("testUndefExcluded");
 			String result = SVDBTestUtils.preprocess(doc, "testUndefExcluded");
 			
@@ -810,7 +810,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testVmmErrorMacro() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 	        "`define vmm_error(log, msg)  \\\n" +
 	        "do \\\n" +
@@ -1008,7 +1008,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 				
 		LogHandle log = LogFactory.getLogHandle(testname);
 		String result = SVDBTestUtils.preprocess(doc, testname);
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		result = TestPreProc2.trimLines(result);
 		expected = TestPreProc2.trimLines(expected);
@@ -1052,7 +1052,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testRecursiveMacroRef() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = "testRecursiveMacroRef";
 		String doc =
 				"//Overly simplistic example\n" +
@@ -1080,7 +1080,7 @@ public class TestPreProc extends SVCoreTestCaseBase {
 	}
 	
 	public void testRecursiveMacroRef2() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String testname = getName(); 
 		String doc =
 				"//Overly simplistic example\n" +

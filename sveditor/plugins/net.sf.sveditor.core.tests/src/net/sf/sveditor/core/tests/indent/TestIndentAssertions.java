@@ -6,7 +6,7 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 public class TestIndentAssertions extends SVCoreTestCaseBase {
 	
 	public void testProperty() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module bob ();\n" +
 			"	logic thevar, clk, b;\n" +

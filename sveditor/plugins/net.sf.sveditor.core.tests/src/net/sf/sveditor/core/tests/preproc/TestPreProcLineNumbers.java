@@ -33,7 +33,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 	
 	public void testLineNumberBasics() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"\n" +
 			"\n" +
@@ -53,7 +53,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 
 	public void testLineNumberMacro_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"\n" +                        // 1
 			"`define FIELD(n) int n\n" +  // 2
@@ -74,7 +74,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 
 	public void testLineNumberMacro_2() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"\n" +                        		// 1
 			"`define SUBFIELD(n) int n\n" +		// 2
@@ -96,7 +96,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 
 	public void testLineNumberMacro_3() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"\n" +									// 1
 			"`define SUBFIELD(n) \\\n" +			// 2
@@ -120,7 +120,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 
 	public void testLineNumberInclude_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String foo_svh = 
 			"\n" +									// 1
 			"class foo;\n" +						// 2
@@ -150,7 +150,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 	
 	public void testMultiInclude_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String file1_svh =
 			"class file1;\n" +

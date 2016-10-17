@@ -22,7 +22,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProc2 extends SVCoreTestCaseBase {
 	
 	public void testMultiLineStringMacro() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 				"`define uvm_error(t, str) \\\n" +
 				"string type = t;\\\n" +
@@ -274,7 +274,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testBitRangeMacroExpansion() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -310,7 +310,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMissingIncludeWithIfdefs() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		SVPathPreProcIncFileProvider inc_provider = 
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
@@ -366,7 +366,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 	
 	public void testMacroInString() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define macro foo\n" +
 			"`define msg(ID, MSG) report(ID, MSG)\n" +
@@ -389,7 +389,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testCommentInMacroCall() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define macro foo\n" +
 			"`define msg(ID, MSG, VERB) report(ID, MSG, VERB)\n" +
@@ -416,7 +416,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testMacroExternFunctionClassname() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define CLS myclass\n" +
 			"function `CLS::myfunction;\n" +
@@ -440,7 +440,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testIfndefElse() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"`define VMM_SCENARIO foo_scenario\n" +
 			"`ifndef MACRO_DEFINED\n" +
@@ -478,7 +478,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	 * include-guard endif and no endline
 	 */
 	public void testUnbalancedIfdefNoNewline() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVPathPreProcIncFileProvider inc_provider =
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
 		inc_provider.addIncdir(fTmpDir.getAbsolutePath());

@@ -46,7 +46,7 @@ public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcL
 	}
 	
 	public void testNestedMacroListener() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		List<SVDBMacroDefParam> params;
 		

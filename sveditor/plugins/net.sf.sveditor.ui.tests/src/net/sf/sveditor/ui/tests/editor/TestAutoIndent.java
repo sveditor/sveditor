@@ -374,7 +374,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			;
 			
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
 		tester.paste(text);
@@ -406,7 +406,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"logic a;\n" 
 			;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(first);
 		tester.paste(first);		// Paste to make sure we get an identical result to when we type stuff
@@ -414,14 +414,14 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		
 		String content = tester.getContent();
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 
 		fLog.debug("content=\"" + content + "\"");
 		IndentComparator.compare("testPasteModule", expected_text, content);
 	}
 	
 	public void testPasteAlwaysComb() throws BadLocationException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String content =
 			"module t;\n" +
@@ -742,7 +742,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"			}\n" +
 			"	endgroup\n";
 	
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		
 		StringBuilder input = IndentTests.removeLeadingWS(expected);
@@ -1269,19 +1269,19 @@ public void testIndentConstraint() throws BadLocationException {
 	
 	String input = IndentTests.removeLeadingWS(expected).toString();
 
-	SVCorePlugin.getDefault().enableDebug(true);
+	SVCorePlugin.getDefault().enableDebug(false);
 	SVDefaultIndenter2 indenter = new SVDefaultIndenter2();
 	indenter.init(new SVIndentScanner(new StringTextScanner(input)));
 	String full_indent = indenter.indent();
 
 	IndentComparator.compare(fLog, getName() + " - full", expected, full_indent);
 	
-	SVCorePlugin.getDefault().enableDebug(true);
+	SVCorePlugin.getDefault().enableDebug(false);
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 	tester.type(input);
 	String result_type = tester.getContent();
 	
-	SVCorePlugin.getDefault().enableDebug(true);
+	SVCorePlugin.getDefault().enableDebug(false);
 	IndentComparator.compare(fLog, getName() + " - type", expected, result_type);
 	
 	SVCorePlugin.getDefault().enableDebug(false);
@@ -1289,7 +1289,7 @@ public void testIndentConstraint() throws BadLocationException {
 	tester.paste(input);
 	String result_paste = tester.getContent();
 	
-	SVCorePlugin.getDefault().enableDebug(true);
+	SVCorePlugin.getDefault().enableDebug(false);
 	
 	IndentComparator.compare(fLog, getName() + " - paste", expected, result_paste);
 }

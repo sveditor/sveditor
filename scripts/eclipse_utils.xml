@@ -1,0 +1,32 @@
+<project>
+
+	<macrodef name="install">
+		<attribute name="installIU"/>
+		<attribute name="repository"/>
+		<attribute name="eclipseHome"/>
+		<attribute name="dest"/>
+		<attribute name="tag"/>
+	
+		<sequential>
+		<echo message="Install: @{installIU} @{tag}"/>
+		<java fork="true" failonerror="true"
+			classname="org.eclipse.core.launcher.Main">
+			<classpath>
+				<fileset dir="@{eclipseHome}/plugins"
+					includes="org.eclipse.equinox.launcher_*.jar"/>
+			</classpath>
+			<arg value="-application"/>
+			<arg value="org.eclipse.equinox.p2.director"/>
+			<arg value="-installIU"/>
+			<arg value="@{installIU}"/>
+			<arg value="-repository"/>
+			<arg value="@{repository}"/>
+			<arg value="-tag"/>
+			<arg value="@{tag}"/>
+			<arg value="-destination"/>
+			<arg value="@{dest}"/>
+		</java>			
+		</sequential>
+	</macrodef>
+	
+</project>

@@ -68,7 +68,7 @@ public class TestParseDataTypes extends TestCase {
 	}
 	
 	public void testSizedCast() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class foobar;\n" +
 			"	parameter FOO=5;\n" +

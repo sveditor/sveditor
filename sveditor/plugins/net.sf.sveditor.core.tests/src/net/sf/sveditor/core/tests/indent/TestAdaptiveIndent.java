@@ -403,7 +403,7 @@ public class TestAdaptiveIndent extends TestCase {
 				"		clk_cfg.jitter < (3 * 1000);\n" +
 				"\n";
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(getName());
 		
 		SVIndentScanner scanner = new SVIndentScanner(

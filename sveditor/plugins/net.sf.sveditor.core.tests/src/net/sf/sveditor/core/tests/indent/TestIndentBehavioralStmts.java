@@ -70,7 +70,7 @@ public class TestIndentBehavioralStmts extends SVCoreTestCaseBase {
 				"endclass\n"
 				;		
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IndentTests.runTest(getName(), fLog, expected);
 	}
 	

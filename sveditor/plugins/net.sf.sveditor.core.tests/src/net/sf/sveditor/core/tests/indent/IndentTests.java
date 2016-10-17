@@ -1932,7 +1932,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 
 
 	public void testDefines() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String expected =
 				"module bob ();\n" +
 						"	initial\n" +
@@ -1977,7 +1977,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 	
 	
 	public void testClocking() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 				"interface intfc ( input bit clk );\n" +
 						"wire req, gnt;\n" +

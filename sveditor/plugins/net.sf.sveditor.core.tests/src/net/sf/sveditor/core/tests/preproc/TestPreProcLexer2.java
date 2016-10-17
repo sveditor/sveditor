@@ -22,7 +22,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 	
 	public void testBasicInclude() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		File dir1 = new File(fTmpDir, "dir1");
 		File dir2 = new File(fTmpDir, "dir2");
 		

@@ -3,7 +3,7 @@
 	<property name="packages_dir" value="${basedir}/../packages"/>
 	<property name="force" value="false"/>
 	
-	<property file="${basedir}/packages.properties"/>
+	<property file="${basedir}/../etc/packages.properties"/>
 	
 	<property name="eclipse.home" location="${buildRoot}/eclipse"/>
 	<condition property="eclipsec" 
@@ -12,10 +12,6 @@
 		<os family="windows"/>
 	</condition>
 	
-	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
-		<classpath path="${basedir}/xmltask.jar"/>
-	</taskdef>
-
 	<macrodef name="mirrorUpdate">
 		<attribute name="source"/>
 		<attribute name="dest"/>
@@ -48,8 +44,14 @@
           target: name                      
          - - - - - - - - - - - - - - - - - -->
     <target name="collect" 
-    	depends="init,collect_eclipse,collect_zest,collect_mpc,
-    		collect_equinox,collect_vrapper">
+    	depends="init,collect_build_eclipse,collect_run_eclipse,collect_zest,
+    		collect_rcptt,collect_orbit,collect_emf,collect_emf_transaction,
+    		collect_emf_validation">
+    
+    	<!--
+    	",collect_run_eclipse,collect_zest,collect_mpc,
+    		collect_equinox,collect_vrapper"
+		-->
             
     </target>
 	
@@ -58,16 +60,15 @@
 	</target>
 	
 	<!-- Eclipse SDK -->
-	<target name="collect_eclipse" 
-		depends="collect_eclipse_linux,collect_eclipse_linux_x86_64,
-		collect_eclipse_win32,collect_eclipse_win32_x86_64,
-		collect_eclipse_deltapack"/>
+	<target name="collect_build_eclipse" 
+		depends="collect_build_eclipse_linux,collect_build_eclipse_linux_x86_64,
+		collect_build_eclipse_win32,collect_build_eclipse_win32_x86_64"/>
 	
-	<condition property="fetch.eclipse.linux">
+	<condition property="fetch.build.eclipse.linux">
 		<and>
 			<or>
 				<not>
-					<available file="${packages_dir}/${eclipse_linux_tgz}"/>
+					<available file="${packages_dir}/${eclipse_build_linux_tgz}"/>
 				</not>
 				<equals arg1="${force}" arg2="true"/>
 			</or>
@@ -78,23 +79,23 @@
 		</and>
 	</condition>
 	
-	<target name="collect_eclipse_linux" if="${fetch.eclipse.linux}">
-		<delete file="${packages_dir}/${eclipse_linux_tgz}"/>
+	<target name="collect_build_eclipse_linux" if="${fetch.build.eclipse.linux}">
+		<delete file="${packages_dir}/${eclipse_build_linux_tgz}"/>
 		<exec executable="wget"
 			failonerror="true"
 			dir="${packages_dir}">
 			<arg value="-nv"/>
 			<arg value="-T"/>
 			<arg value="4"/>
-			<arg value="${eclipse_release}/${eclipse_linux_tgz}"/>
+			<arg value="${eclipse_build_release}/${eclipse_build_linux_tgz}"/>
 		</exec>
 	</target>	
 
-	<condition property="fetch.eclipse.linux_x86_64">
+	<condition property="fetch.build.eclipse.linux_x86_64">
 		<and>
 			<or>
 				<not>
-					<available file="${packages_dir}/${eclipse_linux_x86_64_tgz}"/>
+					<available file="${packages_dir}/${eclipse_build_linux_x86_64_tgz}"/>
 				</not>
 				<equals arg1="${force}" arg2="true"/>
 			</or>
@@ -103,23 +104,23 @@
 		</and>
 	</condition>
 	
-	<target name="collect_eclipse_linux_x86_64" if="${fetch.eclipse.linux_x86_64}">
-		<delete file="${packages_dir}/${eclipse_linux_x86_64_tgz}"/>
+	<target name="collect_build_eclipse_linux_x86_64" if="${fetch.build.eclipse.linux_x86_64}">
+		<delete file="${packages_dir}/${eclipse_build_linux_x86_64_tgz}"/>
 		<exec executable="wget"
 			failonerror="true"
 			dir="${packages_dir}">
 			<arg value="-nv"/>
 			<arg value="-T"/>
 			<arg value="4"/>
-			<arg value="${eclipse_release}/${eclipse_linux_x86_64_tgz}"/>
+			<arg value="${eclipse_build_release}/${eclipse_build_linux_x86_64_tgz}"/>
 		</exec>
 	</target>
 	
-	<condition property="fetch.eclipse.win32">
+	<condition property="fetch.build.eclipse.win32">
 		<and>
 			<or>
 				<not>
-					<available file="${packages_dir}/${eclipse_win32_zip}"/>
+					<available file="${packages_dir}/${eclipse_build_win32_zip}"/>
 				</not>
 				<equals arg1="${force}" arg2="true"/>
 			</or>
@@ -130,67 +131,156 @@
 		</and>
 	</condition>
 	
-	<target name="collect_eclipse_win32" if="${fetch.eclipse.win32}">
-		<delete file="${packages_dir}/${eclipse_win32_zip}"/>
+	<target name="collect_build_eclipse_win32" if="${fetch.build.eclipse.win32}">
+		<delete file="${packages_dir}/${eclipse_build_win32_zip}"/>
 		<exec executable="wget"
 			failonerror="true"
 			dir="${packages_dir}">
 			<arg value="-nv"/>
 			<arg value="-T"/>
 			<arg value="4"/>
-			<arg value="${eclipse_release}/${eclipse_win32_zip}"/>
+			<arg value="${eclipse_build_release}/${eclipse_build_win32_zip}"/>
 		</exec>
 	</target>	
 	
-	<condition property="fetch.eclipse.win32_x86_64">
+	<condition property="fetch.build.eclipse.win32_x86_64">
 		<and>
 			<or>
 				<not>
-					<available file="${packages_dir}/${eclipse_win32_x86_64_zip}"/>
+					<available file="${packages_dir}/${eclipse_build_win32_x86_64_zip}"/>
 				</not>
 				<equals arg1="${force}" arg2="true"/>
 			</or>
 			<!--
 			<os name="windows"/>
 			<os arch="amd64"/>
-			  -->
+			-->
 		</and>
 	</condition>
 	
-	<target name="collect_eclipse_win32_x86_64" if="${fetch.eclipse.win32_x86_64}">
-		<delete file="${packages_dir}/${eclipse_win32_x86_64_zip}"/>
+	<target name="collect_build_eclipse_win32_x86_64" if="${fetch.build.eclipse.win32_x86_64}">
+		<delete file="${packages_dir}/${eclipse_build_win32_x86_64_zip}"/>
 		<exec executable="wget"
 			failonerror="true"
 			dir="${packages_dir}">
 			<arg value="-nv"/>
 			<arg value="-T"/>
 			<arg value="4"/>
-			<arg value="${eclipse_release}/${eclipse_win32_x86_64_zip}"/>
+			<arg value="${eclipse_build_release}/${eclipse_build_win32_x86_64_zip}"/>
 		</exec>
 	</target>
 	
-	<!-- Eclipse Delta Pack -->
-	<condition property="fetch.eclipse.deltapack">
-		<or>
+	<!-- Eclipse Run SDK -->
+	<target name="collect_run_eclipse" 
+		depends="collect_run_eclipse_linux,collect_run_eclipse_linux_x86_64,
+		collect_run_eclipse_win32,collect_run_eclipse_win32_x86_64"/>
+	
+	<condition property="fetch.run.eclipse.linux">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_run_linux_tgz}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<os name="linux"/>
 			<not>
-				<available file="${packages_dir}/${eclipse_delta_pack_zip}"/>
+				<os arch="amd64"/>
 			</not>
-			<equals arg1="${force}" arg2="true"/>
-		</or>
+		</and>
 	</condition>
 	
-	<target name="collect_eclipse_deltapack" if="${fetch.eclipse.deltapack}">
-		<delete file="${packages_dir}/${eclipse_delta_pack_zip}"/>
+	<target name="collect_run_eclipse_linux" if="${fetch.run.eclipse.linux}">
+		<delete file="${packages_dir}/${eclipse_run_linux_tgz}"/>
 		<exec executable="wget"
 			failonerror="true"
 			dir="${packages_dir}">
 			<arg value="-nv"/>
 			<arg value="-T"/>
 			<arg value="4"/>
-			<arg value="${eclipse_release}/${eclipse_delta_pack_zip}"/>
+			<arg value="${eclipse_run_release}/${eclipse_run_linux_tgz}"/>
+		</exec>
+	</target>	
+
+	<condition property="fetch.run.eclipse.linux_x86_64">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_run_linux_x86_64_tgz}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<os name="linux"/>
+			<os arch="amd64"/>
+		</and>
+	</condition>
+	
+	<target name="collect_run_eclipse_linux_x86_64" if="${fetch.run.eclipse.linux_x86_64}">
+		<delete file="${packages_dir}/${eclipse_run_linux_x86_64_tgz}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_run_release}/${eclipse_run_linux_x86_64_tgz}"/>
 		</exec>
 	</target>
-
+	
+	<condition property="fetch.run.eclipse.win32">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_run_win32_zip}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<os name="windows"/>
+			<not>
+				<os arch="amd64"/>
+			</not>
+		</and>
+	</condition>
+	
+	<target name="collect_run_eclipse_win32" if="${fetch.run.eclipse.win32}">
+		<delete file="${packages_dir}/${eclipse_run_win32_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_run_release}/${eclipse_run_win32_zip}"/>
+		</exec>
+	</target>	
+	
+	<condition property="fetch.run.eclipse.win32_x86_64">
+		<and>
+			<or>
+				<not>
+					<available file="${packages_dir}/${eclipse_run_win32_x86_64_zip}"/>
+				</not>
+				<equals arg1="${force}" arg2="true"/>
+			</or>
+			<!--
+			<os name="windows"/>
+			<os arch="amd64"/>
+			-->
+		</and>
+	</condition>
+	
+	<target name="collect_run_eclipse_win32_x86_64" if="${fetch.run.eclipse.win32_x86_64}">
+		<delete file="${packages_dir}/${eclipse_run_win32_x86_64_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_run_release}/${eclipse_run_win32_x86_64_zip}"/>
+		</exec>
+	</target>
+	
 	<!-- GEF Zest+Draw2d -->
 	<condition property="fetch.zest">
 		<or>
@@ -211,6 +301,105 @@
 			<arg value="${mirror_ftp}/${zest_release}/${zest_zip}"/>
 		</exec>
 	</target>
+
+	<!-- RCPTT -->
+	<condition property="fetch.rcptt">
+		<or>
+			<not>
+				<available file="${packages_dir}/${rcptt_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+		
+	<target name="collect_rcptt" if="${fetch.rcptt}">
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${rcptt_release}/${rcptt_zip}"/>
+		</exec>
+	</target>
+
+	<!-- Eclipse Orbit -->
+	<condition property="fetch.orbit">
+		<or>
+			<not>
+				<available file="${packages_dir}/${eclipse_orbit_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+		
+	<target name="collect_orbit" if="${fetch.orbit}">
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${eclipse_orbit_release}/${eclipse_orbit_zip}"/>
+		</exec>
+	</target>
+	
+	<condition property="fetch.emf">
+		<or>
+			<not>
+				<available file="${packages_dir}/${emf_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+	
+	<target name="collect_emf" if="${fetch.emf}">
+		<delete file="${packages_dir}/${emf_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="${mirror_ftp}/${emf_release}/${emf_zip}"/>
+		</exec>
+	</target>	
+
+	<condition property="fetch.emf.transaction">
+		<or>
+			<not>
+				<available file="${packages_dir}/${emf_transaction_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+	
+	<target name="collect_emf_transaction" if="${fetch.emf.transaction}">
+		<delete file="${packages_dir}/${emf_transaction_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="${emf_transaction_release}/${emf_transaction_zip}"/>
+		</exec>
+	</target>	
+	
+	<condition property="fetch.emf.validation">
+		<or>
+			<not>
+				<available file="${packages_dir}/${emf_validation_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+	
+	<target name="collect_emf_validation" if="${fetch.emf.validation}">
+		<delete file="${packages_dir}/${emf_validation_zip}"/>
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="${emf_validation_release}/${emf_validation_zip}"/>
+		</exec>
+	</target>	
 	
 	<!-- MPC -->
 	<condition property="fetch.mpc">

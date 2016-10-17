@@ -5,11 +5,21 @@
     <!-- Import the version info -->
     <property file="${basedir}/../etc/sveditor.info"/>
     <property file="${basedir}/../etc/sveditor_${version_type}.info"/>
+    <property file="${basedir}/../etc/packages.properties"/>
     <property file="${basedir}/build.properties"/>
-
-    <property name="gef_zest" location="${env.SVE_ADDINS}/gef_zest"/>
 	
+	<include file="${basedir}/eclipse_utils.xml"/>
 
+	<condition property="is_win">
+		<os family="windows"/>
+	</condition>
+	
+	<condition property="eclipse_build_win_zip"
+		value="${basedir}/../packages/${eclipse_build_win32_x86_64_zip}"
+		else="${basedir}/../packages/${eclipse_build_win32_zip}">
+		<os arch="amd64"/>
+	</condition>
+		
     <condition property="sf_update_dir"
 	value="update"
 	else="update_testing">
@@ -43,9 +53,69 @@
         classname="com.oopsconsultancy.xmltask.ant.XmlTask">
       <classpath path="${basedir}/xmltask.jar"/>
     </taskdef>
-        
-    <target name="build" depends="compile,mkarchive">
+	
+	<target name="init">
 		<delete dir="${buildDirectory}"/>
+		<mkdir dir="${buildDirectory}"/>
+        <mkdir dir="${buildResult}"/>
+	</target>
+	
+	<target name="collect">
+		<ant antfile="${basedir}/collect.xml" target="collect"/>
+	</target>
+	
+	<target name="build" depends="init,collect,mk_eclipse">
+		<java fork="true" failonerror="true"
+			classname="org.eclipse.core.launcher.Main">
+			<classpath>
+				<fileset dir="${buildDirectory}/eclipse_sdk/eclipse/plugins"
+					includes="org.eclipse.equinox.launcher_*.jar"/>
+			</classpath>
+			<arg value="-application"/>
+			<arg value="org.eclipse.ant.core.antRunner"/>
+			<arg value="-data"/>
+			<arg value="${buildDirectory}/ws2"/>
+			<arg value="-buildfile"/>
+			<arg value="${basedir}/build.xml"/>
+			<arg value="build_core"/>
+			<arg value="-Dos=${os}"/>
+			<arg value="-Dws=${ws}"/>
+			<arg value="-Darch=${arch}"/>
+		</java>
+		<delete dir="${buildDirectory}"/>
+	</target>
+
+
+	
+	<target name="mk_eclipse" depends="linux_unpack_eclipse,windows_unpack_eclipse">
+		<mkdir dir="${buildDirectory}/zest"/>
+		<unzip dest="${buildDirectory}/zest" 
+			src="${basedir}/../packages/${zest_zip}"/>
+		<install installIU="org.eclipse.gef.feature.group,
+			org.eclipse.draw2d.feature.group,
+			org.eclipse.zest.feature.group"
+			tag="AddZEST"
+			repository="file://${buildDirectory}/zest"
+			eclipseHome="${buildDirectory}/eclipse_sdk/eclipse"
+			dest="${buildDirectory}/eclipse_sdk/eclipse"/>		
+	</target>
+		
+	
+	<target name="linux_unpack_eclipse" unless="is_win">
+	<!-- TODO -->
+	</target>
+	
+	<target name="windows_unpack_eclipse" if="is_win">
+		<mkdir dir="${buildDirectory}/eclipse_sdk"/>
+		<unzip dest="${buildDirectory}/eclipse_sdk"
+			src="${eclipse_build_win_zip}"></unzip>
+	</target>
+		
+       
+	<!--
+	  This target is executed under the 'build' eclipse installation
+	  -->
+    <target name="build_core" depends="compile,mkarchive">
     </target>
 
     <target name="mk_rn">
@@ -59,9 +129,10 @@
 
     <target name="compile"> 
     	<echo message="==&gt; Compile"/>
+    	<!--
         <delete dir="${buildDirectory}"/>
         <mkdir dir="${buildDirectory}"/>
-        <mkdir dir="${buildResult}"/>
+          -->
 
         <copy todir="${buildDirectory}">
             <fileset dir="${srcdir}">
@@ -88,12 +159,6 @@
             <param name="feature.id" value="net.sf.sveditor.ui.feature"/>
         </antcall>
 
-<!--	
-        <antcall target="build_feature">
-            <param name="feature.id" value="net.sf.sveditor.svt.feature"/>
-	</antcall>
-  -->
-    	
         <antcall target="build_feature">
             <param name="feature.id" value="net.sf.sveditor"/>
         </antcall>
@@ -151,20 +216,6 @@
                 <filter token=".2." value="${feature.version}"/>
             </filterset>
         </copy>
-
-<!--
-        <copy todir="${basedir}/../archive_tmp/features">
-            <fileset dir="${gef_zest}/eclipse/features">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
-
-        <copy todir="${basedir}/../archive_tmp/plugins">
-            <fileset dir="${gef_zest}/eclipse/plugins">
-                <include name="**/*"/>
-            </fileset>
-        </copy>
-  -->
 
         <!-- Create the P2 repository -->
         <p2.publish.featuresAndBundles

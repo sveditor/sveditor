@@ -292,16 +292,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			} else if (is_closebrace) {
 				// A close bra
 				target_lineno--;
-				System.out.println("Found close-brace target_lineno=" + target_lineno);
 			}
 			
 			indenter.setAdaptiveIndentEnd(target_lineno);
 			String ind_result = indenter.indent();
 			
-			if (is_closebrace) {
-				System.out.println("Indented Content:\n" + ind_result);
-			}
-
 			IRegion cmd_line = doc.getLineInformationOfOffset(cmd.offset);
 			String indent = null;
 			if (indent_newline) {
