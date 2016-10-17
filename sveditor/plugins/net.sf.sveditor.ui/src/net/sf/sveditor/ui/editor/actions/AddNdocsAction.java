@@ -87,7 +87,7 @@ public class AddNdocsAction extends TextEditorAction {
 		// Now insert the comment if it exists
 		try {
 			SVDocumentTextScanner text_scanner = new SVDocumentTextScanner(doc, 0);
-			IDocCommentAdder docadder = new DocCommentAdder(svdbf, text_scanner, fFullFile);
+			IDocCommentAdder docadder = new DocCommentAdder(svdbf, null, text_scanner, fFullFile);
 			docadder.SetLineDelimiter(doc.getLineDelimiter(0));
 			fComments = docadder.AddComments(fCurrentLine);
 

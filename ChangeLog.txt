@@ -9,6 +9,9 @@
 
 - Feature request: #117 Add "Create Javadoc/Natural DOC" keybinding - Alt+Shift+J 
 
+- Feature request: Added ability to add Natural Docs Comments on multiple files
+   from the Project Explorer (Select file(s)>Right-Click>Source>Add Natural Docs
+
 - #446 Line number not captured in for generate loop
 
 - #448 Outline View: Modports not displaying correctly / cryptically 
@@ -24,6 +27,8 @@
 
 - Feature Request: Added ability to run the indenter on multiple files from
    the Project Explorer (Select file(s)>Right-Click>Source>Format)
+   
+- #453 Parser error: Unconnected ports being flagged as an error 
 
 ------------------------------------------------------------------------------
 -- 1.8.9 Release --

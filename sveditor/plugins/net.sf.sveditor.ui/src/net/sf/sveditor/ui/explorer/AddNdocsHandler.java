@@ -23,14 +23,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.docs.DocCommentAdder;
 import net.sf.sveditor.core.docs.IDocCommentAdder;
-import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.parser.SVLanguageLevel;
-import net.sf.sveditor.core.parser.SVParser;
-import net.sf.sveditor.core.parser.SVParserConfig;
-import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -66,6 +59,9 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 					continue;
 				}
 				try {
+					// For better or worse... right now we are getting what is on the disk, not what is in the editor
+					// TODO: Check if the editor is open and dirty.  If so, prompt for a save, and allow DB to rebuild before
+					//       continuing
 					InputStream is = file.getContents();
 					StringBuilder sb = new StringBuilder();
 					int ch;
@@ -78,18 +74,10 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 					String contents = sb.toString();
 
 					// Get the SVDB for this file
-					Tuple<ISVDBIndex, SVDBIndexCollection> result;
-					String project_name = file.getProject().getName();
-					String file_path = file.getFullPath().toString();
-					file_path = "${workspace_loc}" + file_path;
-					result = SVDBIndexUtil.findIndexFile(file_path, project_name, false);
-					if (result == null)  {
-						continue;
-					}
-					SVDBFile svdbf = result.first().findFile(file_path);
+					SVDBFile svdbf = SVDBIndexUtil.findIndexFile(file);
 
 					StringTextScanner scanner = new StringTextScanner(contents);
-					IDocCommentAdder dca = new DocCommentAdder(svdbf, scanner, true);
+					IDocCommentAdder dca = new DocCommentAdder(svdbf, SVDBIndexUtil.findIndexIterator(file), scanner, true);
 					ArrayList<Tuple<Object, String>> fComments = dca.AddComments(-1);
 					ArrayList<String> lines = new ArrayList<String>(Arrays.asList(contents.split("\n")));
 					// Restore \n's
@@ -115,6 +103,12 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 							}
 						}
 						
+						// Check if we have a mismatch between what we currently have in the editor and what 
+						// we had on our last compile... if things don't match 
+						if (highest_comment > lines.size())  {
+							// TODO: The file has shrunk for some reason... need to re-compile here
+							break;
+						}
 						if (highest_string != "")  {
 							lines.add(highest_comment-1, highest_string);
 						}
