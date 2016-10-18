@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
@@ -516,10 +517,11 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 		LogFactory.removeLogHandle(log);
 	}
 
-	public void index_changed(int reason, SVDBFile file) {}
 
-	public void index_rebuilt() {
-		fIndexRebuilt++;
+	@Override
+	public void index_event(SVDBIndexChangeEvent ev) {
+		if (ev.getType() == SVDBIndexChangeEvent.Type.FullRebuild) {
+			fIndexRebuilt++;
+		}
 	}
-	
 }

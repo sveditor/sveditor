@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.tests.index;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
@@ -23,6 +24,9 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 import net.sf.sveditor.core.tests.objects.ObjectsTests;
 
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class IndexTests extends TestSuite {
@@ -79,5 +83,45 @@ public class IndexTests extends TestSuite {
 		TestCase.assertEquals("item is not of type " + type, type, item_c.getSVDBItem().getType());
 	}
 
+	public static void assertDoesNotContain(ISVDBIndexIterator index_it, String name) {
+		List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(new NullProgressMonitor(), name, 
+				SVDBFindDefaultNameMatcher.getDefault());
+		TestCase.assertEquals("Unexpectedly found " + name, 0, result.size());
+	}
+	
+	public static boolean WaitForEvent() {
+		return WaitForEvent(10000);
+	}
+
+	public static boolean WaitForEvent(int timeout) {
+		final List<Integer> events = new ArrayList<Integer>();
+		
+		IResourceChangeListener l = new IResourceChangeListener() {
+			
+			@Override
+			public void resourceChanged(IResourceChangeEvent event) {
+				synchronized (events) {
+					events.add(1);
+					events.notifyAll();
+				}
+			}
+		};
+		
+		try {
+			ResourcesPlugin.getWorkspace().addResourceChangeListener(l);
+
+			try {
+				synchronized (events) {
+					events.wait(timeout);
+				}
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted");
+			}
+		} finally {
+			ResourcesPlugin.getWorkspace().removeResourceChangeListener(l);
+		}
+		
+		return (events.size() > 0);
+	}
 }
 

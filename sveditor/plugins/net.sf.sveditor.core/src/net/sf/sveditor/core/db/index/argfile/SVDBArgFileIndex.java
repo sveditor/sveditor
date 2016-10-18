@@ -48,8 +48,11 @@ import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
 import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeDelta;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
@@ -403,13 +406,15 @@ public class SVDBArgFileIndex implements
 			
 			// Notify clients that the index has new data
 			synchronized (fIndexChangeListeners) {
+				SVDBIndexChangeEvent ev = new SVDBIndexChangeEvent(
+						SVDBIndexChangeEvent.Type.FullRebuild, this);
 				for (int i=0; i<fIndexChangeListeners.size(); i++) {
 					ISVDBIndexChangeListener l = fIndexChangeListeners.get(i);
 					if (l == null) {
 						fIndexChangeListeners.remove(i);
 						i--;
 					} else {
-						l.index_rebuilt();
+						l.index_event(ev);
 					}
 				}
 			}
@@ -501,6 +506,7 @@ public class SVDBArgFileIndex implements
 					}
 				}
 			}
+			
 		
 //			System.out.println("New Files: ");
 //			for (String path : file_list) {
@@ -515,6 +521,15 @@ public class SVDBArgFileIndex implements
 			fLog.debug("Source files to parse: " + file_list.size());
 			for (String path : file_list) {
 				fLog.debug("  " + path);
+			}
+		}
+		
+		SVDBIndexChangeEvent ev = null;
+		
+		synchronized (fIndexChangeListeners) {
+			if (fIndexChangeListeners.size() > 0) {
+				ev = new SVDBIndexChangeEvent(
+						SVDBIndexChangeEvent.Type.IncrRebuild, this);
 			}
 		}
 	
@@ -565,6 +580,14 @@ public class SVDBArgFileIndex implements
 				SVPreProcOutput out = preproc.preprocess();
 				SVDBFileTree ft = out.getFileTree();
 				
+				// Collect include files
+				List<String> included_files = new ArrayList<String>();
+				SVDBFileTreeUtils.collectIncludedFiles(included_files, ft);
+				
+				// Update the include map
+				build_data.getRootIncludeMap().remove(path);
+				build_data.getRootIncludeMap().put(path, included_files);
+				
 				SVParser f = new SVParser();
 				f.setFileMapper(build_data);
 				
@@ -586,9 +609,16 @@ public class SVDBArgFileIndex implements
 				build_data.getCache().setLastModified(path, last_modified, false);
 				
 				SVDBArgFileBuildDataUtils.cacheDeclarations(build_data, this, file, ft);
+			
+				if (ev != null) {
+					ev.addDelta(new SVDBIndexChangeDelta(
+							SVDBIndexChangeDelta.Type.Change, file));
+				}
 				
 				monitor.worked(1000);
 			}
+			
+
 			
 			// Patch the new content into the index build data
 			synchronized (fBuildData) {
@@ -606,6 +636,9 @@ public class SVDBArgFileIndex implements
 			
 				for (String path : file_list) {
 					monitor.subTask("Merge " + path);
+					if (fDebugEn) {
+						fLog.debug("Merge: " + path);
+					}
 					SVDBFileTree     ft      = cache.getFileTree(new NullProgressMonitor(), path, false);
 					SVDBFile         file    = cache.getFile(new NullProgressMonitor(), path);
 					List<SVDBMarker> markers = cache.getMarkers(path);
@@ -633,6 +666,15 @@ public class SVDBArgFileIndex implements
 				
 					long last_modified = cache.getLastModified(path);
 					fBuildData.getCache().setLastModified(path, last_modified, false);
+					
+					// All of these files (I think) will be root files
+					Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
+					Map<String, List<String>> inc_map_s = build_data.getRootIncludeMap();
+					
+					for (String k : inc_map_s.keySet()) {
+						inc_map_t.remove(k);
+						inc_map_t.put(k, inc_map_s.get(k));
+					}
 			
 					if (ft != null) {
 						// Update the cached declarations
@@ -645,6 +687,9 @@ public class SVDBArgFileIndex implements
 				// Add any new files
 				for (String path : added_files) {
 					int attr = build_data.getFileAttr(path);
+					if (fDebugEn) {
+						fLog.debug("Add file \"" + path + "\" to cache");
+					}
 					fBuildData.addFile(path, attr);
 				}
 			
@@ -657,6 +702,15 @@ public class SVDBArgFileIndex implements
 //					System.out.println("  Post-remove: " + file);
 				}
 			}
+		
+			// Once everything is done, fire the index-change event
+			if (ev != null) {
+				synchronized (fIndexChangeListeners) {
+					for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
+						l.index_event(ev);
+					}
+				}
+			}			
 		} finally {
 			// No matter what, need to dispose of the new cache
 			if (cache != null) {

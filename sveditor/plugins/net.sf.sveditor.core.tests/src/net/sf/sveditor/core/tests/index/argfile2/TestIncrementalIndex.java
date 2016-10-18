@@ -12,6 +12,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
@@ -33,17 +34,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIncrementalIndex extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
 	private int						m_index_update;
+
 	
 	@Override
-	public void index_changed(int reason, SVDBFile file) {
-		// TODO Auto-generated method stub
-		System.out.println("index_changed");
-	}
-
-	@Override
-	public void index_rebuilt() {
-		System.out.println("index_rebuilt");
-		m_index_update++;
+	public void index_event(SVDBIndexChangeEvent ev) {
+		if (ev.getType() == SVDBIndexChangeEvent.Type.FullRebuild) {
+			System.out.println("index_rebuilt");
+			m_index_update++;
+		}
 	}
 
 	public void testRootFileChange_1() {

@@ -27,10 +27,11 @@ public interface ISVDBIndexChangeListener {
 	int FILE_ADDED   = 1;
 	int FILE_REMOVED = 2;
 	int FILE_CHANGED = 3;
+
+	void index_event(SVDBIndexChangeEvent e);
 	
-	
-	void index_changed(int reason, SVDBFile file);
-	
-	void index_rebuilt();
+//	void index_changed(int reason, SVDBFile file);
+//	
+//	void index_rebuilt();
 
 }

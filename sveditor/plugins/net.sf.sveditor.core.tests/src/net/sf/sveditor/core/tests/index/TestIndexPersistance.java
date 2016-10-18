@@ -25,6 +25,8 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent.Type;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.old.SVDBLibIndex;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -42,16 +44,18 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
 	private int				fRebuildCount;
-	
-	public void index_changed(int reason, SVDBFile file) {}
 
-	public void index_rebuilt() {
-		try {
-			throw new Exception("index_rebuilt");
-		} catch (Exception e) {
-			fLog.debug("Index Rebuilt", e);
+	
+	@Override
+	public void index_event(SVDBIndexChangeEvent ev) {
+		if (ev.getType() == Type.FullRebuild) {
+			try {
+				throw new Exception("index_rebuilt");
+			} catch (Exception e) {
+				fLog.debug("Index Rebuilt", e);
+			}
+			fRebuildCount++;
 		}
-		fRebuildCount++;
 	}
 
 	public void disabled_testWSArgFileIndex() {

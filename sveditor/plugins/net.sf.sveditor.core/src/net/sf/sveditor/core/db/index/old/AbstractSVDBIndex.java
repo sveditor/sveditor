@@ -70,6 +70,7 @@ import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexItemIterator;
@@ -1802,9 +1803,11 @@ public abstract class AbstractSVDBIndex implements
 	}
 
 	protected void notifyIndexRebuilt() {
+		SVDBIndexChangeEvent ev = new SVDBIndexChangeEvent(
+				SVDBIndexChangeEvent.Type.FullRebuild, this);
 		synchronized (fIndexChangeListeners) {
 			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-				l.index_rebuilt();
+				l.index_event(ev);
 			}
 		}
 	}

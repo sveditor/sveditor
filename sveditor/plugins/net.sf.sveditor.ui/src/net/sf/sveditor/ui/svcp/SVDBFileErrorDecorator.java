@@ -10,6 +10,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -131,18 +132,12 @@ public class SVDBFileErrorDecorator
 			return fProject;
 		}
 
-		public void index_changed(int reason, SVDBFile file) {
-			switch (reason) {
-				case FILE_ADDED:
-				case FILE_REMOVED:
-					queueWork(this);
-					break;
-			}
-		}
-
-		public void index_rebuilt() {
+		
+		@Override
+		public void index_event(SVDBIndexChangeEvent e) {
 			queueWork(this);
 		}
+
 	};
 	
 	public SVDBFileErrorDecorator() {

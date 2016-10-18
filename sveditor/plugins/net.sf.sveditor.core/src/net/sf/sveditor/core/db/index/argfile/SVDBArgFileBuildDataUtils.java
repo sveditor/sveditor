@@ -514,6 +514,12 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 		synchronized (build_data) {
 			Map<String, List<String>> root_map = build_data.getRootIncludeMap();
 			
+			if (fDebugEn) {
+				for (Map.Entry<String, List<String>> e : root_map.entrySet()) {
+					System.out.println("RootMap Entry: " + e.getKey());
+				}
+			}
+			
 			if (root_map.containsKey(path)) {
 				ret = path;
 			} else {
@@ -776,6 +782,10 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			// See if we can find the root file
 			String root_path = findRootFilePath(build_data, r_path);
 			int root_id = build_data.mapFilePathToId(root_path, false);
+			
+			if (fDebugEn) {
+				fLog.debug("  root_path=" + root_path + " root_id=" + root_id);
+			}
 			
 			if (root_path != null) {
 				// Get the FileMap

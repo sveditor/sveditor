@@ -18,6 +18,7 @@ import java.util.List;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
@@ -159,11 +160,9 @@ public class ProjectPathsContentProvider implements
 		fViewer = viewer;
 	}
 
-	public void index_changed(int reason, SVDBFile file) {
-		doRefresh();
-	}
-
-	public void index_rebuilt() {
+	
+	@Override
+	public void index_event(SVDBIndexChangeEvent e) {
 		doRefresh();
 	}
 

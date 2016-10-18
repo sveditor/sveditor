@@ -48,6 +48,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.ISVDBIndexParse;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
+import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
@@ -1216,33 +1217,31 @@ public class SVEditor extends TextEditor
 		return getSourceViewer();
 	}
 	
-	public void index_changed(int reason, SVDBFile file) {
-		// TODO Auto-generated method stub
-//		System.out.println("index_changed");
-	}
-
-	public void index_rebuilt() {
-		if (Display.getDefault() == null) {
-			fNeedUpdate = true;
-			return;
-		}
-		
-		// Force a rebuild to pick up latest errors
-		// Note: isPartVisible() is a display-thread protected method
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				if (getSite() != null && getSite().getPage().isPartVisible(SVEditor.this)) {
-					if (fSVDBIndex.getBaseIndex() == null) {
-						// Try re-checking
-						projectSettingsChanged(null);
-					}
-					updateSVDBFile(getDocument(), false);
-				} else {
-					// Store the knowledge that we need an update for later
-					fNeedUpdate = true;
-				}
+	@Override
+	public void index_event(SVDBIndexChangeEvent e) {
+		if (e.getType() == SVDBIndexChangeEvent.Type.FullRebuild) {
+			if (Display.getDefault() == null) {
+				fNeedUpdate = true;
+				return;
 			}
-		});
+			
+			// Force a rebuild to pick up latest errors
+			// Note: isPartVisible() is a display-thread protected method
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					if (getSite() != null && getSite().getPage().isPartVisible(SVEditor.this)) {
+						if (fSVDBIndex.getBaseIndex() == null) {
+							// Try re-checking
+							projectSettingsChanged(null);
+						}
+						updateSVDBFile(getDocument(), false);
+					} else {
+						// Store the knowledge that we need an update for later
+						fNeedUpdate = true;
+					}
+				}
+			});			
+		}
 	}
 
 	// IPartListener methods

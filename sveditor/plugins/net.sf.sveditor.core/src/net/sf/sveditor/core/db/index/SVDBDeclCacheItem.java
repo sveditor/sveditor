@@ -124,7 +124,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 					}
 					Exception e = null;
 					try { throw new Exception(); } catch (Exception e2) { e = e2; }
-					fLog.error("Error: Failed to find item name=" + fName + 
+					fLog.debug("Error: Failed to find item name=" + fName + 
 							" type=" + fType + " in file=" + fFileName + 
 							" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 				}
@@ -134,7 +134,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 				}
 				Exception e = null;
 				try { throw new Exception(); } catch (Exception e2) { e = e2; }
-				fLog.error("Error: Failed to file=" + fFileName + " in cache " +
+				fLog.debug("Error: Failed to file=" + fFileName + " in cache " +
 						"while looking for item name=" + fName + " type=" + 
 						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 			}
@@ -146,7 +146,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 			Exception e = null;
 			try { throw new Exception(); } catch (Exception e2) { e = e2; }
 			
-			fLog.error("Error: 'parent' is null while looking for item " +
+			fLog.debug("Error: 'parent' is null while looking for item " +
 					"name=" + fName + " type=" + fType + " in file=" + fFileName +
 					" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 		}
