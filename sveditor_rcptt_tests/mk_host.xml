@@ -104,6 +104,10 @@
 			repository="file://${sveditor_dir}/rcptt"
 			eclipseHome="${sveditor_dir}/eclipse"
 			dest="${sveditor_dir}/eclipse"/>			
+		
+		<mkdir dir="${sveditor_dir}/rcptt_runner"/>
+		<unzip dest="${sveditor_dir}/rcptt_runner"
+			src="${basedir}/../packages/${rcptt_runner_zip}"/>
 	</target>
 		
 	

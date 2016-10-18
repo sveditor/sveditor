@@ -45,8 +45,8 @@
          - - - - - - - - - - - - - - - - - -->
     <target name="collect" 
     	depends="init,collect_build_eclipse,collect_run_eclipse,collect_zest,
-    		collect_rcptt,collect_orbit,collect_emf,collect_emf_transaction,
-    		collect_emf_validation">
+    		collect_rcptt,collect_rcptt_runner,
+    		collect_orbit,collect_emf,collect_emf_transaction, collect_emf_validation">
     
     	<!--
     	",collect_run_eclipse,collect_zest,collect_mpc,
@@ -323,6 +323,27 @@
 		</exec>
 	</target>
 
+	<!-- RCPTT Runner -->
+	<condition property="fetch.rcptt.runner">
+		<or>
+			<not>
+				<available file="${packages_dir}/${rcptt_runner_zip}"/>
+			</not>
+			<equals arg1="${force}" arg2="true"/>
+		</or>
+	</condition>
+		
+	<target name="collect_rcptt_runner" if="${fetch.rcptt.runner}">
+		<exec executable="wget"
+			failonerror="true"
+			dir="${packages_dir}">
+			<arg value="-nv"/>
+			<arg value="-T"/>
+			<arg value="4"/>
+			<arg value="${rcptt_runner_release}/${rcptt_runner_zip}"/>
+		</exec>
+	</target>
+				
 	<!-- Eclipse Orbit -->
 	<condition property="fetch.orbit">
 		<or>
