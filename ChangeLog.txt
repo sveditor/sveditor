@@ -4,6 +4,8 @@
 
 - #(nobug) - Improvements to incremental indexing
 
+- #455 Parser Error: Property containing bus concatenation not recognized 
+
 ------------------------------------------------------------------------------
 -- 1.9.0 Release --
 

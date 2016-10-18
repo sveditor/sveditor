@@ -336,12 +336,34 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 		return item;
 	}
 	
+	/**
+	 * sequence_expr ::=
+	 *    cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }
+	 *    | sequence_expr cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }
+	 *    | expression_or_dist [ boolean_abbrev ]
+	 *    | ( expression_or_dist {, sequence_match_item } ) [ boolean_abbrev ]
+	 *    | sequence_instance [ sequence_abbrev ]
+	 *    | ( sequence_expr {, sequence_match_item } ) [ sequence_abbrev ]
+	 *    | sequence_expr and sequence_expr
+	 *    | sequence_expr intersect sequence_expr
+	 *    | sequence_expr or sequence_expr
+	 *    | first_match ( sequence_expr {, sequence_match_item} )
+	 *    | expression_or_dist throughout sequence_expr
+	 *    | sequence_expr within sequence_expr
+	 *    | clocking_event sequence_expr
+	 *    
+	 *    
+	 * @return
+	 * @throws SVParseException
+	 */
 	public SVDBExpr sequence_expr() throws SVParseException {
 		SVDBExpr expr = null;
 		if (fDebugEn) {debug("--> sequence_expr() " + fLexer.peek());}
 		OP op;
 		
-		if ((op = fLexer.peekOperatorE()) != null) {
+		// LBRACE '{' could be a bus {a,b}, not an operator in this context
+		// See bug #455
+		if (((op = fLexer.peekOperatorE()) != null) && (op != OP.LBRACE)) {
 			switch (op) {
 				case HASH2: {
 					if (fDebugEn) { debug("  cycle_delay"); }
@@ -397,6 +419,10 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 					if (fDebugEn) { debug(" -- Operator == ) ; fall through"); }
 				} break;
 				
+				case LBRACE: {
+					if (fDebugEn) { debug(" -- Operator == ) ; fall through"); }
+				} break;
+				
 				default:
 					// Fall Through
 //					error("unexpected operator: " + op);
@@ -416,7 +442,11 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 			}
 			fLexer.readOperator(OP.RPAREN);
 			expr = first_match;
-		} else {
+		}
+		
+		// If we don't have one of the above ... try expression_or_dist
+//		if (expr == null)  {
+		else  {
 			//   expression_or_dist [boolean_abbrev]
 			// | expression_or_dist throughout sequence_expr 
 			expr = expression_or_dist();

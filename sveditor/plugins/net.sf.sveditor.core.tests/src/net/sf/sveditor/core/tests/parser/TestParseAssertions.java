@@ -97,30 +97,47 @@ public class TestParseAssertions extends TestCase {
 	public void testPropertyParenExpr() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
+				"module top ();\n" +
+						"	logic a, b, clk, reset, thevar, thing;\n" +
+						"	property p_prop ();\n" +
+						"		@(posedge clk)\n" +
+						"			disable iff(thevar)\n" +
+						"			if(b == 1'b1) \n" +
+						"				b == b\n" +
+						"			else\n" +
+						"				b == 0;  // Flagging ; as an error, expected endproperty\n" +
+						"	endproperty\n" +
+						"	cover property ( @(posedge clk)\n" +
+						"		disable iff (reset) \n" +
+						"			(thing !== '0))\n" +
+						"		begin  \n" +
+						"			$display (\"a message\");\n" +
+						"			$display (\"a message\");\n" +
+						"		end\n" +
+						"	cover property ( @(posedge clk)\n" +
+						"			disable iff (reset) \n" +
+						"			(thing !== '0)) some_inst.thing.sample(thing2);\n" +
+						"endmodule\n"
+						;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top", "p_prop"});
+	}
+	
+	public void testPropertyBus() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
 			"module top ();\n" +
 			"	logic a, b, clk, reset, thevar, thing;\n" +
-			"	property p_prop ();\n" +
-			"		@(posedge clk)\n" +
-			"			disable iff(thevar)\n" +
-			"			if(b == 1'b1) \n" +
-			"				b == b\n" +
-			"			else\n" +
-			"				b == 0;  // Flagging ; as an error, expected endproperty\n" +
+			"	property some_prop_p;\n" +
+			"	@ (posedge clk) disable iff (disable_assertions) (a==0) |->\n" +
+			"	(\n" +
+			"	|{b,c} == '0\n" +
+			"	);\n" +
 			"	endproperty\n" +
-			"	cover property ( @(posedge clk)\n" +
-			"		disable iff (reset) \n" +
-			"			(thing !== '0))\n" +
-			"		begin  \n" +
-			"			$display (\"a message\");\n" +
-			"			$display (\"a message\");\n" +
-			"		end\n" +
-			"	cover property ( @(posedge clk)\n" +
-			"			disable iff (reset) \n" +
-			"			(thing !== '0)) some_inst.thing.sample(thing2);\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top", "p_prop"});
+				new String[] {"top", "some_prop_p"});
 	}
 	
 	public void testPropertyParenArrayIndex() throws SVParseException {
