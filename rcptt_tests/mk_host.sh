@@ -37,19 +37,34 @@ else
   eclipse=eclipse
 fi
 
+cwd=`pwd`
+
 if test "$is_cygwin" = "1"; then
   export ECLIPSE_HOME=`cygpath -w $ECLIPSE_HOME | sed -e 's%\\\\%/%g'`
+  cwd=`cygpath -w $cwd | sed -e 's%\\\\%/%'`
+  echo "cwd=$cwd"
 fi
 
 verbose=""
-#verbose="-verbose"
+verbose="-verbose"
 
 echo "os=$os ws=$ws arch=$arch"
+
+mkdir tmpdir
+cd tmpdir
+
 
 $ECLIPSE_HOME/$eclipse \
     -nosplash -application org.eclipse.ant.core.antRunner \
     --launcher.suppressErrors \
-    -buildfile mk_host.xml      \
+    -buildfile $cwd/mk_host.xml      \
     ${verbose} \
-    -Dos=$os -Dws=$ws -Darch=$arch $extra_defs mk_host
+    $extra_defs \
+    -Dsveditor_dir=$cwd/rundir/sveditor_mballance/none/sveditor \
+    -Detc_dir=$cwd/../etc \
+    -Dpackages_dir=$cwd/../packages \
+    mk_host
+
+#    -Dos=$os -Dws=$ws -Darch=$arch $extra_defs mk_host
+
 

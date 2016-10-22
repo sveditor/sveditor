@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
+import net.sf.sveditor.core.job_mgr.IJobMgr;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -66,6 +67,8 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		waitIndexEvent(100); // Just wait for a bit
+		
 		super.tearDown();
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(fListener);
 		
@@ -136,7 +139,9 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 		synchronized (fIndexChangeEvents) {
 			try {
 				fIndexChangeEvents.wait(timeout);
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted");
+			}
 			ret = (fIndexChangeEvents.size() > 0);
 			fIndexChangeEvents.clear();
 		}
@@ -250,6 +255,182 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 		IndexTests.assertDoesNotContain(pd.getProjectIndexMgr(), "my_pkg");
 	}
 
+	public void testRootFileRemoveSrcFile_1() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		IProject p = TestUtils.createProject(getName(), 
+				new File(fTmpDir, getName()));
+		addProject(p);
+	
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pd = pmgr.getProjectData(p);
+		
+		SVProjectFileWrapper fw = pd.getProjectFileWrapper();
+		
+		SVFileUtils.copy(
+				"// Empty file\n",
+				p.getFile(new Path("sve.f")));
+		
+		fw.addArgFilePath("${project_loc}/sve.f");
+		pd.setProjectFileWrapper(fw);
+		
+		addIndex(pd.getProjectIndexMgr());
+
+		SVFileUtils.copy(
+				"package my_pkg;\n" +
+				"endpackage\n",
+				p.getFile(new Path("my_pkg.sv")));
+		
+		SVFileUtils.copy(
+				"package my_pkg2;\n" +
+				"endpackage\n",
+				p.getFile(new Path("my_pkg2.sv")));
+		
+		SVFileUtils.copy(
+				"./my_pkg.sv\n" + 
+				"./my_pkg2.sv\n",
+				p.getFile(new Path("sve.f")));
+		
+		fLog.debug("--> Wait for rebuild event");
+		assertTrue(waitIndexEvent());
+		fLog.debug("<-- Wait for rebuild event");
+		
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg", SVDBItemType.PackageDecl);
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg2", SVDBItemType.PackageDecl);
+	
+		// Rewrite the sve.f so it doesn't contain my_pkg2
+		SVFileUtils.copy(
+				"./my_pkg.sv\n",
+				p.getFile(new Path("sve.f")));
+
+		assertTrue(waitIndexEvent());
+		
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg", SVDBItemType.PackageDecl);
+		IndexTests.assertDoesNotContain(pd.getProjectIndexMgr(), "my_pkg2");
+	}
+
+	public void testRootFileRemoveSrcFileLeaveRef_1() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		IProject p = TestUtils.createProject(getName(), 
+				new File(fTmpDir, getName()));
+		addProject(p);
+	
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pd = pmgr.getProjectData(p);
+		
+		SVProjectFileWrapper fw = pd.getProjectFileWrapper();
+		
+		SVFileUtils.copy(
+				"// Empty file\n",
+				p.getFile(new Path("sve.f")));
+		
+		fw.addArgFilePath("${project_loc}/sve.f");
+		pd.setProjectFileWrapper(fw);
+		
+		addIndex(pd.getProjectIndexMgr());
+
+		SVFileUtils.copy(
+				"package my_pkg;\n" +
+				"endpackage\n",
+				p.getFile(new Path("my_pkg.sv")));
+		
+		SVFileUtils.copy(
+				"package my_pkg2;\n" +
+				"endpackage\n",
+				p.getFile(new Path("my_pkg2.sv")));
+		
+		SVFileUtils.copy(
+				"./my_pkg.sv\n" + 
+				"./my_pkg2.sv\n",
+				p.getFile(new Path("sve.f")));
+		
+		fLog.debug("--> Wait for rebuild event");
+		assertTrue(waitIndexEvent());
+		fLog.debug("<-- Wait for rebuild event");
+		
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg", SVDBItemType.PackageDecl);
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg2", SVDBItemType.PackageDecl);
+
+		// Delete my_pkg2.sv
+		SVFileUtils.delete(p.getFile(new Path("my_pkg2.sv")));
+	
+		assertTrue(waitIndexEvent());
+		
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg", SVDBItemType.PackageDecl);
+		IndexTests.assertDoesNotContain(pd.getProjectIndexMgr(), "my_pkg2");
+	}
+
+	public void testRootFileRemoveFileListLeaveRef_1() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		IProject p = TestUtils.createProject(getName(), 
+				new File(fTmpDir, getName()));
+		addProject(p);
+	
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pd = pmgr.getProjectData(p);
+		
+		SVProjectFileWrapper fw = pd.getProjectFileWrapper();
+		
+		SVFileUtils.copy(
+				"// Empty file\n",
+				p.getFile(new Path("sve.f")));
+		
+		fw.addArgFilePath("${project_loc}/sve.f");
+		pd.setProjectFileWrapper(fw);
+		
+		fLog.debug("--> Wait for rebuild event (1)");
+		addIndex(pd.getProjectIndexMgr());
+		fLog.debug("<-- Wait for rebuild event (1)");
+
+		SVFileUtils.copy(
+				"package my_pkg;\n" +
+				"endpackage\n",
+				p.getFile(new Path("my_pkg.sv")));
+		
+		SVFileUtils.copy(
+				"./my_pkg.sv\n",
+				p.getFile(new Path("my_pkg.f")));
+		
+		SVFileUtils.copy(
+				"package my_pkg2;\n" +
+				"endpackage\n",
+				p.getFile(new Path("my_pkg2.sv")));
+		
+		SVFileUtils.copy(
+				"./my_pkg2.sv\n",
+				p.getFile(new Path("my_pkg2.f")));
+		
+		SVFileUtils.copy(
+				"-f ./my_pkg.f\n" + 
+				"-f ./my_pkg2.f\n",
+				p.getFile(new Path("sve.f")));
+		
+		fLog.debug("--> Wait for rebuild event (2)");
+		assertTrue(waitIndexEvent());
+		fLog.debug("<-- Wait for rebuild event (2)");
+		
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg", SVDBItemType.PackageDecl);
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg2", SVDBItemType.PackageDecl);
+
+		// Delete my_pkg2.sv
+		SVFileUtils.delete(p.getFile(new Path("my_pkg2.f")));
+	
+		fLog.debug("--> Wait for rebuild event (3)");
+		assertTrue(waitIndexEvent());
+		fLog.debug("<-- Wait for rebuild event (3)");
+		
+		IndexTests.assertContains(pd.getProjectIndexMgr(), 
+				"my_pkg", SVDBItemType.PackageDecl);
+		IndexTests.assertDoesNotContain(pd.getProjectIndexMgr(), "my_pkg2");
+	}
+	
 	public void testRootFileChangeIncSrcFile_1() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		IProject p = TestUtils.createProject(getName(), 
@@ -313,7 +494,7 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 	}
 	
 	public void testRootFileChangeFileList_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);

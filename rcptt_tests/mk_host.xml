@@ -1,31 +1,34 @@
 
 <project>
 
-	<property file="${basedir}/../etc/sveditor.info"/>
-	<property file="${basedir}/../etc/sveditor_${version_type}.info"/>
-	<property file="${basedir}/../etc/packages.properties"/>
+	<property name="etc_dir" value="${basedir}/../etc"/>
+	<property name="sveditor_dir" value="${basedir}/sveditor"/>
+	<property name="packages_dir" value="${basedir}/../packages"/>
+
+	<property file="${etc_dir}/sveditor.info"/>
+	<property file="${etc_dir}/sveditor_${version_type}.info"/>
+	<property file="${etc_dir}/packages.properties"/>
 
 	<condition property="is_win">
 		<os family="windows"/>
 	</condition>
 	
 	<condition property="eclipse_run_win_zip"
-		value="${basedir}/../packages/${eclipse_run_win32_x86_64_zip}"
-		else="${basedir}/../packages/${eclipse_run_win32_zip}">
+		value="${packages_dir}/${eclipse_run_win32_x86_64_zip}"
+		else="${packages_dir}/${eclipse_run_win32_zip}">
 		<os arch="amd64"/>
 	</condition>
 
-	<include file="${basedir}/../scripts/eclipse_utils.xml"/>
+	<include file="${etc_dir}/../scripts/eclipse_utils.xml"/>
 	
-	<property name="sveditor_dir" value="${basedir}/sveditor"/>
 
 	<target name="init">
-		<delete dir="${basedir}/sveditor"/>
-		<mkdir dir="${basedir}/sveditor"/>
+		<delete dir="${sveditor_dir}"/>
+		<mkdir dir="${sveditor_dir}"/>
 	</target>
 
 	<target name="collect">
-		<ant antfile="${basedir}/../scripts/collect.xml" target="collect"/>
+		<ant antfile="${etc_dir}/../scripts/collect.xml" target="collect"/>
 	</target>
 
 	<target name="mk_host" depends="init,collect,mk_eclipse">
@@ -34,7 +37,7 @@
 	<target name="mk_eclipse" depends="linux_unpack_eclipse,windows_unpack_eclipse">
 		<mkdir dir="${sveditor_dir}/zest"/>
 		<unzip dest="${sveditor_dir}/zest" 
-			src="${basedir}/../packages/${zest_zip}"/>
+			src="${packages_dir}/${zest_zip}"/>
 		<install installIU="org.eclipse.gef.feature.group,
 			org.eclipse.draw2d.feature.group,
 			org.eclipse.zest.feature.group"
@@ -56,7 +59,7 @@
 		<!-- Install pre-requisites for RCPTT -->
 		<mkdir dir="${sveditor_dir}/orbit"/>
 		<unzip dest="${sveditor_dir}/orbit"
-			src="${basedir}/../packages/${eclipse_orbit_zip}"/>
+			src="${packages_dir}/${eclipse_orbit_zip}"/>
 			<!-- com.google.gwt.user,org.eclipse.orbit.category.google -->
 		<install installIU="com.google.guava,com.google.inject,com.google.gson"
 			tag="AddGoogle"
@@ -66,7 +69,7 @@
 			
 		<mkdir dir="${sveditor_dir}/emf"/>	
 		<unzip dest="${sveditor_dir}/emf"
-			src="${basedir}/../packages/${emf_zip}"/>	
+			src="${packages_dir}/${emf_zip}"/>	
 		<install installIU="org.eclipse.emf.databinding.feature.group,
 							org.eclipse.emf.edit.feature.group,
 							org.eclipse.xsd.edit.feature.group,
@@ -80,7 +83,7 @@
 
 		<mkdir dir="${sveditor_dir}/emf_validation"/>	
 		<unzip dest="${sveditor_dir}/emf_validation"
-			src="${basedir}/../packages/${emf_validation_zip}"/>	
+			src="${packages_dir}/${emf_validation_zip}"/>	
 		<install installIU="org.eclipse.emf.validation.feature.group"
 			tag="AddEMFValidation"
 			repository="file://${sveditor_dir}/emf_validation"
@@ -89,7 +92,7 @@
 				
 		<mkdir dir="${sveditor_dir}/emf_transaction"/>	
 		<unzip dest="${sveditor_dir}/emf_transaction"
-			src="${basedir}/../packages/${emf_transaction_zip}"/>	
+			src="${packages_dir}/${emf_transaction_zip}"/>	
 		<install installIU="org.eclipse.emf.transaction.feature.group"
 			tag="AddEMFTransaction"
 			repository="file://${sveditor_dir}/emf_transaction"
@@ -98,7 +101,7 @@
 			
 		<mkdir dir="${sveditor_dir}/rcptt"/>
 		<unzip dest="${sveditor_dir}/rcptt"
-			src="${basedir}/../packages/${rcptt_zip}"/>
+			src="${packages_dir}/${rcptt_zip}"/>
 		<install installIU="org.eclipse.rcptt.platform.feature.group"
 			tag="AddRCPTT"
 			repository="file://${sveditor_dir}/rcptt"
@@ -107,7 +110,7 @@
 		
 		<mkdir dir="${sveditor_dir}/rcptt_runner"/>
 		<unzip dest="${sveditor_dir}/rcptt_runner"
-			src="${basedir}/../packages/${rcptt_runner_zip}"/>
+			src="${packages_dir}/${rcptt_runner_zip}"/>
 	</target>
 		
 	

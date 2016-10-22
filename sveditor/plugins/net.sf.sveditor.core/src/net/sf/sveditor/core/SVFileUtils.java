@@ -432,6 +432,14 @@ public class SVFileUtils {
     	}
     	file.delete();
     }
+    
+    public static void delete(IFile file) {
+    	try {
+    		file.delete(true, new NullProgressMonitor());
+    	} catch (CoreException e) {
+    		e.printStackTrace();
+    	}
+    }
   
     /**
      * Resolves a path to its full path. Removes any 

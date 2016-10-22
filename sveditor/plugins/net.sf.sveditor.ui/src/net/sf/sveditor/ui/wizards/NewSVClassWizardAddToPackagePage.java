@@ -6,6 +6,11 @@ import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.AnnotationPainter;
+import org.eclipse.jface.text.source.IAnnotationAccess;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -63,6 +68,12 @@ public class NewSVClassWizardAddToPackagePage extends WizardPage {
 				SWT.V_SCROLL+SWT.H_SCROLL);
 		fSvViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fContent = "";
+	
+		IAnnotationModel ann_m = fSvViewer.getSvViewer().getAnnotationModel();
+		
+		ann_m.addAnnotation(new Annotation(
+				"org.eclipse.ui.workbench.texteditor.error",
+				false, "Foo"), new Position(0, 10));
 		
 		fSvViewer.getSvViewer().getDocument().addDocumentListener(
 				new IDocumentListener() {
