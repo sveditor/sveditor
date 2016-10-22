@@ -40,7 +40,7 @@ public class NewSVClassWizardAddToPackagePage extends WizardPage {
 		super("Add to Package",
 				"Add to Package", null);
 		fParent = parent;
-		setErrorMessage("Incomplete Page");
+		setErrorMessage(null);
 	}
 	
 	public String getContent() {
@@ -69,12 +69,6 @@ public class NewSVClassWizardAddToPackagePage extends WizardPage {
 		fSvViewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		fContent = "";
 	
-		IAnnotationModel ann_m = fSvViewer.getSvViewer().getAnnotationModel();
-		
-		ann_m.addAnnotation(new Annotation(
-				"org.eclipse.ui.workbench.texteditor.error",
-				false, "Foo"), new Position(0, 10));
-		
 		fSvViewer.getSvViewer().getDocument().addDocumentListener(
 				new IDocumentListener() {
 					

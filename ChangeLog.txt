@@ -4,6 +4,8 @@
 
 - #(nobug) - Improvements to incremental indexing
 
+- #(nobug) - Correct an issue with line numbers and Windows-style line endings
+
 ------------------------------------------------------------------------------
 -- 1.9.0 Release --
 

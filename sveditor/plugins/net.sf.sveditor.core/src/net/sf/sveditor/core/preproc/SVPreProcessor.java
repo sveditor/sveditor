@@ -292,7 +292,7 @@ public class SVPreProcessor extends AbstractTextScanner
 								break;
 							} else {
 								if (ch == '\n') {
-									fOutput.append('\n');
+									output('\n');
 								}
 								fCommentBuffer.append((char)ch);
 							}
@@ -1401,7 +1401,7 @@ public class SVPreProcessor extends AbstractTextScanner
 		if (fCaptureEnabled && ch != -1) {
 			fCaptureBuffer.append((char)ch);
 		}
-	
+		
 		return ch;
 	}
 	
@@ -1423,13 +1423,19 @@ public class SVPreProcessor extends AbstractTextScanner
 	}
 	
 	private void output(int ch) {
+		if (ch == '\n') {
+			if (fOutput.length() > 0 && fOutput.charAt(fOutput.length()-1) == '\r') {
+				fOutput.setLength(fOutput.length()-1);
+			}
+		}
 		fOutput.append((char)ch);
 		fOutputLen++;
 	}
 	
 	private void output(String str) {
-		fOutput.append(str);
-		fOutputLen = fOutput.length();
+		for (int i=0; i<str.length(); i++) {
+			output(str.charAt(i));
+		}
 	}
 
 	/*
