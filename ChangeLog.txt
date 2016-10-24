@@ -1,10 +1,15 @@
 
 ------------------------------------------------------------------------------
+-- 1.9.2 Release --
+
+- #455 Parser Error: Property containing bus concatenation not recognized 
+
+------------------------------------------------------------------------------
 -- 1.9.1 Release --
 
 - #(nobug) - Improvements to incremental indexing
 
-- #455 Parser Error: Property containing bus concatenation not recognized 
+- #(nobug) - Correct an issue with line numbers and Windows-style line endings
 
 ------------------------------------------------------------------------------
 -- 1.9.0 Release --
