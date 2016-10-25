@@ -18,6 +18,11 @@ public enum SVDBIndexChangePlanType {
 	RebuildFiles,
 	
 	/**
+	 * Remove the specified files from the index
+	 */
+	RemoveFiles,
+	
+	/**
 	 * Requests rebuild of the full index
 	 */
 	RebuildIndex,

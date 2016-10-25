@@ -16,6 +16,7 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
+import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
@@ -44,6 +45,10 @@ public class SystemVerilogViewer extends SourceViewer {
 				this, null, new DefaultMarkerAnnotationAccess(), 
 				EditorsPlugin.getDefault().getSharedTextColors());
 		configureSourceViewerDecorationSupport();
+//		fDecorationSupport.setAnnotationPreference(
+//				new AnnotationPreference("org.eclipse.ui.workbench.texteditor.error", 
+//						"red", "editorKey", "overviewKey", 0));
+//		fDecorationSupport.install(null);
 	}
 	
 	protected void configureSourceViewerDecorationSupport() {

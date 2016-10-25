@@ -50,6 +50,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 		lmap.put("c.a", new SVDBLocation(1, 4, 0));
 	
 		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
 	}
 
 	public void testLineNumberMacro_1() {
@@ -71,6 +72,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 		lmap.put("c.a", new SVDBLocation(1, 5, 0));
 	
 		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
 	}
 
 	public void testLineNumberMacro_2() {
@@ -93,10 +95,11 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 		lmap.put("c.a", new SVDBLocation(1, 6, 0));
 	
 		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
 	}
 
 	public void testLineNumberMacro_3() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"\n" +									// 1
 			"`define SUBFIELD(n) \\\n" +			// 2
@@ -117,6 +120,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 		lmap.put("c.a", new SVDBLocation(1, 8, 0));
 	
 		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
 	}
 
 	public void testLineNumberInclude_1() {
@@ -147,6 +151,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 		lmap.put("foo.a", new SVDBLocation(2, 3, 0));
 	
 		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
 	}
 	
 	public void testMultiInclude_1() {
@@ -193,6 +198,59 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 		lmap.put("post_file2", new StartEnd(1,9, 1,10));
 		
 		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
+	}
+	
+	public void testMultiLineCommentPackage() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"/****************************************************************************\n" +
+			" * pkg1.sv\n" +
+			" ****************************************************************************/\n" +
+			"\n" +
+			"/**\n" +
+			" * Package: pkg1\n" +
+			" * \n" +
+			" * TODO: Add package documentation\n" +
+			" */\n" +
+			"package pkg1;\n" + // 10
+			"	int a;\n" +
+			"	int b;\n" +
+			"\n" +
+			"endpackage\n" // 14
+			;
+		Map<String,String> fmap = new HashMap<String,String>();
+		fmap.put("/files.f", "/" + getName() + ".sv\n");
+		fmap.put("/" + getName() + ".sv", content);
+		
+		Map<String, Object> lmap = new HashMap<String, Object>();
+		lmap.put("pkg1", new StartEnd(1,10, 1,14));
+		
+		runLineNumberTest(fmap, lmap);
+		runLineNumberTestWinEOL(fmap, lmap);
+	}
+	
+	void runLineNumberTestWinEOL(
+			Map<String, String>		fmap,
+			Map<String, Object>		lineinfo) {
+		Map<String, String> fmap_win = new HashMap<String,String>();
+		
+		for (String key : fmap.keySet()) {
+			String doc = fmap.get(key);
+			StringBuilder sb = new StringBuilder();
+			
+			for (int i=0; i<doc.length(); i++) {
+				if (doc.charAt(i) == '\n' && 
+						(i==0 || doc.charAt(i-1) != '\r')) {
+					sb.append('\r');
+				}
+				sb.append(doc.charAt(i));
+			}
+			
+			fmap_win.put(key, sb.toString());
+		}
+	
+		runLineNumberTest(fmap_win, lineinfo);
 	}
 	
 	void runLineNumberTest(

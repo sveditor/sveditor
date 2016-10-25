@@ -1,9 +1,10 @@
 <project name="collect">
 	
 	<property name="packages_dir" value="${basedir}/../packages"/>
+	<property name="etc_dir" value="${basedir}/../etc"/>
 	<property name="force" value="false"/>
 	
-	<property file="${basedir}/../etc/packages.properties"/>
+	<property file="${etc_dir}/packages.properties"/>
 	
 	<property name="eclipse.home" location="${buildRoot}/eclipse"/>
 	<condition property="eclipsec" 
