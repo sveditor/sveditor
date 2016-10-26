@@ -4,6 +4,8 @@
 
 - #455 Parser Error: Property containing bus concatenation not recognized 
 
+- #458 Outline View: cover property not displaying correctly 
+
 ------------------------------------------------------------------------------
 -- 1.9.1 Release --
 

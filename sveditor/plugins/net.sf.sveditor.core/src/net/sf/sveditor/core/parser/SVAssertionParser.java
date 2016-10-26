@@ -38,6 +38,9 @@ public class SVAssertionParser extends SVParserBase {
 			assert_stmt = new SVDBAssumeStmt();
 		} else {
 			assert_stmt = new SVDBCoverStmt();
+			if (assertion_label != "")  {
+				assert_stmt.setName(assertion_label);
+			}
 		}
 		assert_stmt.setLocation(start);
 		if (fDebugEn) {debug("assertion_stmt - " + fLexer.peek());}

@@ -40,6 +40,7 @@ import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
+import net.sf.sveditor.core.db.stmt.SVDBCoverStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBEventControlStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExportItem;
@@ -350,6 +351,13 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				String str = "expression";
 				if (es.fExpr.toString() != null)  {
 					str = es.fExpr.toString();
+				}
+				ret = new StyledString(str);
+			} else if (it.getType() == SVDBItemType.CoverStmt) {
+				SVDBCoverStmt es = (SVDBCoverStmt) it;
+				String str = "cover";
+				if (es.fName != null)  {
+					str = es.fName;
 				}
 				ret = new StyledString(str);
 			}
