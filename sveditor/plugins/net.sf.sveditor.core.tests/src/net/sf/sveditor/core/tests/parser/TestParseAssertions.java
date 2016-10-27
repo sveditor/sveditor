@@ -257,6 +257,37 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"test", "some_prop"});
 	}	
 
+	public void testPropertyAssign() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module test ();\n" +
+					"	logic [15:0]A;\n" +
+					"	logic [15:0]B;\n" +
+					"	logic C,clk;\n" +
+					"\n" +
+					"	property p_prop;\n" +
+					"		logic [15:0]A_temp ;\n" +
+					"		logic [15:0]B_temp ;\n" +
+					"		@ (negedge clk) \n" +
+					"			(\n" +
+					"				$rose(B) ##1 (1'b1),\n" +
+					"				A_temp    = A,\n" +
+					"				B_temp    = B\n" +
+					"			)\n" +
+					"			|=> @ (negedge C)\n" +
+					"			(\n" +
+					"				(A == A_temp) && \n" +
+					"				(B == B_temp)\n" +
+					"			);\n" +
+					"	endproperty	\n" +
+					"endmodule \n"
+						;
+		
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"test", "p_prop"});
+	}	
+	
 	public void testPropertyZDelay() throws SVParseException {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);

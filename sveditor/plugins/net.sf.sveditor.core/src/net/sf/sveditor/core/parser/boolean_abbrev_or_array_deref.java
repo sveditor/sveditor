@@ -225,6 +225,14 @@ public class boolean_abbrev_or_array_deref extends SVParserBase {
 				// TODO: property_statement, property_instance, clocking_event
 				if (fDebugEn) { debug("  property_expr --> sequence_expr() " + fLexer.peek()); }
 				ret = sequence_expr();
+				// A sequence expression can be followed by a , and additional sequence expressions
+				while (fLexer.peekOperator(OP.COMMA))  {
+					fLexer.consumeToken();
+					// TODO Matt... how does this get added to ret above?  Strictly needs to be concatenated
+					// to the previous contents of ret
+					// refer to #459 Parser: property variable assignment separated by , 
+					SVDBExpr next_seq = sequence_expr();
+				}
 				if (fDebugEn) { debug("  property_expr <-- sequence_expr() " + fLexer.peek()); }
 			}
 		}

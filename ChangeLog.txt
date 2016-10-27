@@ -6,6 +6,8 @@
 
 - #458 Outline View: cover property not displaying correctly 
 
+- #459 Parser: property variable assignment separated by ,
+ 
 ------------------------------------------------------------------------------
 -- 1.9.1 Release --
 
