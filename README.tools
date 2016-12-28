@@ -3,5 +3,10 @@ Windows
 
 - Git
 - sftp
+- curl
+- Eclipse 4.5.x (to avoid Java8 dependency)
+- ANT
+- Java 8
+
 
 

@@ -1,4 +1,4 @@
 update_site_url="$SF_USERNAME,sveditor@web.sourceforge.net:htdocs/testing"
-frs_update_site_dir=update_site_testing
+frs_update_site_dir=testing
 web_update_dir=testing
 
