@@ -1,13 +1,20 @@
 
 ------------------------------------------------------------------------------
--- 1.9.2 Release --
+-- 1.9.3 Release --
 
 - #455 Parser Error: Property containing bus concatenation not recognized 
 
 - #458 Outline View: cover property not displaying correctly 
 
 - #459 Parser: property variable assignment separated by ,
+
+- #462 Indenter: Expect block not property indented 
  
+------------------------------------------------------------------------------
+-- 1.9.2 Release --
+
+- #(nobug) - Migrate update site off of Sourceforge due to reliability issues
+
 ------------------------------------------------------------------------------
 -- 1.9.1 Release --
 
