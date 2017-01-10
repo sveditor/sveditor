@@ -9,6 +9,8 @@
 - #459 Parser: property variable assignment separated by ,
 
 - #462 Indenter: Expect block not property indented 
+
+- #461 Parser: expect ## not expected 
  
 ------------------------------------------------------------------------------
 -- 1.9.2 Release --

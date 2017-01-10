@@ -48,7 +48,7 @@ public class SVAssertionParser extends SVParserBase {
 		// Cover the following
 		//   expect <some_property>
 		//   assert property <some_property>
-		if (fLexer.peekKeyword(KW.PROPERTY) || (assert_type.equals("expect"))) {
+		if (fLexer.peekKeyword(KW.PROPERTY) || (assert_type.getImg().equals("expect"))) {
 			
 			if (fLexer.peekKeyword(KW.PROPERTY))
 				fLexer.eatToken();

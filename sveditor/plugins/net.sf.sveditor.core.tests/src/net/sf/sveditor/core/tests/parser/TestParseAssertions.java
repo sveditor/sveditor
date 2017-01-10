@@ -504,4 +504,25 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "m" });
 	}
+	public void testExpectStmt() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module m();\n" +
+				"	logic clk, a_signal;\n" +
+				"	task t ();\n" +
+				"		begin\n" +
+				"			expect( \n" +
+				"					@(posedge clk) \n" +
+				"					a_signal \n" +
+				"				)   // Parser error on ## \n" +
+				"			else begin  // Indent error ... else should not be indented\n" +
+				"				$display(\"mismatch event\");\n" +
+				"			end   // indent error, indent once more\n" +
+				"		end\n" +
+				"	endtask\n" +
+				"endmodule\n"
+						;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "m" });
+	}
 }
