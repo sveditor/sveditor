@@ -28,6 +28,6 @@ $ECLIPSE_HOME/${eclipse} \
     -nosplash -application org.eclipse.ant.core.antRunner \
     --launcher.suppressErrors   \
     -buildfile release.xml      \
-    -Dos=${os} -Dws=${ws} -Darch=${arch} -verbose release
+    -Dos=${os} -Dws=${ws} -Darch=${arch} release
 
 

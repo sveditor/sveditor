@@ -97,30 +97,47 @@ public class TestParseAssertions extends TestCase {
 	public void testPropertyParenExpr() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
+				"module top ();\n" +
+						"	logic a, b, clk, reset, thevar, thing;\n" +
+						"	property p_prop ();\n" +
+						"		@(posedge clk)\n" +
+						"			disable iff(thevar)\n" +
+						"			if(b == 1'b1) \n" +
+						"				b == b\n" +
+						"			else\n" +
+						"				b == 0;  // Flagging ; as an error, expected endproperty\n" +
+						"	endproperty\n" +
+						"	cover property ( @(posedge clk)\n" +
+						"		disable iff (reset) \n" +
+						"			(thing !== '0))\n" +
+						"		begin  \n" +
+						"			$display (\"a message\");\n" +
+						"			$display (\"a message\");\n" +
+						"		end\n" +
+						"	cover property ( @(posedge clk)\n" +
+						"			disable iff (reset) \n" +
+						"			(thing !== '0)) some_inst.thing.sample(thing2);\n" +
+						"endmodule\n"
+						;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top", "p_prop"});
+	}
+	
+	public void testPropertyBus() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
 			"module top ();\n" +
 			"	logic a, b, clk, reset, thevar, thing;\n" +
-			"	property p_prop ();\n" +
-			"		@(posedge clk)\n" +
-			"			disable iff(thevar)\n" +
-			"			if(b == 1'b1) \n" +
-			"				b == b\n" +
-			"			else\n" +
-			"				b == 0;  // Flagging ; as an error, expected endproperty\n" +
+			"	property some_prop_p;\n" +
+			"	@ (posedge clk) disable iff (disable_assertions) (a==0) |->\n" +
+			"	(\n" +
+			"	|{b,c} == '0\n" +
+			"	);\n" +
 			"	endproperty\n" +
-			"	cover property ( @(posedge clk)\n" +
-			"		disable iff (reset) \n" +
-			"			(thing !== '0))\n" +
-			"		begin  \n" +
-			"			$display (\"a message\");\n" +
-			"			$display (\"a message\");\n" +
-			"		end\n" +
-			"	cover property ( @(posedge clk)\n" +
-			"			disable iff (reset) \n" +
-			"			(thing !== '0)) some_inst.thing.sample(thing2);\n" +
 			"endmodule\n"
 			;
 		ParserTests.runTestStrDoc(getName(), doc, 
-				new String[] {"top", "p_prop"});
+				new String[] {"top", "some_prop_p"});
 	}
 	
 	public void testPropertyParenArrayIndex() throws SVParseException {
@@ -240,6 +257,37 @@ public class TestParseAssertions extends TestCase {
 				new String[] {"test", "some_prop"});
 	}	
 
+	public void testPropertyAssign() throws SVParseException {
+		String testname = getName();
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module test ();\n" +
+					"	logic [15:0]A;\n" +
+					"	logic [15:0]B;\n" +
+					"	logic C,clk;\n" +
+					"\n" +
+					"	property p_prop;\n" +
+					"		logic [15:0]A_temp ;\n" +
+					"		logic [15:0]B_temp ;\n" +
+					"		@ (negedge clk) \n" +
+					"			(\n" +
+					"				$rose(B) ##1 (1'b1),\n" +
+					"				A_temp    = A,\n" +
+					"				B_temp    = B\n" +
+					"			)\n" +
+					"			|=> @ (negedge C)\n" +
+					"			(\n" +
+					"				(A == A_temp) && \n" +
+					"				(B == B_temp)\n" +
+					"			);\n" +
+					"	endproperty	\n" +
+					"endmodule \n"
+						;
+		
+		ParserTests.runTestStrDoc(testname, doc, 
+				new String[] {"test", "p_prop"});
+	}	
+	
 	public void testPropertyZDelay() throws SVParseException {
 		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -453,6 +501,27 @@ public class TestParseAssertions extends TestCase {
 				"	endproperty: some_prop\n" +
 				"endmodule\n"
 				;
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] { "m" });
+	}
+	public void testExpectStmt() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module m();\n" +
+				"	logic clk, a_signal;\n" +
+				"	task t ();\n" +
+				"		begin\n" +
+				"			expect( \n" +
+				"					@(posedge clk) \n" +
+				"					a_signal \n" +
+				"				)   // Parser error on ## \n" +
+				"			else begin  // Indent error ... else should not be indented\n" +
+				"				$display(\"mismatch event\");\n" +
+				"			end   // indent error, indent once more\n" +
+				"		end\n" +
+				"	endtask\n" +
+				"endmodule\n"
+						;
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "m" });
 	}

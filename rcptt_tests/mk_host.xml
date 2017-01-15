@@ -69,7 +69,7 @@
 			
 		<mkdir dir="${sveditor_dir}/emf"/>	
 		<unzip dest="${sveditor_dir}/emf"
-			src="${packages_dir}/${emf_zip}"/>	
+			src="${packages_dir}/${emf_zip}"/>
 		<install installIU="org.eclipse.emf.databinding.feature.group,
 							org.eclipse.emf.edit.feature.group,
 							org.eclipse.xsd.edit.feature.group,
@@ -83,7 +83,7 @@
 
 		<mkdir dir="${sveditor_dir}/emf_validation"/>	
 		<unzip dest="${sveditor_dir}/emf_validation"
-			src="${packages_dir}/${emf_validation_zip}"/>	
+			src="${packages_dir}/${emf_validation_zip}"/>
 		<install installIU="org.eclipse.emf.validation.feature.group"
 			tag="AddEMFValidation"
 			repository="file://${sveditor_dir}/emf_validation"

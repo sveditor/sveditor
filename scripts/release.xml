@@ -44,43 +44,10 @@
  -->
 	</target>
 
-	<property name="bintray_id" value="-u${env.BINTRAY_USERNAME}:${env.BINTRAY_API_KEY}"/>
-	<property name="bintray_update_url" value="https://api.bintray.com/content/mballance/sveditor/update/${feature.version}/${feature.version}"/>
-	
-	<macrodef name="bintray_upload_update">
-		<attribute name="path"/>
-		<sequential>
-			<exec executable="curl" dir="${rlsdir}" failonerror="true">
-				<arg value="-T"/>
-				<arg value="@{path}"/>
-				<arg value="${bintray_id}"/>
-				<arg value="${bintray_update_url}/@{path}"/>
-			</exec>
-		</sequential>
-	</macrodef>
-
 	<target name="upload_release">
-		<tempfile property="sftp_cmds"/>
-		<bintray_upload_update path="features/net.sf.sveditor.core.feature_${feature.version}.jar"/>
-		<bintray_upload_update path="features/net.sf.sveditor.ui.feature_${feature.version}.jar"/>
-		<bintray_upload_update path="features/net.sf.sveditor_${feature.version}.jar"/>
-
-		<bintray_upload_update path="plugins/net.sf.sveditor.batch.core_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.svt.core_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.batch.ui_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.svt.editor_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.core.uvm.templates_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.svt.ui_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.core_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.ui_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.doc.dev_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.vhdl.core_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.doc.user_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.vhdl.ui_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.extjar_${feature.version}.jar"/>
-		
 		<!-- First, create appropriate directories -->
-		<!--
+		<tempfile property="sftp_cmds"/>
+
 		<echo file="${sftp_cmds}">
                 cd ${sveditor_dir}
                 -mkdir ${frs_update_site_dir}
@@ -99,10 +66,8 @@
                     <arg value="${sf_frs_url}"/>
                 </exec>
 		<delete file="${sftp_cmds}"/>
-		-->
 
 		<!-- Now, copy the release files into the update site -->
-		<!--
 		<echo file="${sftp_cmds}">
 			put *.jar
 		</echo>
@@ -120,7 +85,6 @@
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/${frs_update_site_dir}/${feature.version}/plugins"/>
 		</exec>
-		-->
 
 		<!-- Now, copy the release archive (only if in release mode) -->
 		<antcall target="upload_release_files"/>
@@ -136,14 +100,6 @@
 			<arg value="-b"/>
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_web_url}:htdocs"/>
-		</exec>
-		
-		<!-- Trigger publishing of the files -->
-		<exec executable="curl" failonerror="true">
-			<arg value="-X"/>
-			<arg value="POST"/>
-			<arg value="${bintray_id}"/>
-			<arg value="https://api.bintray.com/content/mballance/sveditor/update/${feature.version}/publish"/>
 		</exec>
 		
 		<delete file="${sftp_cmds}"/>

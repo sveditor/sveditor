@@ -516,7 +516,7 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			
 			if (fDebugEn) {
 				for (Map.Entry<String, List<String>> e : root_map.entrySet()) {
-					System.out.println("RootMap Entry: " + e.getKey());
+					fLog.debug("RootMap Entry: " + e.getKey());
 				}
 			}
 			
