@@ -601,6 +601,105 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testExpectStmnt() {
+		LogHandle log = LogFactory.getLogHandle("testExpectStmnt");
+		String content =
+				"module bob ();\n" +
+				"logic clk, a_signal;\n" +
+				"\n" +
+				"task t ();\n" +
+				"begin\n" +
+				"expect( \n" +
+				"@(posedge clk) \n" +
+				"a_signal \n" +
+				")   // Parser error on ## \n" +
+				"else begin  // Indent error ... else should not be indented\n" +
+				"$display(\"mismatch event\");\n" +
+				"end   // indent error, indent once more\n" +
+				"end\n" +
+				"endtask\n" +
+				"task t ();\n" +
+				"begin\n" +
+				"expect( @(posedge clk) a_signal )   // Parser error on ##\n" +
+				"pass();\n" +
+				"else begin  // Indent error ... else should not be indented\n" +
+				"$display(\"mismatch event\");\n" +
+				"end   // indent error, indent once more\n" +
+				"end\n" +
+				"endtask\n" +
+				"task t ();\n" +
+				"begin\n" +
+				"expect( @(posedge clk) a_signal )   // Parser error on ##\n" +
+				"begin\n" +
+				"pass();\n" +
+				"pass();\n" +
+				"pass();\n" +
+				"end\n" +
+				"else begin  // Indent error ... else should not be indented\n" +
+				"$display(\"mismatch event\");\n" +
+				"end   // indent error, indent once more\n" +
+				"end\n" +
+				"endtask\n" +
+				"endmodule\n"
+			;
+		String expected =
+			"module bob ();\n" +
+			"	logic clk, a_signal;\n" +
+			"	\n" +
+			"	task t ();\n" +
+			"		begin\n" +
+			"			expect( \n" +
+			"					@(posedge clk) \n" +
+			"					a_signal \n" +
+			"				)   // Parser error on ## \n" +
+			"			else begin  // Indent error ... else should not be indented\n" +
+			"				$display(\"mismatch event\");\n" +
+			"			end   // indent error, indent once more\n" +
+			"		end\n" +
+			"	endtask\n" +
+			"	task t ();\n" +
+			"		begin\n" +
+			"			expect( @(posedge clk) a_signal )   // Parser error on ##\n" +
+			"				pass();\n" +
+			"			else begin  // Indent error ... else should not be indented\n" +
+			"				$display(\"mismatch event\");\n" +
+			"			end   // indent error, indent once more\n" +
+			"		end\n" +
+			"	endtask\n" +
+			"	task t ();\n" +
+			"		begin\n" +
+			"			expect( @(posedge clk) a_signal )   // Parser error on ##\n" +
+			"			begin\n" +
+			"				pass();\n" +
+			"				pass();\n" +
+			"				pass();\n" +
+			"			end\n" +
+			"			else begin  // Indent error ... else should not be indented\n" +
+			"				$display(\"mismatch event\");\n" +
+			"			end   // indent error, indent once more\n" +
+			"		end\n" +
+			"	endtask\n" +
+			"endmodule\n"
+			;
+		log.debug("--> testExpectStmnt");
+		
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		log.debug("Result:");
+		log.debug(result);
+		IndentComparator.compare("testExpectStmnt", expected, result);
+		log.debug("<-- testExpectStmnt");
+		
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testStructVar() {
 		String testname = "testStructVar";
 		LogHandle log = LogFactory.getLogHandle(testname);

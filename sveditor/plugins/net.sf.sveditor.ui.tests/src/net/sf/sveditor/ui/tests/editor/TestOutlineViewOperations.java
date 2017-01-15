@@ -478,6 +478,7 @@ public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 						"			cross color;\n" +
 						"			c2: cross color;\n" +
 						"		endgroup		\n" +
+						"		cp1: cover property (write(address));\n" +
 						"	endclass\n" +
 						"\n"
 						;
@@ -488,7 +489,8 @@ public class TestOutlineViewOperations extends SVEditorTestCaseBase {
 				"c_cons",
 				"color: <<ANONYMOUS>>",
 				"e_color",
-				"cg1"
+				"cg1",
+				"cp1",
 		};
 		
 		TestUtils.copy(class_file, project.getFile("testfile.sv"));

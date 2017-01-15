@@ -32,6 +32,7 @@ import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.stmt.SVDBAlwaysStmt;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBBlockStmt;
+import net.sf.sveditor.core.db.stmt.SVDBCoverStmt;
 import net.sf.sveditor.core.db.stmt.SVDBDefParamItem;
 import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBFinalStmt;
@@ -82,7 +83,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 		
 		if (element instanceof SVDBItem &&
 						(((SVDBItem)element).getType() == SVDBItemType.Marker)
-			     ) {
+			) {
 			return false;
 		}
 		
@@ -157,6 +158,7 @@ public class SVDBDefaultContentFilter extends ViewerFilter {
 				(
 						(element instanceof SVDBCoverpoint) || 
 						(element instanceof SVDBCovergroup) || 
+						(element instanceof SVDBCoverStmt) || 
 						(element instanceof SVDBCoverpointCross) ||
 						(element instanceof SVDBCoverpointBins)
 						)
