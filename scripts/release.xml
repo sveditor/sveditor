@@ -46,6 +46,7 @@
 
 	<property name="bintray_id" value="-u${env.BINTRAY_USERNAME}:${env.BINTRAY_API_KEY}"/>
 	<property name="bintray_update_url" value="https://api.bintray.com/content/mballance/sveditor/update/${feature.version}/${feature.version}"/>
+	<property name="bintray_release_url" value="https://api.bintray.com/content/mballance/sveditor/release/${feature.version}/${feature.version}"/>
 	
 	<macrodef name="bintray_upload_update">
 		<attribute name="path"/>
@@ -59,6 +60,18 @@
 		</sequential>
 	</macrodef>
 
+	<macrodef name="bintray_upload_release">
+		<attribute name="path"/>
+		<sequential>
+			<exec executable="curl" dir="${buildResult}" failonerror="true">
+				<arg value="-T"/>
+				<arg value="@{path}"/>
+				<arg value="${bintray_id}"/>
+				<arg value="${bintray_release_url}/@{path}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+					
 	<target name="upload_release">
 		<tempfile property="sftp_cmds"/>
 		<bintray_upload_update path="features/net.sf.sveditor.core.feature_${feature.version}.jar"/>
@@ -159,6 +172,7 @@
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>
+		<bintray_upload_release path="sveditor-${feature.version}.jar"/>
 
 		<echo file="${sftp_cmds}">
 			put sveditor-src-${feature.version}.zip
@@ -168,6 +182,7 @@
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>
+		<bintray_upload_release path="sveditor-src-${feature.version}.jar"/>
 
 		<echo file="${sftp_cmds}">
 			put rn.txt
@@ -177,6 +192,15 @@
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
 		</exec>		
+		<bintray_upload_release path="rn.txt"/>
+		
+		<!-- Trigger publishing of the files -->
+		<exec executable="curl" failonerror="true">
+			<arg value="-X"/>
+			<arg value="POST"/>
+			<arg value="${bintray_id}"/>
+			<arg value="https://api.bintray.com/content/mballance/sveditor/release/${feature.version}/publish"/>
+		</exec>
 	</target>
 
 	<target name="mk_rn">
