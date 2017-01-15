@@ -62,6 +62,22 @@ public class TestParseModuleBodyItems extends TestCase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testInputVarPort() {
+		LogHandle log = LogFactory.getLogHandle(getName());
+		String content =
+			"module t(input var the_reset);\n" +
+			"endmodule\n"
+			;
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(
+				log, content, getName(), false);
+
+		SVDBTestUtils.assertNoErrWarn(file);
+		SVDBTestUtils.assertFileHasElements(file, "t");
+		LogFactory.removeLogHandle(log);
+	}
+	
 	public void testDefineCaseItems() {
 		LogHandle log = LogFactory.getLogHandle("testDefineCaseItems");
 		String content =

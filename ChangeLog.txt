@@ -13,6 +13,8 @@
 - #461 Parser: expect ## not expected 
 
 - #463 Parser: support defparam on arrayed paths
+
+- #456 Parser: support 'var' qualifier on module ports
  
 ------------------------------------------------------------------------------
 -- 1.9.2 Release --

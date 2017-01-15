@@ -78,6 +78,11 @@ public class SVPortListParser extends SVParserBase {
 				fLexer.readKeyword(KW.REF);
 				dir = (SVDBParamPortDecl.Direction_Ref | SVDBParamPortDecl.Direction_Const);
 			}
+		
+			// TODO: Just ignoring for now
+			if (fLexer.peekKeyword(KW.VAR)) {
+				fLexer.eatToken();
+			}
 			
 			// This may be an untyped vectored parameter
 			SVDBTypeInfo type = null; 
