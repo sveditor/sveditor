@@ -179,6 +179,19 @@ public class TestParseModuleBodyItems extends TestCase {
 		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
 
+	public void testModuleArrayDefparam() {
+		String content = 
+			"module t;\n" +
+			"	defparam a[1].ASDF[1].b = 1;\n" +
+			"endmodule\n";
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVDBFile file = SVDBTestUtils.parse(content, getName());
+
+		SVDBTestUtils.assertNoErrWarn(file);
+
+		SVDBTestUtils.assertFileHasElements(file, "t");
+	}
+	
 	public void testModuleGenvarDecl() {
 		String content = 
 			"module t4;\n" +

@@ -563,9 +563,24 @@ public class SVExprParser extends SVParserBase {
 		
 		if (fDebugEn) {debug("--> hierarchical_identifier - " + fLexer.peek());}
 		String id = fLexer.readIdOrKeyword();
+
+		if (fLexer.peekOperator(OP.LBRACKET)) {
+			fLexer.eatToken();
+			SVDBArrayAccessExpr aa = new SVDBArrayAccessExpr(
+					new SVDBIdentifierExpr(id), expression(), null);
+			fLexer.readOperator(OP.RBRACKET);
 		
-		if (fLexer.peekOperator(OP.DOT, OP.COLON2)) {
-			ret = new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), false, 
+			if (fLexer.peekOperator(OP.DOT, OP.COLON2)) {
+				ret = new SVDBFieldAccessExpr(aa, 
+						fLexer.peekOperator(OP.COLON2), 
+						hierarchical_identifier_int());
+			} else {
+				ret = aa;
+			}
+		} else if (fLexer.peekOperator(OP.DOT, OP.COLON2)) {
+			ret = new SVDBFieldAccessExpr(
+					new SVDBIdentifierExpr(id), 
+					fLexer.peekOperator(OP.COLON2), 
 					hierarchical_identifier_int());
 		} else {
 			ret = new SVDBIdentifierExpr(id);
@@ -580,10 +595,25 @@ public class SVExprParser extends SVParserBase {
 		fLexer.readOperator(OP.DOT, OP.COLON2);
 
 		String id = fLexer.readId();
+
+		if (fLexer.peekOperator(OP.LBRACKET)) {
+			fLexer.eatToken();
+			SVDBArrayAccessExpr aa = new SVDBArrayAccessExpr(
+					new SVDBIdentifierExpr(id), expression(), null);
+			fLexer.readOperator(OP.RBRACKET);
 		
-		if (fLexer.peekOperator(OP.DOT, OP.COLON2)) {
-			return new SVDBFieldAccessExpr(new SVDBIdentifierExpr(id), 
-					false, hierarchical_identifier_int());
+			if (fLexer.peekOperator(OP.DOT, OP.COLON2)) {
+				return new SVDBFieldAccessExpr(aa, 
+						fLexer.peekOperator(OP.COLON2), 
+						hierarchical_identifier_int());
+			} else {
+				return aa;
+			}
+		} else if (fLexer.peekOperator(OP.DOT, OP.COLON2)) {
+			return new SVDBFieldAccessExpr(
+					new SVDBIdentifierExpr(id), 
+					fLexer.peekOperator(OP.COLON2), 
+					hierarchical_identifier_int());
 		} else {
 			return new SVDBIdentifierExpr(id);
 		}

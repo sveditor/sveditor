@@ -11,6 +11,8 @@
 - #462 Indenter: Expect block not property indented 
 
 - #461 Parser: expect ## not expected 
+
+- #463 Parser: support defparam on arrayed paths
  
 ------------------------------------------------------------------------------
 -- 1.9.2 Release --
