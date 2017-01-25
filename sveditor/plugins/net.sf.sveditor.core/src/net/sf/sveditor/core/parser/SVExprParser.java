@@ -72,6 +72,7 @@ public class SVExprParser extends SVParserBase {
 	private Stack<Boolean>					fArglistExpr;
 	private Stack<Boolean>					fForeachLoopvarExpr;
 	private Stack<Boolean>					fEnableNameMappedPrimary;
+	private boolean							fSaveExpr = true;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -898,7 +899,8 @@ public class SVExprParser extends SVParserBase {
 		if (fDebugEn) {debug("--> conditionalOrExpression()");}
 		SVDBExpr a = conditionalAndExpression();
 		
-		while (fLexer.peekOperator(OP.OR2) || (fEventExpr.peek() && fLexer.peekKeyword(KW.OR))) {
+		while (fLexer.peekOperator(OP.OR2) || 
+				(fEventExpr.peek() && fLexer.peekKeyword(KW.OR))) {
 			String op = fLexer.eatTokenR();
 			a = new SVDBBinaryExpr(a, op, conditionalAndExpression());
 		}
@@ -916,10 +918,13 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr conditionalAndExpression() throws SVParseException {
 		if (fDebugEn) {debug("--> conditionalAndExpression()");}
 		SVDBExpr a = inclusiveOrExpression();
+		boolean is_and2;
 		
-		while (fLexer.peekOperator(OP.AND2)) {
+		while ((is_and2=fLexer.peekOperator(OP.AND2)) ||
+				(fEventExpr.peek() && fLexer.peekKeyword(KW.AND))) {
 			fLexer.eatToken();
-			a = new SVDBBinaryExpr(a, "&&", inclusiveOrExpression());
+			a = new SVDBBinaryExpr(a, 
+					(is_and2)?"&&":"AND", inclusiveOrExpression());
 		}
 		if (fDebugEn) {debug("<-- conditionalAndExpression()");}
 		return a;
@@ -1261,33 +1266,39 @@ public class SVExprParser extends SVParserBase {
 			
 			// cast
 			// '(' expression() ')' unaryExpression
-			fLexer.peek();
-			if (fLexer.isNumber() || fLexer.isIdentifier() ||
+			if (fLexer.peekNumber() || fLexer.peekId() ||
 					fLexer.peekOperator(OP.LPAREN, OP.NEG, OP.NOT) || 
 					fLexer.peekKeyword(KW.THIS, KW.SUPER, KW.NEW)) {
 				fLexer.eatToken(); // '
-				ret = new SVDBCastExpr(a, unaryExpression());
-			} else {
+				SVDBExpr rhs = unaryExpression();
+				if (fSaveExpr) {
+					ret = new SVDBCastExpr(a, rhs);
+				}
+			} else if (fSaveExpr) {
 				ret = new SVDBParenExpr(a);
 			}
 		} else {
 			// TODO: must finish and figure out what's going on
-			fLexer.peek();
-			if (fLexer.isNumber()) {
+			if (fLexer.peekNumber()) {
 				if (fDebugEn) {debug("-- primary is a number");}
-				SVToken tmp = fLexer.consumeToken();
+				SVToken tmp = (fSaveExpr)?fLexer.consumeToken():null;
 				if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(OP.COLON)) {
 					fLexer.eatToken();
-					ret = new SVDBNameMappedExpr(tmp.getImage(), expression());
-				} else {
+					SVDBExpr rhs = expression();
+					if (fSaveExpr) {
+						ret = new SVDBNameMappedExpr(tmp.getImage(), rhs);
+					}
+				} else if (fSaveExpr) {
 					ret = new SVDBLiteralExpr(tmp.getImage());
 				}
 			} else if (fLexer.peekOperator(OP.DOLLAR)) {
 				fLexer.eatToken();
-				ret = new SVDBRangeDollarBoundExpr();
+				if (fSaveExpr) {
+					ret = new SVDBRangeDollarBoundExpr();
+				}
 			} else if (fLexer.peekString()) {
 				if (fDebugEn) {debug("-- primary is a string");}
-				SVToken tmp = fLexer.consumeToken();
+				SVToken tmp = (fSaveExpr)?fLexer.consumeToken():null;
 				if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(OP.COLON)) {
 					if (fDebugEn) {debug("-- primary is a name-mapped string");}
 					fLexer.eatToken();
@@ -1545,7 +1556,7 @@ public class SVExprParser extends SVParserBase {
 		return arguments;
 	}
 	
-	private List<SVDBExpr>  argumentList() throws SVParseException {
+	private List<SVDBExpr> argumentList() throws SVParseException {
 		List<SVDBExpr> arguments = new ArrayList<SVDBExpr>();
 		if (fDebugEn) {debug("--> argumentList() " + fLexer.peek());}
 		

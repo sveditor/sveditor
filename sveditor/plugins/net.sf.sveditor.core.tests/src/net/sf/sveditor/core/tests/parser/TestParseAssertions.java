@@ -64,6 +64,23 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(testname, doc, 
 				new String[] {"test", "someprop"});
 	}
+
+	public void testPropertyIffImpl_1() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"module test ();\n" +
+			"	property p_prop;\n" +
+			"		@(posedge clk) 1'b1 iff (a and b or c)\n" +
+			"		##1\n" +
+			"		@(posedge clk) ((a and ~a) or (a or ~a))\n" +
+			"		|-> (c and d or e);\n" +
+			"	endproperty\n" +
+			"endmodule\n"
+			;
+
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"test", "p_prop"});
+	}
 	
 	public void testPropertyParenSeq() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -504,6 +521,7 @@ public class TestParseAssertions extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, 
 				new String[] { "m" });
 	}
+	
 	public void testExpectStmt() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
