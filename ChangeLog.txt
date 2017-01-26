@@ -4,6 +4,8 @@
 
 - #457 - Correct a parse error with "and" event operator
 
+- #122 (enh) - Support comment toggle (CTRL+/) in argument files
+
 ------------------------------------------------------------------------------
 -- 1.9.3 Release --
 

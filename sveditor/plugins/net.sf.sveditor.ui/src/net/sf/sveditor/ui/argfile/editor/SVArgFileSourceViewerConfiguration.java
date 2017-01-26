@@ -39,6 +39,11 @@ public class SVArgFileSourceViewerConfiguration extends
 	public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
 		return new DefaultAnnotationHover();
 	}
+	
+	@Override
+	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
+		return new String[] { "//", "" };
+	}
 
 	@Override
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer viewer) {

@@ -8,6 +8,36 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IPathVariableChangeEvent;
+import org.eclipse.core.resources.IPathVariableChangeListener;
+import org.eclipse.core.resources.IPathVariableManager;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IURIEditorInput;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
@@ -38,36 +68,7 @@ import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
 import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlinePage;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IPathVariableChangeEvent;
-import org.eclipse.core.resources.IPathVariableChangeListener;
-import org.eclipse.core.resources.IPathVariableManager;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.source.Annotation;
-import org.eclipse.jface.text.source.IAnnotationModel;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IURIEditorInput;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.editors.text.TextEditor;
-import org.eclipse.ui.texteditor.ITextEditorActionConstants;
-import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 
 public class SVArgFileEditor extends TextEditor 
 		implements ILogLevel, IPathVariableChangeListener {
@@ -240,6 +241,14 @@ public class SVArgFileEditor extends TextEditor
 		setAction(SVUiPlugin.PLUGIN_ID + ".svArgFileOpenFile", od_action);
 		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svArgFileOpenFile", false);
 		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svArgFileOpenFile", false);
+		
+		ToggleCommentAction tc_action = new ToggleCommentAction(bundle, "ArgFileToggleComment.", this);
+		tc_action.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ArgFileToggleComment");
+		tc_action.setEnabled(true);
+		tc_action.configure(getSourceViewer(), getSourceViewerConfiguration());
+		setAction(SVUiPlugin.PLUGIN_ID + ".svArgFileToggleComment", tc_action);
+		markAsStateDependentAction(SVUiPlugin.PLUGIN_ID + ".svArgFileToggleComment", false);
+		markAsSelectionDependentAction(SVUiPlugin.PLUGIN_ID + ".svArgFileToggleComment", false);
 	}
 	
 	@Override

@@ -672,6 +672,11 @@
                label="Open File"
                retarget="true">
          </action>
+         <action
+               id="net.sf.sveditor.ui.svArgFileToggleComment"
+               label="Toggle Comment"
+               retarget="true">
+         </action>
       </actionSet>
    </extension>
    <extension
@@ -1191,6 +1196,12 @@ endclass
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
       </key>
+      <key
+            commandId="net.sf.sveditor.ui.ArgFileToggleComment"
+            contextId="net.sf.sveditor.ui.svArgFileEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+/">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -1199,6 +1210,15 @@ endclass
             description="Open File"
             id="net.sf.sveditor.ui.argfile.editor.open.file"
             name="Open File">
+      </command>
+      <command
+            description="Toggle Comment"
+            id="net.sf.sveditor.ui.argfile.editor.toggle.comment"
+            name="Toggle Comment">
+      </command>
+      <command
+            id="net.sf.sveditor.ui.ArgFileToggleComment"
+            name="Toggle Comment">
       </command>
       <command
             id="net.sf.sveditor.ui.addFilelistToProject"
