@@ -200,7 +200,6 @@ public class SVPreProcessor extends AbstractTextScanner
 
 	@Override
 	public void setEmitLineDirectives(boolean emit) {
-		System.out.println("setEmitLineDirectives: " + emit);
 		fEmitLineDirectives = emit;
 	}
 	

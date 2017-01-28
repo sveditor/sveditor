@@ -25,7 +25,8 @@ public class SVPreProcModelFactory implements IPreProcListener {
 	public Tuple<SVPreProcModelNode, String> build(InputStream in) {
 		fModelStack.clear();
 		fRoot = null;
-		
+	
+		fPreProc.setEmitLineDirectives(false);
 		fPreProc.addListener(this);
 		String result = fPreProc.preprocess(in);
 		fPreProc.removeListener(this);

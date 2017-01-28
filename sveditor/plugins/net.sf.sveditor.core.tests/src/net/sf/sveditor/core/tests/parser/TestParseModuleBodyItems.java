@@ -2031,6 +2031,28 @@ public class TestParseModuleBodyItems extends TestCase {
 		
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"my_dff"});
 	}
+
+	public void testUnconnectedModulePort() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module my_dff(rst, clk, d, q, q_bar); // wrapper cell\n" +
+			"	input rst, clk, d;\n" +
+			"	output q, q_bar;\n" +
+			"	alias rst = Reset = reset = RST;\n" +
+			"	alias clk = Clk = clock = CLK;\n" +
+			"	alias d = Data = data = D;\n" +
+			"	alias q = Q;\n" +
+			"	alias Q_ = q_bar = Q_Bar = qbar;\n" +
+			"endmodule\n" +
+			"\n" +
+			"module top;\n" +
+			"	wire rst, clk, d, q, q_bar;\n" +
+			"	my_dff dff(rst, /* clk */, d, q, q_bar);\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"my_dff", "top"});
+	}
 	
 	private void runTest(
 			String			testname,

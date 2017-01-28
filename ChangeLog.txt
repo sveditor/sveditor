@@ -6,6 +6,10 @@
 
 - #122 (enh) - Support comment toggle (CTRL+/) in argument files
 
+- #(nobug) - Corrected a few issues with the macro expansion view. 
+           - Removed extraneous `line directives
+           - Aligned folding regions with text
+
 ------------------------------------------------------------------------------
 -- 1.9.3 Release --
 

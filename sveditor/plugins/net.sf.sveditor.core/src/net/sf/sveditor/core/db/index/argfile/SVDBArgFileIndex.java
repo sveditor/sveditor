@@ -542,7 +542,6 @@ public class SVDBArgFileIndex implements
 			// Collect the new source files to parse
 			for (String f_file : plan.getFileList()) {
 				SVDBFile argfile = build_data.getFile(m, f_file);
-				System.out.println("f_file=" + f_file + " argfile=" + argfile);
 				if (argfile != null) {
 					fArgFileParser.collectSourceFiles(build_data, 
 							(SVDBArgFile)argfile, file_list);
@@ -731,7 +730,7 @@ public class SVDBArgFileIndex implements
 				// Remove information from any file that doesn't 
 				// exist any more
 				for (String path : existing_files) {
-					System.out.println("Removing cache info from " + path);
+//					System.out.println("Removing cache info from " + path);
 					decl_cache.remove(path);
 				}
 			
