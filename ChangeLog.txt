@@ -9,6 +9,9 @@
 - #(nobug) - Corrected a few issues with the macro expansion view. 
            - Removed extraneous `line directives
            - Aligned folding regions with text
+           
+- #(enh) - Add net.sf.sveditor.create_project application for creating
+           an SVE project from the commandline 
 
 ------------------------------------------------------------------------------
 -- 1.9.3 Release --
