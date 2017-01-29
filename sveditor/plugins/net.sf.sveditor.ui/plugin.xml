@@ -735,6 +735,7 @@
          </description>
       </view>
       <view
+            category="net.sf.sveditor.ui.viewCategory"
             class="net.sf.sveditor.ui.views.MacroExpansionView"
             icon="icons/edecl16/define_obj.gif"
             id="net.sf.sveditor.ui.macroExpansionView"
