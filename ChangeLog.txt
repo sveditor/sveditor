@@ -1,5 +1,10 @@
 
 ------------------------------------------------------------------------------
+-- 1.9.5 Release --
+
+- #466 Auto Block commenting closing hangs or it is too slow with big SV files 
+
+------------------------------------------------------------------------------
 -- 1.9.4 Release --
 
 - #457 - Correct a parse error with "and" event operator
