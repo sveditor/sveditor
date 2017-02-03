@@ -241,6 +241,19 @@
             type="net.sf.sveditor.core.svScriptProblem">
       </super>
    </extension>
+   <extension
+         id="net.sf.sveditor.create_project"
+         name="SVEditor Create Project"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="net.sf.sveditor.core.applications.CreateProjectApp">
+         </run>
+      </application>
+   </extension>
 
 
 </plugin>

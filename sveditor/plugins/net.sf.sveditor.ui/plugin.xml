@@ -672,6 +672,11 @@
                label="Open File"
                retarget="true">
          </action>
+         <action
+               id="net.sf.sveditor.ui.svArgFileToggleComment"
+               label="Toggle Comment"
+               retarget="true">
+         </action>
       </actionSet>
    </extension>
    <extension
@@ -730,6 +735,7 @@
          </description>
       </view>
       <view
+            category="net.sf.sveditor.ui.viewCategory"
             class="net.sf.sveditor.ui.views.MacroExpansionView"
             icon="icons/edecl16/define_obj.gif"
             id="net.sf.sveditor.ui.macroExpansionView"
@@ -806,6 +812,27 @@
                relationship="stack"
                relative="org.eclipse.ui.navigator.ProjectExplorer">
          </view>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.newSVEProject">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.newSVClassWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.newSVInterfaceWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.newSVModuleWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.newSVPackageWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.svMethodologyClassWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="net.sf.sveditor.ui.newSVFilelist">
+         </newWizardShortcut>
       </perspectiveExtension>
    </extension>
    <extension
@@ -1191,6 +1218,12 @@ endclass
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
       </key>
+      <key
+            commandId="net.sf.sveditor.ui.ArgFileToggleComment"
+            contextId="net.sf.sveditor.ui.svArgFileEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+/">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -1199,6 +1232,15 @@ endclass
             description="Open File"
             id="net.sf.sveditor.ui.argfile.editor.open.file"
             name="Open File">
+      </command>
+      <command
+            description="Toggle Comment"
+            id="net.sf.sveditor.ui.argfile.editor.toggle.comment"
+            name="Toggle Comment">
+      </command>
+      <command
+            id="net.sf.sveditor.ui.ArgFileToggleComment"
+            name="Toggle Comment">
       </command>
       <command
             id="net.sf.sveditor.ui.addFilelistToProject"

@@ -2,12 +2,25 @@
 ------------------------------------------------------------------------------
 -- 1.9.5 Release --
 
+- #(nobug) - Correctly group 'Macro Expansion' view with SVEditor Views
+
+- #(nobug) - Add 'New Filelist' to main SystemVerilog perspective menu
+
 - #466 Auto Block commenting closing hangs or it is too slow with big SV files 
 
 ------------------------------------------------------------------------------
 -- 1.9.4 Release --
 
 - #457 - Correct a parse error with "and" event operator
+
+- #122 (enh) - Support comment toggle (CTRL+/) in argument files
+
+- #(nobug) - Corrected a few issues with the macro expansion view. 
+           - Removed extraneous `line directives
+           - Aligned folding regions with text
+           
+- #(enh) - Add net.sf.sveditor.create_project application for creating
+           an SVE project from the commandline 
 
 ------------------------------------------------------------------------------
 -- 1.9.3 Release --

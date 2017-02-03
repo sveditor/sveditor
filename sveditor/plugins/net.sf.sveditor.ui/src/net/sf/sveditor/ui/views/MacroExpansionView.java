@@ -159,6 +159,7 @@ public class MacroExpansionView extends ViewPart {
 				StringBuilder content = new StringBuilder(result.second());
 				
 				if (result != null && result.first() != null) {
+//					dump(result.second(), result.first());
 					update_model(0, result.first(), content);
 					fDocument.set(content.toString());
 
@@ -179,44 +180,59 @@ public class MacroExpansionView extends ViewPart {
 //			fDocument.set("Internal Error: Failed to get a "
 		}
 	}
-	
+
+	// Take the preprocessed content:
+	// - insert the unexpanded macro calls
+	// - update the region start/end points
 	private int update_model(int add, SVPreProcModelNode node, StringBuilder content) {
 		node.setStart(node.getStart()+add);
 		
 		content.insert(node.getStart(), node.getText());
 		
 		add += node.getText().length();
-		node.setEnd(node.getEnd()+add);
 		
 		for (SVPreProcModelNode n : node.getChildren()) {
 			add = update_model(add, n, content);
 		}
 		
+		node.setEnd(node.getEnd()+add);
+		
+		// Ensure the End point is on a newline
+		while (node.getEnd() < content.length()) {
+			if (content.charAt(node.getEnd()) == '\n') {
+				if (node.getEnd()+1 < content.length()) {
+					node.setEnd(node.getEnd()+1);
+				}
+				break;
+			} else {
+				node.setEnd(node.getEnd()+1);
+			}
+		}
+		
 		return add;
+	}
+	
+	private void dump(String doc, SVPreProcModelNode node) {
+		System.out.println("--> dump " + node.getStart() + ".." + node.getEnd());
+		System.out.println(doc.substring(node.getStart(), node.getEnd()));
+		
+		for (SVPreProcModelNode n : node.getChildren()) {
+			dump(doc, n);
+		}
+		
+		System.out.println("<-- dump " + node.getStart() + ".." + node.getEnd());
 	}
 	
 	private void build_annotations(SVPreProcModelNode node, Map<ProjectionAnnotation, Position> annotations) {
 		ProjectionAnnotation ann;
 		ann = new ProjectionAnnotation(true);
-
+		
 		annotations.put(ann,  new Position(node.getStart(), 
 				node.getEnd()-node.getStart()));
 		
 		for (SVPreProcModelNode n : node.getChildren()) {
 			build_annotations(n, annotations);
 		}
-		
-//		if (node.getChildren().size() > 0) {
-//			annotations.put(ann,  new Position(
-//					node.getStart(), node.getChildren().get(0).getStart()-node.getStart()));
-//			
-//			for (SVPreProcModelNode n : node.getChildren()) {
-//				build_annotations(n, annotations);
-//			}
-//		} else {
-//			annotations.put(ann,  new Position(
-//					node.getStart(), node.getEnd()-node.getStart()));
-//		}
 	}
 
 }

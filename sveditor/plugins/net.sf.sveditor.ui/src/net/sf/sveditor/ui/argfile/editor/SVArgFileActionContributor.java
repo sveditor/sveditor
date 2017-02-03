@@ -15,6 +15,7 @@ import org.eclipse.ui.texteditor.RetargetTextEditorAction;
 
 public class SVArgFileActionContributor extends TextEditorActionContributor {
 	protected RetargetTextEditorAction fOpenDeclarationAction;
+	protected RetargetTextEditorAction fToggleCommentAction;
 
 	
 	public SVArgFileActionContributor() {
@@ -25,6 +26,11 @@ public class SVArgFileActionContributor extends TextEditorActionContributor {
 				bundle, "ArgFileOpenFile.");
 		fOpenDeclarationAction.setActionDefinitionId(
 				"net.sf.sveditor.ui.argfile.editor.open.file");
+		
+		fToggleCommentAction = new RetargetTextEditorAction(
+				bundle, "ArgFileToggleComment.");
+		fToggleCommentAction.setActionDefinitionId(
+				SVUiPlugin.PLUGIN_ID + ".ArgFileToggleComment");
 	}
 	
 	public void contributeToMenu(IMenuManager mm) {
@@ -50,6 +56,7 @@ public class SVArgFileActionContributor extends TextEditorActionContributor {
 		if (editMenu != null) {
 			editMenu.add(new Separator());
 			editMenu.add(fOpenDeclarationAction);
+			editMenu.add(fToggleCommentAction);
 		}
 		/*
 		 */
@@ -64,6 +71,8 @@ public class SVArgFileActionContributor extends TextEditorActionContributor {
 //			fOpenDeclarationAction.setAction(getAction(editor, "ArgFileOpenFile"));
 			fOpenDeclarationAction.setAction(getAction(editor, 
 					SVUiPlugin.PLUGIN_ID + ".svArgFileOpenFile"));
+			fToggleCommentAction.setAction(getAction(editor,
+					SVUiPlugin.PLUGIN_ID + ".svArgFileToggleComment"));
 		}
 		/*
 		 */
