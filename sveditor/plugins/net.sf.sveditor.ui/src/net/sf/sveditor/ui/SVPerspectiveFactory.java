@@ -61,14 +61,14 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
         // Add "new wizards".
         layout.addNewWizardShortcut(BasicNewFolderResourceWizard.WIZARD_ID);
         layout.addNewWizardShortcut(BasicNewFileResourceWizard.WIZARD_ID);
-        layout.addNewWizardShortcut(NewSVEProjectWizard.ID);
-        layout.addNewWizardShortcut(NewSVClassWizard.ID);
-        layout.addNewWizardShortcut(NewSVInterfaceWizard.ID);
-        layout.addNewWizardShortcut(NewSVModuleWizard.ID);
-        layout.addNewWizardShortcut(NewSVPackageWizard.ID);
-        // TODO: This should probably be contributed via an extension point
-        layout.addNewWizardShortcut(
-        		"net.sf.sveditor.svt.ui.svMethodologyClass");
+//        layout.addNewWizardShortcut(NewSVEProjectWizard.ID);
+//        layout.addNewWizardShortcut(NewSVClassWizard.ID);
+//        layout.addNewWizardShortcut(NewSVInterfaceWizard.ID);
+//        layout.addNewWizardShortcut(NewSVModuleWizard.ID);
+//        layout.addNewWizardShortcut(NewSVPackageWizard.ID);
+//        // TODO: This should probably be contributed via an extension point
+//        layout.addNewWizardShortcut(
+//        		"net.sf.sveditor.svt.ui.svMethodologyClass");
         
         // Add "show views".
         layout.addShowViewShortcut(ProjectExplorer.VIEW_ID);

@@ -4,6 +4,8 @@
 
 - #(nobug) - Correctly group 'Macro Expansion' view with SVEditor Views
 
+- #(nobug) - Add 'New Filelist' to main SystemVerilog perspective menu
+
 ------------------------------------------------------------------------------
 -- 1.9.4 Release --
 
