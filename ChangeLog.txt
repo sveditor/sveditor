@@ -8,6 +8,8 @@
 
 - #466 Auto Block commenting closing hangs or it is too slow with big SV files 
 
+- #467 Find matching brace covergroup/endgroup pair not working
+
 ------------------------------------------------------------------------------
 -- 1.9.4 Release --
 

@@ -51,7 +51,7 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 		fBeginCharMap.put("case", "endcase");
 		fBeginCharMap.put("clocking", "endclocking");
 		fBeginCharMap.put("config", "endconfig");
-		fBeginCharMap.put("group", "endgroup");
+		fBeginCharMap.put("covergroup", "endgroup");
 		fBeginCharMap.put("interface", "endinterface");
 		fBeginCharMap.put("primitive", "endprimitive");
 		fBeginCharMap.put("program", "endprogram");
@@ -77,7 +77,7 @@ public class SelectEnclosingElementAction extends TextEditorAction {
 		fEndCharMap.put("endcase", "case");
 		fEndCharMap.put("endclocking", "clocking");
 		fEndCharMap.put("endconfig", "config");
-		fEndCharMap.put("endgroup", "group");
+		fEndCharMap.put("endgroup", "covergroup");
 		fEndCharMap.put("endinterface", "interface");
 		fEndCharMap.put("endprimitive", "primitive");
 		fEndCharMap.put("endprogram", "program");
