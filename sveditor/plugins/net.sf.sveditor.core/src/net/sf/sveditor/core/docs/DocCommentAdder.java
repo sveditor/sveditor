@@ -29,7 +29,6 @@ import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBProgramDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.search.SVDBFindDocComment;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -56,34 +55,19 @@ public class DocCommentAdder implements IDocCommentAdder {
 	private ArrayList<Tuple<Object, String>> fComments = new ArrayList<Tuple<Object, String>>();
 	private SVDBFile fSVDBFile;
 	String fLineDelimiter = "\n";
-	private String[] fLines;
-	private String   fStringFullFile;
 	private ISVDBIndexIterator fIndexIterator;
 
 	/**
 	 * @param svdbfile
 	 *            - svdb file that we are going to be parsing for port information
-	 * @param scanner
 	 * @param fullfile
 	 *            - parse full file if true
 	 */
-	public DocCommentAdder(SVDBFile svdbfile, ISVDBIndexIterator iterator, ITextScanner scanner, boolean fullfile) {
+	public DocCommentAdder(SVDBFile svdbfile, ISVDBIndexIterator iterator, boolean fullfile) {
 		fFullFile = fullfile;
 		fLog = LogFactory.getLogHandle("SVEDocCommentAdder");
 		fSVDBFile = svdbfile;
-		fStringFullFile = "";
 		fIndexIterator = iterator;
-
-		// Convert the text into a string array which might be useful to us
-		// TODO: there must be a better way of doing this... this is painful
-		int ch = 0;
-
-		// Read in the file
-		while (ch != -1) {
-			ch = scanner.get_ch();
-			fStringFullFile += (char) ch;
-		}
-		fStringFullFile = fStringFullFile.substring(0, fStringFullFile.length() - 2); // Remove the -1 at the end of the file
 	}
 
 	/**
@@ -103,8 +87,6 @@ public class DocCommentAdder implements IDocCommentAdder {
 	@Override
 	public ArrayList<Tuple<Object, String>> AddComments(int currentline) {
 		fCurrentLine = currentline;
-
-		fLines = fStringFullFile.split(fLineDelimiter);
 
 		// Now insert the comment if it exists
 		try {
@@ -163,30 +145,10 @@ public class DocCommentAdder implements IDocCommentAdder {
 		}
 		
 		if (fFullFile || (fCurrentLine == SVDBLocation.unpackLineno(child.getLocation()))) {
-			String leadingWS = "";
-			// Figure out what the leading whitespace is on the current line
-			int line_no = SVDBLocation.unpackLineno(child.getLocation()) - 1;
-			String current_line;
-			if (line_no< fLines.length)
-				current_line = fLines[line_no];
-			else 
-				current_line = "";
-
-			for (int i = 0; i < current_line.length(); i++) {
-				char ch = current_line.charAt(i);
-				if ((ch == ' ') || (ch == '\t')) {
-					leadingWS += ch;
-				}
-				// first non-whitespace character
-				else {
-					break;
-				}
-			}
-
 			switch (child.getType()) {
 			case InterfaceDecl:
 			case ModuleDecl:
-				sb.append(leadingWS + "/**" + fLineDelimiter);
+				sb.append("/**" + fLineDelimiter);
 				String typestring = "undefined";
 				switch (child.getType()) {
 				case InterfaceDecl:
@@ -199,60 +161,60 @@ public class DocCommentAdder implements IDocCommentAdder {
 					break;
 				}
 
-				sb.append(leadingWS + " * " + typestring + ": " + ((SVDBModIfcDecl) child).getName() + fLineDelimiter);
-				sb.append(leadingWS + " * " + fLineDelimiter);
-				sb.append(leadingWS + " * " + typestring + " description needed" + fLineDelimiter);
-				sb.append(leadingWS + " * " + fLineDelimiter);
+				sb.append(" * " + typestring + ": " + ((SVDBModIfcDecl) child).getName() + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
+				sb.append(" * " + typestring + " description needed" + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
 				if (fPrefShowModuleInterfacePorts && ((SVDBModIfcDecl) child).getPorts().size() > 0) {
-					sb.append(leadingWS + " * Ports:" + fLineDelimiter);
+					sb.append(" * Ports:" + fLineDelimiter);
 					for (SVDBParamPortDecl pp : ((SVDBModIfcDecl) child).getPorts()) {
-						sb.append(GetParamPortString(pp, leadingWS));
+						sb.append(GetParamPortString(pp));
 					}
 				}
-				sb.append(leadingWS + " */" + fLineDelimiter);
+				sb.append(" */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
 			case ClassDecl:
-				comment = leadingWS + "/**" + fLineDelimiter + leadingWS + " * Class: " + ((SVDBClassDecl) child).getName() + fLineDelimiter + leadingWS + " *" + fLineDelimiter + leadingWS + " * Class description needed" + fLineDelimiter + leadingWS + " */" + fLineDelimiter;
+				comment = "/**" + fLineDelimiter + " * Class: " + ((SVDBClassDecl) child).getName() + fLineDelimiter + " *" + fLineDelimiter + " * Class description needed" + fLineDelimiter + " */" + fLineDelimiter;
 				break;
 			case PackageDecl:
-				comment = leadingWS + "/**" + fLineDelimiter + leadingWS + " * Package: " + ((SVDBPackageDecl) child).getName() + fLineDelimiter + leadingWS + " *" + fLineDelimiter + leadingWS + " * Package description needed" + fLineDelimiter + leadingWS + " */" + fLineDelimiter;
+				comment = "/**" + fLineDelimiter + " * Package: " + ((SVDBPackageDecl) child).getName() + fLineDelimiter + " *" + fLineDelimiter + " * Package description needed" + fLineDelimiter + " */" + fLineDelimiter;
 				break;
 			case ProgramDecl:
-				comment = leadingWS + "/**" + fLineDelimiter + leadingWS + " * Program: " + ((SVDBProgramDecl) child).getName() + fLineDelimiter + leadingWS + " *" + fLineDelimiter + leadingWS + " * Program description needed" + fLineDelimiter + leadingWS + " */" + fLineDelimiter;
+				comment = "/**" + fLineDelimiter + " * Program: " + ((SVDBProgramDecl) child).getName() + fLineDelimiter + " *" + fLineDelimiter + " * Program description needed" + fLineDelimiter + " */" + fLineDelimiter;
 				break;
 			case Function:
-				sb.append(leadingWS + "/**" + fLineDelimiter);
-				sb.append(leadingWS + " * Function: " + ((SVDBFunction) child).getName() + fLineDelimiter);
-				sb.append(leadingWS + " * " + fLineDelimiter);
-				sb.append(leadingWS + " * Function description needed" + fLineDelimiter);
-				sb.append(leadingWS + " * " + fLineDelimiter);
-				sb.append(leadingWS + " * Parameters:" + fLineDelimiter);
+				sb.append("/**" + fLineDelimiter);
+				sb.append(" * Function: " + ((SVDBFunction) child).getName() + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
+				sb.append(" * Function description needed" + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
+				sb.append(" * Parameters:" + fLineDelimiter);
 				for (SVDBParamPortDecl pp : ((SVDBFunction) child).getParams()) {
-					sb.append(GetParamPortString(pp, leadingWS));
+					sb.append(GetParamPortString(pp));
 				}
-				sb.append(leadingWS + " * " + fLineDelimiter);
-				sb.append(leadingWS + " * Returns:" + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
+				sb.append(" * Returns:" + fLineDelimiter);
 				if (((SVDBFunction) child).getReturnType() != null)  {
-					sb.append(leadingWS + " *   " + ((SVDBFunction) child).getReturnType().toString() + fLineDelimiter);
+					sb.append(" *   " + ((SVDBFunction) child).getReturnType().toString() + fLineDelimiter);
 				}
 				else  {
-					sb.append(leadingWS + " *   " + "void" + fLineDelimiter);
+					sb.append(" *   " + "void" + fLineDelimiter);
 				}
-				sb.append(leadingWS + " */" + fLineDelimiter);
+				sb.append(" */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
 			case Task:
-				sb.append(leadingWS + "/**" + fLineDelimiter);
-				sb.append(leadingWS + " * Task: " + ((SVDBTask) child).getName() + fLineDelimiter);
-				sb.append(leadingWS + " * " + fLineDelimiter);
-				sb.append(leadingWS + " * Task description needed" + fLineDelimiter);
-				sb.append(leadingWS + " * " + fLineDelimiter);
-				sb.append(leadingWS + " * Parameters:" + fLineDelimiter);
+				sb.append("/**" + fLineDelimiter);
+				sb.append(" * Task: " + ((SVDBTask) child).getName() + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
+				sb.append(" * Task description needed" + fLineDelimiter);
+				sb.append(" * " + fLineDelimiter);
+				sb.append(" * Parameters:" + fLineDelimiter);
 				for (SVDBParamPortDecl pp : ((SVDBTask) child).getParams()) {
-					sb.append(GetParamPortString(pp, leadingWS));
+					sb.append(GetParamPortString(pp));
 				}
-				sb.append(leadingWS + " */" + fLineDelimiter);
+				sb.append(" */" + fLineDelimiter);
 				comment = sb.toString();
 				break;
 			default:
@@ -279,9 +241,9 @@ public class DocCommentAdder implements IDocCommentAdder {
 	 * @param pp
 	 * @return
 	 */
-	private String GetParamPortString(SVDBParamPortDecl pp, String leadingWS) {
+	private String GetParamPortString(SVDBParamPortDecl pp) {
 		String str;
-		str = leadingWS + " * - ";
+		str = " * - ";
 		switch (pp.getDir()) {
 		case 1:
 			str += "input ";
