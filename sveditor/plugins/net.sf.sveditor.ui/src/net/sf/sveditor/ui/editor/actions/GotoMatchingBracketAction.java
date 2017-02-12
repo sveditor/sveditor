@@ -1,4 +1,4 @@
-/****************************************************************************
+/******************************************************o**********************
  * Copyright (c) 2008-2014 Matthew Ballance and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,28 +33,28 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 
 	static {
 		fBeginCharMap = new HashMap<String, String[]>();
-		fBeginCharMap.put("("        , new String [] {")"});
-		fBeginCharMap.put("{"        , new String [] {"}"});
-		fBeginCharMap.put("["        , new String [] {"]"});
-		fBeginCharMap.put("begin"    , new String [] {"end"});
-		fBeginCharMap.put("module"   , new String [] {"endmodule"});
-		fBeginCharMap.put("function" , new String [] {"endfunction"});
-		fBeginCharMap.put("task"     , new String [] {"endtask"});
-		fBeginCharMap.put("class"    , new String [] {"endclass"});
-		fBeginCharMap.put("generate" , new String [] {"endgenerate"});
-		fBeginCharMap.put("package"  , new String [] {"endpackage"});
-		fBeginCharMap.put("case"     , new String [] {"endcase"});
-		fBeginCharMap.put("clocking" , new String [] {"endclocking"});
-		fBeginCharMap.put("config"   , new String [] {"endconfig"});
-		fBeginCharMap.put("group"    , new String [] {"endgroup"});
-		fBeginCharMap.put("interface", new String [] {"endinterface"});
-		fBeginCharMap.put("primitive", new String [] {"endprimitive"});
-		fBeginCharMap.put("program"  , new String [] {"endprogram"});
-		fBeginCharMap.put("property" , new String [] {"endproperty"});
-		fBeginCharMap.put("specify"  , new String [] {"endspecify"});
-		fBeginCharMap.put("sequence" , new String [] {"endsequence"});
-		fBeginCharMap.put("table"    , new String [] {"endtable"});
-		fBeginCharMap.put("fork"     , new String [] {"join", "join_any", "join_none"});
+		fBeginCharMap.put("("         , new String [] {")"});
+		fBeginCharMap.put("{"         , new String [] {"}"});
+		fBeginCharMap.put("["         , new String [] {"]"});
+		fBeginCharMap.put("begin"     , new String [] {"end"});
+		fBeginCharMap.put("module"    , new String [] {"endmodule"});
+		fBeginCharMap.put("function"  , new String [] {"endfunction"});
+		fBeginCharMap.put("task"      , new String [] {"endtask"});
+		fBeginCharMap.put("class"     , new String [] {"endclass"});
+		fBeginCharMap.put("generate"  , new String [] {"endgenerate"});
+		fBeginCharMap.put("package"   , new String [] {"endpackage"});
+		fBeginCharMap.put("case"      , new String [] {"endcase"});
+		fBeginCharMap.put("clocking"  , new String [] {"endclocking"});
+		fBeginCharMap.put("config"    , new String [] {"endconfig"});
+		fBeginCharMap.put("covergroup", new String [] {"endgroup"});
+		fBeginCharMap.put("interface" , new String [] {"endinterface"});
+		fBeginCharMap.put("primitive" , new String [] {"endprimitive"});
+		fBeginCharMap.put("program"   , new String [] {"endprogram"});
+		fBeginCharMap.put("property"  , new String [] {"endproperty"});
+		fBeginCharMap.put("specify"   , new String [] {"endspecify"});
+		fBeginCharMap.put("sequence"  , new String [] {"endsequence"});
+		fBeginCharMap.put("table"     , new String [] {"endtable"});
+		fBeginCharMap.put("fork"      , new String [] {"join", "join_any", "join_none"});
 	}
 	static {
 		fEndCharMap = new HashMap<String, String[]>();
@@ -71,7 +71,7 @@ public class GotoMatchingBracketAction extends TextEditorAction {
 		fEndCharMap.put("endcase"      , new String [] {"case"});
 		fEndCharMap.put("endclocking"  , new String [] {"clocking"});
 		fEndCharMap.put("endconfig"    , new String [] {"config"});
-		fEndCharMap.put("endgroup"     , new String [] {"group"});
+		fEndCharMap.put("endgroup"     , new String [] {"covergroup"});
 		fEndCharMap.put("endinterface" , new String [] {"interface"});
 		fEndCharMap.put("endprimitive" , new String [] {"primitive"});
 		fEndCharMap.put("endprogram"   , new String [] {"program"});

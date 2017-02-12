@@ -18,12 +18,9 @@ import java.util.Arrays;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.docs.DocCommentAdder;
 import net.sf.sveditor.core.docs.IDocCommentAdder;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -76,8 +73,7 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 					// Get the SVDB for this file
 					SVDBFile svdbf = SVDBIndexUtil.findIndexFile(file);
 
-					StringTextScanner scanner = new StringTextScanner(contents);
-					IDocCommentAdder dca = new DocCommentAdder(svdbf, SVDBIndexUtil.findIndexIterator(file), scanner, true);
+					IDocCommentAdder dca = new DocCommentAdder(svdbf, SVDBIndexUtil.findIndexIterator(file), true);
 					ArrayList<Tuple<Object, String>> fComments = dca.AddComments(-1);
 					ArrayList<String> lines = new ArrayList<String>(Arrays.asList(contents.split("\n")));
 					// Restore \n's
@@ -110,13 +106,18 @@ public class AddNdocsHandler extends AbstractHandler implements IHandler {
 							break;
 						}
 						if (highest_string != "")  {
+							// Figure out leading whitespace where we are going to insert comment
+							String leadingWS = lines.get(highest_comment-1);
+							leadingWS = leadingWS.replaceAll("[a-zA-Z0-9_].*", "");
+							leadingWS = leadingWS.replaceAll("\n", "");
+							highest_string = leadingWS + highest_string.replaceAll("\n",  "\n" + leadingWS);
+							highest_string = highest_string.substring(0, highest_string.length()-leadingWS.length());	// Remove trailing whitespace
 							lines.add(highest_comment-1, highest_string);
 						}
 						fComments.remove(highest_index);
 						
 					}
 					
-					String output;
 					sb.setLength(0);
 					for (String line : lines)  {
 						sb.append(line);

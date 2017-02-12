@@ -11,11 +11,6 @@
 
 package net.sf.sveditor.ui.editor;
 
-import java.util.ResourceBundle;
-
-import net.sf.sveditor.core.docs.DocCommentAdder;
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
@@ -25,6 +20,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
+
+import net.sf.sveditor.core.docs.DocCommentAdder;
 
 public class SVMultiLineCommentAutoIndentStrategy extends
 		DefaultIndentLineAutoEditStrategy {
@@ -140,31 +137,41 @@ public class SVMultiLineCommentAutoIndentStrategy extends
 				}
 			}
 
-			if (!isCommentClosed(doc, offset)) {
-				SVDocumentTextScanner scanner =  new SVDocumentTextScanner(doc, 0);
-				DocCommentAdder dca= new DocCommentAdder(fEditor.getSVDBFile(), null, scanner, false);
-				String possible_str = "";
-				// This mad loop put here in case the DB hasn't been built in a while... the offsets could be off a couple of lines
-				// check if we are lucky (sorry Matt :-))
-				for (int i=0; i<3; i++)  {
-					possible_str = dca.GetNDocAtLine (doc.getLineOfOffset(offset)+1+i);
-					if (possible_str != "")  {
-						// Got it.. get out of here
-						break;
+			// Check if we need to calculate a natural docs comment
+			if (offset > 3)  {
+				char ch1 = doc.getChar(offset-3);		// /
+				char ch2 = doc.getChar(offset-2);		// *
+				char ch3 = doc.getChar(offset-1);		// *
+				if ((ch1 == '/') && (ch2 == '*') && (ch3 == '*'))  {
+					if (!isCommentClosed(doc, offset))  {
+						DocCommentAdder dca= new DocCommentAdder(fEditor.getSVDBFile(), null, false);
+						String possible_str = "";
+						// This mad loop put here in case the DB hasn't been built in a while... the offsets could be off a couple of lines
+						// check if we are lucky (sorry Matt :-))
+						for (int i=0; i<3; i++)  {
+							possible_str = dca.GetNDocAtLine (doc.getLineOfOffset(offset)+1+i);
+							if (possible_str != "")  {
+								// Got it.. get out of here
+								break;
+							}
+						}
+						String lineDelimiter = TextUtilities.getDefaultLineDelimiter(doc);
+						if (possible_str != "")  {
+							possible_str = possible_str.replace("/**", "");	// remove the leading /**\n
+							possible_str = possible_str.substring(0, possible_str.length()-lineDelimiter.length());
+							possible_str = possible_str.replaceAll("\n", "\n" + indent);
+							buf = new StringBuilder(possible_str);
+							// Insert the leading whitespace
+
+						}
+						else  {
+							String endTag = lineDelimiter + indent + " */";
+							buf.append(endTag);
+						}
+						cmd.shiftsCaret = false;
+						cmd.caretOffset = cmd.offset + buf.length();
 					}
 				}
-				String lineDelimiter = TextUtilities.getDefaultLineDelimiter(doc);
-				if (possible_str != "")  {
-					possible_str = possible_str.replace("/**", "");	// remove the leading /**\n
-					possible_str = possible_str.substring(0, possible_str.length()-lineDelimiter.length());
-					buf = new StringBuilder(possible_str);
-				}
-				else  {
-					String endTag = lineDelimiter + indent + " */";
-					buf.append(endTag);
-				}
-				cmd.shiftsCaret = false;
-				cmd.caretOffset = cmd.offset + buf.length();
 			}
 
 			// move caret behind prefix.
