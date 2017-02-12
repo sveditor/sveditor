@@ -194,6 +194,22 @@ public class TestParseModuleBodyItems extends TestCase {
 
 		SVDBTestUtils.assertFileHasElements(file, "t");
 	}
+	
+	public void testParamListLocalParameter() {
+		String content =
+			"module some_module # (\n" +
+			"	parameter            PARAM  = 2,\n" +
+			"	localparam           LPARA  = 24   // <= here\n" +
+			")(\n" +
+			"	input                clk,\n" +
+			"	output logic         [1:0] out\n" +
+			");\n" +
+			"endmodule\n"
+			;
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(getName(), content, new String[] {"some_module"});
+	}
 
 	public void testModuleArrayDefparam() {
 		String content = 

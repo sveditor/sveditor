@@ -46,7 +46,8 @@ public class SVParameterPortListParser extends SVParserBase {
 			long it_start = fLexer.getStartLocation();
 			boolean is_type = false;
 
-			if (fLexer.peekKeyword(KW.PARAMETER)) {
+			if (fLexer.peekKeyword(KW.PARAMETER, KW.LOCALPARAM)) {
+				// TODO: need to preserve any of this?
 				fLexer.eatToken();
 			}
 
