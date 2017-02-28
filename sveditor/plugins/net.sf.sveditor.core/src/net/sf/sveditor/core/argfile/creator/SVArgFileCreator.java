@@ -290,8 +290,23 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 					ret = new Tuple<String, InputStream>(info.fPath, new StringInputStream(""));
 					// Since this file is included, it's not a root file
 					info.fRootFile = false;
-					String incdir = SVFileUtils.getPathParent(info.fPath);
-					fIncDirs.add(incdir);
+					// Figure out the "real" include path
+					String incdir = info.fPath;
+					while (true) {
+						String incdir_t = SVFileUtils.getPathParent(incdir);
+						if (incdir.equals(incdir_t)) {
+							// Failed to get parent
+							break;
+						} else {
+							String try_path = incdir_t + "/" + incfile;
+							try_path = fFSProvider.resolvePath(try_path, null);
+							if (fFSProvider.fileExists(try_path)) {
+								fIncDirs.add(incdir_t);
+								break;
+							}
+						}
+						incdir = incdir_t;
+					}
 					break;
 				}
 			}

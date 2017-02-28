@@ -99,7 +99,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 
 	public void testLineNumberMacro_3() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"\n" +									// 1
 			"`define SUBFIELD(n) \\\n" +			// 2
@@ -202,7 +202,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 	
 	public void testMultiLineCommentPackage() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"/****************************************************************************\n" +
 			" * pkg1.sv\n" +

@@ -75,17 +75,17 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	}
 	
 	public boolean statement(ISVDBAddChildItem parent) throws SVParseException {
-		boolean ret = false;
+		boolean decl_allowed = true;
 		Context ctxt = fLexer.getContext();
 
 		try {
 			fLexer.setContext(Context.Behavioral);
-			ret = statement(parent, false, true);
+			decl_allowed = statement(parent, decl_allowed, true);
 		} finally {
 			fLexer.setContext(ctxt);
 		}
 		
-		return ret;
+		return decl_allowed;
 	}
 	
 	public boolean statement(ISVDBAddChildItem parent, boolean decl_allowed, boolean ansi_decl) throws SVParseException {
@@ -148,6 +148,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fPossibleDeclKeywordsANSI.add(KW.UNION);
 		fPossibleDeclKeywordsANSI.add(KW.ENUM);
 		fPossibleDeclKeywordsANSI.add(KW.VIRTUAL);
+		fPossibleDeclKeywordsANSI.add(KW.IMPORT);
 		
 		fPossibleDeclKeywordsNonANSI = new HashSet<KW>();
 		fPossibleDeclKeywordsNonANSI.addAll(fPossibleDeclKeywordsANSI);
@@ -188,7 +189,10 @@ public class SVBehavioralBlockParser extends SVParserBase {
 
 //			if (fLexer.peekKeyword(decl_keywords) || fLexer.peekKeyword(SVKeywords.fBuiltinDeclTypes) ||
 //					fLexer.peekKeyword("typedef","struct","union","enum","virtual")) {
-			if (is_possible_decl && kw != KW.PARAMETER && kw != KW.LOCALPARAM) {
+			if (kw == KW.IMPORT) {
+				parsers().impExpParser().parse_import(parent);
+				return decl_allowed;
+			} else if (is_possible_decl && kw != KW.PARAMETER && kw != KW.LOCALPARAM) {
 				// Definitely a declaration
 				if (fDebugEn) {debug(" -- variable declaration 1 " + fLexer.peek());}
 				if (!decl_allowed) {

@@ -2,6 +2,11 @@
 ------------------------------------------------------------------------------
 -- 1.9.6 Release --
 
+- #(nobug) - Correct a parse bug with import statements in initial blocks
+
+- #(nobug) - Correct an issue with the filelist creator when files are 
+  included via relative paths (eg `include "src/cls.svh")
+
 ------------------------------------------------------------------------------
 -- 1.9.5 Release --
 

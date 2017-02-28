@@ -312,7 +312,7 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 	}
 
 	public void testRootFileRemoveSrcFileLeaveRef_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);
@@ -366,7 +366,7 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 	}
 
 	public void testRootFileRemoveFileListLeaveRef_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);

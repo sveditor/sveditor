@@ -2070,6 +2070,20 @@ public class TestParseModuleBodyItems extends TestCase {
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"my_dff", "top"});
 	}
 	
+	public void testInitialImportStmt() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"module top;\n" +
+			"	initial begin\n" +
+			"		import foo_pkg::*;\n" +
+			"	end\n" +
+			"endmodule\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"top"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,
