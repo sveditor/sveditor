@@ -42,6 +42,8 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 	private Text						fText;
 	private boolean						fOrganizeFiles;
 	private Button						fOrganizeFilesButton;
+	private boolean						fIncludeFilelists;
+	private Button						fIncludeFilelistsButton;
 	private Button						fUpdateButton;
 	private boolean						fUpdateRequired = true;
 	private SVArgFileCreator			fArgFileCreator;
@@ -94,12 +96,18 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 				sb.append("+incdir+" + incdir + "\n");
 			}
 		}
-		
-		for (String path : fArgFileCreator.getArgFiles()) {
-			if (fPrefix != null) {
-				path = fPrefix + path.substring(fPrefixSubLen);
+	
+		if (fIncludeFilelists) {
+			for (String path : fArgFileCreator.getArgFiles()) {
+				if (fPrefix != null) {
+					path = fPrefix + path.substring(fPrefixSubLen);
+				}
+				if (path.endsWith(".F")) {
+					sb.append("-F " + path + "\n");
+				} else {
+					sb.append("-f " + path + "\n");
+				}
 			}
-			sb.append(path + "\n");
 		}
 	
 		if (fOrganizeFiles) {
@@ -176,6 +184,13 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		fOrganizeFilesButton = new Button(g, SWT.CHECK);
 		fOrganizeFilesButton.addSelectionListener(fSelectionListener);
 		fOrganizeFilesButton.setSelection(true);
+		
+		l = new Label(g, SWT.NONE);
+		l.setText("Include Filelists: ");
+		fIncludeFilelists = false;
+		fIncludeFilelistsButton = new Button(g, SWT.CHECK);
+		fIncludeFilelistsButton.addSelectionListener(fSelectionListener);
+		fIncludeFilelistsButton.setSelection(false);
 		
 		fUpdateButton = new Button(g, SWT.PUSH);
 		fUpdateButton.setText("Compute Filelist");
@@ -291,6 +306,13 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 					fOrganizeFiles = fOrganizeFilesButton.getSelection();
 					fUpdateRequired = true;
 				}
+				validate();
+			} else if (e.widget == fIncludeFilelistsButton) {
+				if (fIncludeFilelists != fIncludeFilelistsButton.getSelection()) {
+					fIncludeFilelists = fIncludeFilelistsButton.getSelection();
+					fUpdateRequired = true;
+				}
+				
 				validate();
 			}
 		}

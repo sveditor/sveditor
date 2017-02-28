@@ -6,6 +6,13 @@
 
 - #(nobug) - Correct an issue with the filelist creator when files are 
   included via relative paths (eg `include "src/cls.svh")
+  
+- #(nobug) - Correct an issue with creation of relative paths in a
+  new filelist, when the New Filelist wizard is launched from the 
+  New SVE Project wizard
+  
+- #(enh) - Add checkbox to filter discovered filelists from 
+  filelists created by the New Filelist wizard
 
 ------------------------------------------------------------------------------
 -- 1.9.5 Release --

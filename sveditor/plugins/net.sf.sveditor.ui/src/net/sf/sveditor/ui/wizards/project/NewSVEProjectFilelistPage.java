@@ -209,7 +209,7 @@ public class NewSVEProjectFilelistPage extends WizardPage
 			InputDialog dlg = new InputDialog(getShell(), 
 					"New Filelist",
 					"Specify new filelist name",
-					"sve.f",
+					"sve.F",
 					new IInputValidator() {
 						
 						@Override

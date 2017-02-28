@@ -41,7 +41,8 @@ public class NewFilelistWizard extends Wizard {
 		fAddFilesPage.setRequireFiles(false);
 	
 		// The path used by AddFilesPage is /<project_name>
-		fAddFilesPage.setPrefix(".", fProjectName.length()+1);
+		fAddFilesPage.setPrefix("./", 
+				"${workspace_loc}".length()+fProjectName.length());
 		addPage(fAddFilesPage);
 	}
 	
