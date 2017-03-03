@@ -1,4 +1,10 @@
 
+Release Environment Variables
+- SF_USERNAME
+- BINTRAY_USERNAME
+- BINTRAY_API_KEY
+
+
 Windows
 
 - Git

@@ -60,11 +60,7 @@
         <mkdir dir="${buildResult}"/>
 	</target>
 	
-	<target name="collect">
-		<ant antfile="${basedir}/collect.xml" target="collect"/>
-	</target>
-	
-	<target name="build" depends="init,collect,mk_eclipse">
+	<target name="build" depends="init,mk_eclipse">
 		<java fork="true" failonerror="true"
 			classname="org.eclipse.core.launcher.Main">
 			<classpath>
@@ -226,10 +222,16 @@
             source="${basedir}/../archive_tmp"/>
 
         <!-- Categorize the items in the repository -->
-        <exec executable="${eclipsec}" failonerror="true">
+	<java fork="true" classname="org.eclipse.core.launcher.Main">
+		<classpath>
+			<fileset dir="${eclipse.home}/plugins"
+				includes="org.eclipse.equinox.launcher_*.jar"/>
+		</classpath>
+		<!--
             <arg value="-console"/>
             <arg value="-consoleLog"/>
-            <arg value="-nosplash"/>
+	    <arg value="-nosplash"/>
+		-->
             <arg value="-application"/>
             <arg value="org.eclipse.equinox.p2.publisher.CategoryPublisher"/>
             <arg value="-metadataRepository"/>
@@ -237,7 +239,7 @@
             <arg value="-categoryDefinition"/>
             <arg value="file:/${basedir}/../archive_tmp/category.xml"/>
             <arg value="-categoryQualifier"/>
-        </exec>
+        </java>
 
         <xmltask source="${repository}/artifacts.xml"
                  dest="${repository}/artifacts_1.xml">

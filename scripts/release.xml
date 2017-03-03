@@ -44,6 +44,14 @@
  -->
 	</target>
 
+	<target name="release_core" depends="mksrc, mk_rn">
+		<mkdir dir="${rlsdir}"/>
+
+		<unzip src="${buildResult}/sveditor-release-${feature.version}.zip"
+			dest="${rlsdir}"/>
+		<antcall target="upload_release"/>
+	</target>
+
 	<property name="bintray_id" value="-u${env.BINTRAY_USERNAME}:${env.BINTRAY_API_KEY}"/>
 	<property name="bintray_update_url" value="https://api.bintray.com/content/mballance/sveditor/update/${feature.version}/${feature.version}"/>
 	<property name="bintray_release_url" value="https://api.bintray.com/content/mballance/sveditor/release/${feature.version}/${feature.version}"/>
@@ -116,12 +124,18 @@
                 cd ${sveditor_dir}/sveditor
                 -mkdir ${feature.version}
 		</echo>
+		-->
+		<echo file="${sftp_cmds}">
+                cd ${sveditor_dir}/sveditor
+                -mkdir ${feature.version}
+		</echo>
 
 		<exec executable="sftp">
                     <arg value="-b"/>
                     <arg value="${sftp_cmds}"/>
                     <arg value="${sf_frs_url}"/>
                 </exec>
+		<!--
 		<delete file="${sftp_cmds}"/>
 		-->
 
@@ -179,7 +193,7 @@
 		<echo file="${sftp_cmds}">
 			put sveditor-${feature.version}.jar
 		</echo>
-		<exec executable="sftp" dir="${buildResult}">
+		<exec executable="sftp" dir="${buildResult}" failonerror="true">
 			<arg value="-b"/>
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
@@ -189,7 +203,7 @@
 		<echo file="${sftp_cmds}">
 			put sveditor-src-${feature.version}.zip
 		</echo>
-		<exec executable="sftp" dir="${basedir}/../buildResult">
+		<exec executable="sftp" dir="${buildResult}" failonerror="true">
 			<arg value="-b"/>
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
@@ -199,7 +213,7 @@
 		<echo file="${sftp_cmds}">
 			put rn.txt
 		</echo>
-		<exec executable="sftp" dir="${rlsdir}">
+		<exec executable="sftp" dir="${rlsdir}" failonerror="true">
 			<arg value="-b"/>
 			<arg value="${sftp_cmds}"/>
 			<arg value="${sf_frs_url}:${sveditor_dir}/sveditor/${feature.version}"/>
