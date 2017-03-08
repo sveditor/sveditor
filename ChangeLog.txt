@@ -2,6 +2,9 @@
 ------------------------------------------------------------------------------
 -- 1.9.7 Release --
 
+- #(nobug) - Update Project Explorer decorator to recognize when files in a
+  linked folder are being indexed via an absolute path (eg ${PROJECT_LOC}/../../folder/...)
+
 ------------------------------------------------------------------------------
 -- 1.9.6 Release --
 
