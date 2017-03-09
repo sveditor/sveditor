@@ -8,6 +8,8 @@
 - #() - Remove Global Defines tab from project properties, since it duplicates
   functionality provided by the filelist
 
+- #(471) 	weird copy paste problem
+
 ------------------------------------------------------------------------------
 -- 1.9.6 Release --
 
