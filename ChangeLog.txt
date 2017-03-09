@@ -4,6 +4,9 @@
 
 - #(nobug) - Update Project Explorer decorator to recognize when files in a
   linked folder are being indexed via an absolute path (eg ${PROJECT_LOC}/../../folder/...)
+  
+- #() - Remove Global Defines tab from project properties, since it duplicates
+  functionality provided by the filelist
 
 ------------------------------------------------------------------------------
 -- 1.9.6 Release --
