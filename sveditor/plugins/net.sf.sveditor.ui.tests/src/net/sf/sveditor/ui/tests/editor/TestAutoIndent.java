@@ -366,11 +366,11 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		
 		String expected = 
 			"`ifndef INCLUDED_transport_packet_svh\n" +
-			"`define INCLUDED_transport_packet_svh\n" +
+			"	`define INCLUDED_transport_packet_svh\n" +
 			"\n" +
-			"class vmm_xactor;\n" +
+			"	class vmm_xactor;\n" +
 			"\n" +
-			"	`VMM_NOTIFY notify;\n"
+			"		`VMM_NOTIFY notify;\n"
 			;
 			
 
@@ -381,8 +381,55 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		
 		String content = tester.getContent();
 		
-		fLog.debug("Result:\n" + content);
+		fLog.debug("Result:\n'" + content  + "'\n");
 		IndentComparator.compare("testPaste", expected, content);
+	}
+
+	/**
+	 * Test for #(471) weird copy paste problem
+	 * @throws BadLocationException
+	 */
+	public void testPasteMultiLine() throws BadLocationException {
+		String input = 
+			"module m(\n" +
+			"		input d\n" +
+			"	);\n" +
+			"\n" +
+			"endmodule\n";
+		String expected =
+			"module m(\n" +
+			"		input a,\n" +
+			"		input b,\n" +
+			"		input c,\n" +
+			"		input d			,\n" +
+			"		input e		\n" +
+			"	);\n" +
+			"\n" +
+			"endmodule\n";
+			
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.setContent(input);
+		
+		// Add input e after end of line.  Note we should keep leading and trailing whitespace
+		tester.setCaretOffset("module m(\n\t\tinput d".length());
+		tester.paste("\t\t\t,\ninput e\t\t");
+
+		// Add input c before input d, middle of typed text
+		// Expecting the input to be indented
+		tester.setCaretOffset("module m(\n\t\tinput ".length());
+		tester.paste("c,\ninput ");
+
+		// Mid-way through start of line, in white space
+		tester.setCaretOffset("module m(\n\t\t".length());
+		tester.paste("\t\t\tinput b,\n\t\t\t");
+
+		// Start of line, in white space
+		tester.setCaretOffset("module m(\n".length());
+		tester.paste("\t\t\tinput a,\n\t\t\t");
+		
+		String result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
 	}
 
 	public void testPasteModule() throws BadLocationException {
@@ -720,7 +767,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"class foobar;\n" +
 			"	\n" +
 			"	covergroup foobar;\n" +
-			"		\n" +
+			"\n" +
 			"		var_cp : coverpoint (var) iff (var_cond);\n" +
 			"		var1_cp : coverpoint (var) iff (var_cond);\n" +
 			"		var2_cp : coverpoint (var) iff (var_cond) {\n" +
