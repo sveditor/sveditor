@@ -63,6 +63,23 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		}
 	}
 
+	/**
+	 * Algorithmically this function works as follows:
+	 * - If there are no \n's in the pasted data, just insert it and return
+	 * - If there are multiple lines in the pasted data:
+	 *   - Insert the pasted data.
+	 *   - Run the indenter
+	 *   - Extract the pasted data as indented
+	 *   - Is there only leading whitespace before the insertion point?
+	 *     - YES: The indenter will have generated appropriate leading ws, remove 
+	 *       the existing leading WS and use what the indenter created
+	 *     - NO:  We pasted into / at the end of an existing line
+	 *       - Keep the existing whitespace on the inserted line
+	 *       - Use indented version of pasted data
+	 *       
+	 * @param doc
+	 * @param cmd
+	 */
 	private void indentPastedContent(IDocument doc, DocumentCommand cmd) {
 		fLog.debug("indentPastedContent(offset=" + cmd.offset + ")");
 		fLog.debug("	content=\"" + cmd.text + "\"");
@@ -73,8 +90,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			boolean added_extra_cr = false;
 
 			int line_cnt = 0, result_line_cnt = 0;
-			int distance_to_sol = 0;		// Distance to start of line, used when we have leading whitespace
-			int trailing_whitespace = 0;	// number of WS characters after last \n
+			boolean inline_paste = false;		// The insertion point has code before it on the line
+			int distance_to_sol = 0;			// used when inserting at the start of a new line, need to remove this WS because indenter will have calculated correct WS
+			int trailing_whitespace = 0;		// number of WS characters after last \n
 			
 			// Figure out how many lines are in the pasted text... need to copy these many lines out of the re-formatted data
 			for (int i=0; i<cmd.text.length(); i++) {
@@ -126,6 +144,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				}
 				// non-white space characters... leave loop, don't want to touch whitespace
 				else  {
+					inline_paste = true;
 					distance_to_sol = 0;
 					break;
 				}
@@ -171,7 +190,15 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// portion and send it as the modification event
 			try {
 				fLog.debug("    lineno=" + lineno + " target_lineno=" + target_lineno);
-				String result = indenter.indent(lineno+1, (lineno+line_cnt));
+				String result;
+				if (inline_paste)  {
+					// Don't do the first line
+					result = indenter.indent(lineno+2, (lineno+line_cnt));
+				}
+				else  {
+					// Include the first line
+					result = indenter.indent(lineno+1, (lineno+line_cnt));
+				}
 				
 				for (int i=0; i<result.length(); i++) {
 					if (result.charAt(i) == '\n' || result.charAt(i) == '\r') {

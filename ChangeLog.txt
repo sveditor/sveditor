@@ -10,6 +10,8 @@
   
 - #(472) - Correct incorrect expansion of `" macro pattern
 
+- #(471) 	weird copy paste problem
+
 ------------------------------------------------------------------------------
 -- 1.9.6 Release --
 
