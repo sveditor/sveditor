@@ -96,6 +96,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			// Figure out how many lines are in the pasted text... need to copy these many lines out of the re-formatted data
 			for (int i=0; i<cmd.text.length(); i++) {
+				// Keep track of number of characters to first \n in pasted code
 				if (cmd.text.charAt(i) == '\n' || cmd.text.charAt(i) == '\r') {
 					trailing_whitespace = 0;
 					if (i+1 < cmd.text.length() &&
@@ -122,6 +123,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 
 			// If the pasted text doesn't end with a CR, then dummy up
 			// an extra line which we will remove at the end
+			// This will make it easier to extract the text from the indented code
+			// at the end
 			if (cmd.text.charAt(cmd.text.length()-1) != '\n' &&
 					cmd.text.charAt(cmd.text.length()-1) != '\r') {
 				line_cnt++;
@@ -134,19 +137,18 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			// allowing the whitespace to stay with the existing line
 			for (int i=cmd.offset-1; i>=0; i--) {
 				char current_ch = doc.getChar(i);
+				// reached end the end of he previous line ... break out
+				if ((current_ch == '\r') || (current_ch == '\n'))  {
+					break;
+				}
 				// If we have a space or tab... we want to remove it
-				if ((current_ch == ' ') || (current_ch == '\t'))  {
+				else if ((current_ch == ' ') || (current_ch == '\t'))  {
 					distance_to_sol ++;
 				}
-				// reached end of line... we have the whitespace character count ... leave loop
-				else if ((current_ch == '\r') || (current_ch == '\n'))  {
-					break;
-				}
-				// non-white space characters... leave loop, don't want to touch whitespace
+				// non-white space characters... is an inline paste
 				else  {
 					inline_paste = true;
-					distance_to_sol = 0;
-					break;
+					distance_to_sol ++;
 				}
 			}
 			
@@ -191,14 +193,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			try {
 				fLog.debug("    lineno=" + lineno + " target_lineno=" + target_lineno);
 				String result;
-				if (inline_paste)  {
-					// Don't do the first line
-					result = indenter.indent(lineno+2, (lineno+line_cnt));
-				}
-				else  {
-					// Include the first line
-					result = indenter.indent(lineno+1, (lineno+line_cnt));
-				}
+				result = indenter.indent(lineno+1, (lineno+line_cnt));
 				
 				for (int i=0; i<result.length(); i++) {
 					if (result.charAt(i) == '\n' || result.charAt(i) == '\r') {
@@ -214,23 +209,38 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				// If we changed the line count, then just
 				// go with what the user pasted, else use the updated code
 				// else cmd.txt is returned, unchanged
-				if (result_line_cnt == line_cnt) {
+				if (result_line_cnt == line_cnt)  {
  					if (added_extra_cr)  {
 						// Remove the trailing \n
 						result =  result.substring(0,result.length()-1);
 					}
 					
 					// Remove any trailing whitespace in the cmd
-					if (trailing_whitespace > 0)  {
-						result = result.substring(0,result.length()-trailing_whitespace);
+					if ((inline_paste == true) || (trailing_whitespace > 0))  {
+						// If we are pasting inline, the result will contain a copy of the original code on that line,
+						// we need to remove it
+						int start_point = 0;
+						if (inline_paste)  {
+							start_point = distance_to_sol;
+							// Zero this out... if we weren't doing an in-line paste we are using this variable
+							// to 
+							distance_to_sol = 0;
+						}
+						if (trailing_whitespace < 0)  {
+							trailing_whitespace = 0;
+						}
+						result = result.substring(start_point,result.length()-trailing_whitespace);
 						// Need to adjust the cursor to account for the change in whitespace
 						// Oddly enough doesn't need result.length... presumably adjusted when the text is inserted
 						cmd.caretOffset = cmd.offset - distance_to_sol + trailing_whitespace;
-						if (((ITextSelection) editor.getSelectionProvider().getSelection()).getLength() > 0)
+						if ((editor != null) && ((ITextSelection) editor.getSelectionProvider().getSelection()).getLength() > 0)
 							cmd.caretOffset += result.length();
 					}
-					// Move the insertion point to the start of line
-					cmd.offset -= distance_to_sol;
+					// Move the insertion point to the start of line if we aren't pasting into the middle of existing code.
+					// The formatter will have created the leading whitespace for the first line of the pasted code
+					if (!inline_paste)  {
+						cmd.offset -= distance_to_sol;
+					}
 					cmd.text = result;
 					
 					fLog.debug("    Modifying offset by " + distance_to_sol + 
