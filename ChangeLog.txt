@@ -7,6 +7,8 @@
   
 - #() - Remove Global Defines tab from project properties, since it duplicates
   functionality provided by the filelist
+  
+- #(472) - Correct incorrect expansion of `" macro pattern
 
 ------------------------------------------------------------------------------
 -- 1.9.6 Release --
