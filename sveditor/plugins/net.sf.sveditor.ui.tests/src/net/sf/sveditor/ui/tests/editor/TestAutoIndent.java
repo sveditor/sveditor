@@ -767,7 +767,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"class foobar;\n" +
 			"	\n" +
 			"	covergroup foobar;\n" +
-			"\n" +
+			"		\n" +
 			"		var_cp : coverpoint (var) iff (var_cond);\n" +
 			"		var1_cp : coverpoint (var) iff (var_cond);\n" +
 			"		var2_cp : coverpoint (var) iff (var_cond) {\n" +
@@ -780,13 +780,13 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"	endgroup\n" +
 			"	covergroup cg_1;\n" +
 			"		cp_3: coverpoint \n" +
-			"			{\n" +
-			"			top.bit1,\n" + // TODO: should be indented?
+			"		{\n" +
+			"			top.bit1,\n" +
 			"			top.bit2\n" +
-			"			} {\n" +
-			"			wildcard bins bin_0 = {2'b?0};\n" + // TODO: should be indented?
+			"		} {\n" +
+			"			wildcard bins bin_0 = {2'b?0};\n" +
 			"			wildcard bins bin_1 = {2'b?1};\n" +
-			"			}\n" +
+			"		}\n" +
 			"	endgroup\n";
 	
 		SVCorePlugin.getDefault().enableDebug(false);
@@ -797,7 +797,8 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		String result = tester.getContent();
 		
 
-		fLog.debug("Result:\n" + result);
+		fLog.note("Expect:\n" + expected);
+		fLog.note("Result:\n" + result);
 		IndentComparator.compare("Covergroup indent failed", expected, result);
 	}
 
