@@ -1042,7 +1042,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				// This is the opening brace for the coverpoint. We need to
 				// leave the scope for the second-line indent of the coverpoint
 				if (lb_count == 0 && !block_leave_scope) {
-					leave_scope(); // leave coverpoint-declaration indent scope
+					leave_scope(tok); // leave coverpoint-declaration indent scope
 					block_leave_scope = true;
 				}
 				lb_count++;
@@ -1443,7 +1443,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 		if (tok.isId("if") || tok.isId("foreach")) {
 			tok = indent_constraint_if(false);
-		} else if (tok.isOp("(")) {
+		} 
+		else if (tok.isOp("(")) {
 			// very likely an implication statement
 			tok = consume_expression();
 
@@ -1453,7 +1454,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_constraint_block_or_stmt();
 			}
 			// Otherwise, really don't know what's being specified
-		} else {
+		} 
+		else {
 			// expression_or_dist ::= expression [ dist { dist_list } ];
 			tok = next_skip_over_hier();
 			// check if we have a distribution here
