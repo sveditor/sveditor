@@ -911,6 +911,7 @@ public class SVPreProcessor extends AbstractTextScanner
 				if (fDebugEn) {
 					fLog.debug("Use MacroExpander: \"" + 
 							fTmpBuffer.toString() + "\"");
+					fLog.debug("Use MacroExpander: def=\"" + md.getDef() + "\"");
 				}
 				
 				String exp = fMacroExpander.expandMacro(md, fMacroParams);

@@ -90,6 +90,7 @@ public class SVSingleLevelMacroExpander {
 			if (ch == '"' && last_ch == '`') {
 				// collapse to '"'
 				out.setLength(out.length()-1);
+				out.append((char)ch);
 				last_ch = -1;
 			} else if (ch == '`' && last_ch == '`') {
 				// Handle `` as a token separator
