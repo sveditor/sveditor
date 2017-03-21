@@ -1457,9 +1457,20 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		} 
 		else {
 			// expression_or_dist ::= expression [ dist { dist_list } ];
+			// An expression can be without '(' which makes this bit a little tricky
+			// If we have an operator... consume it and the next token too
 			tok = next_skip_over_hier();
+			if (tok.isOp())  {
+				tok = next_s(); // Eat the operator
+				tok = next_skip_over_hier();	// Eat the next token
+			}
+			// (expr) -> [stmt | stmt_block]
+			if (tok.isOp("->") || tok.isOp("->>")) {
+				tok = next_s();
+				tok = indent_constraint_block_or_stmt();
+			}
 			// check if we have a distribution here
-			if (tok.isId("dist") | tok.isId("inside")) {
+			else if (tok.isId("dist") | tok.isId("inside")) {
 				tok = next_s(); // move onto '{'
 				tok = consume_expression();
 				tok = next_s(); // consume trailing ;
@@ -1468,7 +1479,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			else {
 				// Read a statement up to a semi-colon
 				while (!tok.isOp(";")) {
-					tok = next_s();
+						tok = next_s();
 				}
 
 				tok = next_s();

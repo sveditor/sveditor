@@ -1288,6 +1288,23 @@ public void testIndentConstraint() throws BadLocationException {
 			"		};\n" + 
 			"		clk_cfg.jitter < (3 * 1000);\n" +
 			"	}\n" +
+			"	constraint frame_sizes {\n" +
+			"		size == NORMAL -> {\n" +
+			"			length dist {\n" +
+			"				[64  :  127 ] := 10,\n" +
+			"				[128 :  511 ] := 10,\n" +
+			"				[512 :  1500] := 10\n" +
+			"			};\n" +
+			"		}\n" +
+			"		if (size == RUNT)  {\n" +
+			"			length >= 0;\n" +
+			"			length <= 63;\n" +
+			"		}\n" +
+			"		else if (size == OVERSIZE) {\n" +
+			"			length >= 1501;\n" +
+			"			length <= 5000;\n" +
+			"		}\n" +
+			"	}\n" +
 			"	function void my_func;\n" +
 			"		my_class cls1; \n" +
 			"		assert(cls1.randomize() with {\n" +
