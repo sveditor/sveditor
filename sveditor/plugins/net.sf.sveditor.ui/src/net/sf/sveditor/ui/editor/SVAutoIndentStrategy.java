@@ -378,7 +378,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 					// - A closing brace decreases the indent
 					// - The command text completes an end-keyword at the start of the
 					//   line that decreases the indent
-					if ((cmd.text.equals("}") || cmd.text.equals(")")) && (indent.length() < n_ws_chars)) {
+					if ((cmd.text.equals("{") || cmd.text.equals("}") || cmd.text.equals(")")) && (indent.length() < n_ws_chars)) {
 						doc.replace(cmd_line.getOffset(), n_ws_chars, indent);
 						cmd.offset += (indent.length() - n_ws_chars);
 					} else {
