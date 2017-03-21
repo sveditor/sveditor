@@ -30,6 +30,7 @@ public class SVDBCoverpointBins extends SVDBItem {
 	public boolean					fIsArray;
 	public SVDBExpr				fArrayExpr;
 	public SVDBExpr				fIFF;
+	public SVDBExpr				fWith;
 	
 //	private List<SVDBExpr>			fRangeList;
 	
@@ -89,6 +90,14 @@ public class SVDBCoverpointBins extends SVDBItem {
 	
 	public void setIFF(SVDBExpr expr) {
 		fIFF = expr;
+	}
+	
+	public SVDBExpr getWith() {
+		return fWith;
+	}
+	
+	public void setWith(SVDBExpr expr) {
+		fWith = expr;
 	}
 	
 }
