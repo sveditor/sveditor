@@ -493,11 +493,28 @@ public class SVIndentingTemplateProposal
 //			int length = 0;
 			int target_lineno = lineno;
 			int line_cnt = 0;
+			boolean found_leading_text = false;
+			StringBuilder leading_text = new StringBuilder();
 			
+			// Figure out how many lines we are inserting
 			for (int i=0; i<text.length(); i++) {
 				if (text.charAt(i) == '\n') {
 					line_cnt++;
 				}
+			}
+			
+			// Figure out if the line we are inserting text on already has leading text (not just whitespace)
+			// If so we are going to want to preserve it
+			for (int i=offset-1; i>0; i--)  {
+				char ch = doc.getChar(i);
+				if ((ch == '\n') || (ch == '\r'))  {
+					break;
+				}
+				else if (Character.isWhitespace(ch))  {
+					found_leading_text = true;
+				}
+				// Add the leading text as we work back across the line
+				leading_text.insert(0, ch);
 			}
 			
 			// Don't try to indent content that isn't on a line boundary
@@ -546,6 +563,11 @@ public class SVIndentingTemplateProposal
 			try {
 				text = indenter.indent(lineno+1, (lineno+line_cnt+1));
 				
+				// If we had leading text, need to remove it from the generated stuff
+				if (found_leading_text)  {
+					text = text.replace(leading_text.toString(), "");
+				}
+
 				// Now, remove any leading whitespace
 				while (text.length() > 0 && 
 					Character.isWhitespace(text.charAt(0)) && text.charAt(0) != '\n') {
@@ -556,6 +578,7 @@ public class SVIndentingTemplateProposal
 				if (text.charAt(text.length()-1) == '\n') {
 					text = text.substring(0, text.length()-1);
 				}
+				
 			} catch (Exception e) {
 			}
 
