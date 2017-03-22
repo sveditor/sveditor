@@ -92,6 +92,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			int line_cnt = 0, result_line_cnt = 0;
 			boolean inline_paste = false;		// The insertion point has code before it on the line
 			int distance_to_sol = 0;			// used when inserting at the start of a new line, need to remove this WS because indenter will have calculated correct WS
+			int ws_at_sol = 0;					// leading whitespace count on the line we are pasting at
 			int trailing_whitespace = 0;		// number of WS characters after last \n
 			
 			// Figure out how many lines are in the pasted text... need to copy these many lines out of the re-formatted data
@@ -144,9 +145,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				// If we have a space or tab... we want to remove it
 				else if ((current_ch == ' ') || (current_ch == '\t'))  {
 					distance_to_sol ++;
+					ws_at_sol ++;
 				}
 				// non-white space characters... is an inline paste
 				else  {
+					ws_at_sol = 0;
 					inline_paste = true;
 					distance_to_sol ++;
 				}
@@ -221,10 +224,19 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 						// we need to remove it
 						int start_point = 0;
 						if (inline_paste)  {
-							start_point = distance_to_sol;
+							start_point = distance_to_sol - ws_at_sol;  // The whitespace will have been replaced
 							// Zero this out... if we weren't doing an in-line paste we are using this variable
 							// to 
 							distance_to_sol = 0;
+							for (int i=0; i<result.length(); i++)  {
+								char ch = result.charAt(i);
+								if ((ch == ' ') || (ch == '\t'))  {
+									start_point ++;
+								}
+								else  {
+									break;
+								}
+							}
 						}
 						if (trailing_whitespace < 0)  {
 							trailing_whitespace = 0;

@@ -5,7 +5,9 @@
 
 - #(408) Code template issue
  
-- #(470)   bins usage
+- #(470) bins usage
+
+- #(332) Text is duplicated on copy&paste 
 
 ------------------------------------------------------------------------------
 -- 1.9.7 Release --
