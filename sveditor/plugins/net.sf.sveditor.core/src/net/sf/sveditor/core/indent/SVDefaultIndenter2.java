@@ -1288,6 +1288,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_unique_priority();
 		} else if (tok.isId("expect")) {
 			tok = indent_if(false);
+		} else if (tok.isId("randsequence")) {
+			tok = indent_randsequence(false);
 		}
 		// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
 		else {
@@ -1583,7 +1585,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	/**
 	 * 
 	 * @param dont_indent_first
-	 *            - Use when already indented... typicall in a unique or
+	 *            - Use when already indented... typically in a unique or
 	 *            priority case statement
 	 * @return
 	 */
@@ -1606,7 +1608,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// This is important because below we just check for : to determine indentation, and
 			// a : in the indenter was throwing the indenter off
 			if (tok.isOp("(")) {
-				while (!next_s().isOp(")")); // should be expression
+				while (!tok.isOp(")"))  { // should be expression
+					tok = next_s();
+				}
 			}
 		}
 
@@ -1638,6 +1642,109 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 
+	/**
+	 * 
+	 * @param dont_indent_first
+	 *            - Use when already indented... typically in a unique or
+	 *            priority case statement
+	 * @return
+	 */
+	private SVIndentToken indent_randsequence(boolean dont_indent_first) {
+		SVIndentToken tok = current();
+		String type = tok.getImage();
+		// Check if we need to indent the case
+		if (!dont_indent_first) {
+			// Synchronize the indent on 'case'
+			enter_scope(tok);
+
+			// Push a new scope for the body of the case
+			start_of_scope(tok);
+		}
+
+		// randcase does not have an expression
+		if (tok.isId("randsequence")) {
+			tok = next_s(); // should be expression
+			// Continue on till we get a closed brace.  We could have case (some_vec[3:2]).  
+			// This is important because below we just check for : to determine indentation, and
+			// a : in the indenter was throwing the indenter off
+			if (tok.isOp("(")) {
+				do  {
+					tok = next_s();
+				} while (!tok.isOp(")")); // should be expression
+			}
+		}
+
+		tok = next_s();
+
+		// Synchronize indent
+		enter_scope(tok);
+
+		while (!tok.isId("endsequence")) {
+			// Label :
+			while (!tok.isOp(":") && !tok.isId("endsequence")) {
+				tok = next_s();
+			}
+
+			// Found a label, now parse the label contents
+			if (tok.isOp(":")) {
+				tok = next_s();
+				tok = indent_randsequence_production_item();
+			}
+		}
+
+		leave_scope();
+		if (tok.isId("endsequence")) {
+			set_indent(tok, false, true);
+		}
+
+		tok = next_s();
+
+		// leave_scope();
+
+		return tok;
+	}
+
+	/**
+	 * 
+	 * @param dont_indent_first
+	 *            - Use when already indented... typically in a unique or
+	 *            priority case statement
+	 * @return
+	 */
+	private SVIndentToken indent_randsequence_production_item () {
+		SVIndentToken tok = current();
+		if (tok.isId("if")) {
+			start_of_scope(tok);
+			enter_scope(tok);
+			tok = indent_if(false);
+			leave_scope(tok);
+		} else if (is_case(tok)) {
+			start_of_scope(tok);
+			enter_scope(tok);
+			tok = indent_case(false);
+			leave_scope(tok);
+		} else if (tok.isOp("{"))  {
+			tok = next_s();
+			do  {
+				tok = indent_randsequence_production_item();
+			} while (!tok.isOp("}"));
+			tok = next_s();		// Trailing ';'
+			tok = next_s();
+			
+		}
+		// Some string that terminates with a ;
+		else  {
+			start_of_scope(tok);
+			enter_scope(tok);
+			while (!tok.isOp(";"))  {
+				tok = next_s();
+			}
+			leave_scope(tok);
+			// Return after ;
+			tok = next_s();
+		}
+		return (tok);
+	}
 	private void start_of_scope(SVIndentToken tok) {
 		start_of_scope(tok, true);
 	}

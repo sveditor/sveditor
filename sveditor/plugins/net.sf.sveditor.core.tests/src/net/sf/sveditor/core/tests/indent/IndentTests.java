@@ -341,6 +341,156 @@ public class IndentTests extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testRandSequence() throws Exception {
+		LogHandle log = LogFactory.getLogHandle("testRandSequence");
+		String expected =
+			"module rs();\n" +
+			"	initial\n" +
+			"	begin\n" +
+			"		repeat(5)\n" +
+			"		begin\n" +
+			"			randsequence( main )\n" +
+			"				main : one two three ;\n" +
+			"				one : {$write(\"one\");};\n" +
+			"				two : {\n" +
+			"					$write(\"two\");\n" +
+			"				};\n" +
+			"				three : \n" +
+			"				{\n" +
+			"					$write(\"three\");\n" +
+			"				};\n" +
+			"			endsequence\n" +
+			"		end\n" +
+			"	end\n" +
+			"	initial\n" +
+			"	begin\n" +
+			"		repeat(6000)\n" +
+			"			randsequence( main )\n" +
+			"				main : one := 1| two := 2| three := 3;\n" +
+			"				three: {three_3++;};\n" +
+			"			endsequence\n" +
+			"		$display(\" one %0d two %0d three %0d\",one_1,two_2,three_3);\n" +
+			"	end\n" +
+			"\n" +
+			"	initial\n" +
+			"	begin\n" +
+			"		on = 0;\n" +
+			"		one_1 = 0;\n" +
+			"		repeat(2500)\n" +
+			"			randsequence( main )\n" +
+			"				main : one three;\n" +
+			"				one : {\n" +
+			"					if(on) \n" +
+			"						one_1++; \n" +
+			"					else \n" +
+			"						two_2 ++; \n" +
+			"				};\n" +
+			"				three: {\n" +
+			"					three_3++;\n" +
+			"				};\n" +
+			"			endsequence\n" +
+			"	end\n" +
+			"\n" +
+			"	initial\n" +
+			"	begin\n" +
+			"		one_1 = 0;\n" +
+			"		for(int i = 0 ;i < 6 ;i++)\n" +
+			"		begin\n" +
+			"			randsequence( main )\n" +
+			"				main : \n" +
+			"					case(i%3)\n" +
+			"						0 : one;\n" +
+			"						1 : begin\n" +
+			"							two;\n" +
+			"						end\n" +
+			"						default: def;\n" +
+			"					endcase;\n" +
+			"				one : {\n" +
+			"					$display(\"one\");\n" +
+			"				};\n" +
+			"				def : {$display(\"default\");};\n" +
+			"			endsequence\n" +
+			"		end\n" +
+			"	end\n" +
+			"\n" +
+			"	initial\n" +
+			"	begin\n" +
+			"		one_1 = 0;\n" +
+			"		randsequence( main )\n" +
+			"			main : \n" +
+			"				one | \n" +
+			"				repeat(2) \n" +
+			"				two | \n" +
+			"				repeat (3) three ;\n" +
+			"			one : one_1++;\n" +
+			"			two : \n" +
+			"				two_2++;\n" +
+			"		endsequence\n" +
+			"\n" +
+			"	end\n" +
+			"\n" +
+			"	initial\n" +
+			"		for(int i = 0;i < 24;i++) begin\n" +
+			"			randsequence( main )\n" +
+			"				main : rand join S1 S2 ;\n" +
+			"				S1 : \n" +
+			"					A B ;\n" +
+			"				S2 : C D ;\n" +
+			"				A : $write(\"A\");\n" +
+			"				B : \n" +
+			"					$write(\"B\");\n" +
+			"			endsequence\n" +
+			"		end\n" +
+			"\n" +
+			"	initial\n" +
+			"		randsequence()\n" +
+			"			TOP : P1 P2 ;\n" +
+			"			P2 : A { if( flag == 1 ) return; } B C ;\n" +
+			"			A : { $display( A ); } ;\n" +
+			"			B : { \n" +
+			"				if( flag == 2 ) \n" +
+			"					return; \n" +
+			"				$display( B ); \n" +
+			"			} ;\n" +
+			"		endsequence\n" +
+			"	initial\n" +
+			"		randsequence( main )\n" +
+			"			main : first second gen ;\n" +
+			"			first : add | dec ;\n" +
+			"			second : pop | push ;\n" +
+			"			add : gen(\"add\") ;\n" +
+			"			dec : \n" +
+			"				gen(\"dec\") ;\n" +
+			"			gen( string s = \"done\" ) : { $display( s ); } ;\n" +
+			"		endsequence						\n" +
+			"endmodule\n"
+			;
+
+
+		SVCorePlugin.getDefault().enableDebug(false);
+		log.debug("--> testRandSequenceStmt()");
+		try {
+			SVIndentScanner scanner = new SVIndentScanner(
+					new StringTextScanner(removeLeadingWS(expected.toString())));
+
+			ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+			indenter.init(scanner);
+			indenter.setTestMode(true);
+
+			String result = indenter.indent();
+
+			log.debug("Result:");
+			log.debug(result);
+			IndentComparator.compare("testRandSequenceStmt", expected, result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			log.debug("<-- testRandSequenceStmt()");
+		}
+		LogFactory.removeLogHandle(log);
+	}
+
 	public void testPriorityUniqueStmt() throws Exception {
 		LogHandle log = LogFactory.getLogHandle("testPriorityUniqueStmt");
 		String content =

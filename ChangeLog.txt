@@ -7,7 +7,9 @@
  
 - #(470) bins usage
 
-- #(332) Text is duplicated on copy&paste 
+- #(332) Text is duplicated on copy&paste
+ 
+- #(474) Indenter: Add randsequence support 
 
 ------------------------------------------------------------------------------
 -- 1.9.7 Release --
