@@ -18,6 +18,9 @@
   
 - #(nobug) - Correct pre-processor error involving double quotes in 
   `protected region
+  
+- #(nobug) - Correct a parse bug involving map-initialization expression with
+  a concat at the key
 
 ------------------------------------------------------------------------------
 -- 1.9.7 Release --

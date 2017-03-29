@@ -1178,30 +1178,7 @@ public class SVExprParser extends SVParserBase {
 					}
 					fLexer.readOperator(OP.RBRACE);
 					ret_top = ret;
-				} else /* if (fLexer.peekOperator(OP.COLON)) {
-					// associative-array assignment
-					SVDBAssignmentPatternExpr ret = new SVDBAssignmentPatternExpr();
-					SVDBAssociativeArrayElemAssignExpr assign;
-
-					while (fLexer.peek() != null) {
-						assign = new SVDBAssociativeArrayElemAssignExpr();
-						if (expr1 == null) {
-							expr1 = expression();
-						}
-						assign.setKey(expr1);
-						fLexer.readOperator(OP.COLON);
-						assign.setValue(expression());
-						ret.getPatternList().add(assign);
-
-						if (fLexer.peekOperator(OP.COMMA)) {
-							fLexer.eatToken();
-						} else {
-							break;
-						}
-						expr1 = null;
-					}
-					ret_top = ret;
-				} else */ {
+				} else {
 					SVDBAssignmentPatternExpr ret = new SVDBAssignmentPatternExpr();
 					ret.getPatternList().add(expr1);
 
@@ -1378,6 +1355,14 @@ public class SVExprParser extends SVParserBase {
 			} else if (fLexer.peekOperator(OP.LBRACE)) {
 				// concatenation
 				ret = concatenation_or_repetition();
+				
+				if (fEnableNameMappedPrimary.peek() && fLexer.peekOperator(OP.COLON)) {
+					fLexer.eatToken();
+					SVDBExpr rhs = expression();
+					if (fSaveExpr) {
+						ret = new SVDBNameMappedExpr(ret, rhs);
+					}
+				} 
 			} else if (fLexer.peekKeyword(KW.THIS)) {
 				fLexer.eatToken();
 				ret = new SVDBIdentifierExpr("this");
