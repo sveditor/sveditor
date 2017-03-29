@@ -78,6 +78,7 @@ public class TestParseCovergroups extends TestCase {
 			"	covergroup cg;\n" +
 			"		a_cp : coverpoint a {\n" +
 			"			bins a_bins[] = (0,1,2 => 1,2,3 => 2,3,4);\n" +
+			"			bins mod5[] = {[1000:2000]} with (item % 5 == 0);\n" +	// Bug #470 bins usage
 			"		}\n" +
 			"	endgroup\n" +
 			"endclass\n"

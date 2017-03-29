@@ -1,3 +1,15 @@
+------------------------------------------------------------------------------
+-- 1.9.8 Release --
+
+- #(nobug) Constraint indenter updates
+
+- #(408) Code template issue
+ 
+- #(470) bins usage
+
+- #(332) Text is duplicated on copy&paste
+ 
+- #(474) Indenter: Add randsequence support 
 
 ------------------------------------------------------------------------------
 -- 1.9.8 Release --

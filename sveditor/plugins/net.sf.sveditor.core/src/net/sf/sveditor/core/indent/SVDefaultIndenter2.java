@@ -1042,7 +1042,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				// This is the opening brace for the coverpoint. We need to
 				// leave the scope for the second-line indent of the coverpoint
 				if (lb_count == 0 && !block_leave_scope) {
-					leave_scope(); // leave coverpoint-declaration indent scope
+					leave_scope(tok); // leave coverpoint-declaration indent scope
 					block_leave_scope = true;
 				}
 				lb_count++;
@@ -1288,6 +1288,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			tok = indent_unique_priority();
 		} else if (tok.isId("expect")) {
 			tok = indent_if(false);
+		} else if (tok.isId("randsequence")) {
+			tok = indent_randsequence(false);
 		}
 		// Not seeing an if etc, just loop till we hit our next begin/end/fork/joinetc.]
 		else {
@@ -1443,7 +1445,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 		if (tok.isId("if") || tok.isId("foreach")) {
 			tok = indent_constraint_if(false);
-		} else if (tok.isOp("(")) {
+		} 
+		else if (tok.isOp("(")) {
 			// very likely an implication statement
 			tok = consume_expression();
 
@@ -1453,11 +1456,23 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = indent_constraint_block_or_stmt();
 			}
 			// Otherwise, really don't know what's being specified
-		} else {
+		} 
+		else {
 			// expression_or_dist ::= expression [ dist { dist_list } ];
+			// An expression can be without '(' which makes this bit a little tricky
+			// If we have an operator... consume it and the next token too
 			tok = next_skip_over_hier();
+			if (tok.isOp())  {
+				tok = next_s(); // Eat the operator
+				tok = next_skip_over_hier();	// Eat the next token
+			}
+			// (expr) -> [stmt | stmt_block]
+			if (tok.isOp("->") || tok.isOp("->>")) {
+				tok = next_s();
+				tok = indent_constraint_block_or_stmt();
+			}
 			// check if we have a distribution here
-			if (tok.isId("dist") | tok.isId("inside")) {
+			else if (tok.isId("dist") | tok.isId("inside")) {
 				tok = next_s(); // move onto '{'
 				tok = consume_expression();
 				tok = next_s(); // consume trailing ;
@@ -1466,7 +1481,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			else {
 				// Read a statement up to a semi-colon
 				while (!tok.isOp(";")) {
-					tok = next_s();
+						tok = next_s();
 				}
 
 				tok = next_s();
@@ -1570,7 +1585,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	/**
 	 * 
 	 * @param dont_indent_first
-	 *            - Use when already indented... typicall in a unique or
+	 *            - Use when already indented... typically in a unique or
 	 *            priority case statement
 	 * @return
 	 */
@@ -1593,7 +1608,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			// This is important because below we just check for : to determine indentation, and
 			// a : in the indenter was throwing the indenter off
 			if (tok.isOp("(")) {
-				while (!next_s().isOp(")")); // should be expression
+				while (!tok.isOp(")"))  { // should be expression
+					tok = next_s();
+				}
 			}
 		}
 
@@ -1625,6 +1642,109 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 
+	/**
+	 * 
+	 * @param dont_indent_first
+	 *            - Use when already indented... typically in a unique or
+	 *            priority case statement
+	 * @return
+	 */
+	private SVIndentToken indent_randsequence(boolean dont_indent_first) {
+		SVIndentToken tok = current();
+		String type = tok.getImage();
+		// Check if we need to indent the case
+		if (!dont_indent_first) {
+			// Synchronize the indent on 'case'
+			enter_scope(tok);
+
+			// Push a new scope for the body of the case
+			start_of_scope(tok);
+		}
+
+		// randcase does not have an expression
+		if (tok.isId("randsequence")) {
+			tok = next_s(); // should be expression
+			// Continue on till we get a closed brace.  We could have case (some_vec[3:2]).  
+			// This is important because below we just check for : to determine indentation, and
+			// a : in the indenter was throwing the indenter off
+			if (tok.isOp("(")) {
+				do  {
+					tok = next_s();
+				} while (!tok.isOp(")")); // should be expression
+			}
+		}
+
+		tok = next_s();
+
+		// Synchronize indent
+		enter_scope(tok);
+
+		while (!tok.isId("endsequence")) {
+			// Label :
+			while (!tok.isOp(":") && !tok.isId("endsequence")) {
+				tok = next_s();
+			}
+
+			// Found a label, now parse the label contents
+			if (tok.isOp(":")) {
+				tok = next_s();
+				tok = indent_randsequence_production_item();
+			}
+		}
+
+		leave_scope();
+		if (tok.isId("endsequence")) {
+			set_indent(tok, false, true);
+		}
+
+		tok = next_s();
+
+		// leave_scope();
+
+		return tok;
+	}
+
+	/**
+	 * 
+	 * @param dont_indent_first
+	 *            - Use when already indented... typically in a unique or
+	 *            priority case statement
+	 * @return
+	 */
+	private SVIndentToken indent_randsequence_production_item () {
+		SVIndentToken tok = current();
+		if (tok.isId("if")) {
+			start_of_scope(tok);
+			enter_scope(tok);
+			tok = indent_if(false);
+			leave_scope(tok);
+		} else if (is_case(tok)) {
+			start_of_scope(tok);
+			enter_scope(tok);
+			tok = indent_case(false);
+			leave_scope(tok);
+		} else if (tok.isOp("{"))  {
+			tok = next_s();
+			do  {
+				tok = indent_randsequence_production_item();
+			} while (!tok.isOp("}"));
+			tok = next_s();		// Trailing ';'
+			tok = next_s();
+			
+		}
+		// Some string that terminates with a ;
+		else  {
+			start_of_scope(tok);
+			enter_scope(tok);
+			while (!tok.isOp(";"))  {
+				tok = next_s();
+			}
+			leave_scope(tok);
+			// Return after ;
+			tok = next_s();
+		}
+		return (tok);
+	}
 	private void start_of_scope(SVIndentToken tok) {
 		start_of_scope(tok, true);
 	}

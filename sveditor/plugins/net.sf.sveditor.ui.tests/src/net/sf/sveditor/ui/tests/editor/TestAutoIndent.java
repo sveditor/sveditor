@@ -739,30 +739,6 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 	
 	
 	public void testCovergroup() throws BadLocationException {
-		String input2 = 
-			"class foobar;\n\n" +
-			"covergroup foobar;\n\n" +
-			"var_cp : coverpoint (var) iff (var_cond);\n" +
-			"var1_cp : coverpoint (var) iff (var_cond);\n" +
-			"var2_cp : coverpoint (var) iff (var_cond) {\n" +
-			"bins subrange1[] = {[0:3]};\n" +
-			"bins subrange2[] = " +
-			"{\n" +
-			"[0:3],\n" +
-			"[4:7]\n" +
-			"};\n" +
-			"}\n" +
-			"endgroup\n" +
-			"covergroup cg_1;\n" +
-			"cp_3: coverpoint \n" +
-			"{\n" +
-			"top.bit1,\n" +
-			"top.bit2\n" +
-			"} {\n" +
-			"wildcard bins bin_0 = {2'b?0};\n" +
-			"wildcard bins bin_1 = {2'b?1};\n" +
-			"}\n" +
-			"endgroup\n";
 		String expected =
 			"class foobar;\n" +
 			"	\n" +
@@ -780,25 +756,33 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"	endgroup\n" +
 			"	covergroup cg_1;\n" +
 			"		cp_3: coverpoint \n" +
-			"			{\n" +
-			"			top.bit1,\n" + // TODO: should be indented?
+			"		{\n" +
+			"			top.bit1,\n" +
 			"			top.bit2\n" +
-			"			} {\n" +
-			"			wildcard bins bin_0 = {2'b?0};\n" + // TODO: should be indented?
+			"		} {\n" +
+			"			wildcard bins bin_0 = {2'b?0};\n" +
 			"			wildcard bins bin_1 = {2'b?1};\n" +
-			"			}\n" +
-			"	endgroup\n";
+			"		}\n" +
+			"	endgroup\n" +
+			"endclass\n";
 	
 		SVCorePlugin.getDefault().enableDebug(false);
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		
 		StringBuilder input = IndentTests.removeLeadingWS(expected);
 		tester.type(input.toString());
-		String result = tester.getContent();
+		String typed_result = tester.getContent();
 		
-
-		fLog.debug("Result:\n" + result);
-		IndentComparator.compare("Covergroup indent failed", expected, result);
+		tester.reset();
+		tester.paste(input.toString());
+		String pasted_result = tester.getContent();
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		
+		fLog.debug("Typed  Result:\n" + typed_result);
+		fLog.debug("Pasted Result:\n" + pasted_result);
+		IndentComparator.compare("Covergroup indent failed typing", expected, typed_result);
+		IndentComparator.compare("Covergroup indent failed pasting", expected, pasted_result);
 	}
 
 	public void testVirtualFunction() throws BadLocationException {
@@ -1303,6 +1287,23 @@ public void testIndentConstraint() throws BadLocationException {
 			"			[13: 15] :/ 1\n" +
 			"		};\n" + 
 			"		clk_cfg.jitter < (3 * 1000);\n" +
+			"	}\n" +
+			"	constraint frame_sizes {\n" +
+			"		size == NORMAL -> {\n" +
+			"			length dist {\n" +
+			"				[64  :  127 ] := 10,\n" +
+			"				[128 :  511 ] := 10,\n" +
+			"				[512 :  1500] := 10\n" +
+			"			};\n" +
+			"		}\n" +
+			"		if (size == RUNT)  {\n" +
+			"			length >= 0;\n" +
+			"			length <= 63;\n" +
+			"		}\n" +
+			"		else if (size == OVERSIZE) {\n" +
+			"			length >= 1501;\n" +
+			"			length <= 5000;\n" +
+			"		}\n" +
 			"	}\n" +
 			"	function void my_func;\n" +
 			"		my_class cls1; \n" +

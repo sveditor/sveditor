@@ -220,7 +220,15 @@ public class SVCovergroupParser extends SVParserBase {
 							fLexer.readOperator(OP.LBRACE, OP.LPAREN);
 						}
 					}
+					// Possible with ( with_covergroup_expression )
+					if (fLexer.peekKeyword(KW.WITH)) {
+						fLexer.eatToken();
+						fLexer.readOperator(OP.LPAREN);
+						bins.setWith(parsers().exprParser().expression());
+						fLexer.readOperator(OP.RPAREN);
+					}
 					
+					// Possible if (iff ( expression ))
 					if (fLexer.peekKeyword(KW.IFF)) {
 						fLexer.eatToken();
 						fLexer.readOperator(OP.LPAREN);
