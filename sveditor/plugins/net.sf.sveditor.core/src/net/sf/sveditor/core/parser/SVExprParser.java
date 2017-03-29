@@ -798,6 +798,7 @@ public class SVExprParser extends SVParserBase {
 	}
 	
 	private SVDBExpr parseInsideExpr(SVDBExpr lhs) throws SVParseException {
+		if (fDebugEn) {debug("--> parseInsideExpr() " + fLexer.peek());}
 		fLexer.readKeyword(KW.INSIDE);
 		SVDBInsideExpr inside = new SVDBInsideExpr(lhs);
 
@@ -808,6 +809,7 @@ public class SVExprParser extends SVParserBase {
 			open_range_list(inside.getValueRangeList());
 		}
 
+		if (fDebugEn) {debug("<-- parseInsideExpr() " + fLexer.peek());}
 		return inside;
 	}
 	
@@ -1097,30 +1099,12 @@ public class SVExprParser extends SVParserBase {
 		
 		if (fDebugEn) {debug("unaryExpr -- peek: " + fLexer.peek());}
 		while (fLexer.peekOperator(OP.COLON2, OP.DOT, OP.LBRACKET)) {
-//			if (fLexer.peekOperator ("["))  {
-//				
-//				SVToken t = fLexer.consumeToken();
-//				// Check for operators, if it is an operator, return as this is parsed elsewhere
-//				// Property / Coverpoint Operators
-//				// [*0:$]  or something like this - Consecutive repetition
-//				// [=0:$]  or something like this - Non-Consecutive repetition
-//				// [->0:$] or something like this - Goto repetition
-//				if (fLexer.peekOperator("*", "->", "=")) {
-//					fLexer.ungetToken(t);
-//					break;
-//				} 
-//				// Must be an array - consume it here
-//				else {
-//					a = const_or_range_expression();
-//					fLexer.readOperator(OP.RBRACKET);
-//				}
 			SVToken t = fLexer.consumeToken();
 			if (fLexer.peekOperator(OP.MUL)) {
 				// This is a coverpoint transition expression
 				fLexer.ungetToken(t);
 				break;
 			} else if (fAssertionExpr.peek()) {
-//				SVToken t = fLexer.consumeToken();
 				// Don't move forward if this is likely to be an assertion sequence
 				if (!fLexer.peekOperator()) {
 					fLexer.ungetToken(t);
@@ -1133,7 +1117,7 @@ public class SVExprParser extends SVParserBase {
 				fLexer.ungetToken(t);
 				a = selector(a);
 			}
-}
+		}
 
 		if (fLexer.peekOperator(OP.SQUOTE)) {
 			SVToken tok = fLexer.consumeToken();
@@ -1151,6 +1135,10 @@ public class SVExprParser extends SVParserBase {
 
 		while (fLexer.peekOperator(OP.INC, OP.DEC)) {
 			a = new SVDBIncDecExpr(fLexer.readOperator().getImg(), a);
+		}
+		
+		if (fLexer.peekKeyword(KW.INSIDE)) {
+			a = parseInsideExpr(a);
 		}
 		
 		return a;

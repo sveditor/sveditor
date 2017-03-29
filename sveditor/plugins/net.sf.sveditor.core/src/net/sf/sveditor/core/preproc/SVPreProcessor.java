@@ -1087,7 +1087,6 @@ public class SVPreProcessor extends AbstractTextScanner
 		SVPreProc2InputData in_data = new SVPreProc2InputData(
 				this, in_b, filename, file_id);
 		add_file_change_info(file_id, in_data.getLineNo());
-
 		
 		in_data.setFileTree(new SVDBFileTree(new SVDBFile(filename)));
 		
@@ -1166,6 +1165,14 @@ public class SVPreProcessor extends AbstractTextScanner
 
 		SVPreProc2InputData new_file = fInputStack.peek();
 		fInputCurr = new_file;
+		
+		if (fDebugEn) {
+			if (!curr_in.getFileName().startsWith("Macro:") && 
+					(new_file == null || !new_file.getFileName().startsWith("Macro:"))) {
+				fLog.debug("Leaving file " + curr_in.getFileName() + " and switching to " +
+					((new_file != null)?new_file.getFileName():"NONE"));
+			}
+		}
 		
 		if (fInputStack.size() == 1) {
 			emit_line();

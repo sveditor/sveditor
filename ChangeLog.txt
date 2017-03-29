@@ -1,5 +1,10 @@
 
 ------------------------------------------------------------------------------
+-- 1.9.8 Release --
+
+- #(nobug) - Correct a parse error involving inside in a primary position
+
+------------------------------------------------------------------------------
 -- 1.9.7 Release --
 
 - #(nobug) - Update Project Explorer decorator to recognize when files in a

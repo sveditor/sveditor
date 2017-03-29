@@ -886,4 +886,39 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		
 		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}	
+	
+	public void testPackageSubInclude() throws IOException, CoreException, URISyntaxException {
+		
+		CoreReleaseTests.clearErrors();
+		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
+
+		SVCorePlugin.getDefault().enableDebug(true);
+		
+		String data_root = "/data/index/package_subinclude/";
+		utils.copyBundleDirToFS(data_root, fTmpDir);
+		
+		File project_dir = new File(fTmpDir, "package_subinclude");
+		
+		final IProject project = TestUtils.createProject(project_dir.getName(), project_dir);
+		addProject(project);
+		
+		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+		SVDBProjectData pdata = pmgr.getProjectData(project);
+		
+		
+		SVProjectFileWrapper fw = pdata.getProjectFileWrapper();
+		
+		fw.addArgFilePath("${project_loc}/sve.f");
+		
+		pdata.setProjectFileWrapper(fw);
+		
+
+		SVDBIndexCollection index = pdata.getProjectIndexMgr();
+		index.loadIndex(new NullProgressMonitor());
+		
+		IndexTestUtils.assertNoErrWarn(fLog, index);
+		IndexTestUtils.assertFileHasElements(index, "root_pkg", "sub_pkg", "root_cls", "sub_cls");
+		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
+	}	
 }
