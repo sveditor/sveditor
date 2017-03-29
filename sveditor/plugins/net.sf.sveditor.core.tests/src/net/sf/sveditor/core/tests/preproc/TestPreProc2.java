@@ -564,6 +564,32 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				inc_provider,
 				exp);
 	}
+
+	public void testProtectedRegionWithDoubleQuote() {
+		SVCorePlugin.getDefault().enableDebug(true);
+		SVPathPreProcIncFileProvider inc_provider =
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+		inc_provider.addIncdir(fTmpDir.getAbsolutePath());
+		
+		String doc = 
+				"int a;\n" +
+				"`protected\n" +
+				"	XX\"mo3Um'\n" +
+				"\n" +
+				"`endprotected\n" +
+				"int b;\n"
+				;
+		
+		String exp = 
+				"int a;\n" +
+				"int b;\n"
+				;
+		
+		runTestTrim2(
+				doc,
+				inc_provider,
+				exp);
+	}
 	
 	/*
 	public void testIfdefFILE() {

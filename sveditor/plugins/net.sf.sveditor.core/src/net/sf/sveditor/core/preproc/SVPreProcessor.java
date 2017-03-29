@@ -59,6 +59,7 @@ public class SVPreProcessor extends AbstractTextScanner
 	private StringBuilder							fTmpBuffer;
 	private List<String>							fMacroParams;
 	private Stack<Integer>							fPreProcEn;
+	private boolean									fInProtectedRegion;
 	private Stack<Long>								fPreProcLoc;
 	private IPreProcMacroProvider					fMacroProvider;
 	private SVSingleLevelMacroExpander				fMacroExpander;
@@ -316,7 +317,7 @@ public class SVPreProcessor extends AbstractTextScanner
 						output(' ');
 					}
 				} else {
-					if (ch == '"' && last_ch != '\\' && last_ch != '`') {
+					if (ch == '"' && last_ch != '\\' && last_ch != '`' && !fInProtectedRegion) {
 						// Enter string
 						in_string = true;
 					}
@@ -513,7 +514,7 @@ public class SVPreProcessor extends AbstractTextScanner
 				type = "";
 			}
 		}
-	
+		
 		if (type.equals("\"")) {
 			// `" ==> "
 			output('"');
@@ -573,8 +574,10 @@ public class SVPreProcessor extends AbstractTextScanner
 			}
 		} else if (type.equals("protected")) {
 			enter_ifdef(scan_loc, false);
+			fInProtectedRegion = true;
 		} else if (type.equals("endprotected")) {
 			leave_ifdef(scan_loc);
+			fInProtectedRegion = false;
 		} else if (!type.equals("")) {
 			handle_macro_directive(scan_loc, type, buffer_macro_name);
 		}

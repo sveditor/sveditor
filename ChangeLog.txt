@@ -11,13 +11,13 @@
  
 - #(474) Indenter: Add randsequence support 
 
-------------------------------------------------------------------------------
--- 1.9.8 Release --
-
 - #(nobug) - Correct a parse error involving inside in a primary position
 
 - #(nobug) - Correct pre-processor error involving a blank terminal parameter
   `MY_MACRO(P1,)
+  
+- #(nobug) - Correct pre-processor error involving double quotes in 
+  `protected region
 
 ------------------------------------------------------------------------------
 -- 1.9.7 Release --
