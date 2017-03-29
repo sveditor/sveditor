@@ -222,7 +222,7 @@ public class SVSingleLevelMacroExpander {
 						sb.append((char)ch);
 						ch = scanner.get_ch();
 					}
-				} else {
+				} else if (ch != -1 && ch != ',' && ch != ')') {
 					ch = scanner.get_ch();
 				}
 			} while (ch != -1 && ch != ',' && ch != ')');

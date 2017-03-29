@@ -535,6 +535,36 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				exp);
 	}
 
+	public void testEmptyMacroParam() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		SVPathPreProcIncFileProvider inc_provider =
+				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
+		inc_provider.addIncdir(fTmpDir.getAbsolutePath());
+		
+		String doc = 
+				"`define BODY(P, RV) \\\n" +
+				"	if (P < 10) begin \\\n" +
+				"		return RV;\\\n" +
+				"	end\n" +
+				"function foo;\n" +
+				"	`BODY(v,)\n" +
+				"endfunction\n"
+				;
+		
+		String exp = 
+				"function foo;\n" +
+				"	if (v < 10) begin\n" +
+				"		return ;\n" +
+				"	end\n" +
+				"endfunction\n"
+				;
+		
+		runTestTrim2(
+				doc,
+				inc_provider,
+				exp);
+	}
+	
 	/*
 	public void testIfdefFILE() {
 		SVCorePlugin.getDefault().enableDebug(false);

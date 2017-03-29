@@ -62,6 +62,10 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		
 		KW type = fLexer.readKeyword(KW.TASK, KW.FUNCTION);
+		
+		if (fDebugEn) {
+			debug("--> " + type);
+		}
 	
 		// ??
 		// fLexer.eatToken();
@@ -200,6 +204,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 		}
 		
 		func.setEndLocation(end);
+		if (fDebugEn) {
+			debug("<-- " + type + " " + func.getName());
+		}
 	}
 
 }
