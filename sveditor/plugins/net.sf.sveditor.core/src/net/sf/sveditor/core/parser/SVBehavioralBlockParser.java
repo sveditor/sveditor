@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -49,6 +48,7 @@ import net.sf.sveditor.core.db.stmt.SVDBForkStmt.JoinType;
 import net.sf.sveditor.core.db.stmt.SVDBIfStmt;
 import net.sf.sveditor.core.db.stmt.SVDBLabeledStmt;
 import net.sf.sveditor.core.db.stmt.SVDBNullStmt;
+import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBProceduralContAssignStmt;
 import net.sf.sveditor.core.db.stmt.SVDBProceduralContAssignStmt.AssignType;
 import net.sf.sveditor.core.db.stmt.SVDBRandseqProdStmt;
@@ -364,8 +364,13 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					break;
 					
 				case RANDSEQUENCE:
-					error("randsequence unsupported");
-					//			randsequence_stmt(parent);
+					while (fLexer.peek() != null && 
+							!fLexer.peekKeyword(KW.ENDSEQUENCE))  {
+						fLexer.eatToken();
+					}
+					fLexer.readKeyword(KW.ENDSEQUENCE);
+					error("randseqence not supported yet");
+//					randsequence_stmt(parent);
 					break;
 					
 				default:
@@ -1050,17 +1055,19 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fLexer.readOperator(OP.RPAREN);
 		
 		while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDSEQUENCE)) {
-			randsequence_production(stmt);
+			randsequence_production(parent, stmt);
 			
 		}
+		parent.addChildItem(stmt);
 	}
 	
-	private void randsequence_production(SVDBRandseqStmt rs) throws SVParseException {
+	private void randsequence_production(ISVDBAddChildItem parent, SVDBRandseqStmt rs) throws SVParseException {
 		SVDBRandseqProdStmt stmt = new SVDBRandseqProdStmt();
 		stmt.setLocation(fLexer.getStartLocation());
 		
 		SVDBTypeInfo type = fParsers.dataTypeParser().data_type(0);
 		
+		//production ::= [ data_type_or_void ] production_identifier [ ( tf_port_list ) ] : rs_rule { | rs_rule } ;
 		if (fLexer.peekOperator(OP.LPAREN, OP.COLON)) {
 			// The production identifier was provided, not the datatype
 			stmt.setName(type.getName());
@@ -1069,14 +1076,36 @@ public class SVBehavioralBlockParser extends SVParserBase {
 			stmt.setName(fLexer.readId());
 		}
 	
+		// tf_port_list
+		List<SVDBParamPortDecl> params = null;
 		if (fLexer.peekOperator(OP.LPAREN)) {
-			// tf_port_list
+			params = parsers().tfPortListParser().parse();
 		}
+		
+		rs.setTfPortList(params);
+		
+		fLexer.readOperator (OP.COLON);
 		
 		// rs_rule { | rs_rule }
 		// rs_rule ::= rs_production_list [ := weight_specification [rs_code_block]]
-		// rs_production_list 
+		// rs_production_list ::=
+		//    rs_prod { rs_prod }
+		//    | rand join [ ( expression ) ] production_item production_item { production_item }
+		// rs_prod ::=
+		//    production_item
+		//    | rs_code_block
+		//    | rs_if_else
+		//    | rs_repeat
+		//    | rs_case
+		// production_item ::= production_identifier [ ( list_of_arguments ) ]
+		// rs_if_else ::= if ( expression ) production_item [ else production_item ]
+		// rs_repeat ::= repeat ( expression ) production_item
+		// rs_case ::= case ( case_expression ) rs_case_item { rs_case_item } endcase
+		// rs_case_item ::=
+		//    case_item_expression { , case_item_expression } : production_item ;
+		//    | default [ : ] production_item ;
 
+		// rs_production_list
 		while (fLexer.peek() != null) {
 			if (fLexer.peekKeyword(KW.RAND)) {
 				fLexer.eatToken();
@@ -1085,6 +1114,7 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					fLexer.eatToken();
 					SVDBExpr expr = fParsers.exprParser().expression();
 					fLexer.readOperator(OP.RPAREN);
+					stmt.addProductionItem(expr);
 					
 					// production_item
 					String production_id = fLexer.readId();
@@ -1096,13 +1126,71 @@ public class SVBehavioralBlockParser extends SVParserBase {
 					}
 					
 				}
-			} else {
-				// rs_prod {rs_prod}
+			}
+			// rs_prod
+			else {
+				// rs_if_else
+				if (fLexer.peekKeyword(KW.IF))  {
+					// rs_if_else ::= if ( expression ) production_item [ else production_item ]
+					fLexer.readOperator(OP.LBRACE);
+					if (!fLexer.peekOperator(OP.RBRACE))  {
+						SVDBExpr expr = fParsers.exprParser().expression();
+					}
+					fLexer.readOperator(OP.RBRACE);
+					stmt.addProductionItem(randsequence_production_item(rs));
+					if (fLexer.peekKeyword(KW.ELSE))  {
+						fLexer.readKeyword(KW.ELSE);
+						stmt.addProductionItem(randsequence_production_item(rs));
+					}
+				}
+				// rs_repeat
+				else if (fLexer.peekKeyword(KW.REPEAT))  {
+					fLexer.readKeyword(KW.REPEAT);
+					fLexer.readOperator(OP.LBRACE);
+					SVDBExpr expr = fParsers.exprParser().expression();
+					fLexer.readOperator(OP.RBRACE);
+
+					// Production item
+					stmt.addProductionItem(randsequence_production_item(rs));
+				}
+				// rs_case ::= case ( case_expression ) rs_case_item { rs_case_item } endcase
+				else if (fLexer.peekKeyword(KW.CASE))  {
+					fLexer.readKeyword(KW.CASE);
+					fLexer.readOperator(OP.LBRACE);
+					// TODO: case_expression vs expression?
+					SVDBExpr expr = fParsers.exprParser().expression();
+					fLexer.readOperator(OP.RBRACE);
+					
+					// rs_case_item ::=
+					//   case_item_expression { , case_item_expression } : production_item ;
+					//   | default [ : ] production_item ;
+					while ((fLexer.peek() != null) && !fLexer.peekKeyword(KW.ENDCASE))  {
+						// case_item_expression :
+						// TODO: look up case statement
+						fParsers.exprParser().expression();
+						fLexer.readOperator(OP.COLON);
+						stmt.addProductionItem(randsequence_production_item(rs));
+					}
+					
+				}
+				// rs_code_block ::= { { data_declaration } { statement_or_null } }
+				else if (fLexer.peekOperator(OP.LBRACKET))  {
+					fLexer.readOperator(OP.LBRACKET);
+					fParsers.dataTypeParser().data_type(0);
+					fParsers.behavioralBlockParser().statement(parent);
+				}
+					
+					
 			}
 		}
 		
-		fLexer.readOperator(OP.COLON);
+		parent.addChildItem(stmt);
 		
 	}
 	
+	// production_item ::= production_identifier [ ( list_of_arguments ) ]
+	private SVDBExpr randsequence_production_item (SVDBRandseqStmt rs) throws SVParseException {
+		SVDBExpr expr = fParsers.exprParser().expression();
+		return (expr);
+	}
 }
