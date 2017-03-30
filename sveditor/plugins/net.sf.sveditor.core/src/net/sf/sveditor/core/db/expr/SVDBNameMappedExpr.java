@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBNameMappedExpr extends SVDBExpr {
-	public String				fName;
+	public SVDBExpr			fName;
 	public SVDBExpr			fExpr;
 	
 	public SVDBNameMappedExpr() {
@@ -24,11 +24,17 @@ public class SVDBNameMappedExpr extends SVDBExpr {
 	
 	public SVDBNameMappedExpr(String name, SVDBExpr expr) {
 		this();
+		fName = new SVDBLiteralExpr(name);
+		fExpr = expr;
+	}
+	
+	public SVDBNameMappedExpr(SVDBExpr name, SVDBExpr expr) {
+		this();
 		fName = name;
 		fExpr = expr;
 	}
 	
-	public String getName() {
+	public SVDBExpr getName() {
 		return fName;
 	}
 	

@@ -1,3 +1,7 @@
+
+------------------------------------------------------------------------------
+-- 1.9.9 Release --
+
 ------------------------------------------------------------------------------
 -- 1.9.8 Release --
 
@@ -10,6 +14,17 @@
 - #(332) Text is duplicated on copy&paste
  
 - #(474) Indenter: Add randsequence support 
+
+- #(nobug) - Correct a parse error involving inside in a primary position
+
+- #(nobug) - Correct pre-processor error involving a blank terminal parameter
+  `MY_MACRO(P1,)
+  
+- #(nobug) - Correct pre-processor error involving double quotes in 
+  `protected region
+  
+- #(nobug) - Correct a parse bug involving map-initialization expression with
+  a concat at the key
 
 ------------------------------------------------------------------------------
 -- 1.9.7 Release --

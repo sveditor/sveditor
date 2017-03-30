@@ -55,6 +55,10 @@ public class SVClassDeclParser extends SVParserBase {
 		cls_type_name = parsers().SVParser().scopedIdentifier(
 				((qualifiers & IFieldItemAttr.FieldAttr_SvBuiltin) != 0));
 		
+		if (fDebugEn) {
+			debug("  -- CLASS " + cls_type_name);
+		}
+		
 		cls = new SVDBClassDecl(cls_type_name);
 		cls.setLocation(start_loc);
 		
@@ -109,6 +113,10 @@ public class SVClassDeclParser extends SVParserBase {
 		if (fLexer.peekOperator(OP.COLON)) { 
 			fLexer.eatToken();
 			fLexer.readId();
+		}
+		
+		if (fDebugEn) {
+			debug("<-- process_class() " + cls_type_name);
 		}
 	}
 

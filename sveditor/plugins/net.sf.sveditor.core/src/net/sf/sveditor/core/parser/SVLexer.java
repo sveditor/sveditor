@@ -22,7 +22,6 @@ import java.util.Stack;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ISVOperators.OP;
 import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 

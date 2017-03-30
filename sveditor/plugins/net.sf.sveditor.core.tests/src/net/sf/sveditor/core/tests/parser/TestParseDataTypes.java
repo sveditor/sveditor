@@ -422,6 +422,31 @@ public class TestParseDataTypes extends TestCase {
 		runTest(testname, content, new String[] {"top"});
 	}
 
+	public void testMapAssign() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(true);
+		String content =
+			"typedef state_e state_q[$];\n" +
+			"typedef bit[3:0] key_t;\n" +
+			"typedef state_q legal_map_t[key_t];\n" +
+			"typedef legal_map_t states_t[type_e];\n" +
+			"\n" +
+			"const states_t states = '{\n" +
+			"	TYPE_E1:\n" +
+			"	'{  {0, 1}: '{E1, E2, E3},\n" +
+			"		{1, 2}: '{E3, E1, E2},\n" +
+			"		{3, 4}: '{E3, E1, E2}\n" +
+			"	},\n" +
+			"	TYPE_E2:\n" +
+			"	'{  0: '{E1, E2, E3},\n" +
+			"		1: '{E3, E1, E2},\n" +
+			"		2: '{E3, E1, E2}\n" +
+			"	}\n" +
+			"};\n" +
+			"\n"
+			;
+		runTest(getName(), content, new String[] {"states"});
+	}
+	
 	public void testScopedEnumInAssocArray() throws SVParseException {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content =

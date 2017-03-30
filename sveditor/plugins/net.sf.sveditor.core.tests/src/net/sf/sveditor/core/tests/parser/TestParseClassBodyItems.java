@@ -1043,6 +1043,20 @@ public class TestParseClassBodyItems extends TestCase {
 		runTest(getName(), doc, new String[] {"foo"});
 	}
 
+	public void testTernaryInsideExprStmt() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc =
+			"class foo;\n" +
+			"\n" +
+			"	task do_task();\n" +
+			"		indx = device_type inside {PCIE_NEP, PCIE_LEP}?1:0;\n" +
+			"	endtask\n" +
+			"endclass : foo\n"
+			;
+		
+		runTest(getName(), doc, new String[] {"foo"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,
