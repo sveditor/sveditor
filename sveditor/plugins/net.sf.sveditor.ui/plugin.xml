@@ -1856,4 +1856,13 @@ endpackage
          </class>
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="net.sf.sveditor.ui.editor.open.type"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+T">
+      </key>
+   </extension>
 </plugin>
