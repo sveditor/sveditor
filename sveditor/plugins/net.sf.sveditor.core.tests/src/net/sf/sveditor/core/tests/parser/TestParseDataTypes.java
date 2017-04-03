@@ -150,6 +150,7 @@ public class TestParseDataTypes extends TestCase {
 	}
 
 	public void testMultiDimArrayDecl() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"class foo;\n" +
 			"    string				my_var[][2];\n" +
@@ -423,7 +424,7 @@ public class TestParseDataTypes extends TestCase {
 	}
 
 	public void testMapAssign() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String content =
 			"typedef state_e state_q[$];\n" +
 			"typedef bit[3:0] key_t;\n" +

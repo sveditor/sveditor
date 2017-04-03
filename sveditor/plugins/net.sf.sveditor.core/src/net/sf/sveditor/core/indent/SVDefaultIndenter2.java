@@ -75,6 +75,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		fQualifierMap.put("protected", 1 << 3);
 		fQualifierMap.put("public", 1 << 4);
 		fQualifierMap.put("extern", 1 << 5);
+		fQualifierMap.put("default", 1 << 6);
 
 		fPreProcDirectives = new HashSet<String>();
 		fPreProcDirectives.add("`define");
