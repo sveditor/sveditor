@@ -4,6 +4,8 @@
 
 - #(480) Indent of default clocking block body is incorrect
 
+- #(479) Unique is not supported by SVE
+
 ------------------------------------------------------------------------------
 -- 1.9.8 Release --
 

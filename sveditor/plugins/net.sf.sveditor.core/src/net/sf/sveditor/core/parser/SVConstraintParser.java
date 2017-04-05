@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBConstraint;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBLiteralExpr;
+import net.sf.sveditor.core.db.expr.SVDBOpenRangeListExpr;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListItem;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintForeachStmt;
@@ -26,6 +27,7 @@ import net.sf.sveditor.core.db.stmt.SVDBConstraintIfStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintImplStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintSetStmt;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
+import net.sf.sveditor.core.db.stmt.SVDBConstraintUniqueStmt;
 import net.sf.sveditor.core.db.stmt.SVDBExprStmt;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.parser.SVLexer.Context;
@@ -174,6 +176,10 @@ public class SVConstraintParser extends SVParserBase {
 					ret = constraint_foreach();
 					break;
 				
+				case UNIQUE:
+					ret = constraint_unique();
+					break;
+					
 				default: {
 					ret = expr_constraint();
 					} break;
@@ -288,6 +294,28 @@ public class SVConstraintParser extends SVParserBase {
 		return ret;
 	}
 
+	/**
+	 * uniqueness_constraint ::= unique { open_range_list } ;
+	 * @return
+	 * @throws SVParseException
+	 */
+	private SVDBStmt constraint_unique() throws SVParseException {
+		SVDBConstraintUniqueStmt stmt = new SVDBConstraintUniqueStmt();
+		stmt.setLocation(fLexer.getStartLocation());
+		fLexer.readKeyword(KW.UNIQUE);
+		
+		fLexer.readOperator(OP.LBRACE);
+		
+		SVDBOpenRangeListExpr range_list = new SVDBOpenRangeListExpr();
+		fParsers.exprParser().open_range_list_1(range_list.getRangeList());
+		stmt.setExpr(range_list);
+
+		fLexer.readOperator(OP.RBRACE);
+		fLexer.readOperator(OP.SEMICOLON);
+
+		return stmt;
+	}
+	
 	private SVDBStmt constraint_foreach() throws SVParseException {
 		SVDBConstraintForeachStmt stmt = new SVDBConstraintForeachStmt();
 		stmt.setLocation(fLexer.getStartLocation());
