@@ -1447,6 +1447,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (tok.isId("if") || tok.isId("foreach")) {
 			tok = indent_constraint_if(false);
 		} 
+		else if (tok.isId("unique")) {
+			tok = next_s();
+			tok = consume_expression();
+			tok = next_s();	// will be a ;
+		}
 		else if (tok.isOp("(")) {
 			// very likely an implication statement
 			tok = consume_expression();

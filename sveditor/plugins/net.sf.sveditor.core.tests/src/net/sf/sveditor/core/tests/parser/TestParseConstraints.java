@@ -20,7 +20,7 @@ public class TestParseConstraints extends SVCoreTestCaseBase {
 	public void testParseConstraintFunction() {
 		String doc = 
 				"class bob;\n" +
-				"	constraint c_unique_sources { unique {sources}; };\n" +
+				"	constraint c_unique_sources { unique {sources, other_sources}; };\n" +
 				"	constraint some_constraint {\n" +
 				"		if (1) {\n" +
 //				"			some_variable  == some_function(.arg1(value1)); // Commenting this in or  out affects the error on the next line\n" +

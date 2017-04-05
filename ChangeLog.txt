@@ -6,6 +6,8 @@
 
 - #(479) Unique is not supported by SVE
 
+- #(483) Indenter: constraint Unique statement not indented correctly 
+
 ------------------------------------------------------------------------------
 -- 1.9.8 Release --
 
