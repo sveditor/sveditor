@@ -2,6 +2,12 @@
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
+- #(480) Indent of default clocking block body is incorrect
+
+- #(479) Unique is not supported by SVE
+
+- #(483) Indenter: constraint Unique statement not indented correctly 
+
 ------------------------------------------------------------------------------
 -- 1.9.8 Release --
 

@@ -2239,6 +2239,14 @@ public class IndentTests extends SVCoreTestCaseBase {
 						"req ##[1:3] gnt; \n" +
 						"endproperty\n" +
 						"endclocking\n" +
+						"default clocking sb @(posedge clk);\n" +
+						"input gnt;\n" +
+						"output req, addr;\n" +
+						"inout data;\n" +
+						"property p1; \n" +
+						"req ##[1:3] gnt; \n" +
+						"endproperty\n" +
+						"endclocking\n" +
 						"modport STB ( clocking sb ); // synchronous testbench modport\n" +
 						"endinterface\n" +
 						"\n";
@@ -2247,6 +2255,14 @@ public class IndentTests extends SVCoreTestCaseBase {
 						"	wire req, gnt;\n" +
 						"	wire [7:0] addr, data;\n" +
 						"	clocking sb @(posedge clk);\n" +
+						"		input gnt;\n" +
+						"		output req, addr;\n" +
+						"		inout data;\n" +
+						"		property p1; \n" +
+						"			req ##[1:3] gnt; \n" +
+						"		endproperty\n" +
+						"	endclocking\n" +
+						"	default clocking sb @(posedge clk);\n" +
 						"		input gnt;\n" +
 						"		output req, addr;\n" +
 						"		inout data;\n" +

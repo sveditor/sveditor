@@ -183,8 +183,6 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				"`test(foo,bar.sv)\n" +
 				"\n";
 		
-		System.out.println("Content:\n" + content);
-		
 		runTest(
 				content,
 				inc_provider,
@@ -566,7 +564,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 	}
 
 	public void testProtectedRegionWithDoubleQuote() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		SVPathPreProcIncFileProvider inc_provider =
 				new SVPathPreProcIncFileProvider(new SVDBFSFileSystemProvider());
 		inc_provider.addIncdir(fTmpDir.getAbsolutePath());
