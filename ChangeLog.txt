@@ -2,15 +2,14 @@
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
-- #(enh - XXX) - Show package structure in the Type Hierarchy view (F4)
-
-? #(enh) - Add Open Type shortcut to SystemVerilog perspective
+- #(enh) - Show package structure in the Type Hierarchy view (F4)
 
 - #(enh) - Clean up Project Paths virtual folder. The folder is now named 'SV Contents'
 
-? #(enh) - Add "Packages" entry to 'Project Paths' virtual folder
+- #(enh) - Add "Packages" entry to 'Project Paths' virtual folder
 
-? #(enh) - Enable double-click navigation to packages 
+- #(enh) - Enable double-click navigation to packages 
+  from 'Packages' list shown in the navigator
 
 - #(480) Indent of default clocking block body is incorrect
 
