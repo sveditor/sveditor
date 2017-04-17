@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.IFieldItemAttr;
@@ -73,8 +74,6 @@ import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.core.scanutils.ScanUtils;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 
 public abstract class AbstractCompletionProcessor implements ILogLevel {
@@ -547,16 +546,16 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		SVDBFindNamedModIfcClassIfc finder_cls =
 			new SVDBFindNamedModIfcClassIfc(getIndexIterator(), matcher);
 
-		List<ISVDBChildItem> cl_l = finder_cls.findItems(ctxt.fLeaf);
+		List<SVDBDeclCacheItem> cl_l = finder_cls.findItems(ctxt.fLeaf);
 
 		if (cl_l.size() > 0) {
 			fLog.debug("Global type search for \"" + ctxt.fLeaf + 
 					"\" returned " + cl_l.size());
-			for (ISVDBChildItem cl : cl_l) {
-				fLog.debug("    " + cl.getType() + " " + SVDBItem.getName(cl));
+			for (SVDBDeclCacheItem cl : cl_l) {
+				fLog.debug("    " + cl.getType() + " " + cl.getName());
 			}
 			
-			for (ISVDBItemBase it : cl_l){
+			for (SVDBDeclCacheItem it : cl_l){
 				addProposal(it, ctxt.fLeaf, 0,
 						SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
 						true, ctxt.fStart, ctxt.fLeaf.length());
@@ -830,12 +829,12 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		
 		SVDBModIfcDecl decl;
 		SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(getIndexIterator());
-		List<ISVDBChildItem> result = finder.findItems(inst.getTypeName());
+		List<SVDBDeclCacheItem> result = finder.findItems(inst.getTypeName());
 		
 		if (result.size() > 0 && 
 				(result.get(0).getType() == SVDBItemType.ModuleDecl ||
 				result.get(0).getType() == SVDBItemType.InterfaceDecl)) {
-			decl = (SVDBModIfcDecl)result.get(0); 
+			decl = (SVDBModIfcDecl)result.get(0).getSVDBItem(); 
 		} else {
 			fLog.debug("failed to find module type \"" + inst.getTypeName() + "\"");
 			return;

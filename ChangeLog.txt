@@ -12,6 +12,13 @@
 
 ? #(enh) - Enable double-click navigation to packages 
 
+- #(480) Indent of default clocking block body is incorrect
+
+- #(479) Unique is not supported by SVE
+
+- #(483) Indenter: constraint Unique statement not indented correctly 
+
+- #(484) - Correct handling of multi-line strings as macro parameters
 
 ------------------------------------------------------------------------------
 -- 1.9.8 Release --

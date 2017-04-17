@@ -11,5 +11,6 @@ package-list
 *-toc.xml
 toc.xml
 buildResult/
+build/
 packages/
 

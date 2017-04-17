@@ -72,7 +72,27 @@ public class TestIndentConstraints extends SVCoreTestCaseBase {
 		    ;
 	
 		
+		SVCorePlugin.getDefault().enableDebug(true);
+		IndentTests.runTest(getName(), fLog, doc);
+	}
+
+	public void testIndentUniqueConstraint() {
+		String doc = 
+			"class c extends uvm_sequence_item; //base input transaction\n" +
+			"	constraint legal_values {\n" +
+			"		unique  {\n" +
+			"			sourcea, \n" +
+			"			sourceb \n" +
+			"		}; //end unique \n" +
+		    "\n" +
+			"	} //end legal values constraint\n" +
+		    "\n" +
+			"endclass : c\n"
+		    ;
+	
+		
 		SVCorePlugin.getDefault().enableDebug(false);
 		IndentTests.runTest(getName(), fLog, doc);
 	}
+
 }
