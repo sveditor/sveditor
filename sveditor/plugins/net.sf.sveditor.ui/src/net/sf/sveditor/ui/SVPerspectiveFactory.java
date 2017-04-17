@@ -51,8 +51,11 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
     public void createInitialLayout(IPageLayout layout) {
         defineActions(layout);
         defineLayout(layout);
+        
+        layout.addActionSet("net.sf.sveditor.ui.svOpenActions");
     }
 
+    
     /**
      * Defines the initial actions for a page.  
      * @param layout The layout we are filling

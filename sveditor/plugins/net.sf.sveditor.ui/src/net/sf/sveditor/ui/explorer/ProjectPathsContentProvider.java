@@ -15,8 +15,15 @@ package net.sf.sveditor.ui.explorer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.viewers.IElementComparer;
+import org.eclipse.jface.viewers.ILazyTreeContentProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Display;
+
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
@@ -26,23 +33,31 @@ import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
 import net.sf.sveditor.core.job_mgr.IJob;
 import net.sf.sveditor.core.job_mgr.IJobMgr;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.viewers.IElementComparer;
-import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
-
 public class ProjectPathsContentProvider implements 
-		ITreeContentProvider, ISVDBProjectSettingsListener, ISVDBIndexChangeListener {
+		ISVDBProjectSettingsListener, ISVDBIndexChangeListener, 
+		ITreeContentProvider, ILazyTreeContentProvider {
 	private List<ProjectPathsData>				fProjectDataMap;
-	private static Object 						NO_ELEMENTS[] = new Object[0];
+	public static final Object 					NO_ELEMENTS[] = new Object[0];
 	private Viewer								fViewer;
 	private boolean								fRefreshQueued;
 	private IElementComparer					fDefaultComparer;
 	
 	public ProjectPathsContentProvider() {
 		fProjectDataMap = new ArrayList<ProjectPathsData>();
+	}
+
+	@Override
+	public void updateElement(Object parent, int index) {
+		System.out.println("updateElement");
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateChildCount(Object element, int currentChildCount) {
+		System.out.println("updateChildCount");
+		// TODO Auto-generated method stub
+		
 	}
 
 	public Object[] getChildren(Object parentElement) {
@@ -132,7 +147,9 @@ public class ProjectPathsContentProvider implements
 	}
 
 	public Object getParent(Object element) {
-		if (element instanceof LibIndexPath) {
+		if (element instanceof IProjectPathsData) {
+			return ((IProjectPathsData)element).getParent(element);
+		} else if (element instanceof LibIndexPath) {
 			LibIndexPath lip = (LibIndexPath)element;
 			return lip.getParent(element);
 		} else if (element instanceof SVDBDirTreeNode) {

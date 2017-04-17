@@ -17,16 +17,23 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.search.SVDBFindNamedPackage;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
+import net.sf.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
+import net.sf.sveditor.core.scanutils.ITextScanner;
+import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
@@ -114,6 +121,46 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 		assertEquals("c2_2_2", c2_2_2.getName());
 	}
 
+	public void testPackageHierarchy() {
+		String doc = 
+			"package my_pkg;\n" +
+			"	class c1;\n" +
+			"	endclass\n" +
+			"	class c2;\n" +
+			"	endclass\n" +
+			"endpackage\n" +
+			"\n" +
+			"class c2_1 extends c1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class c2_2_1 extends c2_1;\n" +
+			"endclass\n" +
+			"\n" +
+			"class c2_2_2 extends c2_1;\n" +
+			"endclass\n" +
+			"\n"
+			;
+		String testname = getName();
+		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, fCacheFactory);
+		PackageHierarchyTreeFactory tf = new PackageHierarchyTreeFactory(index_it);
+	
+		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
+		scanner.seek("package my".length());
+		SVExprScanner			expr_scanner = new SVExprScanner();
+		SVExprContext expr_ctxt = expr_scanner.extractExprContext(scanner, true);
+	
+		assertEquals("my_pkg", expr_ctxt.fLeaf);
+		
+		SVDBFindNamedPackage finder_p = new SVDBFindNamedPackage(index_it);
+		List<SVDBDeclCacheItem> found_p = finder_p.find(expr_ctxt.fLeaf);
+		
+		assertEquals(1, found_p.size());
+		
+		HierarchyTreeNode root = tf.build(found_p.get(0));
+		assertEquals(2, root.getChildren().size());
+		
+	}
+	
 	public static void runModuleHierarchyTest(
 			String					testname,
 			String					doc,
@@ -124,11 +171,11 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 		ModuleHierarchyTreeFactory tf = new ModuleHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedModIfcClassIfc mod_finder = new SVDBFindNamedModIfcClassIfc(index_it);
-		List<ISVDBChildItem> mod_l = mod_finder.findItems(top);
+		List<SVDBDeclCacheItem> mod_l = mod_finder.findItems(top);
 		assertEquals(1, mod_l.size());
 	
 		// root, target
-		HierarchyTreeNode h = tf.build((SVDBModIfcDecl)mod_l.get(0));
+		HierarchyTreeNode h = tf.build((SVDBModIfcDecl)mod_l.get(0).getSVDBItem());
 		
 		assertEquals(top, h.getName());
 		

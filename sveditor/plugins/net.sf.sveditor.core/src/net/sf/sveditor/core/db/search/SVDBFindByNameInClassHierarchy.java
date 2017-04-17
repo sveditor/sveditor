@@ -25,6 +25,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -83,10 +84,10 @@ public class SVDBFindByNameInClassHierarchy {
 					((ISVDBNamedItem)scope).getName().indexOf("::"));
 		
 			SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndexIterator);
-			List<ISVDBChildItem> result = finder.findItems(clsname);
+			List<SVDBDeclCacheItem> result = finder.findItems(clsname);
 			
 			if (result.size() > 0) {
-				scope = result.get(0);
+				scope = (ISVDBChildItem)result.get(0).getSVDBItem();
 			}
 		} else {
 			// Assume we're in a containing scope

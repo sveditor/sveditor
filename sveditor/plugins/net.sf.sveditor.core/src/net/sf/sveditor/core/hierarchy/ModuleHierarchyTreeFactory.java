@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindByName;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -35,6 +36,10 @@ public class ModuleHierarchyTreeFactory {
 		fIndexIt = index_it;
 		fFinder = new SVDBFindByName(fIndexIt);
 		fLog = LogFactory.getLogHandle("ModuleHierarchyTreeFactory");
+	}
+	
+	public HierarchyTreeNode build(SVDBDeclCacheItem mod) {
+		return build((SVDBModIfcDecl)mod.getSVDBItem());
 	}
 	
 	public HierarchyTreeNode build(SVDBModIfcDecl mod) {

@@ -46,6 +46,11 @@ public class LibIndexPath implements IProjectPathsData {
 	public String getType() {
 		return fType;
 	}
+	
+	@Override
+	public boolean hasChildren() {
+		return (fIndexList.size() > 0);
+	}
 
 	public Object[] getChildren(Object parent) {
 		return fIndexList.toArray();

@@ -387,6 +387,32 @@ public class TestParseExpr extends TestCase {
 		runTest(getName(), content, new String[] {"top"});
 	}
 	
+	public void testMultiLineStrings() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"module top;\n" +
+			"	string str = \"\\n\n" +
+			"	All their equipment and instruments are alive\n" +
+			"	\";\n" +
+			"endmodule\n"
+			;
+		runTest(getName(), content, new String[] {"top"});
+	}
+	
+	public void testMultiLineStringMacro() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+			"`define DSTR(name, init)\\\n" +
+			"	string name = init\n" +
+			"module top;\n" +
+			"	`DSTR(str, \"\\\\n\n" +
+			"	All their equipment and instruments are alive\n" +
+			"	\");\n" +
+			"endmodule\n"
+			;
+		runTest(getName(), content, new String[] {"top"});
+	}
+	
 	private void runTest(
 			String			testname,
 			String			doc,

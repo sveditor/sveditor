@@ -46,6 +46,10 @@ public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
 					type.equals(LibIndexPath.TYPE_LIB_PATH)) {
 				return SVUiPlugin.getImage("/icons/eview16/sv_lib.gif");
 			}
+		} else if (element instanceof PackagesExplorerData) {
+			return SVUiPlugin.getImage("/icons/edecl16/package.gif");
+		} else if (element instanceof DeclCacheItem) {
+			return super.getImage(((DeclCacheItem)element).getItem());
 		}
 		return super.getImage(element);
 	}

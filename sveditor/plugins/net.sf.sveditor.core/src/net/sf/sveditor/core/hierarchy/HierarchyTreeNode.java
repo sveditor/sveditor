@@ -22,7 +22,7 @@ public class HierarchyTreeNode {
 	
 	private String							fName;
 	private HierarchyTreeNode				fParent;
-	private SVDBItem						fItemDecl;
+	private ISVDBItemBase					fItemDecl;
 	private ISVDBItemBase					fItemType;
 	private List<HierarchyTreeNode>			fChildren;
 	
@@ -37,7 +37,7 @@ public class HierarchyTreeNode {
 	public HierarchyTreeNode(
 			HierarchyTreeNode		parent,
 			String					name,
-			SVDBItem				item) {
+			ISVDBItemBase			item) {
 		this(parent, name);
 		fItemDecl = item;
 	}
@@ -78,7 +78,7 @@ public class HierarchyTreeNode {
 		return fChildren;
 	}
 	
-	public SVDBItem getItemDecl() {
+	public ISVDBItemBase getItemDecl() {
 		return fItemDecl;
 	}
 	
