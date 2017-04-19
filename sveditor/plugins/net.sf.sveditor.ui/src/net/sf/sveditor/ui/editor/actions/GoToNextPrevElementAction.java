@@ -19,6 +19,8 @@ import net.sf.sveditor.core.db.SVDBGenerateBlock;
 import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -95,51 +97,13 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 	}
 
 	/**
-	 * Parses the children of the class... filtering out what we want to stop on
+	 * Parses the children of the element... filtering out what we want to stop on
 	 * 
 	 * @param parent
 	 */
-	private void ProcessModuleDecl(SVDBModIfcDecl parent) {
+	private void ProcessParentItem(SVDBScopeItem parent) {
 		for (ISVDBChildItem child : parent.getChildren()) {
-			fLog.debug("ProcessModuleDecl: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-			CheckChild(child);
-		}
-	}
-
-	/**
-	 * Parses the children of the class... filtering out what we want to stop on
-	 * 
-	 * @param parent
-	 */
-	private void ProcessClassDecl(SVDBClassDecl parent) {
-		for (ISVDBChildItem child : parent.getChildren()) {
-			fLog.debug("ProcessClassDecl: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-			CheckChild(child);
-		}
-	}
-
-	/**
-	 * Parses the children of the generate... filtering out what we want to stop
-	 * on
-	 * 
-	 * @param parent
-	 */
-	private void ProcessGenerate(SVDBGenerateBlock parent) {
-		for (ISVDBChildItem child : parent.getChildren()) {
-			fLog.debug("ProcessGenerate: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
-			CheckChild(child);
-		}
-	}
-
-	/**
-	 * Parses the children of the generate... filtering out what we want to stop
-	 * on
-	 * 
-	 * @param parent
-	 */
-	private void ProcessGenerateIf(SVDBGenerateIf parent) {
-		for (ISVDBChildItem child : parent.getChildren()) {
-			fLog.debug("ProcessGenerate: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
+			fLog.debug("ProcessParentItem: line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
 			CheckChild(child);
 		}
 	}
@@ -147,23 +111,18 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 	private void CheckChild(ISVDBChildItem child) {
 		fLog.debug("line [" + SVDBLocation.unpackLineno(child.getLocation()) + "] contains type " + child.getType().toString());
 		switch (child.getType()) {
+		// If the element has hierarchy... check it's children
 		case ModuleDecl:
-			CompareLocation(child);
-			ProcessModuleDecl((SVDBModIfcDecl) child);
-			break;
 		case ClassDecl:
-			CompareLocation(child);
-			ProcessClassDecl((SVDBClassDecl) child);
-			break;
 		case GenerateIf:
-			CompareLocation(child);
-			ProcessGenerateIf((SVDBGenerateIf) child);
-			break;
 		case GenerateBlock:
+		case PackageDecl:
+		case ProgramDecl:
 			CompareLocation(child);
-			ProcessGenerate((SVDBGenerateBlock) child);
+			ProcessParentItem((SVDBScopeItem) child);
 			break;
 		// TODO SGD - Have this follow the outline preferences
+		// if it doesn't have children, and is one of the following types... move to the location
 		case ModIfcInst:
 		case Function:
 		case Task:
@@ -175,8 +134,6 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 		case Property:
 		case AssertStmt:
 		case ModportDecl:
-		case PackageDecl:
-		case ProgramDecl:
 		case Sequence:
 		case TypedefStmt:
 		case TypeExpr:
