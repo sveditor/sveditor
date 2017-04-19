@@ -4,6 +4,10 @@
 
 - #(487) Indent of forever body is incorrect
 
+- #(486) Goto Next / Previous Member not behaving as expected 
+
+- #(485) Indent when adding Ndocs using Alt+Shift+J incorrect
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
