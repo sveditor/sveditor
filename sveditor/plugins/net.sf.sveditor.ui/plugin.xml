@@ -675,12 +675,12 @@
          <action
                definitionId="net.sf.sveditor.ui.argfile.editor.open.file"
                id="net.sf.sveditor.ui.svArgFileOpenFile"
-               label="Open &amp;File"
+               label="Open File"
                retarget="true">
          </action>
          <action
                id="net.sf.sveditor.ui.svArgFileToggleComment"
-               label="Toggle &amp;Comment"
+               label="Toggle Comment"
                retarget="true">
          </action>
       </actionSet>
