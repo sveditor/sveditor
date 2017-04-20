@@ -312,6 +312,7 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
+         <!-- Edit Menu Items -->
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Declaration"
@@ -432,12 +433,12 @@
             name="Add Natural Docs Comment"
             description="Add a Natural Docs comment stub to the member element">
       </command>
-      <command
+      <!--command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Macro Expansion"
             id="net.sf.sveditor.ui.editor.open.macro.expansion"
             name="Open Macro Expansion">
-      </command>
+      </command-->
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -563,10 +564,10 @@
                retarget="true">
          </action>
          <action
-         		definitionId="net.sf.sveditor.ui.indent"
-         		id="net.sf.sveditor.ui.svIndentEditorAction"
-         		label="Indent"
-         		retarget="true">
+               definitionId="net.sf.sveditor.ui.indent"
+               id="net.sf.sveditor.ui.svIndentEditorAction"
+               label="Indent"
+               retarget="true">
          </action>
          <action
                definitionId="net.sf.sveditor.ui.override.tf.command"
@@ -632,12 +633,12 @@
                label="Open Type"
                retarget="true">
          </action>
-         <action
+         <!--action
                definitionId="net.sf.sveditor.ui.editor.open.macro.expansion"
                id="net.sf.sveditor.ui.svOpenMacroExpansion"
                label="Open Macro Expansion"
                retarget="true">
-         </action>
+         </action-->
       </actionSet>
       <actionSet
             id="net.sf.sveditor.ui.source.menu.as"
@@ -674,12 +675,12 @@
          <action
                definitionId="net.sf.sveditor.ui.argfile.editor.open.file"
                id="net.sf.sveditor.ui.svArgFileOpenFile"
-               label="Open File"
+               label="Open &amp;File"
                retarget="true">
          </action>
          <action
                id="net.sf.sveditor.ui.svArgFileToggleComment"
-               label="Toggle Comment"
+               label="Toggle &amp;Comment"
                retarget="true">
          </action>
       </actionSet>
