@@ -8,6 +8,8 @@
 
 - #(485) Indent when adding Ndocs using Alt+Shift+J incorrect
 
+- Enh #(20) Auto-indent: <TAB> at line begin should set correct indent
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
