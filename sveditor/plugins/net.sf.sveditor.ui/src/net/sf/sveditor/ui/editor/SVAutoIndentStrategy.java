@@ -280,7 +280,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		} else if (cmd.text != null && cmd.text.equals("\t"))  {
 			try {
 				// Search for 2 line-endings back-to-back
-				if ((cmd.offset > 0) && (doc.getChar(cmd.offset-1) == '\n') && ((doc.getChar(cmd.offset) == '\n') || (doc.getChar(cmd.offset) == '\r')))  {
+				if ((cmd.offset > 0) && doc.getChar(cmd.offset-1) == '\n')  {
 					indent_on_tab = true;
 					cmd.text = "";
 				}
