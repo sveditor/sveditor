@@ -12,6 +12,8 @@
 
 - #(491) Outline: Tracking of cursor has issues when code is folded 
 
+- #(492) Support change of matching bracket color in SVeditor - eclipse 
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
