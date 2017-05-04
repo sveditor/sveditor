@@ -818,6 +818,38 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		IndentComparator.compare("testVirtualFunction", expected, result);
 	}
 
+	public void testTabAtSOL() throws BadLocationException {
+		String input1 = 
+			"class foobar;\n\n" +
+			"function new();\n" +
+			"a = 5;\n" +
+			"\n" +
+			"endfunction\n";
+		String input2 =
+			"\tb = 6;\n";		// \t at SOL
+		String expected =
+			"class foobar;\n" +
+			"	\n" +
+			"	function new();\n" +
+			"		a = 5;\n" +
+			"		b = 6;\n" +
+			"		\n" +
+			"	endfunction\n" +
+			"";
+		
+		
+		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
+		tester.type(input1);
+		tester.setCaretOffset(42);
+//		SVCorePlugin.getDefault().enableDebug(true);
+		tester.type(input2);
+		String result = tester.getContent();
+		
+		
+		fLog.debug("Result:\n" + result);
+		IndentComparator.compare("testTabAtSOL", expected, result);
+	}
+
 	public void testPastePostStringAdaptiveIndent() throws BadLocationException {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		String content = 

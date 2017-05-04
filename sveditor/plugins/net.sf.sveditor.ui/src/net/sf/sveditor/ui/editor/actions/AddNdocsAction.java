@@ -66,6 +66,7 @@ public class AddNdocsAction extends TextEditorAction {
 		ITextSelection tsel = (ITextSelection) fEditor.getSite().getSelectionProvider().getSelection();
 		SVDBFile svdbf = fEditor.getSVDBFile();
 		int start_offset = tsel.getOffset();
+		int line_pointer = start_offset;
 
 		fCurrentLine = tsel.getStartLine() + 1;
 		// Now insert the comment if it exists
@@ -79,8 +80,27 @@ public class AddNdocsAction extends TextEditorAction {
 			if (fComments.size() > 0) {
 				// Get Leading Whitespace of next line
 				String leadingWS = "";
-				for (int i=start_offset; i<doc.getLength(); i++)  {
-					char ch = doc.getChar(i);
+				// Check to see if we are at the end of hte current line... if so back up one preemptively
+				if (line_pointer > 0)  {
+					char ch = doc.getChar(line_pointer);
+					if ((ch == '\n') || (ch == '\r'))  {
+						line_pointer--;
+					}
+				}
+
+				while (line_pointer > 0)  {
+					char ch = doc.getChar(line_pointer);
+					if ((ch == '\n') || (ch == '\r'))  {
+						line_pointer++; // Go to first char of next line
+						break;
+					}
+					// Previous character
+					line_pointer--;
+				}
+				
+				// Now step across line till first non-white space character, building up leading WS as we go
+  				while (line_pointer<doc.getLength())  {
+					char ch = doc.getChar(line_pointer);
 					if ((ch == ' ') || (ch == '\t'))  {
 						leadingWS += ch;
 					}
@@ -88,6 +108,7 @@ public class AddNdocsAction extends TextEditorAction {
 						// end of WS
 						break;
 					}
+					line_pointer++;
 				}
 				
 				String comment = fComments.get(0).second();
