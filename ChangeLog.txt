@@ -10,6 +10,8 @@
 
 - Enh #(20) Auto-indent: <TAB> at line begin should set correct indent
 
+- #(491) Outline: Tracking of cursor has issues when code is folded 
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
