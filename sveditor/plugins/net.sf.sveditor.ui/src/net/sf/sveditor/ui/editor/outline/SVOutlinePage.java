@@ -99,9 +99,11 @@ public class SVOutlinePage extends ContentOutlinePage
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
 	private boolean						fLinkWithEditor = true;
+	private IDocument					doc;		// used when we move cursor around in file
 	
 	public SVOutlinePage(SVEditor editor) {
 		fEditor = editor;
+		doc = fEditor.getDocument();
 		fContentProvider = new SVOutlineContentProvider();
 		
 		fContent = new SVOutlineContent(new SVDBFile(""), null);
@@ -195,7 +197,6 @@ public class SVOutlinePage extends ContentOutlinePage
 	}
 	
 	public void updateCursorLocation(int offset) {
-		IDocument doc = fEditor.getDocument();
 		
 		int line = -1;
 		try {
