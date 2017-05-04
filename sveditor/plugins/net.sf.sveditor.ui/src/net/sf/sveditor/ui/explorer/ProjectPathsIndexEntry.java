@@ -48,6 +48,12 @@ public class ProjectPathsIndexEntry implements IProjectPathsData {
 		return fType;
 	}
 
+	
+	@Override
+	public boolean hasChildren() {
+		return (fRoots.size() > 0);
+	}
+
 	public Object[] getChildren(Object parent) {
 		return fRoots.toArray();
 	}

@@ -56,17 +56,10 @@ public class SVDBFindNamedModIfcClassIfc {
 		return ret;
 	}
 
-	public synchronized List<ISVDBChildItem> findItems(String type_name) {
+	public synchronized List<SVDBDeclCacheItem> findItems(String type_name) {
 		List<SVDBDeclCacheItem> found = findCacheItems(type_name);
-		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
 	
-		
-		
-		for (SVDBDeclCacheItem ci : found) {
-			ret.add((ISVDBChildItem)ci.getSVDBItem());
-		}
-
-		return ret;
+		return found;
 	}
 
 }

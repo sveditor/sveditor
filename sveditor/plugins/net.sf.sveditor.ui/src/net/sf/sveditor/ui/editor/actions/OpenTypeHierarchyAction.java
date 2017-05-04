@@ -16,22 +16,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
-import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
-import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
-import net.sf.sveditor.ui.views.hierarchy.SVHierarchyView;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
@@ -42,6 +26,21 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.TextEditorAction;
+
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import net.sf.sveditor.core.db.search.SVDBFindNamedPackage;
+import net.sf.sveditor.core.expr_utils.SVExprContext;
+import net.sf.sveditor.core.expr_utils.SVExprScanner;
+import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
+import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
+import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
+import net.sf.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
+import net.sf.sveditor.ui.SVUiPlugin;
+import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import net.sf.sveditor.ui.views.hierarchy.SVHierarchyView;
 
 public class OpenTypeHierarchyAction extends TextEditorAction {
 	private IWorkbench				fWorkbench;
@@ -86,8 +85,21 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 				SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(
 						((SVEditor)getTextEditor()).getIndexIterator());
 				
-				List<ISVDBChildItem> result = finder_c.findItems(expr_ctxt.fLeaf); 
-				ISVDBItemBase cls = (result != null && result.size() > 0)?result.get(0):null; 
+				List<SVDBDeclCacheItem> result = finder_c.findItems(expr_ctxt.fLeaf); 
+				
+				SVDBDeclCacheItem cls = null;
+				if (result != null && result.size() > 0) {
+					cls = result.get(0);
+				} else {
+					// Try again, this time looking for packages
+					SVDBFindNamedPackage finder_p = new SVDBFindNamedPackage(
+						((SVEditor)getTextEditor()).getIndexIterator());
+					result = finder_p.find(expr_ctxt.fLeaf);
+					
+					if (result != null && result.size() > 0) {
+						cls = result.get(0);
+					}
+				}
 
 				monitor.worked(1);
 
@@ -97,12 +109,16 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 						ClassHierarchyTreeFactory factory = new ClassHierarchyTreeFactory(
 								((SVEditor)getTextEditor()).getIndexIterator());
 
-						target = factory.build((SVDBClassDecl)cls);
+						target = factory.build(cls);
 					} else if (cls.getType() == SVDBItemType.ModuleDecl) {
 						ModuleHierarchyTreeFactory factory = new ModuleHierarchyTreeFactory(
 								((SVEditor)getTextEditor()).getIndexIterator());
 						
-						target = factory.build((SVDBModIfcDecl)cls);
+						target = factory.build(cls);
+					} else if (cls.getType() == SVDBItemType.PackageDecl) {
+						PackageHierarchyTreeFactory factory = new PackageHierarchyTreeFactory(
+								((SVEditor)getTextEditor()).getIndexIterator());
+						target = factory.build(cls);
 					}
 					
 					monitor.worked(1);

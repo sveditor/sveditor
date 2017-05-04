@@ -30,6 +30,10 @@ public class ClassHierarchyTreeFactory {
 		fIndexIt = index_it;
 	}
 
+	public HierarchyTreeNode build(SVDBDeclCacheItem cls) {
+		return build((SVDBClassDecl)cls.getSVDBItem());
+	}
+	
 	/**
 	 * Returns: target hierarchy node
 	 * 

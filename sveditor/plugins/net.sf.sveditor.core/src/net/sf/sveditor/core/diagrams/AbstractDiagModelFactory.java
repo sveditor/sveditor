@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModuleDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindClassDefaultNameMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
@@ -136,10 +137,11 @@ public abstract class AbstractDiagModelFactory implements IDiagModelFactory {
 				// Check for members of user defined type (class?) as
 				// connected to
 				SVDBFindNamedModIfcClassIfc finder = new SVDBFindNamedModIfcClassIfc(fIndex);
-				List<ISVDBChildItem> result = finder.findItems(modInst.getTypeName());
+				List<SVDBDeclCacheItem> result = finder.findItems(modInst.getTypeName());
 			
 				if (result.size() > 0 && result.get(0).getType() == SVDBItemType.ModuleDecl) {
-					DiagNode kidNode = createNodeForModule(model, (SVDBModuleDecl)result.get(0));
+					DiagNode kidNode = createNodeForModule(model, 
+							(SVDBModuleDecl)result.get(0).getSVDBItem());
 					DiagConnection con = new DiagConnection("bla", DiagConnectionType.Contains, node, kidNode) ;
 					model.addConnection(con) ;
 					node.addContainedClass(kidNode) ;

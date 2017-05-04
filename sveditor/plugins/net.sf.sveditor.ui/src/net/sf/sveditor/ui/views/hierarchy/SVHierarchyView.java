@@ -104,7 +104,7 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 					fViewerFilter.setTarget(hn);
 					fSelectedClass.setText(hn.getName());
 					if (hn.getItemDecl() != null) {
-						ISVDBChildItem it = hn.getItemDecl();
+						ISVDBItemBase it = hn.getItemDecl();
 						if (it.getType() == SVDBItemType.ClassDecl) {
 							fMemberList.setInput(it);
 						} else if (it.getType().isElemOf(SVDBItemType.ModIfcInstItem, SVDBItemType.VarDeclItem)) {

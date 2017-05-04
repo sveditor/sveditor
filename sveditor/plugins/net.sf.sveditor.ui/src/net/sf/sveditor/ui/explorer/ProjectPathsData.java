@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
@@ -29,6 +30,10 @@ public class ProjectPathsData implements IProjectPathsData {
 		
 	}
 	
+	public ISVDBIndexIterator getIndexIt() {
+		return fProjectData.getProjectIndexMgr();
+	}
+	
 	public ProjectPathsData(SVDBProjectData pd, boolean setup) {
 		fProjectData = pd;
 		fPaths = new ArrayList<IProjectPathsData>();
@@ -37,25 +42,23 @@ public class ProjectPathsData implements IProjectPathsData {
 			SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
 
 			List<ISVDBIndex> allLibIndexes = mgr.getLibraryPathList();
-			List<ISVDBIndex> srcCollectionIndexes = mgr.getSourceCollectionList();
-			List<ISVDBIndex> libIndexList = new ArrayList<ISVDBIndex>();
 			List<ISVDBIndex> argFileIndexList = new ArrayList<ISVDBIndex>();
 
 			for (ISVDBIndex i : allLibIndexes) {
 				if (i.getTypeID().equals(SVDBArgFileIndexFactory.TYPE)) {
 					argFileIndexList.add(i);
-				} else {
-					libIndexList.add(i);
 				}
 			}
 
-			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_SRC_COLLECTION,
-					this, "Source Collections", srcCollectionIndexes));
-			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_LIB_PATH,
-					this, "Library Paths", libIndexList));
 			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_ARG_FILE,
 					this, "Argument Files", argFileIndexList));
+			fPaths.add(new PackagesExplorerData(this));
 		}
+	}
+	
+	@Override
+	public boolean hasChildren() {
+		return (fPaths.size() > 0);
 	}
 
 	public Object[] getChildren(Object parent) {
@@ -63,11 +66,10 @@ public class ProjectPathsData implements IProjectPathsData {
 	}
 
 	public String getName() {
-		return "Project Paths";
+		return "SV Contents";
 	}
 
 	public Object getParent(Object element) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

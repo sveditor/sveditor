@@ -133,9 +133,14 @@
             class="net.sf.sveditor.ui.explorer.OpenSVDBItem"
             id="net.sf.sveditor.ui.explorer.OpenSVDBItem">
          <enablement>
-            <instanceof
-                  value="net.sf.sveditor.core.db.SVDBItem">
-            </instanceof>
+            <or>
+               <adapt
+                     type="net.sf.sveditor.core.db.index.SVDBDeclCacheItem">
+               </adapt>
+               <adapt
+                     type="net.sf.sveditor.core.db.ISVDBItemBase">
+               </adapt>
+            </or>
          </enablement>
       </actionProvider>
       <actionProvider
@@ -192,7 +197,7 @@
             icon="icons/edecl16/package.gif"
             id="net.sf.sveditor.ui.projectPathsContent"
             labelProvider="net.sf.sveditor.ui.explorer.ProjectPathsLabelProvider"
-            name="Project Paths"
+            name="SV Contents"
             priority="high"
             providesSaveables="false">
          <triggerPoints>
@@ -1062,6 +1067,9 @@ endclass
          <actionSet
                id="net.sf.sveditor.ui.svSearchActionSet">
          </actionSet>
+         <actionSet
+               id="net.sf.sveditor.ui.navigationActionSet">
+         </actionSet>
       </perspectiveExtension>
    </extension>
    <extension
@@ -1857,12 +1865,26 @@ endpackage
       </handler>
    </extension>
    <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="net.sf.sveditor.ui.editor.open.type"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="CTRL+SHIFT+T">
-      </key>
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="net.sf.sveditor.ui.navigate.open.type"
+            name="Open Type">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="net.sf.sveditor.ui.navigationActionSet"
+            label="Navigation Actions"
+            visible="false">
+         <action
+               class="net.sf.sveditor.ui.OpenTypeAction"
+               definitionId="net.sf.sveditor.ui.navigate.open.type"
+               id="net.sf.sveditor.ui.action1"
+               label="Open Type"
+               style="push">
+         </action>
+      </actionSet>
    </extension>
 </plugin>

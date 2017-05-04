@@ -29,6 +29,7 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.index.ISVDBChangeListener;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -521,10 +522,10 @@ public class SVOutlinePage extends ContentOutlinePage
 						if (type_name != null) {
 							SVDBFindNamedModIfcClassIfc finder = 
 									new SVDBFindNamedModIfcClassIfc(fEditor.getIndexIterator());
-							List<ISVDBChildItem> result = finder.findItems(type_name);
+							List<SVDBDeclCacheItem> result = finder.findItems(type_name);
 							
 							if (result != null && result.size() > 0) {
-								ISVDBChildItem target = result.get(0);
+								ISVDBItemBase target = result.get(0).getSVDBItem();
 						
 								try {
 									SVEditorUtil.openEditor(target);

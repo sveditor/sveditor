@@ -135,7 +135,11 @@ public class SVFileNavigatorContentProvider
 
 	
 	public boolean hasChildren(Object element) {
-		return (getChildren(element).length > 0);
+		if (element instanceof IProjectPathsData) {
+			return ((IProjectPathsData)element).hasChildren();
+		} else {
+			return false;
+		}
 	}
 
 	

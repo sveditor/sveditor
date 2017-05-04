@@ -208,7 +208,7 @@ public class SVSingleLevelMacroExpander {
 				} else if (ch == '"') {
 					int last_ch = -1;
 					while ((ch = scanner.get_ch()) != -1 && 
-							((ch != '"' && ch != '\n') || last_ch == '\\')) {
+							(ch != '"' || last_ch == '\\')) {
 						if (ch == '\n' && last_ch == '\\') {
 							// skip both characters
 							sb.setLength(sb.length()-1); // remove \n

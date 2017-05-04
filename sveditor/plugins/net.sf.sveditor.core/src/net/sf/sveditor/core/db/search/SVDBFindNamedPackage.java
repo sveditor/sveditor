@@ -37,19 +37,12 @@ public class SVDBFindNamedPackage {
 		this(index_it, SVDBFindDefaultNameMatcher.getDefault());
 	}
 
-	public List<ISVDBChildItem> find(String type_name) {
-		List<ISVDBChildItem> ret = new ArrayList<ISVDBChildItem>();
+	public List<SVDBDeclCacheItem> find(String type_name) {
 
 		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
 				new NullProgressMonitor(), type_name, fMatcher);
 		
-		for (SVDBDeclCacheItem ci : found) {
-			if(ci.getType() == SVDBItemType.PackageDecl) {
-				ret.add((ISVDBChildItem)ci.getSVDBItem()) ;
-			}
-		}
-
-		return ret;
+		return found;
 	}
 
 }

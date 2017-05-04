@@ -20,5 +20,7 @@ public interface IProjectPathsData {
 	
 	Object [] getChildren(Object parent);
 	
+	boolean hasChildren();
+	
 
 }

@@ -15,8 +15,10 @@ package net.sf.sveditor.ui.explorer;
 import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
@@ -27,6 +29,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -96,13 +99,36 @@ public class OpenSVDBItem extends CommonActionProvider {
 		public void run() {
 			super.run();
 			
-			for (SVDBItem it : (List<SVDBItem>)getSelectedNonResources()) {
-				IEditorPart ed_f = openEditor(it);
+			for (Object o : (List<Object>)getSelectedNonResources()) {
+				IEditorPart ed_f = null;
+				ISVDBItemBase it = null;
+				
+				if (o instanceof IAdaptable) {
+					Object t = ((IAdaptable)o).getAdapter(SVDBDeclCacheItem.class);
+					if (t == null) {
+						t = ((IAdaptable)o).getAdapter(ISVDBItemBase.class);
+					}
+					
+					if (t != null) {
+						o = t;
+					}
+				}
+				
+				if (o instanceof SVDBDeclCacheItem) {
+					it = ((SVDBDeclCacheItem)o).getSVDBItem();
+				} else if (o instanceof ISVDBItemBase) {
+					it = (ISVDBItemBase)o;
+				}
+				
+				if (it != null) {
+					ed_f = openEditor(it);
+				}
+				
 				if (ed_f != null) {
 					if (ed_f instanceof SVEditor) {
 						((SVEditor)ed_f).setSelection(it, true);
 					} else {
-						fLog.enter("Editor for \"" + it.getName() + 
+						fLog.enter("Editor for \"" + SVDBItem.getName(it) + 
 								"\" is not an SVEditor: " + 
 						ed_f.getClass().getName());
 					}
@@ -110,7 +136,7 @@ public class OpenSVDBItem extends CommonActionProvider {
 			}
 		}
 		
-		private IEditorPart openEditor(SVDBItem it) {
+		private IEditorPart openEditor(ISVDBItemBase it) {
 			IEditorPart ret = null;
 			ISVDBChildItem p = (ISVDBChildItem)it;
 			IFile f = null;

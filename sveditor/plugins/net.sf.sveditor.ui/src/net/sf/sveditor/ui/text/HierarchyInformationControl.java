@@ -109,7 +109,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
 				if (sel.getFirstElement() instanceof HierarchyTreeNode) {
 					HierarchyTreeNode n = (HierarchyTreeNode)sel.getFirstElement();
-					SVDBItem item = n.getItemDecl() ;
+					ISVDBItemBase item = n.getItemDecl() ;
 					if(item != null) {
 						try {
 							SVEditorUtil.openEditor(item) ;
@@ -127,7 +127,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 			public void keyPressed(KeyEvent e) {
 				if(tree.getSelectionCount()==1 && (tree.getSelection()[0].getData() instanceof HierarchyTreeNode)) {
 					HierarchyTreeNode n = (HierarchyTreeNode)tree.getSelection()[0].getData() ;
-					SVDBItem item = n.getItemDecl() ;
+					ISVDBItemBase item = n.getItemDecl() ;
 					if(e.keyCode == SWT.CR){
 						if(item != null) {
 							try {
