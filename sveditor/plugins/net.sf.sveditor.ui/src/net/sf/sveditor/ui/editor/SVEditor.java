@@ -36,8 +36,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -71,10 +69,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -1077,25 +1073,8 @@ public class SVEditor extends TextEditor
 			if (getSourceViewer() instanceof ISourceViewerExtension2) {
 				fMatchingCharacterPainter = new MatchingCharacterPainter(
 						getSourceViewer(), fCharacterMatcher);
-				Display display = Display.getCurrent();
 				
-				// The default matching brace color is stored in:
-				// /instance/org.eclipse.wst.sse.ui/matchingBracketsColor
-				// as a RGB, comma-delited string: 225,0,0
-				// Default to COLOR_GRAY
-				IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode("org.eclipse.wst.sse.ui");
-				String def_color = "" + display.getSystemColor(SWT.COLOR_GRAY).getRed() + ","+ display.getSystemColor(SWT.COLOR_GRAY).getGreen() + ","+ display.getSystemColor(SWT.COLOR_GRAY).getBlue();
-				String s = preferences.get("matchingBracketsColor", def_color);
-				String[] colors = s.split(",");
-				Color c;
-				// Should be RGB... paranoia code here
-				if (colors.length == 3)  {
-					c = new Color(display, Integer.parseInt(colors[0].trim()), Integer.parseInt(colors[1].trim()), Integer.parseInt(colors[2].trim()));
-				}
-				else  {
-					c = display.getSystemColor(SWT.COLOR_GRAY);
-				}
-				fMatchingCharacterPainter.setColor(c);
+				fMatchingCharacterPainter.setColor(SVEditorColors.getColor(SVEditorColors.MATCHING_BRACE));
 				((ITextViewerExtension2)getSourceViewer()).addPainter(
 						fMatchingCharacterPainter);
 			}

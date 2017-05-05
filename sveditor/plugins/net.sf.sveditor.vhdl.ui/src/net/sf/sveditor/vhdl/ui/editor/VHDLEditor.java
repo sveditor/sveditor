@@ -1,24 +1,23 @@
 package net.sf.sveditor.vhdl.ui.editor;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.ui.editor.SVCharacterPairMatcher;
-import net.sf.sveditor.vhdl.ui.VhdlUiPlugin;
-import net.sf.sveditor.vhdl.ui.editor.actions.AddBlockCommentAction;
-import net.sf.sveditor.vhdl.ui.editor.actions.RemoveBlockCommentAction;
-import net.sf.sveditor.vhdl.ui.editor.actions.ToggleCommentAction;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.editors.text.TextEditor;
+
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.ui.editor.SVCharacterPairMatcher;
+import net.sf.sveditor.ui.editor.SVEditorColors;
+import net.sf.sveditor.vhdl.ui.VhdlUiPlugin;
+import net.sf.sveditor.vhdl.ui.editor.actions.AddBlockCommentAction;
+import net.sf.sveditor.vhdl.ui.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.vhdl.ui.editor.actions.ToggleCommentAction;
 
 
 public class VHDLEditor extends TextEditor implements ILogLevel {
@@ -47,10 +46,8 @@ public class VHDLEditor extends TextEditor implements ILogLevel {
 			if (getSourceViewer() instanceof ISourceViewerExtension2) {
 				fMatchingCharacterPainter = new MatchingCharacterPainter(
 						getSourceViewer(), fCharacterMatcher);
-				Display display = Display.getCurrent();
 				
-				// TODO: reference preference store
-				fMatchingCharacterPainter.setColor(display.getSystemColor(SWT.COLOR_GRAY));
+				fMatchingCharacterPainter.setColor(SVEditorColors.getColor(SVEditorColors.MATCHING_BRACE));
 				((ITextViewerExtension2)getSourceViewer()).addPainter(
 						fMatchingCharacterPainter);
 			}		

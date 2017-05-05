@@ -20,6 +20,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_KEYWORD_C = "keywordColorPreference";
 	public static final String P_STRING_C = "stringColorPreference";
 	public static final String P_BRACE_C = "braceColorPreference";
+	public static final String P_MATCHING_BRACE_C = "matchingBraceColorPreference";
 	public static final String P_NUMBERS_C = "numbersColorPreference";
 	public static final String P_OPERATORS_C = "operatorsColorPreference";
 	
