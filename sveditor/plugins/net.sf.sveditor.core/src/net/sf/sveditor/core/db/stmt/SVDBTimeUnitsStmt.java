@@ -16,6 +16,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBTimeUnitsStmt extends SVDBStmt {
 	public String				fUnits;
+	public String				fPrecision;
 	
 	public SVDBTimeUnitsStmt() {
 		super(SVDBItemType.TimeUnitsStmt);
@@ -29,4 +30,12 @@ public class SVDBTimeUnitsStmt extends SVDBStmt {
 		fUnits = units;
 	}
 
+	public String getPrecision() {
+		return fPrecision;
+	}
+	
+	public void setPrecision(String Precision) {
+		fPrecision = Precision;
+	}
+	
 }

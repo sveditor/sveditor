@@ -1669,6 +1669,27 @@ public class TestParseModuleBodyItems extends TestCase {
 		runTest(testname, doc, new String[] {"my_module"});
 	}
 	
+	public void testTimeUnit2Args() {
+		String testname = "testTimeUnit2Args";
+		String doc =
+				"module my_module #(  parameter PARAMETER_1 = 1, // this is parameter 1\n" +
+						"       parameter PARAMETER_2 = 10    // this is parameter 2\n" +
+						"                     )\n"+ 
+						"                      (\n"+
+						"                       input logic       clk    , // fixed 4MHz input clock\n" +
+						"                       input logic [1:0] write_enable, // write_enable\n" +
+						"                       input logic [1:0] read_enable, // read_enable\n" +
+						"                       input logic [15:0]write_data , // write data\n" +
+						"                       output logic [15:0] read_data  // read data\n" + 
+						"                     );\n" +
+						"\n" +
+						"	timeunit 1ns/1ns;            // ERROR: Not recognizing time\n" +
+						"endmodule\n"
+						;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(testname, doc, new String[] {"my_module"});
+	}
+	
 	public void testLocalParamAssign() {
 		String testname = "testLocalParamAssign";
 		String doc = 
