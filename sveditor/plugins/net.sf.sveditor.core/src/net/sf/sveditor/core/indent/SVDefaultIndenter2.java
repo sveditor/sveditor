@@ -499,8 +499,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 		} else if (tok.isId("forever")) {
 			// A forever COULD have a #(delay) after it... swallow it if exists
+			// A forever COULD have a @(posedge XXX) after it... swallow it if exists - # (487)
 			tok = next_s();
-			if (tok.isOp("#")) {
+			if (tok.isOp("#") ||tok.isOp("@")) {
 				tok = next_s();
 				tok = consume_expression();
 			}

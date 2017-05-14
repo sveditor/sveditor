@@ -11,13 +11,14 @@
 
 
 package net.sf.sveditor.ui.pref;
-import net.sf.sveditor.ui.SVUiPlugin;
-
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+
+import net.sf.sveditor.ui.SVUiPlugin;
 
 public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
@@ -33,10 +34,11 @@ public class SVEditorPrefsPage extends FieldEditorPreferencePage implements IWor
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_STRING_C , "&String color:", SVEditorPrefsConstants.P_STRING_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_KEYWORD_C, "Key&word color:", SVEditorPrefsConstants.P_KEYWORD_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_NUMBERS_C, "N&umber color:", SVEditorPrefsConstants.P_NUMBERS_S, getFieldEditorParent()));
-		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_BRACE_C  , "B&racket color:", SVEditorPrefsConstants.P_BRACE_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_OPERATORS_C, "&Operator color:", SVEditorPrefsConstants.P_OPERATORS_S, getFieldEditorParent()));
 		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_SVT_PARAMETERS_S, "S&VT Template Parameter color:", 
 				SVEditorPrefsConstants.P_SVT_PARAMETERS_S, getFieldEditorParent()));
+		addField( new ColorStyleFieldEditor(SVEditorPrefsConstants.P_BRACE_C  , "B&racket color:", SVEditorPrefsConstants.P_BRACE_S, getFieldEditorParent()));
+		addField( new ColorFieldEditor(SVEditorPrefsConstants.P_MATCHING_BRACE_C  , "&Matching Bracket color:", getFieldEditorParent()));
 		
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_AUTO_INDENT_ENABLED_S, "Enable Auto-&Indent:", getFieldEditorParent()));
 

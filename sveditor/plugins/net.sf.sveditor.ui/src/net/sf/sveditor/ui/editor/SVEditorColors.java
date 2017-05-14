@@ -30,6 +30,7 @@ public enum SVEditorColors {
 	SINGLE_LINE_COMMENT,
 	MULTI_LINE_COMMENT,
 	BRACE,
+	MATCHING_BRACE,
 	NUMBERS,
 	OPERATORS,
 	SVT_PARAMETERS;
@@ -48,6 +49,7 @@ public enum SVEditorColors {
 		fColorMap.put(MULTI_LINE_COMMENT, SVEditorPrefsConstants.P_COMMENT_C);
 		fColorMap.put(KEYWORD, SVEditorPrefsConstants.P_KEYWORD_C);
 		fColorMap.put(BRACE, SVEditorPrefsConstants.P_BRACE_C);
+		fColorMap.put(MATCHING_BRACE, SVEditorPrefsConstants.P_MATCHING_BRACE_C);
 		fColorMap.put(NUMBERS, SVEditorPrefsConstants.P_NUMBERS_C);
 		fColorMap.put(OPERATORS, SVEditorPrefsConstants.P_OPERATORS_C);
 		fColorMap.put(SVT_PARAMETERS, SVEditorPrefsConstants.P_SVT_PARAMETERS_S);

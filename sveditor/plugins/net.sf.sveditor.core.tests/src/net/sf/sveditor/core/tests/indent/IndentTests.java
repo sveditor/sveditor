@@ -1796,11 +1796,15 @@ public class IndentTests extends SVCoreTestCaseBase {
 				"		begin\n" +
 				"			a=b;\n" +
 				"		end\n" +
+				"		forever @(posedge clk)\n" +
+				"		begin\n" +
+				"			a=b;\n" +
+				"		end\n" +
 				"	end\n"  +
 				"endmodule\n" 
 				;
 		
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
 		// Run the indenter over the reference source
