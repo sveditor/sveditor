@@ -24,6 +24,8 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.stmt.SVDBImportItem;
+import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -184,6 +186,14 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 				
 				if (tmp != null) {
 					return tmp;
+				}
+			} else if (c.getType() == SVDBItemType.ImportStmt) {
+				SVDBImportStmt s = (SVDBImportStmt)c;
+				for (ISVDBChildItem ci : s.getChildren()) {
+					SVDBImportItem i = (SVDBImportItem)ci;
+					if (i.getImport().equals(fName)) {
+						return i;
+					}
 				}
 			} else if (c instanceof ISVDBChildParent) {
 				ISVDBItemBase i = getSVDBItem((ISVDBChildParent)c);

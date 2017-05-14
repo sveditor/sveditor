@@ -2,6 +2,12 @@
 ------------------------------------------------------------------------------
 -- 2.0.0 Release --
 
+? #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+- #(enh) - Add Classes and Modules sub-sections to project explorer
+
+? #(enh) - Reorganize Structure View for 
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 

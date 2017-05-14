@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
 import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
 
@@ -56,12 +57,17 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 		fIgnoreItems = new HashSet<SVDBItemType>();
 		fIgnoreItems.add(SVDBItemType.NullStmt);
 	}
-	
+
+	@SuppressWarnings("rawtypes")
 	public Object[] getChildren(Object elem) {
 		int file_id = -1;
 		
 		if (fRoot != null && fRoot.getLocation() != -1) {
 			file_id = SVDBLocation.unpackFileId(fRoot.getLocation());
+		}
+		
+		if (elem instanceof SVDBDeclCacheItem) {
+			elem = ((SVDBDeclCacheItem)elem).getSVDBItem();
 		}
 		
 		if (elem instanceof ISVDBItemBase) {
@@ -89,6 +95,8 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			}
 			
 			return c.toArray();
+		} else if (elem instanceof List) {
+			return ((List)elem).toArray();
 		} else {
 			
 		}

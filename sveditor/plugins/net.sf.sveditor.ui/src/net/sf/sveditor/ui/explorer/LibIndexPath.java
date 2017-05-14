@@ -47,6 +47,8 @@ public class LibIndexPath implements IProjectPathsData {
 		return fType;
 	}
 	
+	public void reset() { }
+	
 	@Override
 	public boolean hasChildren() {
 		return (fIndexList.size() > 0);

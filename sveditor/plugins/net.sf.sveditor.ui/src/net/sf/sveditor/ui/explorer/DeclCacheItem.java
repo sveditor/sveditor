@@ -20,6 +20,9 @@ public class DeclCacheItem implements IProjectPathsData, IAdaptable {
 		return fItem.getName();
 	}
 	
+	public void reset() { }
+	
+	
 	public SVDBDeclCacheItem getItem() {
 		return fItem;
 	}

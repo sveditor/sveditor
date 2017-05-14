@@ -15,6 +15,8 @@ package net.sf.sveditor.ui.explorer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jface.viewers.TreeViewer;
+
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -24,19 +26,26 @@ import net.sf.sveditor.core.db.project.SVDBProjectData;
 public class ProjectPathsData implements IProjectPathsData {
 	private SVDBProjectData					fProjectData;
 	private List<IProjectPathsData>			fPaths;
+	private TreeViewer						fViewer;
 	
-	public ProjectPathsData(SVDBProjectData pd) {
-		this(pd, true);
-		
+	public ProjectPathsData(TreeViewer viewer, SVDBProjectData pd) {
+		this(viewer, pd, true);
 	}
 	
 	public ISVDBIndexIterator getIndexIt() {
 		return fProjectData.getProjectIndexMgr();
 	}
 	
-	public ProjectPathsData(SVDBProjectData pd, boolean setup) {
+	public void reset() {
+		for (IProjectPathsData p : fPaths) {
+			p.reset();
+		}
+	}
+	
+	public ProjectPathsData(TreeViewer viewer, SVDBProjectData pd, boolean setup) {
 		fProjectData = pd;
 		fPaths = new ArrayList<IProjectPathsData>();
+		fViewer = viewer;
 	
 		if (setup) {
 			SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
@@ -53,7 +62,13 @@ public class ProjectPathsData implements IProjectPathsData {
 			fPaths.add(new LibIndexPath(LibIndexPath.TYPE_ARG_FILE,
 					this, "Argument Files", argFileIndexList));
 			fPaths.add(new PackagesExplorerData(this));
+			fPaths.add(new ModulesExplorerData(this));
+			fPaths.add(new ClassesExplorerData(this));
 		}
+	}
+	
+	public TreeViewer getViewer() {
+		return fViewer;
 	}
 	
 	@Override

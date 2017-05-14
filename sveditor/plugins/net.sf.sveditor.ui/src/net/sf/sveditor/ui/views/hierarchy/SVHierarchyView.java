@@ -16,12 +16,20 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
+import java.util.List;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.internal.ui.viewers.FindElementDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;
@@ -53,6 +61,7 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 	private MessagePage					fNoSelPage;
 	 */
 	private HierarchyTreeNode			fTarget;
+	private ISVDBIndexIterator			fIndexIt;
 	private HierarchyTreeNode			fRoot;
 	private SVTreeContentProvider		fMemberContentProvider;
 	private Composite					fMemberComposite;
@@ -103,7 +112,35 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 					HierarchyTreeNode hn = (HierarchyTreeNode)elem;
 					fViewerFilter.setTarget(hn);
 					fSelectedClass.setText(hn.getName());
-					if (hn.getItemDecl() != null) {
+					if (hn.getAltItemDecl() != null) {
+						SVDBDeclCacheItem ci = hn.getAltItemDecl();
+						if (ci.getType() == SVDBItemType.PackageDecl) {
+							List<SVDBDeclCacheItem> pkg_i = fIndexIt.findPackageDecl(
+									new NullProgressMonitor(), ci);
+							fMemberList.setInput(pkg_i);
+						} else if (ci.getType() == SVDBItemType.ImportItem) {
+							String pkg_name = ci.getName();
+							int idx;
+							
+							if ((idx=pkg_name.indexOf("::")) != -1) {
+								pkg_name = pkg_name.substring(0, idx);
+							}
+							
+							List<SVDBDeclCacheItem> pkgs = fIndexIt.findGlobalScopeDecl(
+									new NullProgressMonitor(), pkg_name, 
+									new SVDBFindByNameMatcher(SVDBItemType.PackageDecl));
+							
+							if (pkgs.size() > 0) {
+								List<SVDBDeclCacheItem> pkg_i = fIndexIt.findPackageDecl(
+										new NullProgressMonitor(), pkgs.get(0));
+								fMemberList.setInput(pkg_i);
+							} else {
+								fMemberList.setInput(null);
+							}
+						} else {
+							fMemberList.setInput(null);
+						}
+					} else if (hn.getItemDecl() != null) {
 						ISVDBItemBase it = hn.getItemDecl();
 						if (it.getType() == SVDBItemType.ClassDecl) {
 							fMemberList.setInput(it);
@@ -130,9 +167,18 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
 				if (sel.getFirstElement() instanceof HierarchyTreeNode) {
 					HierarchyTreeNode n = (HierarchyTreeNode)sel.getFirstElement();
-					if (n.getItemDecl() != null) {
+			
+					ISVDBItemBase it = null;
+					
+					if (n.getAltItemDecl() != null) {
+						it = n.getAltItemDecl().getSVDBItem();
+					} else if (n.getItemDecl() != null) {
+						it = n.getItemDecl();
+					}
+					
+					if (it != null) {
 						try {
-							SVEditorUtil.openEditor(n.getItemDecl());
+							SVEditorUtil.openEditor(it);
 						} catch (PartInitException e) {
 							e.printStackTrace();
 						}
@@ -202,9 +248,17 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 			
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection sel = (IStructuredSelection)event.getSelection();
-				if (sel.getFirstElement() instanceof SVDBItem) {
+				if (sel.getFirstElement() instanceof ISVDBItemBase) {
 					try {
 						SVEditorUtil.openEditor((ISVDBItemBase)sel.getFirstElement());
+					} catch (PartInitException e) {
+						e.printStackTrace();
+					}
+				} else if (sel.getFirstElement() instanceof SVDBDeclCacheItem) {
+					SVDBDeclCacheItem dci = (SVDBDeclCacheItem)sel.getFirstElement();
+					
+					try {
+						SVEditorUtil.openEditor(dci.getSVDBItem());
 					} catch (PartInitException e) {
 						e.printStackTrace();
 					}
@@ -223,8 +277,11 @@ public class SVHierarchyView extends ViewPart implements SelectionListener {
 		}
 	}
 
-	public void setTarget(HierarchyTreeNode target) {
+	public void setTarget(
+			HierarchyTreeNode 	target,
+			ISVDBIndexIterator	index_it) {
 		fTarget = target;
+		fIndexIt = index_it;
 		fRoot = target;
 		fViewerFilter.setTarget(fTarget);
 		

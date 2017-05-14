@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTask;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 
@@ -93,6 +94,11 @@ public class SVHierarchyViewerFilter extends ViewerFilter {
 						 (((SVDBTask)it).getAttr() & IFieldItemAttr.FieldAttr_Protected) != 0)) {
 					return false;
 				}
+			}
+		} else if (element instanceof SVDBDeclCacheItem) {
+			SVDBDeclCacheItem dci = (SVDBDeclCacheItem)element;
+			if (dci.getType() == SVDBItemType.ImportItem) {
+				return false;
 			}
 		}
 		

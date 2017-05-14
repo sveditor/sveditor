@@ -9,10 +9,10 @@ import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
 
-public class PackagesExplorerData extends DeferredProjectDataProvider {
-
-	public PackagesExplorerData(IProjectPathsData p) {
-		super(p, "Packages");
+public class ModulesExplorerData extends DeferredProjectDataProvider {
+	
+	public ModulesExplorerData(IProjectPathsData p) {
+		super(p, "Modules");
 	}
 
 	public Object[] getChildrenDeferred(Object parent) {
@@ -22,17 +22,16 @@ public class PackagesExplorerData extends DeferredProjectDataProvider {
 		}
 		ISVDBIndexIterator index_it = ((ProjectPathsData)p).getIndexIt();
 
-		List<SVDBDeclCacheItem> packages = index_it.findGlobalScopeDecl(
+		List<SVDBDeclCacheItem> modules = index_it.findGlobalScopeDecl(
 				new NullProgressMonitor(), "",
-				new SVDBFindByTypeMatcher(SVDBItemType.PackageDecl));		
+				new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl));		
 
-		DeclCacheItem children[] = new DeclCacheItem[packages.size()];
-		for (int i=0; i<packages.size(); i++) {
-			children[i] = new DeclCacheItem(this, packages.get(i));
+		DeclCacheItem children[] = new DeclCacheItem[modules.size()];
+		for (int i=0; i<modules.size(); i++) {
+			children[i] = new DeclCacheItem(this, modules.get(i));
 		}
 		
 		return children;
 	}
-
-
+	
 }

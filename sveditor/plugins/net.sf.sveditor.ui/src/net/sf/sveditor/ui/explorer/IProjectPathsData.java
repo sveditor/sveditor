@@ -22,5 +22,7 @@ public interface IProjectPathsData {
 	
 	boolean hasChildren();
 	
+	void reset();
+	
 
 }

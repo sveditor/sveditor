@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.viewers.IElementComparer;
-import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -35,29 +34,27 @@ import net.sf.sveditor.core.job_mgr.IJobMgr;
 
 public class ProjectPathsContentProvider implements 
 		ISVDBProjectSettingsListener, ISVDBIndexChangeListener, 
-		ITreeContentProvider, ILazyTreeContentProvider {
+		ITreeContentProvider, IProjectPathsData {
 	private List<ProjectPathsData>				fProjectDataMap;
 	public static final Object 					NO_ELEMENTS[] = new Object[0];
-	private Viewer								fViewer;
+	private TreeViewer							fViewer;
 	private boolean								fRefreshQueued;
 	private IElementComparer					fDefaultComparer;
 	
 	public ProjectPathsContentProvider() {
 		fProjectDataMap = new ArrayList<ProjectPathsData>();
 	}
-
+	
 	@Override
-	public void updateElement(Object parent, int index) {
-		System.out.println("updateElement");
-		// TODO Auto-generated method stub
-		
+	public String getName() {
+		return "Root";
 	}
 
+	public void reset() { }
+
 	@Override
-	public void updateChildCount(Object element, int currentChildCount) {
-		System.out.println("updateChildCount");
-		// TODO Auto-generated method stub
-		
+	public boolean hasChildren() {
+		return true;
 	}
 
 	public Object[] getChildren(Object parentElement) {
@@ -85,7 +82,7 @@ public class ProjectPathsContentProvider implements
 		int idx;
 		
 		synchronized (fProjectDataMap) {
-			ProjectPathsData tmp = new ProjectPathsData(pd, false);
+			ProjectPathsData tmp = new ProjectPathsData(fViewer, pd, false);
 			idx = fProjectDataMap.indexOf(tmp);
 		}
 		
@@ -109,7 +106,7 @@ public class ProjectPathsContentProvider implements
 				
 				public void run() {
 					// Time-consuming operation
-					ProjectPathsData paths_d = new ProjectPathsData(pd);
+					ProjectPathsData paths_d = new ProjectPathsData(fViewer, pd);
 					addListeners(pd);
 					synchronized (fProjectDataMap) {
 						fProjectDataMap.add(paths_d);
@@ -174,7 +171,7 @@ public class ProjectPathsContentProvider implements
 	}
 	
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		fViewer = viewer;
+		fViewer = (TreeViewer)viewer;
 	}
 
 	

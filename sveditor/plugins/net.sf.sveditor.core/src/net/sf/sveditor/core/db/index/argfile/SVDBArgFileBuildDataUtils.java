@@ -37,6 +37,8 @@ import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
 import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
 import net.sf.sveditor.core.db.refs.SVDBFileRefFinder;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
+import net.sf.sveditor.core.db.stmt.SVDBImportItem;
+import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
@@ -216,8 +218,7 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 				*/
 			} else if (item.getType().isElemOf(SVDBItemType.Function,
 					SVDBItemType.Task, SVDBItemType.ClassDecl,
-					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl,
-					SVDBItemType.ProgramDecl)) {
+					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
 
 				// Only save tasks/functions if we're in a root scope
 				if (is_root_scope || !item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task)) {
@@ -239,9 +240,19 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 				
 				// 'Global' declarations, such as classes, can be declared within Modules/Interfaces/Programs 
 				// as well as packages. Scan through the top level of these elements
-				if (item.getType().isElemOf(SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
+				if (item.getType().isElemOf(
+						SVDBItemType.ModuleDecl, 
+						SVDBItemType.InterfaceDecl, 
+						SVDBItemType.ProgramDecl)) {
 					cacheFileDeclarations(build_data, parent, curr_fileid, 
 						decl_list, null, (ISVDBScopeItem)item, ft);
+				}
+			} else if (item.getType() == SVDBItemType.ImportStmt && pkg_decl_list != null) {
+				SVDBImportStmt imp_s = (SVDBImportStmt)item;
+				for (ISVDBChildItem c : imp_s.getChildren()) {
+					SVDBImportItem imp_i = (SVDBImportItem)c;
+					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+							imp_i.getImport(), item.getType(), false));
 				}
 			} else if (item.getType() == SVDBItemType.VarDeclStmt && is_root_scope) {
 				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
@@ -285,11 +296,11 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 									((ISVDBNamedItem) en).getName(), 
 									en.getType(), false));
 						}
-						if (pkg_decl_list != null) {
-							pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-									((ISVDBNamedItem) en).getName(), 
-									en.getType(), false));
-						}
+//						if (pkg_decl_list != null) {
+//							pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//									((ISVDBNamedItem) en).getName(), 
+//									en.getType(), false));
+//						}
 					}
 				}
 			}

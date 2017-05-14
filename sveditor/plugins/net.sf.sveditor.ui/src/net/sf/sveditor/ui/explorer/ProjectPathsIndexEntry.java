@@ -44,6 +44,8 @@ public class ProjectPathsIndexEntry implements IProjectPathsData {
 		// TODO: remove elements up to the start of the root (?)
 	}
 	
+	public void reset() { }
+	
 	public String getType() {
 		return fType;
 	}

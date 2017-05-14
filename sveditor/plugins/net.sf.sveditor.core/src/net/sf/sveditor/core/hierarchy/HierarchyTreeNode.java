@@ -17,12 +17,14 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class HierarchyTreeNode {
 	
 	private String							fName;
 	private HierarchyTreeNode				fParent;
 	private ISVDBItemBase					fItemDecl;
+	private SVDBDeclCacheItem				fAltItemDecl;
 	private ISVDBItemBase					fItemType;
 	private List<HierarchyTreeNode>			fChildren;
 	
@@ -40,6 +42,15 @@ public class HierarchyTreeNode {
 			ISVDBItemBase			item) {
 		this(parent, name);
 		fItemDecl = item;
+	}
+	
+	public HierarchyTreeNode(
+			HierarchyTreeNode		parent,
+			String					name,
+			ISVDBItemBase			item,
+			SVDBDeclCacheItem		alt_item) {
+		this(parent, name, item);
+		fAltItemDecl = alt_item;
 	}
 	
 	public HierarchyTreeNode(
@@ -80,6 +91,10 @@ public class HierarchyTreeNode {
 	
 	public ISVDBItemBase getItemDecl() {
 		return fItemDecl;
+	}
+	
+	public SVDBDeclCacheItem getAltItemDecl() {
+		return fAltItemDecl;
 	}
 	
 	public ISVDBItemBase getItemType() {

@@ -28,6 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
 import net.sf.sveditor.core.db.search.SVDBFindNamedPackage;
@@ -82,8 +83,8 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 			monitor.worked(1);
 			if (expr_ctxt.fLeaf != null && 
 					(expr_ctxt.fTrigger == null || expr_ctxt.fTrigger.equals(""))) {
-				SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(
-						((SVEditor)getTextEditor()).getIndexIterator());
+				ISVDBIndexIterator index_it = ((SVEditor)getTextEditor()).getIndexIterator();
+				SVDBFindNamedModIfcClassIfc finder_c = new SVDBFindNamedModIfcClassIfc(index_it);
 				
 				List<SVDBDeclCacheItem> result = finder_c.findItems(expr_ctxt.fLeaf); 
 				
@@ -135,7 +136,7 @@ public class OpenTypeHierarchyAction extends TextEditorAction {
 
 							page.activate(view);
 
-							((SVHierarchyView)view).setTarget(target);
+							((SVHierarchyView)view).setTarget(target, index_it);
 
 						} catch (Exception e) {
 							e.printStackTrace();

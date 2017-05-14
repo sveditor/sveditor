@@ -13,7 +13,9 @@
 package net.sf.sveditor.ui.explorer;
 
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
+import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -47,7 +49,11 @@ public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
 				return SVUiPlugin.getImage("/icons/eview16/sv_lib.gif");
 			}
 		} else if (element instanceof PackagesExplorerData) {
-			return SVUiPlugin.getImage("/icons/edecl16/package.gif");
+			return SVDBIconUtils.getIcon(SVDBItemType.PackageDecl);
+		} else if (element instanceof ModulesExplorerData) {
+			return SVDBIconUtils.getIcon(SVDBItemType.ModuleDecl);
+		} else if (element instanceof ClassesExplorerData) {
+			return SVDBIconUtils.getIcon(SVDBItemType.ClassDecl);
 		} else if (element instanceof DeclCacheItem) {
 			return super.getImage(((DeclCacheItem)element).getItem());
 		}
