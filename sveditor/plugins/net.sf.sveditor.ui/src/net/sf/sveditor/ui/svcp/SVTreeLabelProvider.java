@@ -335,15 +335,15 @@ public class SVTreeLabelProvider extends LabelProvider implements IStyledLabelPr
 				if (tps.getArg1() != null)  {
 					str += ": " + tps.getArg1();
 				}
-				if (tps.getArg2() != null)  {
-					str += "/" + tps.getArg2();
-				}
 				ret = new StyledString(str);
 			} else if (it.getType() == SVDBItemType.TimeUnitsStmt) {
 				SVDBTimeUnitsStmt tus = (SVDBTimeUnitsStmt) it;
 				String str = "timeprecision";
 				if (tus.getUnits() != null)  {
 					str += ": " + tus.getUnits();
+				}
+				if (tus.getPrecision() != null)  {
+					str += "/ " + tus.getPrecision();
 				}
 				ret = new StyledString(str);
 			} else if (it.getType() == SVDBItemType.ExprStmt) {

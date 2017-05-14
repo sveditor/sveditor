@@ -55,6 +55,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_STRING_C, new RGB(42, 0, 255));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_KEYWORD_C, new RGB(128, 0, 64));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_BRACE_C  , new RGB(0, 0, 0));
+		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_MATCHING_BRACE_C, new RGB(170, 170, 170));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_NUMBERS_C, new RGB(0, 0, 0));
 		PreferenceConverter.setDefault(store, SVEditorPrefsConstants.P_OPERATORS_C, new RGB(0, 0, 0));
 		

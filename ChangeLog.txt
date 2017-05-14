@@ -8,6 +8,20 @@
 
 ? #(enh) - Reorganize Structure View for 
 
+- #(487) Indent of forever body is incorrect
+
+- #(486) Goto Next / Previous Member not behaving as expected 
+
+- #(485) Indent when adding Ndocs using Alt+Shift+J incorrect
+
+- Enh #(20) Auto-indent: <TAB> at line begin should set correct indent
+
+- #(491) Outline: Tracking of cursor has issues when code is folded 
+
+- #(492) Support change of matching bracket color in SVeditor - eclipse 
+
+- #(494) Parser: Optional second parameter for timeunit 
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 

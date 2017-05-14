@@ -272,9 +272,19 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		StringBuilder doc_str = new StringBuilder();
 		boolean indent_newline = false;
 		boolean is_closebrace = false;
+		boolean indent_on_tab = false;
 		
 		if (cmd.text != null && isLineDelimiter(doc, cmd.text)) {
 			indent_newline = true;
+		// We have entered a '\t' at the start of a newline
+		} else if (cmd.text != null && cmd.text.equals("\t"))  {
+			try {
+				// Search for 2 line-endings back-to-back
+				if ((cmd.offset > 0) && doc.getChar(cmd.offset-1) == '\n')  {
+					indent_on_tab = true;
+					cmd.text = "";
+				}
+			} catch (BadLocationException e) { }
 		} else if (SVDefaultIndenter2.is_close_brace(cmd.text) && 
 				is_beginning_of_line(doc, cmd.offset)) {
 			is_closebrace = true;
@@ -307,9 +317,9 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			
 			// If we're moving to a new line, put a dummy statement in place
 			// as a marker
-			if (indent_newline) {
+			if (indent_newline || indent_on_tab) {
 				if (fDebugEn) {
-					fLog.debug("indent_newline");
+					fLog.debug("indent_newline | indent_on_tab");
 				}
 				doc_str.append("DUMMY=5;\n");
 			} else if (is_closebrace) {
@@ -339,7 +349,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				target_lineno++;
 				fLog.debug("target_lineno=" + target_lineno);
 			} else if (is_closebrace) {
-				// A close bra
+				// A close brace
 				target_lineno--;
 			}
 			
@@ -352,13 +362,17 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				// Want the indent of the next line
 				int line_offset = doc.getLineOfOffset(cmd.offset);
 				indent = indenter.getLineIndent(line_offset+2);
+			} else if (indent_on_tab) {
+					// Want the indent of current
+					int line_offset = doc.getLineOfOffset(cmd.offset);
+					indent = indenter.getLineIndent(line_offset+1);
 			} else {
 				// Want indent of this line
 				indent = indenter.getLineIndent(doc.getLineOfOffset(cmd.offset)+1);
 			}
 			
 			if (indent != null) {
-				if (indent_newline) {
+				if (indent_newline || indent_on_tab) {
 					fLog.debug("Indented Content:\n" +
 							indenter.indent());
 					fLog.debug("indent=\"" + indent + "\"");

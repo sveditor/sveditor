@@ -312,6 +312,7 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
+         <!-- Edit Menu Items -->
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Declaration"
@@ -563,10 +564,10 @@
                retarget="true">
          </action>
          <action
-         		definitionId="net.sf.sveditor.ui.indent"
-         		id="net.sf.sveditor.ui.svIndentEditorAction"
-         		label="Indent"
-         		retarget="true">
+               definitionId="net.sf.sveditor.ui.indent"
+               id="net.sf.sveditor.ui.svIndentEditorAction"
+               label="Indent"
+               retarget="true">
          </action>
          <action
                definitionId="net.sf.sveditor.ui.override.tf.command"

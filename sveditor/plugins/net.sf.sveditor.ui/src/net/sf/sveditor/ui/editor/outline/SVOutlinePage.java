@@ -196,12 +196,9 @@ public class SVOutlinePage extends ContentOutlinePage
 	}
 	
 	public void updateCursorLocation(int offset) {
-		IDocument doc = fEditor.getDocument();
 		
 		int line = -1;
-		try {
-			line = doc.getLineOfOffset(offset);
-		} catch (BadLocationException e) { }
+		line = fEditor.getTextSel().getStartLine();
 		
 		if (line != -1 && fLinkWithEditor) {
 			line++;

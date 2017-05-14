@@ -396,14 +396,14 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		if (type == KW.TIMEPRECISION) {
 			SVDBTimePrecisionStmt precision = new SVDBTimePrecisionStmt();
 			precision.setArg1(num);
-			if (fLexer.peekOperator(OP.DIV)) {
-				fLexer.eatToken();
-				precision.setArg2(fLexer.readNumber());
-			}
-			parent.addChildItem(precision);
 		} else {
 			SVDBTimeUnitsStmt units = new SVDBTimeUnitsStmt();
 			units.setUnits(num);
+			// Optional second argument which is time precision
+			if (fLexer.peekOperator(OP.DIV)) {
+				fLexer.eatToken();
+				units.setPrecision(fLexer.readNumber());
+			}
 			parent.addChildItem(units);
 		}
 		

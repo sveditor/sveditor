@@ -28,16 +28,16 @@ public class TestParseTopLevelItems extends TestCase {
 			"endpackage\n" +
 			"\n" +
 			"// Can occur outside, due to our parse methodology\n" +
-			"timeprecision 1ns/1ps;\n" +
-			"timeunit 1fs;\n" +
+			"timeprecision 1ns;\n" +
+			"timeunit 1fs/1fs;\n" +
 			"\n" +
 			"module foo_module;\n" +
-			"	timeprecision 1ns/1ns;\n" +
-			"	timeunit 1fs;\n" +
+			"	timeprecision 1ns;\n" +
+			"	timeunit 1fs/1ns;\n" +
 			"endmodule\n" +
 			"\n" +
 			"interface foo_interface;\n" +
-			"	timeprecision 1ns/1ns;\n" +
+			"	timeprecision 1ns;\n" +
 			"	timeunit 1fs;\n" +
 			"endinterface\n" 
 			;
