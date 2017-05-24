@@ -67,6 +67,12 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 		IDocument doc = sv.getDocument();
 		StyledText text = fEditor.sourceViewer().getTextWidget();
 		ITextSelection tsel = (ITextSelection) fEditor.getSite().getSelectionProvider().getSelection();
+		
+		// TODO: This line added for #493 Editor: Find Next / Previous element doesn't behave when code folding is active 
+		// The work-around is to expand everything at this point.
+		// Ideally speaking the next line should be removed, and the "set_line" below should 
+		// go to the "real line" not the visible line which is happening at the moment
+		fEditor.getProjectionAnnotationModel().expandAll(0, doc.getNumberOfLines());
 
 		fStartline = tsel.getStartLine() + 1;
 		// Searching forward
