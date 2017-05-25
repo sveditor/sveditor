@@ -21,6 +21,7 @@ public class SVEditorPrefsConstants {
 	private static final String OUTLINE_SETTINGS = "OutlineSettings.";
 	private static final String TEMPLATE_SETTINGS = "TemplateSettings.";
 	private static final String INDEX_SETTINGS = "IndexSettings.";
+	private static final String SAVE_ACTIONS_SETTINGS = "SaveActionsSettings.";
 	private static final String FOLDING_SETTINGS = EDIT_SETTINGS + "Folding";
 	
 	public static final String P_DEFAULT_C 										= EDIT_SETTINGS + "defaultColorPreference";
@@ -115,4 +116,7 @@ public class SVEditorPrefsConstants {
 
 	// Code Style Preferences
 	public static final String P_SV_CODE_STYLE_PREFS								= INDEX_SETTINGS + "codeStylePrefs";
+	
+	// Save Actions Preferences
+	public static final String P_REMOVE_TRAILING_WHITESPACE							= SAVE_ACTIONS_SETTINGS + "removeTrailingWhitespace";
 }

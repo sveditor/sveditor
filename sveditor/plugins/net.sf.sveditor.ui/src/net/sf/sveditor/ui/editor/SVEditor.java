@@ -493,6 +493,14 @@ public class SVEditor extends TextEditor
 	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
+
+		// Strip whitespace if user elects remove it
+		IPreferenceStore ps = SVUiPlugin.getDefault().getPreferenceStore();
+		if (ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE))  {
+			IDocument doc = getDocument();
+			doc.set(doc.get().replaceAll("[ \\t]+\n", "\n"));
+		}
+
 		super.doSave(progressMonitor);
 	
 		if (!fIncrReparseEn) {

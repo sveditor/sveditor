@@ -106,7 +106,9 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_UNPROCESSED, true);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_HEADER_COMMENTS, true);
 		store.setDefault(SVEditorPrefsConstants.P_FOLDING_INIT_BLOCK_COMMENTS, false);
-		
+
+		// Save Actions
+		store.setDefault(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE, false);
 		
 		/**
 		 * Initialize template parameters

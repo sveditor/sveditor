@@ -22,6 +22,10 @@
 
 - #(494) Parser: Optional second parameter for timeunit 
 
+- #(493) Editor: Find Next / Previous element doesn't behave when code folding is active 
+
+- #(126) Feature request: remove trailing whitespace on save (Window>Preferences>SVEditor>SaveActions)
+ 
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 
