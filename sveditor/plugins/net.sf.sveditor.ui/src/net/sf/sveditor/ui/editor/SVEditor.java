@@ -161,6 +161,10 @@ import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+/**
+ * @author C08381
+ *
+ */
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
 			ISVDBIndexChangeListener, IResourceChangeListener,
@@ -495,35 +499,54 @@ public class SVEditor extends TextEditor
 	public void doSave(IProgressMonitor progressMonitor) {
 
 		IPreferenceStore ps = SVUiPlugin.getDefault().getPreferenceStore();
-		
+		int line_nr = 0;
+		int column = 0;
 		String delim = "\n";
+		boolean reset_cursor = false;
 		
-		// Newline at end of file
-		if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
+		
+		// If we are going to be modifying the file... we need to grab delimiters and current position in file
+		if ((ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE)) ||
+				(ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE)))  {
 			IDocument doc = getDocument();
+			ITextSelection sel= getTextSel();
+			try {
+				line_nr = doc.getLineOfOffset(sel.getOffset());
+			} catch (BadLocationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			try {
+				column = sel.getOffset() - doc.getLineOffset(line_nr);
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			try {
 				delim = doc.getLineDelimiter(0);
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		
+		// Newline at end of file
+		if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
+			IDocument doc = getDocument();
 			String str = doc.get();
 			if (!str.endsWith(delim))  {
 				str = str.concat(delim);
 				doc.set(str);
+				reset_cursor = true;
 			}
+			
 		}
 
 		// Strip whitespace if user elects remove it
 		if (ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE))  {
 			IDocument doc = getDocument();
-			try {
-				delim = doc.getLineDelimiter(0);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			reset_cursor = true;
 			String str = doc.get().replaceAll("[ \\t]+" + delim, delim);
 			
 			// Now check for any whitespace at the end of the string
@@ -533,6 +556,32 @@ public class SVEditor extends TextEditor
 			}
 			
 			doc.set(str);
+		}
+
+		// Replace the cursor as close as possible to original spot
+		if (reset_cursor)  {
+			IDocument doc = getDocument();
+			int offset = 0;
+			try {
+				offset = doc.getLineOffset(line_nr);
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			try {
+				int linelength = doc.getLineLength(line_nr)-1;
+				if (linelength > column)  {
+					offset += column;
+				}
+				else  {
+					offset += linelength;
+				}
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			getSourceViewer().getTextWidget().setCaretOffset(offset);
 		}
 
 		super.doSave(progressMonitor);
@@ -1218,6 +1267,12 @@ public class SVEditor extends TextEditor
 		}
 	}
 	
+	
+	/**
+	 * @param start - start offset
+	 * @param end - end offset (set to -1 to have no selection)
+	 * @param set_cursor
+	 */
 	public void setSelection(int start, int end, boolean set_cursor) {
 		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
 		
