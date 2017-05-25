@@ -502,13 +502,13 @@ public class SVEditor extends TextEditor
 		int line_nr = 0;
 		int column = 0;
 		String delim = "\n";
-		boolean reset_cursor = false;
 		
 		
-		// If we are going to be modifying the file... we need to grab delimiters and current position in file
-		if ((ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE)) ||
-				(ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE)))  {
+		// Only run the following relatively expensive piece of code if we want to do any actions "onSave"
+		if (ps.contains(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE) && ps.getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE))  {
 			IDocument doc = getDocument();
+			
+			// Figure out where we are at the moment so that we can replace the cursor close as possible to this spot
 			ITextSelection sel= getTextSel();
 			try {
 				line_nr = doc.getLineOfOffset(sel.getOffset());
@@ -529,61 +529,60 @@ public class SVEditor extends TextEditor
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			String str = doc.get();
+
+			// Newline at end of file
+			if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
+				if (!str.endsWith(delim))  {
+					str = str.concat(delim);
+				}
+			}
+			
+			// Strip whitespace if user elects remove it
+			if (ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE))  {
+				// Check for trailing whitespace within the file
+				str = str.replaceAll("[ \\t]+" + delim, delim);
+				
+				// Now check for any whitespace at the end of the string
+				// I believe the code below is cheaper than a regex
+ 				while((str.charAt(str.length()-1) == ' ') || (str.charAt(str.length()-1) == '\t'))  {
+					str = str.substring(0, str.length()-1);
+				}
+			}
+
+			// Only modify doc and update the cursor position if something actually changed... 
+			// How expensive is this check on large files?
+			if (!doc.get().equals(str))  {
+				
+				doc.set(str);
+				
+				// Replace the cursor as close as possible to original spot
+				int offset = 0;
+				try {
+					offset = doc.getLineOffset(line_nr);
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				try {
+					int linelength = doc.getLineLength(line_nr)-1;
+					if (linelength > column)  {
+						offset += column;
+					}
+					else  {
+						offset += linelength;
+					}
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				getSourceViewer().getTextWidget().setCaretOffset(offset);
+			}
+			
 		}
 		
-		// Newline at end of file
-		if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
-			IDocument doc = getDocument();
-			String str = doc.get();
-			if (!str.endsWith(delim))  {
-				str = str.concat(delim);
-				doc.set(str);
-				reset_cursor = true;
-			}
-			
-		}
-
-		// Strip whitespace if user elects remove it
-		if (ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE))  {
-			IDocument doc = getDocument();
-			reset_cursor = true;
-			String str = doc.get().replaceAll("[ \\t]+" + delim, delim);
-			
-			// Now check for any whitespace at the end of the string
-			// I believe the code below is cheaper than a regex
-			while((str.charAt(str.length()-1) == ' ') || (str.charAt(str.length()-1) == '\t'))  {
-				str = str.substring(0, str.length()-1);
-			}
-			
-			doc.set(str);
-		}
-
-		// Replace the cursor as close as possible to original spot
-		if (reset_cursor)  {
-			IDocument doc = getDocument();
-			int offset = 0;
-			try {
-				offset = doc.getLineOffset(line_nr);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			try {
-				int linelength = doc.getLineLength(line_nr)-1;
-				if (linelength > column)  {
-					offset += column;
-				}
-				else  {
-					offset += linelength;
-				}
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			getSourceViewer().getTextWidget().setCaretOffset(offset);
-		}
-
 		super.doSave(progressMonitor);
 	
 		if (!fIncrReparseEn) {

@@ -12,9 +12,9 @@
 
 package net.sf.sveditor.ui.pref;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.ColorFieldEditor;
-import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -22,19 +22,67 @@ import net.sf.sveditor.ui.SVUiPlugin;
 
 public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
+	private BooleanFieldEditor fPerformActionsOnSave;
+	private BooleanFieldEditor fRemoveTrailingWhitespace;
+	private BooleanFieldEditor fNewlineAtEndOfFile;
+	
 	public SVEditorSaveActionsPrefsPage() {
 		super(GRID);
 		setPreferenceStore(SVUiPlugin.getDefault().getPreferenceStore());
 	}
 
 	public void createFieldEditors() {
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE, "Remove trailing &whitespace", getFieldEditorParent()));
-		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE, "Ensure &newline at the end of file", getFieldEditorParent()));
+		fPerformActionsOnSave     = new BooleanFieldEditor(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE, "Per&form the selected actions on save", getFieldEditorParent());
+		fRemoveTrailingWhitespace = new BooleanFieldEditor(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE, "Remove trailing &whitespace", getFieldEditorParent());
+		fNewlineAtEndOfFile       = new BooleanFieldEditor(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE, "Ensure &newline at the end of file", getFieldEditorParent());
+
+		addField( fPerformActionsOnSave );
+		addField( fRemoveTrailingWhitespace );
+		addField( fNewlineAtEndOfFile );
+		
+		// Initialize various odds and ends
+		initialize();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public void init(IWorkbench workbench) {
+	}
+	
+	
+	protected void initialize()  {
+		super.initialize();
+		
+		fPerformActionsOnSave.setPropertyChangeListener((IPropertyChangeListener) new MyPropertyChangeListener(this));
+
+		// Check whether we should grey out some of these items based on the PerformActionOnSave
+		fRemoveTrailingWhitespace.setEnabled(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE), getFieldEditorParent());
+		fNewlineAtEndOfFile      .setEnabled(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE), getFieldEditorParent());
+	}
+	
+	private class MyPropertyChangeListener implements IPropertyChangeListener{
+
+		private FieldEditorPreferencePage page;
+
+		public MyPropertyChangeListener(FieldEditorPreferencePage nodePreferencePage) {
+			page = nodePreferencePage;
+		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent event) {
+			page.propertyChange(event);
+			if ((boolean) event.getNewValue())  {
+				boolean thing = SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE);
+			}
+			// Check whether we should grey out some of these items based on the PerformActionOnSave
+			fRemoveTrailingWhitespace.setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
+			fNewlineAtEndOfFile      .setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
+		}
+	}
+	void PropertyChange (PropertyChangeEvent event)  {
+		int i = 0;
+		
+		i ++;
 	}
 }
