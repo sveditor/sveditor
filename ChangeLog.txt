@@ -26,6 +26,8 @@
 
 - #(126) Feature request: remove trailing whitespace on save (Window>Preferences>SVEditor>SaveActions)
  
+- #(enh) Feature request: Format file on save (Window>Preferences>SVEditor>SaveActions)
+ 
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 

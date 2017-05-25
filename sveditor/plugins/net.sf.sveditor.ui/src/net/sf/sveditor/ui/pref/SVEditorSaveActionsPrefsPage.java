@@ -25,6 +25,7 @@ public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage impl
 	private BooleanFieldEditor fPerformActionsOnSave;
 	private BooleanFieldEditor fRemoveTrailingWhitespace;
 	private BooleanFieldEditor fNewlineAtEndOfFile;
+	private BooleanFieldEditor fFormatSourceCode;
 	
 	public SVEditorSaveActionsPrefsPage() {
 		super(GRID);
@@ -35,10 +36,12 @@ public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage impl
 		fPerformActionsOnSave     = new BooleanFieldEditor(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE, "Per&form the selected actions on save", getFieldEditorParent());
 		fRemoveTrailingWhitespace = new BooleanFieldEditor(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE, "Remove trailing &whitespace", getFieldEditorParent());
 		fNewlineAtEndOfFile       = new BooleanFieldEditor(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE, "Ensure &newline at the end of file", getFieldEditorParent());
+		fFormatSourceCode         = new BooleanFieldEditor(SVEditorPrefsConstants.P_FORMAT_SOURCE_CODE, "Format &source code", getFieldEditorParent());
 
 		addField( fPerformActionsOnSave );
 		addField( fRemoveTrailingWhitespace );
 		addField( fNewlineAtEndOfFile );
+		addField( fFormatSourceCode );
 		
 		// Initialize various odds and ends
 		initialize();
@@ -59,6 +62,7 @@ public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage impl
 		// Check whether we should grey out some of these items based on the PerformActionOnSave
 		fRemoveTrailingWhitespace.setEnabled(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE), getFieldEditorParent());
 		fNewlineAtEndOfFile      .setEnabled(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE), getFieldEditorParent());
+		fFormatSourceCode        .setEnabled(SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE), getFieldEditorParent());
 	}
 	
 	private class MyPropertyChangeListener implements IPropertyChangeListener{
@@ -72,17 +76,10 @@ public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage impl
 		@Override
 		public void propertyChange(PropertyChangeEvent event) {
 			page.propertyChange(event);
-			if ((boolean) event.getNewValue())  {
-				boolean thing = SVUiPlugin.getDefault().getPreferenceStore().getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE);
-			}
 			// Check whether we should grey out some of these items based on the PerformActionOnSave
 			fRemoveTrailingWhitespace.setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
 			fNewlineAtEndOfFile      .setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
+			fFormatSourceCode        .setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
 		}
-	}
-	void PropertyChange (PropertyChangeEvent event)  {
-		int i = 0;
-		
-		i ++;
 	}
 }

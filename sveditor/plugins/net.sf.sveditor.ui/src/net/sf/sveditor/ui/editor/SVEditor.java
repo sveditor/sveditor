@@ -127,10 +127,13 @@ import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.indent.ISVIndenter;
+import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
@@ -531,6 +534,7 @@ public class SVEditor extends TextEditor
 			}
 			
 			String str = doc.get();
+			
 
 			// Newline at end of file
 			if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
@@ -550,6 +554,18 @@ public class SVEditor extends TextEditor
 					str = str.substring(0, str.length()-1);
 				}
 			}
+			
+			// Indent if required
+			if (ps.contains(SVEditorPrefsConstants.P_FORMAT_SOURCE_CODE) && ps.getBoolean(SVEditorPrefsConstants.P_FORMAT_SOURCE_CODE))  {
+				// Run the indenter over the reference source
+				SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(new StringBuilder(str)));
+				ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+				indenter.init(scanner);
+				
+				StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
+				str = result.toString();
+			}
+
 
 			// Only modify doc and update the cursor position if something actually changed... 
 			// How expensive is this check on large files?
