@@ -29,6 +29,7 @@ public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage impl
 
 	public void createFieldEditors() {
 		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE, "Remove trailing &whitespace", getFieldEditorParent()));
+		addField( new BooleanFieldEditor(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE, "Ensure &newline at the end of file", getFieldEditorParent()));
 	}
 
 	/* (non-Javadoc)

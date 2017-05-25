@@ -119,4 +119,5 @@ public class SVEditorPrefsConstants {
 	
 	// Save Actions Preferences
 	public static final String P_REMOVE_TRAILING_WHITESPACE							= SAVE_ACTIONS_SETTINGS + "removeTrailingWhitespace";
+	public static final String P_NEWLINE_AT_END_OF_FILE								= SAVE_ACTIONS_SETTINGS + "ensureNewlineAtEndOfFile";
 }

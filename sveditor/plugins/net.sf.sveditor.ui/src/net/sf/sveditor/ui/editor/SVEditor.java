@@ -494,11 +494,45 @@ public class SVEditor extends TextEditor
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
 
-		// Strip whitespace if user elects remove it
 		IPreferenceStore ps = SVUiPlugin.getDefault().getPreferenceStore();
+		
+		String delim = "\n";
+		
+		// Newline at end of file
+		if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
+			IDocument doc = getDocument();
+			try {
+				delim = doc.getLineDelimiter(0);
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String str = doc.get();
+			if (!str.endsWith(delim))  {
+				str = str.concat(delim);
+				doc.set(str);
+			}
+		}
+
+		// Strip whitespace if user elects remove it
 		if (ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE))  {
 			IDocument doc = getDocument();
-			doc.set(doc.get().replaceAll("[ \\t]+\n", "\n"));
+			try {
+				delim = doc.getLineDelimiter(0);
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			String str = doc.get().replaceAll("[ \\t]+" + delim, delim);
+			
+			// Now check for any whitespace at the end of the string
+			// I believe the code below is cheaper than a regex
+			while((str.charAt(str.length()-1) == ' ') || (str.charAt(str.length()-1) == '\t'))  {
+				str = str.substring(0, str.length()-1);
+			}
+			
+			doc.set(str);
 		}
 
 		super.doSave(progressMonitor);

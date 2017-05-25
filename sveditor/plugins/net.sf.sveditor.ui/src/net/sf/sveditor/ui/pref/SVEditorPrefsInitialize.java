@@ -109,6 +109,7 @@ public class SVEditorPrefsInitialize extends AbstractPreferenceInitializer {
 
 		// Save Actions
 		store.setDefault(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE, false);
+		store.setDefault(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE, false);
 		
 		/**
 		 * Initialize template parameters
