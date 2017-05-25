@@ -515,22 +515,11 @@ public class SVEditor extends TextEditor
 			ITextSelection sel= getTextSel();
 			try {
 				line_nr = doc.getLineOfOffset(sel.getOffset());
+				column  = sel.getOffset() - doc.getLineOffset(line_nr);
+				delim   = doc.getLineDelimiter(0);
 			} catch (BadLocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
-			}
-			try {
-				column = sel.getOffset() - doc.getLineOffset(line_nr);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			try {
-				delim = doc.getLineDelimiter(0);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			
 			String str = doc.get();
@@ -561,9 +550,9 @@ public class SVEditor extends TextEditor
 				SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(new StringBuilder(str)));
 				ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 				indenter.init(scanner);
-				
-				StringBuilder result = new StringBuilder(indenter.indent(-1, -1));
-				str = result.toString();
+
+				// Indent code
+				str = indenter.indent(-1, -1);
 			}
 
 
@@ -575,14 +564,9 @@ public class SVEditor extends TextEditor
 				
 				// Replace the cursor as close as possible to original spot
 				int offset = 0;
-				try {
-					offset = doc.getLineOffset(line_nr);
-				} catch (BadLocationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				
 				try {
+					offset = doc.getLineOffset(line_nr);
 					int linelength = doc.getLineLength(line_nr)-1;
 					if (linelength > column)  {
 						offset += column;
