@@ -49,6 +49,7 @@ public class ObjectsTreeFactory {
 		Map<String,SVDBDeclCacheItem> globalPkgMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		Map<String,SVDBDeclCacheItem> ifaceMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		Map<String,SVDBDeclCacheItem> moduleMap = new HashMap<String, SVDBDeclCacheItem>() ;
+		Map<String,SVDBDeclCacheItem> classMap = new HashMap<String, SVDBDeclCacheItem>() ;
 		
 		ObjectsTreeNode topNode  = new ObjectsTreeNode(null, "Top") ;
 		
@@ -119,6 +120,23 @@ public class ObjectsTreeFactory {
 				}
 			}
 		}
+		
+		ObjectsTreeNode classesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.CLASSES_NODE) ;
+		topNode.addChild(classesNode) ;
+		classesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.CLASSES_NODE, SVDBItemType.ClassDecl, false)) ;
+		
+		for(ISVDBIndex svdbIndex: fProjectIndexList) {
+			List<SVDBDeclCacheItem> classes = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(), null, new SVDBFindClassMatcher()) ;
+			if(classes != null) {
+				for(SVDBDeclCacheItem cls: classes) {
+					if(!classMap.containsKey(cls.getName())) {
+						ObjectsTreeNode classNode = new ObjectsTreeNode(modulesNode, cls.getName(), cls) ;  
+						classesNode.addChild(classNode) ; 
+						classMap.put(cls.getName(),cls) ;
+					}
+				}
+			}
+		}	
 		
 		ObjectsTreeNode interfacesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.INTERFACES_NODE) ;
 		topNode.addChild(interfacesNode) ;

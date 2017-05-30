@@ -31,7 +31,7 @@ public class NewFilelistWizard extends Wizard {
 		addPage(fNamePage);
 
 		SVDBScopedFileSystemProvider fs_provider = new SVDBScopedFileSystemProvider();
-		fs_provider.init(fRoot.getAbsolutePath());
+		fs_provider.init(fRoot.getAbsolutePath(), fProjectName);
 		
 		fAddFilesPage = new NewFileListWizardAddFilesPage(
 				new SVDBFileSystemContentProvider(),
@@ -42,7 +42,7 @@ public class NewFilelistWizard extends Wizard {
 	
 		// The path used by AddFilesPage is /<project_name>
 		fAddFilesPage.setPrefix("./", 
-				"${workspace_loc}".length()+fProjectName.length());
+				fProjectName.length()+2);
 		addPage(fAddFilesPage);
 	}
 	

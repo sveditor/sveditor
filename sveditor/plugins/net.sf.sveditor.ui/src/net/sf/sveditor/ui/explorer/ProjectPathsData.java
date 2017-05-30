@@ -64,6 +64,7 @@ public class ProjectPathsData implements IProjectPathsData {
 			fPaths.add(new PackagesExplorerData(this));
 			fPaths.add(new ModulesExplorerData(this));
 			fPaths.add(new ClassesExplorerData(this));
+			fPaths.add(new InterfacesExplorerData(this));
 		}
 	}
 	

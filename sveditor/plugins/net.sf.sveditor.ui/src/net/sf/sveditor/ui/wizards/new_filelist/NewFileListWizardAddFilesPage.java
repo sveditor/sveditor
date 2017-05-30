@@ -91,7 +91,8 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 		if (fOrganizeFiles) {
 			for (String incdir : fArgFileCreator.getIncDirs()) {
 				if (fPrefix != null) {
-					incdir = fPrefix + incdir.substring(fPrefixSubLen);
+					String incdir2 = fPrefix + incdir.substring(fPrefixSubLen);
+					incdir = incdir2;
 				}
 				sb.append("+incdir+" + incdir + "\n");
 			}

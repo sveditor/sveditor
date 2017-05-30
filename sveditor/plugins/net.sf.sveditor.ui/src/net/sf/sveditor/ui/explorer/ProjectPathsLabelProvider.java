@@ -54,6 +54,8 @@ public class ProjectPathsLabelProvider extends SVTreeLabelProvider {
 			return SVDBIconUtils.getIcon(SVDBItemType.ModuleDecl);
 		} else if (element instanceof ClassesExplorerData) {
 			return SVDBIconUtils.getIcon(SVDBItemType.ClassDecl);
+		} else if (element instanceof InterfacesExplorerData) {
+			return SVDBIconUtils.getIcon(SVDBItemType.InterfaceDecl);
 		} else if (element instanceof DeclCacheItem) {
 			return super.getImage(((DeclCacheItem)element).getItem());
 		}

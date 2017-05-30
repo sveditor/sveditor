@@ -31,7 +31,9 @@ public class SVParameterValueAssignmentParser extends SVParserBase {
 		// StringBuilder v = new StringBuilder();
 
 		if (is_parameter) {
-			fLexer.readOperator(OP.HASH);
+			if (fLexer.peekOperator(OP.HASH)) {
+				fLexer.eatToken();
+			}
 		}
 		fLexer.readOperator(OP.LPAREN);
 		while (fLexer.peek() != null && !fLexer.peekOperator(OP.RPAREN)) {

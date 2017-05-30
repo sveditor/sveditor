@@ -27,6 +27,7 @@ public class ObjectsTreeNode {
 	public static String MODULES_NODE = "Modules" ;
 	public static String INTERFACES_NODE = "Interfaces" ;
 	public static String PACKAGES_NODE = "Packages" ;
+	public static String CLASSES_NODE = "Classes";
 	public static String ROOT_PKG = "root" ;
 	
 	public ObjectsTreeNode(
