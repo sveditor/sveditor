@@ -49,6 +49,21 @@ public class TestParseClassDecl extends TestCase {
 		
 		runTest(content, new String[] {"top", "foobar"});
 	}
+
+	public void testParseClassParamExtNoHash() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+				"package my_pkg;\n" +
+				"	class base;\n" +
+				"	endclass\n" +
+				"\n" +
+				"	class ext extends base();\n" +
+				"	endclass\n" +
+				"endpackage\n"
+				;
+		
+		runTest(content, new String[] {"my_pkg", "base", "ext"});
+	}
 	
 	private void runTest(
 			String			doc,

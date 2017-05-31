@@ -2,11 +2,10 @@
 ------------------------------------------------------------------------------
 -- 2.0.0 Release --
 
-- #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
-- #(enh) - Add Classes and Modules sub-sections to project explorer
+- #(enh) - Add Classes, Modules, and Interfaces sub-sections to project explorer
 
-- #(enh) - Reorganize Structure View for 
+- #(enh) - Add Classes node to the Objects view
 
 - #(487) Indent of forever body is incorrect
 
@@ -14,7 +13,7 @@
 
 - #(485) Indent when adding Ndocs using Alt+Shift+J incorrect
 
-- Enh #(20) Auto-indent: <TAB> at line begin should set correct indent
+- #(ehh - 20) Auto-indent: <TAB> at line begin should set correct indent
 
 - #(491) Outline: Tracking of cursor has issues when code is folded 
 
@@ -28,6 +27,15 @@
  
 - #(enh) Feature request: Format file on save (Window>Preferences>SVEditor>SaveActions)
  
+- #(nobug) - Support class extension from a parameterized class with
+ '#' omitted. For example: class ext extends base (1,2,3);
+
+- #(enh) - Add support for exporting Custom Code Templates with preferences
+
+? #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+? #(enh) - Reorganize Structure View for 
+
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
 

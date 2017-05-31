@@ -784,7 +784,7 @@ public class SVDataTypeParser extends SVParserBase {
 			SVDBTypeInfoClassItem class_item = new SVDBTypeInfoClassItem(id);
 			class_type.addClassItem(class_item);
 			
-			if (fLexer.peekOperator(OP.HASH)) {
+			if (fLexer.peekOperator(OP.HASH, OP.LPAREN)) {
 				SVDBParamValueAssignList param_assign = parsers().paramValueAssignParser().parse(true);
 				class_item.setParamAssignList(param_assign);
 			}

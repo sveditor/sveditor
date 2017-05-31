@@ -24,12 +24,13 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 public class ObjectsViewContentProvider implements ITreeContentProvider {
-	private static final Object 		fEmptyArray[] = new Object[0];
-	private SVDBIndexRegistry fIndexRegistry ;
+	private static final Object 	fEmptyArray[] = new Object[0];
+	private SVDBIndexRegistry 		fIndexRegistry ;
 	
 	private ObjectsTreeNode         fNodeModules;
 	private ObjectsTreeNode         fNodeInterface;
 	private ObjectsTreeNode         fNodePackages;
+	private ObjectsTreeNode			fNodeClasses;
 	
 	public ObjectsTreeNode getModulesNode() {
 		return fNodeModules ;
@@ -39,6 +40,10 @@ public class ObjectsViewContentProvider implements ITreeContentProvider {
 	}
 	public ObjectsTreeNode getPackagesNode() {
 		return fNodePackages ;
+	}
+	
+	public ObjectsTreeNode getClassesNode() {
+		return fNodeClasses;
 	}
 	
 	public Object[] getChildren(Object parentElement) {
@@ -74,7 +79,8 @@ public class ObjectsViewContentProvider implements ITreeContentProvider {
 		} else {
 			fNodeInterface = topNode.getChildByName(ObjectsTreeNode.INTERFACES_NODE) ;
 			fNodeModules = topNode.getChildByName(ObjectsTreeNode.MODULES_NODE) ;
-			fNodePackages = topNode.getChildByName(ObjectsTreeNode.PACKAGES_NODE) ;			
+			fNodePackages = topNode.getChildByName(ObjectsTreeNode.PACKAGES_NODE) ;
+			fNodeClasses = topNode.getChildByName(ObjectsTreeNode.CLASSES_NODE);
 			return topNode.getChildren().toArray() ;
 		}
 		
