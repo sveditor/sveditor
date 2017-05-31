@@ -1,7 +1,13 @@
 
 ------------------------------------------------------------------------------
--- 2.0.0 Release --
+-- 2.0.1 Release --
 
+? #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+? #(enh) - Reorganize Structure View for 
+
+------------------------------------------------------------------------------
+-- 2.0.0 Release --
 
 - #(enh) - Add Classes, Modules, and Interfaces sub-sections to project explorer
 
@@ -32,9 +38,6 @@
 
 - #(enh) - Add support for exporting Custom Code Templates with preferences
 
-? #(enh) - Add scrollbar to New Class "Add to Package" wizard
-
-? #(enh) - Reorganize Structure View for 
 
 ------------------------------------------------------------------------------
 -- 1.9.9 Release --
