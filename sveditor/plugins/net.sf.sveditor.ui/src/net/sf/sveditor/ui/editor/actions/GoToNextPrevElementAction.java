@@ -13,23 +13,19 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.ui.texteditor.TextEditorAction;
+
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBGenerateBlock;
-import net.sf.sveditor.core.db.SVDBGenerateIf;
 import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.editor.SVEditor;
-
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class GoToNextPrevElementAction extends TextEditorAction {
 	private SVEditor fEditor;
@@ -67,7 +63,15 @@ public class GoToNextPrevElementAction extends TextEditorAction {
 		IDocument doc = sv.getDocument();
 		StyledText text = fEditor.sourceViewer().getTextWidget();
 		ITextSelection tsel = (ITextSelection) fEditor.getSite().getSelectionProvider().getSelection();
-
+		
+		// TODO: This line added for #493 Editor: Find Next / Previous element doesn't behave when code folding is active 
+		// The work-around is to expand everything at this point.
+		// Ideally speaking the next line should be removed, and the "set_line" below should 
+		// go to the "real line" not the visible line which is happening at the moment
+		ProjectionAnnotationModel model = fEditor.getProjectionAnnotationModel();
+		if (model != null)
+			model.expandAll(0, doc.getNumberOfLines());
+		
 		fStartline = tsel.getStartLine() + 1;
 		// Searching forward
 		if (fDirection)

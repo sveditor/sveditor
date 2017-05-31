@@ -2,6 +2,7 @@
 ------------------------------------------------------------------------------
 -- 2.0.0 Release --
 
+
 - #(enh) - Add Classes, Modules, and Interfaces sub-sections to project explorer
 
 - #(enh) - Add Classes node to the Objects view
@@ -20,6 +21,12 @@
 
 - #(494) Parser: Optional second parameter for timeunit 
 
+- #(493) Editor: Find Next / Previous element doesn't behave when code folding is active 
+
+- #(126) Feature request: remove trailing whitespace on save (Window>Preferences>SVEditor>SaveActions)
+ 
+- #(enh) Feature request: Format file on save (Window>Preferences>SVEditor>SaveActions)
+ 
 - #(nobug) - Support class extension from a parameterized class with
  '#' omitted. For example: class ext extends base (1,2,3);
 

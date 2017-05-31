@@ -127,10 +127,13 @@ import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
 import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.indent.ISVIndenter;
+import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
@@ -161,6 +164,10 @@ import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
 import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+/**
+ * @author C08381
+ *
+ */
 public class SVEditor extends TextEditor 
 	implements ISVDBProjectSettingsListener, ISVEditor, ILogLevel, 
 			ISVDBIndexChangeListener, IResourceChangeListener,
@@ -493,6 +500,89 @@ public class SVEditor extends TextEditor
 	
 	@Override
 	public void doSave(IProgressMonitor progressMonitor) {
+
+		IPreferenceStore ps = SVUiPlugin.getDefault().getPreferenceStore();
+		int line_nr = 0;
+		int column = 0;
+		String delim = "\n";
+		
+		
+		// Only run the following relatively expensive piece of code if we want to do any actions "onSave"
+		if (ps.contains(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE) && ps.getBoolean(SVEditorPrefsConstants.P_PERFORM_ACTIONS_ON_SAVE))  {
+			IDocument doc = getDocument();
+			
+			// Figure out where we are at the moment so that we can replace the cursor close as possible to this spot
+			ITextSelection sel= getTextSel();
+			try {
+				line_nr = doc.getLineOfOffset(sel.getOffset());
+				column  = sel.getOffset() - doc.getLineOffset(line_nr);
+				delim   = doc.getLineDelimiter(0);
+			} catch (BadLocationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			String str = doc.get();
+			
+
+			// Newline at end of file
+			if (ps.contains(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE) && ps.getBoolean(SVEditorPrefsConstants.P_NEWLINE_AT_END_OF_FILE))  {
+				if (!str.endsWith(delim))  {
+					str = str.concat(delim);
+				}
+			}
+			
+			// Strip whitespace if user elects remove it
+			if (ps.contains(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE) && ps.getBoolean(SVEditorPrefsConstants.P_REMOVE_TRAILING_WHITESPACE))  {
+				// Check for trailing whitespace within the file
+				str = str.replaceAll("[ \\t]+" + delim, delim);
+				
+				// Now check for any whitespace at the end of the string
+				// I believe the code below is cheaper than a regex
+ 				while((str.charAt(str.length()-1) == ' ') || (str.charAt(str.length()-1) == '\t'))  {
+					str = str.substring(0, str.length()-1);
+				}
+			}
+			
+			// Indent if required
+			if (ps.contains(SVEditorPrefsConstants.P_FORMAT_SOURCE_CODE) && ps.getBoolean(SVEditorPrefsConstants.P_FORMAT_SOURCE_CODE))  {
+				// Run the indenter over the reference source
+				SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(new StringBuilder(str)));
+				ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+				indenter.init(scanner);
+
+				// Indent code
+				str = indenter.indent(-1, -1);
+			}
+
+
+			// Only modify doc and update the cursor position if something actually changed... 
+			// How expensive is this check on large files?
+			if (!doc.get().equals(str))  {
+				
+				doc.set(str);
+				
+				// Replace the cursor as close as possible to original spot
+				int offset = 0;
+				
+				try {
+					offset = doc.getLineOffset(line_nr);
+					int linelength = doc.getLineLength(line_nr)-1;
+					if (linelength > column)  {
+						offset += column;
+					}
+					else  {
+						offset += linelength;
+					}
+				} catch (BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				getSourceViewer().getTextWidget().setCaretOffset(offset);
+			}
+			
+		}
+		
 		super.doSave(progressMonitor);
 	
 		if (!fIncrReparseEn) {
@@ -1176,6 +1266,12 @@ public class SVEditor extends TextEditor
 		}
 	}
 	
+	
+	/**
+	 * @param start - start offset
+	 * @param end - end offset (set to -1 to have no selection)
+	 * @param set_cursor
+	 */
 	public void setSelection(int start, int end, boolean set_cursor) {
 		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
 		

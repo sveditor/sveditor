@@ -766,6 +766,12 @@
       </page>
       <page
             category="net.sf.sveditor.ui.page1"
+            class="net.sf.sveditor.ui.pref.SVEditorSaveActionsPrefsPage"
+            id="net.sf.sveditor.ui.svEditorSaveActionsPrefsPage"
+            name="Save Actions">
+      </page>
+      <page
+            category="net.sf.sveditor.ui.page1"
             class="net.sf.sveditor.ui.pref.SVTemplatePrefsPage"
             id="net.sf.sveditor.ui.svEditorTemplates"
             name="Code Templates">
