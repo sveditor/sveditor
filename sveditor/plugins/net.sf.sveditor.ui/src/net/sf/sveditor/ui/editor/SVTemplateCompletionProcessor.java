@@ -174,7 +174,7 @@ public class SVTemplateCompletionProcessor extends TemplateCompletionProcessor
 //			System.out.println("name=" + t.getName() + " prefix=" + prefix);
 			if (t.getName().toLowerCase().startsWith(prefix.toLowerCase())) {
 				ICompletionProposal p;
-				System.out.println("  ADD");
+//				System.out.println("  ADD");
 				p = createProposal(t, context, region, getRelevance(t, prefix));
 				template_proposals.add(p);
 			}

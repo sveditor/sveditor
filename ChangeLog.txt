@@ -7,6 +7,12 @@
 ? #(enh) - Reorganize Structure View for 
 
 ------------------------------------------------------------------------------
+-- 2.0.0.1 Release --
+
+- #(496) - Move back to building SVEditor Java7  (vs Java8)
+
+
+------------------------------------------------------------------------------
 -- 2.0.0 Release --
 
 - #(enh) - Add Classes, Modules, and Interfaces sub-sections to project explorer
