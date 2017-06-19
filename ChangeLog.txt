@@ -2,9 +2,11 @@
 ------------------------------------------------------------------------------
 -- 2.0.1 Release --
 
-? #(enh) - Add scrollbar to New Class "Add to Package" wizard
+- #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
-? #(enh) - Reorganize Structure View for 
+- #(enh) - Reorganize Structure View for
+ 
+- #(497) Editor scrolls to start of file when saving with "Remove trailing whitespace" enabled
 
 ------------------------------------------------------------------------------
 -- 2.0.0.1 Release --
