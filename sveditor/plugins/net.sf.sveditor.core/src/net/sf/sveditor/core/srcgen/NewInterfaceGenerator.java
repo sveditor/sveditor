@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class NewInterfaceGenerator {
 	private TagProcessor		fTagProc;
@@ -40,11 +41,7 @@ public class NewInterfaceGenerator {
 			IProgressMonitor	monitor) {
 		fTagProc.setTag("filename", file_path.getName());
 		fTagProc.setTag("type", "Interface");
-		
-		if (monitor == null) {
-			monitor = new NullProgressMonitor();
-		}
-		monitor.beginTask("Creating interface", 100);
+		SubMonitor sm = SubMonitor.convert(monitor, "Creating interface", 100);
 		
 		String template = "${file_header}\n";
 
@@ -55,11 +52,11 @@ public class NewInterfaceGenerator {
 		template += " */\n";
 		template += "interface " + ifc_name;
 
-		monitor.worked(25);
+		sm.worked(25);
 		
 		template += ";\n";
 		
-		monitor.worked(25);
+		sm.worked(25);
 		
 		template += "\n\n";
 		template += "endinterface\n";
@@ -68,14 +65,14 @@ public class NewInterfaceGenerator {
 		
 		template = fTagProc.process(template);
 
-		monitor.subTask("Indenting content");
+		sm.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(template)));
 		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		final StringInputStream in = new StringInputStream(indenter.indent());
 		
-		monitor.worked(25);
+		sm.worked(25);
 		
 		try {
 			if (file_path.exists()) {
@@ -85,7 +82,7 @@ public class NewInterfaceGenerator {
 			}
 		} catch (CoreException e) {}
 		
-		monitor.done();
+		sm.done();
 	}
 	
 }

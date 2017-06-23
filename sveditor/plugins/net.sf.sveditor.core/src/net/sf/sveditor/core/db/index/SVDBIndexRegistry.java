@@ -351,9 +351,9 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 					i.rebuildIndex(sm.newChild(1));
 				}
 				else
-					monitor.worked(1);
+					sm.worked(1);
 			}
-			monitor.done();
+			sm.done();
 		}
 	}
 

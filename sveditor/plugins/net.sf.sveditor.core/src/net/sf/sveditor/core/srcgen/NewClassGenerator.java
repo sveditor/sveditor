@@ -36,6 +36,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class NewClassGenerator {
 	
@@ -55,10 +56,7 @@ public class NewClassGenerator {
 		fTagProc.setTag("filename", file_path.getName());
 		fTagProc.setTag("type", "Class");
 		
-		if (monitor == null) {
-			monitor = new NullProgressMonitor();
-		}
-		monitor.beginTask("Creating class", 100);
+		SubMonitor sm = SubMonitor.convert(monitor, "Creating class", 100);
 		
 //		subst_filename = SVCharacter.toSVIdentifier(file_path.getName());
 		
@@ -74,7 +72,7 @@ public class NewClassGenerator {
 		SVDBClassDecl superclass_decl = null;
 		if (superclass != null && 
 				!superclass.trim().equals("")) {
-			monitor.subTask("Finding super-class");
+			sm.subTask("Finding super-class");
 			template += " extends " + superclass;
 		
 			if (index_it != null) {
@@ -85,7 +83,7 @@ public class NewClassGenerator {
 				}
 			}
 		}
-		monitor.worked(25);
+		sm.worked(25);
 		
 		if (superclass_decl != null) {
 			if (superclass_decl.getParameters() != null && 
@@ -104,7 +102,7 @@ public class NewClassGenerator {
 		template += ";\n";
 		
 		if (implement_new) {
-			monitor.subTask("Setting up constructor");
+			sm.subTask("Setting up constructor");
 			SVDBTask new_func = null;
 			if (superclass_decl != null) {
 				for (ISVDBChildItem it : superclass_decl.getChildren()) {
@@ -171,7 +169,7 @@ public class NewClassGenerator {
 			template += "endfunction\n";
 			
 		}
-		monitor.worked(25);
+		sm.worked(25);
 		
 		template += "\n\n";
 		template += "endclass\n";
@@ -183,14 +181,14 @@ public class NewClassGenerator {
 		
 		template = fTagProc.process(template);
 		
-		monitor.subTask("Indenting content");
+		sm.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(template)));
 		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		final StringInputStream in = new StringInputStream(indenter.indent());
 		
-		monitor.worked(25);
+		sm.worked(25);
 		
 		try {
 			if (file_path.exists()) {
@@ -200,7 +198,7 @@ public class NewClassGenerator {
 			}
 		} catch (CoreException e) {}
 		
-		monitor.done();
+		sm.done();
 	}
 	
 }

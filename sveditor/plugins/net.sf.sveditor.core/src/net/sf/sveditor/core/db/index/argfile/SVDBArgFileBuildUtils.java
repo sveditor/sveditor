@@ -71,7 +71,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 					+ "ms");
 		}
 
-		if (monitor.isCanceled()) {
+		if (subMonitor.isCanceled()) {
 			fLog.debug(LEVEL_MIN, "Index " + build_data.getBaseLocation() + " cancelled");
 			return;
 		}
@@ -123,12 +123,12 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			}
 			
 			if (fs_provider.fileExists(path) && !fs_provider.isDir(path)) {
-				monitor.subTask("Parse " + path);
+				subMonitor.subTask("Parse " + path);
 				
 				Map<String, SVDBMacroDef> new_defines = parseFile(
 						path, build_data, parent, defines);
 				
-				if (monitor.isCanceled()) {
+				if (subMonitor.isCanceled()) {
 					fLog.debug(LEVEL_MIN, "Index " + build_data.getBaseLocation() + " cancelled");
 					return;
 				}

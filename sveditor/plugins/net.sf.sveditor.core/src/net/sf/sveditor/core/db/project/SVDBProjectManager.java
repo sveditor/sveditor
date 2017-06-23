@@ -258,19 +258,19 @@ public class SVDBProjectManager implements
 			sm.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
 			
 			for (ISVDBIndex i : index_l) {
-				monitor.subTask("Build " + i.getBaseLocation());
+				sm.subTask("Build " + i.getBaseLocation());
 				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(i);
 				
 				fLog.debug(LEVEL_MID, "Rebuild index " + i.getBaseLocation());
 				
 				i.execOp(sm.newChild(1000), 
 						new SVDBClearMarkersOp(), false);
-				if (monitor.isCanceled()) {
+				if (sm.isCanceled()) {
 					break;
 				}
 				
 				i.execIndexChangePlan(sm.newChild(10000), plan);
-				if (monitor.isCanceled()) {
+				if (sm.isCanceled()) {
 					break;
 				}
 
