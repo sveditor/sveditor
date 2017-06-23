@@ -34,13 +34,13 @@ public class SVDBLinkedArgFileIndexBuildData implements
 	@Override
 	public SVDBFile getFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret;
-		SubMonitor sm = SubMonitor.convert(monitor, 2);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		
-		if ((ret = fPrimary.getFile(sm.newChild(1), path)) == null) {
-			ret = fBacking.getFile(sm.newChild(1), path);
+		if ((ret = fPrimary.getFile(subMonitor.newChild(1), path)) == null) {
+			ret = fBacking.getFile(subMonitor.newChild(1), path);
 		}
 		else  {
-			sm.done();
+			subMonitor.done();
 		}
 		
 		return ret;

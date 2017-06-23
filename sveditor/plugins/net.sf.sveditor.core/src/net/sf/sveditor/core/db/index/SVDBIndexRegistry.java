@@ -209,7 +209,6 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			String 					type,
 			SVDBIndexConfig			config) {
 		ISVDBIndex ret = null;
-		SubMonitor sm = SubMonitor.convert(monitor, 1);
 		
 		base_location = SVFileUtils.normalize(base_location);
 		
@@ -258,7 +257,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			fLog.debug(LEVEL_MIN, "    Index " + base_location + 
 					" does not exist -- creating: " + ret);
 			
-			ret.init(sm, SVCorePlugin.getDefault().getIndexBuilder());
+			ret.init(monitor, SVCorePlugin.getDefault().getIndexBuilder());
 			
 			synchronized (fIndexList) {
 				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
@@ -302,7 +301,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		ISVDBIndex ret = null;
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
-		SubMonitor sm = SubMonitor.convert(monitor, 1);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 		
 		synchronized (fIndexList) {
 			for (ISVDBIndex i : fIndexList) {
@@ -326,7 +325,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			// See about creating a new index
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
 			
-			ret.init(sm.newChild(1), SVCorePlugin.getDefault().getIndexBuilder());
+			ret.init(subMonitor.newChild(1), SVCorePlugin.getDefault().getIndexBuilder());
 			
 			synchronized (fIndexList) {
 				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
@@ -341,19 +340,19 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	
 	public void rebuildIndex(IProgressMonitor monitor, String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
-		SubMonitor sm = SubMonitor.convert(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		clearStaleIndexes();
 		
 		synchronized (fIndexList) {
-			sm.beginTask("rebuildIndex", fIndexList.size());
+			subMonitor.beginTask("rebuildIndex", fIndexList.size());
 			for (ISVDBIndex i : fIndexList) {
 				if (i.getProject().equals(project)) {
-					i.rebuildIndex(sm.newChild(1));
+					i.rebuildIndex(subMonitor.newChild(1));
 				}
 				else
-					sm.worked(1);
+					subMonitor.worked(1);
 			}
-			sm.done();
+			subMonitor.done();
 		}
 	}
 

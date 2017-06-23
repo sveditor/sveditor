@@ -50,7 +50,7 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 	@Override
 	public IStatus run(IProgressMonitor monitor) {
 		SVDBProjectData pdata = null;
-		SubMonitor sm = SubMonitor.convert(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		if (SVDBProjectManager.isSveProject(fProjectSav)) {
@@ -79,7 +79,7 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 		
 		if (SVDBProjectManager.isSveProject(fProject)) {
 			
-			sm.beginTask("Opening SV Project " + fProject.getName(), 1000);
+			subMonitor.beginTask("Opening SV Project " + fProject.getName(), 1000);
 			
 			if (!pdata.haveDotSvProject()) {
 				pdata.init();
@@ -89,11 +89,11 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 			
 			try {
 				fProject.build(IncrementalProjectBuilder.FULL_BUILD, 
-					sm.newChild(1000));
+					subMonitor.newChild(1000));
 			} catch (CoreException e) {
 				fLog.error("Project build failed", e);
 			}
-			sm.done();
+			subMonitor.done();
 		} else {
 			fLog.debug(LEVEL_MIN, "  Project " + fProject.getName() + " not an SVE project");
 		}

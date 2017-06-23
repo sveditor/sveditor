@@ -41,18 +41,18 @@ public class SVProjectDelayedBuild extends Job implements ISVProjectDelayedOp {
 	protected IStatus run(IProgressMonitor monitor) {
 		fProjectMgr.startDelayedBuild(this);
 		
-		SubMonitor sm = SubMonitor.convert(monitor, "Build Projects", 10000*fProjects.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Build Projects", 10000*fProjects.size());
 		
 		for (IProject p : fProjects) {
 			try {
 				p.build(IncrementalProjectBuilder.FULL_BUILD, 
-					sm.newChild(10000));
+					subMonitor.newChild(10000));
 			} catch (CoreException e) {
 				fLog.error("Build of project " + p.getName() + " failed", e);
 			}
 		}
 		
-		sm.done();
+		subMonitor.done();
 	
 		return Status.OK_STATUS;
 	}

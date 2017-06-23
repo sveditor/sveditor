@@ -126,11 +126,11 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
-		SubMonitor sm = SubMonitor.convert(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		synchronized (fIndexIteratorList) {
-			sm.setWorkRemaining(fIndexIteratorList.size());
+			subMonitor.setWorkRemaining(fIndexIteratorList.size());
 			for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-				ret = index_it.findFile(sm.newChild(1), path);
+				ret = index_it.findFile(subMonitor.newChild(1), path);
 				if (ret != null) {
 					break;
 				}
@@ -141,11 +141,11 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 
 	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
-		SubMonitor sm = SubMonitor.convert(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		synchronized (fIndexIteratorList) {
-			sm.setWorkRemaining(fIndexIteratorList.size());
+			subMonitor.setWorkRemaining(fIndexIteratorList.size());
 			for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-				ret = index_it.findPreProcFile(sm.newChild(1), path);
+				ret = index_it.findPreProcFile(subMonitor.newChild(1), path);
 				if (ret != null) {
 					break;
 				}
@@ -156,19 +156,19 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 	
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
-		SubMonitor sm = SubMonitor.convert(monitor, fIndexIteratorList.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fIndexIteratorList.size());
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
 		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-			List<SVDBDeclCacheItem> tmp = index_it.findPackageDecl(sm.newChild(1), pkg_item);
+			List<SVDBDeclCacheItem> tmp = index_it.findPackageDecl(subMonitor.newChild(1), pkg_item);
 			ret.addAll(tmp);
 		}
 		return ret;
 	}
 
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		SubMonitor sm = SubMonitor.convert(monitor, fIndexIteratorList.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fIndexIteratorList.size());
 		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-			SVDBFile tmp = index_it.getDeclFile(sm.newChild(1), item);
+			SVDBFile tmp = index_it.getDeclFile(subMonitor.newChild(1), item);
 			if (tmp != null) {
 				return tmp;
 			}
@@ -177,9 +177,9 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 	}
 
 	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		SubMonitor sm = SubMonitor.convert(monitor, fIndexIteratorList.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fIndexIteratorList.size());
 		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-			SVDBFile tmp = index_it.getDeclFilePP(sm.newChild(1), item);
+			SVDBFile tmp = index_it.getDeclFilePP(subMonitor.newChild(1), item);
 			if (tmp != null) {
 				return tmp;
 			}
@@ -191,9 +191,9 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 			IProgressMonitor monitor, 
 			ISVDBIndexOperation op,
 			boolean sync) {
-		SubMonitor sm = SubMonitor.convert(monitor, fIndexIteratorList.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fIndexIteratorList.size());
 		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
-			index_it.execOp(sm.newChild(1), op, sync);
+			index_it.execOp(subMonitor.newChild(1), op, sync);
 		}
 	}
 

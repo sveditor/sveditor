@@ -274,17 +274,17 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException,
 				InterruptedException {
-					SubMonitor sm = SubMonitor.convert(monitor);
+					SubMonitor subMonitor = SubMonitor.convert(monitor);
 					int workremaining = 50;
 					
 					if (fOrganizeFiles) workremaining = 100;
 					
-					sm.setWorkRemaining(50);
+					subMonitor.setWorkRemaining(50);
 					
-					fArgFileCreator.discover_files(sm.newChild(50));
+					fArgFileCreator.discover_files(subMonitor.newChild(50));
 					
 					if (fOrganizeFiles) {
-						fArgFileCreator.organize_files(sm.newChild(50));
+						fArgFileCreator.organize_files(subMonitor.newChild(50));
 					}
 					
 				}

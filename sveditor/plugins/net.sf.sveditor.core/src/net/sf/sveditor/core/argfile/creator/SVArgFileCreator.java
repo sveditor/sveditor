@@ -155,6 +155,8 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 				break;
 			}
 		}
+		
+		subMonitor.done();
 	}
 	
 	private void discover_files(IProgressMonitor monitor, String path) {
@@ -185,6 +187,8 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 				subMonitor.worked(100);
 			}
 		}
+		
+		subMonitor.done();
 	}
 
 	/**
@@ -217,6 +221,8 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 			}
 			subMonitor.worked(1);
 		}
+		
+		subMonitor.done();
 	
 	}
 	

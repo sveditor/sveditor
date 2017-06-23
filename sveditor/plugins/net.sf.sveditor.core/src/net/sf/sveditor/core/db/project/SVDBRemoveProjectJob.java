@@ -25,16 +25,16 @@ public class SVDBRemoveProjectJob extends Job {
 		List<ISVDBIndex> index_list = fProjectData.getProjectIndexMgr().getIndexList();
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		
-		SubMonitor sm = SubMonitor.convert(monitor, "Close Project " + fProjectData.getName(), 
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Close Project " + fProjectData.getName(), 
 				index_list.size());
 		
 		for (ISVDBIndex index : index_list) {
-			sm.subTask("Closing " + index.getBaseLocation());
+			subMonitor.subTask("Closing " + index.getBaseLocation());
 			rgy.disposeIndex(index, "Project Closing");
-			sm.worked(1);
+			subMonitor.worked(1);
 		}
 		
-		sm.done();
+		subMonitor.done();
 		return Status.OK_STATUS;
 	}
 

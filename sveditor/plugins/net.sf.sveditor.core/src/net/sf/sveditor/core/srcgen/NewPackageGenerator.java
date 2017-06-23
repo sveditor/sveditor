@@ -42,7 +42,7 @@ public class NewPackageGenerator {
 		
 		fTagProc.setTag("filename", file_path.getName());
 		fTagProc.setTag("type", "Package");
-		SubMonitor sm = SubMonitor.convert(monitor, "Creating package", 100);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Creating package", 100);
 		
 		String template = "${file_header}\n";
 
@@ -53,11 +53,11 @@ public class NewPackageGenerator {
 		template += " */\n";
 		template += "package " + pkg_name;
 
-		sm.worked(25);
+		subMonitor.worked(25);
 		
 		template += ";\n";
 		
-		sm.worked(25);
+		subMonitor.worked(25);
 		
 		template += "\n\n";
 		template += "endpackage\n";
@@ -66,14 +66,14 @@ public class NewPackageGenerator {
 		
 		template = fTagProc.process(template);
 
-		sm.subTask("Indenting content");
+		subMonitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(template)));
 		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		final StringInputStream in = new StringInputStream(indenter.indent());
 		
-		sm.worked(25);
+		subMonitor.worked(25);
 		
 		try {
 			if (file_path.exists()) {
@@ -83,7 +83,7 @@ public class NewPackageGenerator {
 			}
 		} catch (CoreException e) {}
 		
-		sm.done();
+		subMonitor.done();
 	}
 	
 }

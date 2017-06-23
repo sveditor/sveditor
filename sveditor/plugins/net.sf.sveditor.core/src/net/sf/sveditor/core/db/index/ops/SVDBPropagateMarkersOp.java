@@ -31,10 +31,10 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 				ISVDBDeclCache.FILE_ATTR_ARG_FILE+
 				ISVDBDeclCache.FILE_ATTR_HAS_MARKERS);
 		ISVDBFileSystemProvider fs_provider = index.getFileSystemProvider();
-		SubMonitor sm = SubMonitor.convert(monitor, "Propagate markers for " + index.getBaseLocation(), 10000);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Propagate markers for " + index.getBaseLocation(), 10000);
 	
 		for (String path : paths) {
-			if (sm.isCanceled()) {
+			if (subMonitor.isCanceled()) {
 				break;
 			}
 			
@@ -48,7 +48,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 			fs_provider.clearMarkers(path);
 			
 			if (m_l != null && m_l.size() > 0) {
-				sm.subTask("Propagate markers for " + path);
+				subMonitor.subTask("Propagate markers for " + path);
 				for (SVDBMarker m : m_l) {
 					int lineno = -1;
 					String msg = m.getMessage();
@@ -77,7 +77,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 				}
 			}
 			
-			sm.worked(1);
+			subMonitor.worked(1);
 		}
 	
 		// Handle any files that 'disappeared' during the index operation
@@ -87,7 +87,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 			}
 		}
 
-		sm.done();
+		subMonitor.done();
 	}
 
 }

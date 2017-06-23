@@ -42,7 +42,7 @@ public class NewModuleGenerator {
 		
 		fTagProc.setTag("filename", file_path.getName());
 		fTagProc.setTag("type", "Module");
-		SubMonitor sm = SubMonitor.convert(monitor, "Creating module", 100);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Creating module", 100);
 		
 		String template = "${file_header}\n";
 
@@ -53,11 +53,11 @@ public class NewModuleGenerator {
 		template += " */\n";
 		template += "module " + modulename;
 
-		sm.worked(25);
+		subMonitor.worked(25);
 		
 		template += ";\n";
 		
-		sm.worked(25);
+		subMonitor.worked(25);
 		
 		template += "\n\n";
 		template += "endmodule\n";
@@ -66,14 +66,14 @@ public class NewModuleGenerator {
 		
 		template = fTagProc.process(template);
 
-		sm.subTask("Indenting content");
+		subMonitor.subTask("Indenting content");
 		SVIndentScanner scanner = new SVIndentScanner(
 				new StringTextScanner(new StringBuilder(template)));
 		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);
 		final StringInputStream in = new StringInputStream(indenter.indent());
 		
-		sm.worked(25);
+		subMonitor.worked(25);
 		
 		try {
 			if (file_path.exists()) {
@@ -83,7 +83,7 @@ public class NewModuleGenerator {
 			}
 		} catch (CoreException e) {}
 		
-		sm.done();
+		subMonitor.done();
 	}
 	
 }

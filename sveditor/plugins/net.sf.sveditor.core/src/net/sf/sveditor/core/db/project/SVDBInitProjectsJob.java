@@ -48,7 +48,7 @@ public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		List<IProject> sv_projects = new ArrayList<IProject>();
-		SubMonitor sm = SubMonitor.convert(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		
 		fProjectMgr.startDelayedBuild(this);
 
@@ -66,12 +66,12 @@ public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 
 	
 		try {
-			sm.beginTask("Initializing SV Projects", 1000*sv_projects.size());
+			subMonitor.beginTask("Initializing SV Projects", 1000*sv_projects.size());
 			for (IProject p : sv_projects) {
 				// Ensure that this project has the SV nature
 				SVProjectNature.ensureHasSvProjectNature(p);
-				SubMonitor projMon = sm.newChild(1000);
-				projMon.beginTask("Initalizing " + p.getName(), 1000);
+				SubMonitor proj_loopMonitor = subMonitor.newChild(1000);
+				proj_loopMonitor.beginTask("Initalizing " + p.getName(), 1000);
 				
 				try {
 					SVDBProjectData pdata = pmgr.getProjectData(p);
@@ -82,18 +82,18 @@ public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 					List<ISVDBIndex> index_list = index_mgr.getIndexList();
 					
 					synchronized (index_list) {
-						SubMonitor indListMon = projMon.newChild(1000);
-						indListMon.setWorkRemaining(index_list.size()*1000);
+						SubMonitor list_loopMonitor = proj_loopMonitor.newChild(1000);
+						list_loopMonitor.setWorkRemaining(index_list.size()*1000);
 						for (ISVDBIndex index : index_list) {
 							SVDBIndexChangePlanRefresh refresh = new SVDBIndexChangePlanRefresh(index);
-							index.execIndexChangePlan(indListMon.newChild(500), refresh);
+							index.execIndexChangePlan(list_loopMonitor.newChild(500), refresh);
 							
 							ISVDBIndexChangePlan plan = index.createIndexChangePlan(null);
 							
 							if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
-								index.execIndexChangePlan(indListMon.newChild(500), plan);
+								index.execIndexChangePlan(list_loopMonitor.newChild(500), plan);
 							} else{
-								indListMon.worked(500);
+								list_loopMonitor.worked(500);
 							}
 						}
 					}
@@ -103,7 +103,7 @@ public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 				}
 			}
 		} finally {
-			sm.done();
+			subMonitor.done();
 		}
 
 		return Status.OK_STATUS;

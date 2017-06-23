@@ -88,6 +88,7 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 		if (f != null && f.exists()) {
 			f.refreshLocal(IResource.DEPTH_INFINITE, subMonitor.newChild(1));
 		}
+		subMonitor.done();
 	}
 
 	private List<String> parse_arguments(String args) {

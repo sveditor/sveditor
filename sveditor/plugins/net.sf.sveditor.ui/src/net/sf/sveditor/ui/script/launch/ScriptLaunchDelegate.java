@@ -61,7 +61,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			String 					mode,
 			ILaunch 				launch, 
 			IProgressMonitor 		monitor) throws CoreException {
-		SubMonitor sm = SubMonitor.convert(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		fConsole = SVEConsole.getConsole(configuration.getName());
 		
 		fConsole.activate();
@@ -115,7 +115,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			}
 		}
 		
-		sm.beginTask("Running " + script, 1000);
+		subMonitor.beginTask("Running " + script, 1000);
 		
 		if (save_output_file != null) {
 			try {
@@ -177,10 +177,10 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		// TODO: This should probably be optional
 		IContainer f = SVFileUtils.findWorkspaceFolder(wd_f.getAbsolutePath());
 		if (f != null && f.exists()) {
-			f.refreshLocal(IResource.DEPTH_INFINITE, sm.newChild(1));
+			f.refreshLocal(IResource.DEPTH_INFINITE, subMonitor.newChild(1));
 		}
 		
-		sm.done();
+		subMonitor.done();
 	}
 	
 	private ILogMessageListener msgScannerListener = new ILogMessageListener() {

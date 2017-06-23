@@ -72,14 +72,14 @@ public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
 		NewClassGenerator gen = new NewClassGenerator(fTagProc);
-		SubMonitor sm = SubMonitor.convert(monitor, 2);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		
-		gen.generate(getIndexIterator(sm.newChild(1)), 
+		gen.generate(getIndexIterator(subMonitor.newChild(1)), 
 				file_path,
 				fPage.getOption(AbstractNewSVItemFileWizardPage.NAME, null),
 				fPage.getOption(NewSVClassWizardPage.SUPER_CLASS, null),
 				fPage.getOption(NewSVClassWizardPage.OVERRIDE_NEW, "true").equals("true"),
-				sm.newChild(1));
+				subMonitor.newChild(1));
 		
 		if (getOption(NewSVClassWizardPage.ADD_TO_PACKAGE, "false").equals("true")) {
 			// Update package source

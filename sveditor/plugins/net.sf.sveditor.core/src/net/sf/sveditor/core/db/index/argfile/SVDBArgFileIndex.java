@@ -56,13 +56,12 @@ import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
-import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
@@ -90,7 +89,6 @@ import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 
 public class SVDBArgFileIndex implements 
 		ISVDBIndex, ISVDBIndexInt,  
@@ -578,8 +576,8 @@ public class SVDBArgFileIndex implements
 
 			// TODO: determine whether these are SV are .f files?
 			for (String path : file_list) {
-				SubMonitor childMon = subMonitor.newChild(1000);
-				childMon.beginTask("Parse " + path, 1000);
+				SubMonitor loopMonitor = subMonitor.newChild(1000);
+				loopMonitor.beginTask("Parse " + path, 1000);
 				// path is a 'root' file
 				InputStream in = fFileSystemProvider.openStream(path);
 //				System.out.println("Remove: " + path + " from existing files");
@@ -655,7 +653,7 @@ public class SVDBArgFileIndex implements
 							SVDBIndexChangeDelta.Type.Change, file));
 				}
 				
-				childMon.worked(1000);
+				loopMonitor.worked(1000);
 			}
 			
 			// Patch the new content into the index build data
@@ -676,8 +674,8 @@ public class SVDBArgFileIndex implements
 					// Remove this file from the 'existing' list
 					existing_files.remove(path);
 					
-					SubMonitor childMon = subMonitor.newChild(1000);
-					childMon.setTaskName("Merge " + path);
+					SubMonitor loopMonitor = subMonitor.newChild(1000);
+					loopMonitor.setTaskName("Merge " + path);
 					if (fDebugEn) {
 						fLog.debug("Merge: " + path);
 					}
@@ -715,7 +713,7 @@ public class SVDBArgFileIndex implements
 						patch_decl_cache(ft, decl_cache, new_decl_cache);
 					}
 
-					childMon.worked(1000);
+					loopMonitor.worked(1000);
 				}
 				
 				// Add any new files
@@ -767,7 +765,7 @@ public class SVDBArgFileIndex implements
 	 */
 	private void remove_files(IProgressMonitor monitor, SVDBIndexChangePlanRemoveFiles plan) {
 		SVDBIndexChangeEvent ev = null;
-		SubMonitor subMon = SubMonitor.convert(monitor, plan.getFiles().size()*2);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, plan.getFiles().size()*2);
 		
 		if (fDebugEn) {
 			fLog.debug("--> remove_files " + plan.getFiles().size());
@@ -828,7 +826,7 @@ public class SVDBArgFileIndex implements
 					}
 				}
 			}
-			subMon.worked(1);
+			subMonitor.worked(1);
 		}
 	
 		for (String path : removed_root_files) {
@@ -840,7 +838,7 @@ public class SVDBArgFileIndex implements
 				// Remove the entry from the index cache
 				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
 				decl_cache.remove(path);
-				subMon.worked(1);
+				subMonitor.worked(1);
 			}
 		}
 		

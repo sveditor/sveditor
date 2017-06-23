@@ -99,22 +99,22 @@ public class SVOpenTypeDialog extends FilteredItemsSelectionDialog {
 			IProgressMonitor 			monitor) throws CoreException {
 		ISVDBIndexIterator index_it = fIndexIt;
 
-		SubMonitor sm = SubMonitor.convert(monitor, 2);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		if (index_it != null) {
 			List<SVDBDeclCacheItem> items = 
-					index_it.findGlobalScopeDecl(sm.newChild(1), "", new SVDBAllTypeMatcher());
+					index_it.findGlobalScopeDecl(subMonitor.newChild(1), "", new SVDBAllTypeMatcher());
 
 			synchronized (items) {
-				SubMonitor cm = sm.newChild(1);
-				cm.setWorkRemaining(items.size());
+				SubMonitor loopMonitor = subMonitor.newChild(1);
+				loopMonitor.setWorkRemaining(items.size());
 				for (SVDBDeclCacheItem i : items) {
 					content_provider.add(i, filter);
-					cm.worked(1);
+					loopMonitor.worked(1);
 				}
 			}
 		}
 		
-		sm.done();
+		subMonitor.done();
 	}
 
 	@Override

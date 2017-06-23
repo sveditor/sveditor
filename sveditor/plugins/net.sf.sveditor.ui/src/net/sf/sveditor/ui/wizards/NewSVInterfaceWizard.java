@@ -35,12 +35,12 @@ public class NewSVInterfaceWizard extends AbstractNewSVItemFileWizard {
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
 		NewInterfaceGenerator gen = new NewInterfaceGenerator(fTagProc);
-		SubMonitor sm = SubMonitor.convert(monitor, 2);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		
-		gen.generate(getIndexIterator(sm.newChild(1)), 
+		gen.generate(getIndexIterator(subMonitor.newChild(1)), 
 				file_path,
 				fPage.getOption(AbstractNewSVItemFileWizardPage.NAME, null),
-				sm.newChild(1));
+				subMonitor.newChild(1));
 	}
 
 }

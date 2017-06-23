@@ -35,11 +35,11 @@ public class NewSVModuleWizard extends AbstractNewSVItemFileWizard {
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
 		NewModuleGenerator gen = new NewModuleGenerator(fTagProc);
-		SubMonitor sm = SubMonitor.convert(monitor, 2);
-		gen.generate(getIndexIterator(sm.newChild(1)), 
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
+		gen.generate(getIndexIterator(subMonitor.newChild(1)), 
 				file_path,
 				fPage.getOption(AbstractNewSVItemFileWizardPage.NAME, null),
-				sm.newChild(1));
+				subMonitor.newChild(1));
 	}
 
 }
