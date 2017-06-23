@@ -6,6 +6,19 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.ui.console.MessageConsoleStream;
+
 import net.sf.sveditor.core.ILineListener;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
@@ -14,19 +27,6 @@ import net.sf.sveditor.core.batch.SVBatchPlugin;
 import net.sf.sveditor.core.batch.jscript.JavaScriptRunner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
-import org.eclipse.ui.console.MessageConsoleStream;
 
 public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 
@@ -41,8 +41,7 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 		String wd = configuration.getAttribute(JavaScriptLauncherConstants.WORKING_DIR, System.getProperty("user.dir"));
 		String args_str = configuration.getAttribute(JavaScriptLauncherConstants.ARGUMENTS, "");
 		
-		
-		monitor.beginTask("Running " + script, 1000);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Running " + script, 1000);
 		
 		JavaScriptRunner runner = new JavaScriptRunner();
 	
@@ -87,10 +86,8 @@ public class JavaScriptLauncher implements ILaunchConfigurationDelegate {
 		// Finally, refresh if needed
 		IContainer f = SVFileUtils.findWorkspaceFolder(wd_f.getAbsolutePath());
 		if (f != null && f.exists()) {
-			f.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
+			f.refreshLocal(IResource.DEPTH_INFINITE, subMonitor.newChild(1));
 		}
-		
-		monitor.done();
 	}
 
 	private List<String> parse_arguments(String args) {

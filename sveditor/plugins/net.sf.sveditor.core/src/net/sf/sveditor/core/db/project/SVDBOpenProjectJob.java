@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILogLevel {
@@ -50,7 +50,8 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 	@Override
 	public IStatus run(IProgressMonitor monitor) {
 		SVDBProjectData pdata = null;
-	
+		SubMonitor sm = SubMonitor.convert(monitor);
+		
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		if (SVDBProjectManager.isSveProject(fProjectSav)) {
 			// Ensure the project nature is associated
@@ -78,7 +79,7 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 		
 		if (SVDBProjectManager.isSveProject(fProject)) {
 			
-			monitor.beginTask("Opening SV Project " + fProject.getName(), 1000);
+			sm.beginTask("Opening SV Project " + fProject.getName(), 1000);
 			
 			if (!pdata.haveDotSvProject()) {
 				pdata.init();
@@ -88,11 +89,11 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 			
 			try {
 				fProject.build(IncrementalProjectBuilder.FULL_BUILD, 
-					new SubProgressMonitor(monitor, 900));
+					sm.newChild(1000));
 			} catch (CoreException e) {
 				fLog.error("Project build failed", e);
 			}
-			monitor.done();
+			sm.done();
 		} else {
 			fLog.debug(LEVEL_MIN, "  Project " + fProject.getName() + " not an SVE project");
 		}

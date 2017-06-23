@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVProjectDelayedBuild extends Job implements ISVProjectDelayedOp {
@@ -41,18 +41,18 @@ public class SVProjectDelayedBuild extends Job implements ISVProjectDelayedOp {
 	protected IStatus run(IProgressMonitor monitor) {
 		fProjectMgr.startDelayedBuild(this);
 		
-		monitor.beginTask("Build Projects", 10000*fProjects.size());
+		SubMonitor sm = SubMonitor.convert(monitor, "Build Projects", 10000*fProjects.size());
 		
 		for (IProject p : fProjects) {
 			try {
 				p.build(IncrementalProjectBuilder.FULL_BUILD, 
-					new SubProgressMonitor(monitor, 10000));
+					sm.newChild(10000));
 			} catch (CoreException e) {
 				fLog.error("Build of project " + p.getName() + " failed", e);
 			}
 		}
 		
-		monitor.done();
+		sm.done();
 	
 		return Status.OK_STATUS;
 	}

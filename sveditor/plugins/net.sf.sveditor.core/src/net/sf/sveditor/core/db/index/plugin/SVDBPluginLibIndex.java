@@ -8,7 +8,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.osgi.framework.Bundle;
 
 import net.sf.sveditor.core.SVFileUtils;
@@ -98,8 +98,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 
 	// TODO:
 	private void ensureIndexUpToDate(IProgressMonitor monitor) {
-		SubProgressMonitor sub_m = new SubProgressMonitor(monitor, 1);
-		sub_m.beginTask("Ensure Index State for " + getBaseLocation(), 4);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Ensure Index State for " + getBaseLocation(), 4);
 	
 		if (!fIndexValid /*|| !fIndexRefreshed */) {
 			ISVDBIndexBuildJob build_job = null;
@@ -118,7 +117,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 			}
 		}
 
-		monitor.done();		
+		subMonitor.done();		
 	}
 
 	@Override
@@ -233,22 +232,22 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 	@Override
 	public void execOp(IProgressMonitor monitor, ISVDBIndexOperation op,
 			boolean sync) {
-		monitor.beginTask("", 1000);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "", 1000);
 		
 		if (sync) {
-			ensureIndexUpToDate(new SubProgressMonitor(monitor, 500));
+			ensureIndexUpToDate(subMonitor.newChild(500));
 		}
 
 		// Ensure only a single operation runs at a time
 		synchronized (fBuildData) {
 			try {
 				fInIndexOp++;
-				op.index_operation(new SubProgressMonitor(monitor, 500), this);
+				op.index_operation(subMonitor.newChild(500), this);
 			} finally {
 				fInIndexOp--;
 			}
 		}
-		monitor.done();		
+		subMonitor.done();		
 	}
 
 	@Override

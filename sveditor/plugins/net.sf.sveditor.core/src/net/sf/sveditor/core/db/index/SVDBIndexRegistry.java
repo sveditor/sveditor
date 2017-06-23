@@ -43,7 +43,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 /**
  * Central storage for leaf indexes. Provides a central place to locate
@@ -209,6 +209,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			String 					type,
 			SVDBIndexConfig			config) {
 		ISVDBIndex ret = null;
+		SubMonitor sm = SubMonitor.convert(monitor, 1);
 		
 		base_location = SVFileUtils.normalize(base_location);
 		
@@ -257,8 +258,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			fLog.debug(LEVEL_MIN, "    Index " + base_location + 
 					" does not exist -- creating: " + ret);
 			
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			ret.init(m, SVCorePlugin.getDefault().getIndexBuilder());
+			ret.init(sm, SVCorePlugin.getDefault().getIndexBuilder());
 			
 			synchronized (fIndexList) {
 				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
@@ -302,6 +302,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 		ISVDBIndex ret = null;
 		
 		fLog.debug("findCreateIndex: " + base_location + " ; " + type);
+		SubMonitor sm = SubMonitor.convert(monitor, 1);
 		
 		synchronized (fIndexList) {
 			for (ISVDBIndex i : fIndexList) {
@@ -325,8 +326,7 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			// See about creating a new index
 			ret = factory.createSVDBIndex(project, base_location, cache, config);
 			
-			SubProgressMonitor m = new SubProgressMonitor(monitor, 1);
-			ret.init(m, SVCorePlugin.getDefault().getIndexBuilder());
+			ret.init(sm.newChild(1), SVCorePlugin.getDefault().getIndexBuilder());
 			
 			synchronized (fIndexList) {
 				fLog.debug(LEVEL_MIN, "Add new index \"" + ret.getBaseLocation() + "\"");
@@ -341,13 +341,14 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 	
 	public void rebuildIndex(IProgressMonitor monitor, String project) {
 		fLog.debug("rebuildIndex \"" + project + "\"");
+		SubMonitor sm = SubMonitor.convert(monitor);
 		clearStaleIndexes();
 		
 		synchronized (fIndexList) {
-			monitor.beginTask("rebuildIndex", fIndexList.size());
+			sm.beginTask("rebuildIndex", fIndexList.size());
 			for (ISVDBIndex i : fIndexList) {
 				if (i.getProject().equals(project)) {
-					i.rebuildIndex(new SubProgressMonitor(monitor, 1));
+					i.rebuildIndex(sm.newChild(1));
 				}
 				else
 					monitor.worked(1);

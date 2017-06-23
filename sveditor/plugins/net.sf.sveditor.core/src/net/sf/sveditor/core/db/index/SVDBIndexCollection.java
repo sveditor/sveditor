@@ -37,7 +37,7 @@ import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator,
 		ISVDBIndexOperationRunner, ISVDBIndexParse, ILogLevel {
@@ -83,9 +83,9 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void loadIndex(IProgressMonitor monitor) {
-		SubProgressMonitor sm = new SubProgressMonitor(monitor, 1);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		
-		sm.beginTask("loadIndex",
+		subMonitor.beginTask("loadIndex",
 				fSourceCollectionList.size() + 
 				fIncludePathList.size() + 
 				fLibraryPathList.size() + 
@@ -93,29 +93,29 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		
 		synchronized (fSourceCollectionList) {
 			for (ISVDBIndex index : fSourceCollectionList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
 		synchronized (fIncludePathList) {
 			for (ISVDBIndex index : fIncludePathList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
 		synchronized (fLibraryPathList) {
 			for (ISVDBIndex index : fLibraryPathList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
 		synchronized (fPluginLibraryList) {
 			for (ISVDBIndex index : fPluginLibraryList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
-		sm.done();
+		subMonitor.done();
 	}
 	
 	public boolean isLoaded() {
@@ -220,17 +220,18 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void rebuildIndex(IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		/*
 		for (ISVDBIndex i : getIndexList()) {
 			i.rebuildIndex(monitor);
 		}
 		 */
-		monitor.beginTask("Rebuild Indexes", 1000*getIndexList().size());
+		subMonitor.beginTask("Rebuild Indexes", 1000*getIndexList().size());
 		for (ISVDBIndex i : getIndexList()) {
-			i.execIndexChangePlan(new SubProgressMonitor(monitor, 1000),
+			i.execIndexChangePlan(subMonitor.newChild(1000),
 					new SVDBIndexChangePlanRebuild(i));
 		}
-		monitor.done();
+		subMonitor.done();
 	}
 	
 	public void clear() {

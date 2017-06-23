@@ -32,7 +32,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.variables.IStringVariableManager;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -61,6 +61,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			String 					mode,
 			ILaunch 				launch, 
 			IProgressMonitor 		monitor) throws CoreException {
+		SubMonitor sm = SubMonitor.convert(monitor);
 		fConsole = SVEConsole.getConsole(configuration.getName());
 		
 		fConsole.activate();
@@ -114,7 +115,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 			}
 		}
 		
-		monitor.beginTask("Running " + script, 1000);
+		sm.beginTask("Running " + script, 1000);
 		
 		if (save_output_file != null) {
 			try {
@@ -176,10 +177,10 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		// TODO: This should probably be optional
 		IContainer f = SVFileUtils.findWorkspaceFolder(wd_f.getAbsolutePath());
 		if (f != null && f.exists()) {
-			f.refreshLocal(IResource.DEPTH_INFINITE, new SubProgressMonitor(monitor, 1));
+			f.refreshLocal(IResource.DEPTH_INFINITE, sm.newChild(1));
 		}
 		
-		monitor.done();
+		sm.done();
 	}
 	
 	private ILogMessageListener msgScannerListener = new ILogMessageListener() {

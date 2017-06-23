@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class SVDBIndexCollectionMgr {
 	
@@ -44,22 +44,23 @@ public class SVDBIndexCollectionMgr {
 	}
 	
 	public void loadIndex(IProgressMonitor monitor) {
-		SubProgressMonitor sm = new SubProgressMonitor(monitor, 1);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		
 		synchronized (fIndexCollectionList) {
-			sm.beginTask("loadIndex", fIndexCollectionList.size());
+			subMonitor.setTaskName("Load Index");
+			subMonitor.setWorkRemaining(fIndexCollectionList.size());
 			for (int i=0; i<fIndexCollectionList.size(); i++) {
 				if (fIndexCollectionList.get(i).get() == null) {
 					fIndexCollectionList.remove(i);
 					i--;
 				} else {
 					fIndexCollectionList.get(i).get().loadIndex(
-							new SubProgressMonitor(sm, 1));
+							subMonitor.newChild(1));
 				}
 			}
 		}
 		
-		sm.done();
+		subMonitor.done();
 	}
 
 }

@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringInputStream;
@@ -16,9 +19,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 
 /**
  * Creates an argument file by locating files 
@@ -125,14 +125,15 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 	 * @param monitor
 	 */
 	public void discover_files(IProgressMonitor monitor) {
-		monitor.beginTask("Processing Root Files", 1000*fSearchPaths.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Processing Root Files", 1000*fSearchPaths.size());
 		fDiscoveredPaths.clear();
 		fFileList.clear();
 		
 		for (String path : fSearchPaths){
 			if (fFSProvider.isDir(path)) {
-				discover_files(new SubProgressMonitor(monitor, 1000), path);
-			} else {
+				discover_files(subMonitor.newChild(1000), path);
+			} 
+			else {
 				String ext = SVFileUtils.getPathExt(path);
 				
 				if (ext != null) {
@@ -147,24 +148,23 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 
 					}
 				}
+				subMonitor.worked(1000);
 			}
 			
-			if (monitor.isCanceled()) {
+			if (subMonitor.isCanceled()) {
 				break;
 			}
 		}
-		
-		monitor.done();
 	}
 	
 	private void discover_files(IProgressMonitor monitor, String path) {
 		List<String> paths = fFSProvider.getFiles(path);
-		monitor.beginTask("Processing " + path, 100*paths.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Processing " + path, 100*paths.size());
 		
 		for (String p : paths) {
 			if (fFSProvider.isDir(p)) {
-				discover_files(new SubProgressMonitor(monitor, 100), p);
-				if (monitor.isCanceled()) {
+				discover_files(subMonitor.newChild(100), p);
+				if (subMonitor.isCanceled()) {
 					break;
 				}
 			} else {
@@ -182,11 +182,9 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 						}
 					}
 				}
-				monitor.worked(100);
+				subMonitor.worked(100);
 			}
 		}
-		
-		monitor.done();
 	}
 
 	/**
@@ -196,11 +194,12 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 	 * @param monitor
 	 */
 	public void organize_files(IProgressMonitor monitor) {
-		monitor.beginTask("Processing Files", 1000*fFileList.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Processing Files", 2*fFileList.size());
 		
 		fIncDirs.clear();
 		for (SrcFileInfo info : fFileList) {
 			info.reset();
+			subMonitor.worked(1);
 		}
 		
 		for (SrcFileInfo info : fFileList) {
@@ -216,9 +215,9 @@ public class SVArgFileCreator implements ISVPreProcIncFileProvider {
 
 				pp.preprocess();
 			}
+			subMonitor.worked(1);
 		}
 	
-		monitor.done();
 	}
 	
 	public List<String> getRootFiles() {

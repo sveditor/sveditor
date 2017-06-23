@@ -54,7 +54,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBProjectManager implements 
@@ -209,6 +209,7 @@ public class SVDBProjectManager implements
 	 * @return
 	 */
 	public boolean rebuildProject(IProgressMonitor monitor, IProject p, boolean wait_for_refresh) {
+		SubMonitor sm = SubMonitor.convert(monitor);
 		
 		if (!isSveProject(p)) {
 			// This is likely an auto-build occurring in the middle of import
@@ -223,7 +224,7 @@ public class SVDBProjectManager implements
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {}
 				} while (SVDBRefreshDoneJobWrapper.isRefreshRunning() &&
-						!monitor.isCanceled());
+						!sm.isCanceled());
 				
 				if (SVDBRefreshDoneJobWrapper.isRefreshRunning()) {
 					// 
@@ -254,7 +255,7 @@ public class SVDBProjectManager implements
 			
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
 			List<ISVDBIndex> index_l = index.getIndexList();
-			monitor.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
+			sm.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
 			
 			for (ISVDBIndex i : index_l) {
 				monitor.subTask("Build " + i.getBaseLocation());
@@ -262,20 +263,20 @@ public class SVDBProjectManager implements
 				
 				fLog.debug(LEVEL_MID, "Rebuild index " + i.getBaseLocation());
 				
-				i.execOp(new SubProgressMonitor(monitor, 1000), 
+				i.execOp(sm.newChild(1000), 
 						new SVDBClearMarkersOp(), false);
 				if (monitor.isCanceled()) {
 					break;
 				}
 				
-				i.execIndexChangePlan(new SubProgressMonitor(monitor, 10000), plan);
+				i.execIndexChangePlan(sm.newChild(10000), plan);
 				if (monitor.isCanceled()) {
 					break;
 				}
 
-				i.execOp(new SubProgressMonitor(monitor, 1000),
+				i.execOp(sm.newChild(1000),
 						new SVDBPropagateMarkersOp(), false);
-				if (monitor.isCanceled()) {
+				if (sm.isCanceled()) {
 					break;
 				}
 			}
@@ -284,7 +285,7 @@ public class SVDBProjectManager implements
 
 		} else {
 			fLog.debug("ProjectData null");
-			monitor.done();
+			sm.done();
 			return false;
 		}
 
@@ -296,7 +297,7 @@ public class SVDBProjectManager implements
 			}
 		}
 		
-		monitor.done();
+		sm.done();
 		
 		synchronized (fBuildActiveProjects) {
 			fBuildActiveProjects.remove(p);
@@ -311,6 +312,7 @@ public class SVDBProjectManager implements
 			List<SVDBIndexResourceChangeEvent> 	changes) {
 		boolean full_build = false;
 		boolean rebuild_workspace = false;
+		SubMonitor sm = SubMonitor.convert(monitor);
 		
 		if (!isSveProject(p)) {
 			// Likely an auto-build mid-import
@@ -343,10 +345,12 @@ public class SVDBProjectManager implements
 		if (pd != null) {
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
 			List<ISVDBIndex> index_l = index.getIndexList();
-			monitor.beginTask("Build " + p.getName(), 12000*index_l.size());
+			sm.beginTask("Build " + p.getName(), 12000*index_l.size());
 			
 			for (ISVDBIndex i : index_l) {
-				monitor.subTask("Build " + i.getBaseLocation());
+				SubMonitor childM = sm.newChild(12000);
+				childM.setTaskName("Build " + i.getBaseLocation());
+				childM.setWorkRemaining(12000);
 				ISVDBIndexChangePlan plan = i.createIndexChangePlan(changes);
 			
 				try {
@@ -355,22 +359,22 @@ public class SVDBProjectManager implements
 				
 				if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
 					full_build = (plan.getType() == SVDBIndexChangePlanType.RebuildIndex);
-					i.execOp(new SubProgressMonitor(monitor, 1000), 
+					i.execOp(childM.newChild(1000), 
 							new SVDBClearMarkersOp(), true);
-					if (monitor.isCanceled()) {
+					if (childM.isCanceled()) {
 						break;
 					}
-					i.execIndexChangePlan(new SubProgressMonitor(monitor, 10000), plan);
-					if (monitor.isCanceled()) {
+					i.execIndexChangePlan(childM.newChild(10000), plan);
+					if (childM.isCanceled()) {
 						break;
 					}
-					i.execOp(new SubProgressMonitor(monitor, 1000),
+					i.execOp(childM.newChild(1000),
 							new SVDBPropagateMarkersOp(), false);
-					if (monitor.isCanceled()) {
+					if (childM.isCanceled()) {
 						break;
 					}
 				} else {
-					monitor.worked(20000); // Nothing to do for this index
+					childM.worked(12000); // Nothing to do for this index
 				}
 				
 			}
@@ -385,7 +389,7 @@ public class SVDBProjectManager implements
 				}
 			}
 			
-			monitor.done();
+			sm.done();
 		}
 	}
 	
