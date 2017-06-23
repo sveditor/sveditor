@@ -31,7 +31,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 				ISVDBDeclCache.FILE_ATTR_ARG_FILE+
 				ISVDBDeclCache.FILE_ATTR_HAS_MARKERS);
 		ISVDBFileSystemProvider fs_provider = index.getFileSystemProvider();
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Propagate markers for " + index.getBaseLocation(), 10000);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Propagate markers for " + index.getBaseLocation(), 100);
 	
 		for (String path : paths) {
 			if (subMonitor.isCanceled()) {
@@ -78,6 +78,8 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 			}
 			
 			subMonitor.worked(1);
+			// Basically going to consume 1% of remaining each time we get here, which will keep the progress bar moving, asymptotically to 100
+			subMonitor.setWorkRemaining(100);	
 		}
 	
 		// Handle any files that 'disappeared' during the index operation

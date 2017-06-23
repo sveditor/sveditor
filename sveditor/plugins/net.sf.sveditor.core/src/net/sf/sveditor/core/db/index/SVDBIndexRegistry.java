@@ -349,8 +349,9 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 				if (i.getProject().equals(project)) {
 					i.rebuildIndex(subMonitor.newChild(1));
 				}
-				else
+				else  {
 					subMonitor.worked(1);
+				}
 			}
 			subMonitor.done();
 		}
