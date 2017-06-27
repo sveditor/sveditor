@@ -8,6 +8,8 @@
  
 - #(497) Editor scrolls to start of file when saving with "Remove trailing whitespace" enabled
 
+- #(129) Improvement Request: Highlight matching brace on begin / end
+
 ------------------------------------------------------------------------------
 -- 2.0.0.1 Release --
 
