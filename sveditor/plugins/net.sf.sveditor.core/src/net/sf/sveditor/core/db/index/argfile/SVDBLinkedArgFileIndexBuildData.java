@@ -7,6 +7,7 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class SVDBLinkedArgFileIndexBuildData implements
 		ISVDBArgFileIndexBuildData {
@@ -33,9 +34,13 @@ public class SVDBLinkedArgFileIndexBuildData implements
 	@Override
 	public SVDBFile getFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret;
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		
-		if ((ret = fPrimary.getFile(monitor, path)) == null) {
-			ret = fBacking.getFile(monitor, path);
+		if ((ret = fPrimary.getFile(subMonitor.newChild(1), path)) == null) {
+			ret = fBacking.getFile(subMonitor.newChild(1), path);
+		}
+		else  {
+			subMonitor.done();
 		}
 		
 		return ret;

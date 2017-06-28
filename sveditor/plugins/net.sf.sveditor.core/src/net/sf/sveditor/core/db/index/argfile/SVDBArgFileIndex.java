@@ -24,7 +24,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
@@ -56,13 +56,12 @@ import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
-import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexBuildJob;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
@@ -90,7 +89,6 @@ import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 
 public class SVDBArgFileIndex implements 
 		ISVDBIndex, ISVDBIndexInt,  
@@ -329,10 +327,9 @@ public class SVDBArgFileIndex implements
 	 */
 	@SuppressWarnings("unchecked")
 	private void refresh_index(IProgressMonitor monitor) {
-		monitor.beginTask("Initialize index " + getBaseLocation(), 100);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Initialize index " + getBaseLocation(), 100);
 
 		// Initialize the cache
-		IProgressMonitor m = new SubProgressMonitor(monitor, 1);
 
 		if (fCacheDataValid) {
 			fCacheDataValid = checkCacheValid();
@@ -410,6 +407,7 @@ public class SVDBArgFileIndex implements
 	 */
 	protected void rebuild_index(IProgressMonitor monitor) {
 		long start = System.currentTimeMillis();
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Rebuild " + getBaseLocation(), 10000);
 		
 //		if (!fIndexRefreshed) {
 //			refresh_index(new NullProgressMonitor());
@@ -427,10 +425,8 @@ public class SVDBArgFileIndex implements
 			build_data.setFSProvider(fFileSystemProvider);
 		}
 	
-		monitor.beginTask("Rebuild " + getBaseLocation(), 10000);
-
 		// Rebuild the index
-		buildIndex(new SubProgressMonitor(monitor, 9750), build_data);
+		buildIndex(subMonitor.newChild(9750), build_data);
 		
 		if (fDebugEn) {
 			// Show the index stats
@@ -438,7 +434,7 @@ public class SVDBArgFileIndex implements
 					build_data.getIndexStats().toString());
 		}
 		
-		if (!monitor.isCanceled()) {
+		if (!subMonitor.isCanceled()) {
 			// Apply the newly-built result
 			synchronized (fBuildData) {
 				fBuildData.apply(build_data);
@@ -466,7 +462,7 @@ public class SVDBArgFileIndex implements
 		
 		long end = System.currentTimeMillis();
 	
-		monitor.done();
+		subMonitor.done();
 	}
 
 	/**
@@ -479,7 +475,7 @@ public class SVDBArgFileIndex implements
 			fLog.debug(LEVEL_MIN, "rebuild_files: " + plan.getFileListType());
 		}
 		
-		monitor.beginTask("Update " + getBaseLocation(), 2*1000*plan.getFileList().size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Update " + getBaseLocation(), 2*1000*plan.getFileList().size());
 	
 		ISVDBIndexCache cache = fCacheMgr.createIndexCache(getProject(), getBaseLocation());
 		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(cache, getBaseLocation());
@@ -504,9 +500,9 @@ public class SVDBArgFileIndex implements
 		if (plan.getFileListType() == FileListType.Source) {
 			// simple: already have it
 			file_list.addAll(plan.getFileList());
+			subMonitor.worked(1000);
 		} else if (plan.getFileListType() == FileListType.Filelist) {
 			NullProgressMonitor m = new NullProgressMonitor();
-			
 		
 			for (String f_file : plan.getFileList()) {
 				synchronized (fBuildData) {
@@ -530,7 +526,7 @@ public class SVDBArgFileIndex implements
 				}
 				
 				fArgFileParser.processArgFile(
-						monitor, 
+						subMonitor.newChild(1000), 
 						build_data, 
 						null, 
 						processed_paths, 
@@ -580,7 +576,8 @@ public class SVDBArgFileIndex implements
 
 			// TODO: determine whether these are SV are .f files?
 			for (String path : file_list) {
-				monitor.subTask("Parse " + path);
+				SubMonitor loopMonitor = subMonitor.newChild(1000);
+				loopMonitor.beginTask("Parse " + path, 1000);
 				// path is a 'root' file
 				InputStream in = fFileSystemProvider.openStream(path);
 //				System.out.println("Remove: " + path + " from existing files");
@@ -656,7 +653,7 @@ public class SVDBArgFileIndex implements
 							SVDBIndexChangeDelta.Type.Change, file));
 				}
 				
-				monitor.worked(1000);
+				loopMonitor.worked(1000);
 			}
 			
 			// Patch the new content into the index build data
@@ -677,7 +674,8 @@ public class SVDBArgFileIndex implements
 					// Remove this file from the 'existing' list
 					existing_files.remove(path);
 					
-					monitor.subTask("Merge " + path);
+					SubMonitor loopMonitor = subMonitor.newChild(1000);
+					loopMonitor.setTaskName("Merge " + path);
 					if (fDebugEn) {
 						fLog.debug("Merge: " + path);
 					}
@@ -715,7 +713,7 @@ public class SVDBArgFileIndex implements
 						patch_decl_cache(ft, decl_cache, new_decl_cache);
 					}
 
-					monitor.worked(1000);
+					loopMonitor.worked(1000);
 				}
 				
 				// Add any new files
@@ -757,7 +755,7 @@ public class SVDBArgFileIndex implements
 			if (cache != null) {
 				cache.dispose();
 			}
-			monitor.done();
+			subMonitor.done();
 		}
 	}
 
@@ -767,6 +765,7 @@ public class SVDBArgFileIndex implements
 	 */
 	private void remove_files(IProgressMonitor monitor, SVDBIndexChangePlanRemoveFiles plan) {
 		SVDBIndexChangeEvent ev = null;
+		SubMonitor subMonitor = SubMonitor.convert(monitor, plan.getFiles().size()*2);
 		
 		if (fDebugEn) {
 			fLog.debug("--> remove_files " + plan.getFiles().size());
@@ -827,6 +826,7 @@ public class SVDBArgFileIndex implements
 					}
 				}
 			}
+			subMonitor.worked(1);
 		}
 	
 		for (String path : removed_root_files) {
@@ -838,6 +838,7 @@ public class SVDBArgFileIndex implements
 				// Remove the entry from the index cache
 				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
 				decl_cache.remove(path);
+				subMonitor.worked(1);
 			}
 		}
 		
@@ -1096,7 +1097,6 @@ public class SVDBArgFileIndex implements
 	 */
 	@Override
 	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder) {
-		SubProgressMonitor m;
 		
 		fIndexBuilder = builder;
 
@@ -1167,8 +1167,7 @@ public class SVDBArgFileIndex implements
 	 * @param state
 	 */
 	private void ensureIndexUpToDate(IProgressMonitor super_monitor) {
-		SubProgressMonitor monitor = new SubProgressMonitor(super_monitor, 1);
-		monitor.beginTask("Ensure Index State for " + getBaseLocation(), 4);
+		SubMonitor subMonitor = SubMonitor.convert(super_monitor, "Ensure Index State for " + getBaseLocation(), 4);
 	
 		if (!fIndexValid || !fIndexRefreshed) {
 			ISVDBIndexBuildJob build_job = null;
@@ -1185,7 +1184,7 @@ public class SVDBArgFileIndex implements
 			}
 		}
 
-		monitor.done();
+		subMonitor.done();
 	}
 
 	@Override
@@ -1858,22 +1857,22 @@ public class SVDBArgFileIndex implements
 			IProgressMonitor 		monitor, 
 			ISVDBIndexOperation 	op,
 			boolean					sync) {
-		monitor.beginTask("", 1000);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "", 1000);
 		
 		if (sync) {
-			ensureIndexUpToDate(new SubProgressMonitor(monitor, 500));
+			ensureIndexUpToDate(subMonitor.newChild(500));
 		}
 
 		// Ensure only a single operation runs at a time
 		synchronized (fBuildData) {
 			try {
 				fInIndexOp++;
-				op.index_operation(new SubProgressMonitor(monitor, 500), this);
+				op.index_operation(subMonitor.newChild(500), this);
 			} finally {
 				fInIndexOp--;
 			}
 		}
-		monitor.done();
+		subMonitor.done();
 	}
 
 	/**

@@ -9,6 +9,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVDBRemoveProjectJob extends Job {
@@ -24,15 +25,16 @@ public class SVDBRemoveProjectJob extends Job {
 		List<ISVDBIndex> index_list = fProjectData.getProjectIndexMgr().getIndexList();
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		
-		monitor.beginTask("Close Project " + fProjectData.getName(), 
-				1000*index_list.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Close Project " + fProjectData.getName(), 
+				index_list.size());
 		
-		monitor.done();
 		for (ISVDBIndex index : index_list) {
-			monitor.subTask("Closing " + index.getBaseLocation());
+			subMonitor.subTask("Closing " + index.getBaseLocation());
 			rgy.disposeIndex(index, "Project Closing");
+			subMonitor.worked(1);
 		}
 		
+		subMonitor.done();
 		return Status.OK_STATUS;
 	}
 

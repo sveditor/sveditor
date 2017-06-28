@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.osgi.framework.Bundle;
 
 import net.sf.sveditor.core.SVCorePlugin;

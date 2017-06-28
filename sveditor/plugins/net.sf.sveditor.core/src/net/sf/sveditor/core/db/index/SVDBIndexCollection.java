@@ -37,7 +37,7 @@ import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator,
 		ISVDBIndexOperationRunner, ISVDBIndexParse, ILogLevel {
@@ -83,9 +83,9 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void loadIndex(IProgressMonitor monitor) {
-		SubProgressMonitor sm = new SubProgressMonitor(monitor, 1);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		
-		sm.beginTask("loadIndex",
+		subMonitor.beginTask("loadIndex",
 				fSourceCollectionList.size() + 
 				fIncludePathList.size() + 
 				fLibraryPathList.size() + 
@@ -93,29 +93,29 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		
 		synchronized (fSourceCollectionList) {
 			for (ISVDBIndex index : fSourceCollectionList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
 		synchronized (fIncludePathList) {
 			for (ISVDBIndex index : fIncludePathList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
 		synchronized (fLibraryPathList) {
 			for (ISVDBIndex index : fLibraryPathList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
 		synchronized (fPluginLibraryList) {
 			for (ISVDBIndex index : fPluginLibraryList) {
-				index.loadIndex(new SubProgressMonitor(sm, 1));
+				index.loadIndex(subMonitor.newChild(1));
 			}
 		}
 		
-		sm.done();
+		subMonitor.done();
 	}
 	
 	public boolean isLoaded() {
@@ -220,17 +220,18 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public void rebuildIndex(IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		/*
 		for (ISVDBIndex i : getIndexList()) {
 			i.rebuildIndex(monitor);
 		}
 		 */
-		monitor.beginTask("Rebuild Indexes", 1000*getIndexList().size());
+		subMonitor.beginTask("Rebuild Indexes", 1000*getIndexList().size());
 		for (ISVDBIndex i : getIndexList()) {
-			i.execIndexChangePlan(new SubProgressMonitor(monitor, 1000),
+			i.execIndexChangePlan(subMonitor.newChild(1000),
 					new SVDBIndexChangePlanRebuild(i));
 		}
-		monitor.done();
+		subMonitor.done();
 	}
 	
 	public void clear() {
@@ -540,9 +541,12 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			ISVDBRefSearchSpec			ref_spec,
 			ISVDBRefVisitor				ref_matcher) {
 		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fFileSearchOrder.size());
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			SubMonitor loopMonitor = subMonitor.newChild(1);
+			loopMonitor.setWorkRemaining(index_l.size());
 			for (ISVDBIndex index : index_l) {
-				index.findReferences(monitor, ref_spec, ref_matcher);
+				index.findReferences(loopMonitor.newChild(1), ref_spec, ref_matcher);
 			}
 		}
 	}
@@ -597,11 +601,14 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 
 	public SVDBFile findFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fFileSearchOrder.size());
 		
 		// Search the indexes in order
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			SubMonitor loopMonitor = subMonitor.newChild(1);
+			loopMonitor.setWorkRemaining(index_l.size());
 			for (ISVDBIndex index : index_l) {
-				if ((ret = index.findFile(monitor, path)) != null) {
+				if ((ret = index.findFile(loopMonitor.newChild(1), path)) != null) {
 					break;
 				}
 			}
@@ -615,11 +622,13 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	
 	public SVDBFile findPreProcFile(IProgressMonitor monitor, String path) {
 		SVDBFile ret = null;
-		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fFileSearchOrder.size());
 		// Search the indexes in order
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			SubMonitor loopMonitor = subMonitor.newChild(1);
+			loopMonitor.setWorkRemaining(index_l.size());
 			for (ISVDBIndex index : index_l) {
-				if ((ret = index.findPreProcFile(monitor, path)) != null) {
+				if ((ret = index.findPreProcFile(loopMonitor.newChild(1), path)) != null) {
 					break;
 				}
 			}
@@ -733,10 +742,13 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	
 	public List<SVDBDeclCacheItem> findPackageDecl(IProgressMonitor monitor,
 			SVDBDeclCacheItem pkg_item) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fFileSearchOrder.size());
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			SubMonitor loopMonitor = subMonitor.newChild(1);
+			loopMonitor.setWorkRemaining(index_l.size());
 			for (ISVDBIndex index : index_l) {
-				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(monitor, pkg_item);
+				List<SVDBDeclCacheItem> tmp = index.findPackageDecl(loopMonitor.newChild(1), pkg_item);
 				ret.addAll(tmp);
 			}
 		}
@@ -745,9 +757,12 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fFileSearchOrder.size());
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			SubMonitor loopMonitor = subMonitor.newChild(1);
+			loopMonitor.setWorkRemaining(index_l.size());
 			for (ISVDBIndex index : index_l) {
-				SVDBFile tmp = index.getDeclFile(monitor, item);
+				SVDBFile tmp = index.getDeclFile(loopMonitor.newChild(1), item);
 				if (tmp != null) {
 					return tmp;
 				}
@@ -757,9 +772,12 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 	}
 	
 	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, fFileSearchOrder.size());
 		for (List<ISVDBIndex> index_l : fFileSearchOrder) {
+			SubMonitor loopMonitor = subMonitor.newChild(1);
+			loopMonitor.setWorkRemaining(index_l.size());
 			for (ISVDBIndex index : index_l) {
-				SVDBFile tmp = index.getDeclFilePP(monitor, item);
+				SVDBFile tmp = index.getDeclFilePP(loopMonitor.newChild(1), item);
 				if (tmp != null) {
 					return tmp;
 				}
@@ -783,17 +801,23 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 			ISVDBIndexOperation 			op,
 			boolean 						sync) {
 		synchronized (this) {
+			SubMonitor subMonitor = SubMonitor.convert(monitor);
+			int workRemaining = fFileSearchOrder.size();
+			if (fProjectRefProvider != null)
+				workRemaining += fProjectRefs.size();
+			subMonitor.setWorkRemaining(workRemaining);
+			
 			already_searched.add(this);
 			for (List<ISVDBIndex> index_l : fFileSearchOrder) {
 				for (ISVDBIndex index : index_l) {
-					index.execOp(monitor, op, sync);
+					index.execOp(subMonitor.newChild(1), op, sync);
 				}
 			}
 			if (fProjectRefProvider != null) {
 				for (String ref : fProjectRefs) {
 					SVDBIndexCollection mgr_t = fProjectRefProvider.resolveProjectRef(ref);
 					if (mgr_t != null && !already_searched.contains(mgr_t)) {
-						mgr_t.execOp(monitor, already_searched, op, sync);
+						mgr_t.execOp(subMonitor.newChild(1), already_searched, op, sync);
 					}
 				}
 			}			

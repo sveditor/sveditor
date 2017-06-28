@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -98,20 +98,23 @@ public class SVOpenTypeDialog extends FilteredItemsSelectionDialog {
 			ItemsFilter 				filter, 
 			IProgressMonitor 			monitor) throws CoreException {
 		ISVDBIndexIterator index_it = fIndexIt;
-		
+
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		if (index_it != null) {
-			SubProgressMonitor find_monitor = new SubProgressMonitor(monitor, 1);
 			List<SVDBDeclCacheItem> items = 
-					index_it.findGlobalScopeDecl(find_monitor, "", new SVDBAllTypeMatcher());
+					index_it.findGlobalScopeDecl(subMonitor.newChild(1), "", new SVDBAllTypeMatcher());
 
 			synchronized (items) {
+				SubMonitor loopMonitor = subMonitor.newChild(1);
+				loopMonitor.setWorkRemaining(items.size());
 				for (SVDBDeclCacheItem i : items) {
 					content_provider.add(i, filter);
+					loopMonitor.worked(1);
 				}
 			}
 		}
 		
-		monitor.done();
+		subMonitor.done();
 	}
 
 	@Override
