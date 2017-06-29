@@ -72,7 +72,7 @@ public class TestIndentConstraints extends SVCoreTestCaseBase {
 		    ;
 	
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IndentTests.runTest(getName(), fLog, doc);
 	}
 

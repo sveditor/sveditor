@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 -- 2.0.1 Release --
 
-?- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+- #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
 - #(enh) - Reorganize Structure View for
  
@@ -11,6 +11,8 @@
 - #(129) Improvement Request: Highlight matching brace on begin / end
 
 - #(489) Correct object-type ID issue for new 'unique constraint' object
+
+- #(499) Format /beautifier of special code in systemverilog is wrong 
 
 ------------------------------------------------------------------------------
 -- 2.0.0.1 Release --
