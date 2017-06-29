@@ -13,14 +13,13 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.expr.SVDBExpr;
 import net.sf.sveditor.core.db.expr.SVDBOpenRangeListExpr;
 
 public class SVDBConstraintUniqueStmt extends SVDBStmt {
 	public SVDBOpenRangeListExpr				fExpr;
 	
 	public SVDBConstraintUniqueStmt() {
-		super(SVDBItemType.ConstraintForeachStmt);
+		super(SVDBItemType.ConstraintUniqueStmt);
 	}
 	
 	public void setExpr(SVDBOpenRangeListExpr expr) {

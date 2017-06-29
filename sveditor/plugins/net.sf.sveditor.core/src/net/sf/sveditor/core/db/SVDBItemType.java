@@ -104,6 +104,7 @@ public enum SVDBItemType {
 	ConstraintImplStmt,
 	ConstraintSetStmt,
 	ConstraintSolveBeforeStmt,
+	ConstraintUniqueStmt,
 	ContinueStmt,
 	CoverStmt,
 	DisableStmt,
