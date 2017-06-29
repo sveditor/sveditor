@@ -17,6 +17,11 @@
 
 - #(496) - Move back to building SVEditor Java7  (vs Java8)
 
+------------------------------------------------------------------------------
+-- 2.0.0.2 Release --
+
+- #(489) Correct object-type ID issue for new 'unique constraint' object
+
 
 ------------------------------------------------------------------------------
 -- 2.0.0 Release --
