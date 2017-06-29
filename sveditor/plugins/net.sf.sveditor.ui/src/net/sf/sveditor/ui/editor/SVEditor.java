@@ -578,7 +578,7 @@ public class SVEditor extends TextEditor
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				getSourceViewer().getTextWidget().setCaretOffset(offset);
+				selectAndReveal(offset, 0, offset, 0);
 			}
 			
 		}

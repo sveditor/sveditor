@@ -31,7 +31,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class DesignHierarchyContentProviderBase {
 	
@@ -48,7 +48,7 @@ public class DesignHierarchyContentProviderBase {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
 		IProject projects[] = root.getProjects();
-		monitor.beginTask("Build Design Hierarchy", 1000*projects.length);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Build Design Hierarchy", 1000*projects.length);
 		
 		for (IProject p : projects) {
 			if (SVProjectNature.hasSvProjectNature(p)) {
@@ -58,8 +58,8 @@ public class DesignHierarchyContentProviderBase {
 				List<SVDBDeclCacheItem> module_l = index.findGlobalScopeDecl(
 						new NullProgressMonitor(), "", 
 						new SVDBFindByTypeMatcher(SVDBItemType.ModuleDecl));
-				SubProgressMonitor m = new SubProgressMonitor(monitor, 1000);
-				m.beginTask("Checking module declarations", 100*module_l.size());
+				SubMonitor loopMonitor = subMonitor.newChild(1000);
+				loopMonitor.beginTask("Checking module declarations", 100*module_l.size());
 //				System.out.println("module_l.size=" + module_l.size());
 				
 				List<SVDBModuleDecl> root_list = new ArrayList<SVDBModuleDecl>();
@@ -80,18 +80,18 @@ public class DesignHierarchyContentProviderBase {
 							root_list.add((SVDBModuleDecl)module_it.getSVDBItem());
 						}
 					}
-					m.worked(100);
+					loopMonitor.worked(100);
 				}
 				
-				m.done();
+				loopMonitor.done();
 				
 				fRootMap.put(p, root_list);
 			} else {
-				monitor.worked(1000);
+				subMonitor.worked(1000);
 			}
 		}
 		
-		monitor.done();
+		subMonitor.done();
 	}
 	
 	public Set<IProject> getRoots() {

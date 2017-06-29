@@ -11,6 +11,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 	private List<String>				fPreFiles;
@@ -30,11 +31,10 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 				ISVDBDeclCache.FILE_ATTR_ARG_FILE+
 				ISVDBDeclCache.FILE_ATTR_HAS_MARKERS);
 		ISVDBFileSystemProvider fs_provider = index.getFileSystemProvider();
-		
-		monitor.beginTask("Propagate markers for " + index.getBaseLocation(), 10000);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Propagate markers for " + index.getBaseLocation(), 100);
 	
 		for (String path : paths) {
-			if (monitor.isCanceled()) {
+			if (subMonitor.isCanceled()) {
 				break;
 			}
 			
@@ -48,7 +48,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 			fs_provider.clearMarkers(path);
 			
 			if (m_l != null && m_l.size() > 0) {
-				monitor.subTask("Propagate markers for " + path);
+				subMonitor.subTask("Propagate markers for " + path);
 				for (SVDBMarker m : m_l) {
 					int lineno = -1;
 					String msg = m.getMessage();
@@ -77,7 +77,9 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 				}
 			}
 			
-			monitor.worked(1);
+			subMonitor.worked(1);
+			// Basically going to consume 1% of remaining each time we get here, which will keep the progress bar moving, asymptotically to 100
+			subMonitor.setWorkRemaining(100);	
 		}
 	
 		// Handle any files that 'disappeared' during the index operation
@@ -87,7 +89,7 @@ public class SVDBPropagateMarkersOp implements ISVDBIndexOperation {
 			}
 		}
 
-		monitor.done();
+		subMonitor.done();
 	}
 
 }

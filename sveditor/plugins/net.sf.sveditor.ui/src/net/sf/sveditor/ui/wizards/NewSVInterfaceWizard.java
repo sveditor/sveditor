@@ -17,6 +17,7 @@ import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 
 public class NewSVInterfaceWizard extends AbstractNewSVItemFileWizard {
 	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVInterfaceWizard";
@@ -34,11 +35,12 @@ public class NewSVInterfaceWizard extends AbstractNewSVItemFileWizard {
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
 		NewInterfaceGenerator gen = new NewInterfaceGenerator(fTagProc);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		
-		gen.generate(getIndexIterator(monitor), 
+		gen.generate(getIndexIterator(subMonitor.newChild(1)), 
 				file_path,
 				fPage.getOption(AbstractNewSVItemFileWizardPage.NAME, null),
-				monitor);
+				subMonitor.newChild(1));
 	}
 
 }

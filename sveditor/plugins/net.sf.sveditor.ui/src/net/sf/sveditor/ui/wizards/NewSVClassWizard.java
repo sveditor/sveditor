@@ -19,7 +19,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.srcgen.NewClassGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -27,6 +26,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.wizard.IWizardPage;
 
 public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
@@ -72,13 +72,14 @@ public class NewSVClassWizard extends AbstractNewSVItemFileWizard {
 	@Override
 	protected void generate(IProgressMonitor monitor, IFile file_path) {
 		NewClassGenerator gen = new NewClassGenerator(fTagProc);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		
-		gen.generate(getIndexIterator(monitor), 
+		gen.generate(getIndexIterator(subMonitor.newChild(1)), 
 				file_path,
 				fPage.getOption(AbstractNewSVItemFileWizardPage.NAME, null),
 				fPage.getOption(NewSVClassWizardPage.SUPER_CLASS, null),
 				fPage.getOption(NewSVClassWizardPage.OVERRIDE_NEW, "true").equals("true"),
-				monitor);
+				subMonitor.newChild(1));
 		
 		if (getOption(NewSVClassWizardPage.ADD_TO_PACKAGE, "false").equals("true")) {
 			// Update package source

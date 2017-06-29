@@ -6,6 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
@@ -34,11 +39,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 
 public class SVDBArgFileParser implements ILogLevelListener {
 	private boolean						fDebugEn;
@@ -189,13 +189,13 @@ public class SVDBArgFileParser implements ILogLevelListener {
 			ISVDBArgFileIndexBuildData	build_data) {
 		fLog.debug("discoverRootFiles - " + fBaseLocation);
 
+		
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Discover Root Files", 4);
 		/*
 		clearFilesList();
 		clearIncludePaths();
 		clearDefines();
 		 */
-
-		monitor.beginTask("Discover Root Files", 4);
 
 		// Add an include path for the arg file location
 		build_data.addIncludePath(fResolvedBaseLocationDir);
@@ -203,7 +203,7 @@ public class SVDBArgFileParser implements ILogLevelListener {
 		String resolved_argfile_path = fResolvedBaseLocation;
 		if (fFSProvider.fileExists(resolved_argfile_path)) {
 			processArgFile(
-					new SubProgressMonitor(monitor, 4), 
+					subMonitor.newChild(4), 
 					build_data,
 					null, 
 					null, 
@@ -222,7 +222,7 @@ public class SVDBArgFileParser implements ILogLevelListener {
 			}
 		}
 
-		monitor.done();
+		subMonitor.done();
 	}	
 
 	public SVDBArgFile parseArgFile(

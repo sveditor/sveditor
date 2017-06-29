@@ -23,7 +23,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class RefreshIndexJob extends Job implements ILogLevel {
@@ -52,8 +52,9 @@ public class RefreshIndexJob extends Job implements ILogLevel {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		synchronized (fIndexRebuildList) {
-			monitor.beginTask("Refreshing Indexes", 20*fIndexRebuildList.size());
+			subMonitor.beginTask("Refreshing Indexes", 20*fIndexRebuildList.size());
 		}
 		long rebuild_start_time;
 		long task_start_time;
@@ -73,17 +74,17 @@ public class RefreshIndexJob extends Job implements ILogLevel {
 			try {
 				task_start_time = System.currentTimeMillis();
 				// Skew monitor the weights of these two tasks a bit so that they are somewhat time related
-				index.rebuildIndex(new SubProgressMonitor(monitor, 5));
+				index.rebuildIndex(subMonitor.newChild(5));
 				fLog.debug(LEVEL_MID, "RefreshIndexJob - " + index.getProject() + " " + index.getBaseLocation() + ": rebuildIndex took " + (System.currentTimeMillis() - task_start_time)/1000 + " seconds");
 				task_start_time = System.currentTimeMillis();
-				index.loadIndex(new SubProgressMonitor(monitor, 15));
+				index.loadIndex(subMonitor.newChild(15));
 				fLog.debug(LEVEL_MID, "RefreshIndexJob - " + index.getProject() + " " + index.getBaseLocation() + ": loadIndex took " + (System.currentTimeMillis() - task_start_time)/1000 + " seconds");
 			} catch (Exception e) {
 				fLog.error("Exception during index refresh: " + e.getMessage(), e);
 			}
 		}
 		
-		monitor.done();
+		subMonitor.done();
 		fParent.refreshJobComplete();
 		fLog.debug(LEVEL_MIN, "RefreshIndexJob: The entire rebuild for projects " + projects.toString() + " took " + (System.currentTimeMillis() - rebuild_start_time)/1000 + " seconds");
 		

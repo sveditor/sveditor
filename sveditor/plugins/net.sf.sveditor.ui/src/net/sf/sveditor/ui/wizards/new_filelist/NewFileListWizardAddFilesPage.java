@@ -15,7 +15,7 @@ import net.sf.sveditor.ui.ResourceSelCheckboxMgr;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -274,11 +274,17 @@ public class NewFileListWizardAddFilesPage extends WizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException,
 				InterruptedException {
+					SubMonitor subMonitor = SubMonitor.convert(monitor);
+					int workremaining = 50;
 					
-					fArgFileCreator.discover_files(new SubProgressMonitor(monitor, 50));
+					if (fOrganizeFiles) workremaining = 100;
+					
+					subMonitor.setWorkRemaining(50);
+					
+					fArgFileCreator.discover_files(subMonitor.newChild(50));
 					
 					if (fOrganizeFiles) {
-						fArgFileCreator.organize_files(new SubProgressMonitor(monitor, 50));
+						fArgFileCreator.organize_files(subMonitor.newChild(50));
 					}
 					
 				}
