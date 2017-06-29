@@ -27,7 +27,8 @@ public class SVDBMarker extends SVDBItemBase {
 		MissingInclude,
 		UndefinedMacro,
 		UnbalancedDirective,
-		ParseError
+		ParseError,
+		SemanticError
 	};
 	
 	public String					fMessage;

@@ -110,7 +110,6 @@ public class SVDBArgFileParser implements ILogLevelListener {
 				String sub_path = SVFileUtils.resolvePath(stmt.getPath(), 
 						sub_base_location_dir, fFSProvider, fInWorkspaceOk);
 			
-				System.out.println("sub_path=" + sub_path);
 				if (processed_files.add(sub_path)) {
 					SVDBFile sub_argfile = build_data.getFile(new NullProgressMonitor(), sub_path);
 					if (sub_argfile != null) {

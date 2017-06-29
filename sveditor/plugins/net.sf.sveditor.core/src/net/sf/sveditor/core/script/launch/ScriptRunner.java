@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import net.sf.sveditor.core.ILineListener;
 import net.sf.sveditor.core.InputStreamLineReader;
@@ -28,6 +31,7 @@ public class ScriptRunner {
 	}
 	
 	public int run(
+			IProgressMonitor	monitor,
 			List<String>		arguments,
 			Map<String, String>	env,
 			File				working_dir) throws IOException {
@@ -77,9 +81,21 @@ public class ScriptRunner {
 		err.start();
 		
 		int code = 0;
+		
+		long timeout = 1000/3;
 
 		try {
-			code = p.waitFor();
+			boolean done;
+			do {
+				done = p.waitFor(timeout, TimeUnit.MILLISECONDS);
+				if (monitor.isCanceled()) {
+					p.destroy();
+				}
+			} while (!done && !monitor.isCanceled());
+			
+			code = p.exitValue();
+			
+			// Cleanup
 			out.join();
 			err.join();
 		} catch (InterruptedException e) {

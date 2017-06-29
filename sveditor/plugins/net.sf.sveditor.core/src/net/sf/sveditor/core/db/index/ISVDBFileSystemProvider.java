@@ -16,12 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public interface ISVDBFileSystemProvider {
-	
-	String				MARKER_TYPE_ERROR   = "ERROR";
-	String				MARKER_TYPE_WARNING = "WARNING";
-	String				MARKER_TYPE_INFO    = "INFO";
-	String				MARKER_TYPE_TASK    = "TASK";
+public interface ISVDBFileSystemProvider extends ISVDBMarkerMgr {
 	
 	String				PATHFMT_FILESYSTEM = "PATHFMT_FS";
 	String				PATHFMT_WORKSPACE  = "PATHFMT_WS";
@@ -29,14 +24,7 @@ public interface ISVDBFileSystemProvider {
 	void init(String root);
 	
 	void dispose();
-	
-	void addMarker(
-			String 			path,
-			String			type,
-			int				lineno,
-			String			msg);
-			
-	void clearMarkers(String path);
+
 	
 	/**
 	 * Resolve any relative references

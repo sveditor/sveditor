@@ -159,7 +159,7 @@ public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 		fScannerMgr.addMessageListener(msgScannerListener);
 		
 		try {
-			int code = runner.run(argv, null, wd_f);
+			int code = runner.run(monitor, argv, null, wd_f);
 			
 //			if (code != 0) {
 //				fLog.error("Command exited with non-zero code: " + code);
