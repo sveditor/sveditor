@@ -129,7 +129,7 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 				pairIndex = i-1;
 			}
 		}
-		
+
 		// Now check if we need to search for complex pairs (didn't find a simple pair)
 		if (fSearchComplexPairs && (fStartPos == -1) && (fEndPos == -1) && 
 				(
@@ -141,11 +141,12 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 			// Check if we are at the start of a word
 			if (!IsCharDelimiter(prev_char))  {
 				scanner.setScanFwd(false);
+				scanner.get_ch();		// Step to prevch
 				
 				// Scan back to start of current word
 				curr_word = GetNextWord(scanner, true);
 				scanner.setScanFwd(true);
-				scanner.get_ch();		// Move scanner to start of word
+				scanner.seek(pos-curr_word.length());
 			}
 			else  {
 				scanner.setScanFwd(true);
