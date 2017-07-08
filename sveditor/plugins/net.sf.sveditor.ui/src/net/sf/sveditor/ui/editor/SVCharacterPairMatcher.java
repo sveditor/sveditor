@@ -34,7 +34,7 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 			SVDocumentPartitions.SV_MULTILINE_COMMENT,
 			SVDocumentPartitions.SV_SINGLELINE_COMMENT
 	};
-	private final char [] 				fDelims = {' ', '\t', '\n', '\r', ':'};
+	private final int [] 				fDelims = {-1, ' ', '\t', '\n', '\r', ':'};
 	
 	/**
 	 * Defaults to verilog pairs
@@ -146,7 +146,12 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 				// Scan back to start of current word
 				curr_word = GetNextWord(scanner, true);
 				scanner.setScanFwd(true);
-				scanner.seek(pos-curr_word.length());
+				if (pos - curr_word.length() > 0)  {
+					scanner.seek(pos-curr_word.length());
+				}
+				else  {
+					scanner.seek(pos);
+				}
 			}
 			else  {
 				scanner.setScanFwd(true);

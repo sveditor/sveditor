@@ -12,7 +12,7 @@
 
 - #(489) Correct object-type ID issue for new 'unique constraint' object
 
-- #(499) Format /beautifier of special code in systemverilog is wrong 
+- #(499) Format /beautifier of special code in systemverilog is wrong (interface class) 
 
 ------------------------------------------------------------------------------
 -- 2.0.0.1 Release --
