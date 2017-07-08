@@ -1804,7 +1804,6 @@ public class IndentTests extends SVCoreTestCaseBase {
 				"endmodule\n" 
 				;
 		
-		SVCorePlugin.getDefault().enableDebug(true);
 		LogHandle log = LogFactory.getLogHandle(testname);
 		
 		// Run the indenter over the reference source
@@ -1817,11 +1816,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		indenter.setAdaptiveIndentEnd(5);
 		String result = indenter.indent(-1, -1);
 		
-		log.debug("Ref:\n" + ref);
-		log.debug("====");
-		log.debug("Result:\n" + result);
-		log.debug("====");
-		
+		SVCorePlugin.getDefault().enableDebug(true);
 		IndentComparator.compare(log, testname, ref, result);
 		LogFactory.removeLogHandle(log);
 	}
@@ -2288,6 +2283,52 @@ public class IndentTests extends SVCoreTestCaseBase {
 		
 		fLog.debug("Result:");
 		fLog.debug(result);
+		IndentComparator.compare(getName(), expected, result);
+	}	
+	
+	
+	public void testInterfaceClass() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content =
+						"interface class test_class_interface\n" +
+						"#(\n" +
+						"type T = int,\n" +
+						"type A = bit\n" +
+						");\n" +
+						"// provide prototype for signal change so that pve_sequencer can call it\n" +
+						"pure virtual task method_to_be_added(uvm_component sender, uvm_object data_container);\n" +
+						"endclass\n" +
+						"\n" +
+						"class pve_predictor #(type SEQHTYPE = pve_virtual_sequencer) extends uvm_component implements test_class_interface;\n" +
+						"//blablabla\n" +
+						"endclass\n" +
+						"\n";
+		String expected =
+				"interface class test_class_interface\n" +
+				"		#(\n" +
+				"		type T = int,\n" +
+				"		type A = bit\n" +
+				"		);\n" +
+				"	// provide prototype for signal change so that pve_sequencer can call it\n" +
+				"	pure virtual task method_to_be_added(uvm_component sender, uvm_object data_container);\n" +
+				"endclass\n" +
+				"\n" +
+				"class pve_predictor #(type SEQHTYPE = pve_virtual_sequencer) extends uvm_component implements test_class_interface;\n" +
+				"	//blablabla\n" +
+				"endclass\n" +
+				"\n";
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(content));
+		
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		String result = indenter.indent();
+		
+		fLog.debug("Result:");
+		fLog.debug(result);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IndentComparator.compare(getName(), expected, result);
 	}	
 	

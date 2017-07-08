@@ -616,9 +616,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		// for adaptive-indent purposes
 
 		tok = next_s();
-
+		
+		// interface class ends with endclass
+		if (tok.getImage().equals("class"))  {
+			end = get_end_kw(tok.getImage());
+			tok = next_s();
+		}
 		// push a new scope for ports and parameters
 		start_of_scope(tok);
+
 
 		// Reach the end of the declaration
 		while (!tok.isOp(";")) {
