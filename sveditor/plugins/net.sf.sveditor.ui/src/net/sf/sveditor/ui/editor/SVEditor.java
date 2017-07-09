@@ -341,6 +341,8 @@ public class SVEditor extends TextEditor
 				applyUnprocessedRegions(fSVDBFilePP);
 				applyFolding(fSVDBFile, fSVDBFilePP);
 				applyOverrideAnnotations(fSVDBFile);
+			} else {
+				fLog.debug(LEVEL_MAX, "-- UpdateSVDBFile.new_in==null");
 			}
 			
 			if (fOutline != null) {

@@ -355,6 +355,7 @@ public class SVPreProcessor extends AbstractTextScanner
 		cleanup_preproc_leftovers();
 	
 		// Leave final file
+		ret.setFileId(fInputCurr.getFileId());
 		fInputCurr.close();
 		
 		end = System.currentTimeMillis();

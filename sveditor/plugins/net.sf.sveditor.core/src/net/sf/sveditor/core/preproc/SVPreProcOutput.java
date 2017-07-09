@@ -36,7 +36,7 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		
 		fLineno = 1;
 		fIncLineno = true;
-		fFileId = 0;
+		fFileId = -1;
 		
 		int length = fText.length();
 		for (int i=0; i<length; i++) {
@@ -132,6 +132,10 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	@Override
 	public int getFileId() {
 		return fFileId;
+	}
+	
+	public void setFileId(int file_id) {
+		fFileId = file_id;
 	}
 
 	@Override

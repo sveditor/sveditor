@@ -250,7 +250,7 @@ public class SVOutlinePage extends ContentOutlinePage
 			if (curr_path != null && curr_path.size() > 0) {
 				file_path = curr_path.get(0);
 			}
-
+			
 			fContent = new SVOutlineContent(fEditor.getSVDBFile(), file_path);
 			
 			List<Object> exp_path_list = getExpansionPaths();

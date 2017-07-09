@@ -93,7 +93,7 @@ public class SVTreeContentProvider implements ITreeContentProvider {
 			} else {
 //				System.out.println("elem instanceof " + (elem instanceof ISVDBChildParent));
 			}
-			
+		
 			return c.toArray();
 		} else if (elem instanceof List) {
 			return ((List)elem).toArray();

@@ -20,6 +20,8 @@
 
 - #(enh - 124) - Update build-script launcher to support termination.
 
+- #(498) - Outline view is now properly shown for files that are not part of the index
+
 ------------------------------------------------------------------------------
 -- 2.0.0.1 Release --
 
