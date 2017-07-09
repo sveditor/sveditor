@@ -73,22 +73,20 @@ public class SVClassDeclParser extends SVParserBase {
 		if (fLexer.peekKeyword(KW.EXTENDS)) {
 			fLexer.eatToken();
 			cls.setSuperClass(parsers().dataTypeParser().class_type());
-
-			// class_type() should handle parameterized classes
-			// TODO: what's this?
-//			if (fLexer.peekOperator(OP.HASH, OP.LPAREN)) {
-//				// scanner().unget_ch('#');
-//				// TODO: List<SVDBModIfcClassParam> params = fParamDeclParser.parse();
-//				// cls.getSuperParameters().addAll(params);
-//				if (fLexer.peekOperator(OP.HASH)) {
-//					fLexer.eatToken();
-//				}
-//				if (fLexer.peekOperator(OP.LPAREN)) {
-//					fLexer.skipPastMatch("(", ")");
-//				} else {
-//					fLexer.eatToken();
-//				}
-//			}
+		}
+		
+		if (fLexer.peekKeyword(KW.IMPLEMENTS)) {
+			fLexer.eatToken();
+			
+			while (true) {
+				cls.addImplements(parsers().dataTypeParser().class_type());
+				
+				if (fLexer.peekOperator(OP.COMMA)) {
+					fLexer.eatToken();
+				} else {
+					break;
+				}
+			}
 		}
 		
 		fLexer.readOperator(OP.SEMICOLON);

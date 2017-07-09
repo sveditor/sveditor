@@ -53,12 +53,15 @@ import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
+import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-public class SVContentAssistExprVisitor implements ILogLevel {
+public class SVContentAssistExprVisitor implements ILogLevel, ILogLevelListener {
 	private LogHandle					fLog;
+	private boolean						fDebugEn;
 	private ISVDBIndexIterator			fIndexIt;
 	private ISVDBScopeItem				fScope;
 	private ISVDBChildItem				fClassScope;
@@ -66,7 +69,7 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	private Stack<ISVDBItemBase>		fResolveStack;
 	private SVDBFindNamedClass 			fFindNamedClass;
 	private SVDBFindParameterizedClass	fFindParameterizedClass;
-	private boolean					fStaticAccess;
+	private boolean						fStaticAccess;
 	
 	private class SVAbortException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
@@ -87,6 +90,8 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			ISVDBFindNameMatcher	name_matcher,
 			ISVDBIndexIterator 		index_it) {
 		fLog = LogFactory.getLogHandle("SVContentAssistExprVisitor");
+		fLog.addLogLevelListener(this);
+		logLevelChanged(fLog);
 		fResolveStack = new Stack<ISVDBItemBase>();
 		fScope = scope;
 		fNameMatcher = name_matcher;
@@ -96,6 +101,14 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		classifyScope();
 	}
 	
+	
+	@Override
+	public void logLevelChanged(ILogHandle handle) {
+		fDebugEn = (handle.getDebugLevel() > 0);
+	}
+
+
+
 	private void classifyScope() {
 		ISVDBChildItem parent = fScope;
 		
@@ -121,7 +134,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				int idx;
 				if ((idx = name.indexOf("::")) != -1) {
 					String class_name = name.substring(0, idx);
-					fLog.debug("class_name: " + class_name);
+					if (fDebugEn) {
+						fLog.debug("class_name: " + class_name);
+					}
 					List<SVDBClassDecl> result = fFindNamedClass.findItem(class_name);
 					
 					if (result.size() > 0) {
@@ -133,7 +148,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	}
 	
 	public ISVDBItemBase findItem(SVDBExpr expr) {
-		fLog.debug("findItem");
+		if (fDebugEn) {
+			fLog.debug("findItem");
+		}
 		fResolveStack.clear();
 		
 		try {
@@ -149,7 +166,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	}
 
 	public ISVDBItemBase findTypeItem(SVDBExpr expr) {
-		fLog.debug("findItemType: fScope=" + SVDBItem.getName(fScope));
+		if (fDebugEn) {
+			fLog.debug("findItemType: fScope=" + SVDBItem.getName(fScope));
+		}
 		fResolveStack.clear();
 		
 		try {
@@ -165,7 +184,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	}
 
 	protected void visit(SVDBExpr expr) {
-		fLog.debug("visit: " + expr.getType());
+		if (fDebugEn) {
+			fLog.debug("visit: " + expr.getType());
+		}
 		switch (expr.getType()) {
 				
 			case CastExpr:
@@ -223,12 +244,16 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	}
 	
 	protected void cast_expr(SVDBCastExpr expr) {
-		fLog.debug("cast_expr: " + expr.getCastType().toString());
+		if (fDebugEn) {
+			fLog.debug("cast_expr: " + expr.getCastType().toString());
+		}
 		
 	}
 
 	protected void field_access_expr(SVDBFieldAccessExpr expr) {
-		fLog.debug("field_access_expr: (" + (expr.isStaticRef()?"::":".") + ")");
+		if (fDebugEn) {
+			fLog.debug("field_access_expr: (" + (expr.isStaticRef()?"::":".") + ")");
+		}
 		visit(expr.getExpr());
  		fStaticAccess = expr.isStaticRef();
 		visit(expr.getLeaf());
@@ -237,9 +262,11 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	
 	private ISVDBItemBase findInScopeHierarchy(String name) {
 		SVDBFindByNameInScopes finder = new SVDBFindByNameInScopes(fIndexIt);
-		
-		fLog.debug("FindByNameInScopes: " + 
-				((fScope != null)?(fScope.getType() + " " + SVDBItem.getName(fScope)):"NONE"));
+	
+		if (fDebugEn) {
+			fLog.debug("FindByNameInScopes: " + 
+					((fScope != null)?(fScope.getType() + " " + SVDBItem.getName(fScope)):"NONE"));
+		}
 		List<ISVDBItemBase> items = finder.findItems(fScope, name, false);
 		
 		// Filter out the forward typedefs
@@ -253,10 +280,14 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	}
 	
 	private ISVDBItemBase findInClassHierarchy(ISVDBChildItem root, String name) {
-		fLog.debug("findInClassHierarchy: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		if (fDebugEn) {
+			fLog.debug("findInClassHierarchy: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		}
 		if (root.getType() == SVDBItemType.Covergroup) {
 			// Find the built-in class
-			fLog.debug("Search for covergroup class");
+			if (fDebugEn) {
+				fLog.debug("Search for covergroup class");
+			}
 			
 			List<SVDBClassDecl> l = fFindNamedClass.findItem("__sv_builtin_covergroup");
 			if (l.size() > 0) {
@@ -284,10 +315,14 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	
 	private ISVDBItemBase findInModuleInterface(SVDBModIfcDecl root, String name) {
 		ISVDBItemBase ret = null;
-		fLog.debug("findInModuleInterface: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		if (fDebugEn) {
+			fLog.debug("findInModuleInterface: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		}
 	
 		for (ISVDBChildItem c : root.getChildren()) {
-			fLog.debug("  item: " + c.getType() + " " + SVDBItem.getName(c));
+			if (fDebugEn) {
+				fLog.debug("  item: " + c.getType() + " " + SVDBItem.getName(c));
+			}
 			if (c.getType() == SVDBItemType.VarDeclStmt) {
 				for (ISVDBChildItem i : ((SVDBVarDeclStmt)c).getChildren()) {
 					if (fNameMatcher.match((ISVDBNamedItem)i, name)) {
@@ -310,7 +345,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 					}
 				}
 			} else if (c instanceof ISVDBNamedItem) {
-				fLog.debug("    Named Item");
+				if (fDebugEn) {
+					fLog.debug("    Named Item");
+				}
 				if (fNameMatcher.match((ISVDBNamedItem)c, name)) {
 					ret = c;
 					break;
@@ -328,14 +365,18 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				}
 			}
 		}
-		
-		fLog.debug("<-- findInModuleInterface: " + ret);
+	
+		if (fDebugEn) {
+			fLog.debug("<-- findInModuleInterface: " + ret);
+		}
 		
 		return ret;
 	}
 
 	private ISVDBItemBase findInTypeInfo(SVDBTypeInfo root, String name) {
-		fLog.debug("findInTypeInfo: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		if (fDebugEn) {
+			fLog.debug("findInTypeInfo: " + root.getType() + " " + SVDBItem.getName(root) + " => " + name);
+		}
 		
 		if (root.getType().isElemOf(SVDBItemType.TypeInfoStruct, SVDBItemType.TypeInfoUnion)) {
 			ISVDBChildParent p = (ISVDBChildParent)root;
@@ -388,7 +429,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 	private ISVDBItemBase findType(ISVDBItemBase item) {
 		SVDBTypeInfo   type = null;
 		List<SVDBVarDimItem> var_dim = null;
-		fLog.debug("findType: " + item.getType() + " " + SVDBItem.getName(item));
+		if (fDebugEn) {
+			fLog.debug("findType: " + item.getType() + " " + SVDBItem.getName(item));
+		}
 		
 		if (item.getType() == SVDBItemType.VarDeclItem) {
 			SVDBVarDeclItem var  = (SVDBVarDeclItem)item;
@@ -398,10 +441,14 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 			type = stmt.getTypeInfo();
 		} else if (item.getType() == SVDBItemType.ClassDecl) {
 			// NULL transform: item is already a type
-			fLog.debug("    item " + SVDBItem.getName(item) + " already a class");
+			if (fDebugEn) {
+				fLog.debug("    item " + SVDBItem.getName(item) + " already a class");
+			}
 			return item;
 		} else if (item.getType() == SVDBItemType.PackageDecl) {
-			fLog.debug("    item " + SVDBItem.getName(item) + " is a package");
+			if (fDebugEn) {
+				fLog.debug("    item " + SVDBItem.getName(item) + " is a package");
+			}
 			return item;
 		} else if (item.getType() == SVDBItemType.ModIfcInstItem) {
 			SVDBModIfcInstItem mod_ifc = (SVDBModIfcInstItem)item;
@@ -413,7 +460,9 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 		}
 		
 		if (type != null) {
-			fLog.debug("    type is non-null: " + type.getType());
+			if (fDebugEn) {
+				fLog.debug("    type is non-null: " + type.getType());
+			}
 			if (type.getType() == SVDBItemType.TypeInfoUserDef) {
 				item = findTypedef(item, type.getName());
 			} else if (type.getType() == SVDBItemType.TypeInfoModuleIfc) {
@@ -433,10 +482,14 @@ public class SVContentAssistExprVisitor implements ILogLevel {
 				}
 			}
 		} else {
-			fLog.debug("  type is null");
+			if (fDebugEn) {
+				fLog.debug("  type is null");
+			}
 		}
-		
-		fLog.debug("<-- findType: " + ((item!=null)?SVDBItem.getName(item):"NULL"));
+	
+		if (fDebugEn) {
+			fLog.debug("<-- findType: " + ((item!=null)?SVDBItem.getName(item):"NULL"));
+		}
 		return item;
 	}
 		

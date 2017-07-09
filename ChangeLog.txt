@@ -1,18 +1,24 @@
 
 ------------------------------------------------------------------------------
+-- 2.0.2 Release --
+?- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+------------------------------------------------------------------------------
 -- 2.0.1 Release --
 
-- #(enh) - Add scrollbar to New Class "Add to Package" wizard
-
-- #(enh) - Reorganize Structure View for
+- #(enh) - Reorganize structure of package hierarchy view
  
-- #(497) Editor scrolls to start of file when saving with "Remove trailing whitespace" enabled
+- #(497) - Editor scrolls to start of file when saving with "Remove trailing whitespace" enabled
 
-- #(129) Improvement Request: Highlight matching brace on begin / end
+- #(129) - Improvement Request: Highlight matching brace on begin / end
 
-- #(489) Correct object-type ID issue for new 'unique constraint' object
+- #(489) - Correct object-type ID issue for new 'unique constraint' object
 
-- #(499) Format /beautifier of special code in systemverilog is wrong (interface class) 
+- #(499) - Format /beautifier of special code in systemverilog is wrong (interface class) 
+
+- #(500) - Add support for interface class and 'implements' clause of class declaration
+
+- #(enh - 124) - Update build-script launcher to support termination.
 
 ------------------------------------------------------------------------------
 -- 2.0.0.1 Release --

@@ -21,6 +21,7 @@ public class SVDBClassDecl extends SVDBScopeItem {
 	public List<SVDBModIfcClassParam>			fParams;
 	public SVDBTypeInfoClassType				fClassType;
 	public SVDBTypeInfoClassType				fSuperClass;
+	public List<SVDBTypeInfoClassType>			fImplements;
 
 	public SVDBClassDecl() {
 		this("");
@@ -58,6 +59,17 @@ public class SVDBClassDecl extends SVDBScopeItem {
 	
 	public void setSuperClass(SVDBTypeInfoClassType super_class) {
 		fSuperClass = super_class;
+	}
+	
+	public void addImplements(SVDBTypeInfoClassType impl) {
+		if (fImplements == null) {
+			fImplements = new ArrayList<SVDBTypeInfoClassType>();
+		}
+		fImplements.add(impl);
+	}
+	
+	public List<SVDBTypeInfoClassType> getImplements() {
+		return fImplements;
 	}
 	
 	public SVDBClassDecl duplicate() {

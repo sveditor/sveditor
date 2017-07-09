@@ -5,6 +5,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.ui.console.IPatternMatchListener;
 
 import net.sf.sveditor.core.log.LogFactory;
@@ -16,7 +17,7 @@ import net.sf.sveditor.ui.console.SVEConsole;
 
 public class ScriptConsolePatternMatcherFactory {
 	
-	public static void addPatternMatchers(ILogMessageScannerMgr mgr, SVEConsole console) {
+	public static void addPatternMatchers(ILogMessageScannerMgr mgr, IConsole console) {
 		LogHandle log = LogFactory.getLogHandle("ScriptConsolePatternMatcherFactory");
 		IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint(
 				SVUiPlugin.PLUGIN_ID, "svScriptPatternMatchers");

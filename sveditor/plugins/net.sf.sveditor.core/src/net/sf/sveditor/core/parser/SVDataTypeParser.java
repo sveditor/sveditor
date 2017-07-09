@@ -301,7 +301,13 @@ public class SVDataTypeParser extends SVParserBase {
 				} break;
 				
 				case INTERFACE:
-					type = virtual_type();
+					SVToken t = fLexer.consumeToken();
+					if (fLexer.peekKeyword(KW.CLASS)) {
+						type = class_fwd_type();
+					} else {
+						fLexer.ungetToken(t);
+						type = virtual_type();
+					}
 					break;
 //		} else if (fLexer.peekOperator(OP.LBRACKET) || fLexer.peekKeyword("signed", "unsigned")) {
 				

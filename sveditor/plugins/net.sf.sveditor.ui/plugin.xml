@@ -1921,4 +1921,12 @@ endpackage
          </action>
       </actionSet>
    </extension>
+   <extension
+         point="org.eclipse.debug.ui.consoleLineTrackers">
+      <consoleLineTracker
+            class="net.sf.sveditor.ui.script.launch.ScriptLineTracker"
+            id="net.sf.sveditor.ui.sveScriptLineTracker"
+            processType="sve.script">
+      </consoleLineTracker>
+   </extension>
 </plugin>

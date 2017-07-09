@@ -143,6 +143,7 @@ public interface ISVKeywords {
 		IFNONE("ifnone"),
 		IGNORE_BINS("ignore_bins", true),
 		ILLEGAL_BINS("illegal_bins", true),
+		IMPLEMENTS("implements", true),
 		IMPORT("import", true),
 		IMPLIES("implies", true),
 		INCDIR("incdir"),

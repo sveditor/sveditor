@@ -7,7 +7,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -44,7 +43,7 @@ public class SVEConsole extends MessageConsole
 				updateStreamColors();
 				updateConsoleFontColor();
 			}
-		});        
+		});
 	}
 
 	@Override
@@ -127,7 +126,7 @@ public class SVEConsole extends MessageConsole
 			updateConsoleLimits();
 		}
 	}
-
+	
 	public static SVEConsole getConsole(String name) {
 		IConsoleManager mgr = ConsolePlugin.getDefault().getConsoleManager();
 		SVEConsole ret = null;
