@@ -136,11 +136,24 @@ public class SVDocumentTextScannerBase
 							fIdx++;
 							break;
 						} else {
+							// Start of comment ... return immediately
 							if (fIdx == r.getOffset()) {
-								// Interpret a comment as a single whitespace char to
-								// prevent cross-comment content assist
+								ch = ' ';
+								fIdx ++;
+								break;
+							}
+							// End of comment ... return
+							else if (fIdx == (r.getOffset() + r.getLength()-1)) {
 								ch = ' ';
 								fIdx++;
+								break;
+							}
+							// Enter in the middle of a comment ... jump to end and return
+							else if ((fIdx > r.getOffset()) && (fIdx < (r.getOffset()+r.getLength()-1))) {
+								// Interpret a comment as a single whitespace char to
+								// prevent cross-comment content assist
+								fIdx = r.getOffset()+r.getLength();
+								ch = ' ';
 								break;
 							} else {
 								fIdx++;
@@ -167,9 +180,22 @@ public class SVDocumentTextScannerBase
 							fIdx--;
 							break;
 						} else {
-							if (fIdx == (r.getOffset() + r.getLength()-1)) {
+							// Start of comment ... return immediately
+							if (fIdx == r.getOffset()) {
 								ch = ' ';
 								fIdx--;
+								break;
+							}
+							// End of comment ... return immediately
+							else if (fIdx == (r.getOffset() + r.getLength()-1)) {
+								ch = ' ';
+								fIdx --;
+								break;
+							}
+							// Enter in the middle of a comment ... jump to start and return
+							else if ((fIdx > r.getOffset()) && (fIdx < (r.getOffset()+r.getLength()-1))) {
+								fIdx = r.getOffset();
+								ch = ' ';
 								break;
 							} else {
 								fIdx--;
