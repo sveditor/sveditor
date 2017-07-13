@@ -34,7 +34,6 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 			SVDocumentPartitions.SV_MULTILINE_COMMENT,
 			SVDocumentPartitions.SV_SINGLELINE_COMMENT
 	};
-	private final int [] 				fDelims = {-1, ' ', '\t', '\n', '\r', ':'};
 	
 	/**
 	 * Defaults to verilog pairs
@@ -469,20 +468,21 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 		
 	}
 	/**
-	 * Returns true if character is a delimiter
+	 * Returns true if character is a non-word character
 	 * 
-	 * Delimters are: ' ', '\t', '\n', '\r', ':' (the : because you could have begin:a_label)
+	 * Words continue in the space a-z A-Z _ 0-9
 	 * 
 	 * @param ch
 	 * @return
 	 */
 	private boolean IsCharDelimiter (int ch)  {
-		for (int i=0; i<fDelims.length; i++)  {
-			if (ch == fDelims[i])  {
-				return(true);
-			}
+		if (((ch >= 'a') && (ch <= 'z')) ||  
+		    ((ch >= 'A') && (ch <= 'Z')) ||  
+		    ((ch >= '0') && (ch <= '9')) ||  
+		    (ch == '_')
+		    )  {
+			return (false);
 		}
-		return (false);
-		
+		return (true);
 	}
 }
