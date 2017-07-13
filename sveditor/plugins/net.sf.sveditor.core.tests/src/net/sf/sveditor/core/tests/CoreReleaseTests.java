@@ -34,6 +34,7 @@ import net.sf.sveditor.core.tests.hierarchy.HierarchyTests;
 import net.sf.sveditor.core.tests.indent.IndentTests;
 import net.sf.sveditor.core.tests.index.IndexTests;
 import net.sf.sveditor.core.tests.index.argfile2.ArgFileIndex2Tests;
+import net.sf.sveditor.core.tests.index.cache.IndexCacheTests;
 import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
 import net.sf.sveditor.core.tests.index.refs.IndexRefTests;
 import net.sf.sveditor.core.tests.job_mgr.JobMgrTests;
@@ -91,7 +92,7 @@ public class CoreReleaseTests extends TestSuite {
 		addTest(PersistenceTests.suite());
 		addTest(ProjectSettingsTests.suite());
 		addTest(IndexTests.suite());
-//		addTest(IndexCacheTests.suite());
+		addTest(IndexCacheTests.suite());
 		addTest(SrcGenTests.suite());
 		addTest(LogScannerTests.suite());
 		addTest(OpenDeclTests.suite());

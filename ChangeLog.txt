@@ -1,9 +1,14 @@
 
 ------------------------------------------------------------------------------
--- 2.0.2 Release --
+-- 2.0.3 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
+------------------------------------------------------------------------------
+-- 2.0.2 Release --
+
 - #(502) - Format /beautifier of new feature matching begin/end code is not working with some cases, besides it is broken in 2.0.1
+
+- #(489) - A few more fixes to (hopefully) prevent this bug.
 
 ------------------------------------------------------------------------------
 -- 2.0.1 Release --

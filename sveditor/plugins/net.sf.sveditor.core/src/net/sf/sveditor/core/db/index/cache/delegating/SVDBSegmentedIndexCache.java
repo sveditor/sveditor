@@ -349,7 +349,7 @@ public class SVDBSegmentedIndexCache implements ISVDBIndexCache {
 		return fCache;
 	}
 	
-	synchronized SVDBFileIndexCacheEntry getCacheEntry(String path, int type, boolean add) {
+	private synchronized SVDBFileIndexCacheEntry getCacheEntry(String path, int type, boolean add) {
 		SVDBFileIndexCacheEntry entry = null;
 		boolean added = false;
 		
@@ -369,7 +369,6 @@ public class SVDBSegmentedIndexCache implements ISVDBIndexCache {
 		}
 		
 		if (added) {
-			entry.setCached();
 			fCacheMgr.addToCachedList(entry);
 		}
 		

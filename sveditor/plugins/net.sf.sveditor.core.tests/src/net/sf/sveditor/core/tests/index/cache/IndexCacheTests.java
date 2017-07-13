@@ -19,7 +19,8 @@ public class IndexCacheTests extends TestSuite {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite("IndexTests");
-		suite.addTest(new TestSuite(TestIndexCache.class));
+//		suite.addTest(new TestSuite(TestIndexCache.class));
+		suite.addTest(new TestSuite(TestSegmentedCache.class));
 		
 		return suite;
 	}

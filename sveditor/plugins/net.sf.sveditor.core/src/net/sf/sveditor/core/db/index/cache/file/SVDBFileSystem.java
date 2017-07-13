@@ -832,8 +832,10 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 	
 		RandomAccessFile rw = fFileRWList.get(writer_id);
-		
-		rw.seek(BLK_SIZE * writer_blk_id);
+	
+		long seek = writer_blk_id;
+		seek *= BLK_SIZE;
+		rw.seek(seek);
 
 		rw.read(data, 0, BLK_SIZE);
 	}
@@ -841,6 +843,10 @@ public class SVDBFileSystem implements ILogLevelListener {
 	private void writeBlock(String path, int id, byte data[]) throws IOException {
 		int writer_id = (id / FILE_BLK_SIZE);
 		int writer_blk_id = (id % FILE_BLK_SIZE);
+		
+		if (id < 0) {
+			System.out.println("Error: id<0 for path " + path);
+		}
 	
 		// Backfill the writer array
 		if (writer_id >= fFileRWList.size()) {
@@ -858,7 +864,10 @@ public class SVDBFileSystem implements ILogLevelListener {
 			byte tmp[] = new byte[BLK_SIZE];
 			
 			// Extend the length
-			rw.seek(fLastRwBlkLen*BLK_SIZE);
+			long seek = fLastRwBlkLen;
+			seek *= BLK_SIZE;
+			rw.seek(seek);
+			
 			while (writer_blk_id >= fLastRwBlkLen) {
 				rw.write(tmp);
 				fLastRwBlkLen++;
@@ -866,7 +875,9 @@ public class SVDBFileSystem implements ILogLevelListener {
 		}
 		
 		// Finally, seek to the block offset and write the block
-		rw.seek(writer_blk_id*BLK_SIZE);
+		long seek = writer_blk_id;
+		seek *= BLK_SIZE;
+		rw.seek(seek);
 		rw.write(data);
 	}
 
