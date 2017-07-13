@@ -330,21 +330,11 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 		String curr_word;
 		while (true) {
 			while ((curr_word = GetNextWord(scanner, false)) != null) {
-//				if (ch =='"') {
-//					int last_ch = ch;
-//					while ((ch = scanner.get_ch()) != -1) {
-//						if (ch == '"' && last_ch != '\\') {
-//							break;
-//						}
-//						last_ch = ch;
-//					}
-//				}
-				
 				if (curr_word.equals(opening) || curr_word.equals(closing)) {
 					break;
 				}
 			}
-			if (curr_word.equals("")) {
+			if (curr_word == null || curr_word.equals("")) {
 				return -1;
 			}
 			if (curr_word.equals(opening)) {
@@ -375,23 +365,11 @@ public class SVCharacterPairMatcher implements ICharacterPairMatcher {
 		String curr_word;
 		while (true) {
 			while ((curr_word = GetNextWord(scanner, true)) != null) {
-//				if (curr_word =='"') {
-//					while ((curr_word = scanner.get_curr_word()) != -1) {
-//						if (curr_word == '"') { 
-//							int prev_curr_word = scanner.get_curr_word();
-//							if (prev_curr_word != '\\') {
-//								// not escaped quote, done
-//								scanner.unget_curr_word(prev_curr_word);
-//								break;
-//							}
-//						}
-//					}
-//				}
 				if (curr_word.equals(opening) || curr_word.equals(closing)) {
 					break;
 				}
 			}
-			if (curr_word.equals("")) {
+			if (curr_word == null || curr_word.equals("")) {
 				return -1;
 			}
 			if (curr_word.equals(closing)) {

@@ -501,6 +501,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 
 	public synchronized void addToCachedList(SVDBFileIndexCacheEntry entry) {
 		entry.setOnList();
+		entry.setCached();
+		
 		if (fCacheHead == null) {
 			// First entry
 			fCacheHead = entry;
@@ -520,8 +522,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		while (fCacheSize > fMaxCacheSize) {
 			if (!fCacheHead.isCached()) {
 				System.out.println("[ERROR] Head is not cached");
+				removeFromCachedList(entry);
+			} else {
+				uncacheEntry(fCacheHead);
 			}
-			uncacheEntry(fCacheHead);
 		}
 	}
 
