@@ -131,6 +131,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		return ret;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Map<String, List> readMapStringStringList() throws DBFormatException {
 		int type = readRawType();
 		
@@ -153,6 +154,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		return ret;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Map<String, List> readMapStringIntegerList() throws DBFormatException {
 		int type = readRawType();
 		
@@ -444,6 +446,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
  		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void writeMapStringStringList(Map<String, List> map) 
 			throws DBWriteException, DBFormatException {
 		if (map == null) {
@@ -459,6 +462,7 @@ public abstract class SVDBPersistenceRWBase implements IDBPersistenceTypes {
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	public void writeMapStringIntegerList(Map<String, List> map) 
 			throws DBWriteException, DBFormatException {
 		if (map == null) {

@@ -17,9 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import sun.awt.FwDispatcher;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
-import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.SVDBTypeInfo;

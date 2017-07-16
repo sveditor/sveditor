@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.bcel.internal.generic.ARRAYLENGTH;
-
 import net.sf.sveditor.core.StringInputStream;
 
 public class SVDBOverrideFilesystemProvider implements ISVDBFileSystemProvider {
