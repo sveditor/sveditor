@@ -82,6 +82,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		fPreProcDirectives.add("`undef");
 		fPreProcDirectives.add("`ifdef");
 		fPreProcDirectives.add("`else");
+		fPreProcDirectives.add("`elsif");
 		fPreProcDirectives.add("`ifndef");
 		fPreProcDirectives.add("`endif");
 		fPreProcDirectives.add("`include");
@@ -1224,6 +1225,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				tok = fScanner.next(); // Add the next token being checked for
 
+			} else if (tok.isId("`elsif")) {
+				leave_scope(tok);
+				fTokenList.add(tok);
+				SVIndentToken n = fScanner.next();
+				if (n != null) {
+					fTokenList.add(n);
+				}
+				tok = fScanner.next(); // Add the next token being checked for
+				start_of_scope(tok);
 			} else if (tok.isId("`else")) {
 				leave_scope(tok);
 				fTokenList.add(tok);

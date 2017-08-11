@@ -3,6 +3,8 @@
 -- 2.0.3 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
+- #(503) Incorrect indent of `elsif
+ 
 ------------------------------------------------------------------------------
 -- 2.0.2 Release --
 

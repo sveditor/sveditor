@@ -1990,6 +1990,10 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"		`ifdef ASDF // comment\n" +
 		"			// comment\n" +
 		"			assign a = b;\n" +
+		"		`elsif JKLM // comment\n" +
+		"			assign a = b;\n" +
+		"		`elsif JKLM // comment\n" +
+		"			assign a = b;\n" +
 		"		`else\n" +
 		"			// comment\n" +
 		"			assign c=d;\n" +
