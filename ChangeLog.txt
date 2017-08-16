@@ -4,6 +4,8 @@
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
 - #(503) Incorrect indent of `elsif
+
+- #(504) SVEditor (including Eclipse) crashes after character insertion
  
 ------------------------------------------------------------------------------
 -- 2.0.2 Release --

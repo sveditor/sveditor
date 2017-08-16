@@ -1313,6 +1313,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		else {
 			if (tok.fImage.startsWith("`"))  {
 				found_ifdef = true;
+				tok = next_s();
 			}
 			if (!parent_is_block) {
 				// Check and consume first token, we need to indent after this because
@@ -1355,6 +1356,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						if (tok.isOp("") && !is_open_brace(tok))  {
 							found_ifdef = false;
 						}
+						// New line ... treat like a ;
 						else if (tok.fStartLine)  {
 							// Have an ifdef, and next token is at the start of a new line, we are done
 							do_next = false;				// Not a ;, don't skip forward
