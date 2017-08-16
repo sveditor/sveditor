@@ -82,6 +82,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		fPreProcDirectives.add("`undef");
 		fPreProcDirectives.add("`ifdef");
 		fPreProcDirectives.add("`else");
+		fPreProcDirectives.add("`elsif");
 		fPreProcDirectives.add("`ifndef");
 		fPreProcDirectives.add("`endif");
 		fPreProcDirectives.add("`include");
@@ -1224,6 +1225,15 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				}
 				tok = fScanner.next(); // Add the next token being checked for
 
+			} else if (tok.isId("`elsif")) {
+				leave_scope(tok);
+				fTokenList.add(tok);
+				SVIndentToken n = fScanner.next();
+				if (n != null) {
+					fTokenList.add(n);
+				}
+				tok = fScanner.next(); // Add the next token being checked for
+				start_of_scope(tok);
 			} else if (tok.isId("`else")) {
 				leave_scope(tok);
 				fTokenList.add(tok);
@@ -1303,6 +1313,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		else {
 			if (tok.fImage.startsWith("`"))  {
 				found_ifdef = true;
+				tok = next_s();
 			}
 			if (!parent_is_block) {
 				// Check and consume first token, we need to indent after this because
@@ -1345,6 +1356,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						if (tok.isOp("") && !is_open_brace(tok))  {
 							found_ifdef = false;
 						}
+						// New line ... treat like a ;
 						else if (tok.fStartLine)  {
 							// Have an ifdef, and next token is at the start of a new line, we are done
 							do_next = false;				// Not a ;, don't skip forward

@@ -1990,6 +1990,10 @@ public class IndentTests extends SVCoreTestCaseBase {
 		"		`ifdef ASDF // comment\n" +
 		"			// comment\n" +
 		"			assign a = b;\n" +
+		"		`elsif JKLM // comment\n" +
+		"			assign a = b;\n" +
+		"		`elsif JKLM // comment\n" +
+		"			assign a = b;\n" +
 		"		`else\n" +
 		"			// comment\n" +
 		"			assign c=d;\n" +
@@ -2196,8 +2200,8 @@ public class IndentTests extends SVCoreTestCaseBase {
 						"		`A_MACRO_FUNCTION4 (argument)  // Parse through brace, unindent on ) if no ;\n" +
 						"		// Comment5\n" +
 						"		`A_MACRO_FUNCTION5 (\n" +
-						"				argument\n" +
-						"			)    // Parse through brace, unindent on ) if no ;\n" +
+						"			argument\n" +
+						"		)    // Parse through brace, unindent on ) if no ;\n" +
 						"		// Comment6\n" +
 						"		a = `A_MACRO_FUNCTION6 ()      // Parse through brace, unindent on ) if no ;\n" +
 						"		// Comment7\n" +
