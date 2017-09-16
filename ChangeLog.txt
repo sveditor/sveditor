@@ -4,6 +4,8 @@
 
 - #(509) - Correct incorrect indentation of a labeled covergroup
 
+- #(508) - Correct incorrect parsing of implication within an expression
+
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
 ------------------------------------------------------------------------------

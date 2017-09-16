@@ -33,6 +33,18 @@ public class TestParseConstraints extends SVCoreTestCaseBase {
 		runTest(doc, new String[] {"bob", "c_unique_sources", "some_constraint"});
 	}
 	
+	public void testSingleStmtImplication() {
+		String doc = 
+			"class c;\n" +
+			"	constraint c_always_running_base  {\n" +
+			"		foreach(fixed_base[i]) (i != 0 -> fixed_base[i] == 0);\n" +
+			"		fixed_base[0] == 1;\n" +
+			"	}\n" +
+			"endclass\n";
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(doc, new String[] {"c", "c_always_running_base"});
+	}
+	
 	public void testForeach() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =

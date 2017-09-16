@@ -73,6 +73,7 @@ public class SVExprParser extends SVParserBase {
 	private Stack<Boolean>					fForeachLoopvarExpr;
 	private Stack<Boolean>					fEnableNameMappedPrimary;
 	private boolean							fSaveExpr = true;
+	private int								fParenLevel = 0;
 	
 	public SVExprParser(ISVParser parser) {
 		super(parser);
@@ -779,7 +780,7 @@ public class SVExprParser extends SVParserBase {
 	 */
 	public SVDBExpr assignmentExpression() throws SVParseException {
 		if (fDebugEn) {debug("--> assignmentExpression()");}
-		SVDBExpr a = conditionalExpression();
+		SVDBExpr a = implicationExpression();
 		
 		if (fLexer.peekOperator(SVOperators.fAssignmentOps)) {
 			OP op = fLexer.readOperator();
@@ -794,6 +795,25 @@ public class SVExprParser extends SVParserBase {
 		}
 
 		if (fDebugEn) {debug("<-- assignmentExpression() " + fLexer.peek());}
+		return a;
+	}
+	
+	public SVDBExpr implicationExpression() throws SVParseException {
+		if (fDebugEn) {debug("--> implicationExpression()"); }
+		SVDBExpr a = conditionalExpression();
+	
+		// Only treat implication as an operator if we're
+		// inside a paren expression. This prevents the
+		// expression parser from being too greedy and running 
+		// into constraint statements
+		if (fParenLevel > 0 && fLexer.peekOperator(OP.IMPL, OP.IMPL_BIDIR)) {
+			OP op = fLexer.peekOperatorE();
+			fLexer.eatToken();
+			SVDBExpr rhs = implicationExpression();
+			a = new SVDBBinaryExpr(a, op.getImg(), rhs);
+		}
+		
+		if (fDebugEn) {debug("<-- implicationExpression()"); }
 		return a;
 	}
 	
@@ -1209,8 +1229,14 @@ public class SVExprParser extends SVParserBase {
 			// if (isType) {
 			// TODO
 			//
-			
-			SVDBExpr a = expression();
+
+			SVDBExpr a = null;
+			try {
+				fParenLevel++;
+				a = expression();
+			} finally {
+				fParenLevel--;
+			}
 			
 			// TODO: save expression
 			if (fLexer.peekOperator(OP.COLON)) {

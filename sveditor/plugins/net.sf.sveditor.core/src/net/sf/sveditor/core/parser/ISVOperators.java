@@ -71,6 +71,7 @@ public interface ISVOperators {
 		DOT_MUL(".*"),
 		SQUOTE("'"),
 		IMPL("->"),
+		IMPL_BIDIR("<->"),
 		IMPL_RSHIFT("->>"),
 		IMPL2("-->"),
 		HASH("#"),
