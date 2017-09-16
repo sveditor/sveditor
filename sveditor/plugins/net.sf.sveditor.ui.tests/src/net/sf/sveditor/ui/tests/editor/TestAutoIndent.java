@@ -1514,4 +1514,6 @@ public void testMultiLineStatements() throws BadLocationException {
 	IndentComparator.compare("testMultiLineStatements", expected, result);
 }
 
+
+
 }

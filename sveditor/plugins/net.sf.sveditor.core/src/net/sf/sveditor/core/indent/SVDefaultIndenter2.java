@@ -837,6 +837,12 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 			if (tok.isId("endgroup")) {
 				leave_scope(tok);
+				
+				SVIndentToken tok_n = next_s();
+				if (tok_n != null && tok_n.getImage().equals(":")) {
+					// labled covergroup
+					tok_n = next_s(); // label
+				}
 				break;
 			} else {
 				tok = indent_covergroup_item();

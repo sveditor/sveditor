@@ -37,4 +37,21 @@ public class TestIndentCovergroup extends SVCoreTestCaseBase {
 		IndentTests.runTest(getName(), fLog, expected);
 	}
 
+	//This test multi-line statements
+	public void testLabeledCovergroup() {
+		String doc = 
+				"class cov_subscriber extends uvm_subscriber;\n" +
+				"	covergroup CG_KEYCONTROL_VALUE with function sample(logic [2:0] keycontrol_3bits_for_key_number=0);\n" +
+				"		option.per_instance = 1;\n" +
+				"	endgroup : CG_KEYCONTROL_VALUE\n" +
+				"\n" +
+				"	function new(string name, uvm_component parent);\n" +
+				"		super.new(name, parent);\n" +
+				"	endfunction\n" +
+				"endclass\n" +
+				"\n";
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		IndentTests.runTest(getName(), fLog, doc);
+	}
 }

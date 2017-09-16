@@ -34,6 +34,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		suite.addTest(new TestSuite(TestIndentAssertions.class));
 		suite.addTest(new TestSuite(TestIndentBehavioralStmts.class));
 		suite.addTest(new TestSuite(TestIndentConstraints.class));
+		suite.addTest(new TestSuite(TestIndentCovergroup.class));
 		suite.addTest(new TestSuite(NoHangIndentTests.class));
 		suite.addTest(new TestSuite(TestIndentScanner.class));
 		suite.addTest(new TestSuite(TestAdaptiveIndent.class));
