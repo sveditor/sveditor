@@ -1,6 +1,9 @@
 
 ------------------------------------------------------------------------------
 -- 2.0.4 Release --
+
+- #(509) - Correct incorrect indentation of a labeled covergroup
+
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
 ------------------------------------------------------------------------------

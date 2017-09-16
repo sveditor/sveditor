@@ -95,4 +95,44 @@ public class TestIndentConstraints extends SVCoreTestCaseBase {
 		IndentTests.runTest(getName(), fLog, doc);
 	}
 
+	public void testIfElseConstraint() {
+		String doc = 
+				"class c;\n" +
+				"	constraint minPx_c {\n" +
+				"		if ((startWidth%(`maxPsums - af1_window_x)) == 0) { // even \n" +
+				"			minPx == (startWidth/(`maxPsums - af1_window_1));\n" +
+				"		} else {\n" +
+				"			minPx == (startWidth/(`maxPsums - af1_window_1)) + 1;\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	constraint c2 {\n" +
+				"		if (a == 2) {\n" +
+				"			b == 4;\n" +
+				"		}\n" +
+				"	}\n" +
+				"endclass\n"
+				;
+		SVCorePlugin.getDefault().enableDebug(false);
+		IndentTests.runTest(getName(), fLog, doc);		
+	}
+	
+	public void testIfElseConstraintAfterCovergroup() {
+		String doc = 
+				"class c;\n" +
+				"	covergroup foo;\n" +
+				"	endgroup\n" +
+				"\n" +
+				"	constraint minPx_c {\n" +
+				"		if ((startWidth%(`maxPsums - af1_window_x)) == 0) { // even \n" +
+				"			minPx == (startWidth/(`maxPsums - af1_window_1));\n" +
+				"		} else {\n" +
+				"			minPx == (startWidth/(`maxPsums - af1_window_1)) + 1;\n" +
+				"		}\n" +
+				"	}\n" +
+				"endclass\n"
+				;
+		SVCorePlugin.getDefault().enableDebug(false);
+		IndentTests.runTest(getName(), fLog, doc);		
+	}	
 }

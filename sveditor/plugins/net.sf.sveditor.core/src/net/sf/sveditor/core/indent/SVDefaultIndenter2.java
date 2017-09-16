@@ -838,10 +838,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			if (tok.isId("endgroup")) {
 				leave_scope(tok);
 				
-				SVIndentToken tok_n = next_s();
-				if (tok_n != null && tok_n.getImage().equals(":")) {
+				tok = next_s();
+				if (tok != null && tok.getImage().equals(":")) {
 					// labled covergroup
-					tok_n = next_s(); // label
+					tok = next_s(); // label
+					tok = next_s(); // token after label
 				}
 				break;
 			} else {
@@ -849,10 +850,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			}
 		}
 
-		tok = next_s();
-
 		if (fDebugEn) {
-			debug("--> indent_covergroup() next=" +
+			debug("<-- indent_covergroup() next=" +
 				((tok != null)?tok.getImage():"null"));
 		}
 
@@ -1224,41 +1223,41 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		if (pref_IndentIfdef) {
 			if (tok.isId("`ifdef") || tok.isId("`ifndef")) {
 				start_of_scope(tok);
-				fTokenList.add(tok);
+				addToken(tok);
 				SVIndentToken n = fScanner.next();
 				if (n != null) {
-					fTokenList.add(n);
+					addToken(n);
 				}
 				tok = fScanner.next(); // Add the next token being checked for
 
 			} else if (tok.isId("`elsif")) {
 				leave_scope(tok);
-				fTokenList.add(tok);
+				addToken(tok);
 				SVIndentToken n = fScanner.next();
 				if (n != null) {
-					fTokenList.add(n);
+					addToken(n);
 				}
 				tok = fScanner.next(); // Add the next token being checked for
 				start_of_scope(tok);
 			} else if (tok.isId("`else")) {
 				leave_scope(tok);
-				fTokenList.add(tok);
+				addToken(tok);
 				tok = fScanner.next(); // Swallow ifdef/ifndef
 				start_of_scope(tok);
 			} else if (tok.isId("`endif")) {
 				leave_scope(tok);
-				fTokenList.add(tok);
+				addToken(tok);
 				tok = fScanner.next(); // Swallow ifdef/ifndef
 			}
 			// All other preprocessor directives run to end of line
 			else {
-				fTokenList.add(tok);
+				addToken(tok);
 				tok = skip_to_end_of_line();
 			}
 		}
 		// don't indent non-ifdef's ... just swallow this stuff
 		else {
-			fTokenList.add(tok);
+			addToken(tok);
 			tok = skip_to_end_of_line();
 		}
 
@@ -2097,8 +2096,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		SVIndentToken tok = null;
 		boolean stay_in_while = true;
 		tok = fScanner.next();
+
 		// Loop here while we are working through comments & preprocessor elements (`xxx)
 		while (stay_in_while) {
+			if (fDebugEn) {
+				if (tok != null) {
+					debug("next: tok \"" + tok.getType() + "\" \"" + tok.getImage() + "\"");
+				} else {
+					debug("next: null");
+				}
+			}
+			
 			if (tok == null) {
 				stay_in_while = false;
 			} else if (tok.getType() == SVIndentTokenType.SingleLineComment) {
@@ -2108,16 +2116,16 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				if (tok.isStartLine()) {
 					set_indent(tok, true, true);
 				}
-				fTokenList.add(tok);
+				addToken(tok);
 				tok = fScanner.next();
 			} else if (tok.getType() == SVIndentTokenType.MultiLineComment) {
 				stay_in_while = true;
 				indent_multi_line_comment(tok);
-				fTokenList.add(tok);
+				addToken(tok);
 				tok = fScanner.next();
 			} else if (tok.getType() == SVIndentTokenType.BlankLine) {
 				stay_in_while = true;
-				fTokenList.add(tok);
+				addToken(tok);
 				tok = fScanner.next();
 			} else if (fPreProcDirectives.contains(tok.getImage())) {
 				set_indent(tok, true, true);
@@ -2145,7 +2153,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				fCurrentIndent = tok.getLeadingNonNewLineWS();
 				set_indent(tok, true, true);
 			}
-			fTokenList.add(tok);
+			addToken(tok);
 		}
 
 		fCurrent = tok;
@@ -2170,7 +2178,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 
 		if (fDebugEn) {
 			if (ret != null) {
-				debug("next_s: " + ret.getImage());
+				debug("next_s: tok \"" + ret.getType() + "\" \"" + ret.getImage() + "\"");
 			} else {
 				debug("next_s: null");
 			}
@@ -2181,6 +2189,10 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 		// Return the last
 		return ret;
+	}
+	
+	private void addToken(SVIndentToken tok) {
+		fTokenList.add(tok);
 	}
 
 	/**
@@ -2215,7 +2227,7 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		while (tok != null && !tok.isEndLine()) {
 			tok = fScanner.next();
 			if (tok != null) {
-				fTokenList.add(tok);
+				addToken(tok);
 			}
 		}
 

@@ -841,7 +841,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 		tester.type(input1);
 		tester.setCaretOffset(42);
-//		SVCorePlugin.getDefault().enableDebug(true);
+//		SVCorePlugin.getDefault().enableDebug(false);
 		tester.type(input2);
 		String result = tester.getContent();
 		

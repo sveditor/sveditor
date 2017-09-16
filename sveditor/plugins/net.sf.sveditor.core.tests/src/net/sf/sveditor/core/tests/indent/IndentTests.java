@@ -1817,7 +1817,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 		indenter.setAdaptiveIndentEnd(5);
 		String result = indenter.indent(-1, -1);
 		
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IndentComparator.compare(log, testname, ref, result);
 		LogFactory.removeLogHandle(log);
 	}
@@ -2072,9 +2072,10 @@ public class IndentTests extends SVCoreTestCaseBase {
 					sb.append(ref.charAt(i));
 					i++;
 				}
-				
-				if (i < ref.charAt(i)) {
+
+				if (i < ref.charAt(i) && ref.charAt(i) == '\n') {
 					sb.append('\n');
+					i++;
 				}
 			}
 		}
@@ -2341,6 +2342,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 	
 	public static void runTest(String name, LogHandle log, String doc) {
 		StringBuilder sb = removeLeadingWS(doc);
+		log.debug("Stripped content:\n" + sb.toString());
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(sb));
 		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
 		indenter.init(scanner);

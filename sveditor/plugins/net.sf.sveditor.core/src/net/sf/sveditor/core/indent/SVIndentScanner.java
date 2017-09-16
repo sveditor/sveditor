@@ -250,6 +250,10 @@ public class SVIndentScanner implements ISVIndentScanner {
 			token.setPos(pos);
 
 			c = get_ch();
+			
+			if (fDebugEn) {
+				fLog.debug("end-next: c=\"" + (char)c + "\"\n");
+			}
 
 			if (c == '\n') {
 				token.setIsEndLine(true);
@@ -262,7 +266,10 @@ public class SVIndentScanner implements ISVIndentScanner {
 							Character.isWhitespace(c) && c != '\n') {
 						fTmp.append((char)c);
 					}
-					
+				
+					if (fDebugEn) {
+						fLog.debug("unget_ch: \"" + (char)c + "\"");
+					}
 					unget_ch(c);
 					fLeadingWS = fTmp.toString();
 				}

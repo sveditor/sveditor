@@ -7,7 +7,7 @@ import net.sf.sveditor.core.parser.SVParseException;
 public class TestCheckMethods extends TestCase {
 	
 	public void testUnknownVarRef() throws SVParseException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String content = 
 				"class cls;\n"							// 1
