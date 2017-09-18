@@ -91,6 +91,9 @@ release : $(BUILD_DIR)/build_$(version)
 		-Drlsdir=$(BUILD_DIR_A)/rlsdir -verbose \
 		-Dos=$(swt_os) -Dws=$(swt_ws) -Darch=$(swt_arch) release_core
 
+clean :
+	rm -rf $(BUILD_DIR)
+
 RULES := 1
 
 include $(MK_INCLUDES)
