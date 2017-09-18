@@ -506,6 +506,21 @@ public class TestParseBehavioralStmts extends TestCase {
 		
 		runTest(getName(), doc, new String[] {"c", "f"});
 	}
+	
+	public void testSelectiveRandomizeWithForeach() {
+		String doc = 
+			"class c;\n" +
+			"	task doit;\n" +
+			"		assert(this.randomize(off_delay) with { \n" +
+			"			foreach(off_delay[i]) off_delay[i] < c_tocken;\n" +
+			"			unique{off_delay};\n" +
+			"		});\n" +
+			"	endtask\n" +
+			"endclass\n"
+			;
+		SVCorePlugin.getDefault().enableDebug(false);
+		runTest(getName(), doc, new String[] {"c", "doit"});
+	}
 
 	public void testDefineAmbiguousTimeUnit() {
 		SVCorePlugin.getDefault().enableDebug(false);
