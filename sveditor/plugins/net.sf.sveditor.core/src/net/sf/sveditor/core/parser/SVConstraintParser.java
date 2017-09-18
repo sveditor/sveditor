@@ -44,8 +44,7 @@ public class SVConstraintParser extends SVParserBase {
 		SVDBConstraint c = new SVDBConstraint();
 		c.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword(KW.CONSTRAINT);
-		Context ctxt = fLexer.getContext();
-		fLexer.setContext(Context.Constraint);
+		Context ctxt = fLexer.setContext(Context.Constraint);
 	
 		try {
 			c.setName(fParsers.SVParser().scopedIdentifier(false));
@@ -84,7 +83,6 @@ public class SVConstraintParser extends SVParserBase {
 		if (force_braces || fLexer.peekOperator(OP.LBRACE)) {
 			boolean is_concat = false;
 			
-		
 			// Checks to see if what initially appears to be a constraint set block
 			// is actually a concat expression
 			if (check_for_concat) {
@@ -133,6 +131,7 @@ public class SVConstraintParser extends SVParserBase {
 			}
 
 			if (is_concat) {
+				if (fDebugEn) {debug(" -- is_concat");}
 				SVDBStmt ret = constraint_set_item();
 				if (fDebugEn) {debug("<-- constraint_set()");}
 				return ret;
@@ -152,8 +151,9 @@ public class SVConstraintParser extends SVParserBase {
 				return ret;
 			}
 		} else {
+			SVDBStmt ret = constraint_set_item();
 			if (fDebugEn) {debug("<-- constraint_set()");}
-			return constraint_set_item();
+			return ret;
 		}
 	}
 
@@ -164,6 +164,7 @@ public class SVConstraintParser extends SVParserBase {
 
 	
 		KW kw = fLexer.peekKeywordE();
+		if (fDebugEn) { debug(" -- kw=" + kw); }
 		if (kw != null) {
 			switch (kw) {
 				case SOLVE:
@@ -196,6 +197,8 @@ public class SVConstraintParser extends SVParserBase {
 	private SVDBStmt expr_constraint() throws SVParseException {
 		SVDBStmt ret = null;
 		
+		if (fDebugEn) { debug("--> expr_constraint"); }
+		
 		if (fLexer.peekKeyword(KW.SOFT)) {
 			fLexer.eatToken();
 		}
@@ -219,6 +222,7 @@ public class SVConstraintParser extends SVParserBase {
 			error("Unknown suffix for expression: " + fLexer.getImage());
 		}
 		
+		if (fDebugEn) { debug("<-- expr_constraint " + fLexer.peek()); }
 		return ret;
 	}
 
@@ -300,6 +304,7 @@ public class SVConstraintParser extends SVParserBase {
 	 * @throws SVParseException
 	 */
 	private SVDBStmt constraint_unique() throws SVParseException {
+		if (fDebugEn) { debug("--> constraint_unique"); }
 		SVDBConstraintUniqueStmt stmt = new SVDBConstraintUniqueStmt();
 		stmt.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword(KW.UNIQUE);
@@ -312,11 +317,14 @@ public class SVConstraintParser extends SVParserBase {
 
 		fLexer.readOperator(OP.RBRACE);
 		fLexer.readOperator(OP.SEMICOLON);
+		
+		if (fDebugEn) { debug("<-- constraint_unique"); }
 
 		return stmt;
 	}
 	
 	private SVDBStmt constraint_foreach() throws SVParseException {
+		if (fDebugEn) { debug("--> constraint_foreach"); }
 		SVDBConstraintForeachStmt stmt = new SVDBConstraintForeachStmt();
 		stmt.setLocation(fLexer.getStartLocation());
 		fLexer.readKeyword(KW.FOREACH);
@@ -327,6 +335,7 @@ public class SVConstraintParser extends SVParserBase {
 		
 		stmt.setStmt(constraint_set(false, true, false));
 		
+		if (fDebugEn) { debug("<-- constraint_foreach"); }
 		return stmt;
 	}
 	

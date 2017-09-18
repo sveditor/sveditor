@@ -452,9 +452,8 @@ public class SVExprParser extends SVParserBase {
 	
 	public SVDBExpr variable_lvalue() throws SVParseException {
 		SVDBExpr lvalue;
-		Context ctxt = fLexer.getContext();
+		Context ctxt = fLexer.setContext(Context.Expression);
 		
-		fLexer.setContext(Context.Expression);
 		try {
 			if (fDebugEn) {debug("--> variable_lvalue - " + fLexer.peek());}
 			if (fLexer.peekOperator(OP.LBRACE)) {
@@ -535,8 +534,7 @@ public class SVExprParser extends SVParserBase {
 	public SVDBExpr expression() throws SVParseException {
 		SVDBExpr expr = null;
 		
-		Context saved_ctxt = fLexer.getContext();
-		fLexer.setContext(Context.Expression);
+		Context saved_ctxt = fLexer.setContext(Context.Expression);
 		
 		try {
 			if (fDebugEn) {debug("--> expression() " + fLexer.peek());}
@@ -1724,7 +1722,9 @@ public class SVExprParser extends SVParserBase {
 			if (fLexer.peekKeyword(KW.WITH)) {
 				fLexer.eatToken();
 				// constraint block
+				Context saved_ctxt = fLexer.setContext(SVLexer.Context.Default);
 				rand_call.setWithBlock(fParsers.constraintParser().constraint_set(true, false, true));
+				fLexer.setContext(saved_ctxt);
 			}
 		} finally {
 			fAssertionExpr.pop();

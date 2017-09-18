@@ -6,6 +6,8 @@
 
 - #(508) - Correct incorrect parsing of implication within an expression
 
+- #(507) - Correct issue parsing 'unique' constraint inside with block
+
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
 ------------------------------------------------------------------------------

@@ -76,10 +76,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 	
 	public boolean statement(ISVDBAddChildItem parent) throws SVParseException {
 		boolean decl_allowed = true;
-		Context ctxt = fLexer.getContext();
+		Context ctxt = fLexer.setContext(Context.Behavioral);
 
 		try {
-			fLexer.setContext(Context.Behavioral);
 			decl_allowed = statement(parent, decl_allowed, true);
 		} finally {
 			fLexer.setContext(ctxt);

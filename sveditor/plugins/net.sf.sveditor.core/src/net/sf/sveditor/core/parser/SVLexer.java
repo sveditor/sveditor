@@ -133,8 +133,11 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 		setContext(Context.Default);
 	}
 	
-	public void setContext(Context ctxt) {
+	public Context setContext(Context ctxt) {
+		Context old_ctxt = fContext;
 		fContext = ctxt;
+		
+		return old_ctxt;
 	}
 	
 	public Context getContext() {
@@ -894,22 +897,7 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 			fImage = fStringBuffer.toString();
 
 			if (fIsIdentifier && !escaped_id) {
-				Map<String, KW> kw = null;
-				
-				switch (fContext) {
-					case Behavioral:
-					case Default:
-						kw = fDefaultKeywordSet;
-						break;
-						
-					case Constraint:
-						kw = fConstraintKeywordSet;
-						break;
-						
-					case Expression:
-						kw = fExprKeywordSet;
-						break;
-				}
+				Map<String, KW> kw = getKeywords(fContext);
 				
 				if ((fKeyword = kw.get(fImage)) != null) {
 					fIsIdentifier = false;
@@ -940,6 +928,26 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 			}
 		}
 		 */
+	}
+	
+	private Map<String, KW> getKeywords(Context ctxt) {
+		Map<String, KW> kw = null;
+		switch (ctxt) {
+			case Behavioral:
+			case Default:
+				kw = fDefaultKeywordSet;
+				break;
+			
+			case Constraint:
+				kw = fConstraintKeywordSet;
+				break;
+			
+			case Expression:
+				kw = fExprKeywordSet;
+				break;
+		}
+		
+		return kw;
 	}
 	
 	private void operator() throws SVParseException {
