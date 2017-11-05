@@ -3,12 +3,13 @@
 -- 2.0.6 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
-- #(504) - Wrong indentation using DPI keywords 
 
 ------------------------------------------------------------------------------
 -- 2.0.5 Release --
 
 - #(enh) - Add a SystemVerilog build console that shows the index process
+
+- #(504) - Wrong indentation using DPI keywords 
 
 ------------------------------------------------------------------------------
 -- 2.0.4 Release --

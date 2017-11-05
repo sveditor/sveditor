@@ -46,6 +46,7 @@ import net.sf.sveditor.core.SVMarkers;
 import net.sf.sveditor.core.builder.CoreBuildProcessListener;
 import net.sf.sveditor.core.builder.ISVBuildProcessListener;
 import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -222,7 +223,8 @@ public class SVDBProjectManager implements
 	public boolean rebuildProject(
 			IProgressMonitor 		monitor, 
 			IProject 				p) {
-		return rebuildProject(monitor, p, null);
+		return rebuildProject(monitor, p, 
+				new SafeSVBuilderOutput(null));
 	}
 	
 	public boolean rebuildProject(
@@ -236,7 +238,8 @@ public class SVDBProjectManager implements
 			IProgressMonitor 		monitor, 
 			IProject 				p, 
 			boolean 				wait_for_refresh) {
-		return rebuildProject(monitor, p, wait_for_refresh, null);
+		return rebuildProject(monitor, p, wait_for_refresh, 
+				new SafeSVBuilderOutput(null));
 	}
 
 	/**
