@@ -696,6 +696,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"	end\n" +
 			"endmodule\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		log.debug("--> testInitialBlock");
 		
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -733,6 +734,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"	logic b;\n" +
 			"endmodule\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		log.debug("--> testInitialStmt");
 		
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -832,6 +834,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"	endtask\n" +
 			"endmodule\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		log.debug("--> testExpectStmnt");
 		
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -872,6 +875,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 			"	logic b;\n" +
 			"endmodule\n"
 			;
+		SVCorePlugin.getDefault().enableDebug(false);
 		log.debug("--> " + testname);
 		
 		SVIndentScanner scanner = new SVIndentScanner(
@@ -1806,6 +1810,7 @@ public class IndentTests extends SVCoreTestCaseBase {
 				;
 		
 		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
@@ -1979,54 +1984,92 @@ public class IndentTests extends SVCoreTestCaseBase {
 	public void testPreProcIndent() {
 		String testname = "testPreProcIndent";
 		String ref =
-		"package foo;\n" +
-		"	import pkg_1::*;\n" +
-		"	`include \"file1.svh\"\n" +
-		"	`include \"file2.svh\"\n" +
-		"	`include \"file3.svh\"\n" +
-		"endpackage\n" +
-		"\n" +
-		"`ifndef INCLUDED_my_component1_svhn\n" +
-		"	module m ();\n" +
-		"		`ifdef ASDF // comment\n" +
-		"			// comment\n" +
-		"			assign a = b;\n" +
-		"		`elsif JKLM // comment\n" +
-		"			assign a = b;\n" +
-		"		`elsif JKLM // comment\n" +
-		"			assign a = b;\n" +
-		"		`else\n" +
-		"			// comment\n" +
-		"			assign c=d;\n" +
-		"	\n" +
-		"		`endif\n" +
-		"		`ifdef ASDF assign a = b; `else assign b = c; `endif\n" +
-		"		`ifdef ASDF assign a = b; /* comment */ `else assign b = c; /* comment */ `endif /* comment */ // comment\n" +
-		"		initial\n" +
-		"		begin\n" +
-		"			`ifdef ASDF\n" +
-		"				// comment\n" +
-		"				a = b;\n" +
-		"				a = b;\n" +
-		"			`endif\n" +
-		"			\n" +
-		"		end\n" +
-		"		always @*\n" +
-		"		begin\n" +
-		"			`ifdef ASDF\n" +
-		"				// comment\n" +
-		"				a = b;\n" +
-		"				a = b;\n" +
-		"			`endif\n" +
-		"			\n" +
-		"		end\n" +
-		"	endmodule\n" +
-		"`endif				// comment\n" +
-		"// comment\n" 
-		;
+				"package foo;\n" +
+						"	import pkg_1::*;\n" +
+						"	`include \"file1.svh\"\n" +
+						"	`include \"file2.svh\"\n" +
+						"	`include \"file3.svh\"\n" +
+						"endpackage\n" +
+						"\n" +
+						"`ifndef INCLUDED_my_component1_svhn\n" +
+						"	module m ();\n" +
+						"		`ifdef ASDF // comment\n" +
+						"			// comment\n" +
+						"			assign a = b;\n" +
+						"		`elsif JKLM // comment\n" +
+						"			assign a = b;\n" +
+						"		`elsif JKLM // comment\n" +
+						"			assign a = b;\n" +
+						"		`else\n" +
+						"			// comment\n" +
+						"			assign c=d;\n" +
+						"	\n" +
+						"		`endif\n" +
+						"		`ifdef ASDF assign a = b; `else assign b = c; `endif\n" +
+						"		`ifdef ASDF assign a = b; /* comment */ `else assign b = c; /* comment */ `endif /* comment */ // comment\n" +
+						"		initial\n" +
+						"		begin\n" +
+						"			`ifdef ASDF\n" +
+						"				// comment\n" +
+						"				a = b;\n" +
+						"				a = b;\n" +
+						"			`endif\n" +
+						"			\n" +
+						"		end\n" +
+						"		always @*\n" +
+						"		begin\n" +
+						"			`ifdef ASDF\n" +
+						"				// comment\n" +
+						"				a = b;\n" +
+						"				a = b;\n" +
+						"			`endif\n" +
+						"			\n" +
+						"		end\n" +
+						"	endmodule\n" +
+						"`endif				// comment\n" +
+						"// comment\n" 
+						;
 		
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle(testname);
+		
+		// Run the indenter over the reference source
+		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		indenter.setTestMode(true);
+		
+		indenter.setAdaptiveIndent(true);
+		indenter.setAdaptiveIndentEnd(5);
+		String result = indenter.indent(-1, -1);
+		
+		log.debug("Ref:\n" + ref);
+		log.debug("====");
+		log.debug("Result:\n" + result);
+		log.debug("====");
+		
+		IndentComparator.compare(log, testname, ref, result);
+		LogFactory.removeLogHandle(log);
+	}
+	
+	public void testImportDPI() {
+		String testname = "testImportDPI";
+		String ref =
+			"import \"DPI-C\" function string return_string_in_c(string text, string output_txt);\n" +
+			"export \"DPI-C\" f_plus = function \f+ ; // \"f+\" exported as \"f_plus\" \n" +
+			"export \"DPI-C\" function f; // \"f\" exported under its own name\n" +
+			"import \"DPI-C\" init_1 = function void \\init[1] (); // \"init_1\" is a linkage name\n" +
+			"import \"DPI-C\" \\begin = function void \\init[2] (); // \"begin\" is a linkage name\n" +
+			"\n" +
+			"typedef class keycontrol_seq_handles;\n" +
+			"//-----------------------\n" +
+			"class keycontrol_predictor#(int PARAM_PLACEHOLDER = 1) extends pve_predictor#(keycontrol_seq_handles);//extends uvm_component;\n" +
+			"	`uvm_component_param_utils(keycontrol_predictor#(PARAM_PLACEHOLDER))\n" +
+			"endclass\n"
+			;
+			
+		LogHandle log = LogFactory.getLogHandle(testname);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		// Run the indenter over the reference source
 		SVIndentScanner scanner = new SVIndentScanner(new StringTextScanner(ref));
