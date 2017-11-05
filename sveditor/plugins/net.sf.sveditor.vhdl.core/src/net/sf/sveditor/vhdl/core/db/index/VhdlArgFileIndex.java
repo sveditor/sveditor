@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -54,6 +55,9 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 		fCache = cache;
 		fConfig = config;
 	}
+	
+	@Override
+	public void setBuilderOutput(ISVBuilderOutput out) { }
 
 	@Override
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {

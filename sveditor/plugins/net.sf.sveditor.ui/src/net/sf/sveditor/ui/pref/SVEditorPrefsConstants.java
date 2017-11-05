@@ -53,7 +53,7 @@ public class SVEditorPrefsConstants {
 	public static final String P_EDITOR_AUTOINDEX_DELAY							= EDIT_SETTINGS + "autoIndexDelay";
 	
 	public static final String P_DEBUG_LEVEL_S 									= "debugLevel";
-	public static final String P_DEBUG_CONSOLE_S 									= "debugConsole";
+	public static final String P_DEBUG_CONSOLE_S 								= "debugConsole";
 	
 	public static final String P_CONTENT_ASSIST_TIMEOUT							= EDIT_SETTINGS + "contentAssistTimeout";
 	

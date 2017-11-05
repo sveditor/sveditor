@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.builder.SVBuilderPreProcTracker;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -24,6 +26,7 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
+import net.sf.sveditor.core.preproc.ISVPreProcOutputFileChangeListener;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 
@@ -48,7 +51,8 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			IProgressMonitor			monitor,
 			SVDBArgFileIndexBuildData	build_data,
 			ISVDBDeclCache				parent,
-			SVDBArgFileParser			argfile_parser) {
+			SVDBArgFileParser			argfile_parser,
+			ISVBuilderOutput			out) {
 		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
 		long start_time=-1, end_time=-1;
 		int total_work = 1000000;
@@ -124,9 +128,10 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			
 			if (fs_provider.fileExists(path) && !fs_provider.isDir(path)) {
 				subMonitor.subTask("Parse " + path);
+				out.note("Parse: " + path);
 				
 				Map<String, SVDBMacroDef> new_defines = parseFile(
-						path, build_data, parent, defines);
+						path, build_data, parent, defines, out);
 				
 				if (subMonitor.isCanceled()) {
 					fLog.debug(LEVEL_MIN, "Index " + build_data.getBaseLocation() + " cancelled");
@@ -144,6 +149,8 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 				}
 
 				subMonitor.worked(per_file_work);
+			} else {
+				out.error("File " + path + " doesn't exist");
 			}
 		}
 		
@@ -160,7 +167,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 				loopMonitor.beginTask("Parse " + path, per_file_work);
 				
 				Map<String, SVDBMacroDef> new_defines = parseFile(
-						path, build_data, parent, defines);
+						path, build_data, parent, defines, out);
 				
 				if (loopMonitor.isCanceled()) {
 					fLog.debug(LEVEL_MIN, "Index " + 
@@ -206,10 +213,11 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 	}
 
 	public static Map<String, SVDBMacroDef> parseFile(
-			String 						path, 
-			SVDBArgFileIndexBuildData 	build_data,
-			ISVDBDeclCache				parent,
-			Map<String, SVDBMacroDef>	defines) {
+			String 								path, 
+			final SVDBArgFileIndexBuildData 	build_data,
+			ISVDBDeclCache						parent,
+			Map<String, SVDBMacroDef>			defines,
+			final ISVBuilderOutput				out) {
 		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
 		long start, end;
 		SVParser f = new SVParser();
@@ -234,6 +242,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			fLog.debug(LEVEL_MID, "--> PreProcess " + path);
 		}
 		SVPreProcOutput pp_out = pp.preprocess();
+		pp_out.setFileChangeListener(new SVBuilderPreProcTracker(out, build_data));
 		end = System.currentTimeMillis();
 		
 		if (fDebugEn) {
@@ -264,7 +273,6 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			language_level = SVLanguageLevel.computeLanguageLevel(path);
 		}
 		
-//		SVDBFile file = f.parse(language_level, pp_out, path, build_data.fRefCollector, markers);
 		SVDBFile file = f.parse(language_level, pp_out, path, null, markers);
 		long parse_end = System.currentTimeMillis();
 		

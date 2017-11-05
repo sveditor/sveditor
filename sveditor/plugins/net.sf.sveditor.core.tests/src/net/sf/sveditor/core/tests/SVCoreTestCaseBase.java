@@ -148,7 +148,7 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
-				pmgr.rebuildProject(new NullProgressMonitor(), p, true);
+				pmgr.rebuildProject(new NullProgressMonitor(), p, true, null);
 				return Status.OK_STATUS;
 			}
 		};

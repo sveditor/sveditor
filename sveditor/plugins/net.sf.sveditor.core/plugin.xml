@@ -113,7 +113,7 @@
             isConfigurable="false"
             supportsConfigurations="false">
          <run
-               class="net.sf.sveditor.core.SVProjectBuilder">
+               class="net.sf.sveditor.core.builder.SVProjectBuilder">
          </run>
       </builder>
    </extension>

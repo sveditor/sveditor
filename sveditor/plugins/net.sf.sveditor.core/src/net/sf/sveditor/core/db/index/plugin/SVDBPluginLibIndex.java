@@ -11,8 +11,12 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 import org.osgi.framework.Bundle;
 
+import com.sun.org.apache.xpath.internal.FoundIndex;
+
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -58,6 +62,7 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 	private int									fInIndexOp;
 	private ISVDBIndexBuilder					fIndexBuilder;
 	private boolean								fCacheDataValid;
+	private ISVBuilderOutput					fOut;
 	
 	public SVDBPluginLibIndex(
 			String 			project, 
@@ -286,7 +291,8 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 		
 		SVDBArgFileBuildUtils.parseFile(
 				fRootFile, build_data, this, 
-				new HashMap<String, SVDBMacroDef>());		
+				new HashMap<String, SVDBMacroDef>(),
+				new SafeSVBuilderOutput(null));		
 		
 		if (!monitor.isCanceled()) {
 			synchronized (fBuildData) {
@@ -324,6 +330,10 @@ public class SVDBPluginLibIndex implements ISVDBIndex, ILogLevelListener {
 			int limit_lineno) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public void setBuilderOutput(ISVBuilderOutput out) {
+		fOut = out;
 	}
 
 	@Override

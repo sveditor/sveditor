@@ -37,10 +37,10 @@ import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVProjectBuilder;
 import net.sf.sveditor.core.SVProjectNature;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.SVProjectBuilder;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;

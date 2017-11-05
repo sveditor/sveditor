@@ -21,19 +21,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.WeakHashMap;
 
-import net.sf.sveditor.core.ILineListener;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.XMLTransformUtils;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.log.ILogHandle;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.ILogListener;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.parser.SVParserConfig;
-import net.sf.sveditor.ui.console.SVEConsole;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
@@ -44,16 +31,12 @@ import org.eclipse.jface.text.templates.ContextTypeRegistry;
 import org.eclipse.jface.text.templates.persistence.TemplateStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.templates.ContributionContextTypeRegistry;
@@ -63,6 +46,19 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
+
+import net.sf.sveditor.core.ILineListener;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.XMLTransformUtils;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.ILogListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.parser.SVParserConfig;
+import net.sf.sveditor.ui.console.SVEMessageConsole;
+import net.sf.sveditor.ui.editor.SVEditor;
+import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -84,7 +80,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private static SVUiPlugin 					fPlugin;
 	private ResourceBundle						fResources;
 	private WeakHashMap<String, Image>			fImageMap;
-	private SVEConsole							fConsole;
+	private SVEMessageConsole							fConsole;
 	private ContributionContextTypeRegistry		fContextRegistry;
 	private TemplateStore						fTemplateStore;
 	private boolean								fDebugConsole;
@@ -101,6 +97,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private List<LogMessage>					fLogMessageQueue;
 	private boolean								fLogMessageScheduled;
 	
+	private SVBuildConsoleListener				fBuilderOutputListener;
+	private SVBuildProcessListener				fBuildProcessListener;
+	
 	/**
 	 * Small change 1
 	 */
@@ -111,6 +110,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 	public SVUiPlugin() {
 		fImageMap = new WeakHashMap<String, Image>();
 		fLogMessageQueue = new ArrayList<SVUiPlugin.LogMessage>();
+		
+		fBuilderOutputListener = new SVBuildConsoleListener();
+		fBuildProcessListener = new SVBuildProcessListener();
 	}
 
 	/*
@@ -126,6 +128,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 		
 		SVCorePlugin.getDefault().addStdoutLineListener(fStdoutLineListener);
 		SVCorePlugin.getDefault().addStderrLineListener(fStderrLineListener);
+		SVCorePlugin.getDefault().setBuilderOutputListener(fBuilderOutputListener);
+		SVCorePlugin.getDefault().setBuildProcessListener(fBuildProcessListener);
 		
 		// Don't change settings if we're in test mode
 		if (!SVCorePlugin.getTestMode()) {
@@ -179,6 +183,39 @@ public class SVUiPlugin extends AbstractUIPlugin
 		}
 	}
 	
+//	public void buildProcess(Process p) {
+//		ILaunchConfigurationType lct = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurationType(
+//				PLUGIN_ID + ".indexBuildLaunchConfiguration");
+//		ILaunchConfigurationWorkingCopy lc = null;
+//		
+//		try {
+//			lc = lct.newInstance(null, "Foo");
+//		} catch (CoreException e) {
+//			e.printStackTrace();
+//		}
+//		Map<String, Object> lc_attr = new HashMap<String, Object>();
+//		lc_attr.put("PROCESS", p);
+//		lc.setAttributes(lc_attr);
+//		System.out.println("--> launch");
+//		final ILaunchConfigurationWorkingCopy lc_f = lc;
+//		Display.getDefault().asyncExec(new Runnable() {
+//			@Override
+//			public void run() {
+//				try {
+//					lc_f.launch("run", new NullProgressMonitor());
+//				} catch (CoreException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		// Execute any events
+////		while (Display.getDefault().readAndDispatch()) { }
+//		System.out.println("<-- launch");
+//		
+//	}
+	
+	
+
 	public static void log(Exception e) {
 		e.printStackTrace();
 	}
@@ -288,6 +325,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 			synchronized (fLogMessageQueue) {
 				for (LogMessage msg : fLogMessageQueue) {
 					ILogHandle handle = msg.handle;
+					String handle_tag = (handle != null)?("[" + handle.getName() + "] "):"";
 					int type = msg.type;
 					int level = msg.level;
 					String message = msg.message;
@@ -306,7 +344,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 					}
 
 					if (out != null) {
-						out.println("[" + handle.getName() + "] " + message);
+						out.println(handle_tag + message);
 					}
 				}
 				fLogMessageQueue.clear();
@@ -331,7 +369,9 @@ public class SVUiPlugin extends AbstractUIPlugin
 	
 	public void message(ILogHandle handle, int type, int level, String message) {
 		synchronized (fLogMessageQueue) {
-			if (!fDebugConsole && type != ILogListener.Type_Error) {
+			if (!fDebugConsole && 
+					type != ILogListener.Type_Error &&
+					type != ILogListener.Type_Info) {
 				// No output to console
 				return;
 			}
@@ -387,10 +427,10 @@ public class SVUiPlugin extends AbstractUIPlugin
 				SVUiPlugin.PLUGIN_ID, resource);
 	}
 
-	public SVEConsole getConsole() {
+	public SVEMessageConsole getConsole() {
 		
 		if (fConsole == null) {
-			fConsole = SVEConsole.getConsole("SVEditor");
+			fConsole = SVEMessageConsole.getConsole("SVEditor");
 		}
 		
 		return fConsole;

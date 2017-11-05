@@ -29,6 +29,10 @@ import net.sf.sveditor.core.argfile.parser.SVArgFileEnvVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFilePathVariableProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
 import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
+import net.sf.sveditor.core.builder.CoreBuildProcessListener;
+import net.sf.sveditor.core.builder.CoreBuilderOutputListener;
+import net.sf.sveditor.core.builder.ISVBuildProcessListener;
+import net.sf.sveditor.core.builder.ISVBuilderOutputListener;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
@@ -115,6 +119,8 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private int								fMaxIndexThreads = 0;
 	private static boolean					fEnableAsyncCacheClear;
 	private static List<String>				fPersistenceClassPkgList;
+	private ISVBuilderOutputListener		fBuilderOutputListener = new CoreBuilderOutputListener();
+	private ISVBuildProcessListener			fBuildProcessListener = new CoreBuildProcessListener();
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
@@ -409,6 +415,22 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return fProjManager;
 	}
 	
+	public void setBuilderOutputListener(ISVBuilderOutputListener l) {
+		fBuilderOutputListener = l;
+	}
+	
+	public ISVBuilderOutputListener getBuilderOutputListener() {
+		return fBuilderOutputListener;
+	}
+	
+	public void setBuildProcessListener(ISVBuildProcessListener l) {
+		fBuildProcessListener = l;
+	}
+	
+	public ISVBuildProcessListener getBuildProcessListener() {
+		return fBuildProcessListener;
+	}
+	
 	public List<SVDBPluginLibDescriptor> getPluginLibList() {
 		List<SVDBPluginLibDescriptor> ret = new ArrayList<SVDBPluginLibDescriptor>();
 
@@ -573,16 +595,23 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	}
 
 	public void message(ILogHandle handle, int type, int level, String message) {
+		String handle_tag = (handle != null)?("[" + handle.getName() + "] "):"";
 		if (type == ILogListener.Type_Error) {
-			System.err.println("[" + handle.getName() + "] " + message);
+			System.err.println(handle_tag + message);
 			if (fLogPS != null) {
-				fLogPS.println("[" + handle.getName() + "] " + message);
+				fLogPS.println(handle_tag + message);
+			}
+		} else if (type == ILogListener.Type_Info) {
+			if (fLogPS != null) {
+				fLogPS.println(handle_tag + message);
+			} else {
+				System.out.println(handle_tag + message);
 			}
 		} else {
 			if (fDebugLevel >= level) {
-				System.out.println("[" + handle.getName() + "] " + message);
+				System.out.println(handle_tag + message);
 				if (fLogPS != null) {
-					fLogPS.println("[" + handle.getName() + "] " + message);
+					fLogPS.println(handle_tag + message);
 				}
 			}
 		}

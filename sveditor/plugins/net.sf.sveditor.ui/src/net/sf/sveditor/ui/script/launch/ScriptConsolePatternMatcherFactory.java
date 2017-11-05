@@ -13,7 +13,7 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.script.launch.ILogMessageScanner;
 import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
 import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.console.SVEConsole;
+import net.sf.sveditor.ui.console.SVEMessageConsole;
 
 public class ScriptConsolePatternMatcherFactory {
 	

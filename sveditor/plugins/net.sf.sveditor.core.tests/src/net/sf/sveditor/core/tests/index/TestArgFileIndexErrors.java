@@ -46,7 +46,7 @@ public class TestArgFileIndexErrors extends SVCoreTestCaseBase {
 		fw.addArgFilePath("${workspace_loc}/" + testname + "/file1.f");
 		pdata.setProjectFileWrapper(fw);
 		
-		boolean build_ok = pmgr.rebuildProject(new NullProgressMonitor(), project_dir, true);
+		boolean build_ok = pmgr.rebuildProject(new NullProgressMonitor(), project_dir, true, null);
 		
 		assertTrue(build_ok);
 		

@@ -58,7 +58,7 @@ public class UVMExampleTestCaseBase extends SVCoreTestCaseBase {
 			
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				pmgr.rebuildProject(new NullProgressMonitor(), p, true);
+				pmgr.rebuildProject(new NullProgressMonitor(), p, true, null);
 				return Status.OK_STATUS;
 			}
 		};

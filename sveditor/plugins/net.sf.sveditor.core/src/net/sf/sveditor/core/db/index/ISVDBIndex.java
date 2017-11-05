@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.List;
 
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -31,6 +32,8 @@ public interface ISVDBIndex extends
 	ISVDBFileSystemProvider getFileSystemProvider();
 	
 	void setFileSystemProvider(ISVDBFileSystemProvider fs_provider);
+	
+	void setBuilderOutput(ISVBuilderOutput out);
 	
 	public void init(IProgressMonitor monitor, ISVDBIndexBuilder builder);
 

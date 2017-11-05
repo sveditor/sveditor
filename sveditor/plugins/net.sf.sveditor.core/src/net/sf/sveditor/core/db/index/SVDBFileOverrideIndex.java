@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -57,6 +58,9 @@ public class SVDBFileOverrideIndex
 		fIncFilesFinder = fIndex;
 	}
 	
+	@Override
+	public void setBuilderOutput(ISVBuilderOutput out) { }
+
 	public void setFile(SVDBFile file) {
 		fFile = file;
 	}

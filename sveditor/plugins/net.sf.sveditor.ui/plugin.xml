@@ -1928,5 +1928,28 @@ endpackage
             id="net.sf.sveditor.ui.sveScriptLineTracker"
             processType="sve.script">
       </consoleLineTracker>
+      <consoleLineTracker
+            class="net.sf.sveditor.ui.console.SVBuildConsoleLineTracker"
+            id="net.sf.sveditor.ui.svBuildConsoleLineTracker"
+            processType="sve.build">
+      </consoleLineTracker>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="net.sf.sveditor.ui.index.launch.SVIndexLaunchDelegate"
+            id="net.sf.sveditor.ui.indexBuildLaunchConfiguration"
+            modes="run"
+            name="SystemVerilog Index Build"
+            public="false">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.consoleColorProviders">
+      <consoleColorProvider
+            class="net.sf.sveditor.ui.console.SVBuildConsoleColorProvider"
+            id="net.sf.sveditor.ui.buildConsoleColorProvider"
+            processType="sve.build">
+      </consoleColorProvider>
    </extension>
 </plugin>

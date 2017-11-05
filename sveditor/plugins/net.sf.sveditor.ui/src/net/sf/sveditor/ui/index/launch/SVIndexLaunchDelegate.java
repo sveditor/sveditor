@@ -1,0 +1,35 @@
+package net.sf.sveditor.ui.index.launch;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.swt.widgets.Display;
+
+public class SVIndexLaunchDelegate implements ILaunchConfigurationDelegate {
+
+	@Override
+	public void launch(
+			ILaunchConfiguration 	configuration, 
+			String 					mode, 
+			ILaunch 				launch, 
+			IProgressMonitor 		monitor) throws CoreException {
+	
+		Process p = (Process)configuration.getAttributes().get("PROCESS");
+		
+		Map<String, String> attr = new HashMap<String, String>();
+		System.out.println("buildProcess");
+		attr.put(IProcess.ATTR_PROCESS_TYPE, "sve.build");
+
+		DebugPlugin.newProcess(launch, p, "Foo", attr);
+	
+		// Execute any events
+		while (Display.getDefault().readAndDispatch()) { }
+	}
+}

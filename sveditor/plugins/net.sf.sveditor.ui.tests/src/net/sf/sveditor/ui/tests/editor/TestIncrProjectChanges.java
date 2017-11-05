@@ -5,8 +5,8 @@ import java.util.Map;
 
 import net.sf.sveditor.core.ISVProjectBuilderListener;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVProjectBuilder;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.SVProjectBuilder;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;

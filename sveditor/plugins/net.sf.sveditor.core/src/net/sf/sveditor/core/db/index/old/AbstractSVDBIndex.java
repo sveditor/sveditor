@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
@@ -120,6 +121,7 @@ public abstract class AbstractSVDBIndex implements
 	private String 									fBaseLocation;
 	private String 									fResolvedBaseLocation;
 	private String 									fResolvedBaseLocationDir;
+	private ISVBuilderOutput						fOut;
 
 	private SVDBBaseIndexCacheData 					fIndexCacheData;
 	private boolean									fCacheDataValid;
@@ -835,6 +837,10 @@ public abstract class AbstractSVDBIndex implements
 
 	protected SVDBBaseIndexCacheData getCacheData() {
 		return fIndexCacheData;
+	}
+	
+	public void setBuilderOutput(ISVBuilderOutput out) {
+		fOut = out;
 	}
 
 	public void setFileSystemProvider(ISVDBFileSystemProvider fs_provider) {

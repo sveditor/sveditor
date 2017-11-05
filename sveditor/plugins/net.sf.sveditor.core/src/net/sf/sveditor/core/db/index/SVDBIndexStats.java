@@ -178,7 +178,17 @@ public class SVDBIndexStats {
 		return sb.toString();
 	}
 	
-	private static long calcNPerS(int n, long ms) {
+	public void add(SVDBIndexStats other) {
+		fNumRootFiles += other.fNumRootFiles;
+		fNumProcessedFiles += other.fNumProcessedFiles;
+		fNumLines += other.fNumLines;
+		fLastIndexFileReadTimeMS += other.fLastIndexDeclIndexTimeMS;
+		fLastIndexPreProcessTimeMS += other.fLastIndexPreProcessTimeMS;
+		fLastIndexParseTimeMS += other.fLastIndexParseTimeMS;
+		fLastIndexTotalTimeMS += other.fLastIndexTotalTimeMS;
+	}
+	
+	public static long calcNPerS(int n, long ms) {
 		long n_tmp = n;
 		long t_tmp = ms;
 		

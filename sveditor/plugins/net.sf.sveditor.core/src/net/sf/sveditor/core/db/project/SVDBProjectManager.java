@@ -19,23 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import net.sf.sveditor.core.ISVProjectDelayedOp;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVMarkers;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
-import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
-import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
-import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IPathVariableChangeEvent;
 import org.eclipse.core.resources.IPathVariableChangeListener;
@@ -56,6 +39,28 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+
+import net.sf.sveditor.core.ISVProjectDelayedOp;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVMarkers;
+import net.sf.sveditor.core.builder.CoreBuildProcessListener;
+import net.sf.sveditor.core.builder.ISVBuildProcessListener;
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import net.sf.sveditor.core.db.index.SVDBIndexStats;
+import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import net.sf.sveditor.core.db.index.ops.SVDBClearMarkersOp;
+import net.sf.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBProjectManager implements 
 		IResourceChangeListener, IPathVariableChangeListener,
@@ -85,7 +90,7 @@ public class SVDBProjectManager implements
 		IPathVariableManager pvm = ResourcesPlugin.getWorkspace().getPathVariableManager();
 		pvm.addChangeListener(this);
 	}
-
+	
 	/**
 	 * Initialize SV projects in the workspace
 	 */
@@ -115,6 +120,22 @@ public class SVDBProjectManager implements
 		synchronized (fListeners) {
 			fListeners.remove(l);
 		}
+	}
+	
+	public void startBuild(
+			Process					process,
+			IProject 				project,
+			int						kind,
+			Map<String, String>		args) {
+		SVCorePlugin.getDefault().getBuildProcessListener().buildProcess(process);
+		buildEvent(project, true, kind, args);
+	}
+	
+	public void endBuild(
+			IProject 				project,
+			int						kind,
+			Map<String, String>		args) {
+		buildEvent(project, false, kind, args);
 	}
 	
 	public void buildEvent(
@@ -197,8 +218,25 @@ public class SVDBProjectManager implements
 			}
 		}
 	}
-	public boolean rebuildProject(IProgressMonitor monitor, IProject p) {
-		return rebuildProject(monitor, p, false);
+	
+	public boolean rebuildProject(
+			IProgressMonitor 		monitor, 
+			IProject 				p) {
+		return rebuildProject(monitor, p, null);
+	}
+	
+	public boolean rebuildProject(
+			IProgressMonitor 		monitor, 
+			IProject 				p,
+			ISVBuilderOutput		out) {
+		return rebuildProject(monitor, p, false, out);
+	}
+	
+	public boolean rebuildProject(
+			IProgressMonitor 		monitor, 
+			IProject 				p, 
+			boolean 				wait_for_refresh) {
+		return rebuildProject(monitor, p, wait_for_refresh, null);
 	}
 
 	/**
@@ -208,12 +246,16 @@ public class SVDBProjectManager implements
 	 * @param wait_for_refresh
 	 * @return
 	 */
-	public boolean rebuildProject(IProgressMonitor monitor, IProject p, boolean wait_for_refresh) {
+	public boolean rebuildProject(
+			IProgressMonitor 		monitor, 
+			IProject 				p, 
+			boolean 				wait_for_refresh,
+			ISVBuilderOutput		out) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		
 		if (!isSveProject(p)) {
 			// This is likely an auto-build occurring in the middle of import
-			fLog.debug("rebuildProject: cancel due to !isSveProject");
+			out.note("rebuildProject: cancel due to !isSveProject");
 			return false;
 		}
 	
@@ -233,7 +275,7 @@ public class SVDBProjectManager implements
 			} else {
 			/*
 			 */
-				fLog.debug("rebuildProject: cancel due to RefreshJob running");
+				out.note("rebuildProject: cancel due to RefreshJob running");
 				return false;
 			}
 		}
@@ -252,7 +294,9 @@ public class SVDBProjectManager implements
 		if (pd != null) {
 			// Ensure we're up-to-date
 			pd.refresh();
-			
+
+			boolean have_stats = false;
+			SVDBIndexStats stats = new SVDBIndexStats();
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
 			List<ISVDBIndex> index_l = index.getIndexList();
 			subMonitor.beginTask("Build " + p.getName(), 12000*(index_l.size()+1));
@@ -261,15 +305,17 @@ public class SVDBProjectManager implements
 				subMonitor.subTask("Build " + i.getBaseLocation());
 				SVDBIndexChangePlanRebuild plan = new SVDBIndexChangePlanRebuild(i);
 				
-				fLog.debug(LEVEL_MID, "Rebuild index " + i.getBaseLocation());
+				out.note("Rebuild index " + i.getBaseLocation());
 				
 				i.execOp(subMonitor.newChild(1000), 
 						new SVDBClearMarkersOp(), false);
 				if (subMonitor.isCanceled()) {
 					break;
 				}
-				
+
+				i.setBuilderOutput(out);
 				i.execIndexChangePlan(subMonitor.newChild(10000), plan);
+				i.setBuilderOutput(null);
 				if (subMonitor.isCanceled()) {
 					break;
 				}
@@ -279,6 +325,25 @@ public class SVDBProjectManager implements
 				if (subMonitor.isCanceled()) {
 					break;
 				}
+				
+				if (i instanceof ISVDBIndexStatsProvider) {
+					SVDBIndexStats i_stats = ((ISVDBIndexStatsProvider)i).getIndexStats();
+					stats.add(i_stats);
+					have_stats = true;
+				}
+			}
+			
+			if (have_stats) {
+				out.note("Index Statistics: " +
+						SVDBIndexStats.calcNPerS(stats.getNumLines(),  stats.getLastIndexTotalTime()) +
+						" Lines per second");
+				out.note("  Root Files: " + stats.getNumRootFiles());
+				out.note("  Total Files: " + stats.getNumProcessedFiles());
+				out.note("  Total Lines: " + stats.getNumLines());
+				out.note("  File Read Time: " + stats.getLastIndexFileReadTime() + "ms");
+				out.note("  Pre-Process Time: " + stats.getLastIndexPreProcessTime() + "ms");
+				out.note("  Parse Time: " + stats.getLastIndexParseTime() + "ms");
+				out.note("  Total Index Time: " + stats.getLastIndexTotalTime() + "ms");
 			}
 			
 			// Finally, update the markers
@@ -288,7 +353,7 @@ public class SVDBProjectManager implements
 			subMonitor.done();
 			return false;
 		}
-
+		
 		// Fire one more time to catch requests that 
 		// might have accumulated
 		synchronized (fDelayedOpList) {
@@ -309,7 +374,8 @@ public class SVDBProjectManager implements
 	public void rebuildProject(
 			IProgressMonitor 					monitor,
 			IProject 							p,
-			List<SVDBIndexResourceChangeEvent> 	changes) {
+			List<SVDBIndexResourceChangeEvent> 	changes,
+			ISVBuilderOutput					out) {
 		boolean full_build = false;
 		boolean rebuild_workspace = false;
 		SubMonitor subMonitor = SubMonitor.convert(monitor);
@@ -330,7 +396,7 @@ public class SVDBProjectManager implements
 		}
 
 		if (rebuild_workspace) {
-			fLog.debug(LEVEL_MIN, "Skip due to rebuild workspace");
+			out.note("Skip due to rebuild workspace");
 			return;
 		}
 		
@@ -346,6 +412,10 @@ public class SVDBProjectManager implements
 			SVDBIndexCollection index = pd.getProjectIndexMgr();
 			List<ISVDBIndex> index_l = index.getIndexList();
 			subMonitor.beginTask("Build " + p.getName(), 12000*index_l.size());
+			
+			for (ISVDBIndex i : index_l) {
+				i.setBuilderOutput(out);
+			}
 			
 			for (ISVDBIndex i : index_l) {
 				SubMonitor loopMonitor = subMonitor.newChild(12000);
@@ -377,6 +447,10 @@ public class SVDBProjectManager implements
 					loopMonitor.worked(12000); // Nothing to do for this index
 				}
 				
+			}
+			
+			for (ISVDBIndex i : index_l) {
+				i.setBuilderOutput(null);
 			}
 			
 			if (full_build) {

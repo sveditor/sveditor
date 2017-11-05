@@ -26,8 +26,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -46,6 +49,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
+import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
@@ -92,7 +96,7 @@ import net.sf.sveditor.core.preproc.SVPreProcessor;
 
 public class SVDBArgFileIndex implements 
 		ISVDBIndex, ISVDBIndexInt,  
-		ILogLevelListener, ILogLevel {
+		ILogLevelListener, ILogLevel, ISVDBIndexStatsProvider {
 
 	public String 								fProjectName;
 	private IProject 							fProject;
@@ -126,6 +130,8 @@ public class SVDBArgFileIndex implements
 	private int									fInIndexOp;
 	
 	private SVDBArgFileParser					fArgFileParser;
+	
+	private ISVBuilderOutput					fOut;
 	
 	
 	private SVDBArgFileIndex(String project) {
@@ -295,17 +301,22 @@ public class SVDBArgFileIndex implements
 	}
 
 	public void execIndexChangePlan(IProgressMonitor monitor, ISVDBIndexChangePlan plan) {
+		SafeSVBuilderOutput out = new SafeSVBuilderOutput(fOut);
+		
 	
 		switch (plan.getType()) {
 			case Refresh: {
+				out.note("Refreshing index " + getBaseLocation() + " in project " + getProject());
 				refresh_index(monitor);
 			} break;
 			
 			case RebuildIndex: {
+				out.note("Full build of index " + getBaseLocation() + " in project " + getProject());
 				rebuild_index(monitor);
 			} break;
 			
 			case RebuildFiles: {
+				out.note("Incremental build of index " + getBaseLocation() + " in project " + getProject());
 				rebuild_files(monitor, (SVDBIndexChangePlanRebuildFiles)plan);
 			} break;
 			
@@ -471,6 +482,8 @@ public class SVDBArgFileIndex implements
 	 * @param plan
 	 */
 	private void rebuild_files(IProgressMonitor monitor, SVDBIndexChangePlanRebuildFiles plan) {
+		SafeSVBuilderOutput out = new SafeSVBuilderOutput(fOut);
+		
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "rebuild_files: " + plan.getFileListType());
 		}
@@ -615,8 +628,8 @@ public class SVDBArgFileIndex implements
 					}
 				}
 				
-				SVPreProcOutput out = preproc.preprocess();
-				SVDBFileTree ft = out.getFileTree();
+				SVPreProcOutput pp_out = preproc.preprocess();
+				SVDBFileTree ft = pp_out.getFileTree();
 				
 				// Collect include files
 				List<String> included_files = new ArrayList<String>();
@@ -637,7 +650,7 @@ public class SVDBArgFileIndex implements
 					language_level = SVLanguageLevel.computeLanguageLevel(path);
 				}
 				List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-				SVDBFile file = f.parse(language_level, out, path, markers);
+				SVDBFile file = f.parse(language_level, pp_out, path, markers);
 				
 				// Now, set the new root-file info to the cache
 				build_data.getCache().setFile(path, file, false);
@@ -692,7 +705,8 @@ public class SVDBArgFileIndex implements
 							fBuildData.getCache().setMarkers(path, markers, false);
 						}
 					} else {
-						fLog.error("Error: File " + path + " doesn't exist");;
+						System.out.println("File " + path + " doesn't exist " + fOut);
+						out.error("File " + path + " doesn't exist");
 					}
 
 					long last_modified = cache.getLastModified(path);
@@ -1205,6 +1219,11 @@ public class SVDBArgFileIndex implements
 	@Override
 	public SVDBIndexConfig getConfig() {
 		return fConfig;
+	}
+	
+	@Override
+	public void setBuilderOutput(ISVBuilderOutput out) {
+		fOut = out;
 	}
 
 	@Override
@@ -1797,7 +1816,8 @@ public class SVDBArgFileIndex implements
 			IProgressMonitor 				monitor,
 			SVDBArgFileIndexBuildData		build_data) {
 		SVDBArgFileBuildUtils.buildIndex(
-				monitor, build_data, this, fArgFileParser);
+				monitor, build_data, this, fArgFileParser,
+				new SafeSVBuilderOutput(fOut));
 	}
 
 	@Override
@@ -1879,6 +1899,7 @@ public class SVDBArgFileIndex implements
 	 * Note: called by a test
 	 * @return
 	 */
+	@Override
 	public SVDBIndexStats getIndexStats() {
 		return fBuildData.getIndexStats();
 	}
@@ -1899,7 +1920,7 @@ public class SVDBArgFileIndex implements
 			return true;
 		}
 	}
-
+	
 	private ISVPreProcFileMapper fReadOnlyFileMapper = new ISVPreProcFileMapper() {
 		
 		public int mapFilePathToId(String path, boolean add) {
@@ -1910,4 +1931,6 @@ public class SVDBArgFileIndex implements
 			return fBuildData.mapFileIdToPath(id);
 		}
 	};
+
+
 }

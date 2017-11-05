@@ -34,8 +34,6 @@ public class SVDBLibIndex extends AbstractSVDBIndex {
 		return "SVDBLibIndex";
 	}
 
-
-
 	public String getTypeID() {
 		return "SVDBLibPathIndexFactory.TYPE";
 	}

@@ -14,13 +14,13 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
-public class SVEConsole extends MessageConsole 
+public class SVEMessageConsole extends MessageConsole 
 	implements IPropertyChangeListener  {
 	
 	private MessageConsoleStream			fStdout;
 	private MessageConsoleStream			fStderr;
 	
-	public SVEConsole(String name) {
+	public SVEMessageConsole(String name) {
 		super(name, null);
 		initConsole();
 	}
@@ -127,20 +127,20 @@ public class SVEConsole extends MessageConsole
 		}
 	}
 	
-	public static SVEConsole getConsole(String name) {
+	public static SVEMessageConsole getConsole(String name) {
 		IConsoleManager mgr = ConsolePlugin.getDefault().getConsoleManager();
-		SVEConsole ret = null;
+		SVEMessageConsole ret = null;
 		
 		for (IConsole c : mgr.getConsoles()) {
-			if (c.getName().equals(name) && c instanceof SVEConsole) {
-				ret = (SVEConsole)c;
+			if (c.getName().equals(name) && c instanceof SVEMessageConsole) {
+				ret = (SVEMessageConsole)c;
 				break;
 			}
 		}
 		
 		
 		if (ret == null) {
-			ret = new SVEConsole(name);
+			ret = new SVEMessageConsole(name);
 			mgr.addConsoles(new IConsole[] {ret});
 		}
 		

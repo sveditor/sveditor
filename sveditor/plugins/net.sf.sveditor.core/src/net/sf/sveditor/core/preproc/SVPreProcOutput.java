@@ -1,8 +1,5 @@
 package net.sf.sveditor.core.preproc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 
@@ -20,15 +17,16 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		}
 	}
 	
-	private StringBuilder					fText;
-	private int								fTextLength;
-	private SVDBFileTree					fFileTree;
+	private StringBuilder						fText;
+	private int									fTextLength;
+	private SVDBFileTree						fFileTree;
 
-	private int								fFileId;
-	private int								fIdx;
-	private int								fLastCh;
-	private boolean							fIncLineno;
-	private int								fUngetCh1, fUngetCh2;
+	private int									fFileId;
+	private int									fIdx;
+	private int									fLastCh;
+	private boolean								fIncLineno;
+	private int									fUngetCh1, fUngetCh2;
+	private ISVPreProcOutputFileChangeListener	fFileChangeListener;
 	
 	public SVPreProcOutput(StringBuilder text) {
 		fText = text;
@@ -47,6 +45,10 @@ public class SVPreProcOutput extends AbstractTextScanner {
 		fTextLength = fText.length();
 		fUngetCh1 = -1;
 		fUngetCh2 = -1;
+	}
+	
+	public void setFileChangeListener(ISVPreProcOutputFileChangeListener l) {
+		fFileChangeListener = l;
 	}
 	
 	public SVPreProcOutput duplicate() {
@@ -91,7 +93,13 @@ public class SVPreProcOutput extends AbstractTextScanner {
 				
 				try {
 					if (ws_idx != -1 && colon_idx != -1) {
-						fFileId = Integer.parseInt(line.substring(ws_idx+1, colon_idx));
+						int new_file = Integer.parseInt(line.substring(ws_idx+1, colon_idx));
+						
+						if (fFileId != new_file && fFileChangeListener != null) {
+							fFileChangeListener.fileChanged(fFileId, new_file);
+						}
+						
+						fFileId = new_file;
 					}
 				} catch (NumberFormatException e) {
 					e.printStackTrace();

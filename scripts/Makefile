@@ -40,9 +40,27 @@ ifeq (Cygwin,$(uname_o))
     swt_arch=i386
   endif
 else
-  LAUNCHER_JAR=$(wildcard $(BUILD_DIR)/eclipse/plugins/org.eclipse.equinox.launcher_*.jar)
-  BUILD_DIR_A=$(BUILD_DIR)
-  SCRIPTS_DIR_A=$(SCRIPTS_DIR)
+  ifeq (Msys,$(uname_o))
+#    LAUNCHER_JAR=$(shell `ls $(BUILD_DIR)/eclipse/plugins/org.eclipse.equinox.launcher_*.jar` | sed -e 's%^/\([a-zA-Z]\)%\1:%g')
+    LAUNCHER_JAR=$(wildcard $(BUILD_DIR)/eclipse/plugins/org.eclipse.equinox.launcher_*.jar)
+    BUILD_DIR_A=$(shell echo $(BUILD_DIR) | sed -e 's%^/\([a-zA-Z]\)%\1:%g')
+#    BUILD_DIR_A=$(BUILD_DIR)
+    SCRIPTS_DIR_A=$(shell echo $(SCRIPTS_DIR) | sed -e 's%^/\([a-zA-Z]\)%\1:%g')
+    os:=windows
+    swt_os=win32
+    swt_ws=win32
+    ifeq (x86_64,$(uname_m))
+      platform:=win64
+      swt_arch=x86_64
+    else
+      platform:=win32
+      swt_arch=i386
+    endif
+  else
+    LAUNCHER_JAR=$(wildcard $(BUILD_DIR)/eclipse/plugins/org.eclipse.equinox.launcher_*.jar)
+    BUILD_DIR_A=$(BUILD_DIR)
+    SCRIPTS_DIR_A=$(SCRIPTS_DIR)
+  endif
 endif
 
 
@@ -64,7 +82,7 @@ $(BUILD_DIR)/eclipse.init : $(BUILD_DIR)/fetch-packages
 	rm -rf $(BUILD_DIR)/gef 
 	mkdir -p $(BUILD_DIR)/gef
 	cd $(BUILD_DIR)/gef ; unzip $(PACKAGES_DIR)/$(zest_zip)
-	$(INSTALL_IU) -repository file:/$(BUILD_DIR_A)/gef -tag AddZEST \
+	MSYS2_ARG_CONV_EXCL="*" $(INSTALL_IU) -repository 'file:/$(BUILD_DIR_A)/gef' -tag AddZEST \
 		-destination $(BUILD_DIR_A)/eclipse \
 		-installIU org.eclipse.gef.feature.group \
 		-installIU org.eclipse.draw2d.feature.group \

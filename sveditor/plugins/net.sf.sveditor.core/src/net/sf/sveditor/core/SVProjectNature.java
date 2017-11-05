@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core;
 
+import net.sf.sveditor.core.builder.SVProjectBuilder;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;

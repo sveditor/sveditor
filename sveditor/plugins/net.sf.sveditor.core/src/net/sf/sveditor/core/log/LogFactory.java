@@ -121,6 +121,9 @@ public class LogFactory implements ILogListener {
 		}
 	}
 
+	public static void note(String msg) {
+		getDefault().message(null, ILogListener.Type_Info, 0, msg);
+	}
 
 	public void message(ILogHandle handle, int type, int level, String message) {
 		synchronized (fLogListeners) {
