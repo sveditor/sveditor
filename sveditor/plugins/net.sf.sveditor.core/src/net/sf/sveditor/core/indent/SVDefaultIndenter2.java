@@ -76,6 +76,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		fQualifierMap.put("public", 1 << 4);
 		fQualifierMap.put("extern", 1 << 5);
 		fQualifierMap.put("default", 1 << 6);
+		fQualifierMap.put("export", 1 << 7);
+		fQualifierMap.put("import", 1 << 8);
 
 		fPreProcDirectives = new HashSet<String>();
 		fPreProcDirectives.add("`define");
@@ -709,12 +711,11 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 	}
 
 	/**
-	 * indent_ifc_module_class()
+	 * indent_config (String item)
 	 * 
-	 * Indents a class, module or interface and the items
-	 * within the body
+	 * Indents a configuration
 	 * 
-	 * @param item
+	 * @param item - ???
 	 * @return
 	 */
 	private SVIndentToken indent_config(String item) {
@@ -763,6 +764,40 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		return tok;
 	}
 
+	/**
+	 * indent_export_import ()
+	 * 
+	 * Indents a verilog import / export function
+	 * 
+	 * export "DPI-C" f_plus = function \f+ ; // "f+" exported as "f_plus"
+	 * export "DPI-C" function f; // "f" exported under its own name
+	 * import "DPI-C" init_1 = function void \init[1] (); // "init_1" is a linkage name
+	 * import "DPI-C" \begin = function void \init[2] (); // "begin" is a linkage name
+	 * 
+	 * @return
+	 */
+	private SVIndentToken indent_import_export() {
+		SVIndentToken tok = current_s();
+		
+		start_of_scope(tok); // establish the indent of this scope
+		// for adaptive-indent purposes
+		
+		tok = next_s();
+		
+		// Ensure that any comments at the beginning of the
+		// task/function are indented correctly
+		enter_scope(tok);
+		tok = next_s();
+
+		while (tok != null) {
+			tok = indent_block_or_statement(null, true);
+		}
+		leave_scope(tok);
+		end_of_scope(tok); // restore scope previously set
+		
+		return tok;
+	}
+	
 	private static boolean is_always(SVIndentToken tok) {
 		return (tok.isId("always") || tok.isId("always_comb") ||
 				tok.isId("always_latch") || tok.isId("always_ff") ||
@@ -1112,7 +1147,9 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 		}
 
 		// If this is an extern function or task, we're done
-		if (!isQualifierSet("extern")) {
+		// If this is an export function or task, we're done
+		// If this is an import function or task, we're done
+		if (!isQualifierSet("extern") && !isQualifierSet("import") && !isQualifierSet("export")) {
 			// Ensure that any comments at the beginning of the
 			// task/function are indented correctly
 			enter_scope(tok);
