@@ -1,7 +1,17 @@
 
 ------------------------------------------------------------------------------
--- 2.0.6 Release --
+-- 2.0.7 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+------------------------------------------------------------------------------
+-- 2.0.6 Release --
+
+- #(enh) - Enhance the editor performance when used with large files. This was
+  done by changing how annotations (eg error markers, folding regions) are
+  added and updated 
+  
+- #(enh) - Extend SystemVerilog build console support to incremental builds
+  and project initialization
 
 
 ------------------------------------------------------------------------------

@@ -1,8 +1,10 @@
 package net.sf.sveditor.ui.editor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
@@ -10,7 +12,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.jface.text.source.Annotation;
-import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.ui.texteditor.spelling.ISpellingProblemCollector;
 import org.eclipse.ui.texteditor.spelling.SpellingAnnotation;
@@ -30,7 +32,7 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void reconcile(IRegion region) {
-		IAnnotationModel model = getAnnotationModel();
+		AnnotationModel model = (AnnotationModel)getAnnotationModel();
 		
 		if (model == null) {
 			return;
@@ -55,6 +57,8 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 	
 		// Remove any annotations inside the regions
 		Iterator<Annotation> it = model.getAnnotationIterator();
+		List<Annotation> remove_ann = new ArrayList<Annotation>();
+		Map<Annotation, Position> add_ann = new HashMap<Annotation, Position>();
 		while (it.hasNext()) {
 			Annotation ann = (Annotation)it.next();
 			
@@ -78,18 +82,21 @@ public class SVSpellingReconcileStrategy extends SpellingReconcileStrategy {
 				}
 
 				if (in_region) {
-					model.removeAnnotation(ann);
+					remove_ann.add(ann);
 				}
 			} else if (ann != null) {
-				model.removeAnnotation(ann);
+				remove_ann.add(ann);
 			}
 		}
 		
 		// Now, place the new annotations
 		for (SpellingProblem problem : fProblems) {
 			Annotation ann = new SpellingAnnotation(problem);
-			model.addAnnotation(ann, new Position(problem.getOffset(), problem.getLength()));
+			add_ann.put(ann, new Position(problem.getOffset(), problem.getLength()));
 		}
+		model.replaceAnnotations(
+				remove_ann.toArray(new Annotation[remove_ann.size()]), 
+				add_ann);
 	}
 	
 	@Override

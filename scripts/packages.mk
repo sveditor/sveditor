@@ -5,9 +5,9 @@ PACKAGES_DIR := $(SCRIPTS_DIR)/../packages
 ifneq (1,$(RULES))
 mirror_ftp?=ftp://ftp.osuosl.org/pub/eclipse
 
-eclipse_build_version=4.6.2
+eclipse_build_version=4.6.3
 eclipse_build_repo=http://download.eclipse.org/releases/neon
-eclipse_build_drop=R-$(eclipse_build_version)-201611241400
+eclipse_build_drop=R-$(eclipse_build_version)-201703010400
 eclipse_build_release=$(mirror_ftp)/eclipse/downloads/drops4/$(eclipse_build_drop)
 eclipse_build_linux_tgz=eclipse-SDK-$(eclipse_build_version)-linux-gtk.tar.gz
 eclipse_build_linux_x86_64_tgz=eclipse-SDK-$(eclipse_build_version)-linux-gtk-x86_64.tar.gz

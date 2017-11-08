@@ -26,7 +26,6 @@ import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
-import net.sf.sveditor.core.preproc.ISVPreProcOutputFileChangeListener;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 

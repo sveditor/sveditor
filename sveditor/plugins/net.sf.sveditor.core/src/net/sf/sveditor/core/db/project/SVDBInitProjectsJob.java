@@ -6,6 +6,7 @@ import java.util.List;
 import net.sf.sveditor.core.ISVProjectDelayedOp;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVProjectNature;
+import net.sf.sveditor.core.builder.SVBuilderProcess;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
@@ -62,45 +63,18 @@ public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 			}
 		}
 		
-		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
-
-	
 		try {
 			subMonitor.beginTask("Initializing SV Projects", 1000*sv_projects.size());
 			for (IProject p : sv_projects) {
 				// Ensure that this project has the SV nature
 				SVProjectNature.ensureHasSvProjectNature(p);
-				SubMonitor proj_loopMonitor = subMonitor.newChild(1000);
-				proj_loopMonitor.beginTask("Initalizing " + p.getName(), 1000);
 				
-				try {
-					SVDBProjectData pdata = pmgr.getProjectData(p);
-					// Getting the index collection causes the indexes 
-					// to be initialized
-					SVDBIndexCollection index_mgr = pdata.getProjectIndexMgr();
-
-					List<ISVDBIndex> index_list = index_mgr.getIndexList();
-					
-					synchronized (index_list) {
-						SubMonitor list_loopMonitor = proj_loopMonitor.newChild(1000);
-						list_loopMonitor.setWorkRemaining(index_list.size()*1000);
-						for (ISVDBIndex index : index_list) {
-							SVDBIndexChangePlanRefresh refresh = new SVDBIndexChangePlanRefresh(index);
-							index.execIndexChangePlan(list_loopMonitor.newChild(500), refresh);
-							
-							ISVDBIndexChangePlan plan = index.createIndexChangePlan(null);
-							
-							if (plan != null && plan.getType() != SVDBIndexChangePlanType.Empty) {
-								index.execIndexChangePlan(list_loopMonitor.newChild(500), plan);
-							} else{
-								list_loopMonitor.worked(500);
-							}
-						}
-					}
-				} catch (Exception e) {
-					// TODO: Log
-					e.printStackTrace();
-				}
+				SubMonitor proj_loopMonitor = subMonitor.newChild(1000);
+				SVBuilderProcess process = new SVBuilderProcess(proj_loopMonitor, p);
+				
+				SVCorePlugin.getDefault().getBuildProcessListener().buildProcess(process);
+			
+				process.init_project();
 			}
 		} finally {
 			subMonitor.done();

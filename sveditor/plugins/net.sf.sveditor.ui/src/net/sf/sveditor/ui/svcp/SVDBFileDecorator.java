@@ -195,7 +195,7 @@ public class SVDBFileDecorator implements ILightweightLabelDecorator {
 			IResource rsrc = (IResource)element;
 		
 			// Escape if the resource is closed
-			if (!rsrc.isAccessible()) {
+			if (!rsrc.isAccessible() || rsrc.getLocation() == null) {
 				return;
 			}
 			

@@ -26,10 +26,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.builder.SVBuilderPreProcTracker;
 import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
@@ -338,6 +338,7 @@ public class SVDBArgFileIndex implements
 	 */
 	@SuppressWarnings("unchecked")
 	private void refresh_index(IProgressMonitor monitor) {
+		SafeSVBuilderOutput out = new SafeSVBuilderOutput(fOut);
 		SubMonitor subMonitor = SubMonitor.convert(monitor, "Initialize index " + getBaseLocation(), 100);
 
 		// Initialize the cache
@@ -347,6 +348,7 @@ public class SVDBArgFileIndex implements
 		}
 
 		if (fCacheDataValid) {
+			out.note("Cache is valid");
 			if (fDebugEn) {
 				fLog.debug("Cache is valid");
 			}
@@ -389,6 +391,7 @@ public class SVDBArgFileIndex implements
 				fBuildData.addFileDir(f);
 			}
 		} else {
+			out.note("Cache is invalid");
 			if (fDebugEn) {
 				fLog.debug("Cache " + getBaseLocation() + " is invalid");
 			}
@@ -512,10 +515,13 @@ public class SVDBArgFileIndex implements
 		
 		if (plan.getFileListType() == FileListType.Source) {
 			// simple: already have it
+			out.note("Only source (SV) files have changed");
 			file_list.addAll(plan.getFileList());
 			subMonitor.worked(1000);
 		} else if (plan.getFileListType() == FileListType.Filelist) {
 			NullProgressMonitor m = new NullProgressMonitor();
+			
+			out.note("Only filelist (.f) files have changed");
 		
 			for (String f_file : plan.getFileList()) {
 				synchronized (fBuildData) {
@@ -564,6 +570,7 @@ public class SVDBArgFileIndex implements
 //			}
 		} else if (plan.getFileListType() == FileListType.Hybrid) {
 			// Both filelists and files changed
+			out.note("Both source (SV) and filelist (.f) files have changed");
 			
 		}
 		
@@ -594,9 +601,10 @@ public class SVDBArgFileIndex implements
 				// path is a 'root' file
 				InputStream in = fFileSystemProvider.openStream(path);
 //				System.out.println("Remove: " + path + " from existing files");
+				out.note("Parse: " + path);
 				if (!existing_files.remove(path)) { // Remove the new path from the set of pre-existing ones
 					added_files.add(path);
-				} 
+				}
 				
 				if (in == null) {
 					continue;
@@ -629,6 +637,8 @@ public class SVDBArgFileIndex implements
 				}
 				
 				SVPreProcOutput pp_out = preproc.preprocess();
+				pp_out.setFileChangeListener(
+						new SVBuilderPreProcTracker(out, build_data));
 				SVDBFileTree ft = pp_out.getFileTree();
 				
 				// Collect include files

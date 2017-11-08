@@ -53,6 +53,7 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.information.IInformationPresenter;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.AnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.ISourceViewerExtension2;
@@ -92,6 +93,7 @@ import org.eclipse.ui.texteditor.IAbstractTextEditorHelpContextIds;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.ResourceAction;
+import org.eclipse.ui.texteditor.ResourceMarkerAnnotationModel;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
@@ -1365,16 +1367,19 @@ public class SVEditor extends TextEditor
 				getDocumentProvider().getAnnotationModel(getEditorInput()) == null) {
 			return;
 		}
-		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		ProjectionAnnotationModel ann_model = (ProjectionAnnotationModel)getDocumentProvider().getAnnotationModel(getEditorInput());
 		
 		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		List<Annotation> remove_ann = new ArrayList<Annotation>();
 
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
 			if (ann.getType().equals("org.eclipse.ui.workbench.texteditor.error")) {
-				ann_model.removeAnnotation(ann);
+				remove_ann.add(ann);
 			}
 		}
+		ann_model.modifyAnnotations(remove_ann.toArray(new Annotation[remove_ann.size()]), 
+				new HashMap<>(), new Annotation[0]);
 	}
 
 	/**
@@ -1386,40 +1391,58 @@ public class SVEditor extends TextEditor
 				getDocumentProvider().getAnnotationModel(getEditorInput()) == null) {
 			return;
 		}
-		clearErrors();
-		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		AnnotationModel ann_model = 
+				(AnnotationModel)getDocumentProvider().getAnnotationModel(getEditorInput());
+		
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		List<Annotation> remove_ann = new ArrayList<Annotation>();
+		Map<Annotation, Position> add_ann = new HashMap<Annotation, Position>();
 
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			if (ann.getType().equals("org.eclipse.ui.workbench.texteditor.error")) {
+				remove_ann.add(ann);
+			}
+		}
 		
-		
-		for (SVDBMarker marker : markers) {
-			Annotation ann = null;
-			int line = -1;
-			
+		IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+
+		for (SVDBMarker marker : markers) {			
 			if (marker.getMarkerType() == MarkerType.Error) {
-				ann = new Annotation(
+				Annotation ann = new Annotation(
 						"org.eclipse.ui.workbench.texteditor.error", 
 						false, marker.getMessage());
-				line = SVDBLocation.unpackLineno(marker.getLocation());
-			}
-
-			if (ann != null) {
-				IDocument doc = getDocumentProvider().getDocument(getEditorInput());
+				int line = SVDBLocation.unpackLineno(marker.getLocation());
 				try {
 					Position pos = new Position(doc.getLineOffset(line-1));
-					ann_model.addAnnotation(ann, pos);
+					add_ann.put(ann, pos);
 				} catch (BadLocationException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+		
+		ann_model.replaceAnnotations(
+				remove_ann.toArray(new Annotation[remove_ann.size()]), 
+				add_ann); 
 	}
 	
 	private void applyUnprocessedRegions(SVDBFile file_pp) {
 		List<SVDBUnprocessedRegion> unprocessed_regions = new ArrayList<SVDBUnprocessedRegion>();
 		IDocument doc = getDocument();
-		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
+		AnnotationModel ann_model = 
+				(AnnotationModel)getDocumentProvider().getAnnotationModel(getEditorInput());
 		
-		clearUnprocessedRegionAnnotations();
+		List<Annotation> remove_ann = new ArrayList<Annotation>();
+		Map<Annotation, Position> add_ann = new HashMap<Annotation, Position>();
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			
+			if (ann.getType().equals("net.sf.sveditor.ui.disabledRegion")) {
+				remove_ann.add(ann);
+			}
+		}		
 		collectUnprocessedRegions(unprocessed_regions, file_pp);
 		
 		for (SVDBUnprocessedRegion r : unprocessed_regions) {
@@ -1436,9 +1459,13 @@ public class SVEditor extends TextEditor
 			try {
 				int line1 = doc.getLineOffset((start_l>0)?start_l-1:0);
 				int line2 = doc.getLineOffset(end_l);
-				ann_model.addAnnotation(ann_1, new Position(line1, (line2-line1)));
+				add_ann.put(ann_1, new Position(line1, (line2-line1)));
 			} catch (BadLocationException e) {}
 		}
+		
+		ann_model.replaceAnnotations(
+				remove_ann.toArray(new Annotation[remove_ann.size()]), 
+				add_ann);
 	}
 	
 	private void collectUnprocessedRegions(List<SVDBUnprocessedRegion> unprocessed_regions, ISVDBChildParent scope) {
@@ -1456,7 +1483,7 @@ public class SVEditor extends TextEditor
 		if (sv == null) {
 			return;
 		}
-		IAnnotationModel ann_model = sv.getAnnotationModel();
+		AnnotationModel ann_model = (AnnotationModel)sv.getAnnotationModel();
 		IDocument doc = getDocument();
 		
 		if (ann_model == null) {
@@ -1464,10 +1491,12 @@ public class SVEditor extends TextEditor
 		}
 		
 		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		List<Annotation> remove_ann = new ArrayList<Annotation>();
+		Map<Annotation, Position> add_ann = new HashMap<Annotation, Position>();
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
 			if (ann.getType().equals(SVUiPlugin.PLUGIN_ID + ".methodOverride")) {
-				ann_model.removeAnnotation(ann);
+				remove_ann.add(ann);
 			}
 		}
 	
@@ -1487,12 +1516,15 @@ public class SVEditor extends TextEditor
 				} else {
 					line = doc.getLineOffset(0);
 				}
-				
-				ann_model.addAnnotation(ann, new Position(line, 0));
+				add_ann.put(ann, new Position(line, 0));
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}			
 		}
+		
+		ann_model.replaceAnnotations(
+				remove_ann.toArray(new Annotation[remove_ann.size()]), 
+				add_ann); 
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -1769,35 +1801,6 @@ public class SVEditor extends TextEditor
 		return true;
 	}
 	
-	private void clearUnprocessedRegionAnnotations() {
-		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
-		
-		// Clear annotations
-		@SuppressWarnings("unchecked")
-		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
-		while (ann_it.hasNext()) {
-			Annotation ann = ann_it.next();
-			
-			if (ann.getType().equals("net.sf.sveditor.ui.disabledRegion")) {
-				ann_model.removeAnnotation(ann);
-			}
-		}
-	}
-	
-	private void clearOccurrenceHighlight() {
-		IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
-		
-		// Clear annotations
-		@SuppressWarnings("unchecked")
-		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
-		while (ann_it.hasNext()) {
-			Annotation ann = ann_it.next();
-			if (ann.getType().equals("net.sf.sveditor.ui.occurrences")) {
-				ann_model.removeAnnotation(ann);
-			}
-		}
-	}
-
 	private void updateWordSelectionHighlight() {
 		if (getSourceViewer() == null) {
 			return;
@@ -1809,8 +1812,17 @@ public class SVEditor extends TextEditor
 		}
 		
 		ITextSelection sel = (ITextSelection)sel_p.getSelection();
+		AnnotationModel ann_model = (AnnotationModel)getDocumentProvider().getAnnotationModel(getEditorInput());
 		
-		clearOccurrenceHighlight();
+		List<Annotation> remove_ann = new ArrayList<Annotation>();
+		Map<Annotation, Position> add_ann = new HashMap<Annotation, Position>();
+		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
+		while (ann_it.hasNext()) {
+			Annotation ann = ann_it.next();
+			if (ann.getType().equals("net.sf.sveditor.ui.occurrences")) {
+				remove_ann.add(ann);
+			}
+		}		
 		
 		if (sel.getText() != null && !sel.getText().trim().equals("")) {
 			boolean single_word = true;
@@ -1826,7 +1838,6 @@ public class SVEditor extends TextEditor
 			if (single_word) {
 				IDocument doc = getDocumentProvider().getDocument(getEditorInput());
 				FindReplaceDocumentAdapter finder = new FindReplaceDocumentAdapter(doc);
-				IAnnotationModel ann_model = getDocumentProvider().getAnnotationModel(getEditorInput());
 				
 				// Iterate through the document
 				int start = 0;
@@ -1844,7 +1855,7 @@ public class SVEditor extends TextEditor
 								"net.sf.sveditor.ui.occurrences",
 								false, "");
 						Position position = new Position(region.getOffset(), region.getLength());
-						ann_model.addAnnotation(ann, position);
+						add_ann.put(ann, position);
 						
 						start = region.getOffset()+region.getLength();
 					} else {
@@ -1853,6 +1864,9 @@ public class SVEditor extends TextEditor
 				}
 			}
 		}
+		ann_model.replaceAnnotations(
+				remove_ann.toArray(new Annotation[remove_ann.size()]), 
+				add_ann);
 	}
 	
 	@Override
