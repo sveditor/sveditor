@@ -362,10 +362,17 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 
 		// Add enabled plugin paths
 		for (SVDBPath path : fw.getPluginPaths()) {
-			ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-				SVDBIndexRegistry.GLOBAL_PROJECT, path.getPath(), 
-				SVDBPluginLibIndexFactory.TYPE, null);
-			
+			if (path.getPath().equals("net.sf.sveditor.sv_builtin")) {
+				// Ignore the built-in types library
+				// We manage this as a global library
+				continue;
+			}
+			ISVDBIndex index = rgy.findCreateIndex(
+					new NullProgressMonitor(),
+					fProjectName,
+					path.getPath(),
+					SVDBPluginLibIndexFactory.TYPE,
+					null);
 			if (index != null) {
 				sc.addPluginLibrary(index);
 			} else {
@@ -387,7 +394,7 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 					SVDBArgFileIndexFactory.TYPE, args);
 			
 			if (index != null) {
-				sc.addLibraryPath(index);
+				sc.addArgFilePath(index);
 			} else {
 				fLog.error(
 						"failed to create arg-file index \"" +

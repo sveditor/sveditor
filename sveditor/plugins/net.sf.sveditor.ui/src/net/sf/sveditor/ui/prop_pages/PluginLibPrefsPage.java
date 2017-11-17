@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.ui.prop_pages;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
@@ -43,7 +44,14 @@ public class PluginLibPrefsPage implements ISVProjectPropsPage,
 	}
 
 	public PluginLibPrefsPage() {
-		fPluginLibs = SVCorePlugin.getDefault().getPluginLibList();
+		fPluginLibs = new ArrayList<SVDBPluginLibDescriptor>(
+				SVCorePlugin.getDefault().getPluginLibList());
+		for (int i=0; i<fPluginLibs.size(); i++) {
+			if (fPluginLibs.get(i).getId().equals("net.sf.sveditor.sv_builtin")) {
+				fPluginLibs.remove(i);
+				break;
+			}
+		}
 	}
 
 	public Control createContents(Composite parent) {

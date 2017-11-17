@@ -17,6 +17,7 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -122,6 +123,7 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 	}
 
 	public void testPackageHierarchy() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 			"package my_pkg;\n" +
 			"	class c1;\n" +

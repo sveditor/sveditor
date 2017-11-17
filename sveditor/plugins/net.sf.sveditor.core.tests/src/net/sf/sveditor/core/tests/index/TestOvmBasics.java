@@ -14,6 +14,9 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
@@ -25,24 +28,21 @@ import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestOvmBasics extends SVCoreTestCaseBase {
 	
 	public void testBasicProcessing() {
-		File tmpdir = new File(fTmpDir, "no_errors");
 		SVCorePlugin.getDefault().enableDebug(false);
 		LogHandle log = LogFactory.getLogHandle("testBasicProcessing");
 		
 		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 		index_mgr.addPluginLibrary(
-				fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", "org.ovmworld.ovm", 
+				fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
+						"GLOBAL", "org.ovmworld.ovm", 
 						SVDBPluginLibIndexFactory.TYPE, null));
+		index_mgr.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertNoErrWarn(fLog, index_mgr);
 		IndexTestUtils.assertFileHasElements(fLog, index_mgr, 

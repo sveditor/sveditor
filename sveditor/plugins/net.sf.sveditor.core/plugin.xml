@@ -60,12 +60,12 @@
    <extension
          point="net.sf.sveditor.core.SVLibraries">
       <SVLibrary
-            default="true"
+            default="false"
             id="net.sf.sveditor.sv_builtin"
             name="SystemVerilog Builtin Types"
-            path="sv_builtin/sv_builtin.sv">
+            path="sv_builtin/sv_builtin.f">
          <description>
-            OVM 2.0.1 library from http://ovmworld.org
+            Library of built-in types
          </description>
       </SVLibrary>
    </extension>

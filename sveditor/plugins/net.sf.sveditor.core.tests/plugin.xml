@@ -8,13 +8,13 @@
             default="false"
             id="org.ovmworld.ovm"
             name="OVM Library"
-            path="ovm/src/ovm_pkg.sv">
+            path="ovm/ovm.f">
       </SVLibrary>
       <SVLibrary
             default="false"
             id="org.vmmcentral.vmm"
             name="VMM Library"
-            path="vmm/sv/vmm_lib.sv">
+            path="vmm/vmm.f">
       </SVLibrary>
    </extension>
    <extension

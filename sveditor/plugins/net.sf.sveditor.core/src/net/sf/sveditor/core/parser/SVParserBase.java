@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.parser;
 
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.expr.SVDBIdentifierExpr;
@@ -103,5 +104,17 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 	public String getFilename(long loc) {
 		return fParser.getFilename(loc);
 	}
+
+	/*
+	@Override
+	public void enter_type_scope(ISVDBItemBase item) {
+		fParser.enter_type_scope(item);
+	}
+
+	@Override
+	public void leave_type_scope(ISVDBItemBase item) {
+		fParser.leave_type_scope(item);
+	}
+	 */
 	
 }

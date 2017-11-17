@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -80,6 +79,9 @@ public class SVBuilderProcess extends Process
 		fArgs = args;
 		fDelta = delta;
 		
+		// Always get the built-in library as a first step
+		SVCorePlugin.getDefault().getBuiltinLib();
+		
 		
 		try {
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
@@ -144,6 +146,9 @@ public class SVBuilderProcess extends Process
 	
 	public void init_project() {
 		fIsRunning = true;
+		
+		// Always get the built-in library as a first step
+		SVCorePlugin.getDefault().getBuiltinLib();
 		
 		SubMonitor monitor = (SubMonitor)fMonitor;
 		IProject p = fProject;

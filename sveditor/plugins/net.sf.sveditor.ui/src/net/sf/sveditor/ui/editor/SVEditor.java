@@ -1379,7 +1379,7 @@ public class SVEditor extends TextEditor
 			}
 		}
 		ann_model.modifyAnnotations(remove_ann.toArray(new Annotation[remove_ann.size()]), 
-				new HashMap<>(), new Annotation[0]);
+				new HashMap<Annotation, Position>(), new Annotation[0]);
 	}
 
 	/**

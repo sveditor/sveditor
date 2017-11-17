@@ -7,6 +7,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
@@ -148,7 +149,8 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
-				pmgr.rebuildProject(new NullProgressMonitor(), p, true, null);
+				pmgr.rebuildProject(new NullProgressMonitor(), p, true, 
+						new SafeSVBuilderOutput(null));
 				return Status.OK_STATUS;
 			}
 		};

@@ -1,7 +1,12 @@
 
 ------------------------------------------------------------------------------
--- 2.0.7 Release --
+-- 2.0.8 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+------------------------------------------------------------------------------
+-- 2.0.7 Release --
+
+- #(nobug) - Restored content-assist for built-in types (queues, arrays, process, etc)
 
 ------------------------------------------------------------------------------
 -- 2.0.6 Release --

@@ -67,7 +67,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 		fIndex.init(new NullProgressMonitor());
 
 		fIndexCollectionVMMMgr = new SVDBIndexCollection(pname);
-		fIndexCollectionVMMMgr.addLibraryPath(fIndex);
+		fIndexCollectionVMMMgr.addArgFilePath(fIndex);
 		fIndexCollectionVMMMgr.addPluginLibrary(
 				rgy.findCreateIndex(new NullProgressMonitor(), pname, 
 						SVCoreTestsPlugin.VMM_LIBRARY_ID, 
@@ -77,7 +77,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	private SVDBIndexCollection createStandaloneIndexMgr() {
 		if (fIndexCollectionStandalone == null) {
 			fIndexCollectionStandalone = new SVDBIndexCollection("GLOBAL");
-			fIndexCollectionStandalone.addLibraryPath(fIndex);
+			fIndexCollectionStandalone.addArgFilePath(fIndex);
 		}
 		return fIndexCollectionStandalone;
 	}
@@ -86,7 +86,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 		if (fIndexCollectionOVMMgr == null) {
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 			fIndexCollectionOVMMgr = new SVDBIndexCollection("GLOBAL");
-			fIndexCollectionOVMMgr.addLibraryPath(fIndex);
+			fIndexCollectionOVMMgr.addArgFilePath(fIndex);
 			fIndexCollectionOVMMgr.addPluginLibrary(
 					rgy.findCreateIndex(new NullProgressMonitor(), "GLOBAL", 
 							SVCoreTestsPlugin.OVM_LIBRARY_ID, 

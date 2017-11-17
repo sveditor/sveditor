@@ -346,6 +346,8 @@ public class SVDBProjectManager implements
 				out.note("  File Read Time: " + stats.getLastIndexFileReadTime() + "ms");
 				out.note("  Pre-Process Time: " + stats.getLastIndexPreProcessTime() + "ms");
 				out.note("  Parse Time: " + stats.getLastIndexParseTime() + "ms");
+				out.note("  Ref-Cache Time: " + stats.getLastIndexRefCacheTime() + "ms");
+				out.note("  Decl-Cache Time: " + stats.getLastIndexDeclCacheTime() + "ms");
 				out.note("  Total Index Time: " + stats.getLastIndexTotalTime() + "ms");
 			}
 			

@@ -3,9 +3,11 @@ package net.sf.sveditor.core.db.index.argfile;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -24,8 +26,10 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.parser.ISVTokenListener;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
+import net.sf.sveditor.core.parser.SVToken;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 
@@ -272,8 +276,24 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			language_level = SVLanguageLevel.computeLanguageLevel(path);
 		}
 		
-		SVDBFile file = f.parse(language_level, pp_out, path, null, markers);
+		final Set<String> ident_set = new HashSet<String>();
+		ISVTokenListener tok_listener = new ISVTokenListener() {
+			
+			@Override
+			public void ungetToken(SVToken tok) { }
+			
+			@Override
+			public void tokenConsumed(SVToken tok) {
+				if (tok.isIdentifier()) {
+					ident_set.add(tok.getImage());
+				}
+			}
+		};
+		
+		SVDBFile file = f.parse(language_level, pp_out, path, tok_listener, markers);
 		long parse_end = System.currentTimeMillis();
+		
+		out.note("Unique identifiers: " + ident_set.size() + " has_uvm_object: " + ident_set.contains("uvm_object"));
 		
 		build_data.getIndexStats().incLastIndexParseTime(parse_end-parse_start);
 		

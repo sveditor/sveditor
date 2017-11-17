@@ -111,7 +111,7 @@ public class SVDBArgFileIndex implements
 
 	private List<ISVDBIndexChangeListener> 		fIndexChangeListeners;
 
-	private LogHandle fLog;
+	protected LogHandle fLog;
 	private ISVDBFileSystemProvider 			fFileSystemProvider;
 
 	private SVDBIndexConfig 					fConfig;

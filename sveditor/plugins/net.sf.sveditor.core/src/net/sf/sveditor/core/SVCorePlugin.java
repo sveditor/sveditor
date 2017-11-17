@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
@@ -52,14 +53,17 @@ import net.sf.sveditor.core.builder.CoreBuilderOutputListener;
 import net.sf.sveditor.core.builder.ISVBuildProcessListener;
 import net.sf.sveditor.core.builder.ISVBuilderOutputListener;
 import net.sf.sveditor.core.db.ISVDBFileFactory;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
 import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVDBSourceCollection;
 import net.sf.sveditor.core.fileset.SVFileSet;
@@ -120,6 +124,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private static List<String>				fPersistenceClassPkgList;
 	private ISVBuilderOutputListener		fBuilderOutputListener = new CoreBuilderOutputListener();
 	private ISVBuildProcessListener			fBuildProcessListener = new CoreBuildProcessListener();
+	private ISVDBIndex						fBuiltinLib;
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
@@ -220,6 +225,28 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public void removeStderrLineListener(ILineListener l) {
 		fStderrLineListeners.remove(l);
+	}
+	
+	public ISVDBIndex getBuiltinLib() {
+		if (fBuiltinLib == null) {
+			SVDBPluginLibDescriptor desc = null;
+			for (SVDBPluginLibDescriptor d : getPluginLibList()) {
+				if (d.getId().equals("net.sf.sveditor.sv_builtin")) {
+					desc = d;
+					break;
+				}
+			}
+			fBuiltinLib = fIndexRegistry.findCreateIndex(
+					new NullProgressMonitor(),
+					"__SVE_BUILTIN", 
+					desc.getId(), 
+					SVDBPluginLibIndexFactory.TYPE, 
+					null);
+			fBuiltinLib.execIndexChangePlan(new NullProgressMonitor(), 
+					new SVDBIndexChangePlanRebuild(fBuiltinLib));
+		}
+		
+		return fBuiltinLib;
 	}
 	
 	private ILineListener			fStderrLineListener = new ILineListener() {

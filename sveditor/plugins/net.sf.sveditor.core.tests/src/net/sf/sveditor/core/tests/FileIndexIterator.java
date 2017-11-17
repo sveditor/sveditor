@@ -48,7 +48,6 @@ public class FileIndexIterator extends SVDBArgFileIndex {
 		fFileMap.put(file.getName(), file);
 		init(new NullProgressMonitor(), null);
 		rebuild_index(new NullProgressMonitor());
-//		loadIndex(new NullProgressMonitor());
 	}
 	
 	public FileIndexIterator(

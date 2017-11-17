@@ -50,7 +50,7 @@ public class ProjectPathsData implements IProjectPathsData {
 		if (setup) {
 			SVDBIndexCollection mgr = fProjectData.getProjectIndexMgr();
 
-			List<ISVDBIndex> allLibIndexes = mgr.getLibraryPathList();
+			List<ISVDBIndex> allLibIndexes = mgr.getArgFilePathList();
 			List<ISVDBIndex> argFileIndexList = new ArrayList<ISVDBIndex>();
 
 			for (ISVDBIndex i : allLibIndexes) {

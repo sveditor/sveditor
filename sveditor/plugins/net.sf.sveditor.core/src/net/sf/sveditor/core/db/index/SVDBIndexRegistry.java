@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
@@ -245,11 +246,15 @@ public class SVDBIndexRegistry implements ILogLevel, IResourceChangeListener {
 			// See about creating a new index
 			ISVDBIndexFactory factory = findFactory(type);
 			ISVDBIndexCache cache = null;
-			
-			cache = fCacheFactory.findIndexCache(project, base_location);
-			
-			if (cache == null) {
-				cache = fCacheFactory.createIndexCache(project, base_location);
+		
+			if (project.equals("__SVE_BUILTIN")) {
+				// Use an in-memory cache for the SV standard-library index
+				cache = new InMemoryIndexCache();
+			} else {
+				cache = fCacheFactory.findIndexCache(project, base_location);
+				if (cache == null) {
+					cache = fCacheFactory.createIndexCache(project, base_location);
+				}
 			}
 			
 			ret = factory.createSVDBIndex(project, base_location, cache, config);

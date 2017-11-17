@@ -299,6 +299,8 @@ public class SVFileUtils {
 				f = root.getFile(new Path(path));
 			} catch (IllegalStateException e) {
 				// Happens when the workspace is closed
+			} catch (IllegalArgumentException e) {
+				// Happens when we're called with a /project path
 			}
 		} else {
 			try {

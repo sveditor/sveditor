@@ -42,6 +42,7 @@ public class PackageHierarchyTreeFactory {
 		List<SVDBDeclCacheItem> contents = fIndexIt.findPackageDecl(
 				new NullProgressMonitor(), pkg);
 		
+		
 		for (SVDBDeclCacheItem c : contents) {
 			if (c.getType() == SVDBItemType.ImportStmt) {
 				List<String> pkg_list = new ArrayList<String>();

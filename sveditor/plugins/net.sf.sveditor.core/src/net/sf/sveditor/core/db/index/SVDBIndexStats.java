@@ -184,6 +184,8 @@ public class SVDBIndexStats {
 		fNumLines += other.fNumLines;
 		fLastIndexFileReadTimeMS += other.fLastIndexDeclIndexTimeMS;
 		fLastIndexPreProcessTimeMS += other.fLastIndexPreProcessTimeMS;
+		fLastIndexDeclIndexTimeMS += other.fLastIndexDeclIndexTimeMS;
+		fLastIndexRefIndexTimeMS += other.fLastIndexRefIndexTimeMS;
 		fLastIndexParseTimeMS += other.fLastIndexParseTimeMS;
 		fLastIndexTotalTimeMS += other.fLastIndexTotalTimeMS;
 	}

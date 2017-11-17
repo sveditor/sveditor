@@ -50,7 +50,7 @@ public class TestContentAssistBuiltins extends SVCoreTestCaseBase {
 
 		fIndex = new ContentAssistIndex();
 		fIndex.init(new NullProgressMonitor());
-		fIndexMgr.addLibraryPath(fIndex);
+		fIndexMgr.addArgFilePath(fIndex);
 	}
 	
 	@Override

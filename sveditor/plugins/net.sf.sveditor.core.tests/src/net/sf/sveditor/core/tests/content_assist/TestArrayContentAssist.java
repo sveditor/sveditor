@@ -47,7 +47,7 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 		fIndex = new ContentAssistIndex();
 		fIndex.init(new NullProgressMonitor());
 		fIndexMgr = new SVDBIndexCollection("GLOBAL");
-		fIndexMgr.addLibraryPath(fIndex);
+		fIndexMgr.addArgFilePath(fIndex);
 		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
 		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
 				SVDBIndexRegistry.GLOBAL_PROJECT, 

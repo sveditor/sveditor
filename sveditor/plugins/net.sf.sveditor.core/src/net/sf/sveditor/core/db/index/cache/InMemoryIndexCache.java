@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public class InMemoryIndexCache implements ISVDBIndexCache {
 	private Object							fData;
+	private ISVDBIndexCacheMgr				fCacheMgr;
 	private Set<String>						fFileList;
 	private Set<String>						fArgFileList;
 	private Map<String, Long>				fLastModifiedMap;
@@ -38,6 +39,11 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 	private Map<String, List<SVDBMarker>>	fMarkerMap;
 	
 	public InMemoryIndexCache() {
+		this(new InMemoryIndexCacheMgr());
+	}
+	
+	public InMemoryIndexCache(ISVDBIndexCacheMgr mgr) {
+		fCacheMgr = mgr;
 		fFileList = new HashSet<String>();
 		fArgFileList = new HashSet<String>();
 		fLastModifiedMap = new HashMap<String, Long>();
@@ -50,8 +56,7 @@ public class InMemoryIndexCache implements ISVDBIndexCache {
 	}
 	
 	public ISVDBIndexCacheMgr getCacheMgr() {
-		// TODO Auto-generated method stub
-		return null;
+		return fCacheMgr;
 	}
 
 	public void dispose() { }
