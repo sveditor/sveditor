@@ -82,7 +82,6 @@ public class SVBuilderProcess extends Process
 		// Always get the built-in library as a first step
 		SVCorePlugin.getDefault().getBuiltinLib();
 		
-		
 		try {
 		SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 		
@@ -139,6 +138,21 @@ public class SVBuilderProcess extends Process
 				pmgr.rebuildProject(fMonitor, fProject, changes, this);
 			} break;
 		}
+		} finally {
+			end();
+		}
+	}
+	
+	public void rebuild_project() {
+		try {
+			fIsRunning = true;
+			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
+			// Always get the built-in library as a first step
+			SVCorePlugin.getDefault().getBuiltinLib();
+
+			note("Rebuilding project " + fProject.getName());
+
+			pmgr.rebuildProject(fMonitor, fProject, this);
 		} finally {
 			end();
 		}

@@ -8,6 +8,8 @@
 
 - #(nobug) - Restored content-assist for built-in types (queues, arrays, process, etc)
 
+- #(enh) - Connect the 'Rebuild SV Index' operation to the new build console
+
 ------------------------------------------------------------------------------
 -- 2.0.6 Release --
 
