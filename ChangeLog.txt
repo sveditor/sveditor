@@ -3,6 +3,7 @@
 -- 2.0.9 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
+- #(506) Copying multiple lines 
 ------------------------------------------------------------------------------
 -- 2.0.8 Release --
 

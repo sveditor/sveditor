@@ -386,20 +386,52 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 	}
 
 	/**
-	 * Test for #(471) weird copy paste problem
+	 * Test for 
+	 * - #(471) weird copy paste problem
+	 * - #(506) Copying multiple lines
+	 * 
+	 *  This section of the test attempts to check that all variations of multi-line pastes
+	 *              Insertion Point                     Pasted Code Properties
+	 *            IPSOL  IPLWS   IPIC  IPEOL                PCLWS  PCendCR
+	 *  Case1 :   IPSOL                                            PCendCR
+	 *  Case2 :          IPLWS                                     PCendCR
+	 *  Case3 :                  IPIC                              PCendCR
+	 *  Case4 :                        IPEOL                       PCendCR
+	 *  Case5 :   IPSOL                                            !PCendCR
+	 *  Case6 :          IPLWS                                     !PCendCR
+	 *  Case7 :                  IPIC                              !PCendCR
+	 *  Case8 :                        IPEOL                       !PCendCR
+	 *  Case9 :   IPSOL                                     PCLWS  PCendCR
+	 *  Case10:          IPLWS                              PCLWS  PCendCR
+	 *  Case11:                  IPIC                       PCLWS  PCendCR
+	 *  Case12:                        IPEOL                PCLWS  PCendCR
+	 *  Case13:   IPSOL                                     PCLWS  !PCendCR
+	 *  Case14:          IPLWS                              PCLWS  !PCendCR
+	 *  Case15:                  IPIC                       PCLWS  !PCendCR
+	 *  Case16:                        IPEOL                PCLWS  !PCendCR
+	 *  
+	 *  Legend:
+	 *  IPSOL   - Insertion point at start of line
+	 *  IPLWS   - Insertion point in leading white space at start of line
+	 *  IPIC    - Insertion point in code
+	 *  IPEOL   - Insertion point at end of line
+	 *  PCLWS   - Pasted code has leading white space
+	 *  PCendCR - Pasted code ends with a \n
+	 *  
 	 * @throws BadLocationException
 	 */
 	public void testPasteMultiLine() throws BadLocationException {
+		SVCorePlugin.getDefault().enableDebug(false);
 		String input = 
-			"module m(\n" +
+			"module m(  // Bug 407\n" +
 			"		input d\n" +
 			"	);\n" +
 			"\n" +
 			"endmodule\n";
 		String expected =
-			"module m(\n" +
+			"module m(  // Bug 407\n" +
 			"		input a,\n" +
-			"		input b,\n" +
+			"				input b,\n" +
 			"		input c,\n" +
 			"		input d			,\n" +
 			"		input e		\n" +
@@ -411,25 +443,550 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 		tester.setContent(input);
 		
 		// Add input e after end of line.  Note we should keep leading and trailing whitespace
-		tester.setCaretOffset("module m(\n\t\tinput d".length());
+		tester.setCaretOffset("module m(  // Bug 407\n\t\tinput d".length());
 		tester.paste("\t\t\t,\ninput e\t\t");
 
 		// Add input c before input d, middle of typed text
 		// Expecting the input to be indented
-		tester.setCaretOffset("module m(\n\t\tinput ".length());
+		tester.setCaretOffset("module m(  // Bug 407\n\t\tinput ".length());
 		tester.paste("c,\ninput ");
 
 		// Mid-way through start of line, in white space
-		tester.setCaretOffset("module m(\n\t\t".length());
+		tester.setCaretOffset("module m(  // Bug 407\n\t\t".length());
 		tester.paste("\t\t\tinput b,\n\t\t\t");
 
 		// Start of line, in white space
-		tester.setCaretOffset("module m(\n".length());
+		tester.setCaretOffset("module m(  // Bug 407\n".length());
 		tester.paste("\t\t\tinput a,\n\t\t\t");
 		
 		String result = tester.getContent();
 		fLog.debug("Result:\n'" + result + "'\n");
 		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		// Case1 :   IPSOL                                            PCendCR
+		//    Insertion point at start of line, paste code ends with CR
+		//    Expect pasted code to be indented, no change to lines before or after
+		input = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+				"				assign a = 8;\n" +
+				"endmodule\n";
+		fLog.debug("Input:'\n" + input + "'\n");
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n")
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" +
+				"		assign pasted = 1234;   // Case 1\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste("assign pasted = 1234;   // Case 1\n");
+		result = tester.getContent();
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case2 :          IPLWS                                     PCendCR
+		//    Insertion point in leading whitespace, pasted code ends with CR
+		//    Expect pasted code to be indented
+		//    Loading white space at insertion point to be removed
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" + 
+				"		")
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" +
+				"		assign pasted = 1234;   // Case 2\n" +
+				// Will remove the leading 2 tabs here as they are "leading whitespace before the 
+				// paste-point and will be replaced by the indenter.  The remaining tab will stay
+				"	assign a = 6;\n" +		
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste("assign pasted = 1234;   // Case 2\n");
+		result = tester.getContent();
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case3 :                  IPIC                              PCendCR
+		//    Insertion point in code, pasted code ends with CR
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5" 
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;assign pasted = 1234   // Case 3\n" +
+				";\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(";assign pasted = 1234   // Case 3\n");
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case4 :                        IPEOL                       PCendCR
+		//    Insertion point in at end of line, pasted code ends with CR
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;assign pasted = 1234;   // Case 4\n" +
+				"		assign pasted = 1235;   // Case 4\n" +
+				"		\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"assign pasted = 1234;   // Case 4\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case 4\n"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case5 :   IPSOL                                            !PCendCR
+		//    Insertion point at start of line, paste code ends with code/ws
+		//    Expect pasted code to be indented, no change to lines before or after
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"	assign pasted = 1234;   // Case 5\n" +
+				"	assign pasted = 1235;   // Case 5		assign a = 5;\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"assign pasted = 1234;   // Case 5\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case 5"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case6 :          IPLWS                                     !PCendCR
+		//    Insertion point in leading whitespace, pasted code ends with code/ws
+		//    Expect pasted code to be indented
+		//    Loading white space at insertion point to be removed
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" + 
+				"\t"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"	assign pasted = 1234;   // Case 6\n" +
+				"	assign pasted = 1235;   // Case 6	assign a = 5;\n" +		// 1 of the tabs replaced with leading ws
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"assign pasted = 1234;   // Case 6\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case 6"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case7 :                  IPIC                              !PCendCR
+		//    Insertion point in code, pasted code ends with code/ws
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5/*				assign pasted = 1234;   // Case 7*/;\n" +
+				"		assign pasted = 1235;\n" +		// 1 of the tabs replaced with leading ws
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"/*\t\t\t\tassign pasted = 1234;   // Case 7*/;\n" +
+				"\t\t\t\t   assign pasted = 1235"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case8 :                        IPEOL                       !PCendCR
+		//    Insertion point in at end of line, pasted code ends with code/ws
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;assign pasted = 1234;   // Case 8\n" +
+				"		assign pasted = 1235;   // Case 8\n" +		// 1 of the tabs replaced with leading ws
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"assign pasted = 1234;   // Case 8\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case 8"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case9 :   IPSOL                                     PCLWS  PCendCR
+		//    Insertion point at start of line, paste code leads with whitespace and ends with CR
+		//    Expect pasted code to be indented, no change to lines before or after
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n")
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" +
+				"		assign pasted = 1234;   // Case 9\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste("				assign pasted = 1234;   // Case 9\n");
+		result = tester.getContent();
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case10:          IPLWS                              PCLWS  PCendCR
+		//    Insertion point in leading whitespace, pasted code leads with whitespace and ends with CR
+		//    Expect pasted code to be indented
+		//    Loading white space at insertion point to be removed
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" + 
+				"		")
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\n" +
+				"		assign pasted = 1234;   // Case 10\n" +
+				// Will remove the leading 2 tabs here as they are "leading whitespace before the 
+				// paste-point and will be replaced by the indenter.  The remaining tab will stay
+				"	assign a = 6;\n" +		
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste("	assign pasted = 1234;   // Case 10\n");
+		result = tester.getContent();
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case11:                  IPIC                       PCLWS  PCendCR
+		//    Insertion point in code, pasted code leads with whitespace and ends with CR
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5" 
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5		;assign pasted = 1234   // Case11\n" +
+				";\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste("		;assign pasted = 1234   // Case11\n");
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case12:                        IPEOL                PCLWS  PCendCR
+		//    Insertion point in at end of line, pasted code leads with whitespace and ends with CR
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;\t\t \tassign pasted = 1234;   // Case 12\n" +
+				"		assign pasted = 1235;   // Case 12\n" +
+				"		\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"\t\t \tassign pasted = 1234;   // Case 12\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case 12\n"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case13:   IPSOL                                     PCLWS  !PCendCR
+		//    Insertion point at start of line, paste code leads with whitespace and ends with code/ws
+		//    Expect pasted code to be indented, no change to lines before or after
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"	assign pasted = 1234;   // Case13\n" +
+				"	assign pasted = 1235;   // Case13		assign a = 5;\n" +
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"\t   \t\tassign pasted = 1234;   // Case13\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case13"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case14:          IPLWS                              PCLWS  !PCendCR
+		//    Insertion point in leading whitespace, pasted code leads with whitespace and ends with code/ws
+		//    Expect pasted code to be indented
+		//    Loading white space at insertion point to be removed
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" + 
+				"\t"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"	assign pasted = 1234;   // Case14\n" +
+				"	assign pasted = 1235;   // Case14	assign a = 5;\n" +		// 1 of the tabs replaced with leading ws
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"  \t \tassign pasted = 1234;   // Case14\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case14"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case15:                  IPIC                       PCLWS  !PCendCR
+		//    Insertion point in code, pasted code leads with whitespace and ends with code/ws
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5\t  \t   /*				assign pasted = 1234;   // Case15*/;\n" +
+				"		assign pasted = 1235;\n" +		// 1 of the tabs replaced with leading ws
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"\t  \t   /*\t\t\t\tassign pasted = 1234;   // Case15*/;\n" +
+				"\t\t\t\t   assign pasted = 1235"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+		//  Case16:                        IPEOL                PCLWS  !PCendCR
+		//    Insertion point in at end of line, pasted code leads with whitespace and ends with code/ws
+		//    Expect pasted code to be indented
+		tester.setContent(input);
+		tester.setCaretOffset(
+				(
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;"
+				)
+				.length());
+		expected = 
+				"module m(\n" +
+				"		input d\n" +
+				"	);\n" +
+				"\n" +
+				"		assign a = 5;  		  assign pasted = 1234;   // Case16\n" +
+				"		assign pasted = 1235;   // Case16\n" +		// 1 of the tabs replaced with leading ws
+				"			assign a = 6;\n" +
+				"				assign a = 7;\n" +
+		"				assign a = 8;\n" +
+				"endmodule\n";
+
+		tester.paste(
+				"  \t\t  assign pasted = 1234;   // Case16\n" +
+				"\t\t\t\t   assign pasted = 1235;   // Case16"
+				);
+		result = tester.getContent();
+		fLog.debug("Result:\n'" + result + "'\n");
+		IndentComparator.compare("testPasteMultiLine", expected, result);
+
+
 	}
 
 	public void testPasteModule() throws BadLocationException {
@@ -468,7 +1025,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 	}
 	
 	public void testPasteAlwaysComb() throws BadLocationException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String content =
 			"module t;\n" +
@@ -513,11 +1070,12 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 				"	logic a;\n" +
 				"	always_comb begin\n" +
 				"		a = 0;\n" +
-				"	end	\n" +
+				"	end\n" +
 				"	always_comb begin\n" +
 				"		a = 0;\n" +
 				"	end\n" +
 				"endmodule\n", result);
+		SVCorePlugin.getDefault().enableDebug(false);
 	}
 
 	public void testModuleWires() throws BadLocationException {
@@ -1227,6 +1785,7 @@ public void testModulePorts() throws BadLocationException {
 	AutoEditTester tester = UiReleaseTests.createAutoEditTester();
 	tester.type(input);
 	String result = tester.getContent();
+	SVCorePlugin.getDefault().enableDebug(false);
 
 	IndentComparator.compare("testModulePorts", expected, result);
 }

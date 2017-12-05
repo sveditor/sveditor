@@ -2162,6 +2162,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = fScanner.next();
 			} else if (tok.getType() == SVIndentTokenType.BlankLine) {
 				stay_in_while = true;
+				// Uncomment these if we want to set blank-line whitespace ... tok.fLeadingWS = peek_indent();
+				// Uncomment these if we want to set blank-line whitespace ... tok.fImage = "";
 				addToken(tok);
 				tok = fScanner.next();
 			} else if (fPreProcDirectives.contains(tok.getImage())) {
