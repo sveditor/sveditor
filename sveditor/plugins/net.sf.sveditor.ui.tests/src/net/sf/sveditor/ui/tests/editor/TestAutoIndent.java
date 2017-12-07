@@ -1025,7 +1025,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 	}
 	
 	public void testPasteAlwaysComb() throws BadLocationException {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String content =
 			"module t;\n" +
@@ -1482,7 +1482,7 @@ public class TestAutoIndent extends SVCoreTestCaseBase {
 			"\n" +
 			"	function void foobar;\n" +
 			"		int var;\n" +
-			"/*\n" +
+			"		/*\n" +
 			"		var = 5;\n" +
 			"		bar = 6;\n" +
 			"		*/\n" +
