@@ -6,6 +6,8 @@
 - #(506) Copying multiple lines 
 
 - #(514) Indenter: Issues moving lines through multi-line comments
+
+- #(515) Colorizer: Preference to "Treat all files as system verilog" ignored 
  
 ------------------------------------------------------------------------------
 -- 2.0.8 Release --
