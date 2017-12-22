@@ -197,8 +197,17 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 			debug("Indent operation complete");
 		}
 		for (SVIndentToken t : fTokenList) {
-			if ((t.getLineno() >= start_line || start_line == -1) &&
-					(t.getLineno() <= end_line || end_line == -1)) {
+			int token_start = t.getLineno();
+			int token_end = token_start;
+			// Extract Multi-Line comments if needs be
+			if (t instanceof SVMultiLineIndentToken)  {
+				SVMultiLineIndentToken cmt = (SVMultiLineIndentToken) t;
+				token_end   = t.getLineno() + ((SVMultiLineIndentToken)t).getCommentLines().size();
+			}
+
+			// Single lines, and multi-lines that are entirely consumed by the start and end get handled here 
+			if ((token_start >= start_line || start_line == -1) &&
+					(token_end <= end_line || end_line == -1)) {
 				if (fDebugEn) {
 					debug("tok \"" + t.getType() + "\" line=" + t.getLineno() + " image=" + t.getImage());
 				}
@@ -213,6 +222,29 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 						t.getImage() +
 						t.getTrailingWS() +
 						((t.isEndLine())?"\n":""));
+			}
+			// The requested lines request a portion of the multi-line token
+			else  {
+				if (fDebugEn) {
+					debug("tok \"" + t.getType() + "\" line=" + t.getLineno() + " image=" + t.getImage());
+				}
+				// String leading_ws = t.getLeadingWS();
+				String leading_ws = t.getLeadingNonNewLineWS();
+				// Replace any tabs in the leading whitespace
+				// if we're inserting spaces instead of tabs
+				if (t.isStartLine() && fTabReplacePattern != null) {
+					leading_ws = fTabReplacePattern.matcher(leading_ws).replaceAll(fIndentIncr);
+				}
+				String lines[] = (leading_ws + 
+						t.getImage() +
+						t.getTrailingWS() +
+						((t.isEndLine())?"\n":"")).split("[\r\n]+");
+				
+				for (int i=token_start; i<token_end; i++)  {
+					if ((i >= start_line) && (i <= end_line))  {
+						sb.append(lines[i-token_start] + "\n");
+					}
+				}
 			}
 		}
 
@@ -2162,6 +2194,8 @@ public class SVDefaultIndenter2 implements ISVIndenter {
 				tok = fScanner.next();
 			} else if (tok.getType() == SVIndentTokenType.BlankLine) {
 				stay_in_while = true;
+				// Uncomment these if we want to set blank-line whitespace ... tok.fLeadingWS = peek_indent();
+				// Uncomment these if we want to set blank-line whitespace ... tok.fImage = "";
 				addToken(tok);
 				tok = fScanner.next();
 			} else if (fPreProcDirectives.contains(tok.getImage())) {

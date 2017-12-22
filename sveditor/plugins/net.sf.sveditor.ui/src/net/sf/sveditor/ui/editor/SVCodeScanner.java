@@ -28,6 +28,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 
+import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.parser.ISVKeywords;
 import net.sf.sveditor.core.parser.SVOperators;
 import net.sf.sveditor.core.scanner.SVCharacter;
@@ -117,10 +118,17 @@ public class SVCodeScanner extends RuleBasedScanner {
 		Set<ISVKeywords.KW> keywords = null;
 		
 		if (ct != null) {
-			if (ct.getId().endsWith(".systemverilog")) {
+			if (ct.getId().endsWith(".systemverilog") ) {
 				keywords = ISVKeywords.KW.getSVKeywords();
 			} else if (ct.getId().endsWith(".verilog")) {
-				keywords = ISVKeywords.KW.getVLKeywords();
+				// Check if we are forcing all files to be treated as SV...
+				// TODO: Should this apply to Verilog AMS too?
+				if (SVCorePlugin.getDefault().getFileExtLanguageLevelOverride())  {
+					keywords = ISVKeywords.KW.getSVKeywords();
+				}
+				else  {
+					keywords = ISVKeywords.KW.getVLKeywords();
+				}
 			} else if (ct.getId().endsWith(".verilogams")) {
 				keywords = ISVKeywords.KW.getAMSKeywords();
 			}

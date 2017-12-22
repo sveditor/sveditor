@@ -69,14 +69,16 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 	 * - If there are multiple lines in the pasted data:
 	 *   - Insert the pasted data.
 	 *   - Run the indenter
-	 *   - Extract the pasted data as indented
-	 *   - Is there only leading whitespace before the insertion point?
-	 *     - YES: The indenter will have generated appropriate leading ws, remove 
-	 *       the existing leading WS and use what the indenter created
-	 *     - NO:  We pasted into / at the end of an existing line
-	 *       - Keep the existing whitespace on the inserted line
-	 *       - Use indented version of pasted data
-	 *       
+	 *   Post-process as follows to match Java behavior
+	 *   - If the insertion point is before the start of code on a line, whitespace between the
+	 *     insertion point and SOL is replaced by the indenter
+	 *     - Any whitespace between the IP and start of code is preserved
+	 *   - If pasting after code has started, whitespace on the starting line is not affected.
+	 *     - The whitespace on the starting line is used as a reference for pasted code (will 
+	 *     align from there)
+	 *   
+	 *   - All code after the insertion point is preserved, regardless
+	 *   
 	 * @param doc
 	 * @param cmd
 	 */
@@ -85,15 +87,36 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 		fLog.debug("	content=\"" + cmd.text + "\"");
 
 		try {
-			int lineno = doc.getLineOfOffset(cmd.offset);
-			int target_lineno = lineno;
+			int lineno = doc.getLineOfOffset(cmd.offset)+1;		// Add 1 because getLineOfOffset starts counting at 0, where lineno will will be used where the first line is line 1
+			int target_lineno = lineno;							// Line no determines where we are going to take the indent for the pasted lines from
 			boolean added_extra_cr = false;
 
 			int line_cnt = 0, result_line_cnt = 0;
-			boolean inline_paste = false;		// The insertion point has code before it on the line
+			boolean paste_inside_code = false;		// The insertion point has code before it on the line
 			int distance_to_sol = 0;			// used when inserting at the start of a new line, need to remove this WS because indenter will have calculated correct WS
 			int ws_at_sol = 0;					// leading whitespace count on the line we are pasting at
 			int trailing_whitespace = 0;		// number of WS characters after last \n
+			
+			// This section checks to see if the document contains any leading whitespace to the left of 
+			// the insertion point
+			for (int i=cmd.offset-1; i>=0; i--) {
+				char current_ch = doc.getChar(i);
+				distance_to_sol ++;
+				// reached end the end of he previous line ... break out
+				if ((current_ch == '\r') || (current_ch == '\n'))  {
+					distance_to_sol--;
+					break;
+				}
+				// If we have a space or tab... we want to remove it
+				else if ((current_ch == ' ') || (current_ch == '\t'))  {
+					ws_at_sol ++;
+				}
+				// non-white space characters... is an inline paste
+				else  {
+					ws_at_sol = 0;
+					paste_inside_code = true;
+				}
+			}
 			
 			// Figure out how many lines are in the pasted text... need to copy these many lines out of the re-formatted data
 			for (int i=0; i<cmd.text.length(); i++) {
@@ -107,8 +130,8 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 					}
 					line_cnt++;
 				}
-				// Increment the number of whitespace characters found
-				else if (trailing_whitespace != -1 && (cmd.text.charAt(i) == ' ' || cmd.text.charAt(i) == '\t'))  {
+				// Increment the number of whitespace characters found after a \n, these need to be trimmed
+				else if ((trailing_whitespace > -1) && (cmd.text.charAt(i) == ' ' || cmd.text.charAt(i) == '\t'))  {
 					trailing_whitespace ++;
 				}
 				// Regular character ... -1 shows no trailing
@@ -117,11 +140,11 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				}
 			}
 			
-			// Don't try to indent content that isn't on a line boundary
-			if (line_cnt == 0) {
+			// Don't indent if pasted code is not multi-line and we aren't in the leading whitespace area of the line 
+			if ((line_cnt == 0) && (paste_inside_code == true)) {
 				return;
 			}
-
+			
 			// If the pasted text doesn't end with a CR, then dummy up
 			// an extra line which we will remove at the end
 			// This will make it easier to extract the text from the indented code
@@ -133,38 +156,27 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				cmd.text = cmd.text + "\n";
 			}
 			
-			// This section checks to see if the document contains any leading whitespace
-			// If the line contains WS, we will want to move the insertion point to the start of line
-			// allowing the whitespace to stay with the existing line
-			for (int i=cmd.offset-1; i>=0; i--) {
-				char current_ch = doc.getChar(i);
-				// reached end the end of he previous line ... break out
-				if ((current_ch == '\r') || (current_ch == '\n'))  {
-					break;
-				}
-				// If we have a space or tab... we want to remove it
-				else if ((current_ch == ' ') || (current_ch == '\t'))  {
-					distance_to_sol ++;
-					ws_at_sol ++;
-				}
-				// non-white space characters... is an inline paste
-				else  {
-					ws_at_sol = 0;
-					inline_paste = true;
-					distance_to_sol ++;
-				}
+			/**
+			 * target_lineno - Determine which line to get the indent from
+			 * 
+			 * At this point points to the line we are pasting into
+			 * If we are pasting before code starts on the line:
+			 *   - Take indent from previous line
+			 * If we are pasting AFTER code starts on the line:
+			 *   - Take indent from line being pasted into
+			 */
+			if (paste_inside_code == false)  {
+				target_lineno --;
 			}
 			
-
-			fLog.debug("Document line start=" + lineno);
-			
+			// Create a string containing the inserted code
 			StringBuilder doc_str = new StringBuilder();
-			
+
 			doc_str.append(doc.get(0, cmd.offset));	// Append what's before the pasted code
 			doc_str.append(cmd.text);				// Add the pasted code
 			int start = cmd.offset+cmd.length;
 
-			// Not sure what this is for...
+			// append the remaining code ... not quite sure if we need this
 			int len = (doc.getLength()-(cmd.offset+cmd.length)-1);
 			try {
 				if (len > 0) {
@@ -175,7 +187,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 				throw e;
 			}
 			
-			// Do the indent on the code
+			// Indent on the code
 			StringBIDITextScanner text_scanner = 
 				new StringBIDITextScanner(doc_str.toString());
 			
@@ -189,14 +201,14 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			indenter.setAdaptiveIndent(true);
 			indenter.setAdaptiveIndentEnd(target_lineno);
 			indenter.setIndentIncr(SVUiPlugin.getDefault().getIndentIncr());
-
+	
 			// The goal, here, is to format the entire document
 			// with the new text added. Then, extract out the 'new'
 			// portion and send it as the modification event
 			try {
-				fLog.debug("    lineno=" + lineno + " target_lineno=" + target_lineno);
+				fLog.debug("    lineno=" + lineno + "    line_cnt=" + line_cnt + " target_lineno=" + target_lineno);
 				String result;
-				result = indenter.indent(lineno+1, (lineno+line_cnt));
+				result = indenter.indent(lineno, (lineno+(line_cnt-1)));
 				
 				for (int i=0; i<result.length(); i++) {
 					if (result.charAt(i) == '\n' || result.charAt(i) == '\r') {
@@ -217,48 +229,33 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 						// Remove the trailing \n
 						result =  result.substring(0,result.length()-1);
 					}
-					
+ 					
 					// Remove any trailing whitespace in the cmd
-					if ((inline_paste == true) || (trailing_whitespace > 0))  {
-						// If we are pasting inline, the result will contain a copy of the original code on that line,
-						// we need to remove it
-						int start_point = 0;
-						if (inline_paste)  {
-							start_point = distance_to_sol - ws_at_sol;  // The whitespace will have been replaced
-							// Zero this out... if we weren't doing an in-line paste we are using this variable
-							// to 
-							distance_to_sol = 0;
-							for (int i=0; i<result.length(); i++)  {
-								char ch = result.charAt(i);
-								if ((ch == ' ') || (ch == '\t'))  {
-									start_point ++;
-								}
-								else  {
-									break;
-								}
-							}
-						}
-						if (trailing_whitespace < 0)  {
-							trailing_whitespace = 0;
-						}
-						result = result.substring(start_point,result.length()-trailing_whitespace);
-						// Need to adjust the cursor to account for the change in whitespace
-						// Oddly enough doesn't need result.length... presumably adjusted when the text is inserted
-						cmd.caretOffset = cmd.offset - distance_to_sol + trailing_whitespace;
-						if ((editor != null) && ((ITextSelection) editor.getSelectionProvider().getSelection()).getLength() > 0)
-							cmd.caretOffset += result.length();
-					}
-					// Move the insertion point to the start of line if we aren't pasting into the middle of existing code.
-					// The formatter will have created the leading whitespace for the first line of the pasted code
-					if (!inline_paste)  {
-						cmd.offset -= distance_to_sol;
+ 					if (trailing_whitespace > 0)  {
+ 						result = result.substring(0, result.length()-trailing_whitespace);
+ 						result = result + indenter.getLineIndent(lineno+line_cnt-2);
+ 					}
+ 					
+ 					
+ 					// 
+ 					// Strip out the original code, if we are pasting somewhere in code, this code is already in the file
+					if (paste_inside_code == true)  {
+						result = result.substring(distance_to_sol, result.length());
 					}
 					cmd.text = result;
 					
 					fLog.debug("    Modifying offset by " + distance_to_sol + 
 							" setting cmd.text=\"" + result + "\"");
+					
+					// If we are pasting within the whitespace before the start of code on this line, need to strip the existing whitespace from the document
+					// as this has been replaced by the indenter
+					if (!paste_inside_code && (ws_at_sol > 0))  {
+						doc.replace(cmd.offset-ws_at_sol, ws_at_sol, "");			// Strip the whitespace
+						cmd.offset -= ws_at_sol;						// Move the cursor back by WS characters
+					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
 			fLog.debug("active line is: " + lineno);
@@ -354,7 +351,7 @@ public class SVAutoIndentStrategy extends DefaultIndentLineAutoEditStrategy
 			}
 			
 			indenter.setAdaptiveIndentEnd(target_lineno);
-			String ind_result = indenter.indent();
+			String ind_result = indenter.indent();		// ind_result used, but we need to do the indent, and capturing result is useful for debug
 			
 			IRegion cmd_line = doc.getLineInformationOfOffset(cmd.offset);
 			String indent = null;
