@@ -6,4 +6,6 @@ public interface ISVProjectDelayedOp {
 	
 	void projectBuildStarted(IProject p);
 	
+	boolean containsProject(IProject p);
+	
 }

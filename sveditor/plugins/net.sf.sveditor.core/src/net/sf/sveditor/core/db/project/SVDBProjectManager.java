@@ -43,8 +43,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import net.sf.sveditor.core.ISVProjectDelayedOp;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVMarkers;
-import net.sf.sveditor.core.builder.CoreBuildProcessListener;
-import net.sf.sveditor.core.builder.ISVBuildProcessListener;
 import net.sf.sveditor.core.builder.ISVBuilderOutput;
 import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
@@ -181,22 +179,24 @@ public class SVDBProjectManager implements
 	}
 	
 	public void projectClosed(IProject p) {
-		if (fProjectMap.containsKey(p)) {
+		if (fProjectMap.containsKey(p.getFullPath())) {
 			// Start a job to clean up after the specified project
-			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
+			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(
+					fProjectMap.get(p.getFullPath()));
 //			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 			job.schedule();
 			
-			fProjectMap.remove(p);
+			fProjectMap.remove(p.getFullPath());
 		}
 	}
 	
 	public void projectRemoved(IProject p) {
-		if (fProjectMap.containsKey(p)) {
-			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(fProjectMap.get(p));
+		if (fProjectMap.containsKey(p.getFullPath())) {
+			SVDBRemoveProjectJob job = new SVDBRemoveProjectJob(
+					fProjectMap.get(p.getFullPath()));
 //			job.setRule(ResourcesPlugin.getWorkspace().getRoot());
 			job.schedule();
-			fProjectMap.remove(p);
+			fProjectMap.remove(p.getFullPath());
 		}
 	}
 	
@@ -407,8 +407,10 @@ public class SVDBProjectManager implements
 		
 		synchronized (fDelayedOpList) {
 			// A delayed op supercedes an incremental build
-			if (fDelayedOpList.contains(p)) {
-				return;
+			for (ISVProjectDelayedOp op : fDelayedOpList) {
+				if (op.containsProject(p)) {
+					return;
+				}
 			}
 		}
 		

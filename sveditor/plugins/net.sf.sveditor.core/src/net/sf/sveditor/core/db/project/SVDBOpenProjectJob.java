@@ -103,4 +103,8 @@ public class SVDBOpenProjectJob extends Job implements ISVProjectDelayedOp, ILog
 		return Status.OK_STATUS;
 	}
 
+	@Override
+	public boolean containsProject(IProject p) {
+		return (fProject != null && fProject.equals(p));
+	}
 }

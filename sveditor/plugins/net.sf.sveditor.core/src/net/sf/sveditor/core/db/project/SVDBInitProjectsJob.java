@@ -3,16 +3,6 @@ package net.sf.sveditor.core.db.project;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.ISVProjectDelayedOp;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVProjectNature;
-import net.sf.sveditor.core.builder.SVBuilderProcess;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -21,6 +11,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+
+import net.sf.sveditor.core.ISVProjectDelayedOp;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVProjectNature;
+import net.sf.sveditor.core.builder.SVBuilderProcess;
 
 public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 	private List<IProject>				fProjects;
@@ -83,4 +78,13 @@ public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 		return Status.OK_STATUS;
 	}
 
+	@Override
+	public boolean containsProject(IProject p) {
+		for (IProject pt : fProjects) {
+			if (pt.equals(p)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

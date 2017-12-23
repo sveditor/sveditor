@@ -18,6 +18,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -25,11 +26,19 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBItemIterator;
 import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
 import net.sf.sveditor.core.db.persistence.IDBWriter;
 import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.db.project.SVDBProjectManager;
+import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
@@ -37,6 +46,7 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
+import sun.awt.DisplayChangedListener;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -137,4 +147,47 @@ public class TestIndexCache extends SVCoreTestCaseBase {
 		LogFactory.removeLogHandle(log);
 	}
 
+	public void testCacheSize() throws IOException, DBFormatException, DBWriteException {
+		PrintStream argfile_ps = new PrintStream(
+				new File(fTmpDir, "sve.F"));
+		
+		for (int fileno=1; fileno<=1000; fileno++) {
+			PrintStream ps = new PrintStream(
+					new File(fTmpDir, "pkg_" + fileno + ".sv"));
+			argfile_ps.println("./pkg_" + fileno + ".sv");
+			
+			ps.println("package pkg_" + fileno + ";");
+			for (int classno=1; classno<=10; classno++) {
+				ps.println("  class cls_" + fileno + "_" + classno + ";");
+				ps.println("  endclass");
+			}
+			ps.println("endpackage");
+			ps.close();
+		}
+		argfile_ps.close();
+		
+		SVCorePlugin.getDefault().enableDebug(false);
+		CoreReleaseTests.clearErrors();
+
+		for (int i=0; i<4; i++) {
+		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
+				"index_test", new File(fTmpDir, "sve.F").getAbsolutePath(), 
+				SVDBArgFileIndexFactory.TYPE, null);
+
+		long start = System.currentTimeMillis();
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+		long end = System.currentTimeMillis();
+		System.out.println("Rebuild: " + (end-start));
+		
+		SVDBFileIndexCache cache = (SVDBFileIndexCache)index.getCache();
+		SVDBFileSystem fs = ((SVDBFileIndexCacheMgr)cache.getCacheMgr()).getFileSystem();
+		
+		System.out.println("Total: " + fs.getNumTotalBlocks() + " Alloc: " + fs.getNumAllocatedBlocks());
+		
+		fIndexRgy.disposeIndex(index, "Cleanup");
+		
+		System.out.println("Total: " + fs.getNumTotalBlocks() + " Alloc: " + fs.getNumAllocatedBlocks());
+		}
+	}
 }

@@ -293,8 +293,6 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		SVDBFile file = f.parse(language_level, pp_out, path, tok_listener, markers);
 		long parse_end = System.currentTimeMillis();
 		
-		out.note("Unique identifiers: " + ident_set.size() + " has_uvm_object: " + ident_set.contains("uvm_object"));
-		
 		build_data.getIndexStats().incLastIndexParseTime(parse_end-parse_start);
 		
 		if (fDebugEn) {

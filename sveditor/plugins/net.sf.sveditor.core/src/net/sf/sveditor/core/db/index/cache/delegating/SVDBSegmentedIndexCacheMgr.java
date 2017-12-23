@@ -341,6 +341,10 @@ public class SVDBSegmentedIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	 */
 	public synchronized void clearIndexCache(SVDBSegmentedIndexCache cache) {
 		SVDBFileIndexCacheEntry entry;
+		
+		System.out.println("clearIndexCache: " + cache.getBaseLocation());
+		System.out.println("  [pre] totalBlocks=" + fRootFS.getNumTotalBlocks() + " allocBlocks=" +
+				fRootFS.getNumAllocatedBlocks());
 
 		try {
 			entry = fCacheHead;
@@ -367,6 +371,9 @@ public class SVDBSegmentedIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("  [post] totalBlocks=" + fRootFS.getNumTotalBlocks() + " allocBlocks=" +
+				fRootFS.getNumAllocatedBlocks());
 	}
 
 	private synchronized void deleteEntry(SVDBFileIndexCacheEntry entry) throws IOException {

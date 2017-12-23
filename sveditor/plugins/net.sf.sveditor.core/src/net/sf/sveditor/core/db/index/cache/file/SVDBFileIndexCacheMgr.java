@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -55,6 +54,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		fPersistenceWriterSet = new ArrayList<IDBWriter>();
 		fLog = LogFactory.getLogHandle("SVDBFileIndexCacheMgr");
 		fIndexList = new ArrayList<SVDBFileIndexCache>();
+	}
+	
+	public SVDBFileSystem getFileSystem() {
+		return fFileSystem;
 	}
 
 	/**
@@ -293,6 +296,8 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		fFileSystem.compactStorage();
 	}
 
 	private synchronized void deleteEntry(SVDBFileIndexCacheEntry entry) throws IOException {

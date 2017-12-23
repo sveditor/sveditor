@@ -57,4 +57,13 @@ public class SVProjectDelayedBuild extends Job implements ISVProjectDelayedOp {
 		return Status.OK_STATUS;
 	}
 
+	@Override
+	public boolean containsProject(IProject p) {
+		for (IProject pt : fProjects) {
+			if (pt.equals(p)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

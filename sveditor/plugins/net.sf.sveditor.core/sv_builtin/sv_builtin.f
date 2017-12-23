@@ -5,3 +5,4 @@
 ./queue.sv
 ./array.sv
 ./covergroup.sv
+./semaphore.sv

@@ -17,6 +17,7 @@ public class SVDBFileSystem implements ILogLevelListener {
 	
 	
 	private static final int			BLK_SIZE = 4096;
+	// Restrict to 4G size
 	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*1024L*4L)/BLK_SIZE);
 //	private static final int			FILE_BLK_SIZE = (int)((1024L*1024L*4L)/BLK_SIZE);
 	private static final int			ALLOC_PAGE_INCR = 1024;
@@ -271,6 +272,41 @@ public class SVDBFileSystem implements ILogLevelListener {
 				}
 			}
 		}
+	}
+	
+	public synchronized int getNumAllocatedBlocks() {
+		int size = 0;
+		
+		for (int i=0; i<fAllocList.length; i++) {
+			byte mask = fAllocList[i];
+		
+			if (mask != 0) {
+				for (int j=0; j<8; j++) {
+					if ((mask & (1 << j)) != 0) {
+						size++;
+					}
+				}
+			}
+		}
+		
+		return size;		
+	}
+	
+	public synchronized int getNumTotalBlocks() {
+		int size = 0;
+	
+		for (int writer_id=0; writer_id<fFileRWList.size(); writer_id++) {
+			long len = 0;
+			try {
+				len = fFileRWList.get(writer_id).length();
+			} catch (IOException e) { 
+				e.printStackTrace();
+			}
+		
+			size += (len / BLK_SIZE);
+		}
+		
+		return size;
 	}
 	
 	public synchronized int blockSize() {
@@ -951,5 +987,42 @@ public class SVDBFileSystem implements ILogLevelListener {
 		int mask = (1 << (id & 7));
 		return ((fAllocList[alloc_idx] & mask) != 0);
 	}
+	
+	public synchronized void compactStorage() {
+		int first_storage_idx = 0;
+		
+		for (int i=fAllocList.length-1; i>=0; i--) {
+			if (fAllocList[i] != 0) {
+				first_storage_idx = i;
+				break;
+			}
+		}
+		
+		// Can clear out anything beyond the first storage index
+		int first_empty_id = (first_storage_idx+1)*8;
 
+		int first_empty_writer_id = (first_empty_id / FILE_BLK_SIZE);
+		int first_empty_block_id = (first_empty_id % FILE_BLK_SIZE);
+		
+		// Remove any leftover files
+		while (first_empty_writer_id+1 < fFileRWList.size()) {
+			RandomAccessFile file = fFileRWList.get(fFileRWList.size()-1);
+			try {
+				file.close();
+			} catch (IOException e) { }
+			File f = new File(fDBDir, fFileRWList.size() + ".db");
+			f.delete();
+		
+			fFileRWList.remove(fFileRWList.size()-1);
+		}
+		
+		// Shrink the remaining file if needed
+		RandomAccessFile file = fFileRWList.get(first_empty_writer_id);
+		try {
+			file.setLength(first_empty_block_id*BLK_SIZE);
+			fLastRwBlkLen = first_empty_block_id;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
