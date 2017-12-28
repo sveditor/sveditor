@@ -92,6 +92,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		
 		parent.addChildItem(module);
 		
+		
 		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
 			while (fLexer.peekKeyword(KW.IMPORT)) {
@@ -115,16 +116,21 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 			module.getPorts().addAll(ports);
 		}
 		
+		
 		if (fLexer.peekKeyword(end_type)) {
 			fLexer.eatToken();
 			if (fDebugEn) {
 				debug("<-- process_mod_ifc_prog(early escape)");
 			}
 			
+			enter_type_scope(module);
+			leave_type_scope(module);
 			return;
 		}
 		
 		fLexer.readOperator(OP.SEMICOLON);
+		
+		enter_type_scope(module);
 		
 		// Extern module/programs don't have bodies
 		if ((qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0) {
@@ -163,6 +169,8 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		if (fDebugEn) {
 			debug("<-- process_mod_ifc_prog()");
 		}
+		
+		leave_type_scope(module);
 	}
 
 }

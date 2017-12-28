@@ -22,7 +22,7 @@ package net.sf.sveditor.core.parser;
 public class SVParsers {
 	
 	private ISVParser							fSVParser;
-	private SVParser				fSVDBFileFactory;
+	private SVParser							fSVDBFileFactory;
 	private SVCommonParserUtils					fCommonParserUtils;
 	private SVClassDeclParser					fClassParser;
 	private SVCovergroupParser					fCovergroupParser;
@@ -47,7 +47,7 @@ public class SVParsers {
 	private SVModIfcBodyItemParser				fModIfcBodyItemParser;
 	private SVConstraintParser					fConstraintParser;
 	private SVAttributeParser					fAttrParser;
-	private boolean_abbrev_or_array_deref				fPropertyExprParser;
+	private boolean_abbrev_or_array_deref		fPropertyExprParser;
 	private SVSequenceParser					fSequenceParser;
 	private SVPropertyParser					fPropertyParser;
 	private SVConfigParser						fConfigParser;

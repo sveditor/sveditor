@@ -20,6 +20,7 @@ import java.util.Map;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBRootFileCacheData;
 
 /**
  * Collects data about an index that should be saved in the cache.
@@ -37,9 +38,6 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 	public List<Integer>					fArgFileAttr;
 	public List<Long>						fArgFileTimestamps;
 	public List<SVDBFile>					fArgFiles = new ArrayList<SVDBFile>();
-	
-	// List of the root source files
-	public List<String>						fRootFileList;
 	
 	// List of the library files
 	public List<String>						fLibFileList;
@@ -62,7 +60,6 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		fArgFilePaths = new ArrayList<String>();
 		fArgFiles = new ArrayList<SVDBFile>();
 		fArgFileAttr = new ArrayList<Integer>();
-		fRootFileList = new ArrayList<String>();
 		fLibFileList = new ArrayList<String>();
 		fLibFileAttr = new ArrayList<Integer>();
 		fSrcFileList = new ArrayList<String>();
@@ -95,8 +92,8 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		
 		if ((flags & ISVDBDeclCache.FILE_ATTR_SRC_FILE) != 0) {
 			if ((flags & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) != 0) {
-				if (!fRootFileList.contains(path)) {
-					fRootFileList.add(path);
+				if (!fRootFileCacheData.containsKey(path)) {
+					fRootFileCacheData.put(path, new SVDBRootFileCacheData());
 				}
 			} else if ((flags & ISVDBDeclCache.FILE_ATTR_LIB_FILE) != 0) {
 				if (!fLibFileList.contains(path)) {
@@ -178,7 +175,7 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		
 		if ((flags & ISVDBDeclCache.FILE_ATTR_SRC_FILE) != 0) {
 			if ((flags & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) != 0) {
-				for (String path : fRootFileList) {
+				for (String path : fRootFileCacheData.keySet()) {
 					ret.add(path);
 				}
 			} else if ((flags & ISVDBDeclCache.FILE_ATTR_LIB_FILE) != 0) {
@@ -205,7 +202,7 @@ public class SVDBArgFileIndexCacheData extends SVDBBaseIndexCacheData {
 		int ret = 0;
 		if ((flags & ISVDBDeclCache.FILE_ATTR_SRC_FILE) != 0) {
 			if ((flags & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) != 0) {
-				ret += fRootFileList.size();
+				ret += fRootFileCacheData.size();
 			} else {
 				ret += fSrcFileList.size();
 			}

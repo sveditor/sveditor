@@ -30,6 +30,9 @@ public class SVDBBaseIndexCacheData {
 	
 	// Map between reference ids and file ids containing them
 	public Map<String, List<Integer>>				fRefCache;
+	
+	// Contains cached information about each file
+	public Map<String, SVDBRootFileCacheData>		fRootFileCacheData;
 	public boolean									fForceSV;
 
 	public SVDBBaseIndexCacheData(String base) {
@@ -41,6 +44,7 @@ public class SVDBBaseIndexCacheData {
 		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fRefCache = new HashMap<String, List<Integer>>();
+		fRootFileCacheData = new HashMap<String, SVDBRootFileCacheData>();
 	}
 	
 	public String getVersion() {

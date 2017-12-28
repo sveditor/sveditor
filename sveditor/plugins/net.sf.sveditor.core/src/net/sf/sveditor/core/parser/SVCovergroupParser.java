@@ -67,6 +67,7 @@ public class SVCovergroupParser extends SVParserBase {
 		fLexer.readOperator(OP.SEMICOLON);
 		parent.addChildItem(cg);
 
+		enter_type_scope(cg);
 		try {
 			// Skip statements
 			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDGROUP)) {
@@ -102,6 +103,8 @@ public class SVCovergroupParser extends SVParserBase {
 					fLexer.readId(); // labeled group
 				}
 			}
+		} finally {
+			leave_type_scope(cg);
 		}
 		
 	}

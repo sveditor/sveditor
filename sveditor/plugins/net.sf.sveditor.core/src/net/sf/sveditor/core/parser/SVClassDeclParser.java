@@ -92,20 +92,26 @@ public class SVClassDeclParser extends SVParserBase {
 		fLexer.readOperator(OP.SEMICOLON);
 		
 		parent.addChildItem(cls);
-		
-		// TODO: need a better system here...
-		while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLASS)) {
+
+		try {
+			enter_type_scope(cls);
 			
-			try {
-				fParsers.modIfcBodyItemParser().parse(cls);
-			} catch (SVParseException e) {
-				// Catch error
-				// TODO: recover from errors
-				while (fLexer.peek() != null && 
-						!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword(KW.ENDCLASS)) {
-					fLexer.eatToken();
+			// TODO: need a better system here...
+			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDCLASS)) {
+
+				try {
+					fParsers.modIfcBodyItemParser().parse(cls);
+				} catch (SVParseException e) {
+					// Catch error
+					// TODO: recover from errors
+					while (fLexer.peek() != null && 
+							!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword(KW.ENDCLASS)) {
+						fLexer.eatToken();
+					}
 				}
 			}
+		} finally {
+			leave_type_scope(cls);
 		}
 
 		cls.setEndLocation(fLexer.getStartLocation());

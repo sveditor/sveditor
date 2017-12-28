@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.tests.lexer;
 
 import junit.framework.TestCase;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.LogFactory;
@@ -81,6 +82,19 @@ public class TestClassItems extends TestCase {
 			public String getFilename(long loc) {
 				return "Unknown: " + SVDBLocation.unpackFileId(loc);
 			}
+
+			@Override
+			public void enter_type_scope(ISVDBItemBase item) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void leave_type_scope(ISVDBItemBase item) {
+				// TODO Auto-generated method stub
+				
+			}
+			
 		};
 		lexer.init(parser, new StringTextScanner(content));
 		

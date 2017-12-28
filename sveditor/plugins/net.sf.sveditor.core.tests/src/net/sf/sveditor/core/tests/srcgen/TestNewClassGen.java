@@ -12,10 +12,17 @@
 
 package net.sf.sveditor.core.tests.srcgen;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.log.LogFactory;
@@ -27,11 +34,6 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestNewClassGen extends SVCoreTestCaseBase {
 	
@@ -142,7 +144,11 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			IFile file = project_dir.getFile("test.svh");
 			assertEquals("Ensure file doesn't exist", false, file.exists());
 
-			SVDBIndexCollection index_it = SrcGenTests.createIndex(doc);
+			ISVDBIndex index_it = SrcGenTests.createIndex(
+					new File(fTmpDir, "doc_index"),
+					fIndexRgy,
+					doc);
+			addStandaloneIndex(index_it);
 
 			gen.generate(index_it, file, "new_class", "base", true, new NullProgressMonitor());
 
@@ -206,7 +212,11 @@ public class TestNewClassGen extends SVCoreTestCaseBase {
 			IFile file = project_dir.getFile("test.svh");
 			assertEquals("Ensure file doesn't exist", false, file.exists());
 
-			SVDBIndexCollection index_it = SrcGenTests.createIndex(doc);
+			ISVDBIndex index_it = SrcGenTests.createIndex(
+					new File(fTmpDir, "doc_index"),
+					fIndexRgy,
+					doc);
+			addStandaloneIndex(index_it);
 
 			gen.generate(index_it, file, "new_class", "base", true, new NullProgressMonitor());
 

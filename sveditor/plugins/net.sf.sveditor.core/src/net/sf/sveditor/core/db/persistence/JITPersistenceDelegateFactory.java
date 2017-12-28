@@ -34,6 +34,7 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBRootFileCacheData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 
@@ -124,6 +125,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		fClassList.add(SVDBArgFileIndexCacheData.class);
 		fClassList.add(SVDBDeclCacheItem.class);
 		fClassList.add(SVDBRefCacheEntry.class);
+		fClassList.add(SVDBRootFileCacheData.class);
 		
 		fClassSet.addAll(fClassList);
 	}

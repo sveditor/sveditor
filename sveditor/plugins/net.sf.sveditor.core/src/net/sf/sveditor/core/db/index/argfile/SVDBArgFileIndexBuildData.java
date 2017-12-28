@@ -327,7 +327,7 @@ public class SVDBArgFileIndexBuildData implements
 	}
 	
 	List<String> getRootFileList() {
-		return fIndexCacheData.fRootFileList;
+		return fIndexCacheData.getFileList(ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
 	}
 	
 	Map<String, String> getGlobalDefines() {

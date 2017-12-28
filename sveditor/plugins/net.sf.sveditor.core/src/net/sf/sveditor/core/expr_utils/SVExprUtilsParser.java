@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.expr_utils;
 
 import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -108,4 +109,12 @@ public class SVExprUtilsParser implements ISVParser {
 		return "UNKNOWN: " + loc;
 	}
 
+	
+	public void enter_type_scope(ISVDBItemBase item) {
+		// TBD
+	}
+	
+	public void leave_type_scope(ISVDBItemBase item) {
+		// TBD
+	}
 }

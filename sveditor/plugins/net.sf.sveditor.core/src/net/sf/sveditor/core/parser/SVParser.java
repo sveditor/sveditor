@@ -68,8 +68,8 @@ public class SVParser implements ISVScanner,
 	private ITextScanner fInput;
 	private SVLexer fLexer;
 
-	private ScanLocation fStmtLocation;
-	private ScanLocation fStartLocation;
+	private ScanLocation 				fStmtLocation;
+	private ScanLocation 				fStartLocation;
 
 	private IPreProcMacroProvider		fMacroProvider;
 
@@ -84,6 +84,10 @@ public class SVParser implements ISVScanner,
 	private boolean						fDisableErrors;
 	private ISVPreProcFileMapper		fFileMapper;
 	private SVParserConfig				fConfig;
+	
+	private List<ISVParserTypeListener>	fTypeListeners;
+	
+	
 	/**
 	 * LanguageLevel controls how source is parsed
 	 */
@@ -102,6 +106,8 @@ public class SVParser implements ISVScanner,
 		fParseErrorMax = 100;
 		
 		fConfig = new SVParserConfig();
+	
+		fTypeListeners = new ArrayList<ISVParserTypeListener>();
 		
 		fLanguageLevel = SVLanguageLevel.SystemVerilog;
 	}
@@ -336,6 +342,8 @@ public class SVParser implements ISVScanner,
 		
 		fScopeStack.push(pkg);
 
+		enter_type_scope(pkg);
+		
 		try {
 			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
 				fLexer.eatToken();
@@ -364,6 +372,7 @@ public class SVParser implements ISVScanner,
 			}
 		} finally {
 			fScopeStack.pop();
+			leave_type_scope(pkg);
 		}
 	}
 
@@ -903,6 +912,20 @@ public class SVParser implements ISVScanner,
 	public void leave_file() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void enter_type_scope(ISVDBItemBase item) {
+		for (ISVParserTypeListener l : fTypeListeners) {
+			l.enter_type_scope(item);
+		}
+	}
+
+	@Override
+	public void leave_type_scope(ISVDBItemBase item) {
+		for (ISVParserTypeListener l : fTypeListeners) {
+			l.leave_type_scope(item);
+		}
 	}
 
 }

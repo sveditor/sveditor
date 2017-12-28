@@ -12,12 +12,12 @@
 
 package net.sf.sveditor.core.parser;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.log.ILogHandle;
 
 
 
-public interface ISVParser extends ISVKeywords, ISVOperators {
+public interface ISVParser extends 
+	ISVKeywords, ISVOperators, ISVParserTypeListener {
 	
 	SVLexer lexer();
 	
@@ -43,10 +43,4 @@ public interface ISVParser extends ISVKeywords, ISVOperators {
 	
 	String getFilename(long loc);
 
-	/**
-	void enter_type_scope(ISVDBItemBase item);
-	
-	void leave_type_scope(ISVDBItemBase item);
-	 **/
-	
 }

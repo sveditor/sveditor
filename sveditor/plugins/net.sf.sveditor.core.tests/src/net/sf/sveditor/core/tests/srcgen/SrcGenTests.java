@@ -12,10 +12,18 @@
 
 package net.sf.sveditor.core.tests.srcgen;
 
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.tests.SVDBStringDocumentIndex;
+import java.io.File;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class SrcGenTests extends TestSuite {
 	
@@ -27,11 +35,34 @@ public class SrcGenTests extends TestSuite {
 		return suite;
 	}
 	
-	public static SVDBIndexCollection createIndex(String doc) {
-		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
-		index_mgr.addPluginLibrary(new SVDBStringDocumentIndex(doc));
+	public static ISVDBIndex createIndex(
+			File 					tmpdir, 
+			SVDBIndexRegistry		rgy,
+			String 					doc) {
+		if (!tmpdir.isDirectory()) {
+			TestCase.assertTrue(tmpdir.mkdirs());
+		}
 		
-		return index_mgr;
+		TestUtils.copy(
+				doc,
+				new File(tmpdir, "doc.sv")
+				);
+		
+		TestUtils.copy(
+				"" + tmpdir.getAbsolutePath() + "/doc.sv",
+				new File(tmpdir, "doc.f")
+				);
+	
+		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(), 
+				tmpdir.getName(), 
+				new File(tmpdir, "doc.f").getAbsolutePath(), 
+				SVDBArgFileIndexFactory.TYPE, 
+				null);
+		
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+		
+		return index;
 	}
 
 }

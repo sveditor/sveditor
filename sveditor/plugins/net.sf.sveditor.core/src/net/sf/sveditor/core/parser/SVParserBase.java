@@ -105,7 +105,6 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 		return fParser.getFilename(loc);
 	}
 
-	/*
 	@Override
 	public void enter_type_scope(ISVDBItemBase item) {
 		fParser.enter_type_scope(item);
@@ -115,6 +114,5 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 	public void leave_type_scope(ISVDBItemBase item) {
 		fParser.leave_type_scope(item);
 	}
-	 */
 	
 }
