@@ -39,7 +39,10 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 	protected TestIndexCacheFactory		fCacheFactory;
 //	protected SVDBFileSystem			fFileSystem;
 	protected SVDBIndexRegistry			fIndexRgy;
-	
+
+	public File getTmpDir() { return fTmpDir; }
+	public LogHandle getLog() { return fLog; }
+	public SVDBIndexRegistry getIndexRgy() { return fIndexRgy; }
 
 	@Override
 	protected void setUp() throws Exception {

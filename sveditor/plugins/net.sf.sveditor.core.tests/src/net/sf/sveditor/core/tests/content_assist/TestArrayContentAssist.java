@@ -12,53 +12,12 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.content_assist.SVCompletionProposal;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVDBIndexValidator;
-import net.sf.sveditor.core.tests.TextTagPosUtils;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestArrayContentAssist extends SVCoreTestCaseBase {
-	private static ContentAssistIndex			fIndex;
-	private static SVDBIndexCollection			fIndexMgr;
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		fIndex = new ContentAssistIndex();
-		fIndex.init(new NullProgressMonitor());
-		fIndexMgr = new SVDBIndexCollection("GLOBAL");
-		fIndexMgr.addArgFilePath(fIndex);
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		ISVDBIndex index = rgy.findCreateIndex(new NullProgressMonitor(),
-				SVDBIndexRegistry.GLOBAL_PROJECT, 
-				SVCorePlugin.SV_BUILTIN_LIBRARY, 
-				SVDBPluginLibIndexFactory.TYPE, null);
-		index.loadIndex(new NullProgressMonitor());
-		fIndexMgr.addPluginLibrary(index);		
-	}
 	
 	public void testMultiple() {
-		LogHandle log = LogFactory.getLogHandle("testQueueFunctions");
 		String doc_arr[] = {
 			// Document 0
 			"class elem_t;\n" +
@@ -124,32 +83,14 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 
 		SVCorePlugin.getDefault().enableDebug(false);
 		for (int i=0; i<doc_arr.length; i++) {
-			Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc_arr[i]);
-
-			StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-			TestCompletionProcessor cp = new TestCompletionProcessor(log, ini.first(), fIndexMgr);
-
-			scanner.seek(ini.second().getPosMap().get("MARK"));
-
-			ISVDBIndexIterator index_it = cp.getIndexIterator();
-			SVDBIndexValidator v = new SVDBIndexValidator();
-
-			v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
-
-			IndexTestUtils.assertFileHasElements(index_it, "my_class1");
-
-			cp.computeProposals(scanner, ini.first(), 
-					ini.second().getLineMap().get("MARK"));
-			List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-
-			validateResults(exp_arr[i], proposals);
+			ContentAssistTests.runTest(
+					this,
+					doc_arr[i], 
+					exp_arr[i]);
 		}
-		
-		LogFactory.removeLogHandle(log);
 	}
 
 	public void testQueueFunctions() {
-		LogHandle log = LogFactory.getLogHandle("testQueueFunctions");
 		String doc =
 			"class elem_t;\n" +
 			"    int my_field;\n" +
@@ -165,32 +106,15 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
-		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
 		
-		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(log, ini.first(), fIndexMgr);
-		
-		scanner.seek(ini.second().getPosMap().get("MARK"));
-		
-		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		SVDBIndexValidator v = new SVDBIndexValidator();
-		
-		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
-		
-		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
-		
-		cp.computeProposals(scanner, ini.first(), 
-				ini.second().getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		validateResults(new String[] {
+		ContentAssistTests.runTest(
+				this,
+				doc,
 				"size", "insert", "delete", "pop_front",
-				"pop_back", "push_front", "push_back"}, proposals);
-		LogFactory.removeLogHandle(log);
+				"pop_back", "push_front", "push_back");
 	}
 
 	public void testQueueElemItems() {
-		LogHandle log = LogFactory.getLogHandle("testQueueElemItems");
 		String doc =
 			"class elem_c;\n" +
 			"    int     m_int_field;\n" +
@@ -206,30 +130,10 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
-		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		
-		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(log, ini.first(), fIndexMgr);
-		
-		scanner.seek(ini.second().getPosMap().get("MARK"));
-		
-		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		SVDBIndexValidator v = new SVDBIndexValidator();
-		
-		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
-	
-		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
-		
-		cp.computeProposals(scanner, ini.first(), 
-				ini.second().getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		validateResults(new String[] {"m_int_field"}, proposals);
-		LogFactory.removeLogHandle(log);
+		ContentAssistTests.runTest(this, doc, "m_int_field");
 	}
 
 	public void testArrayFunctions() {
-		LogHandle log = LogFactory.getLogHandle("testArrayFunctions");
 		String doc =
 			"class elem_t;\n" +
 			"    int my_field;\n" +
@@ -245,32 +149,10 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
-		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-
-		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(log, ini.first(), fIndexMgr);
-		
-		scanner.seek(ini.second().getPosMap().get("MARK"));
-		
-		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		SVDBIndexValidator v = new SVDBIndexValidator();
-		
-		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
-		
-		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
-		
-		cp.computeProposals(scanner, ini.first(), 
-				ini.second().getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		// TODO: at some point, my_class1 and my_class2 will not be proposals,
-		// since they are types not variables 
-		validateResults(new String[] {"size"}, proposals);
-		LogFactory.removeLogHandle(log);
+		ContentAssistTests.runTest(this, doc, "size");
 	}
 
 	public void testArrayElemItems() {
-		LogHandle log = LogFactory.getLogHandle("testArrayElemItems");
 		String doc =
 			"class elem_c;\n" +
 			"    int     m_int_field;\n" +
@@ -286,59 +168,7 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		SVCorePlugin.getDefault().enableDebug(false);
-		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-		
-		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-		TestCompletionProcessor cp = new TestCompletionProcessor(log, ini.first(), fIndexMgr);
-		
-		scanner.seek(ini.second().getPosMap().get("MARK"));
-		
-		ISVDBIndexIterator index_it = cp.getIndexIterator();
-		SVDBIndexValidator v = new SVDBIndexValidator();
-		
-		v.validateIndex(index_it, SVDBIndexValidator.ExpectErrors);
-		
-		IndexTestUtils.assertFileHasElements(index_it, "my_class1");
-		
-		cp.computeProposals(scanner, ini.first(), 
-				ini.second().getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		validateResults(new String[] {"m_int_field"}, proposals);
-		LogFactory.removeLogHandle(log);
+		ContentAssistTests.runTest(this, doc, "m_int_field");
 	}
 
-
-	/*************** Utility Methods ********************/
-	private Tuple<SVDBFile, TextTagPosUtils> contentAssistSetup(String doc) {
-		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
-		
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(tt_utils.openStream(), "doc", markers);
-		fIndex.setFile(file);
-
-		return new Tuple<SVDBFile, TextTagPosUtils>(file, tt_utils);
-	}
-	
-	private void validateResults(String expected[], List<SVCompletionProposal> proposals) {
-		for (String exp : expected) {
-			boolean found = false;
-			for (int i=0; i<proposals.size(); i++) {
-				if (proposals.get(i).getReplacement().equals(exp)) {
-					found = true;
-					proposals.remove(i);
-					break;
-				}
-			}
-			
-			assertTrue("Failed to find content proposal " + exp, found);
-		}
-		
-		for (SVCompletionProposal p : proposals) {
-			System.out.println("[ERROR] Unexpected proposal " + p.getReplacement());
-		}
-		assertEquals("Unexpected proposals", 0, proposals.size());
-	}
-	
 }
