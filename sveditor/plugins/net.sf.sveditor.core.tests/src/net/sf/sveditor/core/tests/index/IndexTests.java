@@ -12,22 +12,30 @@
 
 package net.sf.sveditor.core.tests.index;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.tests.objects.ObjectsTests;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.index.ISVDBIndex;
+import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
+import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import net.sf.sveditor.core.tests.objects.ObjectsTests;
+import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class IndexTests extends TestSuite {
 	
@@ -56,6 +64,46 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(ObjectsTests.class));
 		
 		return suite;
+	}
+	
+	public static SVDBIndexCollection createIndex(
+			SVCoreTestCaseBase		test,
+			String					doc) {
+		File index_tmpdir = new File(test.getTmpDir(), "index_tmpdir");
+		
+		TestCase.assertTrue(index_tmpdir.mkdirs());
+		
+		TestUtils.copy(
+				index_tmpdir.getAbsolutePath() + "/" + test.getName() + ".sv\n",
+				new File(index_tmpdir, "sve.F"));
+		TestUtils.copy(
+				doc,
+				new File(index_tmpdir, test.getName() + ".sv"));
+	
+		SVDBIndexCollection ret = new SVDBIndexCollection(test.getName());
+		ISVDBIndex index = test.getIndexRgy().findCreateIndex(
+				new NullProgressMonitor(), 
+				test.getName(),
+				new File(index_tmpdir, "sve.F").getAbsolutePath(),
+				SVDBArgFileIndexFactory.TYPE,
+				null);
+		
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
+		
+		ret.addArgFilePath(index);
+		ret.addPluginLibrary(SVCorePlugin.getDefault().getBuiltinLib());
+	
+		return ret;
+	}
+	
+	public static void disposeIndex(
+			SVCoreTestCaseBase		test,
+			SVDBIndexCollection		index) {
+		test.getIndexRgy().disposeIndex(
+				index.getArgFilePathList().get(0), 
+				"End of Test");
+		TestUtils.delete(new File(test.getTmpDir(), "index_tmpdir"));
 	}
 
 	/*

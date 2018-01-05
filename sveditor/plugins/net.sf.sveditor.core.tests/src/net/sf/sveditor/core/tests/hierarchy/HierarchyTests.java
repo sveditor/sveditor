@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
 import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
@@ -32,11 +33,10 @@ import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
 import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
 import net.sf.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
-import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import net.sf.sveditor.core.tests.index.IndexTests;
 
 public class HierarchyTests extends SVCoreTestCaseBase {
 	
@@ -59,8 +59,7 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 			"endclass\n" +
 			"\n"
 			;
-		String testname = "testClassHierarchy";
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, fCacheFactory);
+		SVDBIndexCollection index_it = IndexTests.createIndex(this, doc);
 		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
@@ -91,8 +90,7 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 			"endclass\n" +
 			"\n"
 			;
-		String testname = "testClassHierarchy";
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, fCacheFactory);
+		SVDBIndexCollection index_it = IndexTests.createIndex(this, doc);
 		ClassHierarchyTreeFactory tf = new ClassHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedClass cls_finder = new SVDBFindNamedClass(index_it);
@@ -142,8 +140,7 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 			"endclass\n" +
 			"\n"
 			;
-		String testname = getName();
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, fCacheFactory);
+		SVDBIndexCollection index_it = IndexTests.createIndex(this, doc);
 		PackageHierarchyTreeFactory tf = new PackageHierarchyTreeFactory(index_it);
 	
 		StringBIDITextScanner scanner = new StringBIDITextScanner(doc);
@@ -164,12 +161,12 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 	}
 	
 	public static void runModuleHierarchyTest(
-			String					testname,
+			SVCoreTestCaseBase		test,
 			String					doc,
 			String					top,
 			ISVDBIndexCacheMgr		cache_mgr,
 			String	...				paths) {
-		ISVDBIndexIterator index_it = IndexTestUtils.buildIndex(doc, testname, cache_mgr);
+		SVDBIndexCollection index_it = IndexTests.createIndex(test, doc);
 		ModuleHierarchyTreeFactory tf = new ModuleHierarchyTreeFactory(index_it);
 
 		SVDBFindNamedModIfcClassIfc mod_finder = new SVDBFindNamedModIfcClassIfc(index_it);

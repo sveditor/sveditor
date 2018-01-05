@@ -46,11 +46,15 @@ public interface ISVDBPersistenceRWDelegateParent {
 	
 	Map<String, Object> readMapStringObject(Class<?> val_c) throws DBFormatException;
 	
+	Map<Integer, Object> readMapIntegerObject(Class<?> val_c) throws DBFormatException;
+	
 	List<Long> readLongList() throws DBFormatException;
 
 	List<Integer> readIntList() throws DBFormatException;
 	
 	List<String> readStringList() throws DBFormatException;
+	
+//	List<Object> readObjectList(Class<?> val_c) throws DBFormatException;
 	
 	List readObjectList(ISVDBChildParent parent, Class val_c) throws DBWriteException, DBFormatException;
 	
@@ -75,13 +79,16 @@ public interface ISVDBPersistenceRWDelegateParent {
 	void writeRawType(int type) throws DBWriteException;
 	
 	void writeIntList(List<Integer> items) throws DBWriteException;
-
+	
 	void writeMapStringString(Map<String, String> map) throws DBWriteException;
 	
 	void writeMapStringList(Map<String, List> map, Class list_c) 
 			throws DBWriteException, DBFormatException;
 	
 	void writeMapStringObject(Map<String, Object> map, Class list_c) 
+			throws DBWriteException, DBFormatException;
+	
+	void writeMapIntegerObject(Map<Integer, Object> map, Class list_c) 
 			throws DBWriteException, DBFormatException;
 	
 	void writeStringList(List<String> items) throws DBWriteException;

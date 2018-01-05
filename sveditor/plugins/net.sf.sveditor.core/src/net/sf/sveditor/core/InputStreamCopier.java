@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index.old;
+package net.sf.sveditor.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

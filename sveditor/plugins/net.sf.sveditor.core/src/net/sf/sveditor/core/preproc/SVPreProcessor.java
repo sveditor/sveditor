@@ -34,6 +34,7 @@ import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.core.preproc.SVPreProcEvent.Type;
 import net.sf.sveditor.core.scanner.IPreProcErrorListener;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
@@ -72,7 +73,7 @@ public class SVPreProcessor extends AbstractTextScanner
 	private Set<String>								fMacroExpSet;
 	private ISVPreProcFileMapper					fFileMapper;
 	private Map<String, SVDBMacroDef>				fMacroMap = new HashMap<String, SVDBMacroDef>();
-	private List<IPreProcListener>					fListeners;
+	private List<ISVPreProcListener>					fListeners;
 	private boolean									fHaveListeners;
 	
 	private boolean									fEmitLineDirectives;
@@ -142,7 +143,7 @@ public class SVPreProcessor extends AbstractTextScanner
 
 		fIncFileProvider 	= inc_provider;
 		fFileMapper			= file_mapper;
-		fListeners			= new ArrayList<IPreProcListener>();
+		fListeners			= new ArrayList<ISVPreProcListener>();
 	
 		fMacroProvider  = defaultMacroProvider;
 		defaultMacroProvider.setMacro("SVEDITOR", "");
@@ -189,12 +190,12 @@ public class SVPreProcessor extends AbstractTextScanner
 		return fOutput.toString();
 	}
 
-	public void addListener(IPreProcListener l) {
+	public void addListener(ISVPreProcListener l) {
 		fListeners.add(l);
 		fHaveListeners = true;
 	}
 	
-	public void removeListener(IPreProcListener l) {
+	public void removeListener(ISVPreProcListener l) {
 		fListeners.remove(l);
 		fHaveListeners = (fListeners.size() > 0);
 	}
@@ -204,8 +205,8 @@ public class SVPreProcessor extends AbstractTextScanner
 		fEmitLineDirectives = emit;
 	}
 	
-	private void sendEvent(PreProcEvent ev) {
-		for (IPreProcListener l : fListeners) {
+	private void sendEvent(SVPreProcEvent ev) {
+		for (ISVPreProcListener l : fListeners) {
 			l.preproc_event(ev);
 		}
 	}
@@ -899,10 +900,10 @@ public class SVPreProcessor extends AbstractTextScanner
 				}
 			}
 			
-			PreProcEvent ev_s = null;
+			SVPreProcEvent ev_s = null;
 			if (do_event) {
 				fTmpBuffer.append(endCapture());
-				ev_s = new PreProcEvent(PreProcEvent.Type.BeginExpand);
+				ev_s = new SVPreProcEvent(SVPreProcEvent.Type.BeginExpand);
 				ev_s.pos = fOutput.length();
 				ev_s.text = fTmpBuffer.toString();
 				sendEvent(ev_s);
@@ -1087,6 +1088,13 @@ public class SVPreProcessor extends AbstractTextScanner
 			file_id = fFileMapper.mapFilePathToId(filename, true);
 		}
 		
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.EnterFile);
+			ev.text = filename;
+			ev.file_id = file_id;
+			sendEvent(ev);
+		}
+		
 		SVFileBuffer in_b = new SVFileBuffer(in);
 		SVPreProc2InputData in_data = new SVPreProc2InputData(
 				this, in_b, filename, file_id);
@@ -1141,6 +1149,13 @@ public class SVPreProcessor extends AbstractTextScanner
 			cleanup_preproc_leftovers();
 		}
 		
+		if (fHaveListeners && fInputCurr.getFileId() > 0) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.LeaveFile);
+			ev.text = fInputCurr.getFileName();
+			ev.file_id = fInputCurr.getFileId();
+			sendEvent(ev);
+		}
+		
 		fInputCurr.leave_file();
 		
 		if (fIndexStats != null) {
@@ -1156,10 +1171,10 @@ public class SVPreProcessor extends AbstractTextScanner
 		SVPreProc2InputData curr_in = fInputStack.pop();
 
 		// Send expand-end events when the relevant document is complete
-		PreProcEvent ev_s;
+		SVPreProcEvent ev_s;
 		if ((ev_s = curr_in.getBeginEv()) != null) {
 			if (fHaveListeners) {
-				PreProcEvent ev_e = new PreProcEvent(PreProcEvent.Type.EndExpand);
+				SVPreProcEvent ev_e = new SVPreProcEvent(SVPreProcEvent.Type.EndExpand);
 				ev_e.pos = fOutput.length();
 				ev_e.text = ev_s.text;
 				sendEvent(ev_e);
@@ -1465,6 +1480,13 @@ public class SVPreProcessor extends AbstractTextScanner
 	public void addMacro(SVDBMacroDef macro) {
 		if (ifdef_enabled()) {
 			fMacroProvider.addMacro(macro);
+			if (fHaveListeners) {
+				SVPreProcEvent ev = new SVPreProcEvent(Type.Define);
+				ev.text = macro.getName();
+				ev.pos = fOutput.length();
+				ev.decl = macro;
+				sendEvent(ev);
+			}
 		}
 	}
 	

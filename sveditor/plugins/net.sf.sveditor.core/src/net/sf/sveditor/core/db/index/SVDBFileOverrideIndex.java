@@ -13,11 +13,13 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuilder;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
@@ -32,7 +34,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class SVDBFileOverrideIndex 
-	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel {
+	implements ISVDBIndex, ISVDBIndexIterator, ILogLevel,
+	ISVDBDeclCacheInt {
 	private SVDBFile					fFile;
 	private SVDBFile					fFilePP;
 	private SVDBFileTree				fFileTree;
@@ -134,9 +137,9 @@ public class SVDBFileOverrideIndex
 
 		// First, remove any results from this file
 		for (int i=0; i<ret.size(); i++) {
-			String filepath = ret.get(i).getFilename();
-			String filepath_f = fFile.getFilePath();
-			if (filepath != null && filepath.equals(filepath_f)) {
+			int file_id   = ret.get(i).getFileId();
+			int file_id_f = SVDBLocation.unpackFileId(fFile.getLocation());
+			if (file_id == file_id_f) {
 				fLog.debug(LEVEL_MID, "Remove item \"" + ret.get(i).getName() + "\" because from active file");
 				ret.remove(i);
 				i--;
@@ -190,7 +193,7 @@ public class SVDBFileOverrideIndex
 	}
 
 	public SVDBFile getDeclFile(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		if (item.getFilename().equals(fFile.getFilePath())) {
+		if (item.getFileId() == SVDBLocation.unpackFileId(fFile.getLocation())) {
 			if (item.isFileTreeItem()) {
 				return fFilePP;
 			} else {
@@ -204,7 +207,7 @@ public class SVDBFileOverrideIndex
 	}
 	
 	public SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item) {
-		if (item.getFilename().equals(fFile.getFilePath())) {
+		if (item.getFileId() == SVDBLocation.unpackFileId(fFile.getLocation())) {
 			return fFilePP;
 		} else if (fSuperIterator != null) {
 			return fSuperIterator.getDeclFilePP(monitor, item);
@@ -212,7 +215,40 @@ public class SVDBFileOverrideIndex
 			return null;
 		}
 	}
+	
+	@Override
+	public ISVDBDeclCache getDeclCache() {
+		return this;
+	}	
 
+	@Override
+	public String mapFileIdToPath(int id) {
+		if (fSuperIterator instanceof ISVDBDeclCacheInt) {
+			return ((ISVDBDeclCacheInt)fSuperIterator).mapFileIdToPath(id);
+		} else {
+			return null;
+		}
+	}
+	
+	@Override
+	public SVDBFile getDeclRootFile(SVDBDeclCacheItem item) {
+		return getDeclFile(new NullProgressMonitor(), item);
+	}
+	
+	@Override
+	public SVDBFile getDeclRootFilePP(SVDBDeclCacheItem item) {
+		return getDeclFilePP(new NullProgressMonitor(), item);
+	}	
+
+	@Override
+	public List<SVDBDeclCacheItem> getScope(int rootfile_id, List<Integer> scope) {
+		if (fSuperIterator instanceof ISVDBDeclCacheInt) {
+			return ((ISVDBDeclCacheInt)fSuperIterator).getScope(rootfile_id, scope);
+		} else {
+			return new ArrayList<SVDBDeclCacheItem>();
+		}
+	}
+		
 	public void findReferences(
 			IProgressMonitor 		monitor,
 			ISVDBRefSearchSpec		ref_spec,

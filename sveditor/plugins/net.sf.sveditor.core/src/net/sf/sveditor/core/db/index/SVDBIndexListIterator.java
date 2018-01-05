@@ -186,6 +186,11 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		}
 		return null;
 	}
+	
+	public String mapFileIdToPath(int id) {
+		// Must not be called 
+		return null;
+	}
 
 	public void execOp(
 			IProgressMonitor monitor, 

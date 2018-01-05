@@ -5,14 +5,14 @@ import java.util.Stack;
 
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.preproc.PreProcEvent.Type;
+import net.sf.sveditor.core.preproc.SVPreProcEvent.Type;
 
 /**
  * Used to construct 
  * @author ballance
  *
  */
-public class SVPreProcModelFactory implements IPreProcListener {
+public class SVPreProcModelFactory implements ISVPreProcListener {
 	private ISVStringPreProcessor			fPreProc;
 	private Stack<SVPreProcModelNode>		fModelStack;
 	private SVPreProcModelNode				fRoot;
@@ -41,7 +41,7 @@ public class SVPreProcModelFactory implements IPreProcListener {
 	}
 
 	@Override
-	public void preproc_event(PreProcEvent event) {
+	public void preproc_event(SVPreProcEvent event) {
 		if (event.type == Type.BeginExpand) {
 //			fEventStack.push(event);
 			SVPreProcModelNode n = new SVPreProcModelNode(event.text, event.pos);

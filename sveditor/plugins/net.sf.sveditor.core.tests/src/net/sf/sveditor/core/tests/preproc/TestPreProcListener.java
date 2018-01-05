@@ -8,21 +8,21 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
-import net.sf.sveditor.core.preproc.IPreProcListener;
-import net.sf.sveditor.core.preproc.PreProcEvent;
-import net.sf.sveditor.core.preproc.PreProcEvent.Type;
+import net.sf.sveditor.core.preproc.ISVPreProcListener;
+import net.sf.sveditor.core.preproc.SVPreProcEvent;
+import net.sf.sveditor.core.preproc.SVPreProcEvent.Type;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
-public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcListener {
-	private List<PreProcEvent>	fEvents = new ArrayList<PreProcEvent>();
+public class TestPreProcListener extends SVCoreTestCaseBase implements ISVPreProcListener {
+	private List<SVPreProcEvent>	fEvents = new ArrayList<SVPreProcEvent>();
 	
 	
 	@Override
-	public void preproc_event(PreProcEvent event) {
+	public void preproc_event(SVPreProcEvent event) {
 		fLog.debug("preproc_event: " + event.type + " " + event.text + " " + event.pos);
 		fEvents.add(event);
 	}
@@ -100,14 +100,14 @@ public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcL
 		
 		fLog.debug("Result:\n" + result);
 		
-		Stack<PreProcEvent>	stack = new Stack<PreProcEvent>();
+		Stack<SVPreProcEvent>	stack = new Stack<SVPreProcEvent>();
 		List<String> results = new ArrayList<String>();
 		
-		for (PreProcEvent e : fEvents) {
+		for (SVPreProcEvent e : fEvents) {
 			if (e.type == Type.BeginExpand) {
 				stack.push(e);
 			} else if (e.type == Type.EndExpand) {
-				PreProcEvent be = stack.pop();
+				SVPreProcEvent be = stack.pop();
 				results.add(result.substring(be.pos, e.pos));
 			}
 		}

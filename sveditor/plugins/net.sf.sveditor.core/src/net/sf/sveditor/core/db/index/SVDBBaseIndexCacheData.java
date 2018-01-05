@@ -17,7 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SVDBBaseIndexCacheData {
+import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
+
+public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 	
 	public String									fVersion;
 	public String									fBaseLocation;
@@ -25,14 +27,29 @@ public class SVDBBaseIndexCacheData {
 	public List<String>								fMissingIncludeFiles;
 	public Map<String, String>						fGlobalDefines;
 	public Map<String, String>						fDefineMap;
-	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
+//	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
 	public Map<String, List<SVDBDeclCacheItem>>		fPackageCacheMap;
+
+	// Map from file path to ID
+	public Map<String, Integer>						fFilePathIdMap;
 	
-	// Map between reference ids and file ids containing them
-	public Map<String, List<Integer>>				fRefCache;
+	// Map from file ID to path
+	public Map<Integer, String>						fFileIdPathMap;
+
+	// Current maximum file ID
+	public int										fFileIdMax;
 	
-	// Contains cached information about each file
-	public Map<String, SVDBRootFileCacheData>		fRootFileCacheData;
+	// Contains cached information about each root file
+	// - File ID
+	// - File attributes
+	// - Last timestamp
+	public Map<Integer, SVDBFileCacheData>			fFileCacheData;
+
+	// Indicates whether this index is processing files in
+	// multi-file compilation unit mode. MFCU mode means that
+	// macro definitions propagate across root files
+	public boolean									fMFCU;
+
 	public boolean									fForceSV;
 
 	public SVDBBaseIndexCacheData(String base) {
@@ -41,10 +58,35 @@ public class SVDBBaseIndexCacheData {
 		fMissingIncludeFiles = new ArrayList<String>();
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
-		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
+//		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
-		fRefCache = new HashMap<String, List<Integer>>();
-		fRootFileCacheData = new HashMap<String, SVDBRootFileCacheData>();
+		fFilePathIdMap = new HashMap<String, Integer>();
+		fFileIdPathMap = new HashMap<Integer, String>();
+		fFileIdMax = 1;
+		fFileCacheData = new HashMap<Integer, SVDBFileCacheData>();
+	}
+	
+	public Map<Integer, SVDBFileCacheData> getRootFileCacheData() {
+		return fFileCacheData;
+	}
+	
+	public SVDBFileCacheData getFileCacheData(int id) {
+		// Should we create if it doesn't exist?
+		return fFileCacheData.get(id);
+	}
+	
+	public Map<Integer, SVDBFileCacheData> getFileCacheData() {
+		return fFileCacheData;
+	}
+	
+	public void removeFileCacheData(int id) {
+		fFileCacheData.remove(id);
+	}
+	
+	public void addFileCacheData(SVDBFileCacheData cd) {
+		// Remove, just to be safe
+		fFileCacheData.remove(cd.getFileId());
+		fFileCacheData.put(cd.getFileId(), cd);
 	}
 	
 	public String getVersion() {
@@ -118,19 +160,147 @@ public class SVDBBaseIndexCacheData {
 		return fIncludePathList;
 	}
 	
-	public Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
-		return fDeclCacheMap;
-	}
+//	public Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
+//		return fDeclCacheMap;
+//	}
 	
 	public Map<String, List<SVDBDeclCacheItem>> getPackageCacheMap() {
 		return fPackageCacheMap;
 	}
 	
-	public Map<String, List<Integer>> getReferenceCacheMap() {
-		return fRefCache;
+//	public void clear() {
+//		fDeclCacheMap.clear();
+//	}
+
+	public boolean containsFile(String path, int attr) {
+		if (fFilePathIdMap.containsKey(path)) {
+			int id = fFilePathIdMap.get(path);
+			SVDBFileCacheData file_info = fFileCacheData.get(id);
+			if (file_info != null) {
+				return ((attr & file_info.fFileAttr) == attr);
+			}
+		}
+		
+		return false;
+	}
+
+	/*** File Mapper API implementation */
+	@Override
+	public int mapFilePathToId(String path, boolean add) {
+		int id = 0;
+		
+		if (fFilePathIdMap.containsKey(path)) {
+			id = fFilePathIdMap.get(path);
+		} else if (add) {
+			for (int i=0; i<2; i++) {
+				while (fFileIdMax<Integer.MAX_VALUE) {
+					if (!fFileIdPathMap.containsKey(fFileIdMax)) {
+						id = fFileIdMax;
+						fFileIdPathMap.put(id, path);
+						fFilePathIdMap.put(path, id);
+						fFileCacheData.put(id, new SVDBFileCacheData(id, 0));
+						fFileIdMax++;
+						break;
+					}
+					fFileIdMax++;
+				}
+				
+				if (id != 0) {
+					break;
+				}
+				
+				// Try again
+				fFileIdMax = 1;
+			}
+			
+			if (id == 0) {
+				System.out.println("[Internal Error] Ran out of file IDs");
+			}
+		}
+		
+		return id;
+	}
+
+	@Override
+	public String mapFileIdToPath(int id) {
+		String path = fFileIdPathMap.get(id);
+		
+		return path;
+	}
+
+	public SVDBFileCacheData addFile(String path, int attr) {
+		int id = mapFilePathToId(path, true);
+		
+		if (!fFileCacheData.containsKey(id)) {
+			fFileCacheData.put(id, new SVDBFileCacheData(id, attr));
+		} else {
+			fFileCacheData.get(id).setFileAttr(attr);
+		}
+		return fFileCacheData.get(id);
 	}
 	
-	public void clear() {
-		fDeclCacheMap.clear();
+	public int getFileAttr(String path) {
+		int id = mapFilePathToId(path, false);
+		if (id > 0) {
+			return fFileCacheData.get(id).getFileAttr();
+		}
+			
+		return 0;
+	}
+	
+	public void setFileAttr(String path, int attr) {
+		int id = mapFilePathToId(path, false);
+		
+		if (id > 0) {
+			fFileCacheData.get(id).setFileAttr(attr);
+		} else {
+			// TODO: error
+		}
+	}
+	
+	public void setFileAttrBits(String path, int attr) {
+		int id = mapFilePathToId(path, false);
+
+		if (id > 0) {
+			int ex_attr = fFileCacheData.get(id).getFileAttr();
+			fFileCacheData.get(id).setFileAttr(ex_attr | attr);
+		} else {
+			// TODO: error
+		}
+	}
+	
+	public void clrFileAttrBits(String path, int attr) {
+		int id = mapFilePathToId(path, false);
+
+		if (id > 0) {
+			int ex_attr = fFileCacheData.get(id).getFileAttr();
+			ex_attr &= ~attr;
+			fFileCacheData.get(id).setFileAttr(ex_attr);
+		} else {
+			// TODO: error
+		}
+	}
+	
+	public List<String> getFileList(int attr) {
+		List<String> ret = new ArrayList<String>();
+		
+		for (SVDBFileCacheData cd : fFileCacheData.values()) {
+			if ((cd.getFileAttr() & attr) == attr) {
+				ret.add(mapFileIdToPath(cd.getFileId()));
+			}
+		}
+		
+		return ret;
+	}
+	
+	public int getFileCount(int attr) {
+		int ret = 0;
+		for (SVDBFileCacheData cd : fFileCacheData.values()) {
+			if ((cd.getFileAttr() & attr) == attr) {
+				ret++;
+			}
+		}
+		
+		return ret;
 	}
 }

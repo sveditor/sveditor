@@ -284,6 +284,8 @@ public class TestPersistencePerformance extends SVCoreTestCaseBase {
 	}
 
 	public void testCacheDataPerf() throws IOException, CoreException, DBFormatException, DBWriteException {
+		fail("Direct use of the cache API: FIXME");
+		
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 		String testname = "testCacheDataPerf";
@@ -344,7 +346,8 @@ public class TestPersistencePerformance extends SVCoreTestCaseBase {
 		SVDBFile f2 = new SVDBFile();
 		List<SVDBDeclCacheItem> items = new ArrayList<SVDBDeclCacheItem>();
 		items.add(new SVDBDeclCacheItem(null, "my_filename", "item", SVDBItemType.ActionBlockStmt, false));
-		cd.getDeclCacheMap().put("foobar", items);
+		// FIXME:
+//		cd.getDeclCacheMap().put("foobar", items);
 		
 		start = System.currentTimeMillis();		
 		for (int i=0; i<iter; i++) {

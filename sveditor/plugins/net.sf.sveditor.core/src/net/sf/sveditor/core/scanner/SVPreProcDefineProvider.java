@@ -26,8 +26,8 @@ import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.utils.SVDBItemPrint;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.IPreProcListener;
-import net.sf.sveditor.core.preproc.PreProcEvent;
+import net.sf.sveditor.core.preproc.ISVPreProcListener;
+import net.sf.sveditor.core.preproc.SVPreProcEvent;
 import net.sf.sveditor.core.scanutils.ITextScanner;
 import net.sf.sveditor.core.scanutils.StringTextScanner;
 
@@ -42,7 +42,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 	private LogHandle					fLog;
 	private IPreProcMacroProvider		fMacroProvider;
 	private List<IPreProcErrorListener>	fErrorListeners;
-	private List<IPreProcListener>		fListeners;
+	private List<ISVPreProcListener>		fListeners;
 	private boolean						fHaveListeners;
 
 	public SVPreProcDefineProvider(IPreProcMacroProvider macro_provider) {
@@ -53,16 +53,16 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		fMacroProvider  = macro_provider;
 		fErrorListeners = new ArrayList<IPreProcErrorListener>();
 		
-		fListeners = new ArrayList<IPreProcListener>();
+		fListeners = new ArrayList<ISVPreProcListener>();
 		fHaveListeners = false;
 	}
 	
-	public void addPreProcListener(IPreProcListener l) {
+	public void addPreProcListener(ISVPreProcListener l) {
 		fListeners.add(l);
 		fHaveListeners = true;
 	}
 	
-	public void removePreProcListener(IPreProcListener l) {
+	public void removePreProcListener(ISVPreProcListener l) {
 		fListeners.remove(l);
 		fHaveListeners = (fListeners.size() > 0);
 	}
@@ -367,12 +367,12 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		if (fHaveListeners) {
 			macro_s = scanner.get_str(scanner.getOffset(), 
 					scanner.getLimit()-scanner.getOffset()+1);
-			PreProcEvent ev = new PreProcEvent(PreProcEvent.Type.BeginExpand);
+			SVPreProcEvent ev = new SVPreProcEvent(SVPreProcEvent.Type.BeginExpand);
 
 			ev.pos = scanner.getOffset();
 			ev.text = macro_s;
 			
-			for (IPreProcListener l : fListeners) {
+			for (ISVPreProcListener l : fListeners) {
 				l.preproc_event(ev);
 			}
 		}
@@ -477,7 +477,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 		}
 		
 		if (fHaveListeners && macro_s != null) {
-			PreProcEvent ev = new PreProcEvent(PreProcEvent.Type.EndExpand);
+			SVPreProcEvent ev = new SVPreProcEvent(SVPreProcEvent.Type.EndExpand);
 			if (scanner.getLimit() < scanner.getStorage().length()) {
 				ev.pos = scanner.getLimit()+1;
 			} else {
@@ -485,7 +485,7 @@ public class SVPreProcDefineProvider implements IDefineProvider {
 			}
 			ev.text = macro_s;
 			
-			for (IPreProcListener l : fListeners) {
+			for (ISVPreProcListener l : fListeners) {
 				l.preproc_event(ev);
 			}
 		}

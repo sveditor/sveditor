@@ -33,7 +33,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 	
 	public void testLineNumberBasics() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"\n" +
 			"\n" +
@@ -283,7 +283,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 				ISVDBEndLocation end_l = (ISVDBEndLocation)it;
 				
 				assertEquals("Start file location is incorrect: " + key,
-						se.first().getFileId(),
+						se.first().getFileId()+1, // Offset by 1
 						SVDBLocation.unpackFileId(it.getLocation()));
 				
 				assertEquals("Start line location is incorrect: " + key,
@@ -291,7 +291,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 						SVDBLocation.unpackLineno(it.getLocation()));
 				
 				assertEquals("End file location is incorrect: " + key,
-						se.second().getFileId(),
+						se.second().getFileId()+1,
 						SVDBLocation.unpackFileId(end_l.getEndLocation()));
 				
 				assertEquals("End line location is incorrect: " + key,
@@ -302,7 +302,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 				
 				
 				assertEquals("Start file location is incorrect: " + key,
-						l.getFileId(),
+						l.getFileId()+1,
 						SVDBLocation.unpackFileId(it.getLocation()));
 				
 				assertEquals("Start line location is incorrect: " + key,

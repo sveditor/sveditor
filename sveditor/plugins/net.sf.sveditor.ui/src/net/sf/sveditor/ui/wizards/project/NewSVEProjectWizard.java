@@ -2,6 +2,8 @@ package net.sf.sveditor.ui.wizards.project;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +16,12 @@ import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
@@ -47,6 +53,18 @@ public class NewSVEProjectWizard extends BasicNewProjectResourceWizard {
 			SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 			SVDBProjectData pdata = pmgr.getProjectData(project);
 			SVProjectFileWrapper fw = new SVProjectFileWrapper();
+			
+//			IFolder f = project.getFolder("virtual");
+//			try {
+//			f.createLink(
+//					new URI("sveext://foo/bar"),
+//					IResource.ALLOW_MISSING_LOCAL,
+//					new NullProgressMonitor());
+//			} catch (CoreException e) {
+//				e.printStackTrace();
+//			} catch (URISyntaxException e) {
+//				e.printStackTrace();
+//			}
 			
 			for (NewSVEProjectFilelistPage.PathInfo pi : fFilelistPage.getPathList()) {
 				if (pi.fNewContent != null) {

@@ -755,6 +755,11 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		return null;
 	}
 	
+	public String mapFileIdToPath(int id) {
+		// Error: must not be called
+		return null;
+	}
+	
 	public void execOp(
 			IProgressMonitor 		monitor, 
 			ISVDBIndexOperation 	op,

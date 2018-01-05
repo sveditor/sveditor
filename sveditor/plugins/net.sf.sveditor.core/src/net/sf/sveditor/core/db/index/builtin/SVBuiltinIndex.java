@@ -71,6 +71,11 @@ public class SVBuiltinIndex implements ISVDBIndex {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public String mapFileIdToPath(int id) {
+		// TODO:
+		return null;
+	}
 
 	@Override
 	public List<SVDBIncFileInfo> findIncludeFiles(String root, int flags) {

@@ -59,17 +59,18 @@ public class TestIndexCacheDataPersistence extends TestCase {
 	}
 
 	public void testDeclCache() throws DBFormatException, DBWriteException, IOException {
-		SVDBBaseIndexCacheData data = new SVDBBaseIndexCacheData("base");
-		SVDBBaseIndexCacheData data_n = new SVDBBaseIndexCacheData("base2");
-		
-		data.getDeclCacheMap().put("my_file", new ArrayList<SVDBDeclCacheItem>());
-		data.getDeclCacheMap().get("my_file").add(new SVDBDeclCacheItem(null, "my_file", "my_item", SVDBItemType.ClassDecl, false));
-
-		dump_load(data, data_n);
-		
-		assertEquals(data.getBaseLocation(), data_n.getBaseLocation());
-		assertEquals(1, data_n.getDeclCacheMap().size());
-		assertEquals("my_item", data_n.getDeclCacheMap().get("my_file").get(0).getName());
+		fail("Direct use of the cache API: FIXME");
+//		SVDBBaseIndexCacheData data = new SVDBBaseIndexCacheData("base");
+//		SVDBBaseIndexCacheData data_n = new SVDBBaseIndexCacheData("base2");
+//	
+//		data.getDeclCacheMap().put("my_file", new ArrayList<SVDBDeclCacheItem>());
+//		data.getDeclCacheMap().get("my_file").add(new SVDBDeclCacheItem(null, "my_file", "my_item", SVDBItemType.ClassDecl, false));
+//
+//		dump_load(data, data_n);
+//		
+//		assertEquals(data.getBaseLocation(), data_n.getBaseLocation());
+//		assertEquals(1, data_n.getDeclCacheMap().size());
+//		assertEquals("my_item", data_n.getDeclCacheMap().get("my_file").get(0).getName());
 	}
 
 }

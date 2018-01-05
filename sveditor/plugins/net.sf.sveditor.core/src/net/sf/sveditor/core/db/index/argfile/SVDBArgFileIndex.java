@@ -50,7 +50,9 @@ import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
@@ -73,6 +75,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles.Fil
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRemoveFiles;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
@@ -96,7 +99,8 @@ import net.sf.sveditor.core.preproc.SVPreProcessor;
 
 public class SVDBArgFileIndex implements 
 		ISVDBIndex, ISVDBIndexInt,  
-		ILogLevelListener, ILogLevel, ISVDBIndexStatsProvider {
+		ILogLevelListener, ILogLevel, ISVDBIndexStatsProvider,
+		ISVDBDeclCacheInt {
 
 	public String 								fProjectName;
 	private IProject 							fProject;
@@ -357,10 +361,10 @@ public class SVDBArgFileIndex implements
 			// If we've determined the index data is valid, then we need to
 			// fixup some index entries
 			SVDBArgFileIndexCacheData cd = fBuildData.getIndexCacheData();
-			
-			if (cd.getDeclCacheMap() != null) {
-				for (Entry<String, List<SVDBDeclCacheItem>> e : fBuildData.getDeclCacheMap().entrySet()) {
-					for (SVDBDeclCacheItem i : e.getValue()) {
+
+			if (cd.getFileCacheData() != null) { // ??
+				for (SVDBFileCacheData file_data : cd.getFileCacheData().values()) {
+					for (SVDBDeclCacheItem i : file_data.getTopLevelDeclarations()) {
 						i.init(this);
 					}
 				}
@@ -646,8 +650,8 @@ public class SVDBArgFileIndex implements
 				SVDBFileTreeUtils.collectIncludedFiles(included_files, ft);
 				
 				// Update the include map
-				build_data.getRootIncludeMap().remove(path);
-				build_data.getRootIncludeMap().put(path, included_files);
+//				build_data.getRootIncludeMap().remove(path);
+//				build_data.getRootIncludeMap().put(path, included_files);
 				
 				SVParser f = new SVParser();
 				f.setFileMapper(build_data);
@@ -681,18 +685,23 @@ public class SVDBArgFileIndex implements
 			
 			// Patch the new content into the index build data
 			synchronized (fBuildData) {
-				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
-				Map<String, List<SVDBDeclCacheItem>> new_decl_cache = build_data.getDeclCacheMap();
-				
-				// Register any new files
-				fLog.debug("fBuildData.NumSrcFiles=" + fBuildData.getNumSrcFiles() + " build_data.NumSrcFiles=" + 
-						build_data.getNumSrcFiles());
-				for (int i=fBuildData.getNumSrcFiles()+1; i<=build_data.getNumSrcFiles(); i++) {
-					String path = build_data.mapFileIdToPath(i);
-					int new_id = fBuildData.mapFilePathToId(path, true);
-					fLog.debug("Add new src file: " + path + " id=" + new_id);
+				// Cached data is stored per-file. 
+				// - Go through the files processed during the last index operation
+				// - If present in the master cache, remove
+				// - Add to the master cache
+				SVDBBaseIndexCacheData old_cache = fBuildData.getIndexCacheData();
+				SVDBBaseIndexCacheData new_cache = build_data.getIndexCacheData();
+				for (SVDBFileCacheData cd : new_cache.getFileCacheData().values()) {
+					int id = cd.getFileId();
+					String path = old_cache.mapFileIdToPath(id);
+					
+					if (path != null) {
+						// Exists already. Remove old data
+						old_cache.removeFileCacheData(id);
+					} 
+					old_cache.addFileCacheData(cd);
 				}
-			
+				
 				for (String path : file_list) {
 					// Remove this file from the 'existing' list
 					existing_files.remove(path);
@@ -721,21 +730,22 @@ public class SVDBArgFileIndex implements
 
 					long last_modified = cache.getLastModified(path);
 					fBuildData.getCache().setLastModified(path, last_modified, false);
-					
-					// All of these files (I think) will be root files
-					Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
-					Map<String, List<String>> inc_map_s = build_data.getRootIncludeMap();
 				
-					// Ensure all files are present in the include-path list
-					for (String k : inc_map_s.keySet()) {
-						inc_map_t.remove(k);
-						inc_map_t.put(k, inc_map_s.get(k));
-					}
-			
-					if (ft != null) {
-						// Update the cached declarations
-						patch_decl_cache(ft, decl_cache, new_decl_cache);
-					}
+					System.out.println("TODO: deal with back-patching index");
+//					// All of these files (I think) will be root files
+//					Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
+//					Map<String, List<String>> inc_map_s = build_data.getRootIncludeMap();
+//				
+//					// Ensure all files are present in the include-path list
+//					for (String k : inc_map_s.keySet()) {
+//						inc_map_t.remove(k);
+//						inc_map_t.put(k, inc_map_s.get(k));
+//					}
+//			
+//					if (ft != null) {
+//						// Update the cached declarations
+//						patch_decl_cache(ft, decl_cache, new_decl_cache);
+//					}
 
 					loopMonitor.worked(1000);
 				}
@@ -749,13 +759,6 @@ public class SVDBArgFileIndex implements
 					fBuildData.addFile(path, attr);
 				}
 				
-				// Remove information from any file that doesn't 
-				// exist any more
-				for (String path : existing_files) {
-//					System.out.println("Removing cache info from " + path);
-					decl_cache.remove(path);
-				}
-			
 				// TODO: collect declaration info from these files and remove
 				// from the declaration cache
 				for (String path : existing_files) {
@@ -852,19 +855,20 @@ public class SVDBArgFileIndex implements
 			}
 			subMonitor.worked(1);
 		}
-	
-		for (String path : removed_root_files) {
-			synchronized (fBuildData) {
-				// Remove the entry from the include path
-				Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
-				inc_map_t.remove(path);
-				
-				// Remove the entry from the index cache
-				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
-				decl_cache.remove(path);
-				subMonitor.worked(1);
-			}
-		}
+
+		System.out.println("TODO: deal with removed files");
+//		for (String path : removed_root_files) {
+//			synchronized (fBuildData) {
+//				// Remove the entry from the include path
+//				Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
+//				inc_map_t.remove(path);
+//				
+//				// Remove the entry from the index cache
+//				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
+//				decl_cache.remove(path);
+//				subMonitor.worked(1);
+//			}
+//		}
 		
 		// Once everything is done, fire the index-change event
 		if (ev != null) {
@@ -1730,29 +1734,32 @@ public class SVDBArgFileIndex implements
 			ISVDBRefVisitor			ref_visitor) {
 		checkInIndexOp("findReferences");
 
-		Map<String, List<Integer>> ref_map = fBuildData.getReferenceCacheMap();
-		List<Integer> file_list = ref_map.get(ref_spec.getName());
+//		Map<String, List<Integer>> ref_map = fBuildData.getReferenceCacheMap();
+//		List<Integer> file_list = ref_map.get(ref_spec.getName());
+//		List<SVDBRootFileCacheData> root_file_list = new ArrayList<SVDBRootFileCacheData>();
 		
-		if (file_list != null) {
-			// Now, have a closer look
-			if (ref_spec.getNameMatchType() == NameMatchType.Equals) {
-
-				for (Integer file_id : file_list) {
-					String filename = fBuildData.mapFileIdToPath(file_id);
-					SVDBFile file = findFile(new NullProgressMonitor(), filename);
+		for (SVDBFileCacheData d : fBuildData.getIndexCacheData().getRootFileCacheData().values()) {
+			if (d.getRefCache().contains(ref_spec.getName())) {
+				// Now, have a closer look
+				if (ref_spec.getNameMatchType() == NameMatchType.Equals) {
 					
-					if (file != null) {
+					// First, process the root file
+					String root_filename = fBuildData.mapFileIdToPath(d.getFileId());
+					SVDBFile root_file = findFile(new NullProgressMonitor(), root_filename);
+					
+					if (root_file != null) {
 						SVDBRefMatcher ref_matcher = new SVDBRefMatcher(ref_spec, ref_visitor);
 						SVDBFileRefFinder finder = new SVDBFileRefFinder();
 						finder.setRefVisitor(ref_matcher);
-						finder.visit(file);
+						finder.visit(root_file);
 					}
-				}
-			} else if (ref_spec.getNameMatchType() == NameMatchType.MayContain) {
-				// Caller is simply interested in whether there might be a match
-				if (file_list.size() > 0) {
-					ref_visitor.visitRef(ref_spec, null);
-				}
+				} else if (ref_spec.getNameMatchType() == NameMatchType.MayContain) {
+					// TODO: ??
+					// Caller is simply interested in whether there might be a match
+//					if (file_list.size() > 0) {
+//						ref_visitor.visitRef(ref_spec, null);
+//					}
+				}				
 			}
 		}
 	}
@@ -1768,7 +1775,8 @@ public class SVDBArgFileIndex implements
 		// file
 		if (item.isFileTreeItem()) {
 			SVDBFileTree ft = SVDBArgFileBuildDataUtils.findTargetFileTree(
-					fBuildData, item.getFilename());
+					fBuildData, 
+					fBuildData.mapFileIdToPath(item.getFileId()));
 			if (ft != null) {
 				file = ft.getSVDBFile();
 			}
@@ -1780,7 +1788,7 @@ public class SVDBArgFileIndex implements
 				e.printStackTrace();
 			}
 			 */
-			file = findFile(item.getFilename());
+			file = findFile(fBuildData.mapFileIdToPath(item.getFileId()));
 		}
 
 		return file;
@@ -1798,15 +1806,66 @@ public class SVDBArgFileIndex implements
 		// If this is a pre-processor item, then return the FileTree view of the
 		// file
 		if (item.isFileTreeItem()) {
-			SVDBFileTree ft = findFileTree(item.getFilename(), false);
+			SVDBFileTree ft = findFileTree(
+					fBuildData.mapFileIdToPath(item.getFileId()), false);
 			if (ft != null) {
 				file = ft.getSVDBFile();
 			}
 		} else {
-			file = findFile(item.getFilename());
+			file = findFile(
+					fBuildData.mapFileIdToPath(item.getFileId()));
 		}
 
 		return file;
+	}
+
+	// Implementation of ISVDBDeclCacheInt
+	@Override
+	public ISVDBDeclCache getDeclCache() {
+		return this;
+	}
+	
+	@Override
+	public SVDBFile getDeclRootFile(SVDBDeclCacheItem item) {
+		String rootfile_p = mapFileIdToPath(item.getRootFileId());
+		SVDBFile ret = fBuildData.getFile(new NullProgressMonitor(), rootfile_p);
+		
+		return ret;
+	}
+	
+	@Override
+	public SVDBFile getDeclRootFilePP(SVDBDeclCacheItem item) {
+		String rootfile_p = mapFileIdToPath(item.getRootFileId());
+		SVDBFile ret = null;
+		
+		if (item.fIsFileTreeItem) {
+			SVDBFileTree ft = fBuildData.getCache().getFileTree(new NullProgressMonitor(),  rootfile_p, false);
+			if (ft != null) {
+				ret = ft.getSVDBFile();
+			}
+		} else {
+			ret = getDeclRootFile(item);
+		}
+		
+		return ret;
+	}
+	
+	@Override
+	public String mapFileIdToPath(int id) {
+		return fBuildData.mapFileIdToPath(id);
+	}
+	
+	@Override
+	public List<SVDBDeclCacheItem> getScope(int rootfile_id, List<Integer> scope) {
+		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
+		SVDBFileCacheData root_data = 
+				fBuildData.getIndexCacheData().getFileCacheData(rootfile_id);
+		
+		for (int decl_id : scope) {
+			ret.add(root_data.getTopLevelDeclarations().get(decl_id));
+		}
+		
+		return ret;
 	}
 
 	@Override

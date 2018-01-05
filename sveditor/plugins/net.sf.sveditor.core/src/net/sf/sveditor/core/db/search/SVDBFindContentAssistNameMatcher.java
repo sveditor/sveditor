@@ -27,21 +27,12 @@ public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 			String it_lower = it.getName().toLowerCase();
 			String n_lower = name.toLowerCase();
 
-			if (name.equals("") || it_lower.startsWith(n_lower)) {
+			if (name.equals("")) {
+				// Don't accept built-in type proxy classes
+				return (!it_lower.startsWith("__sv_builtin_"));
+			} else if (it_lower.startsWith(n_lower)) {
 				return true;
-			} /* else if (it.getType() == SVDBItemType.TypedefStmt && 
-					((SVDBTypedefStmt)it).getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
-				SVDBTypedefStmt td = (SVDBTypedefStmt)it;
-				SVDBTypeInfoEnum ti = (SVDBTypeInfoEnum)td.getTypeInfo();
-
-				Tuple<List<String>, List<String>> enums = ti.getEnumValues();
-				for (String en : enums.first()) {
-					it_lower = en.toLowerCase();
-					if (name.equals("") || it_lower.startsWith(n_lower)) {
-						return true;
-					}
-				}
-			} */
+			}
 		}
 		
 		return false;

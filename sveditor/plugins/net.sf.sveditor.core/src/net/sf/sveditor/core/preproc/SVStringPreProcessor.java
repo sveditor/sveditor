@@ -45,11 +45,11 @@ public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacr
 		fLocked = true;
 	}
 	
-	public void addListener(IPreProcListener l) {
+	public void addListener(ISVPreProcListener l) {
 		// NOP
 	}
 	
-	public void removeListener(IPreProcListener l) {
+	public void removeListener(ISVPreProcListener l) {
 		// NOP
 	}
 	

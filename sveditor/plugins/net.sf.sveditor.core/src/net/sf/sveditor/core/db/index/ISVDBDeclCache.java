@@ -92,5 +92,5 @@ public interface ISVDBDeclCache {
 	 * @return
 	 */
 	SVDBFile getDeclFilePP(IProgressMonitor monitor, SVDBDeclCacheItem item);
-
+	
 }

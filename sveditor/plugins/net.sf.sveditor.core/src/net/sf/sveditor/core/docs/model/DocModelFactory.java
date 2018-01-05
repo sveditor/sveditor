@@ -282,10 +282,12 @@ public class DocModelFactory {
 			for(Tuple<SVDBDeclCacheItem,ISVDBIndex> pkgTuple: cfg.getPkgSet().values()) {
 
 				SVDBDeclCacheItem item = pkgTuple.first() ;
+				String filename = getFilename(item);
 				if(item.getType() == SVDBItemType.PackageDecl) {
 					ISVDBIndex pkgSvdbIndex = pkgTuple.second() ;
 					SymbolTableEntry pkgSTE = 
-							SymbolTableEntry.createPkgEntry(item.getName(), pkgSvdbIndex, item.getFilename(), item) ;
+							SymbolTableEntry.createPkgEntry(item.getName(), pkgSvdbIndex, 
+									filename, item) ;
 					model.getSymbolTable().addSymbol(pkgSTE) ;
 					gatherSymbolsFromPackage(cfg, model, item, pkgSvdbIndex) ;
 				}
@@ -295,7 +297,7 @@ public class DocModelFactory {
 					SymbolTableEntry ent = 
 							SymbolTableEntry.createModProgEntry(
 									item.getName(), 
-									item.getFilename(),
+									filename,
 									item);
 					model.getSymbolTable().addSymbol(ent);
 					gatherSymbolsFromModuleProgram(cfg, model, item);
@@ -349,8 +351,9 @@ public class DocModelFactory {
 		if(pkgDecls != null) {
 			for(SVDBDeclCacheItem pkgDecl: pkgDecls) {
 				if(pkgDecl.getType() == SVDBItemType.ClassDecl) {
+					String filename = "unknown"; // TODO: item.getFilename()
 					SymbolTableEntry classSTE = 
-							SymbolTableEntry.createClassEntry(pkgDeclCacheItem.getName(), pkgDecl.getName(), pkgSvdbIndex, pkgDecl.getFilename(), pkgDecl) ;
+							SymbolTableEntry.createClassEntry(pkgDeclCacheItem.getName(), pkgDecl.getName(), pkgSvdbIndex, filename, pkgDecl) ;
 					model.getSymbolTable().addSymbol(classSTE) ;
 					gatherSymbolsFromClass(cfg,model,pkgSvdbIndex,pkgDeclCacheItem,pkgDecl) ;
 				}
@@ -382,7 +385,7 @@ public class DocModelFactory {
 										modProgDeclItem.getName(), 
 										varDeclItem.getName(), 
 										null, // fixme: does an index really need to be passed in here?
-										modProgDeclItem.getFilename()) ;
+										getFilename(modProgDeclItem)) ;
 						model.getSymbolTable().addSymbol(varSTE) ;
 					}
 				}
@@ -456,7 +459,7 @@ public class DocModelFactory {
 								classDeclCacheItem.getName(), 
 								svdbTask.getName(), 
 								pkgSvdbIndex,
-								classDeclCacheItem.getFilename()) ;
+								getFilename(classDeclCacheItem)) ;
 				model.getSymbolTable().addSymbol(taskSTE) ;
 			} else if(ci.getType() == SVDBItemType.Function) {
 				SVDBFunction svdbFunction = (SVDBFunction)ci ;
@@ -465,7 +468,7 @@ public class DocModelFactory {
 								classDeclCacheItem.getName(), 
 								svdbFunction.getName(), 
 								pkgSvdbIndex,
-								classDeclCacheItem.getFilename()) ;
+								getFilename(classDeclCacheItem)) ;
 				model.getSymbolTable().addSymbol(funcSTE) ;
 			} else if(ci.getType() == SVDBItemType.VarDeclStmt) {
 				SVDBVarDeclStmt varDecl = (SVDBVarDeclStmt)ci ;
@@ -477,7 +480,7 @@ public class DocModelFactory {
 										classDeclCacheItem.getName(), 
 										varDeclItem.getName(), 
 										pkgSvdbIndex,
-										classDeclCacheItem.getFilename()) ;
+										getFilename(classDeclCacheItem)) ;
 						model.getSymbolTable().addSymbol(varSTE) ;
 					}
 				}
@@ -718,6 +721,10 @@ public class DocModelFactory {
 		for(DocTopic child: item.getChildren()) {
 			indexTopic(model,child) ;
 		}
+	}
+	
+	private String getFilename(SVDBDeclCacheItem item) {
+		return item.getFilename(); 
 	}
 	
 }

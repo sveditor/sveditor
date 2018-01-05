@@ -342,17 +342,18 @@ public class SVParser implements ISVScanner,
 		
 		fScopeStack.push(pkg);
 
-		enter_type_scope(pkg);
 		
+		if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
+			fLexer.eatToken();
+		}
+
+		String pkg_name = readQualifiedIdentifier();
+		pkg.setName(pkg_name);
+		fLexer.readOperator(OP.SEMICOLON);
+
+		enter_type_scope(pkg);
+
 		try {
-			if (fLexer.peekKeyword(KW.STATIC, KW.AUTOMATIC)) {
-				fLexer.eatToken();
-			}
-
-			String pkg_name = readQualifiedIdentifier();
-			pkg.setName(pkg_name);
-			fLexer.readOperator(OP.SEMICOLON);
-
 			parent.addChildItem(pkg);
 
 			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDPACKAGE)) {
@@ -912,6 +913,10 @@ public class SVParser implements ISVScanner,
 	public void leave_file() {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void add_type_listener(ISVParserTypeListener l ) {
+		fTypeListeners.add(l);
 	}
 
 	@Override

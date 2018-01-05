@@ -1,6 +1,5 @@
 package net.sf.sveditor.core.tests.hierarchy;
 
-import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
@@ -29,9 +28,7 @@ public class TestModuleHierarchy extends SVCoreTestCaseBase {
 			"endmodule\n" +
 			"\n"
 			;
-		String testname = "testModuleSubHierarchy";
-		
-		HierarchyTests.runModuleHierarchyTest(testname, doc, "top", fCacheFactory,
-				"top.m3_1.m2_2.m1_1");
+		HierarchyTests.runModuleHierarchyTest(
+				this, doc, "top", fCacheFactory, "top.m3_1.m2_2.m1_1");
 	}
 }

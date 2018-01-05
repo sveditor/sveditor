@@ -34,7 +34,7 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBRootFileCacheData;
+import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
 
@@ -125,7 +125,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		fClassList.add(SVDBArgFileIndexCacheData.class);
 		fClassList.add(SVDBDeclCacheItem.class);
 		fClassList.add(SVDBRefCacheEntry.class);
-		fClassList.add(SVDBRootFileCacheData.class);
+		fClassList.add(SVDBFileCacheData.class);
 		
 		fClassSet.addAll(fClassList);
 	}
@@ -678,11 +678,19 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 											"writeItemList", WRITE_LIST_SIG);
 								}
 							} else {
+								// Assume this is an object that we know how to deal with
+								writeMethod = "writeObjectList";
+//								writeSig = "(L" + getClassName(List.class) + ";" +
+//								        "L" + getClassName(Class.class) + ";)V";
+								readMethod  = "readObjectList";
+								
 								if (fDebugEn) {
 									debug("  " + fLevel + " [ERROR] Field " + f.getName() + " is List<?>");
 								}
-								throw new DBFormatException("Type Arg: " + ((Class)args[0]).getName());
+								
+								throw new DBWriteException("  " + fLevel + " [ERROR] Field " + f.getName() + " is List<?>");
 							}
+							
 							if (useStdRW) {
 								if (write) {
 									// Load up the field value and call writeStringList
@@ -868,6 +876,21 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 								writeSig = "(L" + getClassName(Map.class) + ";" +
 								        "L" + getClassName(Class.class) + ";)V";
 								readMethod  = "readMapStringObject";
+								readSig = "(L" + getClassName(Class.class) + ";)" + 
+										"L" + getClassName(Map.class) + ";";
+							} else if (key_c == Integer.class) {
+								// Assume a map of integer and an object we support
+								elem_c = val_c; // Type of element object
+								if (fDebugEn) {
+									debug("  " + fLevel + " Field " + f.getName() + " is Map<Integer,Object>");
+								}
+								local_access = false;
+								writeMethod = "writeMapIntegerObject";
+								writeSig = "(L" + getClassName(Map.class) + ";" +
+									        "L" + getClassName(Class.class) + ";)V";
+								writeSig = "(L" + getClassName(Map.class) + ";" +
+								        "L" + getClassName(Class.class) + ";)V";
+								readMethod  = "readMapIntegerObject";
 								readSig = "(L" + getClassName(Class.class) + ";)" + 
 										"L" + getClassName(Map.class) + ";";
 							} else {

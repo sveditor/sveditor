@@ -4,9 +4,9 @@ import java.io.InputStream;
 
 public interface ISVStringPreProcessor {
 	
-	void addListener(IPreProcListener l);
+	void addListener(ISVPreProcListener l);
 	
-	void removeListener(IPreProcListener l);
+	void removeListener(ISVPreProcListener l);
 
 	/**
 	 * Specifies whether `line directives should be emitted

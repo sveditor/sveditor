@@ -16,20 +16,18 @@ import java.util.List;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.SVDBIndexCollection;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.open_decl.OpenDeclUtils;
 import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
+import net.sf.sveditor.core.tests.index.IndexTests;
 
 public class TestOpenClass extends SVCoreTestCaseBase {
 	
@@ -59,8 +57,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"m_f".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
@@ -111,8 +108,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"ext_class.cl".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 22, scanner, target_index);
 		
@@ -148,8 +144,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 //		System.out.println("index: " + idx);
 		scanner.seek(idx+"m_foo.fie".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 9, scanner, target_index);
 		
@@ -184,8 +179,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 //		System.out.println("index: " + idx);
 		scanner.seek(idx+"m_foo.fie".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 9, scanner, target_index);
 		
@@ -223,8 +217,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 //		System.out.println("index: " + idx);
 		scanner.seek(idx+"m_foo.fie".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 12, scanner, target_index);
 		
@@ -263,8 +256,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 //		System.out.println("index: " + idx);
 		scanner.seek(idx+"m_foo.fie".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 12, scanner, target_index);
 		
@@ -276,7 +268,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 
 	public void testOpenScopedClassReference() {
 		LogHandle log = LogFactory.getLogHandle("testOpenScopedClassReference");
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 			"package foo;\n" +
 			"	class foo_c;\n" +
@@ -297,8 +289,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"foo::fo".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
@@ -333,8 +324,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"extends f".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
@@ -368,8 +358,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"virtual f".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
@@ -381,7 +370,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 
 	public void testOpenClassTypeRefIgnoreTypedefs() {
 		LogHandle log = LogFactory.getLogHandle("testOpenClassTypeRefIgnoreTypedefs");
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"typedef class foo;\n" +
 			"class foo;\n" +
@@ -407,8 +396,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"extends f".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		
@@ -447,8 +435,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+"set_data(".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 10, 
 				scanner, target_index);
@@ -491,8 +478,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx+2);
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 10, 
 				scanner, target_index);
@@ -540,8 +526,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		log.debug("index: " + idx);
 		scanner.seek(idx + "f.m_field.get_".length());
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 19, 
 				scanner, target_index);
@@ -604,8 +589,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 			
 			scanner.seek(idx + off_str.length());
 			
-			ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-			ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+			SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 			List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 					file, 24, 
 					scanner, target_index);
@@ -614,6 +598,8 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 			assertEquals(1, ret.size());
 			assertEquals(t, ret.get(0).first().getType());
 			assertEquals(name, SVDBItem.getName(ret.get(0).first()));
+		
+			IndexTests.disposeIndex(this, target_index);
 		}
 	}
 	
@@ -637,8 +623,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 		fLog.debug("index: " + idx);
 		scanner.seek(idx+1);
 
-		ISVDBIndexCache cache = FileIndexIterator.createCache(fCacheFactory);
-		ISVDBIndexIterator target_index = new FileIndexIterator(file, cache);
+		SVDBIndexCollection target_index = IndexTests.createIndex(this, doc);
 		List<Tuple<ISVDBItemBase, SVDBFile>> ret = OpenDeclUtils.openDecl_2(
 				file, 4, scanner, target_index);
 		

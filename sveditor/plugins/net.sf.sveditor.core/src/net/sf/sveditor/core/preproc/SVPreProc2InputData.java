@@ -13,7 +13,7 @@ import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 public class SVPreProc2InputData {
 
 	private SVPreProcessor		fPreProc;
-	private PreProcEvent		fBeginEv;
+	private SVPreProcEvent		fBeginEv;
 	private InputStream 		fInput;
 	private String 				fFilename;
 	private int 				fFileId;
@@ -54,11 +54,11 @@ public class SVPreProc2InputData {
 		fUngetCh2 = -1;
 	}
 	
-	public PreProcEvent getBeginEv() {
+	public SVPreProcEvent getBeginEv() {
 		return fBeginEv;
 	}
 	
-	public void setBeginEv(PreProcEvent ev) {
+	public void setBeginEv(SVPreProcEvent ev) {
 		fBeginEv = ev;
 	}
 	

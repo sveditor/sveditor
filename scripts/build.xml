@@ -246,7 +246,6 @@
         	<replace path="/repository/@name" 
 			withText="http://sveditor.sourceforge.net/${sf_update_dir}"/>
         </xmltask>
-
         <move file="${repository}/artifacts_1.xml"
               tofile="${repository}/artifacts.xml"/>
 
@@ -255,7 +254,6 @@
         	<replace path="/repository/@name" 
 			withText="http://sveditor.sourceforge.net/${sf_update_dir}"/>
         </xmltask>
-
         <move file="${repository}/content_1.xml"
               tofile="${repository}/content.xml"/>
 

@@ -3,11 +3,9 @@ package net.sf.sveditor.core.db.index.argfile;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -20,16 +18,19 @@ import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
+import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVRefCollectorListener;
+import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ISVTokenListener;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
-import net.sf.sveditor.core.parser.SVToken;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 
@@ -53,7 +54,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 	public static void buildIndex(
 			IProgressMonitor			monitor,
 			SVDBArgFileIndexBuildData	build_data,
-			ISVDBDeclCache				parent,
+			ISVDBDeclCacheInt			parent,
 			SVDBArgFileParser			argfile_parser,
 			ISVBuilderOutput			out) {
 		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
@@ -218,7 +219,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 	public static Map<String, SVDBMacroDef> parseFile(
 			String 								path, 
 			final SVDBArgFileIndexBuildData 	build_data,
-			ISVDBDeclCache						parent,
+			ISVDBDeclCacheInt					parent,
 			Map<String, SVDBMacroDef>			defines,
 			final ISVBuilderOutput				out) {
 		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
@@ -229,6 +230,10 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
 
 		InputStream in = fs_provider.openStream(path);
+		
+		int file_id = build_data.mapFilePathToId(path, true);
+		SVDBBaseIndexCacheData cache_data = build_data.getIndexCacheData();
+		SVDBFileCacheData file_cache_data = cache_data.getFileCacheData(file_id);
 
 		start = System.currentTimeMillis();
 		
@@ -256,12 +261,12 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		SVDBFileTree ft = pp_out.getFileTree();
 		
 		// Add a mapping between root file and included files
-		List<String> included_files = new ArrayList<String>();
-		SVDBFileTreeUtils.collectIncludedFiles(included_files, ft);
-	
-		// TODO: encapsulation seems odd here
-		build_data.getRootIncludeMap().remove(path);
-		build_data.getRootIncludeMap().put(path, included_files);
+//		List<String> included_files = new ArrayList<String>();
+//		SVDBFileTreeUtils.collectIncludedFiles(included_files, ft);
+//	
+//		// TODO: encapsulation seems odd here
+//		build_data.getRootIncludeMap().remove(path);
+//		build_data.getRootIncludeMap().put(path, included_files);
 
 		long parse_start = System.currentTimeMillis();
 		
@@ -276,21 +281,16 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			language_level = SVLanguageLevel.computeLanguageLevel(path);
 		}
 		
-		final Set<String> ident_set = new HashSet<String>();
-		ISVTokenListener tok_listener = new ISVTokenListener() {
-			
-			@Override
-			public void ungetToken(SVToken tok) { }
-			
-			@Override
-			public void tokenConsumed(SVToken tok) {
-				if (tok.isIdentifier()) {
-					ident_set.add(tok.getImage());
-				}
-			}
-		};
+		SVRefCollectorListener ref_collector = new SVRefCollectorListener(
+				file_cache_data.getRefCache());
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
+				file_cache_data.getTopLevelDeclarations(),
+				parent,
+				file_id);
 		
-		SVDBFile file = f.parse(language_level, pp_out, path, tok_listener, markers);
+		f.add_type_listener(decl_builder);
+		SVDBFile file = f.parse(language_level, pp_out, path, ref_collector, markers);
+		
 		long parse_end = System.currentTimeMillis();
 		
 		build_data.getIndexStats().incLastIndexParseTime(parse_end-parse_start);
@@ -300,15 +300,15 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 					(parse_end-parse_start) + "ms");
 		}
 
-		start = System.currentTimeMillis();
-		SVDBArgFileBuildDataUtils.cacheDeclarations(build_data, parent, file, ft);
-		end = System.currentTimeMillis();
-		build_data.getIndexStats().incLastIndexDeclCacheTime(end-start);
+//		start = System.currentTimeMillis();
+//		SVDBArgFileBuildDataUtils.cacheDeclarations(build_data, parent, file, ft);
+//		end = System.currentTimeMillis();
+//		build_data.getIndexStats().incLastIndexDeclCacheTime(end-start);
 		
-		start = System.currentTimeMillis();
-		SVDBArgFileBuildDataUtils.cacheReferences(build_data, file);
-		end = System.currentTimeMillis();
-		build_data.getIndexStats().incLastIndexRefCacheTime(end-start);
+//		start = System.currentTimeMillis();
+//		SVDBArgFileBuildDataUtils.cacheReferences(build_data, file);
+//		end = System.currentTimeMillis();
+//		build_data.getIndexStats().incLastIndexRefCacheTime(end-start);
 		
 		start = System.currentTimeMillis();
 		long last_modified = fs_provider.getLastModifiedTime(path);

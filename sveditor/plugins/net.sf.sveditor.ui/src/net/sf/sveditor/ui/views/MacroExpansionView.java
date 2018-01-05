@@ -31,7 +31,7 @@ import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
-import net.sf.sveditor.core.preproc.PreProcEvent;
+import net.sf.sveditor.core.preproc.SVPreProcEvent;
 import net.sf.sveditor.core.preproc.SVPreProcModelFactory;
 import net.sf.sveditor.core.preproc.SVPreProcModelNode;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
@@ -145,7 +145,7 @@ public class MacroExpansionView extends ViewPart {
 				
 				SVPreProcessor.ReadMacroRef(sb, s, preproc.getMacroProvider());
 				
-				final Stack<PreProcEvent> ev_stack = new Stack<PreProcEvent>();
+				final Stack<SVPreProcEvent> ev_stack = new Stack<SVPreProcEvent>();
 				Set<ProjectionAnnotation> existing = 
 						new HashSet<ProjectionAnnotation>(fAnnotations.keySet());
 				fAnnotations.clear();

@@ -112,6 +112,10 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public String mapFileIdToPath(int id) {
+		return null;
+	}
 
 	@Override
 	public void findReferences(IProgressMonitor monitor,
