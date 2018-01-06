@@ -50,7 +50,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"m_field");
 		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
@@ -99,7 +99,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 		
 		/*
@@ -153,7 +153,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 			
 		/*
@@ -198,7 +198,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 			
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"m_field1", "m_field2");
 		/*
 		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc1));
@@ -226,7 +226,6 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 	}
 
 	public void testStructFieldAssistInForIfScope() {
-		String testname = "testStructFieldAssistInForIfScope";
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
@@ -250,13 +249,12 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA", "AB", "BA", "BB");
 	}
 	
 	public void testStructFieldAssistInForScope() {
-		String testname = "testStructFieldAssistInForScope";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc =
 			"class cls1;\n" +
@@ -277,12 +275,11 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA", "AB", "BA", "BB");
 	}
 	
 	public void testPackageScopeGlobalVarDecl() {
-		String testname = "testGlobalVarDecl";
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
@@ -303,13 +300,12 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA", "AB");
 	}
 	
 	public void testRootScopeGlobalVarDecl() {
-		String testname = "testRootScopeGlobalVarDecl";
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc =
 			// These fields might effectively be in a
@@ -330,12 +326,11 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA", "AB");
 	}
 
 	public void testRootScopeGlobalClassVarDecl() {
-		String testname = "testRootScopeGlobalClassVarDecl";
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
@@ -362,12 +357,11 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA", "AB");
 	}
 	
 	public void testRootScopeGlobalClassVarDecl_2() {
-		String testname = "testRootScopeGlobalClassVarDecl_2";
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
@@ -394,12 +388,11 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"c1_inst");
 	}	
 
 	public void testOtherSideArrPartSelectEq() {
-		String testname = getName();
 		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
@@ -423,7 +416,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA", "AB");
 	}
 }

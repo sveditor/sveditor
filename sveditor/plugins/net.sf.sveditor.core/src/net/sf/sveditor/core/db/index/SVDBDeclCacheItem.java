@@ -62,19 +62,19 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	public SVDBDeclCacheItem() {
 	}
 
-	@Deprecated
-	public SVDBDeclCacheItem(
-			ISVDBDeclCacheInt	parent, 
-			String 				filename, 
-			String 				name, 
-			SVDBItemType 		type,
-			boolean				is_ft_item) {
-		fParent = parent;
-//		fFileName = filename;
-		fName = name;
-		fType = type;
-		fIsFileTreeItem = is_ft_item;
-	}
+//	@Deprecated
+//	public SVDBDeclCacheItem(
+//			ISVDBDeclCacheInt	parent, 
+//			String 				filename, 
+//			String 				name, 
+//			SVDBItemType 		type,
+//			boolean				is_ft_item) {
+//		fParent = parent;
+////		fFileName = filename;
+//		fName = name;
+//		fType = type;
+//		fIsFileTreeItem = is_ft_item;
+//	}
 	
 	public SVDBDeclCacheItem(
 			ISVDBDeclCacheInt	parent,
@@ -92,7 +92,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		fType = type;
 		fIsFileTreeItem = is_ft_item;
 	}
-	
+
 	public void init(ISVDBDeclCacheInt parent) {
 		fParent = parent;
 	}
@@ -156,7 +156,13 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		ISVDBItemBase ret = null;
 		
 		if(fParent != null) {
-			SVDBFile file = fParent.getDeclRootFile(this);
+			SVDBFile file = null;
+			
+			if (fIsFileTreeItem) {
+				file = fParent.getDeclRootFilePP(this);
+			} else {
+				file = fParent.getDeclRootFile(this);
+			}
 			
 			if (file != null) {
 				ret = findSVDBItem(file);
@@ -177,7 +183,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 				}
 				Exception e = null;
 				try { throw new Exception(); } catch (Exception e2) { e = e2; }
-				fLog.debug("Error: Failed to file=" + getFilename() + " in cache " +
+				fLog.debug("Error: Failed to find file=" + getFilename() + " / " + getFileId() + " in cache " +
 						"while looking for item name=" + fName + " type=" + 
 						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 			}

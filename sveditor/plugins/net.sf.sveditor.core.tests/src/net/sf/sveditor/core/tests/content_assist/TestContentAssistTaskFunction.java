@@ -44,7 +44,7 @@ public class TestContentAssistTaskFunction extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -75,7 +75,7 @@ public class TestContentAssistTaskFunction extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 				
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -101,7 +101,7 @@ public class TestContentAssistTaskFunction extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 

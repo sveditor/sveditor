@@ -2,13 +2,11 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import junit.framework.TestCase;
 
 public class TestContentAssistTypes extends SVCoreTestCaseBase {
 	
 	public void testTypeAssistPackageScope() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		String testname = "testTypeAssistPackageScope";
 		String doc =
 				"package pkg;\n" +
 				"	typedef int unsigned my_int32_type;\n" +
@@ -20,13 +18,12 @@ public class TestContentAssistTypes extends SVCoreTestCaseBase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int32_type", "my_int64_type");
 	}
 
 	public void testEnumAssistPackageScope() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		String testname = "testEnumAssistPackageScope";
 		String doc =
 				"package pkg;\n" +
 				"	typedef enum {\n" +
@@ -40,13 +37,12 @@ public class TestContentAssistTypes extends SVCoreTestCaseBase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_enum_t", "MY_ENUM_A", "MY_ENUM_B");
 	}
 
 	public void testTypeAssistClassScope() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		String testname = "testTypeAssistClassScope";
 		String doc =
 				"class src_c;\n" +
 				"	typedef int unsigned my_int32_type;\n" +
@@ -58,13 +54,12 @@ public class TestContentAssistTypes extends SVCoreTestCaseBase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int32_type", "my_int64_type");
 	}
 
 	public void testEnumAssistClassScope() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		String testname = "testEnumAssistClassScope";
 		String doc =
 				"class src_c;\n" +
 				"	typedef enum {\n" +
@@ -78,13 +73,12 @@ public class TestContentAssistTypes extends SVCoreTestCaseBase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc,
+		ContentAssistTests.runTest(this, doc,
 				"my_enum_t", "MY_ENUM_A", "MY_ENUM_B");
 	}
 	
 	public void testClassParam() {
 		SVCorePlugin.getDefault().enableDebug(false);
-		String testname = "testEnumAssistClassScope";
 		String doc =
 				"class src_c #(type my_type=int);\n" +
 				"\n" +
@@ -94,7 +88,7 @@ public class TestContentAssistTypes extends SVCoreTestCaseBase {
 				"endclass\n"
 				;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_type");
 	}
 

@@ -162,178 +162,178 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			List<SVDBDeclCacheItem> 		pkg_decl_list,
 			ISVDBChildParent 				scope,
 			SVDBFileTree					ft) {
-		int curr_fileid = fileid;
-		String curr_filename = build_data.mapFileIdToPath(curr_fileid);
-		boolean is_root_scope = (scope == null || 
-				scope.getType() == SVDBItemType.PackageDecl ||
-				scope.getType() == SVDBItemType.File);
-
-		if (fDebugEn) {
-			fLog.debug("--> cacheFileDeclarations(file=" + curr_filename + ", " + scope);
-			fLog.debug("  scope=" + ((scope != null)?scope.getType():"null"));
-		}
-		
-		for (ISVDBChildItem item : scope.getChildren()) {
-			if (fDebugEn) {
-				fLog.debug("  item: " + item.getType() + " "
-						+ SVDBItem.getName(item));
-			}
-			
-			if (item.getLocation() != -1 && 
-					SVDBLocation.unpackFileId(item.getLocation()) != curr_fileid &&
-					SVDBLocation.unpackFileId(item.getLocation()) > 0) {
-				curr_fileid = SVDBLocation.unpackFileId(item.getLocation());
-				curr_filename = build_data.mapFileIdToPath(curr_fileid);
-			}
-			
-			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
-				SVDBPackageDecl pkg = (SVDBPackageDecl) item;
-				List<SVDBDeclCacheItem> pkg_decl_l;
-
-				if (decl_list != null) {
-					decl_list.add(new SVDBDeclCacheItem(parent, 
-							curr_filename, pkg.getName(), 
-							item.getType(), false));
-				}
-				
-				Map<String, List<SVDBDeclCacheItem>> pkg_map = 
-						build_data.getPackageCacheMap();
-
-				if (pkg_map.containsKey(pkg.getName())) {
-					pkg_decl_l = pkg_map.get(pkg.getName());
-				} else {
-					pkg_decl_l = new ArrayList<SVDBDeclCacheItem>();
-					pkg_map.put(pkg.getName(), pkg_decl_l);
-				}
-				pkg_decl_l.clear();
-				
-				cacheFileDeclarations(build_data, parent,
-						curr_fileid, decl_list, pkg_decl_l, pkg, ft);
-				
-				/* TODO: 
-				SVDBPackageDecl pkg = (SVDBPackageDecl) item;
-
-				// Now, proceed looking for explicitly-included content
-				cacheDeclarations(processed_files, filename, decl_list,
-						pkg.getName(), pkg_map.get(pkg.getName()), pkg, false);
-				*/
-			} else if (item.getType().isElemOf(SVDBItemType.Function,
-					SVDBItemType.Task, SVDBItemType.ClassDecl,
-					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
-
-				// Only save tasks/functions if we're in a root scope
-				if (is_root_scope || !item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task)) {
-					if (decl_list != null) {
-						fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
-								+ ((ISVDBNamedItem) item).getName() + " to cache");
-						decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-								((ISVDBNamedItem) item).getName(), item.getType(),
-								false));
-					}
-				}
-				if (pkg_decl_list != null) {
-					fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
-							+ ((ISVDBNamedItem) item).getName() + " to pkg_decl cache");
-					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-							((ISVDBNamedItem) item).getName(), item.getType(),
-							false));
-				}
-				
-				// 'Global' declarations, such as classes, can be declared within Modules/Interfaces/Programs 
-				// as well as packages. Scan through the top level of these elements
-				if (item.getType().isElemOf(
-						SVDBItemType.ModuleDecl, 
-						SVDBItemType.InterfaceDecl, 
-						SVDBItemType.ProgramDecl)) {
-					cacheFileDeclarations(build_data, parent, curr_fileid, 
-						decl_list, null, (ISVDBScopeItem)item, ft);
-				}
-			} else if (item.getType() == SVDBItemType.ImportStmt && pkg_decl_list != null) {
-				SVDBImportStmt imp_s = (SVDBImportStmt)item;
-				for (ISVDBChildItem c : imp_s.getChildren()) {
-					SVDBImportItem imp_i = (SVDBImportItem)c;
-					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-							imp_i.getImport(), item.getType(), false));
-				}
-			} else if (item.getType() == SVDBItemType.VarDeclStmt && is_root_scope) {
-				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
-
-				for (ISVDBChildItem ci : decl.getChildren()) {
-					SVDBVarDeclItem di = (SVDBVarDeclItem) ci;
-					fLog.debug(LEVEL_MID,
-							"Adding var declaration: " + di.getName());
-
-					if (decl_list != null) {
-						decl_list.add(new SVDBDeclCacheItem(parent, curr_filename, 
-								di.getName(), SVDBItemType.VarDeclItem, false));
-					}
-					if (pkg_decl_list != null) {
-						pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename, 
-								di.getName(), SVDBItemType.VarDeclItem, false));
-					}
-				}
-			} else if (item.getType() == SVDBItemType.TypedefStmt && is_root_scope) {
-				// Add entries for the typedef
-				if (decl_list != null) {
-					decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-							((ISVDBNamedItem) item).getName(), item.getType(), false));
-				}
-				
-				if (pkg_decl_list != null) {
-					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-							((ISVDBNamedItem) item).getName(), item.getType(), false));
-				}
-
-				SVDBTypedefStmt td = (SVDBTypedefStmt) item;
-				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
-					// Add entries for all enumerators
-					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum) td.getTypeInfo();
-					fLog.debug("Adding enum " + e.getName() + " to cache");
-					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
-						fLog.debug("Adding enumerator " + en.getName()
-								+ " to cache");
-						if (decl_list != null) {
-							decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
-									((ISVDBNamedItem) en).getName(), 
-									en.getType(), false));
-						}
-//						if (pkg_decl_list != null) {
-//							pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//		int curr_fileid = fileid;
+//		String curr_filename = build_data.mapFileIdToPath(curr_fileid);
+//		boolean is_root_scope = (scope == null || 
+//				scope.getType() == SVDBItemType.PackageDecl ||
+//				scope.getType() == SVDBItemType.File);
+//
+//		if (fDebugEn) {
+//			fLog.debug("--> cacheFileDeclarations(file=" + curr_filename + ", " + scope);
+//			fLog.debug("  scope=" + ((scope != null)?scope.getType():"null"));
+//		}
+//		
+//		for (ISVDBChildItem item : scope.getChildren()) {
+//			if (fDebugEn) {
+//				fLog.debug("  item: " + item.getType() + " "
+//						+ SVDBItem.getName(item));
+//			}
+//			
+//			if (item.getLocation() != -1 && 
+//					SVDBLocation.unpackFileId(item.getLocation()) != curr_fileid &&
+//					SVDBLocation.unpackFileId(item.getLocation()) > 0) {
+//				curr_fileid = SVDBLocation.unpackFileId(item.getLocation());
+//				curr_filename = build_data.mapFileIdToPath(curr_fileid);
+//			}
+//			
+//			if (item.getType().isElemOf(SVDBItemType.PackageDecl)) {
+//				SVDBPackageDecl pkg = (SVDBPackageDecl) item;
+//				List<SVDBDeclCacheItem> pkg_decl_l;
+//
+//				if (decl_list != null) {
+//					decl_list.add(new SVDBDeclCacheItem(parent, 
+//							curr_filename, pkg.getName(), 
+//							item.getType(), false));
+//				}
+//				
+//				Map<String, List<SVDBDeclCacheItem>> pkg_map = 
+//						build_data.getPackageCacheMap();
+//
+//				if (pkg_map.containsKey(pkg.getName())) {
+//					pkg_decl_l = pkg_map.get(pkg.getName());
+//				} else {
+//					pkg_decl_l = new ArrayList<SVDBDeclCacheItem>();
+//					pkg_map.put(pkg.getName(), pkg_decl_l);
+//				}
+//				pkg_decl_l.clear();
+//				
+//				cacheFileDeclarations(build_data, parent,
+//						curr_fileid, decl_list, pkg_decl_l, pkg, ft);
+//				
+//				/* TODO: 
+//				SVDBPackageDecl pkg = (SVDBPackageDecl) item;
+//
+//				// Now, proceed looking for explicitly-included content
+//				cacheDeclarations(processed_files, filename, decl_list,
+//						pkg.getName(), pkg_map.get(pkg.getName()), pkg, false);
+//				*/
+//			} else if (item.getType().isElemOf(SVDBItemType.Function,
+//					SVDBItemType.Task, SVDBItemType.ClassDecl,
+//					SVDBItemType.ModuleDecl, SVDBItemType.InterfaceDecl, SVDBItemType.ProgramDecl)) {
+//
+//				// Only save tasks/functions if we're in a root scope
+//				if (is_root_scope || !item.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task)) {
+//					if (decl_list != null) {
+//						fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
+//								+ ((ISVDBNamedItem) item).getName() + " to cache");
+//						decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//								((ISVDBNamedItem) item).getName(), item.getType(),
+//								false));
+//					}
+//				}
+//				if (pkg_decl_list != null) {
+//					fLog.debug(LEVEL_MID, "Adding " + item.getType() + " "
+//							+ ((ISVDBNamedItem) item).getName() + " to pkg_decl cache");
+//					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//							((ISVDBNamedItem) item).getName(), item.getType(),
+//							false));
+//				}
+//				
+//				// 'Global' declarations, such as classes, can be declared within Modules/Interfaces/Programs 
+//				// as well as packages. Scan through the top level of these elements
+//				if (item.getType().isElemOf(
+//						SVDBItemType.ModuleDecl, 
+//						SVDBItemType.InterfaceDecl, 
+//						SVDBItemType.ProgramDecl)) {
+//					cacheFileDeclarations(build_data, parent, curr_fileid, 
+//						decl_list, null, (ISVDBScopeItem)item, ft);
+//				}
+//			} else if (item.getType() == SVDBItemType.ImportStmt && pkg_decl_list != null) {
+//				SVDBImportStmt imp_s = (SVDBImportStmt)item;
+//				for (ISVDBChildItem c : imp_s.getChildren()) {
+//					SVDBImportItem imp_i = (SVDBImportItem)c;
+//					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//							imp_i.getImport(), item.getType(), false));
+//				}
+//			} else if (item.getType() == SVDBItemType.VarDeclStmt && is_root_scope) {
+//				SVDBVarDeclStmt decl = (SVDBVarDeclStmt) item;
+//
+//				for (ISVDBChildItem ci : decl.getChildren()) {
+//					SVDBVarDeclItem di = (SVDBVarDeclItem) ci;
+//					fLog.debug(LEVEL_MID,
+//							"Adding var declaration: " + di.getName());
+//
+//					if (decl_list != null) {
+//						decl_list.add(new SVDBDeclCacheItem(parent, curr_filename, 
+//								di.getName(), SVDBItemType.VarDeclItem, false));
+//					}
+//					if (pkg_decl_list != null) {
+//						pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename, 
+//								di.getName(), SVDBItemType.VarDeclItem, false));
+//					}
+//				}
+//			} else if (item.getType() == SVDBItemType.TypedefStmt && is_root_scope) {
+//				// Add entries for the typedef
+//				if (decl_list != null) {
+//					decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//							((ISVDBNamedItem) item).getName(), item.getType(), false));
+//				}
+//				
+//				if (pkg_decl_list != null) {
+//					pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+//							((ISVDBNamedItem) item).getName(), item.getType(), false));
+//				}
+//
+//				SVDBTypedefStmt td = (SVDBTypedefStmt) item;
+//				if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+//					// Add entries for all enumerators
+//					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum) td.getTypeInfo();
+//					fLog.debug("Adding enum " + e.getName() + " to cache");
+//					for (SVDBTypeInfoEnumerator en : e.getEnumerators()) {
+//						fLog.debug("Adding enumerator " + en.getName()
+//								+ " to cache");
+//						if (decl_list != null) {
+//							decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
 //									((ISVDBNamedItem) en).getName(), 
 //									en.getType(), false));
 //						}
-					}
-				}
-			}
-		}
-
-		if (fDebugEn) {
-			fLog.debug("<-- cacheFileDeclarations(" + curr_filename + ", " + scope);
-		}
+////						if (pkg_decl_list != null) {
+////							pkg_decl_list.add(new SVDBDeclCacheItem(parent, curr_filename,
+////									((ISVDBNamedItem) en).getName(), 
+////									en.getType(), false));
+////						}
+//					}
+//				}
+//			}
+//		}
+//
+//		if (fDebugEn) {
+//			fLog.debug("<-- cacheFileDeclarations(" + curr_filename + ", " + scope);
+//		}
 	}	
 
 	private static void cacheFileTreeDeclarations(
 			SVDBFileTree				ft,
 			ISVDBDeclCacheInt			parent,
 			List<SVDBDeclCacheItem>		file_item_list) {
-	
-		if (ft.getSVDBFile() != null) {
-			for (ISVDBChildItem c : ft.getSVDBFile().getChildren()) {
-				if (c.getType() == SVDBItemType.MacroDef) {
-					SVDBMacroDef def = (SVDBMacroDef)c;
-					SVDBDeclCacheItem item = new SVDBDeclCacheItem(parent, 
-							ft.getFilePath(),
-							def.getName(),
-							SVDBItemType.MacroDef,
-							true);
-					file_item_list.add(item);
-				}
-			}
-		}
-		
-		for (SVDBFileTree ft_i : ft.getIncludedFileTreeList()) {
-			cacheFileTreeDeclarations(ft_i, parent, file_item_list);
-		}
+//	
+//		if (ft.getSVDBFile() != null) {
+//			for (ISVDBChildItem c : ft.getSVDBFile().getChildren()) {
+//				if (c.getType() == SVDBItemType.MacroDef) {
+//					SVDBMacroDef def = (SVDBMacroDef)c;
+//					SVDBDeclCacheItem item = new SVDBDeclCacheItem(parent, 
+//							ft.getFilePath(),
+//							def.getName(),
+//							SVDBItemType.MacroDef,
+//							true);
+//					file_item_list.add(item);
+//				}
+//			}
+//		}
+//		
+//		for (SVDBFileTree ft_i : ft.getIncludedFileTreeList()) {
+//			cacheFileTreeDeclarations(ft_i, parent, file_item_list);
+//		}
 	}
 
 	public static void cacheReferences(SVDBArgFileIndexBuildData build_data, SVDBFile file) {

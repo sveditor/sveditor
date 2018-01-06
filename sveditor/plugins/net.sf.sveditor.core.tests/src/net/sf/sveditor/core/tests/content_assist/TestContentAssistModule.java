@@ -28,7 +28,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"a", "b", "m", "d");
 	}
 	
@@ -59,7 +59,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AA");		
 	}
 
@@ -78,7 +78,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"MY_PARAM_A", "MY_PARAM_B");
 	}
 
@@ -97,7 +97,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"MY_PARAM_A", "MY_PARAM_B");
 	}
 }

@@ -128,53 +128,6 @@ public class ContentAssistTests extends TestCase {
 	}
 	
 	public static void runTest(
-			String					testname,
-			ISVDBIndexCacheMgr		cache_mgr,
-			String 					doc, 
-			String ... 				expected) {
-		LogHandle log = LogFactory.getLogHandle(testname);
-
-		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-//		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
-		
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVParser factory = new SVParser();
-		SVPreProcessor preproc = new SVPreProcessor(testname, tt_utils.openStream(), null, null);
-		
-		SVPreProcOutput out = preproc.preprocess();
-
-		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, out, testname, markers);
-//		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
-		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
-		
-		for (ISVDBItemBase it : file.getChildren()) {
-			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
-		}
-
-		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
-		TestCompletionProcessor cp = new TestCompletionProcessor(
-				log, file, new FileIndexIterator(file, cache));
-	
-		List<SVDBMacroDef> macros = new ArrayList<SVDBMacroDef>();
-	
-		for (SVDBMacroDef m : preproc.getDefaultMacros()) {
-			macros.add(m);
-		}
-	
-		ISVStringPreProcessor pp = new SVStringPreProcessor(macros);
-		
-		cp.setPreProcessor(pp);
-		
-		scanner.seek(tt_utils.getPosMap().get("MARK"));
-
-		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		ContentAssistTests.validateResults(expected, proposals, false);
-		LogFactory.removeLogHandle(log);		
-	}
-
-	public static void runTest(
 			SVCoreTestCaseBase		test,
 			String 					doc, 
 			String ... 				expected) {

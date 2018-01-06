@@ -20,6 +20,7 @@ import java.util.Map;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBFileOverrideDeclCacheItem;
 import net.sf.sveditor.core.db.search.SVDBFindClassMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindInterfaceMatcher;
 import net.sf.sveditor.core.db.search.SVDBFindModuleMatcher;
@@ -55,11 +56,11 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode packagesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.PACKAGES_NODE) ;
 		topNode.addChild(packagesNode) ;
-		packagesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.PACKAGES_NODE, SVDBItemType.PackageDecl, false)) ;
+		packagesNode.setItemDecl(new SVDBFileOverrideDeclCacheItem(SVDBItemType.PackageDecl, ObjectsTreeNode.PACKAGES_NODE));
 		
 		ObjectsTreeNode rootPkgNode = new ObjectsTreeNode(packagesNode, "root") ;
 		packagesNode.addChild(rootPkgNode) ;
-		rootPkgNode.setItemDecl(new SVDBDeclCacheItem(null, null, "root", SVDBItemType.PackageDecl, false)) ;
+		rootPkgNode.setItemDecl(new SVDBFileOverrideDeclCacheItem(SVDBItemType.PackageDecl, "root"));
 		
 		// Global classes go into the "root" package
 		//
@@ -106,7 +107,7 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode modulesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.MODULES_NODE) ;
 		topNode.addChild(modulesNode) ;
-		modulesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.MODULES_NODE, SVDBItemType.ModuleDecl, false)) ;
+		modulesNode.setItemDecl(new SVDBFileOverrideDeclCacheItem(SVDBItemType.ModuleDecl, ObjectsTreeNode.MODULES_NODE));
 		
 		for(ISVDBIndex svdbIndex: fProjectIndexList) {
 			List<SVDBDeclCacheItem> modules = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(), "modules", new SVDBFindModuleMatcher()) ;
@@ -123,7 +124,7 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode classesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.CLASSES_NODE) ;
 		topNode.addChild(classesNode) ;
-		classesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.CLASSES_NODE, SVDBItemType.ClassDecl, false)) ;
+		classesNode.setItemDecl(new SVDBFileOverrideDeclCacheItem(SVDBItemType.ClassDecl, ObjectsTreeNode.CLASSES_NODE));
 		
 		for(ISVDBIndex svdbIndex: fProjectIndexList) {
 			List<SVDBDeclCacheItem> classes = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(), null, new SVDBFindClassMatcher()) ;
@@ -140,7 +141,7 @@ public class ObjectsTreeFactory {
 		
 		ObjectsTreeNode interfacesNode = new ObjectsTreeNode(topNode, ObjectsTreeNode.INTERFACES_NODE) ;
 		topNode.addChild(interfacesNode) ;
-		interfacesNode.setItemDecl(new SVDBDeclCacheItem(null, null, ObjectsTreeNode.INTERFACES_NODE, SVDBItemType.InterfaceDecl, false)) ;
+		interfacesNode.setItemDecl(new SVDBFileOverrideDeclCacheItem(SVDBItemType.InterfaceDecl, ObjectsTreeNode.INTERFACES_NODE));
 		
 		for(ISVDBIndex svdbIndex: fProjectIndexList) {
 			List<SVDBDeclCacheItem> interfaces = svdbIndex.findGlobalScopeDecl(new NullProgressMonitor(), "interfaces", new SVDBFindInterfaceMatcher()) ;

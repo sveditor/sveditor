@@ -240,6 +240,14 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		// Propagate defines to the pre-processor
 		SVPreProcessor pp = new SVPreProcessor(path, in, build_data, build_data);
 		pp.setIndexStats(build_data.getIndexStats());
+		
+		SVRefCollectorListener ref_collector = new SVRefCollectorListener(
+				file_cache_data.getRefCache());
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
+				file_cache_data.getTopLevelDeclarations(),
+				parent,
+				file_id);
+		pp.addListener(decl_builder);
 
 		// Pass in defines
 		for (Entry<String, SVDBMacroDef> def : defines.entrySet()) {
@@ -281,15 +289,14 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			language_level = SVLanguageLevel.computeLanguageLevel(path);
 		}
 		
-		SVRefCollectorListener ref_collector = new SVRefCollectorListener(
-				file_cache_data.getRefCache());
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
-				file_cache_data.getTopLevelDeclarations(),
-				parent,
-				file_id);
 		
 		f.add_type_listener(decl_builder);
-		SVDBFile file = f.parse(language_level, pp_out, path, ref_collector, markers);
+		SVDBFile file = f.parse(
+				language_level, 
+				pp_out, 
+				path, 
+				ref_collector, 
+				markers);
 		
 		long parse_end = System.currentTimeMillis();
 		

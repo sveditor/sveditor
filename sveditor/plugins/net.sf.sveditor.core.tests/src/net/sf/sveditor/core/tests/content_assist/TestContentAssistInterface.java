@@ -37,7 +37,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB", "BBCC");
 	}
 
@@ -58,7 +58,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endinterface\n"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -84,7 +84,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endmodule"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"ifc_if");
 	}
 	
@@ -110,7 +110,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endmodule"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"clk");
 	}	
 	
@@ -138,7 +138,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endmodule"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"foo");
 	}
 	
@@ -167,7 +167,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endmodule"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 	
@@ -196,7 +196,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endmodule"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"p_foo");
 	}
 
@@ -217,7 +217,7 @@ public class TestContentAssistInterface extends SVCoreTestCaseBase {
 				"endmodule"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 }

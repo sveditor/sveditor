@@ -43,7 +43,7 @@ public class TestContentAssistStruct extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int_field", "my_bit_field");
 	}
 
@@ -71,7 +71,7 @@ public class TestContentAssistStruct extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int_field", "my_bit_field");
 	}
 
@@ -98,7 +98,7 @@ public class TestContentAssistStruct extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int_field", "my_bit_field");
 	}
 
@@ -128,7 +128,7 @@ public class TestContentAssistStruct extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int_field", "my_bit_field");
 	}
 
@@ -157,7 +157,7 @@ public class TestContentAssistStruct extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int_field", "my_bit_field");
 	}
 
@@ -187,7 +187,7 @@ public class TestContentAssistStruct extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"my_int_field", "my_bit_field",
 				"my_logic_field", "my_logic_queue");
 	}

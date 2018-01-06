@@ -51,6 +51,7 @@ import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
@@ -606,6 +607,9 @@ public class SVDBArgFileIndex implements
 				InputStream in = fFileSystemProvider.openStream(path);
 //				System.out.println("Remove: " + path + " from existing files");
 				out.note("Parse: " + path);
+				
+				int file_id = build_data.mapFilePathToId(path, false);
+				
 				if (!existing_files.remove(path)) { // Remove the new path from the set of pre-existing ones
 					added_files.add(path);
 				}
@@ -640,6 +644,14 @@ public class SVDBArgFileIndex implements
 					}
 				}
 				
+				SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
+				SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
+						cd.getTopLevelDeclarations(),
+						this,
+						file_id);
+				
+				preproc.addListener(decl_builder);
+				
 				SVPreProcOutput pp_out = preproc.preprocess();
 				pp_out.setFileChangeListener(
 						new SVBuilderPreProcTracker(out, build_data));
@@ -652,9 +664,11 @@ public class SVDBArgFileIndex implements
 				// Update the include map
 //				build_data.getRootIncludeMap().remove(path);
 //				build_data.getRootIncludeMap().put(path, included_files);
+			
 				
 				SVParser f = new SVParser();
 				f.setFileMapper(build_data);
+				f.add_type_listener(decl_builder);
 				
 				SVLanguageLevel language_level;
 				
@@ -732,15 +746,15 @@ public class SVDBArgFileIndex implements
 					fBuildData.getCache().setLastModified(path, last_modified, false);
 				
 					System.out.println("TODO: deal with back-patching index");
+					int dst_id = fBuildData.mapFilePathToId(path, true);
+					int src_id = build_data.mapFilePathToId(path, false);
+					System.out.println("Note: Patch cache for " + path + " dst=" + dst_id + " src=" + src_id);
+					for (SVDBDeclCacheItem it : build_data.getIndexCacheData().getFileCacheData(src_id).getTopLevelDeclarations()) {
+						System.out.println("Item: " + it.getName());
+					}
+					fBuildData.getIndexCacheData().setFileCacheData(
+							dst_id, build_data.getIndexCacheData().getFileCacheData(src_id));
 //					// All of these files (I think) will be root files
-//					Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
-//					Map<String, List<String>> inc_map_s = build_data.getRootIncludeMap();
-//				
-//					// Ensure all files are present in the include-path list
-//					for (String k : inc_map_s.keySet()) {
-//						inc_map_t.remove(k);
-//						inc_map_t.put(k, inc_map_s.get(k));
-//					}
 //			
 //					if (ft != null) {
 //						// Update the cached declarations
@@ -1734,18 +1748,17 @@ public class SVDBArgFileIndex implements
 			ISVDBRefVisitor			ref_visitor) {
 		checkInIndexOp("findReferences");
 
-//		Map<String, List<Integer>> ref_map = fBuildData.getReferenceCacheMap();
-//		List<Integer> file_list = ref_map.get(ref_spec.getName());
-//		List<SVDBRootFileCacheData> root_file_list = new ArrayList<SVDBRootFileCacheData>();
-		
+		Set<Integer> root_files = new HashSet<Integer>();
 		for (SVDBFileCacheData d : fBuildData.getIndexCacheData().getRootFileCacheData().values()) {
 			if (d.getRefCache().contains(ref_spec.getName())) {
+				// TODO: change caching scheme to be per-file
 				// Now, have a closer look
 				if (ref_spec.getNameMatchType() == NameMatchType.Equals) {
 					
 					// First, process the root file
 					String root_filename = fBuildData.mapFileIdToPath(d.getFileId());
-					SVDBFile root_file = findFile(new NullProgressMonitor(), root_filename);
+					SVDBFile root_file = fBuildData.getCache().getFile(
+							new NullProgressMonitor(), root_filename);
 					
 					if (root_file != null) {
 						SVDBRefMatcher ref_matcher = new SVDBRefMatcher(ref_spec, ref_visitor);

@@ -22,7 +22,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 	 * Test that basic macro content assist works
 	 */
 	public void testContentAssistExternTaskClass() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc =
 			"class foobar;\n" +
@@ -50,7 +50,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"m_field");
 	}
 
@@ -77,7 +77,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -108,7 +108,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 	
@@ -135,7 +135,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -167,7 +167,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB",
 				"BBBB", "BBCC",
 				"CCCC", "CCDD");
@@ -202,12 +202,13 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
-				"base", "super_1", "super_2");
+		ContentAssistTests.runTest(this, doc, 
+				"base", "super_1", "super_2",
+				"process", "semaphore", "string");
 	}
 	
 	public void testContentAssistBaseClass() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc =
 			"class base;\n" +
@@ -234,8 +235,8 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
-				"super_1", "super_2");
+		ContentAssistTests.runTest(this, doc, 
+				"super_1", "super_2", "semaphore", "string");
 	}
 
 	public void testContentAssistBaseClassEOF() {
@@ -260,7 +261,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"class my_class extends s<<MARK>>"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"super_1", "super_2");
 	}
 	
@@ -306,7 +307,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"new");
 	}
 
@@ -352,12 +353,12 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"new");
 	}
 
 	public void testStaticTypeAssist_1() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		String doc =
 			"class base;\n" +
@@ -378,8 +379,8 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"endmodule\n" +
 			"\n"
 			;
-				
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+			
+		ContentAssistTests.runTest(this, doc, 
 				"m_base");
 	}
 	
@@ -406,7 +407,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 	
@@ -433,7 +434,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -460,7 +461,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA");
 	}
 	
@@ -489,7 +490,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc 
+		ContentAssistTests.runTest(this, doc 
 				);
 	}	
 
@@ -516,7 +517,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc,
+		ContentAssistTests.runTest(this, doc,
 				"create");
 	}
 	
@@ -539,7 +540,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc,
+		ContentAssistTests.runTest(this, doc,
 				"AAAA");
 	}	
 	
@@ -563,7 +564,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc,
+		ContentAssistTests.runTest(this, doc,
 				"AABB");
 	}
 
@@ -596,7 +597,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"endtask\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc,
+		ContentAssistTests.runTest(this, doc,
 				"m_field");
 	}
 	
@@ -633,7 +634,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB");
 	}
 
@@ -664,7 +665,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n"
 			;
 		
-		ContentAssistTests.runTest(testname, fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA");
 	}
 }

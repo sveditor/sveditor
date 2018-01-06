@@ -519,7 +519,7 @@ public class SVDataTypeParser extends SVParserBase {
 			long loc = fLexer.getStartLocation();
 			SVDBTypeInfoEnumerator enum_v = new SVDBTypeInfoEnumerator(fLexer.readId());
 			enum_v.setLocation(loc);
-			
+		
 			// TODO: is this really necessary ?
 			if (fLexer.peekOperator(OP.LBRACKET)) {
 				fLexer.skipPastMatch("[", "]");
@@ -577,6 +577,9 @@ public class SVDataTypeParser extends SVParserBase {
 
 		fLexer.readOperator(OP.SEMICOLON);
 		parent.addChildItem(typedef);
+		
+		enter_type_scope(typedef);
+		leave_type_scope(typedef);
 	}
 	
 	public List<SVDBVarDimItem> var_dim() throws SVParseException {

@@ -344,8 +344,8 @@ public class TestPersistencePerformance extends SVCoreTestCaseBase {
 		SVDBArgFileIndexCacheData acd2 = new SVDBArgFileIndexCacheData("base");
 		SVDBFile f = new SVDBFile("myfile");
 		SVDBFile f2 = new SVDBFile();
-		List<SVDBDeclCacheItem> items = new ArrayList<SVDBDeclCacheItem>();
-		items.add(new SVDBDeclCacheItem(null, "my_filename", "item", SVDBItemType.ActionBlockStmt, false));
+//		List<SVDBDeclCacheItem> items = new ArrayList<SVDBDeclCacheItem>();
+//		items.add(new SVDBDeclCacheItem(null, "my_filename", "item", SVDBItemType.ActionBlockStmt, false));
 		// FIXME:
 //		cd.getDeclCacheMap().put("foobar", items);
 		

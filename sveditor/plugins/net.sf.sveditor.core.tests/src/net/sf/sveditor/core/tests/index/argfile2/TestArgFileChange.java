@@ -432,7 +432,7 @@ public class TestArgFileChange extends SVCoreTestCaseBase {
 	}
 	
 	public void testRootFileChangeIncSrcFile_1() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);

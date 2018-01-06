@@ -39,12 +39,7 @@ public class TestBuiltinIndex extends SVCoreTestCaseBase {
 		rgy.init(fCacheFactory);
 	
 		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
-		index_mgr.addPluginLibrary(
-				rgy.findCreateIndex(new NullProgressMonitor(),
-						"GLOBAL", SVCorePlugin.SV_BUILTIN_LIBRARY, 
-						SVDBPluginLibIndexFactory.TYPE, null));
-		
-		index_mgr.loadIndex(new NullProgressMonitor());
+		index_mgr.addPluginLibrary(SVCorePlugin.getDefault().getBuiltinLib());
 		
 		IndexTestUtils.assertNoErrWarn(fLog, index_mgr);
 		IndexTestUtils.assertFileHasElements(fLog, index_mgr, 

@@ -664,6 +664,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				item.setLocation(fLexer.getStartLocation());
 				inst.addChildItem(item);
 				
+				enter_type_scope(item);
+				leave_type_scope(item);
+				
 				SVDBParamValueAssignList port_map = fParsers.paramValueAssignParser().parse(false);
 				item.setPortMap(port_map);
 
@@ -700,6 +703,9 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 				}
 
 				item.addChildItem(vi);
+				
+				enter_type_scope(vi);
+				leave_type_scope(vi);
 
 				if (fLexer.peekOperator(OP.EQ)) {
 					fLexer.eatToken();

@@ -161,7 +161,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		func.setParams(params);
 		func.setAttr(qualifiers);
 		func.setLocation(start);
-	
+		
 		debug("TFParse: addChildItem: " + SVDBItem.getName(func) +
 				" " + SVDBItem.getName((ISVDBItemBase)parent));
 		parent.addChildItem(func);
@@ -173,6 +173,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {
 			// Parse the body
 			try {
+				enter_type_scope(func);
 				parsers().tfBodyParser().parse(func, is_ansi);
 			} catch (SVParseException e) {
 				if (fDebugEn) {
@@ -180,6 +181,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				}
 			} finally {
 				func.setEndLocation(fLexer.getStartLocation());
+				leave_type_scope(func);
 			}
 
 			end = fLexer.getStartLocation();

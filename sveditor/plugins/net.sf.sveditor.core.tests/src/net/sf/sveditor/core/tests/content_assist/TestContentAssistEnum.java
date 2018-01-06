@@ -43,12 +43,12 @@ public class TestContentAssistEnum extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"E_ENUM_A", "E_ENUM_B");
 	}
 
 	public void testContentAssistPkgEnumeratorAssign() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc =
 			"class foobar;\n" +
 			"endclass\n" +
@@ -72,7 +72,7 @@ public class TestContentAssistEnum extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"E_ENUM_A", "E_ENUM_B");
 	}
 	
@@ -95,7 +95,7 @@ public class TestContentAssistEnum extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc, 
 				"E_ENUM_A", "E_ENUM_B");
 	}
 	

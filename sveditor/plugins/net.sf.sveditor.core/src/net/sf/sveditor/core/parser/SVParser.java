@@ -349,11 +349,10 @@ public class SVParser implements ISVScanner,
 
 		String pkg_name = readQualifiedIdentifier();
 		pkg.setName(pkg_name);
-		fLexer.readOperator(OP.SEMICOLON);
-
 		enter_type_scope(pkg);
 
 		try {
+			fLexer.readOperator(OP.SEMICOLON);
 			parent.addChildItem(pkg);
 
 			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDPACKAGE)) {

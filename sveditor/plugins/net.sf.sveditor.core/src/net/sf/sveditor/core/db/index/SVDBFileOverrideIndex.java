@@ -170,8 +170,10 @@ public class SVDBFileOverrideIndex
 					ISVDBNamedItem ni = (ISVDBNamedItem)item;
 					if (matcher.match(ni, name)) {
 						fLog.debug(LEVEL_MID, "Add item \"" + ni.getName() + "\" to result");
-						result.add(new SVDBDeclCacheItem(this, fFile.getFilePath(), 
-								ni.getName(), ni.getType(), is_ft));
+						result.add(new SVDBFileOverrideDeclCacheItem(
+								this,
+								item,
+								is_ft));
 					}
 				}
 				if (item.getType() == SVDBItemType.PackageDecl) {

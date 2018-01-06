@@ -76,7 +76,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	 * Test that basic macro content assist works
 	 */
 	public void testOVMMacroContentAssist() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 //		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_OFF);
 		
 		String doc = 
@@ -334,7 +334,9 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	public void testEmptyFileAssist() {
 		String doc = 
 			"<<MARK>>";
-		ContentAssistTests.runTest(this, doc, true, new String[] {});
+		ContentAssistTests.runTest(this, doc, true, new String[] {
+				"process", "semaphore"
+		});
 	}
 
 	public void testUntriggeredPrefixClassAssist() {

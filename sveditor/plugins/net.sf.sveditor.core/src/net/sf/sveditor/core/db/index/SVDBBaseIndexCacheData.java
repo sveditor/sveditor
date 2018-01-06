@@ -75,6 +75,11 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		return fFileCacheData.get(id);
 	}
 	
+	public void setFileCacheData(int id, SVDBFileCacheData cd) {
+		fFileCacheData.remove(id);
+		fFileCacheData.put(id, cd);
+	}
+	
 	public Map<Integer, SVDBFileCacheData> getFileCacheData() {
 		return fFileCacheData;
 	}
