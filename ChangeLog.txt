@@ -1,13 +1,8 @@
 
 ------------------------------------------------------------------------------
 -- 2.0.9 Release --
+
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
-
-- #(506) Copying multiple lines 
-
-- #(514) Indenter: Issues moving lines through multi-line comments
-
-- #(515) Colorizer: Preference to "Treat all files as system verilog" ignored 
  
 ------------------------------------------------------------------------------
 -- 2.0.8 Release --
@@ -15,6 +10,12 @@
 - #(enh) - Add support for built-in 'semaphore' class
 
 - #(enh) - Add support for built-in 'mailbox' class
+
+- #(506) Copying multiple lines 
+
+- #(514) Indenter: Issues moving lines through multi-line comments
+
+- #(515) Colorizer: Preference to "Treat all files as system verilog" ignored 
 
 ------------------------------------------------------------------------------
 -- 2.0.7 Release --
