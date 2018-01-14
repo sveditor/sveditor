@@ -15,6 +15,7 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
 
 public class SVClassDeclParser extends SVParserBase {
@@ -72,7 +73,15 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		if (fLexer.peekKeyword(KW.EXTENDS)) {
 			fLexer.eatToken();
-			cls.setSuperClass(parsers().dataTypeParser().class_type());
+			cls.addSuperClass(parsers().dataTypeParser().class_type());
+			
+			if ((qualifiers & SVDBFieldItem.FieldAttr_Interface) != 0) {
+				// Interface class, so support multiple extension
+				while (fLexer.peekOperator(OP.COMMA)) {
+					fLexer.eatToken(); // eat the comma
+					cls.addSuperClass(parsers().dataTypeParser().class_type());
+				}
+			}
 		}
 		
 		if (fLexer.peekKeyword(KW.IMPLEMENTS)) {

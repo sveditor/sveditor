@@ -43,4 +43,23 @@ public class TestParseInterfaceClassDecl extends TestCase {
 				new String[] {"cls"}
 		);
 	}
+	
+	public void testInterfaceClassMultiExtends() throws SVParseException {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+			"interface class A_ifc;\n" +
+			"endclass \n" +
+			"\n" +
+			"interface class B_ifc;\n" +
+			"endclass \n" +
+			"\n" +
+			"interface class C_ifc extends A_ifc, B_ifc;\n" +
+			"endclass\n" +
+			"\n"
+			;
+		
+		ParserTests.runTestStrDoc(getName(), doc, 
+				new String[] {"A_ifc", "B_ifc", "C_ifc"}
+		);
+	}	
 }
