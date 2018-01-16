@@ -324,13 +324,16 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 			"endclass\n";
 		
 		ContentAssistTests.runTest(this, doc, true, 
-				new String[] {"my_class", "my_class1"});
+				new String[] {"my_class", "my_class1",
+						"process", "semaphore"});
 	}
 
 	public void testEmptyFileAssist() {
 		String doc = 
 			"<<MARK>>";
-		ContentAssistTests.runTest(this, doc, true, new String[] {});
+		ContentAssistTests.runTest(this, doc, true, new String[] {
+				"process", "semaphore"
+		});
 	}
 
 	public void testUntriggeredPrefixClassAssist() {

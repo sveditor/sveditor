@@ -8,6 +8,9 @@
 
 - #(nobug) - Correct parse bug with interface class multiple extension
 
+- #(nobug) - Ensure built-in classes with __sv_builtin prefix are not 
+  provided as content-assist proposals
+
 ------------------------------------------------------------------------------
 -- 2.0.9 Release -- ??
  

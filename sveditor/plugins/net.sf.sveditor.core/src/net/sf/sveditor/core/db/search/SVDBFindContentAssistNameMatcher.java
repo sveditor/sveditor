@@ -27,7 +27,10 @@ public class SVDBFindContentAssistNameMatcher implements ISVDBFindNameMatcher {
 			String it_lower = it.getName().toLowerCase();
 			String n_lower = name.toLowerCase();
 
-			if (name.equals("") || it_lower.startsWith(n_lower)) {
+			if (name.equals("")) {
+				// Don't return built-in types
+				return (!it_lower.startsWith("__sv_builtin"));
+			} else if (it_lower.startsWith(n_lower)) {
 				return true;
 			} /* else if (it.getType() == SVDBItemType.TypedefStmt && 
 					((SVDBTypedefStmt)it).getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {

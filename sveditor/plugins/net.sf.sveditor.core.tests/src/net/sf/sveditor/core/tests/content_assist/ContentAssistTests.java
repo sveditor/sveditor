@@ -289,7 +289,8 @@ public class ContentAssistTests extends TestCase {
 			
 			if (exclude_kw) {
 				for (int i=0; i<proposals.size(); i++) {
-					if (SVKeywords.isSVKeyword(proposals.get(i).getReplacement())) {
+					if (SVKeywords.isSVKeyword(proposals.get(i).getReplacement()) ||
+							proposals.get(i).getReplacement().startsWith("$")) {
 						proposals.remove(i);
 						i--;
 					}
