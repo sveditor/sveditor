@@ -88,6 +88,14 @@ public class SVToken implements ISVKeywords, ISVOperators {
 		return (fKeyword != null);
 	}
 	
+	public boolean isOp(OP op) {
+		return (fOperator == op);
+	}
+	
+	public boolean isKW(KW kw) {
+		return (fKeyword == kw);
+	}
+	
 	public String getImage() {
 		if (fKeyword != null) {
 			return fKeyword.getImg();

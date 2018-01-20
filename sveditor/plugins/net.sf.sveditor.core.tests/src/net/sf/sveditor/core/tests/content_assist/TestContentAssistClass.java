@@ -162,12 +162,12 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			"\n" +
 			"	function void build();\n" +
 			"		super.<<MARK>>\n" +
-			"	endfunction" +
+			"	endfunction\n" +
 			"endclass\n" +
 			"\n"
 			;
-		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+	
+		ContentAssistTests.runTest(this, doc, 
 				"AAAA", "AABB",
 				"BBBB", "BBCC",
 				"CCCC", "CCDD");

@@ -64,7 +64,7 @@ public class TestParserErrorRecovery extends TestCase {
 				"testClassScopeError", markers);
 		
 		assertEquals(1, markers.size());
-		SVDBTestUtils.assertFileHasElements(file, new String[] {"foo", "a", "c", "bar"});
+		SVDBTestUtils.assertFileHasElements(file, new String[] {"foo", "a", "bar"});
 		
 		LogFactory.removeLogHandle(log);
 	}

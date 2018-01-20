@@ -16,7 +16,9 @@ import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
+import net.sf.sveditor.core.parser.SVParseException.Kind;
 
 public class SVClassDeclParser extends SVParserBase {
 	
@@ -111,11 +113,26 @@ public class SVClassDeclParser extends SVParserBase {
 				try {
 					fParsers.modIfcBodyItemParser().parse(cls);
 				} catch (SVParseException e) {
-					// Catch error
-					// TODO: recover from errors
-					while (fLexer.peek() != null && 
-							!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword(KW.ENDCLASS)) {
-						fLexer.eatToken();
+					SVToken last_tok; 
+					
+					if ((last_tok = fLexer.consumeToken()) == null) {
+						throw new SVSkipToNextFileException();
+					}
+					SVToken tok;
+					int fileid = SVDBLocation.unpackFileId(last_tok.getStartLocation());
+					
+					while ((tok = fLexer.consumeToken()) != null) {
+						int fileid_1 = SVDBLocation.unpackFileId(tok.getStartLocation());
+						
+						if (tok.isOp(OP.SEMICOLON) || tok.isKW(KW.ENDCLASS)) {
+							break;
+						} else if (fileid != fileid_1) {
+							// Delegate to the upper-level
+							fLexer.ungetToken(tok);
+							fLexer.ungetToken(last_tok);
+							throw new SVSkipToNextFileException();
+						}
+						last_tok = tok;
 					}
 				}
 			}

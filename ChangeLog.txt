@@ -10,6 +10,10 @@
 
 - #(nobug) - Ensure built-in classes with __sv_builtin prefix are not 
   provided as content-assist proposals
+  
+- #(nobug) - Improve parsing error recovery to resume parsing the next
+  file. This improves error recovery when parsing a package that 
+  sub-includes several files.
 
 ------------------------------------------------------------------------------
 -- 2.0.9 Release -- ??

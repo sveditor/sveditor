@@ -166,6 +166,8 @@ public class SVTaskFunctionParser extends SVParserBase {
 				" " + SVDBItem.getName((ISVDBItemBase)parent));
 		parent.addChildItem(func);
 		
+		KW end_kw = (type == KW.TASK)?KW.ENDTASK:KW.ENDFUNCTION;
+		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
 		if (!is_decl && (qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
 				(qualifiers & (SVDBFieldItem.FieldAttr_Pure|SVDBFieldItem.FieldAttr_Virtual)) !=
@@ -178,16 +180,18 @@ public class SVTaskFunctionParser extends SVParserBase {
 				if (fDebugEn) {
 					debug("Failed to parse function body", e);
 				}
+//				// Skip ahead until we find end_kw or reach file end
+//				SVToken last_tok;
+//				
+//				if ((last_tok = fLexer.consumeToken()) != null) {
+//					SVToken tok = last_tok;
+//				}
 			} finally {
 				func.setEndLocation(fLexer.getStartLocation());
 			}
 
 			end = fLexer.getStartLocation();
-			if  (type == KW.TASK) {
-				fLexer.readKeyword(KW.ENDTASK);
-			} else {
-				fLexer.readKeyword(KW.ENDFUNCTION);
-			}
+			fLexer.readKeyword(end_kw);
 
 			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();

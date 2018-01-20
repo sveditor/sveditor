@@ -123,7 +123,7 @@ public class HierarchyTests extends SVCoreTestCaseBase {
 	}
 
 	public void testPackageHierarchy() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"package my_pkg;\n" +
 			"	class c1;\n" +

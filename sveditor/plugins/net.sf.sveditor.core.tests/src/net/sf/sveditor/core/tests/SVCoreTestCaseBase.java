@@ -76,7 +76,14 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 					}
 				}
 			}
-			assertTrue("Workspace contains " + projects.size() + " projects", pass);
+			StringBuilder project_names = new StringBuilder();
+			if (projects.size() > 0) {
+				for (IProject p : projects) {
+					project_names.append(p.getName() + " ");
+				}
+			}
+			assertTrue("Workspace contains " + projects.size() + 
+					" projects (" + project_names.toString() + ")", pass);
 		}
 		
 		fProjectList = new ArrayList<IProject>();

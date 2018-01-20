@@ -13,7 +13,12 @@
 package net.sf.sveditor.core.parser;
 
 public class SVParseException extends Exception {
-	
+	enum Kind {
+		ParseError,
+		AbortToTop
+	}
+
+	private Kind						fKind;
 //	private String						fMessage;
 	private String						fFilename;
 	private int							fLineno;
@@ -23,11 +28,19 @@ public class SVParseException extends Exception {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private SVParseException(Kind kind) {
+		fKind = kind;
+		fFilename = "";
+		fLineno = -1;
+		fLinepos = -1;
+	}
 
 	private SVParseException(String msg, String filename, int lineno, int linepos) {
 //		super(msg);
 		super(filename + ":" + lineno + " " + msg);
 //		fMessage  = msg;
+		fKind = Kind.ParseError;
 		fFilename = filename;
 		fLineno = lineno;
 		fLinepos = linepos;
@@ -43,6 +56,15 @@ public class SVParseException extends Exception {
 	
 	public int getLinepos() {
 		return fLinepos;
+	}
+	
+	public Kind getKind() {
+		return fKind;
+	}
+
+	// Creates an exception 
+	public static SVParseException createAbortToTopException() {
+		return new SVParseException(Kind.AbortToTop);
 	}
 	
 	public static SVParseException createParseException(String msg, String filename, int lineno, int linepos) {
