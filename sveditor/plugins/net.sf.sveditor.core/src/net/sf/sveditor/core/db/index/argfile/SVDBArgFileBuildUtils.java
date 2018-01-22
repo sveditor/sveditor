@@ -246,6 +246,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
 				file_cache_data.getTopLevelDeclarations(),
 				parent,
+				file_cache_data.getIncludedFiles(),
 				file_id);
 		pp.addListener(decl_builder);
 

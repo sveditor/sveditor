@@ -81,6 +81,7 @@ public class SVPreProcessor extends AbstractTextScanner
 	private int										fLastFileId = 0;
 	private int										fLastLineNo = 0;
 	private boolean									fLastIncEn = false;
+	private SVDBFile								fSVDBFile;
 	
 	private static final int    PP_DISABLED 			= 0;
 	private static final int    PP_ENABLED  			= 1;
@@ -183,6 +184,7 @@ public class SVPreProcessor extends AbstractTextScanner
 	public String preprocess(InputStream in) {
 		init_vars();
 		
+		
 		enter_file("", in);
 		
 		preprocess();
@@ -242,6 +244,10 @@ public class SVPreProcessor extends AbstractTextScanner
 		start = System.currentTimeMillis();
 		fOutput.setLength(0);
 		fCommentBuffer.setLength(0);
+		
+		fSVDBFile = new SVDBFile();
+		fSVDBFile.setLocation(
+				SVDBLocation.pack(fInputCurr.getFileId(), 1, 1));
 		
 		// First thing we do is emit a line directive.
 		// This initializes everything for the output 
@@ -380,6 +386,7 @@ public class SVPreProcessor extends AbstractTextScanner
 	}
 	
 	public SVDBFileTree getFileTree() {
+		System.out.println("TODO: remove SVPreProcessor.getFileTree()");
 		return fInputCurr.getFileTree();
 	}
 	

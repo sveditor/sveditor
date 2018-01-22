@@ -180,25 +180,10 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		fw.addArgFilePath("${project_loc}/argfile.f");
 		pdata.setProjectFileWrapper(fw, true);
 	
-		/*
-		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), 
-				"pdir", "${workspace_loc}/pdir/argfile.f",
-				SVDBArgFileIndexFactory.TYPE,
-				null);
-		 */
 		SVDBIndexCollection index = pdata.getProjectIndexMgr();
 
 		index.loadIndex(new NullProgressMonitor());
 	
-		/*
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = new SVDBFile(c1.getAbsolutePath());
-		
-		SVDBFileOverrideIndex index = new SVDBFileOverrideIndex(
-				file, null, result.first(), result.second(), markers);
-		 */
-
-		
 		ContentAssistTests.runTest(getName(), doc, index, 
 				"uvm_mem_mam",
 				"uvm_mem_region",
@@ -213,9 +198,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 				"UVM_MEDIUM",
 				"UVM_MEM",
 				"uvm_mem_cb",
-				"uvm_mem_cb_iter",
-				"UVM_MESSAGE_DEFINES_SVH",
-				"UVM_MEM_MAM__SV"
+				"uvm_mem_cb_iter"
 				);
 	}
 	
@@ -366,8 +349,7 @@ public class TestContentAssistSystem extends SVCoreTestCaseBase {
 		
 		ContentAssistTests.runTest(getName(), doc, 
 				index,
-				"UVM_MEM", "UVM_MEM_MAM__SV",
-				"UVM_MESSAGE_DEFINES_SVH",
+				"UVM_MEM", 
 				"uvm_mem", "uvm_mem_access_seq",
 				"uvm_mem_cb", "uvm_mem_cb_iter",
 				"uvm_mem_mam", "uvm_mem_mam_cfg",

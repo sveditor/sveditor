@@ -454,7 +454,10 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 						}
 					} while (file_id != -1 && (cd.getFileAttr() & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) == 0);
 					
-					System.out.println("file_id=" + file_id);
+					if (file_id != -1) {
+						ret = build_data.getCache().getFileTree(new NullProgressMonitor(), 
+								build_data.mapFileIdToPath(file_id), false);
+					}
 				}
 			}
 		}

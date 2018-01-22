@@ -262,7 +262,8 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 			;
 		
 		ContentAssistTests.runTest(this, doc, 
-				"super_1", "super_2");
+				"super_1", "super_2",
+				"semaphore", "string");
 	}
 	
 	public void testContentAssistOnlyTopNew_1() {

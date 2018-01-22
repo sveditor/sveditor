@@ -213,7 +213,6 @@ public class OpenDeclUtils {
 					if (it.getType() == SVDBItemType.MacroDef) {
 						ret.add(new OpenDeclResult(
 								it.getFile(),
-								it.getFilePP(),
 								it.getSVDBItem()));
 					}
 				}
@@ -254,7 +253,6 @@ public class OpenDeclUtils {
 				if (item != null) {
 					ret.add(new OpenDeclResult(
 							inc_file,
-							null,
 							item));
 				}
 			}
@@ -332,7 +330,6 @@ public class OpenDeclUtils {
 					}
 					ret.add(new OpenDeclResult(
 							item,
-							item,
 							item));
 				}
 			} else {
@@ -343,7 +340,6 @@ public class OpenDeclUtils {
 					SVDBFile item = new SVDBFile(filename);
 					// FIXME:
 					ret.add(new OpenDeclResult(
-							item,
 							item,
 							item));
 				}

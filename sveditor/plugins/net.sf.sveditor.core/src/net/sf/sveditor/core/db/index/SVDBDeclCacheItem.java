@@ -20,6 +20,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
@@ -156,37 +157,62 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		ISVDBItemBase ret = null;
 		
 		if(fParent != null) {
-			SVDBFile file = null;
 			
 			if (fIsFileTreeItem) {
-				file = fParent.getDeclRootFilePP(this);
-			} else {
-				file = fParent.getDeclRootFile(this);
-			}
-			
-			if (file != null) {
-				ret = findSVDBItem(file);
+				SVDBFileTree ft = null;
+				ft = fParent.getDeclRootFileTree(this);
 				
-				if (ret == null) {
+				if (ft != null) {
+					ret = findSVDBItem(ft);
+
+					if (ret == null) {
+						if (fLog == null) {
+							fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
+						}
+						Exception e = null;
+						try { throw new Exception(); } catch (Exception e2) { e = e2; }
+						fLog.debug("Error: Failed to find item name=" + fName + 
+								" type=" + fType + " in file=" + getFilename() + 
+								" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
+					}
+				} else {
 					if (fLog == null) {
 						fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
 					}
 					Exception e = null;
 					try { throw new Exception(); } catch (Exception e2) { e = e2; }
-					fLog.debug("Error: Failed to find item name=" + fName + 
-							" type=" + fType + " in file=" + getFilename() + 
-							" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
+					fLog.debug("Error: Failed to find file=" + getFilename() + " / " + getFileId() + " in cache " +
+							"while looking for item name=" + fName + " type=" + 
+							fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 				}
 			} else {
-				if (fLog == null) {
-					fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
-				}
-				Exception e = null;
-				try { throw new Exception(); } catch (Exception e2) { e = e2; }
-				fLog.debug("Error: Failed to find file=" + getFilename() + " / " + getFileId() + " in cache " +
-						"while looking for item name=" + fName + " type=" + 
-						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
+				SVDBFile file = null;
+				file = fParent.getDeclRootFile(this);
+				if (file != null) {
+					ret = findSVDBItem(file);
+					
+					if (ret == null) {
+						if (fLog == null) {
+							fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
+						}
+						Exception e = null;
+						try { throw new Exception(); } catch (Exception e2) { e = e2; }
+						fLog.debug("Error: Failed to find item name=" + fName + 
+								" type=" + fType + " in file=" + getFilename() + 
+								" (isFileTreeItem=" + fIsFileTreeItem + ")", e);
+					}
+				} else {
+					if (fLog == null) {
+						fLog = LogFactory.getLogHandle("SVDBDeclCacheItem");
+					}
+					Exception e = null;
+					try { throw new Exception(); } catch (Exception e2) { e = e2; }
+					fLog.debug("Error: Failed to find file=" + getFilename() + " / " + getFileId() + " in cache " +
+							"while looking for item name=" + fName + " type=" + 
+							fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
+				}				
 			}
+
 		} else {
 			// FIXME: should we also warn or generate an error here?
 			if (fLog == null) {
@@ -253,6 +279,22 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		return null;
 	}
 	
+	private ISVDBItemBase findSVDBItem(SVDBFileTree ft) {
+		ISVDBItemBase ret;
+		
+		if ((ret = findSVDBItem(ft.getSVDBFile())) != null) {
+			return ret;
+		} else {
+			for (SVDBFileTree ft_s : ft.getIncludedFileTreeList()) {
+				if ((ret = findSVDBItem(ft_s)) != null) {
+					return ret;
+				}
+			}
+		}
+
+		return null;
+	}
+	
 	
 	private ISVDBItemBase getSVDBItem(ISVDBChildParent p) {
 		for (ISVDBChildItem c : p.getChildren()) {
@@ -271,11 +313,11 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		}
 	}
 	
-	public SVDBFile getFilePP() {
+	public SVDBFileTree getFileTree() {
 		if (fParent == null) {
 			return null ;
 		} else {
-			return fParent.getDeclRootFilePP(this);
+			return fParent.getDeclRootFileTree(this);
 		}
 	}
 }

@@ -202,7 +202,9 @@ public class SVDBArgFileIndexBuildData implements
 	}
 	
 	public void removeFile(String path, boolean is_argfile) {
+		int file_id = mapFilePathToId(path, false);
 		fCache.removeFile(path, is_argfile);
+		fIndexCacheData.removeFileCacheData(file_id);
 	}
 	
 	public SVDBFile getFile(IProgressMonitor monitor, String path) {
@@ -324,6 +326,9 @@ public class SVDBArgFileIndexBuildData implements
 	}
 	
 	public void addArgFile(SVDBFile argfile) {
+		fIndexCacheData.addFile(argfile.getFilePath(), 
+				ISVDBDeclCache.FILE_ATTR_ARG_FILE);
+		fCache.setFile(argfile.getFilePath(), argfile, true);
 		// TODO:
 		System.out.println("TODO: addArgFile");
 //		fIndexCacheData.fArgFiles.add(argfile);

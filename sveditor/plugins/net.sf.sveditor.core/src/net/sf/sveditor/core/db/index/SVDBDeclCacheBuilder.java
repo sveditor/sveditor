@@ -37,18 +37,22 @@ public class SVDBDeclCacheBuilder implements
 	private List<Integer>				fScopeStack;
 	private static final List<Integer>	fEmptyScopeStack = new ArrayList<Integer>();
 	private List<SVDBDeclCacheItem>		fDeclList;
+	private Set<Integer>				fIncludedFilesSet;
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
 	
 	public SVDBDeclCacheBuilder(
 			List<SVDBDeclCacheItem> decl_list,
 			ISVDBDeclCacheInt		decl_cache,
+			Set<Integer>			included_files,
 			int						rootfile_id) {
 		fDeclCache = decl_cache;
 		fRootFileId = rootfile_id;
 		fScopeStack = new ArrayList<Integer>();
 		fDeclList = decl_list;
 		fDeclList.clear();
+		fIncludedFilesSet = included_files;
+		fIncludedFilesSet.clear();
 		fLog = LogFactory.getLogHandle("SVDBDeclCacheBuilder");
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
@@ -66,6 +70,7 @@ public class SVDBDeclCacheBuilder implements
 		fPackageScopeTypes.add(SVDBItemType.Function);
 		fPackageScopeTypes.add(SVDBItemType.Task);
 		fPackageScopeTypes.add(SVDBItemType.VarDeclItem);
+		fPackageScopeTypes.add(SVDBItemType.TypedefStmt);
 	}
 	
 	private SVDBDeclCacheItem parent_item() {
@@ -158,8 +163,9 @@ public class SVDBDeclCacheBuilder implements
 			fDeclList.add(cache_i);
 		} else if (ev.type == SVPreProcEvent.Type.EnterFile) {
 			if (fDebugEn) {
-				fLog.debug("EnterFile: " + ev.text);
+				fLog.debug("EnterFile: " + ev.text + " " + ev.file_id);
 			}
+			fIncludedFilesSet.add(ev.file_id);
 		} else if (ev.type == SVPreProcEvent.Type.LeaveFile) {
 			if (fDebugEn) {
 				fLog.debug("LeaveFile: " + ev.text);

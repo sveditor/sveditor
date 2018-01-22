@@ -309,7 +309,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		if (leaf_item.getType() == SVDBItemType.ClassDecl ||
 				leaf_item.getType() == SVDBItemType.TypeInfoStruct ||
 				leaf_item.getType() == SVDBItemType.InterfaceDecl ||
-				leaf_item.getType() == SVDBItemType.ModuleDecl) {
+				leaf_item.getType() == SVDBItemType.ModuleDecl ||
+				leaf_item.getType() == SVDBItemType.PackageDecl) {
 			// Look for matching names in the target class
 			SVDBFindContentAssistNameMatcher matcher = new SVDBFindContentAssistNameMatcher();
 			SVDBFindSuperClass super_finder = new SVDBFindSuperClass(getIndexIterator()/*, matcher*/);
@@ -555,10 +556,13 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 				fLog.debug("    " + cl.getType() + " " + cl.getName());
 			}
 			
-			for (SVDBDeclCacheItem it : cl_l){
-				addProposal(it, ctxt.fLeaf, 0,
-						SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
-						true, ctxt.fStart, ctxt.fLeaf.length());
+			for (SVDBDeclCacheItem it : cl_l) {
+				// Assign-triggered content assist cannot be macros
+				if (it.getType() != SVDBItemType.MacroDef) {
+					addProposal(it, ctxt.fLeaf, 0,
+							SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+							true, ctxt.fStart, ctxt.fLeaf.length());
+				}
 			}
 		} else {
 			fLog.debug("Global class find for \"" + ctxt.fLeaf + 
@@ -608,9 +612,11 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 
 			// TODO: Tag with priority
 			for (ISVDBItemBase it : it_l) {
-				addProposal(it, ctxt.fLeaf, 0,
-						SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
-						true, ctxt.fStart, ctxt.fLeaf.length());
+				if (it.getType() != SVDBItemType.MacroDef) {
+					addProposal(it, ctxt.fLeaf, 0,
+							SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+							true, ctxt.fStart, ctxt.fLeaf.length());
+				}
 			}
 		} else {
 			fLog.debug("Global find-by-name \"" + ctxt.fLeaf + 
@@ -946,9 +952,12 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 								true, ctxt.fStart, ctxt.fLeaf.length());
 					}
 				} else {
-					addProposal(it, ctxt.fLeaf, 0,
-							SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
-							true, ctxt.fStart, ctxt.fLeaf.length());
+					// An untriggered proposal cannot be a macro def
+					if (it.getType() != SVDBItemType.MacroDef) {
+						addProposal(it, ctxt.fLeaf, 0,
+								SVCompletionProposal.PRIORITY_GLOBAL_SCOPE,
+								true, ctxt.fStart, ctxt.fLeaf.length());
+					}
 				}
 			}
 		} else {

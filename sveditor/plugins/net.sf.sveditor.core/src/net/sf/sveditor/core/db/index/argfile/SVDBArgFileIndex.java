@@ -648,6 +648,7 @@ public class SVDBArgFileIndex implements
 				SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
 						cd.getTopLevelDeclarations(),
 						this,
+						cd.getIncludedFiles(),
 						file_id);
 				
 				preproc.addListener(decl_builder);
@@ -776,10 +777,10 @@ public class SVDBArgFileIndex implements
 				// TODO: collect declaration info from these files and remove
 				// from the declaration cache
 				for (String path : existing_files) {
-//					System.out.println("Remove: " + path);
+					if (fDebugEn) {
+						fLog.debug("Remove: " + path);
+					}
 					fBuildData.removeFile(path, false);
-					SVDBFile file = fBuildData.getFile(new NullProgressMonitor(), path);
-//					System.out.println("  Post-remove: " + file);
 				}
 			}
 		
@@ -871,18 +872,12 @@ public class SVDBArgFileIndex implements
 		}
 
 		System.out.println("TODO: deal with removed files");
-//		for (String path : removed_root_files) {
-//			synchronized (fBuildData) {
-//				// Remove the entry from the include path
-//				Map<String, List<String>> inc_map_t = fBuildData.getRootIncludeMap();
-//				inc_map_t.remove(path);
-//				
-//				// Remove the entry from the index cache
-//				Map<String, List<SVDBDeclCacheItem>> decl_cache = fBuildData.getDeclCacheMap();
-//				decl_cache.remove(path);
-//				subMonitor.worked(1);
-//			}
-//		}
+		synchronized (fBuildData) {
+			for (String path : removed_root_files) {
+				System.out.println("removeFile: " + path);
+				fBuildData.removeFile(path, false);
+			}
+		}
 		
 		// Once everything is done, fire the index-change event
 		if (ev != null) {
@@ -1593,7 +1588,7 @@ public class SVDBArgFileIndex implements
 			// No need to wrap anything up. 
 			ret = preproc; // new SVStringPreProcessor(macros);
 		}
-			
+
 		return ret;
 	}
 
@@ -1847,20 +1842,9 @@ public class SVDBArgFileIndex implements
 	}
 	
 	@Override
-	public SVDBFile getDeclRootFilePP(SVDBDeclCacheItem item) {
+	public SVDBFileTree getDeclRootFileTree(SVDBDeclCacheItem item) {
 		String rootfile_p = mapFileIdToPath(item.getRootFileId());
-		SVDBFile ret = null;
-		
-		if (item.fIsFileTreeItem) {
-			SVDBFileTree ft = fBuildData.getCache().getFileTree(new NullProgressMonitor(),  rootfile_p, false);
-			if (ft != null) {
-				ret = ft.getSVDBFile();
-			}
-		} else {
-			ret = getDeclRootFile(item);
-		}
-		
-		return ret;
+		return fBuildData.getCache().getFileTree(new NullProgressMonitor(), rootfile_p, false);
 	}
 	
 	@Override
@@ -1930,6 +1914,8 @@ public class SVDBArgFileIndex implements
 					ret.setMacro(e.getKey(), e.getValue());
 				}
 			}
+		} else {
+			System.out.println("Error: failed to find target filetree for " + path);
 		}
 
 		return ret;

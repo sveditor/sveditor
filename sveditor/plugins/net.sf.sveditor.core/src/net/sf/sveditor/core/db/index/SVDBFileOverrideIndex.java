@@ -238,8 +238,14 @@ public class SVDBFileOverrideIndex
 	}
 	
 	@Override
-	public SVDBFile getDeclRootFilePP(SVDBDeclCacheItem item) {
-		return getDeclFilePP(new NullProgressMonitor(), item);
+	public SVDBFileTree getDeclRootFileTree(SVDBDeclCacheItem item) {
+		if (item.getFileId() == SVDBLocation.unpackFileId(fFile.getLocation())) {
+			return fFileTree;
+		} else if (fSuperIterator instanceof ISVDBDeclCacheInt) {
+			return ((ISVDBDeclCacheInt)fSuperIterator).getDeclRootFileTree(item);
+		} else {
+			return null;
+		}
 	}	
 
 	@Override
