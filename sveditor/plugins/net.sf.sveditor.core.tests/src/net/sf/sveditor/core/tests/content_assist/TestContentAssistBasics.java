@@ -270,48 +270,6 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 			"endclass\n";
 		SVCorePlugin.getDefault().enableDebug(false);
 		ContentAssistTests.runTest(this, doc, "");
-
-//		Tuple<SVDBFile, TextTagPosUtils> ini = contentAssistSetup(doc);
-//		
-//		StringBIDITextScanner scanner = new StringBIDITextScanner(ini.second().getStrippedData());
-//		TestCompletionProcessor cp = new TestCompletionProcessor(ini.first(), createOVMIndexMgr());
-//		
-//		scanner.seek(ini.second().getPosMap().get("MARK"));
-//		
-//		
-//		cp.computeProposals(scanner, ini.first(), 
-//				ini.second().getLineMap().get("MARK"));
-//		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-//		
-//		for (SVCompletionProposal p : proposals) {
-//			log.debug("Proposal: \"" + p.getReplacement() + "\"");
-//		}
-//		
-//		assertEquals("Expecting one proposal", 2, proposals.size());
-//
-//		SVDBTask 	new_f;
-//		SVDBVarDeclItem		new_field;
-//
-//		if (proposals.get(0).getItem().getType() == SVDBItemType.Function) {
-//			new_f = (SVDBTask)proposals.get(0).getItem();
-//			new_field = (SVDBVarDeclItem)proposals.get(1).getItem();
-//		} else {
-//			new_f = (SVDBTask)proposals.get(1).getItem();
-//			new_field = (SVDBVarDeclItem)proposals.get(0).getItem();
-//		}
-//		
-//		log.debug("new_f parent is " + new_f.getParent().getType() + " " + 
-//				SVDBItem.getName(new_f.getParent()));
-//
-//		assertEquals("Expect new_f name to be 'new'", "new", new_f.getName());
-//		assertEquals("Expect field name to be 'new_field'", "new_field", 
-//				SVDBItem.getName(new_field));
-//		
-//		assertEquals("Expect to get 'new' from class1", 
-//				"my_class1", SVDBItem.getName(new_f.getParent()));
-//		assertEquals("Expect to get 'new_field' from class2", 
-//				"my_class2", SVDBItem.getName(new_field.getParent().getParent()));
-//		LogFactory.removeLogHandle(log);
 	}
 
 	public void testUntriggeredClassAssist() {

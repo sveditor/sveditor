@@ -35,7 +35,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -131,7 +130,16 @@ public class ContentAssistTests extends TestCase {
 			SVCoreTestCaseBase		test,
 			String 					doc, 
 			String ... 				expected) {
-		runTest(test, null, doc, false, expected);
+		runTest(test, null, doc, false, false, expected);
+	}
+	
+	public static void runTest(
+			SVCoreTestCaseBase		test,
+			String 					doc, 
+			boolean					exclude_kw,
+			boolean					ordered,
+			String ... 				expected) {
+		runTest(test, null, doc, false, false, expected);
 	}
 	
 	public static void runTest(
@@ -139,7 +147,7 @@ public class ContentAssistTests extends TestCase {
 			String 					doc, 
 			boolean					exclude_kw,
 			String  				expected[]) {
-		runTest(test, null, doc, exclude_kw, expected);
+		runTest(test, null, doc, exclude_kw, false, expected);
 	}
 	
 	public static void runTest(
@@ -147,7 +155,7 @@ public class ContentAssistTests extends TestCase {
 			ISVDBIndex					extra_index,
 			String						doc,
 			String ...					expected) {
-		runTest(test, extra_index, doc, false, expected);
+		runTest(test, extra_index, doc, false, false, expected);
 	}
 	
 	public static void runTest(
@@ -155,6 +163,7 @@ public class ContentAssistTests extends TestCase {
 			ISVDBIndex					extra_index,
 			String						doc,
 			boolean						exclude_kw,
+			boolean						ordered,
 			String ...					expected) {
 		LogHandle log = test.getLog();
 		File tmpdir = test.getTmpDir();
@@ -242,7 +251,8 @@ public class ContentAssistTests extends TestCase {
 			
 			if (exclude_kw) {
 				for (int i=0; i<proposals.size(); i++) {
-					if (SVKeywords.isSVKeyword(proposals.get(i).getReplacement())) {
+					if (SVKeywords.isSVKeyword(proposals.get(i).getReplacement()) ||
+							proposals.get(i).getReplacement().charAt(0) == '$') {
 						proposals.remove(i);
 						i--;
 					}
@@ -259,73 +269,6 @@ public class ContentAssistTests extends TestCase {
 		}		
 	}
 	
-	public static void runTestOrder(
-			String testname, 
-			ISVDBIndexCacheMgr		cache_mgr,
-			String doc, 
-			String ... expected) {
-		LogHandle log = LogFactory.getLogHandle(testname);
-
-		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
-		
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
-		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
-		
-		for (ISVDBItemBase it : file.getChildren()) {
-			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
-		}
-
-		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
-		TestCompletionProcessor cp = new TestCompletionProcessor(
-				log, file, new FileIndexIterator(file, cache));
-		
-		scanner.seek(tt_utils.getPosMap().get("MARK"));
-
-		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		for (SVCompletionProposal p : proposals) {
-			log.debug("   Proposal: " + p.getReplacement());
-		}
-		
-		ContentAssistTests.validateResults(expected, proposals, true);
-		LogFactory.removeLogHandle(log);		
-	}
-	
-	public static void runTest(
-			String 			testname, 
-			ISVDBIndexCacheMgr		cache_mgr,
-			String 			doc, 
-			String			expected[],
-			String			unexpected[]) {
-		LogHandle log = LogFactory.getLogHandle(testname);
-
-		TextTagPosUtils tt_utils = new TextTagPosUtils(new StringInputStream(doc));
-		ISVDBFileFactory factory = SVCorePlugin.createFileFactory();
-		
-		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		SVDBFile file = factory.parse(SVLanguageLevel.SystemVerilog, tt_utils.openStream(), testname, markers);
-		StringBIDITextScanner scanner = new StringBIDITextScanner(tt_utils.getStrippedData());
-		
-		for (ISVDBItemBase it : file.getChildren()) {
-			log.debug("    it: " + it.getType() + " " + SVDBItem.getName(it));
-		}
-
-		ISVDBIndexCache cache = FileIndexIterator.createCache(cache_mgr);
-		TestCompletionProcessor cp = new TestCompletionProcessor(
-				log, file, new FileIndexIterator(file, cache));
-		
-		scanner.seek(tt_utils.getPosMap().get("MARK"));
-
-		cp.computeProposals(scanner, file, tt_utils.getLineMap().get("MARK"));
-		List<SVCompletionProposal> proposals = cp.getCompletionProposals();
-		
-		ContentAssistTests.validateResults(expected, proposals, false);
-		LogFactory.removeLogHandle(log);		
-	}	
-
 	public static void runTest(
 			String 					testname, 
 			String 					doc, 

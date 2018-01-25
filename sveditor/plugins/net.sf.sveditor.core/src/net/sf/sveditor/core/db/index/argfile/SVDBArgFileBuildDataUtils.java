@@ -16,19 +16,14 @@ import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
-import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
-import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
@@ -41,12 +36,9 @@ import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
 import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-import net.sf.sveditor.core.db.stmt.SVDBImportItem;
-import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
-import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
+import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
@@ -57,6 +49,14 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 	
 	static {
 		fLog = LogFactory.getLogHandle("SVDBArgFileBuildDataUtils");
+		fLog.addLogLevelListener(new ILogLevelListener() {
+			
+			@Override
+			public void logLevelChanged(ILogHandle handle) {
+				fDebugEn = handle.isEnabled();
+			}
+		});
+		fDebugEn = fLog.isEnabled();
 	}
 
 	/**
@@ -560,8 +560,41 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 	// TODO: encapsulation here seems suspect
 	public static String findRootFilePath(SVDBArgFileIndexBuildData build_data, String path) {
 		String ret = null;
-		
-//		synchronized (build_data) {
+
+		synchronized (build_data) {
+			int file_id = build_data.getIndexCacheData().mapFilePathToId(path, false);
+			
+			if (file_id != -1) {
+				SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
+				
+				// See if any file includes this one
+				int root_file_id = file_id;
+				if (fDebugEn) {
+					fLog.debug("findRootFilePath: file_id=" + file_id);
+				}
+				for (int iter_max=0; iter_max<10000; iter_max++) {
+					boolean found = false;
+					for (SVDBFileCacheData c : build_data.getIndexCacheData().getFileCacheData().values()) {
+						if (c.getIncludedFiles().contains(root_file_id)) {
+							if (fDebugEn) {
+								fLog.debug("  file " + c.getFileId() + " includes " + root_file_id);
+							}
+							root_file_id = c.getFileId();
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						// 
+						break;
+					}
+				}
+				ret = build_data.getIndexCacheData().mapFileIdToPath(root_file_id);
+				if (fDebugEn) {
+					fLog.debug("  ret=" + ret + " root_file_id=" + root_file_id);
+				}
+			}
+			
 //			Map<String, List<String>> root_map = build_data.getRootIncludeMap();
 //			
 //			if (fDebugEn) {
@@ -580,7 +613,7 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 //					}
 //				}
 //			}
-//		}
+		}
 		
 		return ret;
 	}
@@ -883,14 +916,13 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			SVDBArgFileIndexBuildData			build_data,
 			IProgressMonitor					monitor,
 			SVDBDeclCacheItem					pkg_item) {
+		SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(
+				pkg_item.getFileId());
 		List<SVDBDeclCacheItem> ret = new ArrayList<SVDBDeclCacheItem>();
-		Map<String, List<SVDBDeclCacheItem>> pkg_cache = 
-				build_data.getPackageCacheMap();
-
-		List<SVDBDeclCacheItem> pkg_content = pkg_cache.get(pkg_item.getName());
-
-		if (pkg_content != null) {
-			ret.addAll(pkg_content);
+		if (cd != null) {
+			cd.findChildrenOf(ret, pkg_item);
+		} else {
+			ret = new ArrayList<SVDBDeclCacheItem>();
 		}
 
 		return ret;		

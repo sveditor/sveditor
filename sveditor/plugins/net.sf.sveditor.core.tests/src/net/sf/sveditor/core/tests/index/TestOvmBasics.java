@@ -178,7 +178,7 @@ public class TestOvmBasics extends SVCoreTestCaseBase {
 		index.execIndexChangePlan(new NullProgressMonitor(), new SVDBIndexChangePlanRebuild(index));
 		
 		IndexTestUtils.assertNoErrWarn(fLog, index);
-		IndexTestUtils.assertFileHasElements(fLog, index, "simple_driver");
+		IndexTestUtils.assertFileHasElements(fLog, index, "test");
 
 		index.dispose();
 		LogFactory.removeLogHandle(log);

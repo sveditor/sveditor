@@ -33,11 +33,8 @@ public class TestBuiltinIndex extends SVCoreTestCaseBase {
 	}
 
 	public void testBuiltinIndexNoErrors() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.init(fCacheFactory);
-	
 		SVDBIndexCollection index_mgr = new SVDBIndexCollection("GLOBAL");
 		index_mgr.addPluginLibrary(SVCorePlugin.getDefault().getBuiltinLib());
 		

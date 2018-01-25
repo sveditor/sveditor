@@ -27,8 +27,6 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 	public List<String>								fMissingIncludeFiles;
 	public Map<String, String>						fGlobalDefines;
 	public Map<String, String>						fDefineMap;
-//	public Map<String, List<SVDBDeclCacheItem>>		fDeclCacheMap;
-	public Map<String, List<SVDBDeclCacheItem>>		fPackageCacheMap;
 
 	// Map from file path to ID
 	public Map<String, Integer>						fFilePathIdMap;
@@ -58,8 +56,6 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		fMissingIncludeFiles = new ArrayList<String>();
 		fGlobalDefines = new HashMap<String, String>();
 		fDefineMap = new HashMap<String, String>();
-//		fDeclCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
-		fPackageCacheMap = new HashMap<String, List<SVDBDeclCacheItem>>();
 		fFilePathIdMap = new HashMap<String, Integer>();
 		fFileIdPathMap = new HashMap<Integer, String>();
 		fFileIdMax = 1;
@@ -165,18 +161,6 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		return fIncludePathList;
 	}
 	
-//	public Map<String, List<SVDBDeclCacheItem>> getDeclCacheMap() {
-//		return fDeclCacheMap;
-//	}
-	
-	public Map<String, List<SVDBDeclCacheItem>> getPackageCacheMap() {
-		return fPackageCacheMap;
-	}
-	
-//	public void clear() {
-//		fDeclCacheMap.clear();
-//	}
-
 	public boolean containsFile(String path, int attr) {
 		if (fFilePathIdMap.containsKey(path)) {
 			int id = fFilePathIdMap.get(path);
@@ -229,6 +213,13 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 	@Override
 	public String mapFileIdToPath(int id) {
 		String path = fFileIdPathMap.get(id);
+		
+		if (path == null) {
+			System.out.println("id " + id + " resulted in null");
+			for (Map.Entry<Integer, String> e : fFileIdPathMap.entrySet()) {
+				System.out.println("  " + e.getKey() + " " + e.getValue());
+			}
+		}
 		
 		return path;
 	}
@@ -308,4 +299,6 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		
 		return ret;
 	}
+	
+
 }

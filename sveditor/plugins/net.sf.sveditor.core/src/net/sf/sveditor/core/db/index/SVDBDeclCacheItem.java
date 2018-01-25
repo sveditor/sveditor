@@ -45,7 +45,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	private ISVDBDeclCacheInt			fParent;
 	
 	public String						fName;
-
+	
 	// List of indexes into the root-file declaration
 	// cache, specifying the containing scope (if any)
 	// of this type
@@ -151,6 +151,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 			return fParent.getScope(fRootFileId, fScope);
 		}
 		return null;
+	}
+	
+	public List<Integer> getScopeIDs() {
+		return fScope;
 	}
 	
 	public ISVDBItemBase getSVDBItem() {

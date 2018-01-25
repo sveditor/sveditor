@@ -449,7 +449,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		for (SVDBDeclCacheItem it : items) {
 			if (!it.isFileTreeItem()) {
-				assertNotNull("Cache Item: " + it.getName() + " is null", it.getSVDBItem());
+				assertNotNull("Cache Item: " + it.getName() + " (" + it.getType() + ") is null", it.getSVDBItem());
 			}
 		}
 

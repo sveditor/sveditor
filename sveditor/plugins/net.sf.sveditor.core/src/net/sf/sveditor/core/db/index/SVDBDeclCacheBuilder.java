@@ -7,6 +7,7 @@ import java.util.Set;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
@@ -34,7 +35,11 @@ public class SVDBDeclCacheBuilder implements
 	ILogLevelListener {
 	private ISVDBDeclCacheInt			fDeclCache;
 	private int							fRootFileId;
+	// Number of scopes pushed that are 'disabled'
+	private int							fDisabledDepth;
+	// Contains a stack of the saved scope IDs
 	private List<Integer>				fScopeStack;
+	private List<ISVDBItemBase>			fAllScopeStack;
 	private static final List<Integer>	fEmptyScopeStack = new ArrayList<Integer>();
 	private List<SVDBDeclCacheItem>		fDeclList;
 	private Set<Integer>				fIncludedFilesSet;
@@ -48,7 +53,9 @@ public class SVDBDeclCacheBuilder implements
 			int						rootfile_id) {
 		fDeclCache = decl_cache;
 		fRootFileId = rootfile_id;
+		fDisabledDepth = 0;
 		fScopeStack = new ArrayList<Integer>();
+		fAllScopeStack = new ArrayList<ISVDBItemBase>();
 		fDeclList = decl_list;
 		fDeclList.clear();
 		fIncludedFilesSet = included_files;
@@ -63,35 +70,61 @@ public class SVDBDeclCacheBuilder implements
 		fDebugEn = (handle.getDebugLevel() > 0);
 	}
 	
-	private static final Set<SVDBItemType>		fPackageScopeTypes;
+	private static final Set<SVDBItemType>		fGlobalScopeItems;
 	
 	static {
-		fPackageScopeTypes = new HashSet<SVDBItemType>();
-		fPackageScopeTypes.add(SVDBItemType.Function);
-		fPackageScopeTypes.add(SVDBItemType.Task);
-		fPackageScopeTypes.add(SVDBItemType.VarDeclItem);
-		fPackageScopeTypes.add(SVDBItemType.TypedefStmt);
+		fGlobalScopeItems = new HashSet<SVDBItemType>();
+		fGlobalScopeItems.add(SVDBItemType.Function);
+		fGlobalScopeItems.add(SVDBItemType.Task);
+		fGlobalScopeItems.add(SVDBItemType.VarDeclItem);
+		fGlobalScopeItems.add(SVDBItemType.TypedefStmt);
+		fGlobalScopeItems.add(SVDBItemType.ClassDecl);
+		fGlobalScopeItems.add(SVDBItemType.PackageDecl);
+		fGlobalScopeItems.add(SVDBItemType.Covergroup);
+		fGlobalScopeItems.add(SVDBItemType.InterfaceDecl);
+		fGlobalScopeItems.add(SVDBItemType.ModuleDecl);
+		fGlobalScopeItems.add(SVDBItemType.ProgramDecl);
 	}
 	
-	private SVDBDeclCacheItem parent_item() {
-		if (fScopeStack.size() > 0) {
-			return fDeclList.get(fScopeStack.get(fScopeStack.size()-1));
+//	private ISVDBItemBase parent_item() {
+//		if (fScopeStack.size() > 0) {
+//			return fScopeStack.get(fScopeStack.size()-1);
+//		} else {
+//			return null;
+//		}
+//	}
+	
+	private boolean should_add(ISVDBItemBase item) {
+		if (fDisabledDepth > 0) {
+			return false;
+		} else if (fScopeStack.size() == 0) {
+			// Global scope
+			return item.getType().isElemOf(fGlobalScopeItems);
 		} else {
-			return null;
+			return true;
 		}
 	}
-
+	
 	@Override
 	public void enter_type_scope(ISVDBItemBase item) {
 		if (fDebugEn) {
-			fLog.debug("enter_type_scope: " + item.getType());
+			fLog.debug("enter_type_scope: " + item.getType() + " " + SVDBItem.getName(item) + " " + fDisabledDepth);
+//			try {
+//				throw new Exception("enter_type_scope");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 		}
-		// We save some types only if they are at package level
-		if (item instanceof ISVDBNamedItem && (
-				!item.getType().isElemOf(fPackageScopeTypes) ||
-				fScopeStack.size() == 0 ||
-				parent_item().getType() == SVDBItemType.PackageDecl)) {
+		fAllScopeStack.add(item);
+	
+		// Once we enter a scope where indexing is disabled,
+		// we stay disabled
+		if (fDisabledDepth == 0 && should_add(item)) {
 			String name = ((ISVDBNamedItem)item).getName();
+		
+			if (fDebugEn) {
+				fLog.debug("INDEX: " + name + " " + item.getType());
+			}
 			
 			SVDBDeclCacheItem cache_i = new SVDBDeclCacheItem(
 					fDeclCache,
@@ -106,21 +139,52 @@ public class SVDBDeclCacheBuilder implements
 			
 			if (item.getType() == SVDBItemType.TypedefStmt) {
 				SVDBTypedefStmt td = (SVDBTypedefStmt)item;
-				if (td.getTypeInfo() != null &&
-						td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
-					SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)td.getTypeInfo();
-					for (SVDBTypeInfoEnumerator ev : e.getEnumerators()) {
-						SVDBDeclCacheItem ev_cache_i = new SVDBDeclCacheItem(
-								fDeclCache,
-								fRootFileId,
-								SVDBLocation.unpackFileId(item.getLocation()),
-								fScopeStack,
-								ev.getName(),
-								ev.getType(),
-								false);
-						fDeclList.add(ev_cache_i);
+				if (td.getTypeInfo() != null) {
+					if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoEnum) {
+						SVDBTypeInfoEnum e = (SVDBTypeInfoEnum)td.getTypeInfo();
+						for (SVDBTypeInfoEnumerator ev : e.getEnumerators()) {
+							SVDBDeclCacheItem ev_cache_i = new SVDBDeclCacheItem(
+									fDeclCache,
+									fRootFileId,
+									SVDBLocation.unpackFileId(item.getLocation()),
+									fScopeStack,
+									ev.getName(),
+									ev.getType(),
+									false);
+							fDeclList.add(ev_cache_i);
+						}
+					} else if (td.getTypeInfo().getType() == SVDBItemType.TypeInfoStruct) {
+//						SVDBDeclCacheItem cache_i = new SVDBDeclCacheItem(
+//								fDeclCache,
+//								fRootFileId,
+//								SVDBLocation.unpackFileId(item.getLocation()),
+//								fScopeStack,
+//								name,
+//								item.getType(),
+//								false);
+//						
 					}
 				}
+			}
+			
+			if (item.getType() != SVDBItemType.PackageDecl) {
+				fDisabledDepth++;
+				if (fDebugEn) {
+					fLog.debug("INDEX: fDisableDepth => " + fDisabledDepth);
+				}
+				if (fDebugEn) {
+					fLog.debug("INDEX: toggling to disabled on " + item.getType() + " " + SVDBItem.getName(item));
+				}
+			}
+		} else {
+			if (fDisabledDepth == 0) {
+				if (fDebugEn) {
+					fLog.debug("INDEX: toggling to disabled on " + item.getType() + " " + SVDBItem.getName(item));
+				}
+			}
+			fDisabledDepth++;
+			if (fDebugEn) {
+				fLog.debug("INDEX: fDisableDepth => " + fDisabledDepth);
 			}
 		}
 	}
@@ -128,19 +192,51 @@ public class SVDBDeclCacheBuilder implements
 	@Override
 	public void leave_type_scope(ISVDBItemBase item) {
 		if (fDebugEn) {
-			fLog.debug("leave_type_scope: " + item.getType());
+			fLog.debug("leave_type_scope: " + item.getType() + " " + fDisabledDepth);
+//			try {
+//				throw new Exception("leave_type_scope");
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 		}
-		if (fScopeStack.size() > 0) {
-			SVDBDeclCacheItem ci = fDeclList.get(fScopeStack.get(fScopeStack.size()-1));
+		
+		if (fAllScopeStack.size() > 0) {
+			if (fAllScopeStack.get(fAllScopeStack.size()-1).getType() != item.getType()) {
+				System.out.println("AllScopeStack out-of-sync: expect " + item.getType() + 
+						" receive " + fAllScopeStack.get(fAllScopeStack.size()-1).getType());
+			}
+			fAllScopeStack.remove(fAllScopeStack.size()-1);
+		} else {
+			System.out.println("AllScopeStack out-of-sync on " + item.getType());
+		}
+		if (fDisabledDepth > 0) {
+			fDisabledDepth--;
+			if (fDebugEn) {
+				fLog.debug("INDEX: fDisableDepth => " + fDisabledDepth);
+			}
 			
-			if (ci.getType() == item.getType()) {
-				if (item instanceof ISVDBNamedItem) {
-					if (((ISVDBNamedItem)item).getName().equals(ci.getName())) {
-						fScopeStack.remove(fScopeStack.size()-1);
-					}
-				} else {
-					fScopeStack.remove(fScopeStack.size()-1);
+			if (fDisabledDepth == 0) {
+				if (fDebugEn) {
+					fLog.debug("INDEX: toggling to enabled on " + item.getType() + " " + SVDBItem.getName(item));
 				}
+			}
+		}
+		
+		if (fDisabledDepth == 0) {
+			if (fScopeStack.size() > 0) {
+//			SVDBDeclCacheItem ci = fDeclList.get(fScopeStack.get(fScopeStack.size()-1));
+			fScopeStack.remove(fScopeStack.size()-1);
+			
+//			if (ci.getType() == item.getType()) {
+//				if (item instanceof ISVDBNamedItem) {
+//					if (((ISVDBNamedItem)item).getName().equals(ci.getName())) {
+//						fScopeStack.remove(fScopeStack.size()-1);
+//					}
+//				} else {
+//				}
+//			}
+			} else {
+				System.out.println("Internal Error: fScopeStack.size == 0 on " + item.getType());
 			}
 		}
 	}

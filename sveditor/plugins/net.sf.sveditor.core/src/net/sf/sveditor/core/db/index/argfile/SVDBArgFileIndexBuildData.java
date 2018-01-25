@@ -120,10 +120,6 @@ public class SVDBArgFileIndexBuildData implements
 		return fIndexCacheData.getFileList(flags);
 	}
 	
-	public Map<String, List<SVDBDeclCacheItem>> getPackageCacheMap() {
-		return fIndexCacheData.getPackageCacheMap();
-	}
-	
 	public ISVDBIndexCacheMgr getCacheMgr() {
 		return fCache.getCacheMgr();
 	}

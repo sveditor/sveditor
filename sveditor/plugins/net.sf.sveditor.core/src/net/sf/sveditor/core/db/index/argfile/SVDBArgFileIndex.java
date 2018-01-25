@@ -371,16 +371,6 @@ public class SVDBArgFileIndex implements
 				}
 			}
 
-			// Also update the package cache
-			if (cd.getPackageCacheMap() != null) {
-				for (Entry<String, List<SVDBDeclCacheItem>> e : 
-						cd.getPackageCacheMap().entrySet()) {
-					for (SVDBDeclCacheItem i : e.getValue()) {
-						i.init(this);
-					}
-				}
-			}
-
 			// Also re-set filenames on the reference cache
 			/** MSB:
 			if (fBuildData.fIndexCacheData.getReferenceCacheMap() != null) {

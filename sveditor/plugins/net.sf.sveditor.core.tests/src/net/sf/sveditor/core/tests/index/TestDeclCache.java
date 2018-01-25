@@ -7,6 +7,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -78,9 +79,9 @@ public class TestDeclCache extends SVCoreTestCaseBase {
 				"${workspace_loc}/package_cache_include/package_cache_include/package_cache_include.f",
 				SVDBArgFileIndexFactory.TYPE,
 				null);
-	
-		index.init(new NullProgressMonitor(), SVCorePlugin.getDefault().getIndexBuilder());
-		index.loadIndex(new NullProgressMonitor());
+
+		index.execIndexChangePlan(new NullProgressMonitor(), 
+				new SVDBIndexChangePlanRebuild(index));
 
 		List<SVDBDeclCacheItem> pkg_list = index.findGlobalScopeDecl(new NullProgressMonitor(), 
 				"package_cache_include_pkg", new SVDBFindByNameMatcher());

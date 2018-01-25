@@ -66,5 +66,23 @@ public class SVDBFileCacheData {
 	public void addIncludedFile(int id) {
 		fIncludedFiles.add(id);
 	}
-	
+
+	public boolean findChildrenOf(
+			List<SVDBDeclCacheItem>		children,
+			SVDBDeclCacheItem			item) {
+		int item_idx = fTopLevelDeclarations.indexOf(item);
+		boolean ret = false;
+		
+		if (item_idx != -1) {
+			// Iterate through looking for items where this is listed
+			for (SVDBDeclCacheItem i : fTopLevelDeclarations) {
+				if (i.getScopeIDs().contains(item_idx)) {
+					children.add(i);
+					ret = true;
+				}
+			}
+		}
+		
+		return ret;
+	}
 }

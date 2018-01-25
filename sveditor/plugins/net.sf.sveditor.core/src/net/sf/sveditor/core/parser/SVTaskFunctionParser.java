@@ -199,6 +199,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 					// TODO: endfunction label must match function name
 				}
 			}
+		} else {
+			enter_type_scope(func);
+			leave_type_scope(func);
 		}
 		
 		if (end == -1) {

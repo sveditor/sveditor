@@ -19,7 +19,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 	
 	
 	public void testModuleBlankItems() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 			"module m(a, b);\n" +
 			"    \n" +
@@ -30,7 +30,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 
 		ContentAssistTests.runTest(this, doc, 
 				"a", "b", "m", "d",
-				"process", "semaphore", "state", "string");
+				"process", "semaphore", "string");
 	}
 	
 	public void testModuleHierarchyRef_1() {

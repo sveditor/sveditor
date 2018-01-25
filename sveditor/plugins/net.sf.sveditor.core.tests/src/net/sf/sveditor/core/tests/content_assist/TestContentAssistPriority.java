@@ -2,7 +2,6 @@ package net.sf.sveditor.core.tests.content_assist;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import junit.framework.TestCase;
 
 public class TestContentAssistPriority extends SVCoreTestCaseBase {
 	
@@ -29,7 +28,8 @@ public class TestContentAssistPriority extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(
+				this, doc, false, true,
 				"m_mno",
 				"m_pqr",
 				"m_ghi",
@@ -63,7 +63,8 @@ public class TestContentAssistPriority extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(
+				this, doc, false, true,
 				"m_mno",
 				"m_pqr",
 				"m_ghi",
@@ -74,7 +75,7 @@ public class TestContentAssistPriority extends SVCoreTestCaseBase {
 	}
 
 	public void testLocalScopeVars() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 			"class cls1;\n" +					// 1
 			"  int			m_def;\n" +
@@ -101,7 +102,11 @@ public class TestContentAssistPriority extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(
+				this,
+				doc,
+				false,
+				true,
 				"m_stu",
 				"m_pqr",
 				"m_mno",
@@ -142,7 +147,8 @@ public class TestContentAssistPriority extends SVCoreTestCaseBase {
 			"endclass\n"
 			;
 		
-		ContentAssistTests.runTestOrder(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(
+				this, doc, false, true,
 				"m_pqr",
 				"m_mno",
 				"m_ghi",

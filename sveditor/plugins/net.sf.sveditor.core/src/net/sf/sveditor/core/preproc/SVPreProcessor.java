@@ -386,7 +386,6 @@ public class SVPreProcessor extends AbstractTextScanner
 	}
 	
 	public SVDBFileTree getFileTree() {
-		System.out.println("TODO: remove SVPreProcessor.getFileTree()");
 		return fInputCurr.getFileTree();
 	}
 	
