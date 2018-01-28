@@ -37,7 +37,6 @@ public class DeprecatedPropertiesPage implements ISVProjectPropsPage {
 	}
 
 	public Control createContents(Composite parent) {
-		fSubPages.add(new GlobalDefinesPage(fProject));
 		fSubPages.add(new SourceCollectionsPage(fProject));
 		fSubPages.add(new LibraryPathsPage(fProject));
 		

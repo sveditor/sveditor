@@ -189,7 +189,6 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
 		
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
-		wrapper.addGlobalDefine("ARG_FILE_DEFINE_PROJ", "1");
 		wrapper.addArgFilePath("${workspace_loc}/" + testname + "/arg_file_define_proj.f");
 		pdata.setProjectFileWrapper(wrapper);
 		
@@ -198,63 +197,6 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		index_collection.loadIndex(new NullProgressMonitor());
 		
 		IndexTestUtils.assertFileHasElements(index_collection, "arg_file_define_proj");
-	}
-
-	public void testProjectDefineChange() throws CoreException {
-		String testname = "testProjectDefineChange";
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-//		LogHandle log = LogFactory.getLogHandle(testname);
-		SVCorePlugin.getDefault().enableDebug(false);
-
-		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
-		
-//		fProject = TestUtils.importProject(new File(fTmpDir, "arg_file_define_proj"));
-		IProject project = TestUtils.createProject(testname,
-				new File(fTmpDir, "arg_file_define_proj"));
-		addProject(project);
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
-		
-		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
-		wrapper.addArgFilePath("${workspace_loc}/" + testname + "/arg_file_define_proj.f");
-		pdata.setProjectFileWrapper(wrapper);
-		
-		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
-		
-		index_collection.loadIndex(new NullProgressMonitor());
-		
-		IndexTestUtils.assertDoesNotContain(index_collection, "arg_file_define_proj");
-		
-		wrapper = pdata.getProjectFileWrapper();
-		wrapper.addGlobalDefine("ARG_FILE_DEFINE_PROJ", "1");
-		pdata.setProjectFileWrapper(wrapper);
-		
-		index_collection = pdata.getProjectIndexMgr();
-		index_collection.loadIndex(new NullProgressMonitor());
-		IndexTestUtils.assertFileHasElements(index_collection, "arg_file_define_proj");
-	}
-	
-	public void testProjectUndefined() throws CoreException {
-		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().enableDebug(false);
-
-		utils.copyBundleDirToFS("/data/arg_file_define_proj", fTmpDir);
-		
-		IProject project = TestUtils.createProject("arg_file_define_proj",  
-				new File(fTmpDir, "arg_file_define_proj"));
-		addProject(project);
-		SVDBProjectData pdata = SVCorePlugin.getDefault().getProjMgr().getProjectData(project);
-
-		/*
-		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
-		wrapper.addGlobalDefine("ARG_FILE_DEFINE_PROJ", "1");
-		pdata.setProjectFileWrapper(wrapper);
-		 */
-		
-		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();
-		
-		index_collection.loadIndex(new NullProgressMonitor());
-		
-		IndexTestUtils.assertDoesNotContain(index_collection, "arg_file_define_proj");
 	}
 
 	public void testProjectDefine_1() throws CoreException {
@@ -270,7 +212,6 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 
 		SVProjectFileWrapper wrapper = pdata.getProjectFileWrapper();
 		wrapper.addArgFilePath("${workspace_loc}/arg_file_define_proj_1/arg_file_define_proj.f");
-		wrapper.addGlobalDefine("EXCLUDE_DEFINED", "1");
 		pdata.setProjectFileWrapper(wrapper);
 		
 		SVDBIndexCollection index_collection = pdata.getProjectIndexMgr();

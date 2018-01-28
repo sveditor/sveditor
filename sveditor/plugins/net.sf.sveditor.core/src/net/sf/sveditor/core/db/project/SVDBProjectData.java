@@ -345,13 +345,6 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 		Map<String, String> define_map = new HashMap<String, String>();
 		SVDBIndexConfig args = new SVDBIndexConfig();
 		
-		for (Tuple<String, String> def : fw.getGlobalDefines()) {
-			if (define_map.containsKey(def.first())) {
-				define_map.remove(def.first());
-			}
-			define_map.put(def.first(), def.second());
-		}
-		
 		sc.clear();
 		sc.setProjectRefProvider(this);
 

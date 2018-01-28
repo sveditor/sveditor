@@ -37,7 +37,6 @@ import org.xml.sax.SAXParseException;
 
 public class SVProjectFileWrapper {
 	private Document					fDocument;
-	private List<Tuple<String, String>>	fGlobalDefines;
 	private List<SVDBPath>	    		fIncludePaths;
 	private List<SVDBPath>	    		fLibraryPaths;
 	private List<SVDBPath>	    		fBuildPaths;
@@ -48,8 +47,6 @@ public class SVProjectFileWrapper {
 	private List<SVDBPath>				fProjectTemplatePaths;
 	
 	public SVProjectFileWrapper() {
-		
-		fGlobalDefines			= new ArrayList<Tuple<String,String>>();
 		fIncludePaths 			= new ArrayList<SVDBPath>();
 		fLibraryPaths   	    = new ArrayList<SVDBPath>();
 		fBuildPaths 			= new ArrayList<SVDBPath>();
@@ -73,7 +70,6 @@ public class SVProjectFileWrapper {
 	}
 	
 	public SVProjectFileWrapper(InputStream in) throws Exception {
-		fGlobalDefines			= new ArrayList<Tuple<String,String>>();
 		fIncludePaths 			= new ArrayList<SVDBPath>();
 		fLibraryPaths       	= new ArrayList<SVDBPath>();
 		fBuildPaths 			= new ArrayList<SVDBPath>();
@@ -168,21 +164,6 @@ public class SVProjectFileWrapper {
 			paths = fDocument.createElement("defines");
 			svproject.appendChild(paths);
 			change = true;
-		}
-		
-		NodeList defineList = paths.getElementsByTagName("define");
-		
-		for (int i=0; i<defineList.getLength(); i++) {
-			Element define = (Element)defineList.item(i);
-			
-			String key = define.getAttribute("key");
-			String val = define.getAttribute("val");
-			
-			if (key == null) {
-				key = "";
-			}
-			
-			fGlobalDefines.add(new Tuple<String, String>(key, val));
 		}
 		
 		return change;
@@ -350,15 +331,6 @@ public class SVProjectFileWrapper {
 		for (int i=0; i<defineList.getLength(); i++) {
 			defines.removeChild((Element)defineList.item(i));
 		}
-		
-		for (Tuple<String, String> def : fGlobalDefines) {
-			Element def_e = fDocument.createElement("define");
-			
-			def_e.setAttribute("key", def.first());
-			def_e.setAttribute("val", def.second());
-			
-			defines.appendChild(def_e);
-		}
 	}
 
 	private void marshall_source_collections(
@@ -431,27 +403,6 @@ public class SVProjectFileWrapper {
 		SVDBPath arg_path = new SVDBPath(path);
 		if (!fArgFilePaths.contains(arg_path)) {
 			fArgFilePaths.add(arg_path);
-		}
-	}
-	
-	public List<Tuple<String, String>> getGlobalDefines() {
-		return fGlobalDefines;
-	}
-	
-	public void addGlobalDefine(String key, String val) {
-		synchronized (fGlobalDefines) {
-			boolean found = false;
-			for (int i=0; i<fGlobalDefines.size(); i++) {
-				if (fGlobalDefines.get(i).first().equals(key)) {
-					fGlobalDefines.set(i, new Tuple<String, String>(key, val));
-					found = true;
-					break;
-				}
-			}
-			
-			if (!found) {
-				fGlobalDefines.add(new Tuple<String, String>(key, val));
-			}
 		}
 	}
 	
@@ -532,7 +483,6 @@ public class SVProjectFileWrapper {
 		fSourceCollections.clear();
 		fProjectTemplatePaths.clear();
 		fBuildPaths.clear();
-		fGlobalDefines.clear();
 		
 		for (SVDBPath p : fw.fIncludePaths) {
 			fIncludePaths.add(p.duplicate());
@@ -564,12 +514,6 @@ public class SVProjectFileWrapper {
 		
 		for (SVDBPath p : fw.fBuildPaths) {
 			fBuildPaths.add(p.duplicate());
-		}
-		
-		for (Tuple<String, String> def : fw.fGlobalDefines) {
-			Tuple<String, String> dup = 
-				new Tuple<String, String>(def.first(), def.second());
-			fGlobalDefines.add(dup);
 		}
 	}
 	
@@ -640,19 +584,6 @@ public class SVProjectFileWrapper {
 			
 			for (int i=0; i<fPluginPaths.size(); i++) {
 				if (!p.fPluginPaths.get(i).equals(fPluginPaths.get(i))) {
-					return false;
-				}
-			}
-			
-			if (fGlobalDefines.size() != p.fGlobalDefines.size()) {
-				return false;
-			}
-			
-			for (int i=0; i<fGlobalDefines.size(); i++) {
-				if (!p.fGlobalDefines.get(i).first().equals(
-						fGlobalDefines.get(i).first()) ||
-					!p.fGlobalDefines.get(i).second().equals(
-						fGlobalDefines.get(i).second())) {
 					return false;
 				}
 			}

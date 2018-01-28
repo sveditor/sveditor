@@ -47,7 +47,6 @@ public class IndexTests extends TestSuite {
 		suite.addTest(new TestSuite(TestBuiltinIndex.class));
 		suite.addTest(new TestSuite(TestDeclCache.class));
 		suite.addTest(new TestSuite(TestIndexMissingIncludeDefine.class));
-		suite.addTest(new TestSuite(TestGlobalDefine.class));
 		suite.addTest(new TestSuite(TestVmmBasics.class));
 		suite.addTest(new TestSuite(TestOvmBasics.class));
 		suite.addTest(new TestSuite(TestUvmBasics.class));

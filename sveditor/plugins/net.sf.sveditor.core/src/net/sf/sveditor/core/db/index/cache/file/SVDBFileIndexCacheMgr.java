@@ -31,8 +31,6 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 //	private int										fMaxCacheSize = 10;
 //	private int										fMaxCacheSize = 1;
 	
-	private boolean									fUseSoftRef = true;
-	
 	private List<IDBReader>							fPersistenceRdrSet;
 	private List<IDBWriter>							fPersistenceWriterSet;
 
@@ -166,6 +164,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	public synchronized void sync() {
+	
+		if (fIsDisposed) {
+			return;
+		}
 		
 		// TODO: save cache and entry data to the filesystem
 		// - TODO: Write-back any dirty cache entries (future)
@@ -205,6 +207,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 			String 			base_location) {
 		SVDBFileIndexCache ret = null;
 		
+		if (fIsDisposed) {
+			return ret;
+		}
+		
 		for (SVDBFileIndexCache c : fIndexList) { 
 			if (c.getProjectName().equals(project_name) &&
 					c.getBaseLocation().equals(base_location)) {
@@ -219,8 +225,12 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	public synchronized SVDBFileIndexCache createIndexCache(
 			String 			project_name,
 			String 			base_location) {
-		SVDBFileIndexCache ret;
+		SVDBFileIndexCache ret = null;
 		boolean found_id = false;
+		
+		if (fIsDisposed) {
+			return ret;
+		}
 		
 		int id = ((fIndexId+1) & 0xFFFFFF);
 		
@@ -250,7 +260,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 
 	}
 
-	public void dispose() {
+	public synchronized void dispose() {
+		if (fIsDisposed) {
+			return; 
+		}
 		// Close down the cache 
 		sync();
 
@@ -505,6 +518,10 @@ public class SVDBFileIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	}
 
 	public synchronized void addToCachedList(SVDBFileIndexCacheEntry entry) {
+		if (fIsDisposed) {
+			return;
+		}
+		
 		entry.setOnList();
 		entry.setCached();
 		
