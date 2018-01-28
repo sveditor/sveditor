@@ -169,18 +169,6 @@ public class SVBuiltinIndex implements ISVDBIndex {
 	}
 
 	@Override
-	public void setGlobalDefine(String key, String val) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void clearGlobalDefines() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public String getTypeID() {
 		// TODO Auto-generated method stub
 		return null;

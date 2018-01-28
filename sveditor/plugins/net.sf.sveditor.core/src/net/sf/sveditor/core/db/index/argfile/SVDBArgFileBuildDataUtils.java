@@ -769,12 +769,6 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			}
 		}
 		
-		for (Entry<String, String> e : build_data.getGlobalDefines().entrySet()) {
-			if (!all_defs.containsKey(e.getKey())) {
-				all_defs.put(e.getKey(), new SVDBMacroDef(e.getKey(), e.getValue()));
-			}
-		}
-	
 		// Finally, flatten out the macro list
 		for (Entry<String, SVDBMacroDef> e : all_defs.entrySet()) {
 			defs.add(e.getValue());

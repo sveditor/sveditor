@@ -28,9 +28,9 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 			"endmodule\n"
 			;
 
-		ContentAssistTests.runTest(this, doc, 
+		ContentAssistTests.runTest(this, doc, true, false,
 				"a", "b", "m", "d",
-				"process", "semaphore", "string");
+				"process", "semaphore");
 	}
 	
 	public void testModuleHierarchyRef_1() {

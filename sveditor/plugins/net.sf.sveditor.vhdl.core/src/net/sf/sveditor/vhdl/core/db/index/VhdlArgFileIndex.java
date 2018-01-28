@@ -299,9 +299,4 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 		return false;
 	}
 
-	@Override
-	public void setGlobalDefine(String key, String val) { }
-
-	@Override
-	public void clearGlobalDefines() { }
 }

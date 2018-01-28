@@ -45,7 +45,6 @@ public class TestInstanceTreeFactory extends SVCoreTestCaseBase {
 				"${workspace_loc}/wb_ethmac/wb_ethmac.f",
 				SVDBArgFileIndexFactory.TYPE,
 				null);
-		index.setGlobalDefine("QUESTA", "");
 		
 		index.loadIndex(new NullProgressMonitor());
 		IndexTestUtils.assertNoErrWarn(fLog, index);

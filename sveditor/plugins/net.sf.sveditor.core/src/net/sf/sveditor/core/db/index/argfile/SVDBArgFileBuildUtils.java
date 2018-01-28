@@ -104,16 +104,6 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			per_file_work = 1;
 		}
 	
-		// Setup global definitions
-		for (Entry<String, String> e : build_data.getGlobalDefines().entrySet()) {
-			String key = e.getKey();
-			String val = (e.getValue() != null)?e.getValue():"";
-			if (defines.containsKey(key)) {
-				defines.remove(key);
-			}
-			defines.put(key, new SVDBMacroDef(key, val));
-		}
-
 		for (Entry<String, String> e : build_data.getDefines().entrySet()) {
 			String key = e.getKey();
 			String val = (e.getValue() != null)?e.getValue():"";
@@ -247,6 +237,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 				file_cache_data.getTopLevelDeclarations(),
 				parent,
 				file_cache_data.getIncludedFiles(),
+				file_cache_data.getMissingIncludeFiles(),
 				file_id);
 		pp.addListener(decl_builder);
 

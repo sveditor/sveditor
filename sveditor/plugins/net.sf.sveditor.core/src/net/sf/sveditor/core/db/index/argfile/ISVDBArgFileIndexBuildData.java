@@ -24,10 +24,6 @@ public interface ISVDBArgFileIndexBuildData {
 	
 	void addIncludePath(String path);
 	
-	void addArgFilePath(String path);
-	
-	void addArgFile(SVDBFile argfile);
-	
 	void addDefine(String key, String val);
 	
 	void setMFCU();

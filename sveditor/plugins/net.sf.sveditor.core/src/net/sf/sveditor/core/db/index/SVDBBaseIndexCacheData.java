@@ -13,10 +13,13 @@
 package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 
 public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
@@ -62,13 +65,33 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		fFileCacheData = new HashMap<Integer, SVDBFileCacheData>();
 	}
 	
+	public void initFileMapperState(SVDBBaseIndexCacheData data) {
+		fFilePathIdMap.clear();
+		fFilePathIdMap.putAll(data.fFilePathIdMap);
+		fFileIdPathMap.clear();
+		fFileIdPathMap.putAll(data.fFileIdPathMap);
+		fIncludePathList.clear();
+		fIncludePathList.addAll(data.fIncludePathList);
+	}
+	
 	public Map<Integer, SVDBFileCacheData> getRootFileCacheData() {
 		return fFileCacheData;
+	}
+	
+	public Collection<SVDBFileCacheData> getRootFilesCacheData() {
+		return fFileCacheData.values();
 	}
 	
 	public SVDBFileCacheData getFileCacheData(int id) {
 		// Should we create if it doesn't exist?
 		return fFileCacheData.get(id);
+	}
+	
+	public SVDBFileCacheData getFileCacheData(String path) {
+		if (fFilePathIdMap.containsKey(path)) {
+			return fFileCacheData.get(fFilePathIdMap.get(path));
+		}
+		return null;
 	}
 	
 	public void setFileCacheData(int id, SVDBFileCacheData cd) {
@@ -78,6 +101,12 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 	
 	public Map<Integer, SVDBFileCacheData> getFileCacheData() {
 		return fFileCacheData;
+	}
+	
+	public void removeFileCacheData(String path) {
+		if (fFilePathIdMap.containsKey(path)) {
+			removeFileCacheData(fFilePathIdMap.get(path));
+		}
 	}
 	
 	public void removeFileCacheData(int id) {
@@ -169,6 +198,19 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 				return ((attr & file_info.fFileAttr) == attr);
 			}
 		}
+	
+//		// If the path wasn't a root file, keep checking 
+//		// if the caller indicates they want a broader result
+//		if (attr == 0 || 
+//				(attr & (ISVDBDeclCache.FILE_ATTR_SRC_FILE)) != 0) {
+//			for (SVDBFileCacheData cd : fFileCacheData.values()) {
+//				// Iterate through included files
+//				for (cd.getIncludedFiles()) {
+//					
+//				}
+//			}
+//			
+//		}
 		
 		return false;
 	}
@@ -215,7 +257,11 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		String path = fFileIdPathMap.get(id);
 		
 		if (path == null) {
-			System.out.println("id " + id + " resulted in null");
+			try {
+				throw new Exception("id " + id + " resulted in null");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			for (Map.Entry<Integer, String> e : fFileIdPathMap.entrySet()) {
 				System.out.println("  " + e.getKey() + " " + e.getValue());
 			}

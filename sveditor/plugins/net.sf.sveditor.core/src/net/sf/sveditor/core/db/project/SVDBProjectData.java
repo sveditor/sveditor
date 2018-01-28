@@ -414,13 +414,6 @@ public class SVDBProjectData implements ISVDBProjectRefProvider {
 			rgy.disposeIndex(i, "Removing leftover project indexes");
 		}
 		
-		// Push defines to all indexes. This may cause index rebuild
-		for (ISVDBIndex index : rgy.getProjectIndexList(fProjectName)) {
-			for (Tuple<String, String> def : fw.getGlobalDefines()) {
-				index.setGlobalDefine(def.first(), def.second());
-			}
-		}
-		
 		// Project settings have changed, so notify listeners
 		synchronized (fListeners) {
 			for (ISVDBProjectSettingsListener l : fListeners) {

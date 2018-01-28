@@ -32,7 +32,9 @@ import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -41,8 +43,8 @@ import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.svf_scanner.SVFScanner;
 
 public class SVDBArgFileParser implements ILogLevelListener {
-	private boolean						fDebugEn;
-	private LogHandle					fLog;
+	private static boolean				fDebugEn;
+	private static LogHandle			fLog;
 	
 	private ISVDBFileSystemProvider		fFSProvider;
 	private IProject					fProject;
@@ -51,6 +53,18 @@ public class SVDBArgFileParser implements ILogLevelListener {
 	private String						fResolvedBaseLocation;
 	private String						fResolvedBaseLocationDir;
 	private boolean						fInWorkspaceOk = true;
+	
+	static {
+		fLog = LogFactory.getLogHandle("SVDBArgFileParser");
+		fDebugEn = fLog.getDebugLevel() > 0;
+		fLog.addLogLevelListener(new ILogLevelListener() {
+			
+			@Override
+			public void logLevelChanged(ILogHandle handle) {
+				fDebugEn = handle.getDebugLevel() > 0;
+			}
+		});
+	}
 	
 	
 	public SVDBArgFileParser(
@@ -87,16 +101,16 @@ public class SVDBArgFileParser implements ILogLevelListener {
 	 * @param argfile
 	 * @param src_files
 	 */
-	public void collectSourceFiles(
-			ISVDBArgFileIndexBuildData	build_data,
+	public static void collectSourceFiles(
+			SVDBArgFileIndexBuildData	build_data,
 			SVDBArgFile					argfile,
 			List<String>				src_files) {
 		Set<String> processed_files = new HashSet<String>();
 		collectSourceFiles(build_data, argfile, processed_files, src_files);
 	}
 	
-	private void collectSourceFiles(
-			ISVDBArgFileIndexBuildData	build_data,
+	private static void collectSourceFiles(
+			SVDBArgFileIndexBuildData	build_data,
 			SVDBArgFile					argfile,
 			Set<String>					processed_files,
 			List<String>				src_files) {
@@ -107,8 +121,8 @@ public class SVDBArgFileParser implements ILogLevelListener {
 			if (ci.getType() == SVDBItemType.ArgFileIncFileStmt) {
 				// Process the included file
 				SVDBArgFileIncFileStmt stmt = (SVDBArgFileIncFileStmt)ci;
-				String sub_path = SVFileUtils.resolvePath(stmt.getPath(), 
-						sub_base_location_dir, fFSProvider, fInWorkspaceOk);
+				String sub_path = build_data.resolvePath(
+						stmt.getPath(), sub_base_location_dir);
 			
 				if (processed_files.add(sub_path)) {
 					SVDBFile sub_argfile = build_data.getFile(new NullProgressMonitor(), sub_path);
@@ -119,16 +133,16 @@ public class SVDBArgFileParser implements ILogLevelListener {
 				}
 			} else if (ci.getType() == SVDBItemType.ArgFilePathStmt) {
 				SVDBArgFilePathStmt stmt = (SVDBArgFilePathStmt)ci;
-				String res_f = SVFileUtils.resolvePath(stmt.getPath(), 
-						sub_base_location_dir, fFSProvider, fInWorkspaceOk);
+				String res_f = build_data.resolvePath(
+						stmt.getPath(), sub_base_location_dir);
 
 				src_files.add(res_f);
 			} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 				SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
 
 				fLog.debug(LEVEL_MID, "Processing source-library path " + stmt.getSrcLibPath());
-				if (fFSProvider.isDir(stmt.getSrcLibPath())) {
-					List<String> paths = fFSProvider.getFiles(stmt.getSrcLibPath());
+				if (build_data.getFSProvider().isDir(stmt.getSrcLibPath())) {
+					List<String> paths = build_data.getFSProvider().getFiles(stmt.getSrcLibPath());
 					Set<String> exts = SVFScanner.getSrcExts();
 					for (String file_p : paths) {
 						fLog.debug(LEVEL_MID, "  Processing child path: " + file_p);
@@ -186,7 +200,7 @@ public class SVDBArgFileParser implements ILogLevelListener {
 	
 	public void discoverRootFiles(
 			IProgressMonitor 			monitor,
-			ISVDBArgFileIndexBuildData	build_data) {
+			SVDBArgFileIndexBuildData	build_data) {
 		fLog.debug("discoverRootFiles - " + fBaseLocation);
 
 		
@@ -225,8 +239,8 @@ public class SVDBArgFileParser implements ILogLevelListener {
 		subMonitor.done();
 	}	
 
-	public SVDBArgFile parseArgFile(
-			ISVDBArgFileIndexBuildData	build_data,
+	public static SVDBArgFile parseArgFile(
+			SVDBArgFileIndexBuildData	build_data,
 			String						path,
 			String						base_location_dir,
 			Set<String>					processed_paths,
@@ -234,17 +248,19 @@ public class SVDBArgFileParser implements ILogLevelListener {
 		SVDBArgFile ret = new SVDBArgFile(path, base_location_dir);
 		InputStream in = null;
 		
+		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
+		
 		String resolved_path = SVFileUtils.resolvePath(
-				path, base_location_dir, fFSProvider, true);
+				path, base_location_dir, fs_provider, true);
 	
 		if (processed_paths.contains(resolved_path)) {
 			ret = null;
 			markers.add(new SVDBMarker(MarkerType.Error, MarkerKind.MissingInclude, 
 					"Multiple inclusion of file \"" + resolved_path + "\" (from " + path + ")"));
-		} else if ((in = fFSProvider.openStream(resolved_path)) != null) {
-			long last_modified = fFSProvider.getLastModifiedTime(resolved_path);
+		} else if ((in = fs_provider.openStream(resolved_path)) != null) {
+			long last_modified = fs_provider.getLastModifiedTime(resolved_path);
 			processed_paths.add(resolved_path);
-			ISVArgFileVariableProvider vp = SVCorePlugin.getVariableProvider(fProject);
+			ISVArgFileVariableProvider vp = SVCorePlugin.getVariableProvider(build_data.getProject());
 			SVArgFilePreProcessor pp = new SVArgFilePreProcessor(
 					in, resolved_path, vp);
 			
@@ -255,7 +271,7 @@ public class SVDBArgFileParser implements ILogLevelListener {
 			
 			SVArgFileParser parser = new SVArgFileParser(
 					base_location_dir, base_location_dir,
-					fFSProvider);
+					fs_provider);
 			parser.init(lexer, path);
 		
 			try {
@@ -347,15 +363,17 @@ public class SVDBArgFileParser implements ILogLevelListener {
 		}
 	}
 	
-	public void processArgFile(
+	public static void processArgFile(
 			IProgressMonitor				monitor, 
-			ISVDBArgFileIndexBuildData		build_data,
+			SVDBArgFileIndexBuildData		build_data,
 			SVDBFileTree					parent,
 			Set<String> 					processed_paths, 
 			String							base_location_dir,
 			String 							path,
 			boolean							is_root) {
-		path = SVFileUtils.resolvePath(path, fResolvedBaseLocationDir, fFSProvider, fInWorkspaceOk);
+		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
+		path = build_data.resolvePath(
+				path, build_data.getResolvedBaseLocationDir());
 
 		if (processed_paths == null) {
 			processed_paths = new HashSet<String>();
@@ -375,28 +393,30 @@ public class SVDBArgFileParser implements ILogLevelListener {
 		SVDBArgFile argfile = parseArgFile(build_data, path, 
 				sub_base_location_dir, processed_paths, markers);
 		
+		int attr = ISVDBDeclCacheFileAttr.FILE_ATTR_ARG_FILE;
 		if (parent != null) {
 			ft.addIncludedByFile(parent.getFilePath());
 			parent.addIncludedFile(path);
+			attr += ISVDBDeclCacheFileAttr.FILE_ATTR_ROOT_FILE;
 		}
 
-		long last_modified = fFSProvider.getLastModifiedTime(path);
+		long last_modified = fs_provider.getLastModifiedTime(path);
 		build_data.setFile(path, argfile, true);
 		build_data.setLastModified(path, last_modified, true);
-	
-		build_data.addArgFilePath(path);
-		
+
 		if (argfile != null) {
-			build_data.addArgFile(argfile);
+			SVDBFileCacheData cd = build_data.addFile(path, attr);
+			build_data.setFile(path, argfile, true);
 
 			for (ISVDBChildItem ci : argfile.getChildren()) {
 				if (ci.getType() == SVDBItemType.ArgFileIncFileStmt) {
 					// Process the included file
 					SVDBArgFileIncFileStmt stmt = (SVDBArgFileIncFileStmt)ci;
-					String sub_path = SVFileUtils.resolvePath(stmt.getPath(), sub_base_location_dir, fFSProvider, fInWorkspaceOk);
+					String sub_path = build_data.resolvePath(
+							stmt.getPath(), sub_base_location_dir);
 					
 					// TODO: handle monitor
-					if (fFSProvider.fileExists(sub_path)) {
+					if (fs_provider.fileExists(sub_path)) {
 						if (!processed_paths.contains(sub_path)) {
 							processArgFile(new NullProgressMonitor(), build_data,
 									ft, processed_paths, sub_base_location_dir, 
@@ -424,10 +444,10 @@ public class SVDBArgFileParser implements ILogLevelListener {
 					build_data.addDefine(stmt.getKey(), stmt.getValue());
 				} else if (ci.getType() == SVDBItemType.ArgFilePathStmt) {
 					SVDBArgFilePathStmt stmt = (SVDBArgFilePathStmt)ci;
-					String res_f = SVFileUtils.resolvePath(stmt.getPath(), 
-							sub_base_location_dir, fFSProvider, fInWorkspaceOk);
+					String res_f = build_data.resolvePath(
+							stmt.getPath(), sub_base_location_dir);
 
-					if (fFSProvider.fileExists(res_f)) {
+					if (fs_provider.fileExists(res_f)) {
 						build_data.addFile(res_f, false);
 					}
 				} else if (ci.getType() == SVDBItemType.ArgFileMfcuStmt) {
@@ -437,12 +457,12 @@ public class SVDBArgFileParser implements ILogLevelListener {
 				} else if (ci.getType() == SVDBItemType.ArgFileSrcLibPathStmt) {
 					SVDBArgFileSrcLibPathStmt stmt = (SVDBArgFileSrcLibPathStmt)ci;
 
-					String res_p = SVFileUtils.resolvePath(stmt.getSrcLibPath(),
-							sub_base_location_dir, fFSProvider, fInWorkspaceOk);
+					String res_p = build_data.resolvePath(
+							stmt.getSrcLibPath(), sub_base_location_dir);
 					fLog.debug(LEVEL_MID, "Processing LibPath " + res_p + 
 							" (sub_base_location_dir=" + sub_base_location_dir + ")");
-					if (fFSProvider.isDir(res_p)) {
-						List<String> paths = fFSProvider.getFiles(res_p);
+					if (fs_provider.isDir(res_p)) {
+						List<String> paths = fs_provider.getFiles(res_p);
 						Set<String> exts = SVFScanner.getSrcExts();
 						for (String file_p : paths) {
 							fLog.debug(LEVEL_MID, "  Processing LibPath file " + file_p);

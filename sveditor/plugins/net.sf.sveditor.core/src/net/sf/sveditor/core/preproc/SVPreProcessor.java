@@ -821,6 +821,12 @@ public class SVPreProcessor extends AbstractTextScanner
 						if (fDebugEn) {
 							fLog.debug("Failed to find include file " + inc);
 						}
+						// Notify listeners
+						if (fHaveListeners) {
+							SVPreProcEvent ev = new SVPreProcEvent(Type.MissingInclude);
+							ev.text = inc;
+							sendEvent(ev);
+						}
 					}
 				}
 			} else {

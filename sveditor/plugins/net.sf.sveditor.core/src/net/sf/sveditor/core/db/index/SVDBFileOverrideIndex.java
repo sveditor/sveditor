@@ -309,14 +309,6 @@ public class SVDBFileOverrideIndex
 		return fIndex.getProject();
 	}
 
-	public void setGlobalDefine(String key, String val) {
-		fIndex.setGlobalDefine(key, val);
-	}
-
-	public void clearGlobalDefines() {
-		fIndex.clearGlobalDefines();
-	}
-
 	public String getTypeID() {
 		return fIndex.getTypeID();
 	}

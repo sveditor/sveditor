@@ -69,10 +69,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 								uvm_pkg.toString()+"\n" +
 		                        "test.sv\n") ;		
 		
-		HashSet<String> requiredClasses = TestUtils.newHashSet("lower",
-				                                               "myunit",
-				                                               "myunit_wrapper",
-				                                               "mydata_wrapper") ;
+		HashSet<String> requiredClasses = TestUtils.newHashSet("test");
 		
 		doTestUVMExample(test_name, 
 				test_dir, 
@@ -278,6 +275,7 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		
 		PrintStream ps = new PrintStream(new File(uvm_src, "uvm.f"));
 		ps.println("+incdir+.");
+		ps.println("+define+QUESTA");
 		ps.println("uvm_pkg.sv");
 		ps.close();
 		
@@ -288,7 +286,6 @@ public class TestUvmBasics extends SVCoreTestCaseBase {
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm.f", SVDBArgFileIndexFactory.TYPE, null);
 		index.init(new NullProgressMonitor(), null);
-		index.setGlobalDefine("QUESTA", "");
 		
 		index.loadIndex(new NullProgressMonitor());
 		

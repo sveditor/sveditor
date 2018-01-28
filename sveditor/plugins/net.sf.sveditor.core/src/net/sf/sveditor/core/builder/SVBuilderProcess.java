@@ -104,15 +104,27 @@ public class SVBuilderProcess extends Process
 					
 					public boolean visit(IResourceDelta delta) throws CoreException {
 						SVDBIndexResourceChangeEvent.Type type = null;
+						fLog.debug("visit: " + delta.getResource().getName());
 						switch (delta.getKind()) {
 							case IResourceDelta.CHANGED: 
+								fLog.debug("  CHANGE");
 								// We don't care about changes like markers
 								if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
 									type = Type.CHANGE;
 								}
 								break;
 							case IResourceDelta.REMOVED: 
+								fLog.debug("  REMOVED");
 								type = Type.REMOVE;
+								break;
+							
+							case IResourceDelta.ADDED:
+								fLog.debug("  ADDED");
+								type = Type.ADD;
+								break;
+								
+							default:
+								fLog.debug("  UNKNOWN: " + delta.getKind());
 								break;
 						}
 						
@@ -126,15 +138,20 @@ public class SVBuilderProcess extends Process
 							if (type != null) {
 								changes.add(new SVDBIndexResourceChangeEvent(
 										type, "${workspace_loc}" + delta.getResource().getFullPath()));
+							} else {
+								fLog.debug("  No type specified");
 							}
 						}
 						
 						return true;
 					}
 				});
-				} catch (CoreException e) {}
+				} catch (CoreException e) {
+					fLog.debug("Exception while processing changes",e);
+				}
 		
 				note("Total of " + changes.size() + " changes");
+				fLog.debug("Total of " + changes.size() + " changes");
 				pmgr.rebuildProject(fMonitor, fProject, changes, this);
 			} break;
 		}

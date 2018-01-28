@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -43,6 +44,7 @@ public class SVDBDeclCacheBuilder implements
 	private static final List<Integer>	fEmptyScopeStack = new ArrayList<Integer>();
 	private List<SVDBDeclCacheItem>		fDeclList;
 	private Set<Integer>				fIncludedFilesSet;
+	private Set<String>					fMissingIncludes;
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
 	
@@ -50,6 +52,7 @@ public class SVDBDeclCacheBuilder implements
 			List<SVDBDeclCacheItem> decl_list,
 			ISVDBDeclCacheInt		decl_cache,
 			Set<Integer>			included_files,
+			Set<String>				missing_includes,
 			int						rootfile_id) {
 		fDeclCache = decl_cache;
 		fRootFileId = rootfile_id;
@@ -60,6 +63,8 @@ public class SVDBDeclCacheBuilder implements
 		fDeclList.clear();
 		fIncludedFilesSet = included_files;
 		fIncludedFilesSet.clear();
+		fMissingIncludes = missing_includes;
+		fMissingIncludes.clear();
 		fLog = LogFactory.getLogHandle("SVDBDeclCacheBuilder");
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
@@ -266,6 +271,11 @@ public class SVDBDeclCacheBuilder implements
 			if (fDebugEn) {
 				fLog.debug("LeaveFile: " + ev.text);
 			}
+		} else if (ev.type == SVPreProcEvent.Type.MissingInclude) {
+			// Only deal with the leaf of missing includes
+			String path = SVFileUtils.getPathLeaf(ev.text);
+		
+			fMissingIncludes.add(path);
 		}
 	}
 

@@ -80,16 +80,6 @@ public class SVDBLinkedArgFileIndexBuildData implements
 	}
 
 	@Override
-	public void addArgFilePath(String path) {
-		fPrimary.addArgFilePath(path);
-	}
-
-	@Override
-	public void addArgFile(SVDBFile argfile) {
-		fPrimary.addArgFile(argfile);
-	}
-
-	@Override
 	public void addDefine(String key, String val) {
 		fPrimary.addDefine(key, val);
 	}

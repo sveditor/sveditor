@@ -8,7 +8,8 @@ public class SVPreProcEvent {
 		EndExpand,
 		Define,
 		EnterFile,
-		LeaveFile
+		LeaveFile,
+		MissingInclude
 	};
 	
 	public SVPreProcEvent(SVPreProcEvent.Type t) {

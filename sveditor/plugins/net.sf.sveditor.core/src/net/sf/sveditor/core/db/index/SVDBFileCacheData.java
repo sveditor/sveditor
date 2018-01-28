@@ -63,6 +63,8 @@ public class SVDBFileCacheData {
 	
 	public Set<Integer> getIncludedFiles() { return fIncludedFiles; }
 	
+	public Set<String> getMissingIncludeFiles() { return fMissingIncludeFiles; }
+	
 	public void addIncludedFile(int id) {
 		fIncludedFiles.add(id);
 	}

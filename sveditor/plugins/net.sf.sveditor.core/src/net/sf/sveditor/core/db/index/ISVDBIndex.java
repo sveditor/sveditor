@@ -50,10 +50,6 @@ public interface ISVDBIndex extends
 	
 	String getProject();
 	
-	void setGlobalDefine(String key, String val);
-	
-	void clearGlobalDefines();
-	
 	/**
 	 * Returns the type identifier for this index. This is
 	 * typically used in conjunction with the database factory

@@ -66,6 +66,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		File uvm_f = new File(uvm_src, "uvm.f");
 		
 		PrintStream ps = new PrintStream(uvm_f);
+		ps.println("+define+QUESTA");
 		ps.println("uvm_pkg.sv");
 		ps.close();
 		
@@ -74,7 +75,6 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm.f", SVDBArgFileIndexFactory.TYPE, null);
-		index.setGlobalDefine("QUESTA", "");
 		
 		IndexTestUtils.assertNoErrWarn(log, index);
 		
@@ -118,7 +118,7 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 		
 		ISVDBIndex index = fIndexRgy.findCreateIndex(new NullProgressMonitor(), "GENERIC",
 				"${workspace_loc}/uvm/uvm_pkg.sv", SVDBArgFileIndexFactory.TYPE, null);
-		index.setGlobalDefine("QUESTA", "");
+//		index.setGlobalDefine("QUESTA", "");
 		
 		long index_build_start = System.currentTimeMillis();
 		index.loadIndex(new NullProgressMonitor());
@@ -166,7 +166,6 @@ public class TestIndexFileRefs extends SVCoreTestCaseBase {
 				"${workspace_loc}/wb_ethmac/wb_ethmac.f",
 				SVDBArgFileIndexFactory.TYPE,
 				null);
-		index.setGlobalDefine("QUESTA", "");
 		
 		index.loadIndex(new NullProgressMonitor());
 		IndexTestUtils.assertNoErrWarn(fLog, index);

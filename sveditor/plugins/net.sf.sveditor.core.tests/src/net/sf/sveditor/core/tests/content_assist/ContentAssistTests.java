@@ -139,7 +139,7 @@ public class ContentAssistTests extends TestCase {
 			boolean					exclude_kw,
 			boolean					ordered,
 			String ... 				expected) {
-		runTest(test, null, doc, false, false, expected);
+		runTest(test, null, doc, exclude_kw, ordered, expected);
 	}
 	
 	public static void runTest(
@@ -259,7 +259,11 @@ public class ContentAssistTests extends TestCase {
 				}				
 			}
 
-			ContentAssistTests.validateResults(expected, proposals, false);
+			ContentAssistTests.validateResults(
+					expected, 
+					proposals, 
+					
+					false);
 		} finally {
 			test.getIndexRgy().disposeIndex(index, "End of Test");
 			if (extra_index != null) {

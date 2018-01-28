@@ -163,14 +163,21 @@ public class SVDBArgFileIndex implements
 			SVDBIndexConfig 			config) {
 		this(project);
 		fBaseLocation = base_location;
-		fBuildData = new SVDBArgFileIndexBuildData(cache, base_location);
 		
 		// Save this for later
 		fCacheMgr = cache.getCacheMgr();
 		fConfig = config;
 
+		fBuildData = new SVDBArgFileIndexBuildData(
+				cache, getBaseLocation(), null, null);
+		fBuildData.setFSProvider(getFileSystemProvider());
+		fBuildData.setProject(fProject);
+		
 		setFileSystemProvider(fs_provider);
 		fInWorkspaceOk = (base_location.startsWith("${workspace_loc}"));
+		
+		fBuildData.setResolvedBaseLocation(getResolvedBaseLocation());
+		fBuildData.setResolvedBaseLocationDir(getResolvedBaseLocationDir());
 	
 		fArgFileParser = new SVDBArgFileParser(
 				getFileSystemProvider(),
@@ -196,112 +203,16 @@ public class SVDBArgFileIndex implements
 	
 	public ISVDBIndexChangePlan createIndexChangePlan(List<SVDBIndexResourceChangeEvent> changes) {
 		ISVDBIndexChangePlan plan = new SVDBIndexChangePlan(this, SVDBIndexChangePlanType.Empty);
-		
-		
-		if (changes == null || !fIndexValid) {
-			if (!fIndexValid) {
-				// Return a 'build me' plan, since we're not valid
-				plan = new SVDBIndexChangePlanRebuild(this);
-			}
-		} else {
-			if (fDebugEn) {
-				fLog.debug("--> createIndexChangePlan (incremental)");
-			}
-			synchronized (fBuildData) {
-				List<String> changed_sv_files = new ArrayList<String>();
-				List<String> changed_f_files = new ArrayList<String>();
-				boolean files_added   = false;
-				boolean files_changed = false;
-				boolean files_removed = false;
-				
-				SVDBIndexChangePlanRebuildFiles rebuild_sv_files_plan = new SVDBIndexChangePlanRebuildFiles(this);
-				SVDBIndexChangePlanRebuildFiles rebuild_arg_files_plan = new SVDBIndexChangePlanRebuildFiles(this);
-				
-				for (SVDBIndexResourceChangeEvent ev : changes) {
-					String path = SVFileUtils.resolvePath(ev.getPath(), getResolvedBaseLocation(), fFileSystemProvider, fInWorkspaceOk);
-					if (fDebugEn) {
-						fLog.debug("Changed file: " + path);
-					}
-					
-					switch (ev.getType()) {
-					case ADD: files_added = true; break;
-					case CHANGE: files_changed = true; break;
-					case REMOVE: files_removed = true; break;
-					}
-					
-					if (fBuildData.containsFile(path, FILE_ATTR_SRC_FILE)) {
-						if (fDebugEn) {
-							fLog.debug("  Is a Source File");
-						}
-						if (!changed_sv_files.contains(path)) {
-							changed_sv_files.add(path);
-						}
-					} else if (fBuildData.containsFile(path, FILE_ATTR_ARG_FILE)) {
-						if (fDebugEn) {
-							fLog.debug("  Is an argument file");
-						}
-						// Argument file changed, so rebuild project
-						if (!changed_f_files.contains(path)) {
-							changed_f_files.add(path);
-						}
-						break;
-					}
+		synchronized (fBuildData) {
+			if (changes == null || !fIndexValid) {
+				if (!fIndexValid) {
+					plan =  new SVDBIndexChangePlanRebuild(this);
 				}
-				
-				if (fDebugEn) {
-					fLog.debug("  changed_sv_files: " + changed_sv_files.size() + 
-							" changed_f_files: " + changed_f_files.size());
-				}
-				
-				if (files_removed) {
-					if (files_added || files_changed) {
-						if (fDebugEn) {
-							fLog.debug("  Files were both removed and added/changed; Full rebuild");
-						}
-						plan = new SVDBIndexChangePlanRebuild(this);
-					} else {
-						if (fDebugEn) {
-							fLog.debug("  Files were removed");
-						}
-						
-						SVDBIndexChangePlanRemoveFiles rf_plan = 
-								new SVDBIndexChangePlanRemoveFiles(this);
-						
-						for (SVDBIndexResourceChangeEvent ev : changes) {
-							if (ev.getType() == Type.REMOVE) {
-								rf_plan.addFile(ev.getPath());
-							}
-						}
-						
-						plan = rf_plan;
-					}
-				} else {
-					if (changed_sv_files.size() > 0) {
-						if (changed_f_files.size() > 0) {
-							// TODO: Both SV and argument files changed
-							plan = create_incr_hybrid_plan(changed_sv_files, changed_f_files);
-						} else {
-							plan = create_incr_plan(changed_sv_files);
-						}
-					} else if (changed_f_files.size() > 0) {
-						plan = create_incr_argfile_plan(changed_f_files);
-					}
-				}
-			
-				/*
-				if (changed_f_files.size() > 0) {
-					// TODO: Full build for now
-					plan = new SVDBIndexChangePlanRebuild(this);
-				} else if (changed_sv_files.size() > 0) {
-					plan = create_incr_plan(changed_sv_files);
-				}
-				 */
-			}
-			if (fDebugEn) {
-				fLog.debug("<-- createIndexChangePlan (incremental)");
+			} else {
+				plan = SVDBArgFileChangePlanner.createIndexChangePlan(this, fBuildData, changes);
 			}
 		}
-		
+
 		return plan;
 	}
 
@@ -393,18 +304,6 @@ public class SVDBArgFileIndex implements
 		}
 		// Not Needed: set the version to check later
 //		fBuildData.fIndexCacheData.setVersion(SVCorePlugin.getVersion());
-
-		// Set the global settings anyway
-		if (fConfig != null
-				&& fConfig.containsKey(ISVDBIndexFactory.KEY_GlobalDefineMap)) {
-			Map<String, String> define_map = (Map<String, String>) fConfig
-					.get(ISVDBIndexFactory.KEY_GlobalDefineMap);
-
-			fBuildData.clearGlobalDefines();
-			for (String key : define_map.keySet()) {
-				fBuildData.setGlobalDefine(key, define_map.get(key));
-			}
-		}		
 		
 		fIndexRefreshed = true;
 	}
@@ -423,17 +322,8 @@ public class SVDBArgFileIndex implements
 //		}
 
 		ISVDBIndexCacheMgr c_mgr = fBuildData.getCacheMgr();
-		ISVDBIndexCache new_cache = 
-				c_mgr.createIndexCache(getProject(), getBaseLocation());
-		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(
-				new_cache, getBaseLocation());
+		SVDBArgFileIndexBuildData build_data = createBuildData();
 		
-		synchronized (fBuildData) {
-			// Copy in relevant information
-			build_data.getGlobalDefines().putAll(fBuildData.getGlobalDefines());
-			build_data.setFSProvider(fFileSystemProvider);
-		}
-	
 		// Rebuild the index
 		buildIndex(subMonitor.newChild(9750), build_data);
 		
@@ -485,309 +375,105 @@ public class SVDBArgFileIndex implements
 		if (fDebugEn) {
 			fLog.debug(LEVEL_MIN, "rebuild_files: " + plan.getFileListType());
 		}
-		
-		SubMonitor subMonitor = SubMonitor.convert(monitor, "Update " + getBaseLocation(), 2*1000*plan.getFileList().size());
 	
-		ISVDBIndexCache cache = fCacheMgr.createIndexCache(getProject(), getBaseLocation());
-		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(cache, getBaseLocation());
-//		SVDBLinkedArgFileIndexBuildData build_data_l = new SVDBLinkedArgFileIndexBuildData(
-//				build_data, fBuildData);
-		build_data.setFSProvider(fFileSystemProvider);
+		SVDBArgFileIndexRebuilder.rebuild_files(
+				this, 
+				fBuildData,
+				monitor,
+				out,
+				plan);
 		
-		synchronized (fBuildData) {
-			// Must initialize the file mapper state so any
-			// new files are given correct numberings
-			build_data.initFileMapperState(fBuildData);
-		}
-	
-		// Save the number of files pre, so we can update post
-//		int n_files_pre = build_data.fIndexCacheData.getFileCount(FILE_ATTR_SRC_FILE);
-		
-		// First build a complete source list of files
-		List<String> file_list = new ArrayList<String>();
-		List<String> existing_files = new ArrayList<String>();
-		List<String> added_files = new ArrayList<String>();
-		
-		if (plan.getFileListType() == FileListType.Source) {
-			// simple: already have it
-			out.note("Only source (SV) files have changed");
-			file_list.addAll(plan.getFileList());
-			subMonitor.worked(1000);
-		} else if (plan.getFileListType() == FileListType.Filelist) {
-			NullProgressMonitor m = new NullProgressMonitor();
-			
-			out.note("Only filelist (.f) files have changed");
-		
-			for (String f_file : plan.getFileList()) {
-				synchronized (fBuildData) {
-					SVDBFile argfile = fBuildData.getFile(m, f_file);
-					if (argfile != null && argfile instanceof SVDBArgFile) {
-						fArgFileParser.collectSourceFiles(fBuildData, 
-								(SVDBArgFile)argfile, existing_files);
-					}
-				}
-			}
-		
-			// Process the new versions of the argument files
-			Set<String> processed_paths = new HashSet<String>();
-			for (String f_file : plan.getFileList()) {
-				SVDBArgFile argfile = null;
-				synchronized (fBuildData) {
-					SVDBFile f = fBuildData.getFile(m, f_file);
-					if (f != null && f instanceof SVDBArgFile) {
-						argfile = (SVDBArgFile)f;
-					}
-				}
-				
-				fArgFileParser.processArgFile(
-						subMonitor.newChild(1000), 
-						build_data, 
-						null, 
-						processed_paths, 
-						(argfile != null)?argfile.getBaseLocation():fBaseLocation,
-						f_file, 
-						false);
-			}
-			
-			// Collect the new source files to parse
-			for (String f_file : plan.getFileList()) {
-				SVDBFile argfile = build_data.getFile(m, f_file);
-				if (argfile != null) {
-					fArgFileParser.collectSourceFiles(build_data, 
-							(SVDBArgFile)argfile, file_list);
-				}
-			}
-			
-		
-//			System.out.println("New Files: ");
-//			for (String path : file_list) {
-//				System.out.println("    Path: " + path);
-//			}
-		} else if (plan.getFileListType() == FileListType.Hybrid) {
-			// Both filelists and files changed
-			out.note("Both source (SV) and filelist (.f) files have changed");
-			
-		}
-		
-		if (fDebugEn) {
-			fLog.debug("Source files to parse: " + file_list.size());
-			for (String path : file_list) {
-				fLog.debug("  " + path);
-			}
-		}
-		
-		SVDBIndexChangeEvent ev = null;
-		
-		synchronized (fIndexChangeListeners) {
-			if (fIndexChangeListeners.size() > 0) {
-				ev = new SVDBIndexChangeEvent(
-						SVDBIndexChangeEvent.Type.IncrRebuild, this);
-			}
-		}
-	
-		try {
-			// TODO: order files based on previous processing order
-			// Note: only important for MFCU mode
-
-			// TODO: determine whether these are SV are .f files?
-			for (String path : file_list) {
-				SubMonitor loopMonitor = subMonitor.newChild(1000);
-				loopMonitor.beginTask("Parse " + path, 1000);
-				// path is a 'root' file
-				InputStream in = fFileSystemProvider.openStream(path);
-//				System.out.println("Remove: " + path + " from existing files");
-				out.note("Parse: " + path);
-				
-				int file_id = build_data.mapFilePathToId(path, false);
-				
-				if (!existing_files.remove(path)) { // Remove the new path from the set of pre-existing ones
-					added_files.add(path);
-				}
-				
-				if (in == null) {
-					continue;
-				}
-				
-				SVPreProcessor preproc = new SVPreProcessor(
-						path, in, build_data, build_data);
-
-				fFileSystemProvider.closeStream(in);
-				
-				
-				synchronized (fBuildData) {
-					if (fBuildData.isMFCU()) {
-						List<SVDBMacroDef> macros = 
-								SVDBArgFileBuildDataUtils.calculateIncomingMacros(
-										fBuildData, path);
-
-						for (SVDBMacroDef d : macros) {
-							preproc.setMacro(d);
-						}
-					} else {
-						// Add global defines
-						for (Entry<String, String> e : fBuildData.getDefines().entrySet()) {
-							preproc.setMacro(new SVDBMacroDef(e.getKey(), e.getValue()));
-						}
-						for (Entry<String, String> e : build_data.getGlobalDefines().entrySet()) {
-							preproc.setMacro(new SVDBMacroDef(e.getKey(), e.getValue()));
-						}							
-					}
-				}
-				
-				SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
-				SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
-						cd.getTopLevelDeclarations(),
-						this,
-						cd.getIncludedFiles(),
-						file_id);
-				
-				preproc.addListener(decl_builder);
-				
-				SVPreProcOutput pp_out = preproc.preprocess();
-				pp_out.setFileChangeListener(
-						new SVBuilderPreProcTracker(out, build_data));
-				SVDBFileTree ft = pp_out.getFileTree();
-				
-				// Collect include files
-				List<String> included_files = new ArrayList<String>();
-				SVDBFileTreeUtils.collectIncludedFiles(included_files, ft);
-				
-				// Update the include map
-//				build_data.getRootIncludeMap().remove(path);
-//				build_data.getRootIncludeMap().put(path, included_files);
-			
-				
-				SVParser f = new SVParser();
-				f.setFileMapper(build_data);
-				f.add_type_listener(decl_builder);
-				
-				SVLanguageLevel language_level;
-				
-				if (build_data.getForceSV()) {
-					language_level = SVLanguageLevel.SystemVerilog;
-				} else {
-					language_level = SVLanguageLevel.computeLanguageLevel(path);
-				}
-				List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-				SVDBFile file = f.parse(language_level, pp_out, path, markers);
-				
-				// Now, set the new root-file info to the cache
-				build_data.getCache().setFile(path, file, false);
-				build_data.getCache().setFileTree(path, ft, false);
-				build_data.getCache().setMarkers(path, markers, false);
-				long last_modified = fFileSystemProvider.getLastModifiedTime(path);
-				build_data.getCache().setLastModified(path, last_modified, false);
-				
-				SVDBArgFileBuildDataUtils.cacheDeclarations(build_data, this, file, ft);
-			
-				if (ev != null) {
-					ev.addDelta(new SVDBIndexChangeDelta(
-							SVDBIndexChangeDelta.Type.Change, file));
-				}
-				
-				loopMonitor.worked(1000);
-			}
-			
-			// Patch the new content into the index build data
-			synchronized (fBuildData) {
-				// Cached data is stored per-file. 
-				// - Go through the files processed during the last index operation
-				// - If present in the master cache, remove
-				// - Add to the master cache
-				SVDBBaseIndexCacheData old_cache = fBuildData.getIndexCacheData();
-				SVDBBaseIndexCacheData new_cache = build_data.getIndexCacheData();
-				for (SVDBFileCacheData cd : new_cache.getFileCacheData().values()) {
-					int id = cd.getFileId();
-					String path = old_cache.mapFileIdToPath(id);
-					
-					if (path != null) {
-						// Exists already. Remove old data
-						old_cache.removeFileCacheData(id);
-					} 
-					old_cache.addFileCacheData(cd);
-				}
-				
-				for (String path : file_list) {
-					// Remove this file from the 'existing' list
-					existing_files.remove(path);
-					
-					SubMonitor loopMonitor = subMonitor.newChild(1000);
-					loopMonitor.setTaskName("Merge " + path);
-					if (fDebugEn) {
-						fLog.debug("Merge: " + path);
-					}
-					SVDBFileTree     ft      = cache.getFileTree(new NullProgressMonitor(), path, false);
-					SVDBFile         file    = cache.getFile(new NullProgressMonitor(), path);
-					List<SVDBMarker> markers = cache.getMarkers(path);
-				
-					if (file != null) {
-						fBuildData.getCache().setFile(path, file, false);
-						if (ft != null) {
-							fBuildData.getCache().setFileTree(path, ft, false);
-						}
-						if (markers != null) {
-							fBuildData.getCache().setMarkers(path, markers, false);
-						}
-					} else {
-						System.out.println("File " + path + " doesn't exist " + fOut);
-						out.error("File " + path + " doesn't exist");
-					}
-
-					long last_modified = cache.getLastModified(path);
-					fBuildData.getCache().setLastModified(path, last_modified, false);
-				
-					System.out.println("TODO: deal with back-patching index");
-					int dst_id = fBuildData.mapFilePathToId(path, true);
-					int src_id = build_data.mapFilePathToId(path, false);
-					System.out.println("Note: Patch cache for " + path + " dst=" + dst_id + " src=" + src_id);
-					for (SVDBDeclCacheItem it : build_data.getIndexCacheData().getFileCacheData(src_id).getTopLevelDeclarations()) {
-						System.out.println("Item: " + it.getName());
-					}
-					fBuildData.getIndexCacheData().setFileCacheData(
-							dst_id, build_data.getIndexCacheData().getFileCacheData(src_id));
-//					// All of these files (I think) will be root files
+//		try {
+//			// TODO: order files based on previous processing order
+//			// Note: only important for MFCU mode
+//
+//			// TODO: determine whether these are SV are .f files?
+//
 //			
-//					if (ft != null) {
-//						// Update the cached declarations
-//						patch_decl_cache(ft, decl_cache, new_decl_cache);
+//			// Patch the new content into the index build data
+//			synchronized (fBuildData) {
+//
+//				for (String path : file_list) {
+//					// Remove this file from the 'existing' list
+//					existing_files.remove(path);
+//					
+//					SubMonitor loopMonitor = subMonitor.newChild(1000);
+//					loopMonitor.setTaskName("Merge " + path);
+//					if (fDebugEn) {
+//						fLog.debug("Merge: " + path);
 //					}
-
-					loopMonitor.worked(1000);
-				}
-				
-				// Add any new files
-				for (String path : added_files) {
-					int attr = build_data.getFileAttr(path);
-					if (fDebugEn) {
-						fLog.debug("Add file \"" + path + "\" to cache");
-					}
-					fBuildData.addFile(path, attr);
-				}
-				
-				// TODO: collect declaration info from these files and remove
-				// from the declaration cache
-				for (String path : existing_files) {
-					if (fDebugEn) {
-						fLog.debug("Remove: " + path);
-					}
-					fBuildData.removeFile(path, false);
-				}
+//					SVDBFileTree     ft      = cache.getFileTree(new NullProgressMonitor(), path, false);
+//					SVDBFile         file    = cache.getFile(new NullProgressMonitor(), path);
+//					List<SVDBMarker> markers = cache.getMarkers(path);
+//				
+//					if (file != null) {
+//						fBuildData.getCache().setFile(path, file, false);
+//						if (ft != null) {
+//							fBuildData.getCache().setFileTree(path, ft, false);
+//						}
+//						if (markers != null) {
+//							fBuildData.getCache().setMarkers(path, markers, false);
+//						}
+//					} else {
+//						System.out.println("File " + path + " doesn't exist " + fOut);
+//						out.error("File " + path + " doesn't exist");
+//					}
+//
+//					long last_modified = cache.getLastModified(path);
+//					fBuildData.getCache().setLastModified(path, last_modified, false);
+//			
+//					int dst_id = fBuildData.mapFilePathToId(path, true);
+//					int src_id = build_data.mapFilePathToId(path, false);
+//					if (fDebugEn) {
+//						fLog.debug("Note: Patch cache for " + path + " dst=" + dst_id + " src=" + src_id);
+//						for (SVDBDeclCacheItem it : build_data.getIndexCacheData().getFileCacheData(src_id).getTopLevelDeclarations()) {
+//							fLog.debug("  Item: " + it.getName());
+//						}
+//					}
+//					fBuildData.getIndexCacheData().setFileCacheData(
+//							dst_id, build_data.getIndexCacheData().getFileCacheData(src_id));
+////					// All of these files (I think) will be root files
+////			
+////					if (ft != null) {
+////						// Update the cached declarations
+////						patch_decl_cache(ft, decl_cache, new_decl_cache);
+////					}
+//
+//					loopMonitor.worked(1000);
+//				}
+//				
+//				// Add any new files
+//				for (String path : added_files) {
+//					int attr = build_data.getFileAttr(path);
+//					if (fDebugEn) {
+//						fLog.debug("Add file \"" + path + "\" to cache");
+//					}
+//					fBuildData.addFile(path, attr);
+//				}
+//				
+//				// TODO: collect declaration info from these files and remove
+//				// from the declaration cache
+//				for (String path : existing_files) {
+//					if (fDebugEn) {
+//						fLog.debug("Remove: " + path);
+//					}
+//					fBuildData.removeFile(path, false);
+//				}
+//			}
+//		
+//		} finally {
+//			subMonitor.done();
+//		}
+	}
+	
+	void sendIndexChangeEv(SVDBIndexChangeEvent ev) {
+		synchronized (fIndexChangeListeners) {
+			if (fDebugEn) {
+				fLog.debug("Notify listeners: ev= " + ev + " Listeners=" + fIndexChangeListeners.size());
 			}
-		
-			// Once everything is done, fire the index-change event
-			if (ev != null) {
-				synchronized (fIndexChangeListeners) {
-					for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
-						l.index_event(ev);
-					}
-				}
-			}			
-		} finally {
-			// No matter what, need to dispose of the new cache
-			if (cache != null) {
-				cache.dispose();
+			for (ISVDBIndexChangeListener l : fIndexChangeListeners) {
+				l.index_event(ev);
 			}
-			subMonitor.done();
 		}
 	}
 
@@ -911,57 +597,7 @@ public class SVDBArgFileIndex implements
 		}
 	}
 	
-	private ISVDBIndexChangePlan create_incr_plan(List<String> changed_sv_files) {
-		SVDBIndexChangePlanRebuildFiles plan = new SVDBIndexChangePlanRebuildFiles(this);
-	
-		plan.setFileListType(FileListType.Source);
-		
-		for (String sv_path : changed_sv_files) {
-			SVDBFileTree ft = SVDBArgFileBuildDataUtils.findRootFileTree(
-					fBuildData, sv_path);
-			if (ft != null) {
-				plan.addFile(ft.getFilePath());
-			}
-		}
-		
-		return plan;
-	}
-	
-	private ISVDBIndexChangePlan create_incr_argfile_plan(List<String> changed_f_files) {
-		SVDBIndexChangePlanRebuildFiles plan = new SVDBIndexChangePlanRebuildFiles(this);
-		
-		plan.setFileListType(FileListType.Filelist);
-	
-		for (String f_path : changed_f_files) {
-			plan.addFile(f_path);
-		}
-		
-		return plan;
-	}
-	
-	private ISVDBIndexChangePlan create_incr_hybrid_plan(
-			List<String> changed_sv_files,
-			List<String> changed_f_files) {
-		SVDBIndexChangePlanRebuildFiles plan = new SVDBIndexChangePlanRebuildFiles(this);
-		
-		plan.setFileListType(FileListType.Hybrid);
 
-		// Add argument files first
-		for (String f_path : changed_f_files) {
-			plan.addFile(f_path);
-		}
-		
-		// Then add source files
-		for (String sv_path : changed_sv_files) {
-			SVDBFileTree ft = SVDBArgFileBuildDataUtils.findRootFileTree(
-					fBuildData, sv_path);
-			if (ft != null) {
-				plan.addFile(ft.getFilePath());
-			}
-		}
-		
-		return plan;
-	}
 
 	@Override
 	public void logLevelChanged(ILogHandle handle) {
@@ -992,57 +628,6 @@ public class SVDBArgFileIndex implements
 			return valid;
 		}
 		 */
-
-		// Confirm that global defines are the same
-		if (fConfig != null) {
-			// First check to see if all configured global defines are present
-			if (fConfig.containsKey(ISVDBIndexFactory.KEY_GlobalDefineMap)) {
-				Map<String, String> define_map = (Map<String, String>) fConfig
-						.get(ISVDBIndexFactory.KEY_GlobalDefineMap);
-				if (define_map.size() != fBuildData.getGlobalDefines()
-						.size()) {
-					if (fDebugEn) {
-						fLog.debug(LEVEL_MID,
-								"Cache invalid -- size of global defines is different");
-					}
-					valid = false;
-				} else {
-					// Check all defines
-					for (Entry<String, String> e : define_map.entrySet()) {
-						if (fBuildData.getGlobalDefines().containsKey(
-								e.getKey())) {
-							if (!fBuildData.getGlobalDefines()
-									.get(e.getKey()).equals(e.getValue())) {
-								if (fDebugEn) {
-									fLog.debug(
-											LEVEL_MID,
-											"Cache invalid -- define "
-													+ e.getKey()
-													+ " has a different value");
-								}
-								valid = false;
-								break;
-							}
-						} else {
-							if (fDebugEn) {
-								fLog.debug(LEVEL_MID,
-										"Cache invalid -- define " + e.getKey()
-												+ " not in cache");
-							}
-							valid = false;
-							break;
-						}
-					}
-				}
-			} else if (fBuildData.getGlobalDefines().size() > 0) {
-				// Local index has defines and the incoming config does not
-				if (fDebugEn) {
-					fLog.debug(LEVEL_MID,
-							"Cache invalid -- no global defines, and cache has");
-				}
-				valid = false;
-			}
-		}
 
 		if (fBuildData.getCache().getFileList(false).size() > 0) {
 			for (String path : fBuildData.getCache().getFileList(false)) {
@@ -1267,7 +852,7 @@ public class SVDBArgFileIndex implements
 		return fProjectName;
 	}
 
-	private String getResolvedBaseLocation() {
+	String getResolvedBaseLocation() {
 		if (fResolvedBaseLocation == null) {
 			fResolvedBaseLocation = SVDBIndexUtil.expandVars(fBaseLocation,
 					fProjectName, fInWorkspaceOk);
@@ -1276,6 +861,27 @@ public class SVDBArgFileIndex implements
 		}
 
 		return fResolvedBaseLocation;
+	}
+	
+	String resolvePath(String path) {
+		return SVFileUtils.resolvePath(path, 
+				getResolvedBaseLocation(), 
+				fFileSystemProvider,
+				fInWorkspaceOk);
+	}
+	
+	SVDBArgFileIndexBuildData createBuildData() {
+		return createBuildData(fCacheMgr.createIndexCache(getProject(), getBaseLocation()));
+	}
+	
+	SVDBArgFileIndexBuildData createBuildData(ISVDBIndexCache cache) {
+		SVDBArgFileIndexBuildData build_data = new SVDBArgFileIndexBuildData(
+				cache, getBaseLocation(), getResolvedBaseLocation(),
+				getResolvedBaseLocationDir());
+		build_data.setFSProvider(getFileSystemProvider());
+		build_data.setProject(fProject);
+		
+		return build_data;
 	}
 
 	private String getResolvedBaseLocationDir() {
@@ -1303,29 +909,6 @@ public class SVDBArgFileIndex implements
 			}
 		}
 		return fBaseLocationDir;
-	}
-
-	@Override
-	public void setGlobalDefine(String key, String val) {
-		if (fDebugEn) {
-			fLog.debug(LEVEL_MID, "setGlobalDefine(" + key + ", " + val + ")");
-		}
-		fBuildData.setGlobalDefine(key, val);
-
-		// Rebuild the index when something changes
-		/** TODO:
-		if (!fIndexCacheData.getGlobalDefines().containsKey(key)
-				|| !fIndexCacheData.getGlobalDefines().get(key).equals(val)) {
-			rebuildIndex(new NullProgressMonitor());
-		}
-		 */
-	}
-
-	@Override
-	public void clearGlobalDefines() {
-		fBuildData.clearGlobalDefines();
-		/** TODO: should queue for rebuild?
-		 */
 	}
 
 	/**
@@ -1431,9 +1014,7 @@ public class SVDBArgFileIndex implements
 		}
 		
 		synchronized (fBuildData) {
-			String r_path = SVFileUtils.resolvePath(
-					path, getResolvedBaseLocation(), 
-					fFileSystemProvider, fInWorkspaceOk);
+			String r_path = resolvePath(path);
 
 			if (!fFileSystemProvider.fileExists(r_path)) {
 				fLog.debug("parse: path " + r_path + " does not exist");
@@ -1521,9 +1102,7 @@ public class SVDBArgFileIndex implements
 		ISVStringPreProcessor ret = null;
 
 		synchronized (fBuildData) {
-			String r_path = SVFileUtils.resolvePath(
-					path, getResolvedBaseLocation(), 
-					fFileSystemProvider, fInWorkspaceOk);
+			String r_path = resolvePath(path);
 
 			if (!fFileSystemProvider.fileExists(r_path)) {
 				fLog.debug("parse: path " + r_path + " does not exist");
