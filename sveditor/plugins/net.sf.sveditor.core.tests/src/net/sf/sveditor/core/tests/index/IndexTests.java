@@ -73,6 +73,9 @@ public class IndexTests extends TestSuite {
 		return ret;
 	}
 	 */
+	public static void assertContains(ISVDBIndexIterator index_it, String name) {
+		assertContains(index_it, name, null);
+	}
 	
 	public static void assertContains(ISVDBIndexIterator index_it, String name, SVDBItemType type) {
 		List<SVDBDeclCacheItem> result = index_it.findGlobalScopeDecl(new NullProgressMonitor(), name, 
@@ -80,7 +83,9 @@ public class IndexTests extends TestSuite {
 		TestCase.assertEquals("Failed to find " + name, 1, result.size());
 		SVDBDeclCacheItem item_c = result.get(0);
 		TestCase.assertNotNull("failed to get item " + item_c.getName(), item_c.getSVDBItem());
-		TestCase.assertEquals("item is not of type " + type, type, item_c.getSVDBItem().getType());
+		if (type != null) {
+			TestCase.assertEquals("item is not of type " + type, type, item_c.getSVDBItem().getType());
+		}
 	}
 
 	public static void assertDoesNotContain(ISVDBIndexIterator index_it, String name) {

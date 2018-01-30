@@ -162,7 +162,9 @@ public class SVDBSearchUtils implements ILogLevel {
 		if (it instanceof ISVDBScopeItem) {
 			long end_loc = ((ISVDBScopeItem)it).getEndLocation(); 
 			ISVDBScopeItem s_it = (ISVDBScopeItem)it;
-			debug("        start_loc=" + s_it.getLocation() + " ; end_loc=" + end_loc);
+			debug("        start_loc=" + SVDBLocation.toString(s_it.getLocation()) + 
+					" ; end_loc=" + SVDBLocation.toString(end_loc) +
+					" " + SVDBItem.getName(it));
 			if (s_it.getLocation() != -1 && end_loc != -1) {
 				debug("    sub-scope " + SVDBItem.getName(it) + " @ " + 
 						SVDBLocation.unpackLineno(it.getLocation()) + "-" + 

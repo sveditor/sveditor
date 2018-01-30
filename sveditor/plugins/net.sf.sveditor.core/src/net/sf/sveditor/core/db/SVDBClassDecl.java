@@ -30,7 +30,7 @@ public class SVDBClassDecl extends SVDBScopeItem {
 	public SVDBClassDecl(String name) {
 		super(name, SVDBItemType.ClassDecl);
 	}
-
+	
 	public List<SVDBModIfcClassParam> getParameters() {
 		return fParams;
 	}

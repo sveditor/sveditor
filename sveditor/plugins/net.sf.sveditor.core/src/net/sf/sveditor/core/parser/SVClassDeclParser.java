@@ -140,6 +140,8 @@ public class SVClassDeclParser extends SVParserBase {
 			leave_type_scope(cls);
 		}
 
+//		System.out.println("setClassEndLocation: " + 
+//				SVDBLocation.toString(fLexer.getStartLocation()));
 		cls.setEndLocation(fLexer.getStartLocation());
 		fLexer.readKeyword(KW.ENDCLASS);
 

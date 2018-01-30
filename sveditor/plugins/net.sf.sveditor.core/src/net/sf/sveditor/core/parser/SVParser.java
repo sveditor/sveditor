@@ -863,7 +863,8 @@ public class SVParser implements ISVScanner,
 			}
 		
 			if (error_limit_reached()) {
-				throw new SVAbortParseException();
+				fParseErrorCount = 0;
+				throw new SVSkipToNextFileException();
 			}
 		
 			throw e;

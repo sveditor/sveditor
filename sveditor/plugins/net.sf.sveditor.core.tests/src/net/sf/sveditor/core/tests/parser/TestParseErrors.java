@@ -104,6 +104,27 @@ public class TestParseErrors extends SVCoreTestCaseBase {
 		runTest(content, 1, "my_class", "foobar", "foobar2");
 	}
 	
+	public void testRecoverBehavioralStatement() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String content = 
+			"\n" +
+			"class my_class;\n" +
+			"\n" +
+			"	function void foobar;\n" +
+			"		int a\n" +
+			"		int b;\n" +
+			"		int c;\n" +
+			"		int d;\n" +
+			"	endfunction\n" +
+			"\n" +
+			"	function void foobar2;\n" +
+			"	endfunction\n" +
+			"endclass\n"
+			;
+		
+		runTest(content, 1, "my_class", "foobar", "foobar2");
+	}	
+	
 	public void testMultiFileErrorRecovery() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		Map<String, String> file_map = new HashMap<String, String>();
@@ -138,6 +159,56 @@ public class TestParseErrors extends SVCoreTestCaseBase {
 				);
 
 		runTest(fs_provider, "dir/sve.f", 1, "cls1", "cls3");
+	}
+	
+	public void testMoreThan100ErrorRecovery() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		Map<String, String> file_map = new HashMap<String, String>();
+		SVDBMapFileSystemProvider fs_provider = new SVDBMapFileSystemProvider(file_map);
+		
+		file_map.put("top_dir/files.f", 
+				"top_dir/top.sv\n" +
+				"top_dir/m2.sv\n"
+				);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(
+				"	module m ();\n" + 
+				"		// comment\n");
+		for (int i=0; i<150; i++) {
+			sb.append(
+				"		assign c=d		// 1\n" + 
+				"			assign c=d; // \n");
+		}
+		
+		sb.append(
+				"		\n" + 
+				"		\n" + 
+				"		assign b = c; \n" + 
+				"		assign b = c; /* comment */ \n" + 
+				"		always @*\n" + 
+				"		begin\n" + 
+				"			b = c\n" + 
+				"		end\n" + 
+				"		\n" + 
+				"		\n" + 
+				"	endmodule\n");
+		
+		file_map.put("top_dir/top.sv", 
+				sb.toString());
+		
+		file_map.put("top_dir/m2.sv", 
+				"module m2 ();\n" + 
+				"endmodule\n"
+				);
+		file_map.put("top_dir/parameters.sv",
+				"`define SOME_DEFINE 1'b1\n" + 
+				"`define TOP top\n" + 
+				"`define MUX `TOP.mux\n"
+				);
+		
+		runTest(fs_provider, "top_dir/files.f", 100, 
+				"m" /*, "m_v1"*/, "m2");
 	}
 	
 	private void runTest(String content, int n_errors, String ... expected) {
@@ -179,7 +250,7 @@ public class TestParseErrors extends SVCoreTestCaseBase {
 		}
 		
 		for (int i=0; i<expected_l.size(); i++) {
-//			IndexTests.assertContains(index, expected_l.get(i), type);
+			IndexTests.assertContains(index, expected_l.get(i));
 		}
 		
 		assertEquals(n_errors, markers.size());

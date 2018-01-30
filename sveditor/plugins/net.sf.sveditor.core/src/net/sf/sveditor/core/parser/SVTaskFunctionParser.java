@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -181,10 +182,29 @@ public class SVTaskFunctionParser extends SVParserBase {
 					debug("Failed to parse function body", e);
 				}
 //				// Skip ahead until we find end_kw or reach file end
-//				SVToken last_tok;
-//				
-//				if ((last_tok = fLexer.consumeToken()) != null) {
-//					SVToken tok = last_tok;
+//				SVToken last_tok = fLexer.consumeToken();
+//				if (last_tok != null) {
+//					int start_file = SVDBLocation.unpackFileId(last_tok.getStartLocation());
+//					
+//					SVToken tok;
+//					while ((tok = fLexer.consumeToken()) != null) {
+//						int curr_file = SVDBLocation.unpackFileId(tok.getStartLocation());
+//						System.out.println("tok: " + tok.getImage());
+//						
+//						if (start_file != curr_file) {
+//							// We've moved on to the next file, so get out of here
+//							fLexer.ungetToken(last_tok);
+//							fLexer.ungetToken(tok);
+//							throw new SVSkipToNextFileException();
+//						} else if (tok.isKW(end_kw)) {
+//							System.out.println("Found end token: " + tok.getImage());
+//							fLexer.ungetToken(tok);
+//							break;
+//						}
+//						last_tok = tok;
+//					}
+//				} else {
+//					throw e;
 //				}
 			} finally {
 				func.setEndLocation(fLexer.getStartLocation());
@@ -206,7 +226,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		if (end == -1) {
 			end = fLexer.getStartLocation();
 		}
-		
+	
 		func.setEndLocation(end);
 		if (fDebugEn) {
 			debug("<-- " + type + " " + func.getName());

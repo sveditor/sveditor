@@ -6,6 +6,9 @@
 ------------------------------------------------------------------------------
 -- 2.1.1 Release --
 
+- #(517) - Correct an issue with the new error-recovery code when the 
+  number of errors exceeds 100 (the preset limit)
+  
 ------------------------------------------------------------------------------
 -- 2.1.0 Release --
 
