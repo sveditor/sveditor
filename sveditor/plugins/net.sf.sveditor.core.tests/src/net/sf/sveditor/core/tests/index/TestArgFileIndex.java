@@ -647,7 +647,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String data_root = "/data/index/macros_found_onthefly_parse_2/";
 		utils.copyBundleDirToFS(data_root, fTmpDir);

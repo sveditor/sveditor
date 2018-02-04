@@ -17,7 +17,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestSrcFileChange extends TestFileChangeBase {
 
 	public void testRootFileChanged() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);
@@ -202,7 +202,7 @@ public class TestSrcFileChange extends TestFileChangeBase {
 	}
 
 	public void testMissingIncludeFileAdded() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);

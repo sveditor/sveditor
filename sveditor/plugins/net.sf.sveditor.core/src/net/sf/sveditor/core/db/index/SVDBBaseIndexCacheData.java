@@ -191,6 +191,10 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 	}
 	
 	public boolean containsFile(String path, int attr) {
+		if ((attr & ISVDBDeclCacheFileAttr.FILE_ATTR_ARG_FILE) != 0 &&
+				(attr & ISVDBDeclCacheFileAttr.FILE_ATTR_SRC_FILE) != 0) {
+			System.out.println("Warning: containsFile - both ARG_FILE and SRC_FILE set");
+		}
 		if (fFilePathIdMap.containsKey(path)) {
 			int id = fFilePathIdMap.get(path);
 			SVDBFileCacheData file_info = fFileCacheData.get(id);

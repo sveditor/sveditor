@@ -966,8 +966,13 @@ public class SVDBArgFileIndex implements
 		path = SVFileUtils.resolvePath(path, getBaseLocation(), 
 				fFileSystemProvider, fInWorkspaceOk);
 	
-		return fBuildData.containsFile(path, 
-				FILE_ATTR_SRC_FILE+FILE_ATTR_ARG_FILE);
+		if (fBuildData.containsFile(path, FILE_ATTR_SRC_FILE)) {
+			return true;
+		} else if (fBuildData.containsFile(path, FILE_ATTR_ARG_FILE)) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	@Override
@@ -1029,7 +1034,6 @@ public class SVDBArgFileIndex implements
 				start = System.currentTimeMillis();
 			}
 	
-			
 			if (fDebugEn) {
 				end = System.currentTimeMillis();
 				fLog.debug(LEVEL_MID, "  findTargetFileTree: " + (end-start) + "ms");

@@ -27,6 +27,7 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
+import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
@@ -559,41 +560,21 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 
 	// TODO: encapsulation here seems suspect
 	public static String findRootFilePath(SVDBArgFileIndexBuildData build_data, String path) {
-		String ret = null;
-
-		synchronized (build_data) {
-			int file_id = build_data.getIndexCacheData().mapFilePathToId(path, false);
+		Set<Integer> processed_files = new HashSet<Integer>();
+		int file_id = build_data.getIndexCacheData().mapFilePathToId(path, false);
+		
+		if (file_id > 0) {
+			int ret_id;
 			
-			if (file_id != -1) {
-				SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
-				
-				// See if any file includes this one
-				int root_file_id = file_id;
-				if (fDebugEn) {
-					fLog.debug("findRootFilePath: file_id=" + file_id);
-				}
-				for (int iter_max=0; iter_max<10000; iter_max++) {
-					boolean found = false;
-					for (SVDBFileCacheData c : build_data.getIndexCacheData().getFileCacheData().values()) {
-						if (c.getIncludedFiles().contains(root_file_id)) {
-							if (fDebugEn) {
-								fLog.debug("  file " + c.getFileId() + " includes " + root_file_id);
-							}
-							root_file_id = c.getFileId();
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						// 
-						break;
-					}
-				}
-				ret = build_data.getIndexCacheData().mapFileIdToPath(root_file_id);
-				if (fDebugEn) {
-					fLog.debug("  ret=" + ret + " root_file_id=" + root_file_id);
-				}
+			if ((ret_id = findRootFilePath(
+					processed_files,
+					build_data,
+					file_id)) > 0) {
+				return build_data.mapFileIdToPath(ret_id);
 			}
+		}
+		
+		return null;
 			
 //			Map<String, List<String>> root_map = build_data.getRootIncludeMap();
 //			
@@ -613,9 +594,37 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 //					}
 //				}
 //			}
+//		}
+	}
+	
+	private static int findRootFilePath(
+			Set<Integer>				processed_files,
+			SVDBArgFileIndexBuildData 	build_data, 
+			int 						file_id) {
+		SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
+		
+		if ((cd.getFileAttr() & ISVDBDeclCacheFileAttr.FILE_ATTR_ROOT_FILE) != 0) {
+			return file_id;
+		}
+
+		for (SVDBFileCacheData c : build_data.getIndexCacheData().getFileCacheData().values()) {
+			if (c.getIncludedFiles().contains(file_id)) {
+				if (fDebugEn) {
+					fLog.debug("  file " + c.getFileId() + " includes " + file_id);
+				}
+				
+				if ((c.getFileAttr() & ISVDBDeclCacheFileAttr.FILE_ATTR_ROOT_FILE) != 0) {
+					return c.getFileId();
+				} else if (processed_files.add(c.getFileId())) {
+					int ret;
+					if ((ret = findRootFilePath(processed_files, build_data, c.getFileId())) > 0) {
+						return ret;
+					}
+				}
+			}
 		}
 		
-		return ret;
+		return -1;
 	}
 
 	/**

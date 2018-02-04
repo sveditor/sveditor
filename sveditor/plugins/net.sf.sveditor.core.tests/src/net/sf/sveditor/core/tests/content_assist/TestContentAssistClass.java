@@ -22,7 +22,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 	 * Test that basic macro content assist works
 	 */
 	public void testContentAssistExternTaskClass() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			"class foobar;\n" +
@@ -208,7 +208,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 	}
 	
 	public void testContentAssistBaseClass() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			"class base;\n" +
@@ -359,7 +359,7 @@ public class TestContentAssistClass extends SVCoreTestCaseBase {
 	}
 
 	public void testStaticTypeAssist_1() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			"class base;\n" +

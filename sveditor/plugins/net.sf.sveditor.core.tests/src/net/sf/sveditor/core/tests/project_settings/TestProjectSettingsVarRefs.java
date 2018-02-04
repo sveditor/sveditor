@@ -303,18 +303,30 @@ public class TestProjectSettingsVarRefs extends SVCoreTestCaseBase {
 		pdata.setProjectFileWrapper(fw, true);
 		
 		index_collection = pdata.getProjectIndexMgr();
-		index_collection.loadIndex(new NullProgressMonitor());
+		index_collection.rebuildIndex(new NullProgressMonitor());
 		
 		String ubus_f = SVFileUtils.readInput(new File(ubus_d, "ubus.f"));
 	
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		index_collection.parse(new NullProgressMonitor(), 
+		Tuple<SVDBFile, SVDBFile> result = index_collection.parse(
+				new NullProgressMonitor(), 
 				new StringInputStream(ubus_f), 
 				"${workspace_loc}/ubus/ubus/ubus.f",
 				markers);
 		
+		assertNotNull(result);
+		assertNotNull(result.first());
+		assertNotNull(result.second());
+
+		// TODO: parse always operates as if it's SystemVerilog
+//		for (SVDBMarker m : markers) {
+//			System.out.println("Marker: " + m.getMessage());
+//		}
+//		assertEquals(0, markers.size());
+		
 		// Ensure that there are now no errors
-		assertTrue(CoreReleaseTests.getErrors().size() == 0);		
+//		assertTrue(CoreReleaseTests.getErrors().size() == 0);		
+		assertEquals(0, CoreReleaseTests.getErrors().size());
 	}
 
 }

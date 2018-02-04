@@ -75,7 +75,7 @@ public class TestContentAssistPriority extends SVCoreTestCaseBase {
 	}
 
 	public void testLocalScopeVars() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"class cls1;\n" +					// 1
 			"  int			m_def;\n" +

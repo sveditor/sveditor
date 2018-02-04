@@ -115,7 +115,7 @@ public class TestOverrideMethods extends SVCoreTestCaseBase {
 	}
 	
 	public void testOverrideRefArgTask() throws BadLocationException {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		String doc = 
 			"virtual class base;\n" +
 			"\n" +
@@ -205,8 +205,7 @@ public class TestOverrideMethods extends SVCoreTestCaseBase {
 		
 		
 		SVEditorTester sve_tester = new SVEditorTester(
-				tag_utils.getStrippedData(), "testOverrideFunction",
-				fCacheFactory);
+				this, tag_utils.getStrippedData());
 
 		ITextSelection sel = new TextSelection(
 				sve_tester.getDocument(), tag_utils.getTagPos("MARK"), 1);
@@ -234,6 +233,8 @@ public class TestOverrideMethods extends SVCoreTestCaseBase {
 		OverrideMethodsFinder finder = new OverrideMethodsFinder(
 				extension, sve_tester.getIndexIterator());
 		final List<SVDBTask> targets = finder.getMethods(base);
+		
+		assertTrue(targets.size() > 0);
 		
 		OverrideTaskFuncImpl override = new OverrideTaskFuncImpl(
 				sve_tester, new IOverrideMethodsTargetProvider() {

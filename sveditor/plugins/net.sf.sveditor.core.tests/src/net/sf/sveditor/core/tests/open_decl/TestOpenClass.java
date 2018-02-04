@@ -268,7 +268,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 
 	public void testOpenScopedClassReference() {
 		LogHandle log = LogFactory.getLogHandle("testOpenScopedClassReference");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"package foo;\n" +
 			"	class foo_c;\n" +
@@ -370,7 +370,7 @@ public class TestOpenClass extends SVCoreTestCaseBase {
 
 	public void testOpenClassTypeRefIgnoreTypedefs() {
 		LogHandle log = LogFactory.getLogHandle("testOpenClassTypeRefIgnoreTypedefs");
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"typedef class foo;\n" +
 			"class foo;\n" +

@@ -33,7 +33,7 @@ public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	}
 	
 	public void testLineNumberBasics() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"\n" +
 			"\n" +

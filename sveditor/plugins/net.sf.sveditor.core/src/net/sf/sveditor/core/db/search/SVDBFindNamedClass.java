@@ -42,7 +42,7 @@ public class SVDBFindNamedClass {
 		
 		List<SVDBDeclCacheItem> found = fIndexIt.findGlobalScopeDecl(
 				new NullProgressMonitor(), type_name, fMatcher);
-		
+
 		for (SVDBDeclCacheItem ci : found) {
 			if (ci.getType() == SVDBItemType.ClassDecl) {
 				ret.add((SVDBClassDecl)ci.getSVDBItem());

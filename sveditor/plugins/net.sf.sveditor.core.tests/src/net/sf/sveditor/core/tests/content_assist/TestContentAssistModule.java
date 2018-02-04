@@ -19,7 +19,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 	
 	
 	public void testModuleBlankItems() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 
 			"module m(a, b);\n" +
 			"    \n" +
