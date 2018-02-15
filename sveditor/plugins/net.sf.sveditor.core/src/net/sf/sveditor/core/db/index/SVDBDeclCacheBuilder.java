@@ -4,18 +4,29 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.SVDBDocComment;
+import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMarker;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
+import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
+import net.sf.sveditor.core.docs.DocCommentParser;
+import net.sf.sveditor.core.docs.DocTopicManager;
+import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -45,8 +56,28 @@ public class SVDBDeclCacheBuilder implements
 	private List<SVDBDeclCacheItem>		fDeclList;
 	private Set<Integer>				fIncludedFilesSet;
 	private Set<String>					fMissingIncludes;
+	private IDocCommentParser 			fDocCommentParser;
 	private LogHandle					fLog;
 	private boolean						fDebugEn;
+	private SVDBFileTree				fFileTree;
+	private Stack<SVDBFileTree>			fFileTreeStack;
+	private List<SVDBMarker>			fMarkers;
+	private static final Set<String>	fTaskTags;
+	
+	static {
+		fTaskTags = new HashSet<String>();
+		fTaskTags.add("TODO");
+		fTaskTags.add("FIXME");
+	}
+	
+	public SVDBDeclCacheBuilder() {
+		this(
+				new ArrayList<SVDBDeclCacheItem>(),
+				null,
+				new HashSet<Integer>(),
+				new HashSet<String>(),
+				-1);
+	}
 	
 	public SVDBDeclCacheBuilder(
 			List<SVDBDeclCacheItem> decl_list,
@@ -57,6 +88,7 @@ public class SVDBDeclCacheBuilder implements
 		fDeclCache = decl_cache;
 		fRootFileId = rootfile_id;
 		fDisabledDepth = 0;
+		fDocCommentParser = new DocCommentParser();
 		fScopeStack = new ArrayList<Integer>();
 		fAllScopeStack = new ArrayList<ISVDBItemBase>();
 		fDeclList = decl_list;
@@ -65,6 +97,7 @@ public class SVDBDeclCacheBuilder implements
 		fIncludedFilesSet.clear();
 		fMissingIncludes = missing_includes;
 		fMissingIncludes.clear();
+		fFileTreeStack = new Stack<SVDBFileTree>();
 		fLog = LogFactory.getLogHandle("SVDBDeclCacheBuilder");
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
@@ -89,6 +122,10 @@ public class SVDBDeclCacheBuilder implements
 		fGlobalScopeItems.add(SVDBItemType.InterfaceDecl);
 		fGlobalScopeItems.add(SVDBItemType.ModuleDecl);
 		fGlobalScopeItems.add(SVDBItemType.ProgramDecl);
+	}
+	
+	public SVDBFileTree getFileTree() {
+		return fFileTree;
 	}
 	
 //	private ISVDBItemBase parent_item() {
@@ -248,7 +285,8 @@ public class SVDBDeclCacheBuilder implements
 
 	@Override
 	public void preproc_event(SVPreProcEvent ev) {
-		if (ev.type == SVPreProcEvent.Type.Define) {
+		switch (ev.type) {
+		case Define: {
 			if (fDebugEn) {
 				fLog.debug("DeclCacheBuilder: Add Define \"" + 
 					((SVDBMacroDef)ev.decl).getName() + "\"");
@@ -262,21 +300,102 @@ public class SVDBDeclCacheBuilder implements
 					ev.decl.getType(),
 					true);
 			fDeclList.add(cache_i);
-		} else if (ev.type == SVPreProcEvent.Type.EnterFile) {
+		} break;
+		case EnterFile: {
 			if (fDebugEn) {
 				fLog.debug("EnterFile: " + ev.text + " " + ev.file_id);
 			}
+			SVDBFileTree ft = new SVDBFileTree(ev.text);
+			ft.setSVDBFile(new SVDBFile(ev.text));
+			if (fFileTreeStack.size() > 0) {
+				fFileTreeStack.peek().addIncludedFileTree(ft);
+			} else {
+				fFileTree = ft; // capture the root filetree
+			}
+			fFileTreeStack.push(ft);
 			fIncludedFilesSet.add(ev.file_id);
-		} else if (ev.type == SVPreProcEvent.Type.LeaveFile) {
+		} break;
+		
+		case LeaveFile: {
 			if (fDebugEn) {
 				fLog.debug("LeaveFile: " + ev.text);
 			}
-		} else if (ev.type == SVPreProcEvent.Type.MissingInclude) {
+			fFileTreeStack.pop();
+		} break;
+		case MissingInclude: {
 			// Only deal with the leaf of missing includes
 			String path = SVFileUtils.getPathLeaf(ev.text);
 		
 			fMissingIncludes.add(path);
+		} break;
+		case Comment: {
+			process_comment(ev.text, ev.loc);
+		} break;
 		}
 	}
 
+	private void process_comment(String comment, long loc) {
+		Tuple<String,String> dc = new Tuple<String, String>(null, null);
+		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc) ;
+		if (type != null && type != IDocCommentParser.CommentType.None) {
+			String tag = dc.first();
+			String title = dc.second();
+//			SVPreProc2InputData in = fInputCurr;
+			
+			boolean is_task = fTaskTags.contains(tag);
+
+			if (type == IDocCommentParser.CommentType.TaskTag && is_task) {
+				// Actually a task marker
+				String msg = tag + " " + title;
+				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
+
+				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
+				int fileid = SVDBLocation.unpackFileId(loc);
+				int line   = SVDBLocation.unpackLineno(loc);
+				int pos    = SVDBLocation.unpackPos(loc);
+				String lines[] = comment.split("\\n");
+				for (String cl: lines)  {
+					if (cl.contains(tag))  {
+						break;
+					}
+					else  {
+						line ++;
+					}
+				}
+				loc = SVDBLocation.pack(fileid, line, pos);
+
+				// Set location
+				m.setLocation(loc);
+				fMarkers.add(m);
+			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
+				String msg = tag + ": " + title;
+				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
+				
+				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
+				int fileid = SVDBLocation.unpackFileId(loc);
+				int line   = SVDBLocation.unpackLineno(loc);
+				int pos    = SVDBLocation.unpackPos(loc);
+				String lines[] = comment.split("\\n");
+				for (String cl: lines)  {
+					if (cl.contains(tag))  {
+						break;
+					}
+					else  {
+						line ++;
+					}
+				}
+				loc = SVDBLocation.pack(fileid, line, pos);
+
+				// Set location
+				m.setLocation(loc);
+				fMarkers.add(m);
+			} else if (DocTopicManager.singularKeywordMap.containsKey(tag.toLowerCase())) {
+				// Really a doc comment
+				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
+
+				doc_comment.setLocation(loc);
+				fFileTreeStack.peek().getSVDBFile().addChildItem(doc_comment);
+			}
+		} 		
+	}
 }

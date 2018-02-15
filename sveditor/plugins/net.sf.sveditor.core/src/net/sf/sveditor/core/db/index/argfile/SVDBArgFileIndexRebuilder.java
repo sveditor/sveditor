@@ -362,7 +362,7 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 		SVPreProcOutput pp_out = preproc.preprocess();
 		pp_out.setFileChangeListener(
 				new SVBuilderPreProcTracker(out, build_data));
-		SVDBFileTree ft = pp_out.getFileTree();
+		SVDBFileTree ft = decl_builder.getFileTree();
 		
 		// Collect include files
 		List<String> included_files = new ArrayList<String>();

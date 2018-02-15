@@ -44,15 +44,15 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 public class SVPreProcessor extends AbstractTextScanner 
 		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener,
 					ISVStringPreProcessor, ILogLevel {
+	private String									fInitFilename;
+	private InputStream								fInitInput;
 	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private StringBuilder							fOutput;
 	private int										fOutputLen;
 	private StringBuilder							fCommentBuffer;
 	private boolean									fInComment;
-	private IDocCommentParser   					fDocCommentParser;
 	private long									fCommentStart;
-	private Set<String>								fTaskTags;
 
 	// List of offset,file-id pairs
 	private List<SVPreProcOutput.FileChangeInfo>	fFileMap;
@@ -128,11 +128,13 @@ public class SVPreProcessor extends AbstractTextScanner
 			InputStream	 					input, 
 			ISVPreProcIncFileProvider		inc_provider,
 			ISVPreProcFileMapper			file_mapper) {
+		fInitFilename = filename;
+		fInitInput = input;
+		
 		fInputStack = new Stack<SVPreProc2InputData>();
 		fMacroExpSet = new HashSet<String>();
 		fOutput = new StringBuilder();
 		fCommentBuffer = new StringBuilder();
-		fDocCommentParser = new DocCommentParser();
 		fTmpBuffer = new StringBuilder();
 		fMacroParams = new ArrayList<String>();
 		fPreProcEn = new Stack<Integer>();
@@ -154,14 +156,11 @@ public class SVPreProcessor extends AbstractTextScanner
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
 		
-		fTaskTags = new HashSet<String>();
-		fTaskTags.add("TODO");
-		fTaskTags.add("FIXME");
 		
 		// Add the first file
-		if (input != null) {
-			enter_file(filename, input);
-		}
+//		if (input != null) {
+//			enter_file(filename, input);
+//		}
 	}
 	
 	private void init_vars() {
@@ -184,8 +183,10 @@ public class SVPreProcessor extends AbstractTextScanner
 	public String preprocess(InputStream in) {
 		init_vars();
 		
-		
-		enter_file("", in);
+	
+		fInitFilename = "";
+		fInitInput = in;
+//		enter_file("", in);
 		
 		preprocess();
 		
@@ -240,6 +241,12 @@ public class SVPreProcessor extends AbstractTextScanner
 		boolean in_string = false;
 		boolean ifdef_enabled = true;
 		boolean found_single_line_comment = false;
+		
+		if (fInitInput != null) {
+			enter_file(fInitFilename, fInitInput);
+			fInitInput = null;
+			fInitFilename = null;
+		}
 		
 		start = System.currentTimeMillis();
 		fOutput.setLength(0);
@@ -356,7 +363,7 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		SVPreProcOutput ret = new SVPreProcOutput(fOutput);
-		ret.setFileTree(fInputCurr.getFileTree());
+//		ret.setFileTree(fInputCurr.getFileTree());
 		
 		// Clean up after any unbalanced pre-processor directives
 		cleanup_preproc_leftovers();
@@ -418,76 +425,15 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		fInComment = false;
-		String comment = fCommentBuffer.toString() ;
-		Tuple<String,String> dc = new Tuple<String, String>(null, null);
-		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc) ;
-		if (type != null && type != IDocCommentParser.CommentType.None) {
-			String tag = dc.first();
-			String title = dc.second();
-			SVPreProc2InputData in = fInputCurr;
-			long loc = fCommentStart;
-			
-			boolean is_task = fTaskTags.contains(tag);
+//		String comment = fCommentBuffer.toString() ;
+		
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(SVPreProcEvent.Type.Comment);
+			ev.text = fCommentBuffer.toString();
+			ev.loc = fCommentStart;
+			sendEvent(ev);
+		}
 
-			if (type == IDocCommentParser.CommentType.TaskTag && is_task) {
-				// Actually a task marker
-				String msg = tag + " " + title;
-				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
-
-				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
-				int fileid = SVDBLocation.unpackFileId(loc);
-				int line   = SVDBLocation.unpackLineno(loc);
-				int pos    = SVDBLocation.unpackPos(loc);
-				String lines[] = comment.split("\\n");
-				for (String cl: lines)  {
-					if (cl.contains(tag))  {
-						break;
-					}
-					else  {
-						line ++;
-					}
-				}
-				loc = SVDBLocation.pack(fileid, line, pos);
-
-				// Set location
-				m.setLocation(loc);
-				if (in.getFileTree() != null) {
-					in.getFileTree().fMarkers.add(m);
-				}
-			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
-				String msg = tag + ": " + title;
-				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
-				
-				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
-				int fileid = SVDBLocation.unpackFileId(loc);
-				int line   = SVDBLocation.unpackLineno(loc);
-				int pos    = SVDBLocation.unpackPos(loc);
-				String lines[] = comment.split("\\n");
-				for (String cl: lines)  {
-					if (cl.contains(tag))  {
-						break;
-					}
-					else  {
-						line ++;
-					}
-				}
-				loc = SVDBLocation.pack(fileid, line, pos);
-
-				// Set location
-				m.setLocation(loc);
-				if (in.getFileTree() != null) {
-					in.getFileTree().fMarkers.add(m);
-				}
-			} else if (DocTopicManager.singularKeywordMap.containsKey(tag.toLowerCase())) {
-				// Really a doc comment
-				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
-
-				doc_comment.setLocation(loc);
-				if (in.getFileTree() != null) {
-					in.getFileTree().getSVDBFile().addChildItem(doc_comment);
-				}
-			}
-		} 
 	}
 	
 	private void handle_preproc_directive() {
@@ -1153,7 +1099,6 @@ public class SVPreProcessor extends AbstractTextScanner
 	private void leave_file() {
 		SVPreProc2InputData old_file = fInputCurr;
 
-		
 		// Clean up (if needed) after the macro stack
 		// Only cleanup after leaving a file where file content (not expanded macro content)
 		// was present

@@ -11,6 +11,7 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
@@ -629,10 +630,12 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
-	
+
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		preproc.addListener(decl_builder);
 		SVPreProcOutput output = preproc.preprocess();
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", decl_builder.getFileTree());
 		
 //		String out = output.toString().trim();
 		String out = TestPreProc2.trimLines(output.toString());
@@ -656,6 +659,8 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		preproc.addListener(decl_builder);
 		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -667,7 +672,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		assertEquals(0, markers.size());
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", decl_builder.getFileTree());
 		
 		String out = TestPreProc2.trimLines(output.toString());
 		exp = TestPreProc2.trimLines(exp);
@@ -699,7 +704,11 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
-	
+
+		
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		preproc.addListener(decl_builder);
+		
 		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
@@ -711,7 +720,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		assertEquals(0, markers.size());
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", decl_builder.getFileTree());
 		
 		String out = trimLines(output.toString());
 		exp = trimLines(exp);
@@ -766,9 +775,12 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		preproc.addListener(decl_builder);
+		
 		SVPreProcOutput output = preproc.preprocess();
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", decl_builder.getFileTree());
 
 		fLog.debug("Output:\n" + output.toString());
 		

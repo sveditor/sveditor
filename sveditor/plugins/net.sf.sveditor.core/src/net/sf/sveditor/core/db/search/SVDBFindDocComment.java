@@ -5,6 +5,7 @@ import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
+import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
@@ -32,8 +33,13 @@ public class SVDBFindDocComment {
 	 */
 	public SVDBDocComment find(IProgressMonitor monitor, ISVDBItemBase item) {
 		SVDBDocComment comment = null;
+		
+		fLog.debug("--> find: " + SVDBItem.getName(item));
+
+		// Only global-scope declarations are cached
 
 		// Must reach the file scope
+		// Note: this will end up being the root file
 		ISVDBItemBase p = item;
 		while (p != null && p.getType() != SVDBItemType.File) {
 			if (p instanceof ISVDBChildItem) {
@@ -66,6 +72,7 @@ public class SVDBFindDocComment {
 			 */
 		}
 	
+		fLog.debug("<-- find: " + SVDBItem.getName(item) + " " + comment);
 		return comment;
 	}
 	

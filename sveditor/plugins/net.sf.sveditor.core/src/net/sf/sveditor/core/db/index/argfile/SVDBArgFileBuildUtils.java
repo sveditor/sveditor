@@ -258,7 +258,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 					(end-start) + "ms");
 		}
 		
-		SVDBFileTree ft = pp_out.getFileTree();
+		SVDBFileTree ft = decl_builder.getFileTree();
 		
 		// Add a mapping between root file and included files
 //		List<String> included_files = new ArrayList<String>();

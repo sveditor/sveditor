@@ -67,10 +67,6 @@ public class ArgFilePersistence extends SVCoreTestCaseBase
 	
 	@Override
 	protected void tearDown() throws Exception {
-		
-		SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-		rgy.close();
-
 		super.tearDown();
 	}
 	

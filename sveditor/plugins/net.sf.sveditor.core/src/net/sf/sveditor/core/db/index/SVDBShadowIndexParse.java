@@ -46,20 +46,26 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		SVPreProcessor preproc = new SVPreProcessor(path, in, null, fileMapper);
 		preproc.setMacroProvider(new MacroProvider());
 		
+		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+//				decl_list, decl_cache, included_files, missing_includes, rootfile_id);
+		
+		preproc.addListener(decl_builder);
+		
 		SVPreProcOutput pp_out = preproc.preprocess();
 		
 		SVLanguageLevel language_level = SVLanguageLevel.computeLanguageLevel(path);
 		
 		SVParser parser = new SVParser();
+		parser.add_type_listener(decl_builder);
 
 		SVDBFile file = parser.parse(language_level, pp_out, path, markers);
-		
+
+		SVDBFileTree ft = decl_builder.getFileTree();
 		// Merge in markers from the pre-processor view
-		for (SVDBMarker m : pp_out.getFileTree().fMarkers) {
+		for (SVDBMarker m : ft.fMarkers) {
 			markers.add(m);
 		}
 			
-		SVDBFileTree ft = pp_out.getFileTree();
 		return new Tuple<SVDBFile, SVDBFile>(ft.getSVDBFile(), file);
 	}
 	

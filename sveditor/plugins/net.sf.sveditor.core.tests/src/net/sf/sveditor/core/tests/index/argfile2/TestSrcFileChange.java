@@ -17,7 +17,7 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 public class TestSrcFileChange extends TestFileChangeBase {
 
 	public void testRootFileChanged() {
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		IProject p = TestUtils.createProject(getName(), 
 				new File(fTmpDir, getName()));
 		addProject(p);

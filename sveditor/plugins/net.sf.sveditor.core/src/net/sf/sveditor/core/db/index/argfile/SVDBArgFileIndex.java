@@ -1038,12 +1038,16 @@ public class SVDBArgFileIndex implements
 				end = System.currentTimeMillis();
 				fLog.debug(LEVEL_MID, "  findTargetFileTree: " + (end-start) + "ms");
 			}
+			
+			SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+//					decl_list, decl_cache, included_files, missing_includes, rootfile_id);
 
 			//
 			// TODO: using 'this' as the include provider 
 			// may not be ideal
 			SVPreProcessor preproc = new SVPreProcessor(
 					r_path, in, fBuildData, fReadOnlyFileMapper);
+			preproc.addListener(decl_builder);
 
 			// TODO: add macros from FT
 			List<SVDBMacroDef> incoming_macros = 
@@ -1064,7 +1068,7 @@ public class SVDBArgFileIndex implements
 			SVParser f = new SVParser();
 			f.setFileMapper(fReadOnlyFileMapper);
 			
-			SVDBFileTree ft = out.getFileTree();
+			SVDBFileTree ft = decl_builder.getFileTree();
 			if (ft != null && ft.fMarkers != null) {
 				for (SVDBMarker m : ft.fMarkers) {
 					markers.add(m);
