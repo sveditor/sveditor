@@ -13,6 +13,8 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
+import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
+import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -98,6 +100,7 @@ public class SVDBDeclCacheBuilder implements
 		fMissingIncludes = missing_includes;
 		fMissingIncludes.clear();
 		fFileTreeStack = new Stack<SVDBFileTree>();
+		fMarkers = new ArrayList<SVDBMarker>();
 		fLog = LogFactory.getLogHandle("SVDBDeclCacheBuilder");
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
@@ -300,7 +303,22 @@ public class SVDBDeclCacheBuilder implements
 					ev.decl.getType(),
 					true);
 			fDeclList.add(cache_i);
+			fFileTreeStack.peek().getSVDBFile().addChildItem(
+					(SVDBMacroDef)ev.decl);
+			fFileTreeStack.peek().addToMacroSet(
+					(SVDBMacroDef)ev.decl);
 		} break;
+		
+		case MacroRef: {
+			fFileTreeStack.peek().fReferencedMacros.remove(ev.text);
+			if (ev.decl != null) {
+				fFileTreeStack.peek().fReferencedMacros.put(
+						ev.text, ((SVDBMacroDef)ev.decl).getDef());
+			} else {
+				fFileTreeStack.peek().fReferencedMacros.put(ev.text, null);
+			}
+		} break;
+	
 		case EnterFile: {
 			if (fDebugEn) {
 				fLog.debug("EnterFile: " + ev.text + " " + ev.file_id);
@@ -311,6 +329,11 @@ public class SVDBDeclCacheBuilder implements
 				fFileTreeStack.peek().addIncludedFileTree(ft);
 			} else {
 				fFileTree = ft; // capture the root filetree
+			}
+			if (!fFileTreeStack.empty()) {
+				ft.setParent(fFileTreeStack.peek());
+				// TODO:
+//				fFileTreeStack.peek().addIncludedFileTree(ft);
 			}
 			fFileTreeStack.push(ft);
 			fIncludedFilesSet.add(ev.file_id);
@@ -331,6 +354,25 @@ public class SVDBDeclCacheBuilder implements
 		case Comment: {
 			process_comment(ev.text, ev.loc);
 		} break;
+		case Marker: {
+			fFileTreeStack.peek().fMarkers.add(
+					(SVDBMarker)ev.decl);
+		} break;
+		
+		case Include: {
+			fFileTreeStack.peek().getSVDBFile().addChildItem(
+					(SVDBInclude)ev.decl);
+			
+			SVDBFileTree ft_i = new SVDBFileTree(ev.text);
+			ft_i.setParent(fFileTreeStack.peek());
+			fFileTreeStack.peek().addIncludedFileTree(ft_i);
+//			for (SVDBFileTreeMacroList ml : defs.second()) {
+//				for (SVDBMacroDef m : ml.getMacroList()) {
+//					ft_i.addToMacroSet(m);
+//				}
+//			}			
+		} break;
+		
 		}
 	}
 

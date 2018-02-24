@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.preproc;
 
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 
 public class SVPreProcOutput extends AbstractTextScanner {

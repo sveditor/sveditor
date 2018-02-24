@@ -664,7 +664,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		collect_markers(markers, preproc.getFileTree());
+		collect_markers(markers, decl_builder.getFileTree());
 		
 		for (SVDBMarker m : markers) {
 			fLog.debug("Marker: " + m.getMessage());
@@ -712,7 +712,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		collect_markers(markers, preproc.getFileTree());
+		collect_markers(markers, decl_builder.getFileTree());
 		
 		for (SVDBMarker m : markers) {
 			fLog.debug("Marker: " + m.getMessage());
@@ -785,7 +785,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		fLog.debug("Output:\n" + output.toString());
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		collectMarkers(markers, preproc.getFileTree());
+		collectMarkers(markers, decl_builder.getFileTree());
 	
 		for (int i=0; i<markers.size(); i++) {
 			SVDBMarker m = markers.get(i);

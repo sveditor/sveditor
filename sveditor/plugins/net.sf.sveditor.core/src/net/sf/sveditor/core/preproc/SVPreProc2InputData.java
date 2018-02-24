@@ -25,7 +25,6 @@ public class SVPreProc2InputData {
 	private int 				fUngetCh2;
 	private boolean 			fIncPos;
 	private Map<String, String> fRefMacros;
-	private SVDBFileTree 		fFileTree;
 	private SVDBUnprocessedRegion fUnprocessedRegion;
 
 	SVPreProc2InputData(
@@ -123,14 +122,6 @@ public class SVPreProc2InputData {
 		}
 	}
 	
-	SVDBFileTree getFileTree() {
-		return fFileTree;
-	}
-	
-	void setFileTree(SVDBFileTree ft) {
-		fFileTree = ft;
-	}
-	
 	InputStream getInput() {
 		return fInput;
 	}
@@ -172,17 +163,6 @@ public class SVPreProc2InputData {
 		}		
 	}
 	
-	void addReferencedMacro(String macro, SVDBMacroDef def) {
-		if (fFileTree != null) {
-			fFileTree.fReferencedMacros.remove(macro);
-			if (def == null) {
-				fFileTree.fReferencedMacros.put(macro, null);
-			} else {
-				fFileTree.fReferencedMacros.put(macro, def.getDef());
-			}
-		}
-	}
-	
 	void update_unprocessed_region(long loc, boolean enabled_pre, boolean enabled_post) {
 		if (enabled_pre && !enabled_post) {
 			// Entering an unprocessed region
@@ -192,11 +172,12 @@ public class SVPreProc2InputData {
 			// Leaving an unprocessed region
 			SVDBUnprocessedRegion r = fUnprocessedRegion;
 			fUnprocessedRegion = null;
-		
-			if (r != null && fFileTree != null) {
-				r.setEndLocation(loc);
-				fFileTree.getSVDBFile().addChildItem(r);
-			}
+
+			System.out.println("TODO: update unprocessed region");
+//			if (r != null && fFileTree != null) {
+//				r.setEndLocation(loc);
+//				fFileTree.getSVDBFile().addChildItem(r);
+//			}
 		}		
 	}
 	
@@ -205,9 +186,10 @@ public class SVPreProc2InputData {
 			// TODO: mark error
 			// we fell off the end of the file with an ifdef active
 			fUnprocessedRegion.setEndLocation(getLocation());
-			if (fFileTree != null) {
-				fFileTree.getSVDBFile().addChildItem(fUnprocessedRegion);
-			}
+			System.out.println("TODO: update unprocessed region");
+//			if (fFileTree != null) {
+//				fFileTree.getSVDBFile().addChildItem(fUnprocessedRegion);
+//			}
 		}
 		
 		close();

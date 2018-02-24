@@ -7,10 +7,13 @@ public class SVPreProcEvent {
 		BeginExpand,
 		EndExpand,
 		Define,
+		MacroRef,
 		EnterFile,
 		LeaveFile,
 		MissingInclude,
-		Comment
+		Comment,
+		Marker,
+		Include
 	};
 	
 	public SVPreProcEvent(SVPreProcEvent.Type t) {

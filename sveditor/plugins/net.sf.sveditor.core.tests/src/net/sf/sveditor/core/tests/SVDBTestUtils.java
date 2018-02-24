@@ -40,6 +40,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.SVDBModIfcInst;
 import net.sf.sveditor.core.db.SVDBModIfcInstItem;
 import net.sf.sveditor.core.db.SVDBPreProcObserver;
+import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.stmt.SVDBAssertStmt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
@@ -258,18 +259,20 @@ public class SVDBTestUtils {
 			InputStream				content_i, 
 			String 					filename,
 			List<SVDBMarker>		markers) {
+		SVDBDeclCacheBuilder builder = new SVDBDeclCacheBuilder();
 		SVPreProcessor pp = new SVPreProcessor(filename, content_i, null, null);
+		pp.addListener(builder);
 		
 		SVPreProcOutput pp_out = pp.preprocess();
 
-		collectMarkers(markers, pp.getFileTree());
+		collectMarkers(markers, builder.getFileTree());
 	
 		if (log != null) {
 			log.debug("Content (SVPreProc):");
 			log.debug(pp_out.toString());
 		}
 		
-		SVDBFile pp_file = pp.getFileTree().getSVDBFile();
+		SVDBFile pp_file = builder.getFileTree().getSVDBFile();
 		
 		TestCase.assertNotNull(pp_file);
 		

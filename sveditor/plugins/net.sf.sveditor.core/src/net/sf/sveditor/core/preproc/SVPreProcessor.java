@@ -14,9 +14,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.SVFileBuffer;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -26,9 +24,6 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
-import net.sf.sveditor.core.docs.DocCommentParser;
-import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -363,7 +358,6 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		SVPreProcOutput ret = new SVPreProcOutput(fOutput);
-//		ret.setFileTree(fInputCurr.getFileTree());
 		
 		// Clean up after any unbalanced pre-processor directives
 		cleanup_preproc_leftovers();
@@ -390,10 +384,6 @@ public class SVPreProcessor extends AbstractTextScanner
 //		}
 		
 		return ret;
-	}
-	
-	public SVDBFileTree getFileTree() {
-		return fInputCurr.getFileTree();
 	}
 	
 	public SVPreProc2InputData currentRealFile() {
@@ -623,14 +613,6 @@ public class SVPreProcessor extends AbstractTextScanner
 		// TODO: need to warn on re-definition?
 		if (ifdef_enabled()) {
 			addMacro(m);
-			
-			SVPreProc2InputData in = currentRealFile();
-			
-			// Add the macro to the pre-processor version of the file
-			if (in != null && in.getFileTree() != null && in.getFileTree().getSVDBFile() != null) {
-				in.getFileTree().getSVDBFile().addChildItem(m);
-				in.getFileTree().addToMacroSet(m);
-			}
 		}
 	}
 	
@@ -701,19 +683,13 @@ public class SVPreProcessor extends AbstractTextScanner
 						}
 					
 						// TODO: Need to mark as a 'virtual' include?
-						SVDBInclude svdb_inc = new SVDBInclude(inc);
-						svdb_inc.setLocation(scan_loc);
-						
-						curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
-						
-						SVDBFileTree ft_i = new SVDBFileTree(defs.first());
-						ft_i.setParent(curr_in.getFileTree());
-						curr_in.getFileTree().addIncludedFileTree(ft_i);
-				
-						for (SVDBFileTreeMacroList ml : defs.second()) {
-							for (SVDBMacroDef m : ml.getMacroList()) {
-								ft_i.addToMacroSet(m);
-							}
+						if (fHaveListeners) {
+							SVPreProcEvent ev = new SVPreProcEvent(Type.Include);
+							SVDBInclude svdb_inc = new SVDBInclude(inc);
+							svdb_inc.setLocation(scan_loc);
+							ev.text = defs.first();
+							ev.decl = svdb_inc;
+							sendEvent(ev);
 						}
 					} else if ((in = fIncFileProvider.findIncFile(inc)) != null && in.second() != null) {
 						if (fDebugEn) {
@@ -739,10 +715,15 @@ public class SVPreProcessor extends AbstractTextScanner
 							String rootfile = fInputStack.get(0).getFileName();
 							fIncFileProvider.addCachedIncFile(in.first(), rootfile);
 
-							SVDBInclude svdb_inc = new SVDBInclude(inc);
-							svdb_inc.setLocation(scan_loc);
-
-							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
+							if (fHaveListeners) {
+								SVPreProcEvent ev = new SVPreProcEvent(Type.Include);
+								SVDBInclude svdb_inc = new SVDBInclude(inc);
+								svdb_inc.setLocation(scan_loc);
+								ev.decl = svdb_inc;
+								ev.text = inc;
+								
+								sendEvent(ev);
+							}
 
 							enter_file(in.first(), in.second());
 						} else {
@@ -751,7 +732,7 @@ public class SVPreProcessor extends AbstractTextScanner
 									MarkerKind.MissingInclude,
 									"Recursive inclusion of file " + inc);
 							m.setLocation(scan_loc);
-							curr_in.getFileTree().fMarkers.add(m);
+							addMarker(m);
 							try {
 								in.second().close();
 							} catch (IOException e) {}
@@ -761,7 +742,7 @@ public class SVPreProcessor extends AbstractTextScanner
 								MarkerKind.MissingInclude,
 								"Failed to find include file " + inc);
 						m.setLocation(scan_loc);
-						curr_in.getFileTree().fMarkers.add(m);
+						addMarker(m);
 
 						// TODO: add missing-include error
 						if (fDebugEn) {
@@ -815,13 +796,12 @@ public class SVPreProcessor extends AbstractTextScanner
 			}
 
 			SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
-			if (md == null && fInputCurr.getFileTree() != null) {
+			if (md == null && fInputCurr.getFileId() > 0) {
 				SVDBMarker m = new SVDBMarker(MarkerType.Error, 
 						MarkerKind.UndefinedMacro,
 						"Macro " + type + " undefined");
 				m.setLocation(scan_loc);
-
-				fInputCurr.getFileTree().fMarkers.add(m);
+				addMarker(m);
 			}
 		
 			boolean have_macro_params = false;
@@ -1058,17 +1038,10 @@ public class SVPreProcessor extends AbstractTextScanner
 				this, in_b, filename, file_id);
 		add_file_change_info(file_id, in_data.getLineNo());
 		
-		in_data.setFileTree(new SVDBFileTree(new SVDBFile(filename)));
-		
 		// Record the current state of the pre-processor
+		// TODO:
 //		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
 	
-		if (!fInputStack.empty()) {
-			SVPreProc2InputData p_data = currentRealFile();
-			in_data.getFileTree().setParent(p_data.getFileTree());
-			p_data.getFileTree().addIncludedFileTree(in_data.getFileTree());
-		}
-
 		push_input(in_data);
 	}
 	
@@ -1090,8 +1063,8 @@ public class SVPreProcessor extends AbstractTextScanner
 						SVDBLocation.unpackLineno(loc));
 			}
 			m.setLocation(loc);
-			if (fInputCurr.getFileTree() != null) {
-				fInputCurr.getFileTree().fMarkers.add(m);
+			if (fInputCurr.getFileId() > 0) {
+				addMarker(m);
 			}
 		}		
 	}
@@ -1187,12 +1160,13 @@ public class SVPreProcessor extends AbstractTextScanner
 	}
 	
 	private void add_macro_reference(String macro) {
-		SVPreProc2InputData in = fInputCurr;
-		
-		if (fMacroProvider != null) {
+		if (fMacroProvider != null && fHaveListeners) {
 			SVDBMacroDef def = fMacroProvider.findMacro(macro, -1);
 
-			in.addReferencedMacro(macro, def);
+			SVPreProcEvent ev = new SVPreProcEvent(Type.MacroRef);
+			ev.decl = def;
+			ev.text = macro;
+			sendEvent(ev);
 		}
 	}
 	
@@ -1444,6 +1418,16 @@ public class SVPreProcessor extends AbstractTextScanner
 				ev.decl = macro;
 				sendEvent(ev);
 			}
+		}
+	}
+	
+	private void addMarker(SVDBMarker m) {
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.Marker);
+			ev.text = m.getMessage();
+			ev.pos = fOutput.length();
+			ev.decl = m;
+			sendEvent(ev);
 		}
 	}
 	
