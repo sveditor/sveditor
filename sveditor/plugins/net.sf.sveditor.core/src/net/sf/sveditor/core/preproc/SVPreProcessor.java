@@ -248,8 +248,7 @@ public class SVPreProcessor extends AbstractTextScanner
 		fCommentBuffer.setLength(0);
 		
 		fSVDBFile = new SVDBFile();
-		fSVDBFile.setLocation(
-				SVDBLocation.pack(fInputCurr.getFileId(), 1, 1));
+		fSVDBFile.setLocation(getLocation());
 		
 		// First thing we do is emit a line directive.
 		// This initializes everything for the output 
@@ -365,6 +364,14 @@ public class SVPreProcessor extends AbstractTextScanner
 		// Leave final file
 		ret.setFileId(fInputCurr.getFileId());
 		fInputCurr.close();
+		
+		if (fInitFilename != null && fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.LeaveFile);
+			ev.file_id = fInputCurr.getFileId();
+			ev.text = fInitFilename;
+			
+			sendEvent(ev);
+		}
 		
 		end = System.currentTimeMillis();
 		
@@ -796,12 +803,14 @@ public class SVPreProcessor extends AbstractTextScanner
 			}
 
 			SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
-			if (md == null && fInputCurr.getFileId() > 0) {
-				SVDBMarker m = new SVDBMarker(MarkerType.Error, 
-						MarkerKind.UndefinedMacro,
-						"Macro " + type + " undefined");
-				m.setLocation(scan_loc);
-				addMarker(m);
+			if (md == null) {
+				if (!fInputCurr.getFileName().startsWith("Macro:")) {
+					SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+							MarkerKind.UndefinedMacro,
+							"Macro " + type + " undefined");
+					m.setLocation(scan_loc);
+					addMarker(m);
+				}
 			}
 		
 			boolean have_macro_params = false;
@@ -1026,13 +1035,6 @@ public class SVPreProcessor extends AbstractTextScanner
 			file_id = fFileMapper.mapFilePathToId(filename, true);
 		}
 		
-		if (fHaveListeners) {
-			SVPreProcEvent ev = new SVPreProcEvent(Type.EnterFile);
-			ev.text = filename;
-			ev.file_id = file_id;
-			sendEvent(ev);
-		}
-		
 		SVFileBuffer in_b = new SVFileBuffer(in);
 		SVPreProc2InputData in_data = new SVPreProc2InputData(
 				this, in_b, filename, file_id);
@@ -1043,6 +1045,15 @@ public class SVPreProcessor extends AbstractTextScanner
 //		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
 	
 		push_input(in_data);
+	
+		// Finally, notify any listeners of the new file
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.EnterFile);
+			ev.text = filename;
+			ev.file_id = file_id;
+			ev.loc = getLocation();
+			sendEvent(ev);
+		}
 	}
 	
 	private void cleanup_preproc_leftovers() {
@@ -1079,7 +1090,7 @@ public class SVPreProcessor extends AbstractTextScanner
 			cleanup_preproc_leftovers();
 		}
 		
-		if (fHaveListeners && fInputCurr.getFileId() > 0) {
+		if (fHaveListeners && !fInputCurr.getFileName().startsWith("Macro:")) {
 			SVPreProcEvent ev = new SVPreProcEvent(Type.LeaveFile);
 			ev.text = fInputCurr.getFileName();
 			ev.file_id = fInputCurr.getFileId();

@@ -286,6 +286,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	private ISVDBItemBase findSVDBItem(SVDBFileTree ft) {
 		ISVDBItemBase ret;
 		
+		if (ft.getSVDBFile() == null) {
+			System.out.println("SVDBFile for " + ft.getFilePath() + " is null");
+		}
+		
 		if ((ret = findSVDBItem(ft.getSVDBFile())) != null) {
 			return ret;
 		} else {

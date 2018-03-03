@@ -21,7 +21,7 @@ import java.io.DataOutputStream;
 
 import junit.framework.TestCase;
 import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -60,7 +60,7 @@ public class TestPersistenceUnit extends TestCase {
 		SVCorePlugin.getDefault().enableDebug(false);
 		IDBWriter writer = new SVDBPersistenceRW();
 		IDBReader reader = new SVDBPersistenceRW();
-		SVDBBaseIndexCacheData index_data = new SVDBBaseIndexCacheData("foo");
+		SVDBIndexCacheData index_data = new SVDBIndexCacheData("foo");
 		SVDBRefCacheEntry entry = new SVDBRefCacheEntry();
 		entry.setFilename("file1");
 		entry.addTypeRef("type1");
@@ -70,14 +70,14 @@ public class TestPersistenceUnit extends TestCase {
 		DataOutput out = new DataOutputStream(bos); 
 	
 		writer.init(out);
-		writer.writeObject(SVDBBaseIndexCacheData.class, index_data);
+		writer.writeObject(SVDBIndexCacheData.class, index_data);
 
 		ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
 		DataInput in = new DataInputStream(bin);
 		reader.init(in);
 
-		SVDBBaseIndexCacheData index_data_i = new SVDBBaseIndexCacheData("");
-		reader.readObject(null, SVDBBaseIndexCacheData.class, index_data_i);
+		SVDBIndexCacheData index_data_i = new SVDBIndexCacheData("");
+		reader.readObject(null, SVDBIndexCacheData.class, index_data_i);
 		
 	}
 	

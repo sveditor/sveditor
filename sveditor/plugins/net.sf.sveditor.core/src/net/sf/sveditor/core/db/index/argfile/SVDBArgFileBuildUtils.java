@@ -18,10 +18,10 @@ import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.index.SVRefCollectorListener;
 import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.log.ILogHandle;
@@ -222,7 +222,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		InputStream in = fs_provider.openStream(path);
 		
 		int file_id = build_data.mapFilePathToId(path, true);
-		SVDBBaseIndexCacheData cache_data = build_data.getIndexCacheData();
+		SVDBIndexCacheData cache_data = build_data.getIndexCacheData();
 		SVDBFileCacheData file_cache_data = cache_data.getFileCacheData(file_id);
 
 		start = System.currentTimeMillis();

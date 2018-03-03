@@ -63,7 +63,7 @@ public class SVDBDeclCacheBuilder implements
 	private boolean						fDebugEn;
 	private SVDBFileTree				fFileTree;
 	private Stack<SVDBFileTree>			fFileTreeStack;
-	private List<SVDBMarker>			fMarkers;
+//	private List<SVDBMarker>			fMarkers;
 	private static final Set<String>	fTaskTags;
 	
 	static {
@@ -100,7 +100,7 @@ public class SVDBDeclCacheBuilder implements
 		fMissingIncludes = missing_includes;
 		fMissingIncludes.clear();
 		fFileTreeStack = new Stack<SVDBFileTree>();
-		fMarkers = new ArrayList<SVDBMarker>();
+//		fMarkers = new ArrayList<SVDBMarker>();
 		fLog = LogFactory.getLogHandle("SVDBDeclCacheBuilder");
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
@@ -324,7 +324,9 @@ public class SVDBDeclCacheBuilder implements
 				fLog.debug("EnterFile: " + ev.text + " " + ev.file_id);
 			}
 			SVDBFileTree ft = new SVDBFileTree(ev.text);
-			ft.setSVDBFile(new SVDBFile(ev.text));
+			SVDBFile file = new SVDBFile(ev.text);
+			file.setLocation(ev.loc);
+			ft.setSVDBFile(file);
 			if (fFileTreeStack.size() > 0) {
 				fFileTreeStack.peek().addIncludedFileTree(ft);
 			} else {
@@ -364,6 +366,7 @@ public class SVDBDeclCacheBuilder implements
 					(SVDBInclude)ev.decl);
 			
 			SVDBFileTree ft_i = new SVDBFileTree(ev.text);
+			ft_i.setSVDBFile(new SVDBFile(ev.text));
 			ft_i.setParent(fFileTreeStack.peek());
 			fFileTreeStack.peek().addIncludedFileTree(ft_i);
 //			for (SVDBFileTreeMacroList ml : defs.second()) {
@@ -408,7 +411,8 @@ public class SVDBDeclCacheBuilder implements
 
 				// Set location
 				m.setLocation(loc);
-				fMarkers.add(m);
+				// TODO:
+				fFileTreeStack.peek().fMarkers.add(m);
 			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
 				String msg = tag + ": " + title;
 				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
@@ -430,7 +434,8 @@ public class SVDBDeclCacheBuilder implements
 
 				// Set location
 				m.setLocation(loc);
-				fMarkers.add(m);
+				// TODO:
+				fFileTreeStack.peek().fMarkers.add(m);
 			} else if (DocTopicManager.singularKeywordMap.containsKey(tag.toLowerCase())) {
 				// Really a doc comment
 				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);

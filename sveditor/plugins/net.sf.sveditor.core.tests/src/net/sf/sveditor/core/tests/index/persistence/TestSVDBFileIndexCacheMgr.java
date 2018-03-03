@@ -3,14 +3,14 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.SVDBClassDecl;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestSVDBFileIndexCacheMgr extends SVCoreTestCaseBase {
 	

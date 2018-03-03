@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.builder.ISVBuilderOutput;
-import net.sf.sveditor.core.builder.SVBuilderPreProcTracker;
 import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
@@ -46,24 +45,21 @@ import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.ISVDBIndexFactory;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
-import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
 import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
-import net.sf.sveditor.core.db.index.SVDBIndexChangeDelta;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheDataUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import net.sf.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.SVDBIndexUtil;
 import net.sf.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
@@ -72,7 +68,6 @@ import net.sf.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlan;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles.FileListType;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRemoveFiles;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
@@ -272,7 +267,7 @@ public class SVDBArgFileIndex implements
 
 			// If we've determined the index data is valid, then we need to
 			// fixup some index entries
-			SVDBArgFileIndexCacheData cd = fBuildData.getIndexCacheData();
+			SVDBIndexCacheData cd = fBuildData.getIndexCacheData();
 
 			if (cd.getFileCacheData() != null) { // ??
 				for (SVDBFileCacheData file_data : cd.getFileCacheData().values()) {
@@ -712,7 +707,7 @@ public class SVDBArgFileIndex implements
 		
 		fIndexBuilder = builder;
 
-		fBuildData.setIndexCacheData(new SVDBArgFileIndexCacheData(getBaseLocation()));
+		fBuildData.setIndexCacheData(new SVDBIndexCacheData(getBaseLocation()));
 		fCacheDataValid = fBuildData.getCache().init(
 				new NullProgressMonitor(), 
 				fBuildData.getIndexCacheData(), 
@@ -1049,6 +1044,13 @@ public class SVDBArgFileIndex implements
 					r_path, in, fBuildData, fReadOnlyFileMapper);
 			preproc.addListener(decl_builder);
 
+			// TODO: collect macro definitions that came before this
+			// NOTE: it's possible that this file shows up in multiple locations
+			// Need to note this somehow?
+			//
+			// Need the ability to obtain all paths to this file:
+			// - Starting with <path>, build vectors up to a root file
+			// Should we worry about cross-index references?
 			// TODO: add macros from FT
 			List<SVDBMacroDef> incoming_macros = 
 					SVDBArgFileBuildDataUtils.calculateIncomingMacros(

@@ -605,7 +605,7 @@ public class TestArgFileIndex extends SVCoreTestCaseBase {
 		CoreReleaseTests.clearErrors();
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
 
-		SVCorePlugin.getDefault().enableDebug(false);
+		SVCorePlugin.getDefault().enableDebug(true);
 		
 		final IProject project_dir = TestUtils.createProject(testname);
 		addProject(project_dir);

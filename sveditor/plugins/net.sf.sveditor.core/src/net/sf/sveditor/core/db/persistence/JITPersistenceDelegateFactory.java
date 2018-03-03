@@ -23,6 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -32,16 +37,10 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.refs.SVDBRefCacheEntry;
-
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class JITPersistenceDelegateFactory implements Opcodes {
@@ -100,7 +99,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 			if (name.equals(fTargetPkg + ".SVDBPersistenceDelegate")) {
 				if (fCls == null) {
 					fCls = (Class<JITPersistenceDelegateBase>)defineClass(
-							name, fClassBytes, 0, fClassBytes.length);
+								name, fClassBytes, 0, fClassBytes.length);
 				}
 				return fCls;
 			}
@@ -121,8 +120,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 //		fClassList.add(SVDBItem.class);
 //		fClassList.add(SVDBItemBase.class);
 		fClassList.add(SVDBFileTree.class);
-		fClassList.add(SVDBBaseIndexCacheData.class);
-		fClassList.add(SVDBArgFileIndexCacheData.class);
+		fClassList.add(SVDBIndexCacheData.class);
 		fClassList.add(SVDBDeclCacheItem.class);
 		fClassList.add(SVDBRefCacheEntry.class);
 		fClassList.add(SVDBFileCacheData.class);
@@ -223,6 +221,10 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		}
 		
 		// writeItem Dispatch method
+		if (fDebugEn) {
+			debug("visitMethod: writeSVDBItem" + 
+					"(L" + getClassName(ISVDBItemBase.class) + ";)V");
+		}
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "writeSVDBItem",
 				"(L" + getClassName(ISVDBItemBase.class) + ";)V",
 				null, new String[] {fDBWriteException});
@@ -259,6 +261,10 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		mv.visitEnd();
 		
 		// readItem dispatch method
+		if (fDebugEn) {
+			debug("visitMethod: " + 
+				"readSVDBItem(L" + getClassName(SVDBItemType.class) + ";L");
+		}
 		mv = cw.visitMethod(ACC_PUBLIC, "readSVDBItem", 
 				"(L" + getClassName(SVDBItemType.class) + ";L" + getClassName(ISVDBChildItem.class) + ";)L" + getClassName(ISVDBItemBase.class) + ";",
 				null, new String[] {fDBWriteException});
@@ -306,6 +312,11 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		}
 		
 		// writeItem Dispatch method
+		if (fDebugEn) {
+			debug("visitMethod: writeObject" +
+				"(L" + getClassName(Class.class) + ";" +
+				"L" + getClassName(Object.class) + ";)V");
+		}
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "writeObject",
 				"(L" + getClassName(Class.class) + ";" +
 				"L" + getClassName(Object.class) + ";)V",
@@ -355,6 +366,12 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		mv.visitEnd();
 		
 		// readItem dispatch method
+		if (fDebugEn) {
+			debug("visitMethod: readObject" +
+				"(L" + getClassName(ISVDBChildItem.class) + ";" +
+				"L" + getClassName(Class.class) + ";" +
+				"L" + getClassName(Object.class) + ";)V");
+		}
 		mv = cw.visitMethod(ACC_PUBLIC, "readObject", 
 				"(L" + getClassName(ISVDBChildItem.class) + ";" +
 				"L" + getClassName(Class.class) + ";" +
@@ -421,6 +438,11 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		// 0 - this
 		// 1 - parent
 		// 2 - object
+		if (fDebugEn) {
+			debug("visitMethod: read" + cls_name + 
+				"(L" + fChildItem + ";" +
+				"L" + tgt_clsname + ";)V");
+		}
 		mv = cw.visitMethod(ACC_PRIVATE, "read" + cls_name, 
 				"(L" + fChildItem + ";" +
 				"L" + tgt_clsname + ";)V",
@@ -435,6 +457,10 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		//
 		// 0 - this
 		// 1 - object
+		if (fDebugEn) {
+			debug("visitMethod: write" + cls_name +
+				"(L" + tgt_clsname + ";)V");
+		}
 		mv = cw.visitMethod(ACC_PRIVATE, "write" + cls_name, 
 				// "(L" + tgt_clsname + ";)V",
 				"(L" + tgt_clsname + ";)V",

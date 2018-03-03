@@ -26,6 +26,7 @@ public class TestParseErrors extends SVCoreTestCaseBase {
 	}
 	
 	public void testUndefinedMacroClassScope() {
+		SVCorePlugin.getDefault().enableDebug(true);
 		String content = 
 			"\n" +
 			"class my_class;\n" +

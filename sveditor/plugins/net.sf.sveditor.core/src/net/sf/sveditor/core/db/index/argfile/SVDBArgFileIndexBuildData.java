@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -57,7 +58,7 @@ public class SVDBArgFileIndexBuildData implements
 	ISVDBArgFileIndexBuildData, ISVPreProcFileMapper, ISVPreProcIncFileProvider {
 
 	private ISVDBFileSystemProvider				fFileSystemProvider;
-	private SVDBArgFileIndexCacheData			fIndexCacheData;
+	private SVDBIndexCacheData			fIndexCacheData;
 	private String								fResolvedBaseLocation;
 	private String								fResolvedBaseLocationDir;
 	private boolean								fInWorkspaceOk;
@@ -91,7 +92,7 @@ public class SVDBArgFileIndexBuildData implements
 		
 //		fFileDirs = new HashSet<String>();
 //		fMissingIncludes = new HashSet<String>();
-		fIndexCacheData = new SVDBArgFileIndexCacheData(base_location);
+		fIndexCacheData = new SVDBIndexCacheData(base_location);
 		fResolvedBaseLocation = resolved_base_location;
 		fResolvedBaseLocationDir = resolved_base_location_dir;
 		if (resolved_base_location != null) {
@@ -156,11 +157,11 @@ public class SVDBArgFileIndexBuildData implements
 		return fIndexStats;
 	}
 	
-	public SVDBArgFileIndexCacheData getIndexCacheData() {
+	public SVDBIndexCacheData getIndexCacheData() {
 		return fIndexCacheData;
 	}
 	
-	public void setIndexCacheData(SVDBArgFileIndexCacheData data) {
+	public void setIndexCacheData(SVDBIndexCacheData data) {
 		// TODO: Should we check if an existing one exists?
 		fIndexCacheData = data;
 	}

@@ -27,15 +27,19 @@ public class TestSrcFileChange extends TestFileChangeBase {
 		
 		SVProjectFileWrapper fw = pd.getProjectFileWrapper();
 		
+		fLog.debug("--> writing empty my_pkg");
 		SVFileUtils.copy(
 				"package my_pkg;\n" +
 				"endpackage\n",
 				p.getFile(new Path("my_pkg.sv"))
 				);
+		fLog.debug("<-- writing empty my_pkg");
 		
+		fLog.debug("--> writing sve.f");
 		SVFileUtils.copy(
 				"./my_pkg.sv\n",
 				p.getFile(new Path("sve.f")));
+		fLog.debug("<-- writing sve.f");
 		
 		fw.addArgFilePath("${project_loc}/sve.f");
 		pd.setProjectFileWrapper(fw);
@@ -52,6 +56,7 @@ public class TestSrcFileChange extends TestFileChangeBase {
 		IndexTests.assertDoesNotContain(
 				pd.getProjectIndexMgr(), "my_cls");
 
+		fLog.debug("--> writing full package content");
 		SVFileUtils.copy(
 				"package my_pkg;\n" +
 				"	class my_cls;\n" +
@@ -59,6 +64,7 @@ public class TestSrcFileChange extends TestFileChangeBase {
 				"endpackage\n",
 				p.getFile(new Path("my_pkg.sv"))
 				);
+		fLog.debug("<-- writing full package content");
 		
 		fLog.debug("--> Wait for rebuild event");
 		assertTrue(waitIndexEvent());

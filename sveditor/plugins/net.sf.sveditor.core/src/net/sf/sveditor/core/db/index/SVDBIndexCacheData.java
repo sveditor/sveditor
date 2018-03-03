@@ -22,7 +22,7 @@ import java.util.Set;
 import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 
-public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
+public class SVDBIndexCacheData implements ISVPreProcFileMapper {
 	
 	public String									fVersion;
 	public String									fBaseLocation;
@@ -53,7 +53,7 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 
 	public boolean									fForceSV;
 
-	public SVDBBaseIndexCacheData(String base) {
+	public SVDBIndexCacheData(String base) {
 		fBaseLocation = base;
 		fIncludePathList = new ArrayList<String>();
 		fMissingIncludeFiles = new ArrayList<String>();
@@ -65,7 +65,7 @@ public class SVDBBaseIndexCacheData implements ISVPreProcFileMapper {
 		fFileCacheData = new HashMap<Integer, SVDBFileCacheData>();
 	}
 	
-	public void initFileMapperState(SVDBBaseIndexCacheData data) {
+	public void initFileMapperState(SVDBIndexCacheData data) {
 		fFilePathIdMap.clear();
 		fFilePathIdMap.putAll(data.fFilePathIdMap);
 		fFileIdPathMap.clear();

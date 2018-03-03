@@ -23,8 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.osgi.framework.Bundle;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
@@ -33,9 +36,7 @@ import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
@@ -52,11 +53,6 @@ import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.osgi.framework.Bundle;
 
 public class TestPersistencePerformance extends SVCoreTestCaseBase {
 
@@ -338,10 +334,10 @@ public class TestPersistencePerformance extends SVCoreTestCaseBase {
 		DataOutput dout = new DataOutputStream(bos);
 		DataInput din = null;
 		
-		SVDBBaseIndexCacheData cd = new SVDBBaseIndexCacheData("base");
-		SVDBBaseIndexCacheData cd2 = new SVDBBaseIndexCacheData("base");
-		SVDBArgFileIndexCacheData acd = new SVDBArgFileIndexCacheData("base");
-		SVDBArgFileIndexCacheData acd2 = new SVDBArgFileIndexCacheData("base");
+		SVDBIndexCacheData cd = new SVDBIndexCacheData("base");
+		SVDBIndexCacheData cd2 = new SVDBIndexCacheData("base");
+		SVDBIndexCacheData acd = new SVDBIndexCacheData("base");
+		SVDBIndexCacheData acd2 = new SVDBIndexCacheData("base");
 		SVDBFile f = new SVDBFile("myfile");
 		SVDBFile f2 = new SVDBFile();
 //		List<SVDBDeclCacheItem> items = new ArrayList<SVDBDeclCacheItem>();
@@ -354,8 +350,8 @@ public class TestPersistencePerformance extends SVCoreTestCaseBase {
 			writer.init(dout);
 			
 //			for (String file : files) {
-				writer.writeObject(SVDBBaseIndexCacheData.class, cd);
-				writer.writeObject(SVDBArgFileIndexCacheData.class, acd);
+				writer.writeObject(SVDBIndexCacheData.class, cd);
+				writer.writeObject(SVDBIndexCacheData.class, acd);
 				writer.writeObject(SVDBFile.class, f);
 				total++;
 //			}
@@ -367,8 +363,8 @@ public class TestPersistencePerformance extends SVCoreTestCaseBase {
 			reader.init(din);
 			
 //			for (String file : files) {
-				reader.readObject(null, SVDBBaseIndexCacheData.class, cd2);
-				reader.readObject(null, SVDBArgFileIndexCacheData.class, acd2);
+				reader.readObject(null, SVDBIndexCacheData.class, cd2);
+				reader.readObject(null, SVDBIndexCacheData.class, acd2);
 				reader.readObject(null, SVDBFile.class, f2);
 				total++;
 //			}
