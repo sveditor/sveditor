@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.db.index.plugin;
+package net.sf.sveditor.core.fs.plugin;
 
 import java.net.URI;
 
