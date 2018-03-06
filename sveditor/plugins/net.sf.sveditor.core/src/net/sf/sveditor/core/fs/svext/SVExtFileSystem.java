@@ -18,6 +18,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class SVExtFileSystem extends FileSystem {
+	public static final String			EXT_SRC_DIRNAME = "External SV Files";
 //	private WeakHashMap<SVDBProjectData, SVExtProjectFileStore>	fProjectMap;
 	private Map<SVDBProjectData, SVExtProjectFileStore>	fProjectMap;
 
@@ -27,12 +28,12 @@ public class SVExtFileSystem extends FileSystem {
 
 	@Override
 	public IFileStore getStore(URI uri) {
-		System.out.println("getStore: " + uri + " " + uri.getHost());
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject p = root.getProject(uri.getHost());
 		if (p != null) {
 			SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
 			if (!fProjectMap.containsKey(pd)) {
+				System.out.println("New FileStore");
 				fProjectMap.put(pd, new SVExtProjectFileStore(pd));
 			}
 
@@ -44,18 +45,8 @@ public class SVExtFileSystem extends FileSystem {
 	}
 
 	@Override
-	public IFileStore getStore(IPath path) {
-		System.out.println("FileSystem.getStore: " + path);
-		// TODO Auto-generated method stub
-		return super.getStore(path);
+	public boolean canWrite() {
+		return true; 
 	}
 
-	@Override
-	public IFileTree fetchFileTree(IFileStore root, IProgressMonitor monitor) throws CoreException {
-		System.out.println("FileSystem.fetchFileTree: " + root);
-		// TODO Auto-generated method stub
-		return super.fetchFileTree(root, monitor);
-	}
-
-	
 }

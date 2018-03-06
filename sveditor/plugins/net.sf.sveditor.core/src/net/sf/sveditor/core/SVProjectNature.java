@@ -13,6 +13,7 @@
 package net.sf.sveditor.core;
 
 import net.sf.sveditor.core.builder.SVProjectBuilder;
+import net.sf.sveditor.core.fs.svext.SVExtFileSystem;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -149,7 +150,7 @@ public class SVProjectNature implements IProjectNature, ILogLevel {
 			}
 			
 			// Also check whether the ExtSVFiles folder exists
-			IFolder f = p.getFolder("ExtSvFiles");
+			IFolder f = p.getFolder(SVExtFileSystem.EXT_SRC_DIRNAME);
 			if (!f.exists()) {
 				URI uri = null;
 				try {

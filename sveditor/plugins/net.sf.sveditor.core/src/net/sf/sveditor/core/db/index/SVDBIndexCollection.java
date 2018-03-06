@@ -545,7 +545,7 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		}
 
 		Set<SVDBIndexCollection>	already_searched = new HashSet<SVDBIndexCollection>();
-		getFileList(ret, already_searched, false, flags);
+		getFileList(ret, already_searched, true, flags);
 	
 		return ret;
 	}

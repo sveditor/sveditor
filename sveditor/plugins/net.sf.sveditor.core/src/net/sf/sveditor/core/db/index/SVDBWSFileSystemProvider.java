@@ -20,13 +20,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.SVMarkers;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -43,6 +39,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.SVMarkers;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider, 
 		IResourceChangeListener, IResourceDeltaVisitor {
@@ -457,7 +458,25 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 					} else {
 						IFile f = SVFileUtils.getWorkspaceFile(path);
 						if (f != null) {
-							path = f.getLocation().toOSString();
+							if (f.getLocation() != null) {
+								path = f.getLocation().toOSString();
+							} else {
+								URI uri = f.getLocationURI();
+								if (uri.getScheme().equals("svext")) {
+									path = uri.getPath();
+									if (SVFileUtils.isWin()) {
+										// Try to map the path back to a drive letter
+										if (path.length() >= 3 && 
+												path.charAt(0) == '/' &&
+												Character.isAlphabetic(path.charAt(1)) &&
+												path.charAt(2) == '/') {
+											path = path.charAt(1) + ":" + path.substring(2);
+										}
+									}
+								} else {
+									System.out.println("Error: unknown uri scheme - " + uri);
+								}
+							}
 						}
 					}
 				}

@@ -416,7 +416,8 @@ public class SVEditor extends TextEditor
 		IFile file = null;
 
 		site.getPage().addPartListener(this);
-	
+
+		System.out.println("input: " + input.getClass() + " " + input);
 		if (input instanceof IFileEditorInput) {
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
@@ -425,6 +426,8 @@ public class SVEditor extends TextEditor
 			URI uri = ((IURIEditorInput)input).getURI();
 			if (uri.getScheme().equals("plugin")) {
 				fFile = "plugin:" + uri.getPath();
+			} else if (uri.getScheme().equals("svext")) {
+				fFile = "svext:" + uri.getPath();
 			} else {
 				fFile = uri.getPath();
 			}
