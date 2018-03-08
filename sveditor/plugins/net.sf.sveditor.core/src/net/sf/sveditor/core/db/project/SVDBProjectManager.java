@@ -297,7 +297,7 @@ public class SVDBProjectManager implements
 		if (pd != null) {
 			// Ensure we're up-to-date
 			pd.refresh();
-
+			
 			boolean have_stats = false;
 			SVDBIndexStats stats = new SVDBIndexStats();
 			SVDBIndexCollection index = pd.getProjectIndexMgr();

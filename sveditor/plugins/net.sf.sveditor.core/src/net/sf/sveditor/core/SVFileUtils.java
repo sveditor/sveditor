@@ -152,6 +152,29 @@ public class SVFileUtils {
 		
 		return first;
 	}
+	
+	public static List<String> splitPath(String path) {
+		List<String> ret = new ArrayList<String>();
+		int idx = 0;
+		
+	
+		while (idx < path.length()) {
+			// Skip separators
+			while (idx < path.length() && path.charAt(idx) == '/') {
+				idx++;
+			}
+	
+			// Build name
+			int name_start=idx;
+			while (idx < path.length() && !(path.charAt(idx) == '/')) {
+				idx++;
+			}
+	
+			ret.add(path.substring(name_start, idx));
+		}
+	
+		return ret;
+	}
 
 	public static String normalize(String path) {
 		if (path.indexOf('\\') != -1) {
