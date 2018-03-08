@@ -28,11 +28,29 @@ import net.sf.sveditor.core.ISVProjectBuilderListener;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.project.SVDBProjectData;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilderListener {
 	private SVDBProjectData				fProjData;
 	private boolean						fRebuildScheduled;
 	private SVExtFileStore				fRoot;
+	private static boolean				fDebugEn;
+	private static LogHandle			fLog;
+	
+	static {
+		fLog = LogFactory.getLogHandle("SVExtProjectFileStore");
+		fLog.addLogLevelListener(new ILogLevelListener() {
+			
+			@Override
+			public void logLevelChanged(ILogHandle handle) {
+				fDebugEn = handle.isEnabled();
+			}
+		});
+		fDebugEn = fLog.isEnabled();
+	}
 	
 	public SVExtProjectFileStore(SVDBProjectData pd) {
 		fProjData = pd;
@@ -45,6 +63,7 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 			fRebuildScheduled = true;
 			fRebuildTreeJob.schedule();
 		}
+		
 	}
 
 	// Ignore
@@ -84,20 +103,16 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 
 	@Override
 	public IFileStore getParent() {
-		System.out.println("Project.getParent");
 		return null;
 	}
 
 	@Override
 	public InputStream openInputStream(int options, IProgressMonitor monitor) throws CoreException {
-		System.out.println("Project.openInputStream");
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
 	public URI toURI() {
-		System.out.println("toURI");
 		URI uri = null;
 		try {
 			uri = new URI("svext://" + fProjData.getName());
@@ -113,10 +128,11 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 			Iterable<String> paths = fProjData.getProjectIndexMgr().getFileList(
 					new NullProgressMonitor(), ISVDBDeclCache.FILE_ATTR_ARG_FILE);
 			List<String> ext_paths = new ArrayList<String>();
-		
-			System.out.println("RebuildTreeJob");
+	
+			if (fDebugEn) {
+				fLog.debug("RebuildTreeJob");
+			}
 			for (String path : paths) {
-				System.out.println("Path: " + path);
 				if (!path.startsWith("${workspace_loc}") &&
 						!path.startsWith("plugin:/")) {
 					if (!ext_paths.contains(path)) {
@@ -127,7 +143,6 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 			paths = fProjData.getProjectIndexMgr().getFileList(
 					new NullProgressMonitor(), ISVDBDeclCache.FILE_ATTR_SRC_FILE);
 			for (String path : paths) {
-				System.out.println("Path: " + path);
 				if (!path.startsWith("${workspace_loc}") &&
 						!path.startsWith("plugin:/")) {
 					if (!ext_paths.contains(path)) {
@@ -135,7 +150,7 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 					}
 				}
 			}
-
+			
 			SVExtFileStore root = new SVExtFileStore(fProjData.getName());
 			
 			for (String ext_path : ext_paths) {
@@ -149,14 +164,16 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 			}
 			
 			fRoot = root;
+			
+			IWorkspaceRoot ws = ResourcesPlugin.getWorkspace().getRoot();
+			IProject p = ws.getProject(fProjData.getName());
 		
-//			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-//			IProject p = root.getProject(fProjData.getName());
-//		
-//			fVirtualFolder = p.getFolder(SVExtFileSystem.EXT_SRC_DIRNAME);
-//			try {
-//				fVirtualFolder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
-//			} catch (CoreException e) { }
+			IFolder f = p.getFolder(SVExtFileSystem.EXT_SRC_DIRNAME);
+			try {
+				if (f.exists()) {
+					f.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+				}
+			} catch (CoreException e) { }			
 			
 			synchronized (fRebuildTreeJob) {
 				fRebuildScheduled = false;
@@ -180,7 +197,7 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 		}
 		
 		if (name.endsWith(":")) {
-			System.out.println("Error: failed to trim training colon");
+			fLog.error("failed to trim trailing colon");
 		}
 		
 		File this_path;
@@ -196,7 +213,6 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 			this_path = new File(file_prefix, path.get(idx));
 		}
 		
-		System.out.println("build_subtree: " + name);
 		if (!parent.getChildren().containsKey(name)) {
 
 			

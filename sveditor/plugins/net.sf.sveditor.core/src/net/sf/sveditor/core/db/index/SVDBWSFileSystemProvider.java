@@ -473,6 +473,14 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 											path = path.charAt(1) + ":" + path.substring(2);
 										}
 									}
+								} else if (uri.getScheme().equals("file")) {
+									if (uri.getScheme().equals("file")) {
+										if (SVFileUtils.isWin() && uri.getHost().length() == 1) {
+											path = uri.getHost() + ":" + uri.getPath();
+										} else {
+											path = uri.getHost() + uri.getPath();
+										}
+									}
 								} else {
 									System.out.println("Error: unknown uri scheme - " + uri);
 								}

@@ -33,7 +33,6 @@ public class SVExtFileSystem extends FileSystem {
 		if (p != null) {
 			SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
 			if (!fProjectMap.containsKey(pd)) {
-				System.out.println("New FileStore");
 				fProjectMap.put(pd, new SVExtProjectFileStore(pd));
 			}
 
@@ -47,6 +46,11 @@ public class SVExtFileSystem extends FileSystem {
 	@Override
 	public boolean canWrite() {
 		return true; 
+	}
+
+	@Override
+	public boolean canDelete() {
+		return false;
 	}
 
 }

@@ -20,9 +20,11 @@ import org.eclipse.core.filesystem.provider.FileStore;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.sun.org.apache.bcel.internal.generic.FNEG;
-
 import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 
 public class SVExtFileStore extends FileStore {
 	private SVExtFileStore					fParent;
@@ -31,6 +33,20 @@ public class SVExtFileStore extends FileStore {
 	private FileInfo						fInfo;
 	// File that corresponds to this element
 	private File							fFile;
+	private static boolean					fDebugEn;
+	private static LogHandle				fLog;
+	
+	static {
+		fLog = LogFactory.getLogHandle("SVExtFileStore");
+		fLog.addLogLevelListener(new ILogLevelListener() {
+			
+			@Override
+			public void logLevelChanged(ILogHandle handle) {
+				fDebugEn = handle.isEnabled();
+			}
+		});
+		fDebugEn = fLog.isEnabled();
+	}
 
 	public SVExtFileStore(String path) {
 		fPath = path;
@@ -48,9 +64,7 @@ public class SVExtFileStore extends FileStore {
 			File			file,
 			boolean			is_dir) {
 		this(path);
-		
-		System.out.println("SVExtFileStore: dir=" + name);
-		
+	
 		fParent = parent;
 		fFile = file;
 		
@@ -66,29 +80,21 @@ public class SVExtFileStore extends FileStore {
 
 	@Override
 	public String[] childNames(int options, IProgressMonitor monitor) throws CoreException {
-		System.out.println(fInfo.getName() + ": childNames");
 		Set<String> keys = fChildren.keySet();
-		for (String child : keys) {
-			System.out.println("  " + child);
-		}
 		return keys.toArray(new String[keys.size()]);
 	}
 
 	@Override
 	public IFileInfo fetchInfo(int options, IProgressMonitor monitor) throws CoreException {
-		System.out.println(fInfo.getName() + ": fetchInfo");
 		return fInfo;
 	}
 
 	@Override
 	public IFileStore getChild(String name) {
 		IFileStore ret = null;
-		System.out.println(fInfo.getName() + ": getChild: " + name);
 		if (fChildren.containsKey(name)) {
 			ret = fChildren.get(name);
 		} else {
-			System.out.println("  not in root: parent=" + fParent);
-			System.out.println("    path=" + fPath + "/" + name);
 			// Go ahead create anonymous files to represent the path
 			if (fParent == null) {
 				// Root
@@ -105,8 +111,6 @@ public class SVExtFileStore extends FileStore {
 						name,
 						root,
 						true);
-				System.out.println("Root: fPath=" + fPath + " name=" + name + " uri=" +
-						ret.toURI());
 			} else {
 				File file = new File(fFile, name);
 				// Build path from here
@@ -116,8 +120,6 @@ public class SVExtFileStore extends FileStore {
 						name,
 						file,
 						file.isDirectory());
-				System.out.println("NonRoot: fPath=" + fPath + " name=" + name + " uri=" +
-						ret.toURI());
 			}
 		}
 		return ret;
@@ -163,8 +165,11 @@ public class SVExtFileStore extends FileStore {
 //				uri = new URI("file://" + fFile.getAbsolutePath());
 //			} else {
 				uri = new URI("svext://" + fPath + "/" + fInfo.getName());
+//				uri = new URI("file://" + fFile.getAbsolutePath().replace('\\', '/'));
 //			}
-		} catch (URISyntaxException e) { }
+		} catch (URISyntaxException e) { 
+			e.printStackTrace();
+		}
 		return uri;
 	}
 

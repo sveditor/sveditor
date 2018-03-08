@@ -417,17 +417,27 @@ public class SVEditor extends TextEditor
 
 		site.getPage().addPartListener(this);
 
-		System.out.println("input: " + input.getClass() + " " + input);
+//		System.out.println("input: " + input.getClass() + " " + input);
 		if (input instanceof IFileEditorInput) {
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
-			fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
 			file = ((IFileEditorInput)input).getFile();
+			URI uri = file.getLocationURI();
+			
+			if (uri.getScheme().equals("svext")) {
+				String path = uri.getPath();
+				if (SVFileUtils.isWin() && path.length() > 2) {
+					path = path.charAt(1) + ":" + path.substring(2);
+				}
+//				System.out.println("  file path: " + path);
+				fFile = path;
+				file = null; // want to treat this like an external file
+			} else {
+				fFile = ((IFileEditorInput)input).getFile().getFullPath().toOSString();
+			}
 		} else if (input instanceof IURIEditorInput) {
 			URI uri = ((IURIEditorInput)input).getURI();
 			if (uri.getScheme().equals("plugin")) {
 				fFile = "plugin:" + uri.getPath();
-			} else if (uri.getScheme().equals("svext")) {
-				fFile = "svext:" + uri.getPath();
 			} else {
 				fFile = uri.getPath();
 			}
