@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -79,6 +80,14 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 			}
 		}
 	}
+	
+	
+
+	@Override
+	public IFileStore getFileStore(IPath path) {
+		// TODO Auto-generated method stub
+		return super.getFileStore(path);
+	}
 
 	@Override
 	public String[] childNames(int options, IProgressMonitor monitor) throws CoreException {
@@ -120,6 +129,16 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 		
 		return uri;
 	}
+	
+	@Override
+	public File toLocalFile(int options, IProgressMonitor monitor) throws CoreException {
+		// TODO Auto-generated method stub
+//		File ret = super.toLocalFile(options, monitor);
+		System.out.println("ProjectFileStore toLocalFile: options=" + options + " " + fProjData.getName());
+		return null;
+//		return ret;
+	}
+
 	
 	private Job				fRebuildTreeJob = new Job("Rebuild External Files Tree") {
 		
@@ -203,7 +222,7 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 		File this_path;
 		
 		// Root
-		if (path_prefix == null) {
+		if (file_prefix == null) {
 			if (SVFileUtils.isWin()) {
 				this_path = new File(path.get(idx) + "/");
 			} else {

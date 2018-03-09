@@ -19,7 +19,6 @@ public class SVEditorDocumentProvider extends TextFileDocumentProvider {
 	private static SVEditorDocumentProvider		fDefault;
 	
 	protected FileInfo createFileInfo(Object elem) throws CoreException {
-		System.out.println("SVEditorDocumentProvider: " + elem);
 		FileInfo result = super.createFileInfo(elem);
 		
 		setUpSynchronization(result);

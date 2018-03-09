@@ -76,7 +76,7 @@ public class PluginFileStore extends FileStore {
 	public InputStream openInputStream(int options, IProgressMonitor monitor)
 			throws CoreException {
 		
-		String host = fURI.getHost();
+		String host = fURI.getAuthority();
 		String path = fURI.getPath();
 		
 		if (host == null) {
