@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -30,6 +31,7 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.builder.SVBuilderProcess;
+import net.sf.sveditor.core.db.project.SVDBProjectData;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -60,10 +62,17 @@ public class RebuildSvIndexAction extends CommonActionProvider implements ILogLe
 			sm.beginTask("Rebuild Indexes", 1000*fProjects.size());
 			for (IProject proj : fProjects) {
 				SubMonitor proj_m = sm.newChild(1000);
+				SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(proj);
+				if (pd != null) {
+					pd.buildEvent(true, IncrementalProjectBuilder.FULL_BUILD, null);
+				}
 				SVBuilderProcess p = new SVBuilderProcess(proj_m, proj);
 				SVCorePlugin.getDefault().getBuildProcessListener().buildProcess(p);
 				p.rebuild_project();
 				proj_m.done();
+				if (pd != null) {
+					pd.buildEvent(false, IncrementalProjectBuilder.FULL_BUILD, null);
+				}
 			}
 			sm.done();
 			return Status.OK_STATUS;
