@@ -30,6 +30,7 @@ import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBModIfcClassParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
@@ -262,7 +263,8 @@ public class SVEditorCompletionProcessor extends AbstractCompletionProcessor
 
 				case MacroDef:
 					cp = createMacroProposal(
-							it, doc, replacementOffset, replacementLength);
+							it, doc, replacementOffset, replacementLength,
+							next_line_indent, first_line_pos, subseq_line_pos);
 					break;
 		
 				case ClassDecl:
@@ -520,44 +522,50 @@ public class SVEditorCompletionProcessor extends AbstractCompletionProcessor
 			ISVDBItemBase 				it,
 			IDocument					doc,
 			int							replacementOffset,
-			int							replacementLength) {
+			int							replacementLength,
+			String						next_line_indent,
+			int							first_line_pos,
+			int							subseq_line_pos) {
 		TemplateContext ctxt = new DocumentTemplateContext(
 				new TemplateContextType("CONTEXT"),
 				doc, replacementOffset, replacementLength);
 		
-		fLog.debug("createMacroProposal: " + SVDBItem.getName(it));
-
-		StringBuilder d = new StringBuilder();
-		StringBuilder r = new StringBuilder();
+		StringBuilder d = new StringBuilder();		// help text
 		SVDBMacroDef md = (SVDBMacroDef)it;
-
+		;
+		boolean auto_insertable = true;
 		d.append(SVDBItem.getName(it));
-		r.append(SVDBItem.getName(it));
-		if (md.getParameters() != null &&
-				md.getParameters().size() > 0) {
-			d.append(" (");
-			r.append(" (");
-			
+		if ((md.getParameters() != null) && (md.getParameters().size() > 0))  {
+			d.append("(");
+			auto_insertable = false;
+		
+			ArrayList<String> all_ports = new ArrayList<String> ();
 			for (int i=0; i<md.getParameters().size(); i++) {
-				String param = md.getParameters().get(i).getName();
-
-				d.append(param);
-				r.append("${");
-				r.append(param);
-				r.append("}");
-
-				if (i+1 < md.getParameters().size()) {
+				SVDBMacroDefParam param = md.getParameters().get(i);
+				all_ports.add(param.getName());
+			}
+	
+			// Now create the string & port list - note that we are padding to the longest string with spaces
+			for (int i=0; i<all_ports.size(); i++)  {
+				d.append(all_ports.get(i));
+		
+				// Only add ", " on all but the last parameters
+				if (i+1 < all_ports.size())  {
 					d.append(", ");
-					r.append(",\n");
 				}
 			}
-
+		
+			// Close the function instantiation
 			d.append(")");
-			r.append(")");
 		}
 		
-		Template t = new Template(d.toString(), "", "CONTEXT",
-				r.toString(), true);
+		// TODO:
+		String template_str = fProposalUtils.createMacroTemplate(md, 
+				next_line_indent, first_line_pos, subseq_line_pos);
+
+		Template t = new Template(d.toString(), 
+				"", "CONTEXT",
+				template_str, auto_insertable);
 		
 		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 

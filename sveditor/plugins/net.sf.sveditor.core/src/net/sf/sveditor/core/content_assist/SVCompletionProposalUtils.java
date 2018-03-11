@@ -16,6 +16,8 @@ import java.util.ArrayList;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItem;
+import net.sf.sveditor.core.db.SVDBMacroDef;
+import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
@@ -199,6 +201,103 @@ public class SVCompletionProposalUtils {
 		return r.toString();
 	}
 
+	
+	/**
+	 * 
+	 * @param md -- Macro/Define
+	 * @param subseq_line_indent -- Indent string for subsequent lines
+	 * @param first_line_pos	 -- 
+	 * @param subseq_line_pos
+	 * @return
+	 */
+	public String createMacroTemplate(
+			SVDBMacroDef	md,
+			String			subseq_line_indent,
+			int				first_line_pos,
+			int				subseq_line_pos) {
+		String newline = "\n" + subseq_line_indent;
+		StringBuilder r = new StringBuilder();		// template text
+		int curr_pos = first_line_pos;
+		
+		
+		int longest_string = 0;		// used to keep code nice and neat
+		int port_length   = 0;		// used to keep code nice and neat
+		int port_count    = 0;		// used to keep code nice and neat
+		
+		ArrayList<String> all_ports = new ArrayList<String> ();
+		if (md.getParameters() != null)  {
+			for (int i=0; i<md.getParameters().size(); i++) {
+				SVDBMacroDefParam param = md.getParameters().get(i);
+				all_ports.add(param.getName());
+				port_count ++;		// found another parameter
+				port_length += param.getName().length();		// keep track of the length of the portlist
+				if (param.getName().length() > longest_string)  {
+					longest_string = param.getName().length();	// update the longest string
+				}
+			}
+		}
+		
+		boolean multi_line_instantiation = false;
+		
+		// Multi-line instantiation rules
+		if	(((fTFMaxCharsPerLine != 0) && ((first_line_pos + (port_length)+(2/*, */)) > ((fTFMaxCharsPerLine*7)/8))) ||		// have a line length and we are probably longer than that line
+				((fTFPortsPerLine != 0) && (port_count > fTFPortsPerLine))								// have a ports per line & param or port list > that that number
+				) {
+			multi_line_instantiation = true;
+			curr_pos = subseq_line_pos;
+		}
+		else  {
+			newline = "";
+		}
+		
+		// Instantiate name
+		if (port_count > 0)  {
+			r.append(escapeId(SVDBItem.getName(md)) + "(" + newline);
+		}
+		else  {
+			r.append(escapeId(SVDBItem.getName(md)) + newline);
+		}
+		// Now create the string & port list - note that we are padding to the longest string with spaces
+		for (int i=0; i<port_count; i++)  {
+			StringBuilder padding = new StringBuilder("");
+			String name_str = all_ports.get(i);
+			// Padding is enabled if multi-line is triggered and
+			// named ports are being used
+			if (multi_line_instantiation)  {
+				// TODO: is there a better way of adding padding?
+				for (int cnt=name_str.length(); cnt<longest_string+1; cnt++)  {
+					padding.append(" ");
+				}
+			}
+			
+			// append ${porntmame} which will be replaced
+			r.append("${" + all_ports.get(i) + "}" + padding.toString());
+			curr_pos += 3 + all_ports.get(i).length() + padding.toString().length();
+			
+			// Only add ", " on all but the last parameters
+			if (i+1 < port_count)  {
+				r.append(", ");
+				curr_pos += 2;
+				
+				// Add \n if we have met the number of ports per line
+				// or if we've exceeded the line max
+				if ((fTFPortsPerLine != 0 && multi_line_instantiation && (((i+1) % fTFPortsPerLine) == 0)) ||
+						(curr_pos > (7*fTFMaxCharsPerLine)/8)
+						){ 
+					// ML gets a CR after every port is instantiated
+					r.append(newline);
+					curr_pos = subseq_line_pos;
+				}
+			}
+		}
+		
+		if (port_count > 0)  {
+			r.append(")");
+		}
+		
+		return r.toString();
+	}
+	
 	
 	/**
 	 * 

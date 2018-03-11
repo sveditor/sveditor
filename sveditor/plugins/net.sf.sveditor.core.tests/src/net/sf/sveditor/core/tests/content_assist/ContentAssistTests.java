@@ -35,7 +35,6 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
 import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexCollectionMgr;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
@@ -66,6 +65,7 @@ public class ContentAssistTests extends TestCase {
 		suite.addTest(new TestSuite(TestContentAssistClass.class));
 		suite.addTest(new TestSuite(TestContentAssistEnum.class));
 		suite.addTest(new TestSuite(TestContentAssistInterface.class));
+		suite.addTest(new TestSuite(TestContentAssistMacroDef.class));
 		suite.addTest(new TestSuite(TestContentAssistModule.class));
 		suite.addTest(new TestSuite(TestContentAssistPriority.class));
 		suite.addTest(new TestSuite(TestContentAssistStruct.class));
@@ -88,6 +88,14 @@ public class ContentAssistTests extends TestCase {
 			String 						expected[], 
 			List<SVCompletionProposal>	proposals,
 			boolean						ordered) {
+		for (int exp_idx=0; exp_idx<expected.length; exp_idx++) {
+			System.out.println("[" + exp_idx + "] exp=\"" + expected[exp_idx]+ "\"");
+		}
+		for (int i=0; i<proposals.size(); i++)  {
+			SVCompletionProposal svc = proposals.get(i);
+			System.out.println("[" + i + "] props=\"" + svc.getReplacement() + "\"");
+			
+		}
 		for (int exp_idx=0; exp_idx<expected.length; exp_idx++) {
 			String exp = expected[exp_idx];
 			boolean found = false;

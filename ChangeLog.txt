@@ -3,6 +3,8 @@
 -- 2.1.4 Release --
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
+- #(518) Macro Content Assist not formatting code
+
 ------------------------------------------------------------------------------
 -- 2.1.3 Release --
 
