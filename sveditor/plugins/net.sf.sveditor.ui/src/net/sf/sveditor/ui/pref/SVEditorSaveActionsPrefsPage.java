@@ -77,9 +77,9 @@ public class SVEditorSaveActionsPrefsPage extends FieldEditorPreferencePage impl
 		public void propertyChange(PropertyChangeEvent event) {
 			page.propertyChange(event);
 			// Check whether we should grey out some of these items based on the PerformActionOnSave
-			fRemoveTrailingWhitespace.setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
-			fNewlineAtEndOfFile      .setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
-			fFormatSourceCode        .setEnabled((boolean) event.getNewValue(), getFieldEditorParent());
+			fRemoveTrailingWhitespace.setEnabled((Boolean) event.getNewValue(), getFieldEditorParent());
+			fNewlineAtEndOfFile      .setEnabled((Boolean) event.getNewValue(), getFieldEditorParent());
+			fFormatSourceCode        .setEnabled((Boolean) event.getNewValue(), getFieldEditorParent());
 		}
 	}
 }
