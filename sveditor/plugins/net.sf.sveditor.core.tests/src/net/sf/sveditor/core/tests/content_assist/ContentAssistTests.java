@@ -88,12 +88,12 @@ public class ContentAssistTests extends TestCase {
 			String 						expected[], 
 			List<SVCompletionProposal>	proposals,
 			boolean						ordered) {
-		for (int exp_idx=0; exp_idx<expected.length; exp_idx++) {
-			System.out.println("[" + exp_idx + "] exp=\"" + expected[exp_idx]+ "\"");
-		}
+//		for (int exp_idx=0; exp_idx<expected.length; exp_idx++) {
+//			System.out.println("[" + exp_idx + "] exp=\"" + expected[exp_idx]+ "\"");
+//		}
 		for (int i=0; i<proposals.size(); i++)  {
 			SVCompletionProposal svc = proposals.get(i);
-			System.out.println("[" + i + "] props=\"" + svc.getReplacement() + "\"");
+//			System.out.println("[" + i + "] props=\"" + svc.getReplacement() + "\"");
 			
 		}
 		for (int exp_idx=0; exp_idx<expected.length; exp_idx++) {

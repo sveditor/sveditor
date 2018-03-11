@@ -167,7 +167,7 @@ public class TestArrayContentAssist extends SVCoreTestCaseBase {
 			"\n" +
 			"endclass\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		ContentAssistTests.runTest(this, doc, "m_int_field");
 	}
 

@@ -130,14 +130,14 @@ public class SVExtProjectFileStore extends FileStore implements ISVProjectBuilde
 		return uri;
 	}
 	
-	@Override
-	public File toLocalFile(int options, IProgressMonitor monitor) throws CoreException {
-		// TODO Auto-generated method stub
-//		File ret = super.toLocalFile(options, monitor);
-		System.out.println("ProjectFileStore toLocalFile: options=" + options + " " + fProjData.getName());
-		return null;
-//		return ret;
-	}
+//	@Override
+//	public File toLocalFile(int options, IProgressMonitor monitor) throws CoreException {
+//		// TODO Auto-generated method stub
+////		File ret = super.toLocalFile(options, monitor);
+//		System.out.println("ProjectFileStore toLocalFile: options=" + options + " " + fProjData.getName());
+//		return null;
+////		return ret;
+//	}
 
 	
 	private Job				fRebuildTreeJob = new Job("Rebuild External Files Tree") {

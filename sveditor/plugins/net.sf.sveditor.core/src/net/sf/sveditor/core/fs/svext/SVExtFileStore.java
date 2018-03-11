@@ -183,13 +183,13 @@ public class SVExtFileStore extends FileStore {
 		return uri;
 	}
 
-	@Override
-	public File toLocalFile(int options, IProgressMonitor monitor) throws CoreException {
-		// TODO Auto-generated method stub
-		File ret = super.toLocalFile(options, monitor);
-		System.out.println("toLocalFile: options=" + options + " " + fFile + "(" + ret + ")");
-		return ret;
-	}
+//	@Override
+//	public File toLocalFile(int options, IProgressMonitor monitor) throws CoreException {
+//		// TODO Auto-generated method stub
+//		File ret = super.toLocalFile(options, monitor);
+////		System.out.println("toLocalFile: options=" + options + " " + fFile + "(" + ret + ")");
+//		return ret;
+//	}
 	
 	
 
