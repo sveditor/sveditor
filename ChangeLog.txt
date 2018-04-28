@@ -7,8 +7,6 @@
 ------------------------------------------------------------------------------
 -- 2.1.4 Release --
 
-- #(520) - Correct issue with soft constraint parsing
-
 - #(520) - Correct issue wih coverpoint 'X with' expression 
 
 ------------------------------------------------------------------------------
@@ -24,10 +22,15 @@
 ------------------------------------------------------------------------------
 -- 2.1.2 Release --
 
+- #(519) Preferences bug with "Save Actions" 
+
 - #(enh) - Automatically link files referenced by the filelist into the
            project. This allows the "open resource" operation and file 
            search to see external files. There's more work to be done here,
            but initial functionality is in place.
+
+- #(520) Parse error when soft constraints are used in an inline constraint
+
 
 ------------------------------------------------------------------------------
 -- 2.1.1 Release --
