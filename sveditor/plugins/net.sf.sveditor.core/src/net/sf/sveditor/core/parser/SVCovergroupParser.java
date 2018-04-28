@@ -346,7 +346,18 @@ public class SVCovergroupParser extends SVParserBase {
 					select_stmt.setBinsType(type.getImg());
 					select_stmt.setBinsName(fParsers.exprParser().idExpr());
 					fLexer.readOperator(OP.EQ);
-					select_stmt.setSelectCondition(select_expression());
+					
+					if (fLexer.peekId()) {
+						// ID with (expression)
+						// TODO: save
+						fLexer.eatToken();
+						fLexer.readKeyword(KW.WITH);
+						fLexer.readOperator(OP.LPAREN);
+						fParsers.exprParser().expression();
+						fLexer.readOperator(OP.RPAREN);
+					} else {
+						select_stmt.setSelectCondition(select_expression());
+					}
 					
 					if (fLexer.peekKeyword(KW.IFF)) {
 						fLexer.eatToken();
