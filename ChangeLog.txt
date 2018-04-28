@@ -1,11 +1,18 @@
 
-- #(519) Preferences bug with "Save Actions" 
+
+------------------------------------------------------------------------------
+-- 2.1.3 Release --
+- #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
 ------------------------------------------------------------------------------
 -- 2.1.2 Release --
-- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+- #(519) Preferences bug with "Save Actions" 
 
 - #(518) Macro Content Assist not formatting code
+
+- #(520) Parse error when soft constraints are used in an inline constraint
+
 
 ------------------------------------------------------------------------------
 -- 2.1.1 Release --

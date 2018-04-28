@@ -29,7 +29,8 @@ public class SVExtFileSystem extends FileSystem {
 	@Override
 	public IFileStore getStore(URI uri) {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IProject p = root.getProject(uri.getHost());
+		String host = uri.getAuthority();
+		IProject p = root.getProject(host);
 		if (p != null) {
 			SVDBProjectData pd = SVCorePlugin.getDefault().getProjMgr().getProjectData(p);
 			if (!fProjectMap.containsKey(pd)) {
