@@ -62,11 +62,11 @@ public class SVArgFileCodeScanner extends RuleBasedScanner {
 		List<IRule> rules = new ArrayList<IRule>();
 
 //		rules.add(new EndOfLineRule("//", slc));
+	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
 		rules.add(new CCommentRule(mlc));
 		rules.add(new SLCommentRule(slc));
 //	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));"
 
-	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
 	    rules.add(new SingleLineRule("${", "}", svt_param));
 
 		WordRule wordRule = new WordRule(new SVArgFileWordDetector(), default_t);

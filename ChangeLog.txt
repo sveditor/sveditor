@@ -9,6 +9,10 @@
 
 - #(520) - Correct issue wih coverpoint 'X with' expression 
 
+- #(nobug) - Correct a conflict between the string and single-line comment 
+  highlighters that caused a comment embedded in a string to not be 
+  displayed correctly
+
 ------------------------------------------------------------------------------
 -- 2.1.3 Release --
 
