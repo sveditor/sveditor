@@ -13,14 +13,25 @@
 	
 	<property name="antlr_dir" value="${basedir}/../net.sf.sveditor.extjar"/>
 	
-	<target name="pre.@dot">
+	<uptodate property="vhdl.parser.uptodate"
+		targetfile="${basedir}/src-gen/parser.d">
+		<srcfiles dir="${basedir}/src/net/sf/sveditor/vhdl/core/parser"
+			includes="*.g4"/>
+	</uptodate>
+	
+	<target name="pre.@dot" unless="vhdl.parser.uptodate">
 		<echo message="Building ANTLR"/>
-		<java classname="antlr.Tool" failonerror="true">
-			<classpath path="${antlr_dir}/antlr.jar"/>
+		<mkdir dir="${basedir}/src-gen"/>
+		<java classname="org.antlr.v4.Tool" failonerror="true">
+			<classpath path="${antlr_dir}/antlr-4.7.1-complete.jar"/>
 			<arg value="-o"/>
-			<arg value="${basedir}/src/net/sf/sveditor/vhdl/core/parser"/>
-			<arg value="${basedir}/src/net/sf/sveditor/vhdl/core/parser/vhdl.g"/>
+			<arg value="${basedir}/src-gen/net/sf/sveditor/vhdl/core/parser"/>
+			<arg value="-package"/>
+			<arg value="net.sf.sveditor.vhdl.core.parser"/>
+			<arg value="-visitor"/>
+			<arg value="${basedir}/src/net/sf/sveditor/vhdl/core/parser/vhdl.g4"/>
 		</java>
+		<touch file="${basedir}/src-gen/parser.d"/>
 	</target>
 	
 	<target name="post.compile.name"/>
