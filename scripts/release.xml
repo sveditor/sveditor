@@ -106,9 +106,7 @@
 		<bintray_upload_update path="plugins/net.sf.sveditor.core_${feature.version}.jar"/>
 		<bintray_upload_update path="plugins/net.sf.sveditor.ui_${feature.version}.jar"/>
 		<bintray_upload_update path="plugins/net.sf.sveditor.doc.dev_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.vhdl.core_${feature.version}.jar"/>
 		<bintray_upload_update path="plugins/net.sf.sveditor.doc.user_${feature.version}.jar"/>
-		<bintray_upload_update path="plugins/net.sf.sveditor.vhdl.ui_${feature.version}.jar"/>
 		<bintray_upload_update path="plugins/net.sf.sveditor.extjar_${feature.version}.jar"/>
 		
 		<!-- First, create appropriate directories -->
