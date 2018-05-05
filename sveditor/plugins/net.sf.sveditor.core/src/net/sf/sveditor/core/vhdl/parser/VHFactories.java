@@ -1,4 +1,4 @@
-package net.sf.sveditor.vhdl.core.parser;
+package net.sf.sveditor.core.vhdl.parser;
 
 public class VHFactories {
 	private EntityFactory		m_entity;

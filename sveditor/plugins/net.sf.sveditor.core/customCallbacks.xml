@@ -1,6 +1,21 @@
 <project name="customCallbacks" default="pre.compile">
-	
-	<target name="pre.compile">
+
+	<target name="pre.compile" unless="vhdl.parser.uptodate">
+		<echo message="Building ANTLR"/>
+		<mkdir dir="${basedir}/src-gen"/>
+		<java classname="org.antlr.v4.Tool" failonerror="true">
+			<classpath path="${antlr_dir}/antlr-4.7.1-complete.jar"/>
+			<arg value="-o"/>
+			<arg value="${basedir}/src-gen/net/sf/sveditor/core/vhdl/parser"/>
+			<arg value="-package"/>
+			<arg value="net.sf.sveditor.core.vhdl.parser"/>
+			<arg value="-visitor"/>
+			<arg value="${basedir}/src/net/sf/sveditor/core/vhdl/parser/vhdl.g4"/>
+		</java>
+		<touch file="${basedir}/src-gen/parser.d"/>
+	</target>
+
+	<target name="pre.compile.sav">
 		<!--
 		<echo message="Generating Operator Lexer"/>
 		compiler="org.eclipse.jdt.core.JDTCompilerAdapter"
@@ -22,7 +37,17 @@
 	<target name="pre.build.sources"/>
 	<target name="post.build.sources"/>
 	<target name="pre.name"/>
-	<target name="pre.@dot"/>
+	
+	<property name="antlr_dir" value="${basedir}/../net.sf.sveditor.extjar"/>
+	
+	<uptodate property="vhdl.parser.uptodate"
+		targetfile="${basedir}/src-gen/parser.d">
+		<srcfiles dir="${basedir}/src/net/sf/sveditor/vhdl/core/parser"
+			includes="*.g4"/>
+	</uptodate>
+	
+
+	
 	<target name="post.compile.name"/>
 	<target name="post.compile.@dot"/>
 	<target name="post.name"/>
@@ -35,5 +60,7 @@
 	<target name="post.gather.logs"/>
 	<target name="pre.clean"/>
 	
-	<target name="post.clean"/>
+	<target name="post.clean">
+		<delete dir="${basedir}/src-gen"/>
+	</target>
 </project> 

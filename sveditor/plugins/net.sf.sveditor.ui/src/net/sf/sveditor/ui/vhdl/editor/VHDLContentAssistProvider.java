@@ -1,9 +1,7 @@
-package net.sf.sveditor.vhdl.ui.editor;
+package net.sf.sveditor.ui.vhdl.editor;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.sf.sveditor.vhdl.ui.VhdlUiPlugin;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -30,32 +28,32 @@ public class VHDLContentAssistProvider implements IContentAssistProcessor {
 		IExtensionRegistry rgy = Platform.getExtensionRegistry();
 
 		fTemplateList = new ArrayList<VHDLProposalInfo>();
-		
-		IExtensionPoint ept = rgy.getExtensionPoint(
-				VhdlUiPlugin.PLUGIN_ID, "contentAssistTemplates");
 
-		if (ept != null) {
-		for (IExtension ext : ept.getExtensions()) {
-			for (IConfigurationElement ex : ext.getConfigurationElements()) {
-				String trigger = ex.getAttribute("trigger");
-//				System.out.println("trigger=" + trigger);
-
-				IConfigurationElement proposal[] = ex.getChildren("proposal");
-				
-				if (proposal != null && proposal.length > 0) {
-					IConfigurationElement template[] = proposal[0].getChildren("template");
-					IConfigurationElement description[] = proposal[0].getChildren("description");
-					
-					if (template != null && template.length != 0 &&
-							description != null && description.length != 0) {
-						fTemplateList.add(new VHDLProposalInfo(
-								trigger, description[0].getValue(), template[0].getValue())); 
-					}
-				}
-				
-			}
-		}
-		}
+		// TODO: add VHDL template-based content assist
+//		IExtensionPoint ept = rgy.getExtensionPoint(
+//				VhdlUiPlugin.PLUGIN_ID, "contentAssistTemplates");
+//
+//		if (ept != null) {
+//		for (IExtension ext : ept.getExtensions()) {
+//			for (IConfigurationElement ex : ext.getConfigurationElements()) {
+//				String trigger = ex.getAttribute("trigger");
+////				System.out.println("trigger=" + trigger);
+//
+//				IConfigurationElement proposal[] = ex.getChildren("proposal");
+//				
+//				if (proposal != null && proposal.length > 0) {
+//					IConfigurationElement template[] = proposal[0].getChildren("template");
+//					IConfigurationElement description[] = proposal[0].getChildren("description");
+//					
+//					if (template != null && template.length != 0 &&
+//							description != null && description.length != 0) {
+//						fTemplateList.add(new VHDLProposalInfo(
+//								trigger, description[0].getValue(), template[0].getValue())); 
+//					}
+//				}
+//			}
+//		}
+//		}
 	}
 
 	public ICompletionProposal[] computeCompletionProposals(

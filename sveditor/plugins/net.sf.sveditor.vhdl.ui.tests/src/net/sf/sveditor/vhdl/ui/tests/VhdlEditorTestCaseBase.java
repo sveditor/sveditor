@@ -3,7 +3,7 @@ package net.sf.sveditor.vhdl.ui.tests;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.tests.utils.editor.EditorTestCaseBase;
-import net.sf.sveditor.vhdl.ui.editor.VHDLEditor;
+import net.sf.sveditor.ui.vhdl.editor.VHDLEditor;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;

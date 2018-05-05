@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.jface.text,
  net.sf.sveditor.core,
- net.sf.sveditor.vhdl.core,
  net.sf.sveditor.extjar,
  net.sf.sveditor.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

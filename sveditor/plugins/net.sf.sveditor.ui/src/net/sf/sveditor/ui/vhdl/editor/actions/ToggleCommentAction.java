@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.vhdl.ui.editor.actions;
+package net.sf.sveditor.ui.vhdl.editor.actions;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.ResourceBundle;
 
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.vhdl.ui.editor.VHDLDocumentPartitions;
-import net.sf.sveditor.vhdl.ui.editor.VHDLEditor;
+import net.sf.sveditor.ui.vhdl.editor.VHDLDocumentPartitions;
+import net.sf.sveditor.ui.vhdl.editor.VHDLEditor;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;

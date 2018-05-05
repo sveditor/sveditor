@@ -1,4 +1,4 @@
-package net.sf.sveditor.vhdl.ui.editor;
+package net.sf.sveditor.ui.vhdl.editor;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.presentation.PresentationReconciler;

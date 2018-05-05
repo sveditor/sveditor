@@ -1,4 +1,4 @@
-package net.sf.sveditor.vhdl.ui.editor;
+package net.sf.sveditor.ui.vhdl.editor;
 import java.util.ResourceBundle;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -12,12 +12,12 @@ import org.eclipse.ui.editors.text.TextEditor;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
+import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVCharacterPairMatcher;
 import net.sf.sveditor.ui.editor.SVEditorColors;
-import net.sf.sveditor.vhdl.ui.VhdlUiPlugin;
-import net.sf.sveditor.vhdl.ui.editor.actions.AddBlockCommentAction;
-import net.sf.sveditor.vhdl.ui.editor.actions.RemoveBlockCommentAction;
-import net.sf.sveditor.vhdl.ui.editor.actions.ToggleCommentAction;
+import net.sf.sveditor.ui.vhdl.editor.actions.AddBlockCommentAction;
+import net.sf.sveditor.ui.vhdl.editor.actions.RemoveBlockCommentAction;
+import net.sf.sveditor.ui.vhdl.editor.actions.ToggleCommentAction;
 
 
 public class VHDLEditor extends TextEditor implements ILogLevel {
@@ -76,34 +76,35 @@ public class VHDLEditor extends TextEditor implements ILogLevel {
 	protected void initializeKeyBindingScopes() {
 		fLog = LogFactory.getLogHandle("VHDLEditor");
 		fLog.debug(LEVEL_MIN, "initializeBindingScopes");
-		setKeyBindingScopes(new String[] {VhdlUiPlugin.PLUGIN_ID + ".vhdlEditorContext"});
+		setKeyBindingScopes(new String[] {SVUiPlugin.PLUGIN_ID + ".vhdlEditorContext"});
 	}
 
 	@Override
 	protected void createActions() {
-		ResourceBundle bundle = VhdlUiPlugin.getDefault().getResources();
+		ResourceBundle bundle = SVUiPlugin.getDefault().getResources();
 		fLog.debug(LEVEL_MIN, "createActions");
 		
 		// TODO Auto-generated method stub
 		super.createActions();
-		
+	
+		// TODO: do these need to be distinct?
 		AddBlockCommentAction add_block_comment = new AddBlockCommentAction(
 				bundle, "AddBlockComment.", this);
-		add_block_comment.setActionDefinitionId(VhdlUiPlugin.PLUGIN_ID + ".AddBlockComment");
+		add_block_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".AddBlockComment");
 		add_block_comment.setEnabled(true);
-		setAction(VhdlUiPlugin.PLUGIN_ID + ".AddBlockComment", add_block_comment);
+		setAction(SVUiPlugin.PLUGIN_ID + ".AddBlockComment", add_block_comment);
 		
 		ToggleCommentAction toggle_comment = new ToggleCommentAction(
 				bundle, "ToggleComment.", this);
-		toggle_comment.setActionDefinitionId(VhdlUiPlugin.PLUGIN_ID + ".ToggleComment");
+		toggle_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
 		toggle_comment.setEnabled(true);
-		setAction(VhdlUiPlugin.PLUGIN_ID + ".ToggleComment", toggle_comment);
+		setAction(SVUiPlugin.PLUGIN_ID + ".ToggleComment", toggle_comment);
 		
 		RemoveBlockCommentAction remove_block_comment = new RemoveBlockCommentAction(
 				bundle, "RemoveBlockComment.", this);
-		remove_block_comment.setActionDefinitionId(VhdlUiPlugin.PLUGIN_ID + ".RemoveBlockComment");
+		remove_block_comment.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".RemoveBlockComment");
 		remove_block_comment.setEnabled(true);
-		setAction(VhdlUiPlugin.PLUGIN_ID + ".RemoveBlockCommentAction", remove_block_comment);
+		setAction(SVUiPlugin.PLUGIN_ID + ".RemoveBlockCommentAction", remove_block_comment);
 	}
 
 	public void setSelection(int start, int end, boolean set_cursor) {

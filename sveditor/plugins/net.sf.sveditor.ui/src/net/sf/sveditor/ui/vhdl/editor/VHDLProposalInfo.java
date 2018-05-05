@@ -1,4 +1,4 @@
-package net.sf.sveditor.vhdl.ui.editor;
+package net.sf.sveditor.ui.vhdl.editor;
 
 public class VHDLProposalInfo {
 	public String				fTrigger;

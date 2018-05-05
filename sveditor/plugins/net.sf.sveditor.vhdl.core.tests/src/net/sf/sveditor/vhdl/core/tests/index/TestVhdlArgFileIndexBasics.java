@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.vhdl.core.parser.VHDLFileFactory;
+import net.sf.sveditor.core.vhdl.parser.VHDLFileFactory;
 import net.sf.sveditor.vhdl.core.tests.VhdlCoreTestCase;
 
 public class TestVhdlArgFileIndexBasics extends VhdlCoreTestCase {

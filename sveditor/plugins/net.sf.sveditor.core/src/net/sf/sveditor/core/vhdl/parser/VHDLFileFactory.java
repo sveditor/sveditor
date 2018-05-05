@@ -1,4 +1,4 @@
-package net.sf.sveditor.vhdl.core.parser;
+package net.sf.sveditor.core.vhdl.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,22 +10,15 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.vhdl.VHEntityDecl;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Architecture_bodyContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Configuration_declarationContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Design_fileContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Design_unitContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_aspectContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_declarationContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_declarative_itemContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_declarative_partContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_headerContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_statementContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Library_clauseContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Library_unitContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Package_bodyContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Package_declarationContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Use_clauseContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Architecture_bodyContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Configuration_declarationContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Design_fileContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Design_unitContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_declarationContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Library_clauseContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Package_bodyContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Package_declarationContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Use_clauseContext;
 
 public class VHDLFileFactory extends vhdlBaseVisitor<ISVDBChildItem> {
 	VHFactories				fFactories;

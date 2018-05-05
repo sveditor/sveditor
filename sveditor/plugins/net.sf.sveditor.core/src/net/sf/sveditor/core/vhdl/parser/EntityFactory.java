@@ -1,10 +1,10 @@
-package net.sf.sveditor.vhdl.core.parser;
+package net.sf.sveditor.core.vhdl.parser;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.vhdl.VHEntityDecl;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_declarationContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_declarative_itemContext;
-import net.sf.sveditor.vhdl.core.parser.vhdlParser.Entity_statementContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_declarationContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_declarative_itemContext;
+import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_statementContext;
 
 public class EntityFactory extends VHFactoryBase {
 	

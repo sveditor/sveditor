@@ -8,7 +8,7 @@
  * Contributors:
  *     Eclipse CDT -- initial implementation
  ****************************************************************************/
-package net.sf.sveditor.vhdl.ui.editor.actions;
+package net.sf.sveditor.ui.vhdl.editor.actions;
 
 import java.util.Iterator;
 import java.util.List;

@@ -3,7 +3,7 @@ package net.sf.sveditor.vhdl.ui.tests.editor;
 import java.io.File;
 
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.vhdl.ui.editor.VHDLEditor;
+import net.sf.sveditor.ui.vhdl.editor.VHDLEditor;
 import net.sf.sveditor.vhdl.ui.tests.VhdlEditorTestCaseBase;
 
 import org.eclipse.core.commands.Command;

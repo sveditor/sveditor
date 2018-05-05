@@ -43,6 +43,17 @@
             name="VerilogAMS"
             priority="normal">
       </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="vhd, vhdl, vh"
+            id="vhdl"
+            name="VHDL"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.svfile">
+         </property>
+      </content-type>      
    </extension>
    <extension
          id="SVNature"
