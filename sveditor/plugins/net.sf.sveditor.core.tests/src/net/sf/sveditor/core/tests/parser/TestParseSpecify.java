@@ -43,7 +43,16 @@ public class TestParseSpecify extends TestCase {
 				"		(in1,in2  *> (out-:out2)) = (600,600); // multi-to-range\n" +
 				"		(in1,in2  *> (out+:out2)) = (600,600); // multi-to-range\n" +
 				"		(in1,in2  *> (out :out2)) = (600,600); // multi-to-range\n" +
-				"		(in      -*> out1,out2) = (600,600); // single-to-multi\n" +
+				"		// Min-typ-max equivalents - Bug 520\n" +
+				"		(in => out) = (400:500:600,400:500:600);\n" +
+				"		(in +=> out) = (400:500:600,400:500:600);\n" +
+				"		(in -=> out) = (400:500:600,400:500:600);\n" +
+				"		(in1,in2[1]  *> out      ) = (400:500:600,400:500:600,400:500:600); // multi-to-single\n" +
+				"		(in1,in2  *> (out-:out2)) = (400:500:600,400:500:600); // multi-to-range\n" +
+				"		(in1,in2  *> (out+:out2)) = (400:500:600,400:500:600); // multi-to-range\n" +
+				"		(in1,in2  *> (out :out2)) = (400:500:600,400:500:600); // multi-to-range\n" +
+				"		(posedge clk => (q[0]:data)) = (15,8);\n" +
+				"		(posedge clk => (q[0]:data)) = (1:2:3,4:5:6);\n" +
 				"		(in1,in2 +*> out1,out2) = (600,600); //multi-to-multi\n" +
 				"		if (RD==1) (posedge CLK *> (out3[1]:out3[0])) = (600,600); //multi-to-multi\n" +
 				"	endspecify\n" +

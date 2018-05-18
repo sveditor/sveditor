@@ -319,7 +319,7 @@ public class SVExprParser extends SVParserBase {
 		}
 
 		while (fLexer.peek() != null) {
-			expression();
+			constant_mintypmax_expression();
 			
 			if (fLexer.peekOperator(OP.COMMA)) {
 				fLexer.eatToken();

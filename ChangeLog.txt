@@ -4,6 +4,8 @@
 
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
+- #(529) Specify blocks don't parse correctly for min:typ:max timing data
+
 ------------------------------------------------------------------------------
 -- 2.1.4 Release --
 
