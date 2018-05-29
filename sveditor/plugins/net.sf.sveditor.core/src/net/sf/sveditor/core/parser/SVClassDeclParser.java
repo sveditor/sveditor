@@ -15,7 +15,10 @@ package net.sf.sveditor.core.parser;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.SVDBClassDecl;
+import net.sf.sveditor.core.db.SVDBFieldItem;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
+import net.sf.sveditor.core.parser.SVParseException.Kind;
 
 public class SVClassDeclParser extends SVParserBase {
 	
@@ -72,7 +75,15 @@ public class SVClassDeclParser extends SVParserBase {
 		
 		if (fLexer.peekKeyword(KW.EXTENDS)) {
 			fLexer.eatToken();
-			cls.setSuperClass(parsers().dataTypeParser().class_type());
+			cls.addSuperClass(parsers().dataTypeParser().class_type());
+			
+			if ((qualifiers & SVDBFieldItem.FieldAttr_Interface) != 0) {
+				// Interface class, so support multiple extension
+				while (fLexer.peekOperator(OP.COMMA)) {
+					fLexer.eatToken(); // eat the comma
+					cls.addSuperClass(parsers().dataTypeParser().class_type());
+				}
+			}
 		}
 		
 		if (fLexer.peekKeyword(KW.IMPLEMENTS)) {
@@ -102,11 +113,26 @@ public class SVClassDeclParser extends SVParserBase {
 				try {
 					fParsers.modIfcBodyItemParser().parse(cls);
 				} catch (SVParseException e) {
-					// Catch error
-					// TODO: recover from errors
-					while (fLexer.peek() != null && 
-							!fLexer.peekOperator(OP.SEMICOLON) && !fLexer.peekKeyword(KW.ENDCLASS)) {
-						fLexer.eatToken();
+					SVToken last_tok; 
+					
+					if ((last_tok = fLexer.consumeToken()) == null) {
+						throw new SVSkipToNextFileException();
+					}
+					SVToken tok;
+					int fileid = SVDBLocation.unpackFileId(last_tok.getStartLocation());
+					
+					while ((tok = fLexer.consumeToken()) != null) {
+						int fileid_1 = SVDBLocation.unpackFileId(tok.getStartLocation());
+						
+						if (tok.isOp(OP.SEMICOLON) || tok.isKW(KW.ENDCLASS)) {
+							break;
+						} else if (fileid != fileid_1) {
+							// Delegate to the upper-level
+							fLexer.ungetToken(tok);
+							fLexer.ungetToken(last_tok);
+							throw new SVSkipToNextFileException();
+						}
+						last_tok = tok;
 					}
 				}
 			}
@@ -114,6 +140,8 @@ public class SVClassDeclParser extends SVParserBase {
 			leave_type_scope(cls);
 		}
 
+//		System.out.println("setClassEndLocation: " + 
+//				SVDBLocation.toString(fLexer.getStartLocation()));
 		cls.setEndLocation(fLexer.getStartLocation());
 		fLexer.readKeyword(KW.ENDCLASS);
 

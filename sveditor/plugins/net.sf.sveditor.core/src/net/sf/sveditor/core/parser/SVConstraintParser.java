@@ -197,29 +197,36 @@ public class SVConstraintParser extends SVParserBase {
 	private SVDBStmt expr_constraint() throws SVParseException {
 		SVDBStmt ret = null;
 		
-		if (fDebugEn) { debug("--> expr_constraint"); }
+		Context ctxt = fLexer.setContext(Context.Constraint);
 		
-		if (fLexer.peekKeyword(KW.SOFT)) {
-			fLexer.eatToken();
-		}
-		SVDBExpr expr = fParsers.exprParser().expression();
+		if (fDebugEn) { debug("--> expr_constraint " + fLexer.peek()); }
 		
-		if (fLexer.peekKeyword(KW.DIST)) {
-			ret = dist_expr();
-		} else if (fLexer.peekOperator(OP.SEMICOLON)) {
-			// Done
-			fLexer.eatToken();
-			ret = new SVDBExprStmt(expr);
-		} else if (fLexer.peekOperator(OP.IMPL)) {
-			if (fDebugEn) { debug("  implication"); }
-			fLexer.eatToken();
-			
-			ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
-		} else if (fLexer.peekOperator(OP.RBRACE)) {
-			ret = new SVDBExprStmt(expr);
-			// Do nothing ... expecting this
-		} else {
-			error("Unknown suffix for expression: " + fLexer.getImage());
+		try {
+
+			if (fLexer.peekKeyword(KW.SOFT)) {
+				fLexer.eatToken();
+			}
+			SVDBExpr expr = fParsers.exprParser().expression();
+
+			if (fLexer.peekKeyword(KW.DIST)) {
+				ret = dist_expr();
+			} else if (fLexer.peekOperator(OP.SEMICOLON)) {
+				// Done
+				fLexer.eatToken();
+				ret = new SVDBExprStmt(expr);
+			} else if (fLexer.peekOperator(OP.IMPL)) {
+				if (fDebugEn) { debug("  implication"); }
+				fLexer.eatToken();
+
+				ret = new SVDBConstraintImplStmt(expr, constraint_set(false, true, false));
+			} else if (fLexer.peekOperator(OP.RBRACE)) {
+				ret = new SVDBExprStmt(expr);
+				// Do nothing ... expecting this
+			} else {
+				error("Unknown suffix for expression: " + fLexer.getImage());
+			}
+		} finally {
+			fLexer.setContext(ctxt);
 		}
 		
 		if (fDebugEn) { debug("<-- expr_constraint " + fLexer.peek()); }

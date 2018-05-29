@@ -1,13 +1,61 @@
 
 ------------------------------------------------------------------------------
--- 2.0.9 Release --
+-- 2.1.5 Release --
+
 - #(enh) - Add scrollbar to New Class "Add to Package" wizard
 
-- #(506) Copying multiple lines 
+------------------------------------------------------------------------------
+-- 2.1.4 Release --
 
-- #(514) Indenter: Issues moving lines through multi-line comments
+- #(520) - Correct issue wih coverpoint 'X with' expression 
 
-- #(515) Colorizer: Preference to "Treat all files as system verilog" ignored 
+- #(nobug) - Correct a conflict between the string and single-line comment 
+  highlighters that caused a comment embedded in a string to not be 
+  displayed correctly
+
+------------------------------------------------------------------------------
+-- 2.1.3 Release --
+
+- #(nobug) - Correct a Linux-specific issue with support for external files.
+
+- #(519) Preferences bug with "Save Actions" 
+
+- #(518) Macro Content Assist not formatting code
+
+
+------------------------------------------------------------------------------
+-- 2.1.2 Release --
+
+- #(519) Preferences bug with "Save Actions" 
+
+- #(enh) - Automatically link files referenced by the filelist into the
+           project. This allows the "open resource" operation and file 
+           search to see external files. There's more work to be done here,
+           but initial functionality is in place.
+
+- #(520) Parse error when soft constraints are used in an inline constraint
+
+
+------------------------------------------------------------------------------
+-- 2.1.1 Release --
+
+- #(517) - Correct an issue with the new error-recovery code when the 
+  number of errors exceeds 100 (the preset limit)
+  
+------------------------------------------------------------------------------
+-- 2.1.0 Release --
+
+- #(nobug) - Correct parse bug with interface class multiple extension
+
+- #(nobug) - Ensure built-in classes with __sv_builtin prefix are not 
+  provided as content-assist proposals
+  
+- #(nobug) - Improve parsing error recovery to resume parsing the next
+  file. This improves error recovery when parsing a package that 
+  sub-includes several files.
+
+------------------------------------------------------------------------------
+-- 2.0.9 Release -- ??
  
 ------------------------------------------------------------------------------
 -- 2.0.8 Release --
@@ -15,6 +63,12 @@
 - #(enh) - Add support for built-in 'semaphore' class
 
 - #(enh) - Add support for built-in 'mailbox' class
+
+- #(506) Copying multiple lines 
+
+- #(514) Indenter: Issues moving lines through multi-line comments
+
+- #(515) Colorizer: Preference to "Treat all files as system verilog" ignored 
 
 ------------------------------------------------------------------------------
 -- 2.0.7 Release --

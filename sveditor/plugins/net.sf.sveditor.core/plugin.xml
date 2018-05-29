@@ -43,6 +43,17 @@
             name="VerilogAMS"
             priority="normal">
       </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="vhd, vhdl, vh"
+            id="vhdl"
+            name="VHDL"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.svfile">
+         </property>
+      </content-type>      
    </extension>
    <extension
          id="SVNature"
@@ -74,7 +85,7 @@
       <filesystem
             scheme="plugin">
          <run
-               class="net.sf.sveditor.core.db.index.plugin.PluginFilesystem">
+               class="net.sf.sveditor.core.fs.plugin.PluginFilesystem">
          </run>
       </filesystem>
    </extension>
@@ -253,6 +264,15 @@
                class="net.sf.sveditor.core.applications.CreateProjectApp">
          </run>
       </application>
+   </extension>
+   <extension
+         point="org.eclipse.core.filesystem.filesystems">
+      <filesystem
+            scheme="svext">
+         <run
+               class="net.sf.sveditor.core.fs.svext.SVExtFileSystem">
+         </run>
+      </filesystem>
    </extension>
 
 

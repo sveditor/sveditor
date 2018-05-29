@@ -168,6 +168,8 @@ public class SVParser implements ISVScanner,
 			}
 		} catch (SVParseException e) {
 			// Ignore the error and allow another parser to deal with
+		} catch (SVSkipToNextFileException e) {
+			skipToNextFile(false);
 		}
 		
 		KW kw = fLexer.peekKeywordE();
@@ -356,7 +358,13 @@ public class SVParser implements ISVScanner,
 			parent.addChildItem(pkg);
 
 			while (fLexer.peek() != null && !fLexer.peekKeyword(KW.ENDPACKAGE)) {
-				top_level_item(pkg);
+				try {
+					top_level_item(pkg);
+				} catch (SVParseException e) {
+					skipToNextFile(false);
+				} catch (SVSkipToNextFileException e) {
+					skipToNextFile(false);
+				}
 
 				if (fLexer.peekKeyword(KW.ENDPACKAGE)) {
 					break;
@@ -426,16 +434,6 @@ public class SVParser implements ISVScanner,
 	}
 
 	/*
-	public void setNewStatement() {
-		fNewStatement = true;
-	}
-
-	public void clrNewStatement() {
-		fNewStatement = false;
-	}
-	 */
-
-	/*
 	 * Currently unused private String readLine(int ci) throws EOFException { if
 	 * (fInputStack.size() > 0) { return fInputStack.peek().readLine(ci); } else
 	 * { return ""; } }
@@ -453,11 +451,6 @@ public class SVParser implements ISVScanner,
 			ret.append(fLexer.eatTokenR());
 			ret.append(fLexer.eatTokenR());
 		}
-		/*
-		while (fLexer.peekId() || fLexer.peekOperator(OP.COLON2) || fLexer.peekKeyword()) {
-			ret.append(fLexer.eatToken());
-		}
-		 */
 
 		return ret.toString();
 	}
@@ -638,25 +631,23 @@ public class SVParser implements ISVScanner,
 		fSVParsers = new SVParsers();
 		fSVParsers.init(this);
 
-		try {
 			while (fLexer.peek() != null) {
-				top_level_item(fFile);
+				try {
+					top_level_item(fFile);
+				} catch (SVParseException e) {
+					skipToNextFile(false);
+				} catch (SVSkipToNextFileException e) {
+					skipToNextFile(false);
+				} catch (SVAbortParseException e) {
+					// error limit exceeded
+				}
 			}
-		} catch (SVParseException e) {
-			if (fDebugEn) {
-				debug("ParseException: post-process()", e);
-			}
-		} catch (EOFException e) {
-			e.printStackTrace();
-		} catch (SVAbortParseException e) {
-			// error limit exceeded
-		}
 
-		if (fScopeStack.size() > 0
-				&& fScopeStack.peek().getType() == SVDBItemType.File) {
-			setEndLocation(fScopeStack.peek());
-			fScopeStack.pop();
-		}
+//		if (fScopeStack.size() > 0
+//				&& fScopeStack.peek().getType() == SVDBItemType.File) {
+//			setEndLocation(fScopeStack.peek());
+//			fScopeStack.pop();
+//		}
 
 		return fFile;
 	}
@@ -707,35 +698,31 @@ public class SVParser implements ISVScanner,
 		
 		fFile.setLocation(getLocationL());
 
-		try {
 			while (fLexer.peek() != null) {
-				top_level_item(fFile);
+				try {
+					top_level_item(fFile);
+				} catch (SVParseException e) {
+					skipToNextFile(false);
+				} catch (SVSkipToNextFileException e) {
+					skipToNextFile(false);
+				} catch (NullPointerException e) {
+					long loc = fLexer.getStartLocation();
+					String loc_s = "Unknown";
+					if (loc != -1) {
+						loc_s = "" + getFilename(loc);
+						loc_s += ":" + SVDBLocation.unpackLineno(loc);
+					}
+					fLog.error("Parser encountered a Null Pointer Exception at " + loc_s, e);
+					throw e;
+				}
 			}
-		} catch (SVParseException e) {
-			if (fDebugEn) {
-				debug("ParseException: post-process()", e);
-			}
-		} catch (EOFException e) {
-			e.printStackTrace();
-		} catch (SVAbortParseException e) {
-			// error limit exceeded
-		} catch (NullPointerException e) {
-			long loc = fLexer.getStartLocation();
-			String loc_s = "Unknown";
-			if (loc != -1) {
-				loc_s = "" + getFilename(loc);
-				loc_s += ":" + SVDBLocation.unpackLineno(loc);
-			}
-			fLog.error("Parser encountered a Null Pointer Exception at " + loc_s, e);
-			throw e;
-		}
 
 		if (fScopeStack.size() > 0
 				&& fScopeStack.peek().getType() == SVDBItemType.File) {
 			setEndLocation(fScopeStack.peek());
 			fScopeStack.pop();
 		}
-
+		
 		return fFile;
 	}
 	
@@ -876,7 +863,8 @@ public class SVParser implements ISVScanner,
 			}
 		
 			if (error_limit_reached()) {
-				throw new SVAbortParseException();
+				fParseErrorCount = 0;
+				throw new SVSkipToNextFileException();
 			}
 		
 			throw e;
@@ -932,4 +920,38 @@ public class SVParser implements ISVScanner,
 		}
 	}
 
+	// Determine which file we're processing and skip forward until we reach the next
+	public void skipToNextFile(boolean stay_in_current_file) {
+		SVToken tok; 
+		if ((tok = fLexer.consumeToken()) == null) {
+			return;
+		}
+		
+		int fileid = SVDBLocation.unpackFileId(tok.getStartLocation());
+		
+		if (fDebugEn) {
+			debug("ParseException: error recovery on top-level element (file=" + fileid + ")");
+		}
+		SVToken last_tok = null;
+		while ((tok = fLexer.consumeToken()) != null) {
+			int fileid_1 = SVDBLocation.unpackFileId(tok.getStartLocation());
+			if (fDebugEn) {
+				debug("  current file: " + fFileMapper.mapFileIdToPath(fileid_1));
+			}
+			if (fileid != fileid_1) {
+				// Hit a new file
+				fLexer.ungetToken(tok);
+				
+				if (stay_in_current_file && last_tok != null) {
+					fLexer.ungetToken(last_tok);
+				}
+				if (fDebugEn) {
+					debug("  found next file: " + fFileMapper.mapFileIdToPath(fileid));
+				}
+				break;
+			}
+			last_tok = tok;
+		}		
+	}
+	
 }

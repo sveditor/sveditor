@@ -13,14 +13,21 @@
 package net.sf.sveditor.core;
 
 import net.sf.sveditor.core.builder.SVProjectBuilder;
+import net.sf.sveditor.core.fs.svext.SVExtFileSystem;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
@@ -140,6 +147,20 @@ public class SVProjectNature implements IProjectNature, ILogLevel {
 				}
 				
 				p.setDescription(d, new NullProgressMonitor());
+			}
+			
+			// Also check whether the ExtSVFiles folder exists
+			IFolder f = p.getFolder(SVExtFileSystem.EXT_SRC_DIRNAME);
+			if (!f.exists()) {
+				URI uri = null;
+				try {
+					uri = new URI("svext://" + p.getName());
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+				f.createLink(uri,
+						IResource.ALLOW_MISSING_LOCAL,
+						new NullProgressMonitor());
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();

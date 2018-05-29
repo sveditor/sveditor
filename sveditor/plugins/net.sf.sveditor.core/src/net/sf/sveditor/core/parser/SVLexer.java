@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import com.sun.org.apache.xpath.internal.compiler.Keywords;
+
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
@@ -136,6 +138,13 @@ public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 	public Context setContext(Context ctxt) {
 		Context old_ctxt = fContext;
 		fContext = ctxt;
+	
+		// Re-evaluate the current 
+		if (old_ctxt != ctxt && fIsIdentifier || fKeyword != null) {
+			Map<String, ISVKeywords.KW> kw = getKeywords(ctxt);
+		
+			fKeyword = kw.get(fImage);
+		}
 		
 		return old_ctxt;
 	}

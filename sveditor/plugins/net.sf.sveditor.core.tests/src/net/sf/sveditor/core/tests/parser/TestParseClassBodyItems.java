@@ -931,6 +931,31 @@ public class TestParseClassBodyItems extends TestCase {
 		
 		runTest(testname, content, new String[] {"my_class"});
 	}
+	
+	public void testSoftConstraintWith() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String testname = "testExternConstraint";
+		String content = 
+				"class my_class;\n" +
+				"	rand int i;\n" +
+				"	constraint i_cons {\n" +
+				"     soft i == 2;"  +
+				"   }\n" +
+				"endclass\n" +
+				"class my_class2;\n" +
+				"	function void doit();\n" +
+				"		my_class c = new;\n" +
+				"		c.randomize() with {\n" +
+				"			foreach (arr[i]) \n" +
+				"				soft arr[i] dist {0:=50, 2:=50, 3:=50};\n" +
+				"		};\n" +
+				"	endfunction\n" +
+				"endclass\n" +
+				"\n" 
+				;
+		
+		runTest(testname, content, new String[] {"my_class", "my_class2"});
+	}	
 
 	public void testRandomizeWithNoArgList() {
 		SVCorePlugin.getDefault().enableDebug(false);

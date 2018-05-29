@@ -64,6 +64,33 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 				"AA");		
 	}
 
+	public void testModuleInstance() {
+		SVCorePlugin.getDefault().enableDebug(false);
+		String doc = 
+				"module sub_module1 (\n" +
+				"	input logic  a,\n" +
+				"	output logic b\n" +
+				");\n" +
+				"endmodule\n" +
+				"\n" +
+				"module sub_module2 (\n" +
+				"	input logic  a,\n" +
+				"	output logic b\n" +
+				");\n" +
+				"endmodule\n" +
+				"\n" +
+				"module m();\n" +
+				"    \n" +
+				"	initial begin\n" +
+				"		sub_<<MARK>>\n" +
+				"	end\n" +
+				"endmodule\n"
+				;
+		
+		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+				"sub_module1", "sub_module2");		
+	}
+	
 	public void testModuleParameters() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String doc = 

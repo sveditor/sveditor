@@ -74,7 +74,10 @@ public class SVDBLocation {
 	}
 	
 	public static String toString(long location) {
-		return "TODO: " + location;
+		return "Location: (" + location + ") file=" + 
+				unpackFileId(location) + 
+				" line=" + unpackLineno(location) + 
+				" pos=" + unpackPos(location);
 	}
 	
 	public static long pack(int fileid, int lineno, int linepos) {
