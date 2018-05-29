@@ -1,9 +1,6 @@
 package net.sf.sveditor.ui.wizards.project;
 
-import java.util.List;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
+import java.util.Set;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -14,6 +11,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.Tuple;
 
 public class NewFilelistWizardFirstPage extends WizardPage {
 	
@@ -77,7 +77,7 @@ public class NewFilelistWizardFirstPage extends WizardPage {
 			msg_warn = vr.first();
 		} else {
 			// See if the extension is ok
-			List<String> exts = SVCorePlugin.getDefault().getDefaultArgFileExts();
+			Set<String> exts = SVCorePlugin.getDefault().getDefaultArgFileExts();
 			int last_dot = text.lastIndexOf('.');
 			
 			if (last_dot == -1) {

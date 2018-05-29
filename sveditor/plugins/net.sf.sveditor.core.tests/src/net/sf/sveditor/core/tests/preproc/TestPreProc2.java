@@ -11,8 +11,9 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
+import net.sf.sveditor.core.db.index.AbstractDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import net.sf.sveditor.core.db.index.sv.SVDeclCacheBuilder;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
@@ -631,7 +632,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder();
 		preproc.addListener(decl_builder);
 		SVPreProcOutput output = preproc.preprocess();
 		
@@ -659,7 +660,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder();
 		preproc.addListener(decl_builder);
 		SVPreProcOutput output = preproc.preprocess();
 		
@@ -706,7 +707,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				inc_provider, null);
 
 		
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder();
 		preproc.addListener(decl_builder);
 		
 		SVPreProcOutput output = preproc.preprocess();
@@ -775,7 +776,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
 	
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder();
 		preproc.addListener(decl_builder);
 		
 		SVPreProcOutput output = preproc.preprocess();

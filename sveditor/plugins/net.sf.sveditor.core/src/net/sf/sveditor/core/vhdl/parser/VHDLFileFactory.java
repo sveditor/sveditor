@@ -30,7 +30,7 @@ public class VHDLFileFactory extends vhdlBaseVisitor<ISVDBChildItem> {
 
 	public SVDBFile parse(
 			InputStream			in,
-			String				filename,
+			int					file_id,
 			List<SVDBMarker>	markers) {
 		SVDBFile ret = new SVDBFile();
 

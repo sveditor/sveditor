@@ -17,7 +17,6 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
@@ -26,6 +25,7 @@ import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles.FileListType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
+import net.sf.sveditor.core.db.index.sv.SVDeclCacheBuilder;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -367,7 +367,7 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 //			}
 //		}
 		
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder(
 				cd.getTopLevelDeclarations(),
 				index, // Used as the ISVDBDeclCacheInt handle
 				cd.getIncludedFiles(),

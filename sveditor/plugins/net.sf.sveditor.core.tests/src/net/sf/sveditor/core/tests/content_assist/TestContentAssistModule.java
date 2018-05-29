@@ -87,7 +87,7 @@ public class TestContentAssistModule extends SVCoreTestCaseBase {
 				"endmodule\n"
 				;
 		
-		ContentAssistTests.runTest(getName(), fCacheFactory, doc, 
+		ContentAssistTests.runTest(this, doc,
 				"sub_module1", "sub_module2");		
 	}
 	

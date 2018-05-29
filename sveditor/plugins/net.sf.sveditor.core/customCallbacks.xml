@@ -42,7 +42,7 @@
 	
 	<uptodate property="vhdl.parser.uptodate"
 		targetfile="${basedir}/src-gen/parser.d">
-		<srcfiles dir="${basedir}/src/net/sf/sveditor/vhdl/core/parser"
+		<srcfiles dir="${basedir}/src/net/sf/sveditor/core/vhdl/parser"
 			includes="*.g4"/>
 	</uptodate>
 	

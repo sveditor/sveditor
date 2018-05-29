@@ -1,10 +1,6 @@
 package net.sf.sveditor.ui.wizards.new_filelist;
 
-import java.util.List;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.ui.WorkspaceDirectoryTreeViewer;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -31,6 +27,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import net.sf.sveditor.core.SVCorePlugin;
+import net.sf.sveditor.core.SVFileUtils;
+import net.sf.sveditor.ui.WorkspaceDirectoryTreeViewer;
+
 public class NewFileListWizardFirstPage extends WizardPage {
 	private WorkspaceDirectoryTreeViewer		fTreeView;
 	private IContainer							fInitialSel;
@@ -39,7 +39,7 @@ public class NewFileListWizardFirstPage extends WizardPage {
 	private String								fFilename;
 	private boolean								fAddToProject;
 	private Button								fAddToProjectCheck;
-	private	List<String> 						fArgFileExts;
+	private	Set<String> 						fArgFileExts;
 	private StringBuilder						fArgFileExtsList;
 	
 	public NewFileListWizardFirstPage() {

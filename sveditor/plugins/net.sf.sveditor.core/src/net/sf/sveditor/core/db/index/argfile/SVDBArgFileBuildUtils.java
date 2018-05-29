@@ -17,13 +17,14 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
+import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.index.SVRefCollectorListener;
 import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
+import net.sf.sveditor.core.db.index.sv.SVDeclCacheBuilder;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -33,8 +34,9 @@ import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
+import net.sf.sveditor.core.vhdl.parser.VHDLFileFactory;
 
-public class SVDBArgFileBuildUtils implements ILogLevel {
+public class SVDBArgFileBuildUtils implements ILogLevel, ISVDBDeclCacheFileAttr {
 	private static boolean				fDebugEn;
 	private static final LogHandle		fLog;
 	private static final ILogLevelListener fLogLevelListener = new ILogLevelListener() {
@@ -103,7 +105,8 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		if (per_file_work == 0) {
 			per_file_work = 1;
 		}
-	
+
+		// Collect SystemVerilog pre-processor defines
 		for (Entry<String, String> e : build_data.getDefines().entrySet()) {
 			String key = e.getKey();
 			String val = (e.getValue() != null)?e.getValue():"";
@@ -120,19 +123,31 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 				fLog.debug(LEVEL_MID, "Path: " + path);
 			}
 			
+			
 			if (fs_provider.fileExists(path) && !fs_provider.isDir(path)) {
+				int attr = build_data.getFileAttr(path);
 				subMonitor.subTask("Parse " + path);
 				out.note("Parse: " + path);
+
+				Map<String, SVDBMacroDef> new_defines = null;
 				
-				Map<String, SVDBMacroDef> new_defines = parseFile(
+				if ((attr & ISVDBDeclCacheFileAttr.FILE_ATTR_SV_FILE) != 0) {
+					new_defines = parseSvFile(
 						path, build_data, parent, defines, out);
+				} else if ((attr & ISVDBDeclCacheFileAttr.FILE_ATTR_VH_FILE) != 0) {
+					parseVhFile(path, build_data, parent, defines, out);
+				} else {
+					System.out.println("Error: File attributes not set for " + path);
+				}
 				
 				if (subMonitor.isCanceled()) {
 					fLog.debug(LEVEL_MIN, "Index " + build_data.getBaseLocation() + " cancelled");
 					return;
 				}
-				
-				if (build_data.isMFCU()) {
+
+				// Handle processing SystemVerilog in MFCU mode
+				if ((attr & ISVDBDeclCacheFileAttr.FILE_ATTR_SV_FILE) != 0 && 
+						build_data.isMFCU()) {
 					// Accumulate the new defines
 					for (Entry<String, SVDBMacroDef> e : defines.entrySet()) {
 						if (!new_defines.containsKey(e.getKey())) {
@@ -160,7 +175,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 				SubMonitor loopMonitor = subMonitor.newChild(per_file_work);
 				loopMonitor.beginTask("Parse " + path, per_file_work);
 				
-				Map<String, SVDBMacroDef> new_defines = parseFile(
+				Map<String, SVDBMacroDef> new_defines = parseSvFile(
 						path, build_data, parent, defines, out);
 				
 				if (loopMonitor.isCanceled()) {
@@ -205,8 +220,34 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		
 		subMonitor.done();
 	}
+	
+	public static void parseVhFile(
+			String 								path, 
+			final SVDBArgFileIndexBuildData 	build_data,
+			ISVDBDeclCacheInt					parent,
+			Map<String, SVDBMacroDef>			defines,
+			final ISVBuilderOutput				out) {
+		ISVDBFileSystemProvider fs_provider = build_data.getFSProvider();
+		
+		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
+		InputStream in = fs_provider.openStream(path);
+	
+		SVDBFileCacheData cd = build_data.addFile(path, 
+				FILE_ATTR_SRC_FILE +
+				FILE_ATTR_ROOT_FILE +
+				FILE_ATTR_VH_FILE);
 
-	public static Map<String, SVDBMacroDef> parseFile(
+		VHDLFileFactory f = new VHDLFileFactory();
+		
+		SVDBFile file = f.parse(in, cd.getFileId(), markers);
+		
+		long last_modified = fs_provider.getLastModifiedTime(path);
+		build_data.getCache().setFile(path, file, false);
+		build_data.getCache().setMarkers(path, markers, false);
+		build_data.getCache().setLastModified(path, last_modified, false);		
+	}
+
+	public static Map<String, SVDBMacroDef> parseSvFile(
 			String 								path, 
 			final SVDBArgFileIndexBuildData 	build_data,
 			ISVDBDeclCacheInt					parent,
@@ -233,7 +274,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		
 		SVRefCollectorListener ref_collector = new SVRefCollectorListener(
 				file_cache_data.getRefCache());
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder(
 				file_cache_data.getTopLevelDeclarations(),
 				parent,
 				file_cache_data.getIncludedFiles(),
@@ -281,7 +322,6 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 			language_level = SVLanguageLevel.computeLanguageLevel(path);
 		}
 		
-		
 		f.add_type_listener(decl_builder);
 		SVDBFile file = f.parse(
 				language_level, 
@@ -299,16 +339,6 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 					(parse_end-parse_start) + "ms");
 		}
 
-//		start = System.currentTimeMillis();
-//		SVDBArgFileBuildDataUtils.cacheDeclarations(build_data, parent, file, ft);
-//		end = System.currentTimeMillis();
-//		build_data.getIndexStats().incLastIndexDeclCacheTime(end-start);
-		
-//		start = System.currentTimeMillis();
-//		SVDBArgFileBuildDataUtils.cacheReferences(build_data, file);
-//		end = System.currentTimeMillis();
-//		build_data.getIndexStats().incLastIndexRefCacheTime(end-start);
-		
 		start = System.currentTimeMillis();
 		long last_modified = fs_provider.getLastModifiedTime(path);
 		build_data.getCache().setFile(path, file, false);

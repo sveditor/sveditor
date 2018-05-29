@@ -221,7 +221,7 @@ public enum SVDBItemType {
 	ArgFileLibExtStmt,
 	
 	// VHDL Types
-	VHEntityDecl
+	EntityDecl
 
 	;
 	

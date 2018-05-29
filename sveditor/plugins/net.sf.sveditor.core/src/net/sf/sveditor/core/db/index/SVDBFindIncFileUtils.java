@@ -2,6 +2,7 @@ package net.sf.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.log.ILogLevel;
@@ -32,8 +33,8 @@ public class SVDBFindIncFileUtils {
 			String								root,
 			int									flags) {
 		List<SVDBIncFileInfo> ret = new ArrayList<SVDBIncFileInfo>();
-		List<String> sv_exts = SVCorePlugin.getDefault().getDefaultSVExts();
-		List<String> af_exts = SVCorePlugin.getDefault().getDefaultArgFileExts();
+		Set<String> sv_exts = SVCorePlugin.getDefault().getDefaultSVExts();
+		Set<String> af_exts = SVCorePlugin.getDefault().getDefaultArgFileExts();
 		
 		if (fDebugEn) {
 			fLog.debug(LogLevel, "--> findIncludeFiles( root=" + root + " flags=" + flags + ")");

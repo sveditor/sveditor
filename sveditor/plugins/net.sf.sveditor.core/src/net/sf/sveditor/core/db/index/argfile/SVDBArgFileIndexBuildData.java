@@ -224,20 +224,20 @@ public class SVDBArgFileIndexBuildData implements
 		old_cache.dispose();
 	}
 	
-	public void addFile(String path, boolean is_argfile) {
-		fLog.debug("addFile: " + path + " is_argfile=" + is_argfile);
-		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
-		fCache.addFile(path, is_argfile);
-		fCache.setLastModified(path, last_modified, is_argfile);
-		
-		if (!is_argfile) {
-			fIndexCacheData.addFile(path, 
-					ISVDBDeclCache.FILE_ATTR_SRC_FILE+
-					ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
-		}
-
-		addFileDir(path);		
-	}
+//	public void addFile(String path, boolean is_argfile) {
+//		fLog.debug("addFile: " + path + " is_argfile=" + is_argfile);
+//		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
+//		fCache.addFile(path, is_argfile);
+//		fCache.setLastModified(path, last_modified, is_argfile);
+//		
+//		if (!is_argfile) {
+//			fIndexCacheData.addFile(path, 
+//					ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+//					ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
+//		}
+//
+//		addFileDir(path);		
+//	}
 	
 	public int getFileAttr(String path) {
 		return fIndexCacheData.getFileAttr(path);
@@ -410,7 +410,7 @@ public class SVDBArgFileIndexBuildData implements
 			if (e.first().endsWith(incfile)) {
 				String try_path = e.first();
 				boolean matches = false;
-				if (try_path.length() > incfile.length()) {
+				if (try_path.length() > (incfile.length()+2)) {
 					int prev_ch = try_path.charAt(try_path.length()-incfile.length()-2);
 					if (prev_ch == '/' || prev_ch == '\\') {
 						matches = true;

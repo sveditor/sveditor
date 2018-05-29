@@ -43,28 +43,28 @@ import net.sf.sveditor.core.preproc.SVPreProcEvent;
  * @author ballance
  *
  */
-public class SVDBDeclCacheBuilder implements 
+public abstract class AbstractDeclCacheBuilder implements 
 	ISVParserTypeListener,
 	ISVPreProcListener,
 	ILogLevelListener {
-	private ISVDBDeclCacheInt			fDeclCache;
-	private int							fRootFileId;
+	protected ISVDBDeclCacheInt				fDeclCache;
+	protected int							fRootFileId;
 	// Number of scopes pushed that are 'disabled'
-	private int							fDisabledDepth;
+	protected int							fDisabledDepth;
 	// Contains a stack of the saved scope IDs
-	private List<Integer>				fScopeStack;
-	private List<ISVDBItemBase>			fAllScopeStack;
-	private static final List<Integer>	fEmptyScopeStack = new ArrayList<Integer>();
-	private List<SVDBDeclCacheItem>		fDeclList;
-	private Set<Integer>				fIncludedFilesSet;
-	private Set<String>					fMissingIncludes;
-	private IDocCommentParser 			fDocCommentParser;
-	private LogHandle					fLog;
-	private boolean						fDebugEn;
-	private SVDBFileTree				fFileTree;
-	private Stack<SVDBFileTree>			fFileTreeStack;
+	protected List<Integer>					fScopeStack;
+	protected List<ISVDBItemBase>			fAllScopeStack;
+	protected static final List<Integer>	fEmptyScopeStack = new ArrayList<Integer>();
+	protected List<SVDBDeclCacheItem>		fDeclList;
+	protected Set<Integer>					fIncludedFilesSet;
+	protected Set<String>					fMissingIncludes;
+	protected IDocCommentParser 			fDocCommentParser;
+	protected LogHandle						fLog;
+	protected boolean						fDebugEn;
+	protected SVDBFileTree					fFileTree;
+	protected Stack<SVDBFileTree>			fFileTreeStack;
 //	private List<SVDBMarker>			fMarkers;
-	private static final Set<String>	fTaskTags;
+	protected static final Set<String>		fTaskTags;
 	
 	static {
 		fTaskTags = new HashSet<String>();
@@ -72,16 +72,8 @@ public class SVDBDeclCacheBuilder implements
 		fTaskTags.add("FIXME");
 	}
 	
-	public SVDBDeclCacheBuilder() {
-		this(
-				new ArrayList<SVDBDeclCacheItem>(),
-				null,
-				new HashSet<Integer>(),
-				new HashSet<String>(),
-				-1);
-	}
-	
-	public SVDBDeclCacheBuilder(
+	protected AbstractDeclCacheBuilder(
+			String					logname,
 			List<SVDBDeclCacheItem> decl_list,
 			ISVDBDeclCacheInt		decl_cache,
 			Set<Integer>			included_files,
@@ -101,7 +93,7 @@ public class SVDBDeclCacheBuilder implements
 		fMissingIncludes.clear();
 		fFileTreeStack = new Stack<SVDBFileTree>();
 //		fMarkers = new ArrayList<SVDBMarker>();
-		fLog = LogFactory.getLogHandle("SVDBDeclCacheBuilder");
+		fLog = LogFactory.getLogHandle(logname);
 		fLog.addLogLevelListener(this);
 		logLevelChanged(fLog);
 	}
@@ -109,22 +101,6 @@ public class SVDBDeclCacheBuilder implements
 	@Override
 	public void logLevelChanged(ILogHandle handle) {
 		fDebugEn = (handle.getDebugLevel() > 0);
-	}
-	
-	private static final Set<SVDBItemType>		fGlobalScopeItems;
-	
-	static {
-		fGlobalScopeItems = new HashSet<SVDBItemType>();
-		fGlobalScopeItems.add(SVDBItemType.Function);
-		fGlobalScopeItems.add(SVDBItemType.Task);
-		fGlobalScopeItems.add(SVDBItemType.VarDeclItem);
-		fGlobalScopeItems.add(SVDBItemType.TypedefStmt);
-		fGlobalScopeItems.add(SVDBItemType.ClassDecl);
-		fGlobalScopeItems.add(SVDBItemType.PackageDecl);
-		fGlobalScopeItems.add(SVDBItemType.Covergroup);
-		fGlobalScopeItems.add(SVDBItemType.InterfaceDecl);
-		fGlobalScopeItems.add(SVDBItemType.ModuleDecl);
-		fGlobalScopeItems.add(SVDBItemType.ProgramDecl);
 	}
 	
 	public SVDBFileTree getFileTree() {
@@ -139,26 +115,12 @@ public class SVDBDeclCacheBuilder implements
 //		}
 //	}
 	
-	private boolean should_add(ISVDBItemBase item) {
-		if (fDisabledDepth > 0) {
-			return false;
-		} else if (fScopeStack.size() == 0) {
-			// Global scope
-			return item.getType().isElemOf(fGlobalScopeItems);
-		} else {
-			return true;
-		}
-	}
+	protected abstract boolean should_add(ISVDBItemBase item);
 	
 	@Override
 	public void enter_type_scope(ISVDBItemBase item) {
 		if (fDebugEn) {
 			fLog.debug("enter_type_scope: " + item.getType() + " " + SVDBItem.getName(item) + " " + fDisabledDepth);
-//			try {
-//				throw new Exception("enter_type_scope");
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
 		}
 		fAllScopeStack.add(item);
 	

@@ -1,7 +1,7 @@
 package net.sf.sveditor.core.vhdl.parser;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.vhdl.VHEntityDecl;
+import net.sf.sveditor.core.db.vhdl.SVDBEntityDecl;
 import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_declarationContext;
 import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_declarative_itemContext;
 import net.sf.sveditor.core.vhdl.parser.vhdlParser.Entity_statementContext;
@@ -13,7 +13,7 @@ public class EntityFactory extends VHFactoryBase {
 	}
 	
 	public ISVDBChildItem visit(Entity_declarationContext ctx) {
-		VHEntityDecl entity = new VHEntityDecl(ctx.identifier(0).getText());
+		SVDBEntityDecl entity = new SVDBEntityDecl(ctx.identifier(0).getText());
 		ISVDBChildItem entity_header = ctx.entity_header().accept(this);
 		
 		if (entity_header != null) {

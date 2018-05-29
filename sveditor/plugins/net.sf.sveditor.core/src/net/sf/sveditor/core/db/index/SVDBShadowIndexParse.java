@@ -1,10 +1,11 @@
 package net.sf.sveditor.core.db.index;
 
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.db.SVDBFile;
@@ -12,16 +13,15 @@ import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ops.SVDBFindMacroOp;
-import net.sf.sveditor.core.parser.SVParser;
+import net.sf.sveditor.core.db.index.sv.SVDeclCacheBuilder;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
+import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
-
-import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * This class is responsible for parsing file content when the 
@@ -46,7 +46,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		SVPreProcessor preproc = new SVPreProcessor(path, in, null, fileMapper);
 		preproc.setMacroProvider(new MacroProvider());
 		
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder();
 //				decl_list, decl_cache, included_files, missing_includes, rootfile_id);
 		
 		preproc.addListener(decl_builder);

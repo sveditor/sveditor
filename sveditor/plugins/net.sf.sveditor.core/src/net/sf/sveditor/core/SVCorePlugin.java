@@ -21,8 +21,10 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -39,6 +41,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
+import org.eclipse.core.runtime.content.IContentTypeManager.ContentTypeChangeEvent;
+import org.eclipse.core.runtime.content.IContentTypeManager.IContentTypeChangeListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -82,7 +86,8 @@ import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class SVCorePlugin extends Plugin implements ILogListener {
+public class SVCorePlugin extends Plugin 
+	implements ILogListener, IContentTypeChangeListener {
 	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "net.sf.sveditor.core";
@@ -108,6 +113,9 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private SVDBIndexBuilder				fIndexBuilder;
 	private ISVDBIndexCacheMgr				fCacheMgr;
 	private static boolean					fTestModeBuilderDisabled = false;
+	private Set<String>						fDefaultSVExts;
+	private Set<String>						fDefaultVHDLExts;
+	private Set<String>						fDefaultArgFileExts;
 	// SVEditor currently supports two cache models:
 	// - A unified cache that handles all projects and indexes with a single database
 	// - A delegating cache that uses independent databases to handle each index
@@ -175,6 +183,9 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		
 		fProjManager = new SVDBProjectManager();
 		fResourceChangeListener = new SVResourceChangeListener(fProjManager);
+		
+		IContentTypeManager mgr = Platform.getContentTypeManager();
+		mgr.addContentTypeChangeListener(this);
 		
 		if (context.getProperty("osgi.os").toLowerCase().startsWith("win")) {
 			SVFileUtils.fIsWinPlatform = true;
@@ -521,24 +532,51 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void contentTypeChanged(ContentTypeChangeEvent event) {
+		fDefaultSVExts = null;
+		fDefaultVHDLExts = null;
+		fDefaultArgFileExts = null;
+	}
 
-	public List<String> getDefaultSVExts() {
-		IContentTypeManager mgr = Platform.getContentTypeManager();
-		List<String> ret = new ArrayList<String>();
-		
-		for (String type_s : new String[] {
-				PLUGIN_ID + ".systemverilog",
-				PLUGIN_ID + ".verilog",
-				PLUGIN_ID + ".verilogams"}) {
-			IContentType type = mgr.getContentType(type_s);
-			String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+	public synchronized Set<String> getDefaultSVExts() {
+		if (fDefaultSVExts == null) {
+			IContentTypeManager mgr = Platform.getContentTypeManager();
+			fDefaultSVExts = new HashSet<String>();
 
-			for (String e : exts) {
-				ret.add(e);
+			for (String type_s : new String[] {
+					PLUGIN_ID + ".systemverilog",
+					PLUGIN_ID + ".verilog",
+					PLUGIN_ID + ".verilogams"}) {
+				IContentType type = mgr.getContentType(type_s);
+				String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+
+				for (String e : exts) {
+					fDefaultSVExts.add(e);
+				}
+			}
+		}
+
+		return fDefaultSVExts;
+	}
+	
+	public synchronized Set<String> getDefaultVHDLExts() {
+		if (fDefaultVHDLExts == null) {
+			IContentTypeManager mgr = Platform.getContentTypeManager();
+			fDefaultVHDLExts = new HashSet<String>();
+
+			for (String type_s : new String[] {PLUGIN_ID + ".vhdl"}) {
+				IContentType type = mgr.getContentType(type_s);
+				String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+
+				for (String e : exts) {
+					fDefaultVHDLExts.add(e);
+				}
 			}
 		}
 		
-		return ret;
+		return fDefaultVHDLExts;		
 	}
 	
 	public Map<String, IContentType> getContentTypes() {
@@ -560,24 +598,26 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		return ret;
 	}
 	
-	public List<String> getDefaultArgFileExts() {
-		IContentTypeManager mgr = Platform.getContentTypeManager();
-		IContentType type = mgr.getContentType(PLUGIN_ID + ".argfile");
-		String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+	public synchronized Set<String> getDefaultArgFileExts() {
+		if (fDefaultArgFileExts == null) {
+			IContentTypeManager mgr = Platform.getContentTypeManager();
+			IContentType type = mgr.getContentType(PLUGIN_ID + ".argfile");
+			String exts[] = type.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 
-		List<String> ret = new ArrayList<String>();
-		for (String e : exts) {
-			ret.add(e);
+			fDefaultArgFileExts = new HashSet<String>();
+			for (String e : exts) {
+				fDefaultArgFileExts.add(e);
+			}
 		}
-		
-		return ret;
+
+		return fDefaultArgFileExts;
 	}
 
 	public String getDefaultSourceCollectionIncludes() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
 		StringBuilder ret = new StringBuilder();
 			
-		for (String type_s : new String[] {".systemverilog", ".verilog", ".verilogams"}) {
+		for (String type_s : new String[] {".systemverilog", ".verilog", ".verilogams", ".vhdl"}) {
 			IContentType type = mgr.getContentType(PLUGIN_ID + type_s);
 			if (type == null) {
 				System.out.println("Failed to get type: " + PLUGIN_ID + type_s);
@@ -736,7 +776,8 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			"net.sf.sveditor.core.db.", 
 			"net.sf.sveditor.core.db.stmt.",
 			"net.sf.sveditor.core.db.expr.",
-			"net.sf.sveditor.core.db.argfile."
+			"net.sf.sveditor.core.db.argfile.",
+			"net.sf.sveditor.core.db.vhdl."
 		};
 	}
 	

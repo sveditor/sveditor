@@ -42,20 +42,19 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
+import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
 import net.sf.sveditor.core.db.index.ISVDBIndexInt;
 import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
 import net.sf.sveditor.core.db.index.ISVDBIndexStatsProvider;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
 import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
 import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
-import net.sf.sveditor.core.db.index.SVDBIndexCacheDataUtils;
 import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.SVDBIndexConfig;
 import net.sf.sveditor.core.db.index.SVDBIndexFactoryUtils;
@@ -74,6 +73,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
 import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import net.sf.sveditor.core.db.index.sv.SVDeclCacheBuilder;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
 import net.sf.sveditor.core.db.refs.ISVDBRefVisitor;
@@ -320,6 +320,10 @@ public class SVDBArgFileIndex implements
 		SVDBArgFileIndexBuildData build_data = createBuildData();
 		
 		// Rebuild the index
+		SVDBArgFileBuildUtils.buildIndex(
+				subMonitor.newChild(9750), build_data, 
+				this, fArgFileParser,
+				new SafeSVBuilderOutput(fOut));		
 		buildIndex(subMonitor.newChild(9750), build_data);
 		
 		if (fDebugEn) {
@@ -999,6 +1003,8 @@ public class SVDBArgFileIndex implements
 	 * update the file structure and markers based on the 
 	 * current editor content
 	 * 
+	 * Returns <PreProc,PostProc> tuple
+	 * 
 	 * TODO: relocated implementation?
 	 */
 	@Override
@@ -1007,7 +1013,7 @@ public class SVDBArgFileIndex implements
 			InputStream 		in, 
 			String 				path, 
 			List<SVDBMarker> 	markers) {
-		SVDBFile file=null, file_ft=null;
+		Tuple<SVDBFile, SVDBFile> ret = null;
 		
 		if (markers == null) {
 			markers = new ArrayList<SVDBMarker>();
@@ -1020,81 +1026,105 @@ public class SVDBArgFileIndex implements
 				fLog.debug("parse: path " + r_path + " does not exist");
 				return null;
 			}
+			
 
 			checkInIndexOp("parse");
 
-			long start=0, end=0;
 			
-			if (fDebugEn) {
-				start = System.currentTimeMillis();
-			}
-	
-			if (fDebugEn) {
-				end = System.currentTimeMillis();
-				fLog.debug(LEVEL_MID, "  findTargetFileTree: " + (end-start) + "ms");
-			}
 			
-			SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder();
-//					decl_list, decl_cache, included_files, missing_includes, rootfile_id);
-
-			//
-			// TODO: using 'this' as the include provider 
-			// may not be ideal
-			SVPreProcessor preproc = new SVPreProcessor(
-					r_path, in, fBuildData, fReadOnlyFileMapper);
-			preproc.addListener(decl_builder);
-
-			// TODO: collect macro definitions that came before this
-			// NOTE: it's possible that this file shows up in multiple locations
-			// Need to note this somehow?
-			//
-			// Need the ability to obtain all paths to this file:
-			// - Starting with <path>, build vectors up to a root file
-			// Should we worry about cross-index references?
-			// TODO: add macros from FT
-			List<SVDBMacroDef> incoming_macros = 
-					SVDBArgFileBuildDataUtils.calculateIncomingMacros(
-							fBuildData, r_path);
-			end = System.currentTimeMillis();
-				
-			for (SVDBMacroDef m : incoming_macros) {
-				preproc.setMacro(m);
-			}
-
-			fLog.debug("--> PreProcess " + r_path);
-			start = System.currentTimeMillis();
-			SVPreProcOutput out = preproc.preprocess();
-			end = System.currentTimeMillis();
-			fLog.debug("<-- PreProcess " + r_path + " " + (end-start) + "ms");
-
-			SVParser f = new SVParser();
-			f.setFileMapper(fReadOnlyFileMapper);
+			int attr = fBuildData.getFileAttr(r_path);
 			
-			SVDBFileTree ft = decl_builder.getFileTree();
-			if (ft != null && ft.fMarkers != null) {
-				for (SVDBMarker m : ft.fMarkers) {
-					markers.add(m);
-				}
-			}
-
-			fLog.debug("--> Parse " + r_path);
-			SVLanguageLevel language_level;
-			
-			if (fBuildData.getForceSV()) {
-				language_level = SVLanguageLevel.SystemVerilog;
+			if ((attr & ISVDBDeclCacheFileAttr.FILE_ATTR_SV_FILE) != 0) {
+				ret = parse_sv(monitor, fBuildData, in, r_path, markers);
+			} else if ((attr & ISVDBDeclCacheFileAttr.FILE_ATTR_VH_FILE) != 0) {
+				ret = parse_vh(monitor, fBuildData, in, r_path, markers);
 			} else {
-				language_level = SVLanguageLevel.computeLanguageLevel(r_path);
+				System.out.println("Error: source language isn't specified for " + r_path);
 			}
-			start = System.currentTimeMillis();
-			file = f.parse(language_level, out, r_path, markers);
-			int file_id = fBuildData.mapFilePathToId(r_path, false);
-			file.setLocation(SVDBLocation.pack(file_id, 1, 0));
-			
-//			cleanExtFileElements(file_id, file);
-			end = System.currentTimeMillis();
-			fLog.debug("<-- Parse " + r_path + " " + (end-start) + "ms");
-			file_ft = ft.getSVDBFile();
 		}
+		
+		return ret;
+	}
+		
+	private Tuple<SVDBFile, SVDBFile> parse_sv(
+			IProgressMonitor 			monitor,
+			SVDBArgFileIndexBuildData	build_data,
+			InputStream 				in, 
+			String 						r_path, 
+			List<SVDBMarker> 			markers) {
+		long start=0, end=0;
+		SVDBFile file=null, file_ft=null;
+		SVDeclCacheBuilder decl_builder = null; // TODO: new SVDeclCacheBuilder();
+		//		decl_list, decl_cache, included_files, missing_includes, rootfile_id);
+
+		//
+		// TODO: using 'this' as the include provider 
+		// may not be ideal
+		SVPreProcessor preproc = new SVPreProcessor(
+				r_path, in, fBuildData, fReadOnlyFileMapper);
+		preproc.addListener(decl_builder);
+
+		// TODO: collect macro definitions that came before this
+		// NOTE: it's possible that this file shows up in multiple locations
+		// Need to note this somehow?
+		//
+		// Need the ability to obtain all paths to this file:
+		// - Starting with <path>, build vectors up to a root file
+		// Should we worry about cross-index references?
+		// TODO: add macros from FT
+		List<SVDBMacroDef> incoming_macros = 
+				SVDBArgFileBuildDataUtils.calculateIncomingMacros(
+						fBuildData, r_path);
+		end = System.currentTimeMillis();
+
+		for (SVDBMacroDef m : incoming_macros) {
+			preproc.setMacro(m);
+		}
+
+		fLog.debug("--> PreProcess " + r_path);
+		start = System.currentTimeMillis();
+		SVPreProcOutput out = preproc.preprocess();
+		end = System.currentTimeMillis();
+		fLog.debug("<-- PreProcess " + r_path + " " + (end-start) + "ms");
+
+		SVParser f = new SVParser();
+		f.setFileMapper(fReadOnlyFileMapper);
+
+		SVDBFileTree ft = decl_builder.getFileTree();
+		if (ft != null && ft.fMarkers != null) {
+			for (SVDBMarker m : ft.fMarkers) {
+				markers.add(m);
+			}
+		}
+
+		fLog.debug("--> Parse " + r_path);
+		SVLanguageLevel language_level;
+
+		if (fBuildData.getForceSV()) {
+			language_level = SVLanguageLevel.SystemVerilog;
+		} else {
+			language_level = SVLanguageLevel.computeLanguageLevel(r_path);
+		}
+		start = System.currentTimeMillis();
+		file = f.parse(language_level, out, r_path, markers);
+		int file_id = fBuildData.mapFilePathToId(r_path, false);
+		file.setLocation(SVDBLocation.pack(file_id, 1, 0));
+
+		//cleanExtFileElements(file_id, file);
+		end = System.currentTimeMillis();
+		fLog.debug("<-- Parse " + r_path + " " + (end-start) + "ms");
+		file_ft = ft.getSVDBFile();
+		return new Tuple<SVDBFile, SVDBFile>(file_ft, file);
+	}
+	
+	private Tuple<SVDBFile, SVDBFile> parse_vh(
+			IProgressMonitor 			monitor,
+			SVDBArgFileIndexBuildData	build_data,
+			InputStream 				in, 
+			String 						r_path, 
+			List<SVDBMarker> 			markers) {
+		SVDBFile file=null, file_ft=null;
+		System.out.println("TODO: parse VHDL");
 		
 		return new Tuple<SVDBFile, SVDBFile>(file_ft, file);
 	}
