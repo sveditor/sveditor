@@ -23,4 +23,9 @@ public class SVDBAlias extends SVDBStmt {
 		fAliases.add(expr);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_alias(this);
+	}
+	
 }

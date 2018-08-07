@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.index;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -13,7 +14,6 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -33,7 +33,7 @@ import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ISVParserTypeListener;
+import net.sf.sveditor.core.parser.ISVParserDeclListener;
 import net.sf.sveditor.core.preproc.ISVPreProcListener;
 import net.sf.sveditor.core.preproc.SVPreProcEvent;
 
@@ -44,14 +44,21 @@ import net.sf.sveditor.core.preproc.SVPreProcEvent;
  *
  */
 public abstract class AbstractDeclCacheBuilder implements 
-	ISVParserTypeListener,
-	ISVPreProcListener,
-	ILogLevelListener {
+	ISVParserDeclListener, ISVPreProcListener, ILogLevelListener {
+
+	// Symbol table is used for file-internal indexing
+	protected Stack<Map<String, Integer>>	fSymTabStack;
+	
+	// Declaration cache is used for file-external indexing
 	protected ISVDBDeclCacheInt				fDeclCache;
+	
 	protected int							fRootFileId;
+	
 	// Number of scopes pushed that are 'disabled'
 	protected int							fDisabledDepth;
+	
 	// Contains a stack of the saved scope IDs
+	// The scope IDs are used to reconstruct the hierarchical path to a declaration
 	protected List<Integer>					fScopeStack;
 	protected List<ISVDBItemBase>			fAllScopeStack;
 	protected static final List<Integer>	fEmptyScopeStack = new ArrayList<Integer>();
@@ -79,6 +86,7 @@ public abstract class AbstractDeclCacheBuilder implements
 			Set<Integer>			included_files,
 			Set<String>				missing_includes,
 			int						rootfile_id) {
+		fSymTabStack = new Stack<Map<String, Integer>>();
 		fDeclCache = decl_cache;
 		fRootFileId = rootfile_id;
 		fDisabledDepth = 0;
@@ -194,6 +202,11 @@ public abstract class AbstractDeclCacheBuilder implements
 				fLog.debug("INDEX: fDisableDepth => " + fDisabledDepth);
 			}
 		}
+	}
+	
+	@Override
+	public void declaration(ISVDBItemBase item) {
+		// TODO
 	}
 
 	@Override

@@ -88,6 +88,11 @@ public class TestClassItems extends TestCase {
 				// TODO Auto-generated method stub
 				
 			}
+			
+			@Override
+			public void declaration(ISVDBItemBase item) {
+				// TODO Auto-generated method stub
+			}
 
 			@Override
 			public void leave_type_scope(ISVDBItemBase item) {

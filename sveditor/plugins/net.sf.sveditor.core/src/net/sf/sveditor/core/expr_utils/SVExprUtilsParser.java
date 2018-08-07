@@ -114,6 +114,12 @@ public class SVExprUtilsParser implements ISVParser {
 		// TBD
 	}
 	
+	@Override
+	public void declaration(ISVDBItemBase item) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	public void leave_type_scope(ISVDBItemBase item) {
 		// TBD
 	}

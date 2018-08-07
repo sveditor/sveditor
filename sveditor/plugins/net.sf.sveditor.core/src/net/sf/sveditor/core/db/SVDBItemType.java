@@ -186,6 +186,8 @@ public enum SVDBItemType {
 	RandomizeCallExpr,
 	RangeDollarBoundExpr,
 	RangeExpr,
+	RefElemExpr,
+	RefPathExpr,
 	TFCallExpr,
 	UnaryExpr,
 	TypeExpr,

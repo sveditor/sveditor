@@ -44,4 +44,9 @@ public class SVDBClockingBlock extends SVDBScopeItem {
 		super.init(other);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_clocking_block(this);
+	}
+	
 }

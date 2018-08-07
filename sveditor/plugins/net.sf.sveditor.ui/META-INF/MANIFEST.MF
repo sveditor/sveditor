@@ -35,5 +35,6 @@ Export-Package: net.sf.sveditor.ui,
  net.sf.sveditor.ui.editor.outline,
  net.sf.sveditor.ui.explorer,
  net.sf.sveditor.ui.pref,
- net.sf.sveditor.ui.svcp
+ net.sf.sveditor.ui.svcp,
+ net.sf.sveditor.ui.vhdl.editor
 

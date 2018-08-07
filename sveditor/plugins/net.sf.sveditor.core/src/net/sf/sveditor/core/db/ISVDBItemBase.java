@@ -28,5 +28,7 @@ public interface ISVDBItemBase {
 	void init(ISVDBItemBase other);
 	
 	boolean equals(ISVDBItemBase other, boolean recurse);
+	
+	void accept(ISVDBVisitor v);
 
 }

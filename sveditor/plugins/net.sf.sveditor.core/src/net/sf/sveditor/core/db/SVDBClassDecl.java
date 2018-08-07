@@ -99,6 +99,11 @@ public class SVDBClassDecl extends SVDBScopeItem {
 		addSuperClass(o.getSuperClass());
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_class_decl(this);
+	}
+
 	/*
 	@Override
 	public boolean equals(Object obj) {
@@ -138,4 +143,5 @@ public class SVDBClassDecl extends SVDBScopeItem {
 	}
 	 */
 
+	
 }

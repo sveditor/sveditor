@@ -38,7 +38,7 @@ public class TestVhdlArgFileIndexBasics extends VhdlCoreTestCase {
 		VHDLFileFactory f = new VHDLFileFactory();
 	
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		f.parse(new StringInputStream(doc), getName(), markers);
+//		f.parse(new StringInputStream(doc), getName(), markers);
 	}
 	
 }

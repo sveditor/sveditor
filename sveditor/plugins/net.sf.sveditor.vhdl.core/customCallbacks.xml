@@ -20,6 +20,7 @@
 	</uptodate>
 	
 	<target name="pre.@dot" unless="vhdl.parser.uptodate">
+		<!--
 		<echo message="Building ANTLR"/>
 		<mkdir dir="${basedir}/src-gen"/>
 		<java classname="org.antlr.v4.Tool" failonerror="true">
@@ -32,6 +33,7 @@
 			<arg value="${basedir}/src/net/sf/sveditor/vhdl/core/parser/vhdl.g4"/>
 		</java>
 		<touch file="${basedir}/src-gen/parser.d"/>
+		-->
 	</target>
 	
 	<target name="post.compile.name"/>

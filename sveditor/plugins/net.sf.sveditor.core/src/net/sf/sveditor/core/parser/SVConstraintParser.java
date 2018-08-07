@@ -56,6 +56,7 @@ public class SVConstraintParser extends SVParserBase {
 				fLexer.readOperator(OP.LBRACE);
 
 				parent.addChildItem(c);
+				declaration(c);
 
 				while (fLexer.peek() != null && !fLexer.peekOperator(OP.RBRACE)) {
 					c.addChildItem(constraint_set_item());

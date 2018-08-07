@@ -85,7 +85,7 @@ public class SVParser implements ISVScanner,
 	private ISVPreProcFileMapper		fFileMapper;
 	private SVParserConfig				fConfig;
 	
-	private List<ISVParserTypeListener>	fTypeListeners;
+	private List<ISVParserDeclListener>	fTypeListeners;
 	
 	
 	/**
@@ -107,7 +107,7 @@ public class SVParser implements ISVScanner,
 		
 		fConfig = new SVParserConfig();
 	
-		fTypeListeners = new ArrayList<ISVParserTypeListener>();
+		fTypeListeners = new ArrayList<ISVParserDeclListener>();
 		
 		fLanguageLevel = SVLanguageLevel.SystemVerilog;
 	}
@@ -902,20 +902,27 @@ public class SVParser implements ISVScanner,
 		
 	}
 	
-	public void add_type_listener(ISVParserTypeListener l ) {
+	public void add_type_listener(ISVParserDeclListener l ) {
 		fTypeListeners.add(l);
 	}
 
 	@Override
 	public void enter_type_scope(ISVDBItemBase item) {
-		for (ISVParserTypeListener l : fTypeListeners) {
+		for (ISVParserDeclListener l : fTypeListeners) {
 			l.enter_type_scope(item);
+		}
+	}
+	
+	@Override
+	public void declaration(ISVDBItemBase item) {
+		for (ISVParserDeclListener l : fTypeListeners) {
+			l.declaration(item);
 		}
 	}
 
 	@Override
 	public void leave_type_scope(ISVDBItemBase item) {
-		for (ISVParserTypeListener l : fTypeListeners) {
+		for (ISVParserDeclListener l : fTypeListeners) {
 			l.leave_type_scope(item);
 		}
 	}

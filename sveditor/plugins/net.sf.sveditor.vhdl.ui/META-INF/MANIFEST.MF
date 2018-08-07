@@ -13,4 +13,4 @@ Require-Bundle: org.eclipse.ui,
  net.sf.sveditor.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: net.sf.sveditor.vhdl.ui.editor
+Export-Package: net.sf.sveditor.vhdl.ui

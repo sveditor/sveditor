@@ -166,6 +166,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		debug("TFParse: addChildItem: " + SVDBItem.getName(func) +
 				" " + SVDBItem.getName((ISVDBItemBase)parent));
 		parent.addChildItem(func);
+		declaration(func);
 		
 		KW end_kw = (type == KW.TASK)?KW.ENDTASK:KW.ENDFUNCTION;
 		

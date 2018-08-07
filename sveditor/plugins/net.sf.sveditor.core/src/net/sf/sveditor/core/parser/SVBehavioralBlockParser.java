@@ -778,7 +778,11 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		fLexer.eatToken();
 		fLexer.readOperator(OP.LPAREN);
 		SVDBForStmt for_stmt = new SVDBForStmt();
+		
 		for_stmt.setLocation(start);
+		enter_type_scope(for_stmt);
+	
+		try {
 		if (fLexer.peek() != null && !fLexer.peekOperator(OP.SEMICOLON)) {
 			SVDBBlockStmt init_stmt = new SVDBBlockStmt();
 			
@@ -834,6 +838,9 @@ public class SVBehavioralBlockParser extends SVParserBase {
 		parent.addChildItem(for_stmt);
 		
 		statement(for_stmt, false,false);
+		} finally {
+			leave_type_scope(for_stmt);
+		}
 		
 		return for_stmt;
 	}
