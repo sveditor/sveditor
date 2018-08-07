@@ -76,7 +76,7 @@ public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	 * Test that basic macro content assist works
 	 */
 	public void testOVMMacroContentAssist() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 //		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_OFF);
 		
 		String doc = 

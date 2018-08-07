@@ -1,7 +1,5 @@
 package net.sf.sveditor.core.preproc;
 
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.scanutils.AbstractTextScanner;
 
 public class SVPreProcOutput extends AbstractTextScanner {
@@ -20,7 +18,6 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	
 	private StringBuilder						fText;
 	private int									fTextLength;
-	private SVDBFileTree						fFileTree;
 
 	private int									fFileId;
 	private int									fIdx;
@@ -54,14 +51,6 @@ public class SVPreProcOutput extends AbstractTextScanner {
 	
 	public SVPreProcOutput duplicate() {
 		return new SVPreProcOutput(fText);
-	}
-	
-	public void setFileTree(SVDBFileTree ft) {
-		fFileTree = ft;
-	}
-	
-	public SVDBFileTree getFileTree() {
-		return fFileTree;
 	}
 	
 	/*

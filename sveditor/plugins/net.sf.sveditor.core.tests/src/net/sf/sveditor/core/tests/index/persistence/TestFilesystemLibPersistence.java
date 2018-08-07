@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItem;
@@ -31,8 +33,6 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import org.eclipse.core.runtime.NullProgressMonitor;
 
 public class TestFilesystemLibPersistence extends SVCoreTestCaseBase {
 	

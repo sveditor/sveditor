@@ -21,7 +21,7 @@ public class TestSVDBIndexUtil extends SVCoreTestCaseBase {
 	public void testIndexUtilFindFile() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		BundleUtils utils = new BundleUtils(SVCoreTestsPlugin.getDefault().getBundle());
-		SVCorePlugin.getDefault().setTestDebugLevel(0);
+//		SVCorePlugin.getDefault().setTestDebugLevel(0);
 		
 		utils.unpackBundleZipToFS("/uvm.zip", fTmpDir);
 		

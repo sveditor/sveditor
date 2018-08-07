@@ -7,9 +7,13 @@ public class SVPreProcEvent {
 		BeginExpand,
 		EndExpand,
 		Define,
+		MacroRef,
 		EnterFile,
 		LeaveFile,
-		MissingInclude
+		MissingInclude,
+		Comment,
+		Marker,
+		Include
 	};
 	
 	public SVPreProcEvent(SVPreProcEvent.Type t) {
@@ -21,6 +25,7 @@ public class SVPreProcEvent {
 	// Valid for EnterFile and LeaveFile
 	public int				file_id;
 	public int				pos;
+	public long				loc;
 	// Valid for Type.Define
 	public ISVDBItemBase	decl;
 

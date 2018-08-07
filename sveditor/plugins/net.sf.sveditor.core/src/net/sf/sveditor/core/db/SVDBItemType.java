@@ -186,6 +186,8 @@ public enum SVDBItemType {
 	RandomizeCallExpr,
 	RangeDollarBoundExpr,
 	RangeExpr,
+	RefElemExpr,
+	RefPathExpr,
 	TFCallExpr,
 	UnaryExpr,
 	TypeExpr,
@@ -220,11 +222,9 @@ public enum SVDBItemType {
 	ArgFileSrcLibFileStmt,
 	ArgFileLibExtStmt,
 	
-	
-	//***************************************************************
-	//* VHDL Types
-	//***************************************************************
-//	VHEntityDecl
+	// VHDL Types
+	EntityDecl
+
 	;
 	
 	public boolean isElemOf(SVDBItemType ... type_list) {

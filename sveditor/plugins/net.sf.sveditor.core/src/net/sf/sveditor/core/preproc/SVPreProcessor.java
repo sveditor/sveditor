@@ -14,9 +14,7 @@ import java.util.Stack;
 import net.sf.sveditor.core.SVFileBuffer;
 import net.sf.sveditor.core.StringInputStream;
 import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBDocComment;
 import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBFileTreeMacroList;
 import net.sf.sveditor.core.db.SVDBInclude;
 import net.sf.sveditor.core.db.SVDBLocation;
@@ -26,9 +24,6 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerKind;
 import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
-import net.sf.sveditor.core.docs.DocCommentParser;
-import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.IDocCommentParser;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevel;
 import net.sf.sveditor.core.log.ILogLevelListener;
@@ -44,15 +39,15 @@ import net.sf.sveditor.core.scanutils.ITextScanner;
 public class SVPreProcessor extends AbstractTextScanner 
 		implements ISVPreProcessor, ILogLevelListener, IPreProcErrorListener,
 					ISVStringPreProcessor, ILogLevel {
+	private String									fInitFilename;
+	private InputStream								fInitInput;
 	private SVDBIndexStats							fIndexStats;
 	private ISVPreProcIncFileProvider				fIncFileProvider;
 	private StringBuilder							fOutput;
 	private int										fOutputLen;
 	private StringBuilder							fCommentBuffer;
 	private boolean									fInComment;
-	private IDocCommentParser   					fDocCommentParser;
 	private long									fCommentStart;
-	private Set<String>								fTaskTags;
 
 	// List of offset,file-id pairs
 	private List<SVPreProcOutput.FileChangeInfo>	fFileMap;
@@ -128,11 +123,13 @@ public class SVPreProcessor extends AbstractTextScanner
 			InputStream	 					input, 
 			ISVPreProcIncFileProvider		inc_provider,
 			ISVPreProcFileMapper			file_mapper) {
+		fInitFilename = filename;
+		fInitInput = input;
+		
 		fInputStack = new Stack<SVPreProc2InputData>();
 		fMacroExpSet = new HashSet<String>();
 		fOutput = new StringBuilder();
 		fCommentBuffer = new StringBuilder();
-		fDocCommentParser = new DocCommentParser();
 		fTmpBuffer = new StringBuilder();
 		fMacroParams = new ArrayList<String>();
 		fPreProcEn = new Stack<Integer>();
@@ -154,14 +151,11 @@ public class SVPreProcessor extends AbstractTextScanner
 		fLog.addLogLevelListener(this);
 		fDebugEn = fLog.isEnabled();
 		
-		fTaskTags = new HashSet<String>();
-		fTaskTags.add("TODO");
-		fTaskTags.add("FIXME");
 		
 		// Add the first file
-		if (input != null) {
-			enter_file(filename, input);
-		}
+//		if (input != null) {
+//			enter_file(filename, input);
+//		}
 	}
 	
 	private void init_vars() {
@@ -184,8 +178,10 @@ public class SVPreProcessor extends AbstractTextScanner
 	public String preprocess(InputStream in) {
 		init_vars();
 		
-		
-		enter_file("", in);
+	
+		fInitFilename = "";
+		fInitInput = in;
+//		enter_file("", in);
 		
 		preprocess();
 		
@@ -241,13 +237,18 @@ public class SVPreProcessor extends AbstractTextScanner
 		boolean ifdef_enabled = true;
 		boolean found_single_line_comment = false;
 		
+		if (fInitInput != null) {
+			enter_file(fInitFilename, fInitInput);
+			fInitInput = null;
+			fInitFilename = null;
+		}
+		
 		start = System.currentTimeMillis();
 		fOutput.setLength(0);
 		fCommentBuffer.setLength(0);
 		
 		fSVDBFile = new SVDBFile();
-		fSVDBFile.setLocation(
-				SVDBLocation.pack(fInputCurr.getFileId(), 1, 1));
+		fSVDBFile.setLocation(getLocation());
 		
 		// First thing we do is emit a line directive.
 		// This initializes everything for the output 
@@ -356,7 +357,6 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		SVPreProcOutput ret = new SVPreProcOutput(fOutput);
-		ret.setFileTree(fInputCurr.getFileTree());
 		
 		// Clean up after any unbalanced pre-processor directives
 		cleanup_preproc_leftovers();
@@ -364,6 +364,14 @@ public class SVPreProcessor extends AbstractTextScanner
 		// Leave final file
 		ret.setFileId(fInputCurr.getFileId());
 		fInputCurr.close();
+		
+		if (fInitFilename != null && fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.LeaveFile);
+			ev.file_id = fInputCurr.getFileId();
+			ev.text = fInitFilename;
+			
+			sendEvent(ev);
+		}
 		
 		end = System.currentTimeMillis();
 		
@@ -383,10 +391,6 @@ public class SVPreProcessor extends AbstractTextScanner
 //		}
 		
 		return ret;
-	}
-	
-	public SVDBFileTree getFileTree() {
-		return fInputCurr.getFileTree();
 	}
 	
 	public SVPreProc2InputData currentRealFile() {
@@ -418,76 +422,15 @@ public class SVPreProcessor extends AbstractTextScanner
 		}
 		
 		fInComment = false;
-		String comment = fCommentBuffer.toString() ;
-		Tuple<String,String> dc = new Tuple<String, String>(null, null);
-		IDocCommentParser.CommentType type = fDocCommentParser.isDocCommentOrTaskTag(comment, dc) ;
-		if (type != null && type != IDocCommentParser.CommentType.None) {
-			String tag = dc.first();
-			String title = dc.second();
-			SVPreProc2InputData in = fInputCurr;
-			long loc = fCommentStart;
-			
-			boolean is_task = fTaskTags.contains(tag);
+//		String comment = fCommentBuffer.toString() ;
+		
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(SVPreProcEvent.Type.Comment);
+			ev.text = fCommentBuffer.toString();
+			ev.loc = fCommentStart;
+			sendEvent(ev);
+		}
 
-			if (type == IDocCommentParser.CommentType.TaskTag && is_task) {
-				// Actually a task marker
-				String msg = tag + " " + title;
-				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
-
-				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
-				int fileid = SVDBLocation.unpackFileId(loc);
-				int line   = SVDBLocation.unpackLineno(loc);
-				int pos    = SVDBLocation.unpackPos(loc);
-				String lines[] = comment.split("\\n");
-				for (String cl: lines)  {
-					if (cl.contains(tag))  {
-						break;
-					}
-					else  {
-						line ++;
-					}
-				}
-				loc = SVDBLocation.pack(fileid, line, pos);
-
-				// Set location
-				m.setLocation(loc);
-				if (in.getFileTree() != null) {
-					in.getFileTree().fMarkers.add(m);
-				}
-			} else if (type == IDocCommentParser.CommentType.DocComment && is_task) {
-				String msg = tag + ": " + title;
-				SVDBMarker m = new SVDBMarker(MarkerType.Task, MarkerKind.Info, msg);
-				
-				// Fix the offset to the TODO in case it is not the first thing in a comment... typically in a multi-line comment
-				int fileid = SVDBLocation.unpackFileId(loc);
-				int line   = SVDBLocation.unpackLineno(loc);
-				int pos    = SVDBLocation.unpackPos(loc);
-				String lines[] = comment.split("\\n");
-				for (String cl: lines)  {
-					if (cl.contains(tag))  {
-						break;
-					}
-					else  {
-						line ++;
-					}
-				}
-				loc = SVDBLocation.pack(fileid, line, pos);
-
-				// Set location
-				m.setLocation(loc);
-				if (in.getFileTree() != null) {
-					in.getFileTree().fMarkers.add(m);
-				}
-			} else if (DocTopicManager.singularKeywordMap.containsKey(tag.toLowerCase())) {
-				// Really a doc comment
-				SVDBDocComment doc_comment = new SVDBDocComment(title, comment);
-
-				doc_comment.setLocation(loc);
-				if (in.getFileTree() != null) {
-					in.getFileTree().getSVDBFile().addChildItem(doc_comment);
-				}
-			}
-		} 
 	}
 	
 	private void handle_preproc_directive() {
@@ -677,14 +620,6 @@ public class SVPreProcessor extends AbstractTextScanner
 		// TODO: need to warn on re-definition?
 		if (ifdef_enabled()) {
 			addMacro(m);
-			
-			SVPreProc2InputData in = currentRealFile();
-			
-			// Add the macro to the pre-processor version of the file
-			if (in != null && in.getFileTree() != null && in.getFileTree().getSVDBFile() != null) {
-				in.getFileTree().getSVDBFile().addChildItem(m);
-				in.getFileTree().addToMacroSet(m);
-			}
 		}
 	}
 	
@@ -755,19 +690,13 @@ public class SVPreProcessor extends AbstractTextScanner
 						}
 					
 						// TODO: Need to mark as a 'virtual' include?
-						SVDBInclude svdb_inc = new SVDBInclude(inc);
-						svdb_inc.setLocation(scan_loc);
-						
-						curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
-						
-						SVDBFileTree ft_i = new SVDBFileTree(defs.first());
-						ft_i.setParent(curr_in.getFileTree());
-						curr_in.getFileTree().addIncludedFileTree(ft_i);
-				
-						for (SVDBFileTreeMacroList ml : defs.second()) {
-							for (SVDBMacroDef m : ml.getMacroList()) {
-								ft_i.addToMacroSet(m);
-							}
+						if (fHaveListeners) {
+							SVPreProcEvent ev = new SVPreProcEvent(Type.Include);
+							SVDBInclude svdb_inc = new SVDBInclude(inc);
+							svdb_inc.setLocation(scan_loc);
+							ev.text = defs.first();
+							ev.decl = svdb_inc;
+							sendEvent(ev);
 						}
 					} else if ((in = fIncFileProvider.findIncFile(inc)) != null && in.second() != null) {
 						if (fDebugEn) {
@@ -793,10 +722,15 @@ public class SVPreProcessor extends AbstractTextScanner
 							String rootfile = fInputStack.get(0).getFileName();
 							fIncFileProvider.addCachedIncFile(in.first(), rootfile);
 
-							SVDBInclude svdb_inc = new SVDBInclude(inc);
-							svdb_inc.setLocation(scan_loc);
-
-							curr_in.getFileTree().getSVDBFile().addChildItem(svdb_inc);
+							if (fHaveListeners) {
+								SVPreProcEvent ev = new SVPreProcEvent(Type.Include);
+								SVDBInclude svdb_inc = new SVDBInclude(inc);
+								svdb_inc.setLocation(scan_loc);
+								ev.decl = svdb_inc;
+								ev.text = inc;
+								
+								sendEvent(ev);
+							}
 
 							enter_file(in.first(), in.second());
 						} else {
@@ -805,7 +739,7 @@ public class SVPreProcessor extends AbstractTextScanner
 									MarkerKind.MissingInclude,
 									"Recursive inclusion of file " + inc);
 							m.setLocation(scan_loc);
-							curr_in.getFileTree().fMarkers.add(m);
+							addMarker(m);
 							try {
 								in.second().close();
 							} catch (IOException e) {}
@@ -815,7 +749,7 @@ public class SVPreProcessor extends AbstractTextScanner
 								MarkerKind.MissingInclude,
 								"Failed to find include file " + inc);
 						m.setLocation(scan_loc);
-						curr_in.getFileTree().fMarkers.add(m);
+						addMarker(m);
 
 						// TODO: add missing-include error
 						if (fDebugEn) {
@@ -869,13 +803,14 @@ public class SVPreProcessor extends AbstractTextScanner
 			}
 
 			SVDBMacroDef md = fMacroProvider.findMacro(type, -1);
-			if (md == null && fInputCurr.getFileTree() != null) {
-				SVDBMarker m = new SVDBMarker(MarkerType.Error, 
-						MarkerKind.UndefinedMacro,
-						"Macro " + type + " undefined");
-				m.setLocation(scan_loc);
-
-				fInputCurr.getFileTree().fMarkers.add(m);
+			if (md == null) {
+				if (!fInputCurr.getFileName().startsWith("Macro:")) {
+					SVDBMarker m = new SVDBMarker(MarkerType.Error, 
+							MarkerKind.UndefinedMacro,
+							"Macro " + type + " undefined");
+					m.setLocation(scan_loc);
+					addMarker(m);
+				}
 			}
 		
 			boolean have_macro_params = false;
@@ -1100,30 +1035,25 @@ public class SVPreProcessor extends AbstractTextScanner
 			file_id = fFileMapper.mapFilePathToId(filename, true);
 		}
 		
-		if (fHaveListeners) {
-			SVPreProcEvent ev = new SVPreProcEvent(Type.EnterFile);
-			ev.text = filename;
-			ev.file_id = file_id;
-			sendEvent(ev);
-		}
-		
 		SVFileBuffer in_b = new SVFileBuffer(in);
 		SVPreProc2InputData in_data = new SVPreProc2InputData(
 				this, in_b, filename, file_id);
 		add_file_change_info(file_id, in_data.getLineNo());
 		
-		in_data.setFileTree(new SVDBFileTree(new SVDBFile(filename)));
-		
 		// Record the current state of the pre-processor
+		// TODO:
 //		in_data.fFileTree.fMacroEntryState.putAll(fMacroMap);
 	
-		if (!fInputStack.empty()) {
-			SVPreProc2InputData p_data = currentRealFile();
-			in_data.getFileTree().setParent(p_data.getFileTree());
-			p_data.getFileTree().addIncludedFileTree(in_data.getFileTree());
-		}
-
 		push_input(in_data);
+	
+		// Finally, notify any listeners of the new file
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.EnterFile);
+			ev.text = filename;
+			ev.file_id = file_id;
+			ev.loc = getLocation();
+			sendEvent(ev);
+		}
 	}
 	
 	private void cleanup_preproc_leftovers() {
@@ -1144,8 +1074,8 @@ public class SVPreProcessor extends AbstractTextScanner
 						SVDBLocation.unpackLineno(loc));
 			}
 			m.setLocation(loc);
-			if (fInputCurr.getFileTree() != null) {
-				fInputCurr.getFileTree().fMarkers.add(m);
+			if (fInputCurr.getFileId() > 0) {
+				addMarker(m);
 			}
 		}		
 	}
@@ -1153,7 +1083,6 @@ public class SVPreProcessor extends AbstractTextScanner
 	private void leave_file() {
 		SVPreProc2InputData old_file = fInputCurr;
 
-		
 		// Clean up (if needed) after the macro stack
 		// Only cleanup after leaving a file where file content (not expanded macro content)
 		// was present
@@ -1161,7 +1090,7 @@ public class SVPreProcessor extends AbstractTextScanner
 			cleanup_preproc_leftovers();
 		}
 		
-		if (fHaveListeners && fInputCurr.getFileId() > 0) {
+		if (fHaveListeners && !fInputCurr.getFileName().startsWith("Macro:")) {
 			SVPreProcEvent ev = new SVPreProcEvent(Type.LeaveFile);
 			ev.text = fInputCurr.getFileName();
 			ev.file_id = fInputCurr.getFileId();
@@ -1242,12 +1171,13 @@ public class SVPreProcessor extends AbstractTextScanner
 	}
 	
 	private void add_macro_reference(String macro) {
-		SVPreProc2InputData in = fInputCurr;
-		
-		if (fMacroProvider != null) {
+		if (fMacroProvider != null && fHaveListeners) {
 			SVDBMacroDef def = fMacroProvider.findMacro(macro, -1);
 
-			in.addReferencedMacro(macro, def);
+			SVPreProcEvent ev = new SVPreProcEvent(Type.MacroRef);
+			ev.decl = def;
+			ev.text = macro;
+			sendEvent(ev);
 		}
 	}
 	
@@ -1499,6 +1429,16 @@ public class SVPreProcessor extends AbstractTextScanner
 				ev.decl = macro;
 				sendEvent(ev);
 			}
+		}
+	}
+	
+	private void addMarker(SVDBMarker m) {
+		if (fHaveListeners) {
+			SVPreProcEvent ev = new SVPreProcEvent(Type.Marker);
+			ev.text = m.getMessage();
+			ev.pos = fOutput.length();
+			ev.decl = m;
+			sendEvent(ev);
 		}
 	}
 	

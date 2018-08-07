@@ -28,7 +28,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"	<<MARK>>m1 u1();\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 1, "m1", SVDBItemType.ModuleDecl);
 	}
 
@@ -42,7 +42,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"	<<MARK>>m1 u1();\n" +
 			"endinterface\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 1, "m1", SVDBItemType.InterfaceDecl);
 	}
 
@@ -61,7 +61,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"endmodule\n" +
 			"\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 1, "a", SVDBItemType.ModuleDecl);
 	}
 
@@ -85,7 +85,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "bbbb", SVDBItemType.VarDeclItem);
 	}
 
@@ -110,7 +110,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "bbbb", SVDBItemType.VarDeclItem);
 	}
 
@@ -137,7 +137,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "bbbb", SVDBItemType.VarDeclItem);
 	}
 	
@@ -161,7 +161,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "aaaa", SVDBItemType.VarDeclItem);
 	}
 
@@ -177,7 +177,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "clk_i", SVDBItemType.VarDeclItem);
 	}
 	
@@ -194,7 +194,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "rst_n", SVDBItemType.VarDeclItem);
 	}	
 	
@@ -212,7 +212,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "P1", SVDBItemType.ModIfcClassParam);
 	}	
 
@@ -231,7 +231,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "P1", SVDBItemType.VarDeclItem);
 	}
 	
@@ -261,7 +261,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"	);\n" +
 			"endmodule\n" 
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "foo", SVDBItemType.ModuleDecl);
 	}
 	
@@ -285,7 +285,7 @@ public class TestOpenModIfc extends SVCoreTestCaseBase {
 			"	end\n" +
 			"endmodule\n"
 			;
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		OpenDeclTests.runTest(this, doc, 0, "t1", SVDBItemType.Task);
 	}	
 }

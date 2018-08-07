@@ -6,7 +6,7 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 public class TestContentAssistTypes extends SVCoreTestCaseBase {
 	
 	public void testTypeAssistPackageScope() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 				"package pkg;\n" +
 				"	typedef int unsigned my_int32_type;\n" +

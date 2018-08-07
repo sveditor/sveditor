@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -163,7 +164,7 @@ public class TemplateProcessor {
 			ext = name.substring(name.lastIndexOf('.'));
 		}
 		
-		List<String> exts = SVCorePlugin.getDefault().getDefaultSVExts();
+		Set<String> exts = SVCorePlugin.getDefault().getDefaultSVExts();
 		return exts.contains(ext);
 	}
 	

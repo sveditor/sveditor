@@ -205,11 +205,6 @@ public class SVDBArgFileParser implements ILogLevelListener {
 
 		
 		SubMonitor subMonitor = SubMonitor.convert(monitor, "Discover Root Files", 4);
-		/*
-		clearFilesList();
-		clearIncludePaths();
-		clearDefines();
-		 */
 
 		// Add an include path for the arg file location
 		build_data.addIncludePath(fResolvedBaseLocationDir);
@@ -448,7 +443,26 @@ public class SVDBArgFileParser implements ILogLevelListener {
 							stmt.getPath(), sub_base_location_dir);
 
 					if (fs_provider.fileExists(res_f)) {
-						build_data.addFile(res_f, false);
+						// Here is where we need to determine what type of file this is
+						Set<String> sv_exts = SVCorePlugin.getDefault().getDefaultSVExts();
+						Set<String> vh_exts = SVCorePlugin.getDefault().getDefaultVHDLExts();
+						String ext = SVFileUtils.getPathExt(res_f);
+						
+						int file_a = 
+								ISVDBDeclCacheFileAttr.FILE_ATTR_SRC_FILE +
+								ISVDBDeclCacheFileAttr.FILE_ATTR_ROOT_FILE;
+						
+						if (sv_exts.contains(ext)) {
+							file_a += ISVDBDeclCacheFileAttr.FILE_ATTR_SV_FILE;
+						} else if (vh_exts.contains(ext)) {
+							file_a += ISVDBDeclCacheFileAttr.FILE_ATTR_VH_FILE;
+						} else {
+							SVDBMarker m = new SVDBMarker(MarkerType.Error, MarkerKind.SemanticError, 
+								"File " + res_f + " has unrecognized extension");
+							m.setLocation(stmt.getLocation());
+							markers.add(m);
+						}
+						build_data.addFile(res_f, file_a);
 					}
 				} else if (ci.getType() == SVDBItemType.ArgFileMfcuStmt) {
 					build_data.setMFCU();

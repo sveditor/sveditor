@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -13,23 +12,20 @@ import org.eclipse.core.runtime.SubMonitor;
 
 import net.sf.sveditor.core.builder.ISVBuilderOutput;
 import net.sf.sveditor.core.builder.SVBuilderPreProcTracker;
-import net.sf.sveditor.core.db.SVDBArgFile;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheBuilder;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBIndexChangeDelta;
 import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuildFiles.FileListType;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
+import net.sf.sveditor.core.db.index.sv.SVDeclCacheBuilder;
 import net.sf.sveditor.core.log.ILogHandle;
 import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
@@ -79,6 +75,9 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 			if (plan.getFileListType() == FileListType.Source) {
 				// simple: already have it
 				out.note("Only source (SV) files have changed");
+				if (fDebugEn) {
+					fLog.debug("Only source (SV) files have changed");
+				}
 				process_root_files(
 						index,
 						build_data, 
@@ -91,6 +90,9 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 			} else if (plan.getFileListType() == FileListType.Filelist) {
 
 				out.note("Only filelist (.f) files have changed (TODO)");
+				if (fDebugEn) {
+					fLog.debug("Only filelist (.f) files have changed (TODO)");
+				}
 				process_root_filelists(
 						index,
 						build_data,
@@ -100,9 +102,19 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 						plan.getFileList());
 
 				out.note("Only filelist (.f) files have changed");
+				if (fDebugEn) {
+					fLog.debug("Only filelist (.f) files have changed");
+				}
 			} else if (plan.getFileListType() == FileListType.Hybrid) {
 				// Both filelists and files changed
 				out.note("Both source (SV) and filelist (.f) files have changed (TODO)");
+				if (fDebugEn) {
+					fLog.debug("Both source (SV) and filelist (.f) files have changed (TODO)");
+				}
+			} else {
+				if (fDebugEn) {
+					fLog.debug("Unknown type of filelist: " + plan.getFileListType());
+				}
 			}
 
 			// Once we have performed the required processing,
@@ -133,9 +145,9 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 			// - Go through the files processed during the last index operation
 			// - If present in the master cache, remove
 			// - Add to the master cache
-			SVDBBaseIndexCacheData old_cache_data = build_data_i.getIndexCacheData();
+			SVDBIndexCacheData old_cache_data = build_data_i.getIndexCacheData();
 			ISVDBIndexCache	old_cache = build_data_i.getCache();
-			SVDBBaseIndexCacheData new_cache_data = build_data.getIndexCacheData();
+			SVDBIndexCacheData new_cache_data = build_data.getIndexCacheData();
 			ISVDBIndexCache	new_cache = build_data.getCache();
 			
 			// First, remove any files from the filelist that no longer exist
@@ -233,8 +245,8 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 			String							path) {
 		ISVDBIndexCache old_cache = build_data_i.getCache();
 		ISVDBIndexCache new_cache = build_data.getCache();
-		SVDBBaseIndexCacheData old_cache_data = build_data_i.getIndexCacheData();
-		SVDBBaseIndexCacheData new_cache_data = build_data.getIndexCacheData();
+		SVDBIndexCacheData old_cache_data = build_data_i.getIndexCacheData();
+		SVDBIndexCacheData new_cache_data = build_data.getIndexCacheData();
 		
 		boolean is_argfile = (new_cache_data.getFileAttr(path) & FILE_ATTR_ARG_FILE) != 0;
 		SVDBFileCacheData cd = new_cache_data.getFileCacheData(path);
@@ -255,7 +267,7 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 			SVDBArgFileIndexBuildData		build_data,
 			String							path) {
 		ISVDBIndexCache cache = build_data.getCache();
-		SVDBBaseIndexCacheData cache_data = build_data.getIndexCacheData();
+		SVDBIndexCacheData cache_data = build_data.getIndexCacheData();
 		boolean is_argfile = (cache_data.getFileAttr(path) & FILE_ATTR_ARG_FILE) != 0;
 	
 		cache.removeFile(path, is_argfile);
@@ -264,7 +276,7 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 	
 	private static void find_included_files(
 			Set<String>				included_files,
-			SVDBBaseIndexCacheData	cache_data,
+			SVDBIndexCacheData	cache_data,
 			SVDBFileCacheData		cd) {
 		for (SVDBFileCacheData cd_i : cache_data.getRootFilesCacheData()) {
 			if (cd_i.getIncludedFiles().contains(cd.getFileId())) {
@@ -312,12 +324,18 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 		// path is a 'root' file
 		InputStream in = fs_provider.openStream(path);
 		out.note("Parse: " + path);
+		if (fDebugEn) {
+			fLog.debug("Parse: " + path);
+		}
 
 //		if (!existing_files.remove(path)) { // Remove the new path from the set of pre-existing ones
 //			added_files.add(path);
 //		}
 		
 		if (in == null) {
+			if (fDebugEn) {
+				fLog.debug("Error: in is null");
+			}
 			return null;
 		}
 		
@@ -327,7 +345,6 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 		SVPreProcessor preproc = new SVPreProcessor(
 				path, in, build_data, build_data);
 
-		fs_provider.closeStream(in);
 		
 		
 //		synchronized (fBuildData) {
@@ -350,7 +367,7 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 //			}
 //		}
 		
-		SVDBDeclCacheBuilder decl_builder = new SVDBDeclCacheBuilder(
+		SVDeclCacheBuilder decl_builder = new SVDeclCacheBuilder(
 				cd.getTopLevelDeclarations(),
 				index, // Used as the ISVDBDeclCacheInt handle
 				cd.getIncludedFiles(),
@@ -358,11 +375,18 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 				cd.getFileId());
 		
 		preproc.addListener(decl_builder);
-		
+
+		if (fDebugEn) {
+			fLog.debug("--> preproc.preprocess");
+		}
 		SVPreProcOutput pp_out = preproc.preprocess();
+		fs_provider.closeStream(in);
+		if (fDebugEn) {
+			fLog.debug("<-- preproc.preprocess: " + pp_out.toString());
+		}
 		pp_out.setFileChangeListener(
 				new SVBuilderPreProcTracker(out, build_data));
-		SVDBFileTree ft = pp_out.getFileTree();
+		SVDBFileTree ft = decl_builder.getFileTree();
 		
 		// Collect include files
 		List<String> included_files = new ArrayList<String>();
@@ -432,14 +456,23 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 			SVDBArgFileIndexBuildData		build_data,
 			String							path) {
 		SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(path);
-		boolean is_argfile = (cd.getFileAttr() & FILE_ATTR_ARG_FILE) != 0;
+		if (cd != null) {
+			if (fDebugEn) {
+				fLog.debug("Note: removing file \"" + path + "\" from index");
+			}
+			boolean is_argfile = (cd.getFileAttr() & FILE_ATTR_ARG_FILE) != 0;
 
-		// Remove the file itself so we don't get phantom references
-		// while removing included files
-		build_data.removeFile(path, is_argfile);
-		
-		for (int inc_file_id : cd.getIncludedFiles()) {
-			remove_included_file(build_data, inc_file_id);
+			// Remove the file itself so we don't get phantom references
+			// while removing included files
+			build_data.removeFile(path, is_argfile);
+
+			for (int inc_file_id : cd.getIncludedFiles()) {
+				remove_included_file(build_data, inc_file_id);
+			}
+		} else {
+			if (fDebugEn) {
+				fLog.debug("Note: file \"" + path + "\" doesn't exist");
+			}
 		}
 	}
 	
@@ -449,23 +482,33 @@ public class SVDBArgFileIndexRebuilder implements ISVDBDeclCacheFileAttr {
 		boolean found = false;
 		SVDBFileCacheData inc_file_cd = 
 				build_data.getIndexCacheData().getFileCacheData(inc_file_id);
-		boolean is_argfile = (inc_file_cd.getFileAttr() & FILE_ATTR_ARG_FILE) != 0;
-		
-		for (SVDBFileCacheData cd : build_data.getIndexCacheData().getFileCacheData().values()) {
-			if (cd.getIncludedFiles().contains(inc_file_id)) {
-				found = true;
-				break;
-			}
-		}
-		
-		if (!found) {
+		if (inc_file_cd != null) {
 			if (fDebugEn) {
-				fLog.debug("Removing orphan included file " +
-						build_data.mapFileIdToPath(inc_file_id));
+				fLog.debug("Note: Remove included file id=" + inc_file_id);
 			}
-			build_data.removeFile(build_data.mapFileIdToPath(inc_file_id), is_argfile);
-			for (int inc_file_id_i : inc_file_cd.getIncludedFiles()) {
-				remove_included_file(build_data, inc_file_id_i);
+
+			boolean is_argfile = (inc_file_cd.getFileAttr() & FILE_ATTR_ARG_FILE) != 0;
+
+			for (SVDBFileCacheData cd : build_data.getIndexCacheData().getFileCacheData().values()) {
+				if (cd.getIncludedFiles().contains(inc_file_id)) {
+					found = true;
+					break;
+				}
+			}
+
+			if (!found) {
+				if (fDebugEn) {
+					fLog.debug("Removing orphan included file " +
+							build_data.mapFileIdToPath(inc_file_id));
+				}
+				build_data.removeFile(build_data.mapFileIdToPath(inc_file_id), is_argfile);
+				for (int inc_file_id_i : inc_file_cd.getIncludedFiles()) {
+					remove_included_file(build_data, inc_file_id_i);
+				}
+			}
+		} else {
+			if (fDebugEn) {
+				fLog.debug("Note: included file id=" + inc_file_id + " doesn't exist");
 			}
 		}
 	}

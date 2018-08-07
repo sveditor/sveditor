@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBItemUtils;
@@ -34,4 +35,10 @@ public class SVDBExpr extends SVDBItemBase {
 		SVDBExpr o = (SVDBExpr)other;
 		super.init(o);
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		System.out.println("WARN: accept unimplemented for " + getClass());
+	}
+	
 }

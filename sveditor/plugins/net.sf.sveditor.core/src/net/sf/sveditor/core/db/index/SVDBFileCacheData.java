@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.sveditor.core.db.SVDBLang;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 
 /**
@@ -31,6 +32,8 @@ public class SVDBFileCacheData {
 	// Set of identifiers referenced within this root file
 	// and any included files
 	public Set<String>						fRefCache;
+	
+	public SVDBLang							fLanguage;
 
 	public SVDBFileCacheData() {
 		fIncludedFiles = new HashSet<Integer>();

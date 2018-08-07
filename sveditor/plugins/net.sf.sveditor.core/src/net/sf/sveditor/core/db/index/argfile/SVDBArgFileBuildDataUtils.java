@@ -27,11 +27,13 @@ import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
 import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 import net.sf.sveditor.core.db.index.ISVDBDeclCache;
+import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
 import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheDataUtils;
 import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
@@ -42,7 +44,8 @@ import net.sf.sveditor.core.log.ILogLevelListener;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-public class SVDBArgFileBuildDataUtils implements ILogLevel {
+public class SVDBArgFileBuildDataUtils 
+	implements ILogLevel, ISVDBDeclCacheFileAttr {
 	
 	private static final LogHandle			fLog;
 	private static boolean					fDebugEn;
@@ -428,7 +431,8 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			if (build_data.containsFile(path, 0)) {
 				int attr = build_data.getFileAttr(path);
 				
-				if ((attr & ISVDBDeclCache.FILE_ATTR_ARG_FILE) != 0) {
+				if ((attr & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) != 0) {
+					// This is a root file
 					ret = build_data.getCache().getFileTree(
 							new NullProgressMonitor(), path, true);
 				} else {
@@ -442,7 +446,7 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 						if ((cd.getFileAttr() & ISVDBDeclCache.FILE_ATTR_ROOT_FILE) == 0) {
 							// Search for the file that includes this one
 							int parent_id = -1;
-							SVDBBaseIndexCacheData cache_data = build_data.getIndexCacheData();
+							SVDBIndexCacheData cache_data = build_data.getIndexCacheData();
 							for (SVDBFileCacheData cd_t : cache_data.getRootFileCacheData().values()) {
 								if (cd_t.getIncludedFiles().contains(file_id)) {
 									parent_id = cd_t.getFileId();
@@ -559,41 +563,21 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 
 	// TODO: encapsulation here seems suspect
 	public static String findRootFilePath(SVDBArgFileIndexBuildData build_data, String path) {
-		String ret = null;
-
-		synchronized (build_data) {
-			int file_id = build_data.getIndexCacheData().mapFilePathToId(path, false);
+		Set<Integer> processed_files = new HashSet<Integer>();
+		int file_id = build_data.getIndexCacheData().mapFilePathToId(path, false);
+		
+		if (file_id > 0) {
+			int ret_id;
 			
-			if (file_id != -1) {
-				SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
-				
-				// See if any file includes this one
-				int root_file_id = file_id;
-				if (fDebugEn) {
-					fLog.debug("findRootFilePath: file_id=" + file_id);
-				}
-				for (int iter_max=0; iter_max<10000; iter_max++) {
-					boolean found = false;
-					for (SVDBFileCacheData c : build_data.getIndexCacheData().getFileCacheData().values()) {
-						if (c.getIncludedFiles().contains(root_file_id)) {
-							if (fDebugEn) {
-								fLog.debug("  file " + c.getFileId() + " includes " + root_file_id);
-							}
-							root_file_id = c.getFileId();
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						// 
-						break;
-					}
-				}
-				ret = build_data.getIndexCacheData().mapFileIdToPath(root_file_id);
-				if (fDebugEn) {
-					fLog.debug("  ret=" + ret + " root_file_id=" + root_file_id);
-				}
+			if ((ret_id = findRootFilePath(
+					processed_files,
+					build_data,
+					file_id)) > 0) {
+				return build_data.mapFileIdToPath(ret_id);
 			}
+		}
+		
+		return null;
 			
 //			Map<String, List<String>> root_map = build_data.getRootIncludeMap();
 //			
@@ -613,9 +597,37 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 //					}
 //				}
 //			}
+//		}
+	}
+	
+	private static int findRootFilePath(
+			Set<Integer>				processed_files,
+			SVDBArgFileIndexBuildData 	build_data, 
+			int 						file_id) {
+		SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(file_id);
+		
+		if ((cd.getFileAttr() & ISVDBDeclCacheFileAttr.FILE_ATTR_ROOT_FILE) != 0) {
+			return file_id;
+		}
+
+		for (SVDBFileCacheData c : build_data.getIndexCacheData().getFileCacheData().values()) {
+			if (c.getIncludedFiles().contains(file_id)) {
+				if (fDebugEn) {
+					fLog.debug("  file " + c.getFileId() + " includes " + file_id);
+				}
+				
+				if ((c.getFileAttr() & ISVDBDeclCacheFileAttr.FILE_ATTR_ROOT_FILE) != 0) {
+					return c.getFileId();
+				} else if (processed_files.add(c.getFileId())) {
+					int ret;
+					if ((ret = findRootFilePath(processed_files, build_data, c.getFileId())) > 0) {
+						return ret;
+					}
+				}
+			}
 		}
 		
-		return ret;
+		return -1;
 	}
 
 	/**
@@ -690,6 +702,59 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 		}
 	}
 	
+	public static List<List<Tuple<SVDBFileTree, Integer>>> buildFileTreeIncludeMap(
+			SVDBArgFileIndexBuildData	build_data,
+			String						path,
+			boolean						inc_argfile) {
+		List<List<Tuple<SVDBFileTree, Integer>>> ret = new ArrayList<List<Tuple<SVDBFileTree, Integer>>>();
+		
+		List<List<SVDBFileCacheData>> inc_map = SVDBIndexCacheDataUtils.buildIncludeMap(
+				build_data.getIndexCacheData(), path);
+
+		// The target file is the last in the list for each map entry
+		for (List<SVDBFileCacheData> e : inc_map) {
+			List<Tuple<SVDBFileTree, Integer>> ft_e = new ArrayList<Tuple<SVDBFileTree, Integer>>();
+			SVDBFileTree root_ft = build_data.getCache().getFileTree(
+					new NullProgressMonitor(), 
+					build_data.mapFileIdToPath(e.get(0).getFileId()),
+					false);
+			ft_e.add(new Tuple<SVDBFileTree, Integer>(root_ft, 0));
+		
+			SVDBFileTree curr = root_ft;
+			for (int i=1; i<e.size(); i++) {
+				// Searching for an included file with
+				SVDBFileTree inc_ft = null;
+				int inc_idx = -1;
+				for (int inc_i=0; inc_i<curr.getIncludedFileTreeList().size(); inc_i++) {
+					SVDBFileTree inc = curr.getIncludedFileTreeList().get(inc_i);
+					int file_id = SVDBLocation.unpackFileId(inc.getSVDBFile().getLocation());
+					if (fDebugEn) {
+						fLog.debug("file_id: " + file_id + " target=" + 
+							e.get(i).getFileId());
+					}
+					if (file_id == e.get(i).getFileId()) {
+						inc_ft = inc;
+						inc_idx = inc_i;
+						break;
+					}
+				}
+				
+				if (inc_ft == null) {
+					if (fDebugEn) {
+						fLog.debug("Error: failed to find include of " +
+							build_data.mapFileIdToPath(e.get(i).getFileId()));
+					}
+					break;
+				}
+				ft_e.add(new Tuple<SVDBFileTree, Integer>(inc_ft, inc_idx));
+				curr = inc_ft;
+			}
+			
+			ret.add(ft_e);
+		}		
+		return ret;
+	}
+	
 	/**
 	 * Traverse through the FileTree structure to calculate the
 	 * macros defined prior to parse of a specific file. This
@@ -704,63 +769,124 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 			String						path) {
 		Map<String, SVDBMacroDef> all_defs = new HashMap<String, SVDBMacroDef>();
 		List<SVDBMacroDef> defs = new ArrayList<SVDBMacroDef>();
-		
-		// First, collect the macros from the root 
-		SVDBFileTree ft = findTargetFileTree(build_data, path);
-		
-		if (ft != null) {
-			if (fDebugEn) {
-				fLog.debug("calculateIncomingMacros: root file=" + ft.getFilePath());
-			}
-			// Collect macros up the inclusion tree
-			SVDBFileTreeUtils.collectRootFileTreeMacros(all_defs, ft);
-		} else {
-			if (fDebugEn) {
-				fLog.debug("calculateIncomingMacros: failed to find target file for " + path);
-			}
+		SVDBFileCacheData cd = build_data.getIndexCacheData().getFileCacheData(path);
+		if (fDebugEn) {
+			fLog.debug("Note: calculateIncomingMacros");
 		}
 		
-		if (build_data.isMFCU()) {
-			if (fDebugEn) {
-				fLog.debug("calculateIncomingMacros: Collecting from previous root files");
-			}
-			// Determine the index in the root files
-			SVDBFileTree root_ft = findRootFileTree(build_data, path);
-		
-			List<String> root_files = build_data.getRootFileList();
+		if (cd != null) {
+			if ((cd.getFileAttr() & FILE_ATTR_ROOT_FILE) == 0) {
+				// Not a root file. Must determine the include map
+				List<List<Tuple<SVDBFileTree, Integer>>> ft_inc_map = 
+						buildFileTreeIncludeMap(build_data, path, false);
 			
-			if (root_ft != null && root_files != null) {
-				int root_idx = root_files.indexOf(root_ft.getFilePath());
-
-				// Step back through the root files and add in macro state
-				for (int i=root_idx-1; i>=0; i--) {
-					String root_file_path = root_files.get(i);
-					root_ft = findRootFileTree(build_data, root_file_path);
-
-					if (root_ft == null) {
-						fLog.error("Failed to find FileTree for root_path: " + root_file_path);
-						continue;
-					}
-					if (fDebugEn) {
-						fLog.debug("calculateIncomingMacros: Collecting from previous root file " + root_file_path);
-					}
-					for (int j=root_ft.getIncludedFileTreeList().size(); j>=0; j--) {
-						SVDBFileTreeMacroList ml = root_ft.fMacroSetList.get(j);
-
-						for (SVDBMacroDef m : ml.getMacroList()) {
-							if (!all_defs.containsKey(m.getName())) {
-								all_defs.put(m.getName(), m);
+				for (List<Tuple<SVDBFileTree, Integer>> inc_e : ft_inc_map) {
+					// Exclude the file itself, since we only care about incoming macros
+					for (int i=inc_e.size()-1; i>0; i--) {
+						// The entries we receive represent file inclusions
+						// and the inclusion position in the parent (previous entry)
+						Tuple<SVDBFileTree, Integer> ft_i = inc_e.get(i);
+						SVDBFileTree ft_p = inc_e.get(i-1).first();
+						if (fDebugEn) {
+							fLog.debug("ft_i: " + ft_i.first().getFilePath() + ":" + 
+								ft_i.second());
+							fLog.debug("ft_p: " + ft_p.getFilePath());
+						}
+						for (int x=0; x<ft_p.getMacroSetList().size(); x++) {
+							SVDBFileTreeMacroList ml = ft_p.getMacroSet(x);
+							if (fDebugEn) {
+								fLog.debug("  MacroSet: " + x);
+								for (SVDBMacroDef m : ml.getMacroList()) {
+									fLog.debug("    Macro: " + m.getName());
+								}
 							}
 						}
-
-						if (j < root_ft.getIncludedFileTreeList().size()) {
-							SVDBFileTree inc_ft = root_ft.getIncludedFileTreeList().get(j);
-							SVDBFileTreeUtils.collectRootFileTreeMacros(all_defs, inc_ft);
+						for (int j=ft_i.second(); j>=0; j--) {
+							addMacrosFromIncFile(all_defs, 
+									ft_p.getIncludedFileTreeList().get(j));
+							SVDBFileTreeMacroList incoming_macros = ft_p.getMacroSet(j);
+							for (SVDBMacroDef m : incoming_macros.getMacroList()) {
+								if (fDebugEn) {
+									fLog.debug("  Incoming: " + m.getName());
+								}
+								if (!all_defs.containsKey(m.getName())) {
+									all_defs.put(m.getName(), m);
+								}
+							}
 						}
 					}
 				}
+			} else {
+				if (fDebugEn) {
+					fLog.debug("Note: root file");
+				}
+			}
+		} else {
+			// Error ?
+			if (fDebugEn) {
+				fLog.debug("Error: failed to find CacheData");
 			}
 		}
+		
+
+		
+		
+//		// First, collect the macros from the root 
+//		SVDBFileTree ft = findTargetFileTree(build_data, path);
+//		
+//		if (ft != null) {
+//			if (fDebugEn) {
+//				fLog.debug("calculateIncomingMacros: root file=" + ft.getFilePath());
+//			}
+//			// Collect macros up the inclusion tree
+//			SVDBFileTreeUtils.collectRootFileTreeMacros(all_defs, ft);
+//		} else {
+//			if (fDebugEn) {
+//				fLog.debug("calculateIncomingMacros: failed to find target file for " + path);
+//			}
+//		}
+//		
+//		if (build_data.isMFCU()) {
+//			if (fDebugEn) {
+//				fLog.debug("calculateIncomingMacros: Collecting from previous root files");
+//			}
+//			// Determine the index in the root files
+//			SVDBFileTree root_ft = findRootFileTree(build_data, path);
+//		
+//			List<String> root_files = build_data.getRootFileList();
+//			
+//			if (root_ft != null && root_files != null) {
+//				int root_idx = root_files.indexOf(root_ft.getFilePath());
+//
+//				// Step back through the root files and add in macro state
+//				for (int i=root_idx-1; i>=0; i--) {
+//					String root_file_path = root_files.get(i);
+//					root_ft = findRootFileTree(build_data, root_file_path);
+//
+//					if (root_ft == null) {
+//						fLog.error("Failed to find FileTree for root_path: " + root_file_path);
+//						continue;
+//					}
+//					if (fDebugEn) {
+//						fLog.debug("calculateIncomingMacros: Collecting from previous root file " + root_file_path);
+//					}
+//					for (int j=root_ft.getIncludedFileTreeList().size(); j>=0; j--) {
+//						SVDBFileTreeMacroList ml = root_ft.fMacroSetList.get(j);
+//
+//						for (SVDBMacroDef m : ml.getMacroList()) {
+//							if (!all_defs.containsKey(m.getName())) {
+//								all_defs.put(m.getName(), m);
+//							}
+//						}
+//
+//						if (j < root_ft.getIncludedFileTreeList().size()) {
+//							SVDBFileTree inc_ft = root_ft.getIncludedFileTreeList().get(j);
+//							SVDBFileTreeUtils.collectRootFileTreeMacros(all_defs, inc_ft);
+//						}
+//					}
+//				}
+//			}
+//		}
 		
 		// Finally, add global defines
 		for (Entry<String, String> e : build_data.getDefines().entrySet()) {
@@ -776,6 +902,28 @@ public class SVDBArgFileBuildDataUtils implements ILogLevel {
 		
 		return defs;
 	}	
+	
+	private static void addMacrosFromIncFile(
+			Map<String, SVDBMacroDef>		all_defs,
+			SVDBFileTree					ft) {
+		if (fDebugEn) {
+			fLog.debug("addMacrosFromIncFile: " + ft.getFilePath());
+		}
+		// Need to include files inner to outer
+		for (int i=ft.getMacroSetList().size()-1; i>=0; i--) {
+			SVDBFileTreeMacroList ml = ft.getMacroSet(i);
+			for (SVDBMacroDef m : ml.getMacroList()) {
+				if (fDebugEn) {
+					fLog.debug("  Macro: " + m.getName());
+				}
+				if (!all_defs.containsKey(m.getName())) {
+					all_defs.put(m.getName(), m);
+				}
+			}
+			
+			// TODO: consider sub-included files
+		}
+	}
 
 	public static void createSubFileMap(
 			SVDBArgFileIndexBuildData 		build_data,

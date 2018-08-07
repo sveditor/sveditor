@@ -17,12 +17,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.persistence.DBFormatException;
 import net.sf.sveditor.core.db.persistence.DBWriteException;
 import net.sf.sveditor.core.db.persistence.IDBReader;
@@ -32,8 +29,8 @@ import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 public class TestIndexCacheDataPersistence extends TestCase {
 	
 	private void dump_load(
-			SVDBBaseIndexCacheData		data,
-			SVDBBaseIndexCacheData		data_n) throws DBFormatException, DBWriteException, IOException {
+			SVDBIndexCacheData		data,
+			SVDBIndexCacheData		data_n) throws DBFormatException, DBWriteException, IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(bos);
 
@@ -50,8 +47,8 @@ public class TestIndexCacheDataPersistence extends TestCase {
 	}
 	
 	public void testBasics() throws DBFormatException, DBWriteException, IOException {
-		SVDBBaseIndexCacheData data = new SVDBBaseIndexCacheData("base");
-		SVDBBaseIndexCacheData data_n = new SVDBBaseIndexCacheData("base2");
+		SVDBIndexCacheData data = new SVDBIndexCacheData("base");
+		SVDBIndexCacheData data_n = new SVDBIndexCacheData("base2");
 
 		dump_load(data, data_n);
 		

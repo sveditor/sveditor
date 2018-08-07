@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.ISVDBDeclCache;
 import net.sf.sveditor.core.db.index.ISVDBDeclCacheFileAttr;
 import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.core.db.index.SVDBFileCacheData;
+import net.sf.sveditor.core.db.index.SVDBIndexCacheData;
 import net.sf.sveditor.core.db.index.SVDBIndexStats;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
@@ -57,7 +58,7 @@ public class SVDBArgFileIndexBuildData implements
 	ISVDBArgFileIndexBuildData, ISVPreProcFileMapper, ISVPreProcIncFileProvider {
 
 	private ISVDBFileSystemProvider				fFileSystemProvider;
-	private SVDBArgFileIndexCacheData			fIndexCacheData;
+	private SVDBIndexCacheData			fIndexCacheData;
 	private String								fResolvedBaseLocation;
 	private String								fResolvedBaseLocationDir;
 	private boolean								fInWorkspaceOk;
@@ -91,7 +92,7 @@ public class SVDBArgFileIndexBuildData implements
 		
 //		fFileDirs = new HashSet<String>();
 //		fMissingIncludes = new HashSet<String>();
-		fIndexCacheData = new SVDBArgFileIndexCacheData(base_location);
+		fIndexCacheData = new SVDBIndexCacheData(base_location);
 		fResolvedBaseLocation = resolved_base_location;
 		fResolvedBaseLocationDir = resolved_base_location_dir;
 		if (resolved_base_location != null) {
@@ -156,11 +157,11 @@ public class SVDBArgFileIndexBuildData implements
 		return fIndexStats;
 	}
 	
-	public SVDBArgFileIndexCacheData getIndexCacheData() {
+	public SVDBIndexCacheData getIndexCacheData() {
 		return fIndexCacheData;
 	}
 	
-	public void setIndexCacheData(SVDBArgFileIndexCacheData data) {
+	public void setIndexCacheData(SVDBIndexCacheData data) {
 		// TODO: Should we check if an existing one exists?
 		fIndexCacheData = data;
 	}
@@ -223,20 +224,20 @@ public class SVDBArgFileIndexBuildData implements
 		old_cache.dispose();
 	}
 	
-	public void addFile(String path, boolean is_argfile) {
-		fLog.debug("addFile: " + path + " is_argfile=" + is_argfile);
-		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
-		fCache.addFile(path, is_argfile);
-		fCache.setLastModified(path, last_modified, is_argfile);
-		
-		if (!is_argfile) {
-			fIndexCacheData.addFile(path, 
-					ISVDBDeclCache.FILE_ATTR_SRC_FILE+
-					ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
-		}
-
-		addFileDir(path);		
-	}
+//	public void addFile(String path, boolean is_argfile) {
+//		fLog.debug("addFile: " + path + " is_argfile=" + is_argfile);
+//		long last_modified = fFileSystemProvider.getLastModifiedTime(path);
+//		fCache.addFile(path, is_argfile);
+//		fCache.setLastModified(path, last_modified, is_argfile);
+//		
+//		if (!is_argfile) {
+//			fIndexCacheData.addFile(path, 
+//					ISVDBDeclCache.FILE_ATTR_SRC_FILE+
+//					ISVDBDeclCache.FILE_ATTR_ROOT_FILE);
+//		}
+//
+//		addFileDir(path);		
+//	}
 	
 	public int getFileAttr(String path) {
 		return fIndexCacheData.getFileAttr(path);
@@ -409,7 +410,7 @@ public class SVDBArgFileIndexBuildData implements
 			if (e.first().endsWith(incfile)) {
 				String try_path = e.first();
 				boolean matches = false;
-				if (try_path.length() > incfile.length()) {
+				if (try_path.length() > (incfile.length()+2)) {
 					int prev_ch = try_path.charAt(try_path.length()-incfile.length()-2);
 					if (prev_ch == '/' || prev_ch == '\\') {
 						matches = true;

@@ -15,7 +15,11 @@ public class SVDBMapFileSystemProvider implements ISVDBFileSystemProvider {
 	public SVDBMapFileSystemProvider(Map<String, String> fmap) {
 		fFileMap = fmap;
 	}
-
+	
+	public Map<String, String> getFileMap() {
+		return fFileMap;
+	}
+	
 	@Override
 	public void init(String root) { }
 

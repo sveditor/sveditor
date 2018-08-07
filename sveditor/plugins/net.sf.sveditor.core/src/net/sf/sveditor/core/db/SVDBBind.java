@@ -62,4 +62,11 @@ public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBN
 			fBindInst = null;
 		}
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_bind(this);
+	}
+	
+	
 }

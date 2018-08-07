@@ -81,5 +81,10 @@ public class SVDBItemBase implements ISVDBItemBase {
 		
 		return ret;
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		System.out.println("WARN: accept method not implemented for " + getClass());
+	}
 	
 }

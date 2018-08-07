@@ -3,7 +3,7 @@ package net.sf.sveditor.vhdl.ui.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
-import net.sf.sveditor.vhdl.ui.editor.VHDLDocumentPartitions;
+import net.sf.sveditor.ui.vhdl.editor.VHDLDocumentPartitions;
 import net.sf.sveditor.vhdl.ui.tests.editor.EditorTests;
 
 import org.eclipse.jface.text.Document;

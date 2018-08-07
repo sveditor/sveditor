@@ -22,11 +22,6 @@ public class SVDBLinkedArgFileIndexBuildData implements
 	}
 
 	@Override
-	public void addFile(String path, boolean is_argfile) {
-		fPrimary.addFile(path, is_argfile);
-	}
-
-	@Override
 	public void removeFile(String path, boolean is_argfile) {
 		fPrimary.removeFile(path, is_argfile);
 	}

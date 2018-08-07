@@ -81,6 +81,7 @@ public class OverrideMethodsFinder implements ILogLevel {
 		while (cl != null) {
 			
 			cl = finder_super.find(cl);
+			fLog.debug(LEVEL_MID, "findClasses: Super Class=" + SVDBItem.getName(cl));
 			
 			if (cl != null) {
 				fLog.debug(LEVEL_MID, "findClasses: Super Class=" + SVDBItem.getName(cl));

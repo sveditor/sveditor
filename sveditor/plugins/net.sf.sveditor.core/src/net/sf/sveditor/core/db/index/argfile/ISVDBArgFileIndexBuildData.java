@@ -10,8 +10,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public interface ISVDBArgFileIndexBuildData {
 	
-	void addFile(String path, boolean is_argfile);
-	
 	void removeFile(String path, boolean is_argfile);
 	
 	SVDBFile getFile(IProgressMonitor monitor, String path);

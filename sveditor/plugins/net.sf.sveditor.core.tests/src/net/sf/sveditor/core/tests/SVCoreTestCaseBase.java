@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 
 public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
@@ -76,7 +77,14 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 					}
 				}
 			}
-			assertTrue("Workspace contains " + projects.size() + " projects", pass);
+			StringBuilder project_names = new StringBuilder();
+			if (projects.size() > 0) {
+				for (IProject p : projects) {
+					project_names.append(p.getName() + " ");
+				}
+			}
+			assertTrue("Workspace contains " + projects.size() + 
+					" projects (" + project_names.toString() + ")", pass);
 		}
 		
 		fProjectList = new ArrayList<IProject>();
@@ -116,13 +124,29 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			SVCorePlugin.getDefault().getIndexBuilder().dispose();
 		}
 		
+
+		
 		if (SVCorePlugin.getDefault() != null) {
 			if (SVCorePlugin.getDefault().getResourceChangeListener() != null) {
 				SVCorePlugin.getDefault().getResourceChangeListener().dispose();
 			}
 		
 			SVDBIndexRegistry rgy = SVCorePlugin.getDefault().getSVDBIndexRegistry();
-			rgy.close();
+			try {
+				rgy.close();
+			} catch (RuntimeException e) {
+				System.out.println("[ERROR] Caught runtime exception on close");
+				// Wait for any interesting-looking jobs to complete
+				IJobManager job_mgr = Job.getJobManager();
+				Job jobs[] = job_mgr.find(null);
+
+				System.out.println("--> EndOfTest Active Jobs");
+				for (Job j : jobs) {
+					System.out.println("Job: " + j.getName());
+				}
+				System.out.println("<-- EndOfTest Active Jobs");				
+				// throw e;
+			}
 			
 //			fCacheFactory.dispose();
 			
@@ -151,9 +175,11 @@ public class SVCoreTestCaseBase extends TestCase implements ILogLevel {
 			
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
+				fLog.debug("--> rebuildProject");
 				SVDBProjectManager pmgr = SVCorePlugin.getDefault().getProjMgr();
 				pmgr.rebuildProject(new NullProgressMonitor(), p, true, 
 						new SafeSVBuilderOutput(null));
+				fLog.debug("<-- rebuildProject");
 				return Status.OK_STATUS;
 			}
 		};

@@ -15,6 +15,10 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
@@ -25,10 +29,6 @@ import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 
 public class TestWorkspaceLibPersistence extends SVCoreTestCaseBase {
 	

@@ -254,7 +254,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 	}
 	
 	public void testStructFieldAssistInForScope() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			"class cls1;\n" +
@@ -305,7 +305,7 @@ public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 	}
 	
 	public void testRootScopeGlobalVarDecl() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		
 		String doc =
 			// These fields might effectively be in a

@@ -28,12 +28,30 @@ import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBPreProcCond;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.log.ILogHandle;
+import net.sf.sveditor.core.log.ILogLevelListener;
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.scanner.IDefineProvider;
 
 public class SVDBFileTreeUtils {
 	
-	private boolean						fDebugEn = false;
+	private static boolean				fDebugEn = false;
+	private static final LogHandle		fLog;
 	private ISVDBIndex					fIndex;
+
+	static {
+		fLog = LogFactory.getLogHandle("SVDBFileTreeUtils");
+		fDebugEn = fLog.isEnabled();
+		fLog.addLogLevelListener(new ILogLevelListener() {
+			
+			@Override
+			public void logLevelChanged(ILogHandle handle) {
+				fDebugEn = handle.isEnabled();
+			}
+		});
+	}
+	
 
 	public SVDBFileTreeUtils() {
 	}
@@ -421,9 +439,9 @@ public class SVDBFileTreeUtils {
 			Map<String, SVDBMacroDef> 		defines, 
 			SVDBFileTree					ft) {
 		
-//		if (fDebugEn) {
-//			fLog.debug("--> collectRootFileTreeMacros: " + ft.getFilePath());
-//		}
+		if (fDebugEn) {
+			fLog.debug("--> collectRootFileTreeMacros: " + ft.getFilePath());
+		}
 	
 		while (ft.getParent() != null) {
 			// Find the index where this file is included
@@ -438,9 +456,9 @@ public class SVDBFileTreeUtils {
 				}
 			}
 			
-//			if (fDebugEn) {
-//				fLog.debug("  Search for file in parent " + p_ft.getFilePath() + " index=" + include_idx);
-//			}
+			if (fDebugEn) {
+				fLog.debug("  Search for file in parent " + p_ft.getFilePath() + " index=" + include_idx);
+			}
 			
 			if (include_idx == -1) {
 				break;
@@ -450,16 +468,16 @@ public class SVDBFileTreeUtils {
 				// Collect the macros from defined at this level
 				SVDBFileTree ft_i = p_ft.getIncludedFileTreeList().get(i);
 				
-//				if (fDebugEn) {
-//					fLog.debug("  Process preceding file: " +  ft_i.getFilePath());
-//				}
+				if (fDebugEn) {
+					fLog.debug("  Process preceding file: " +  ft_i.getFilePath());
+				}
 				
 				SVDBFileTreeMacroList ml = p_ft.fMacroSetList.get(i);
 				
 				for (SVDBMacroDef m : ml.getMacroList()) {
-//					if (fDebugEn) {
-//						fLog.debug("    Add macro: " + m.getName());
-//					}
+					if (fDebugEn) {
+						fLog.debug("    Add macro: " + m.getName());
+					}
 					if (!defines.containsKey(m.getName())) {
 						defines.put(m.getName(), m);
 					}
@@ -477,9 +495,9 @@ public class SVDBFileTreeUtils {
 			ft = p_ft;
 		}
 		
-//		if (fDebugEn) {
-//			fLog.debug("<-- collectRootFileTreeMacros: " + ft.getFilePath());
-//		}
+		if (fDebugEn) {
+			fLog.debug("<-- collectRootFileTreeMacros: " + ft.getFilePath());
+		}
 	}	
 	
 	private void debug(String msg) {

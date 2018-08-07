@@ -22,6 +22,7 @@ import net.sf.sveditor.core.db.SVDBFieldItem;
 import net.sf.sveditor.core.db.SVDBFunction;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -165,6 +166,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 		debug("TFParse: addChildItem: " + SVDBItem.getName(func) +
 				" " + SVDBItem.getName((ISVDBItemBase)parent));
 		parent.addChildItem(func);
+		declaration(func);
+		
+		KW end_kw = (type == KW.TASK)?KW.ENDTASK:KW.ENDFUNCTION;
 		
 		// Now, parse body items as long as this isn't an extern or pure-virtual method
 		if (!is_decl && (qualifiers & SVDBFieldItem.FieldAttr_Extern) == 0 &&
@@ -179,17 +183,38 @@ public class SVTaskFunctionParser extends SVParserBase {
 				if (fDebugEn) {
 					debug("Failed to parse function body", e);
 				}
+//				// Skip ahead until we find end_kw or reach file end
+//				SVToken last_tok = fLexer.consumeToken();
+//				if (last_tok != null) {
+//					int start_file = SVDBLocation.unpackFileId(last_tok.getStartLocation());
+//					
+//					SVToken tok;
+//					while ((tok = fLexer.consumeToken()) != null) {
+//						int curr_file = SVDBLocation.unpackFileId(tok.getStartLocation());
+//						System.out.println("tok: " + tok.getImage());
+//						
+//						if (start_file != curr_file) {
+//							// We've moved on to the next file, so get out of here
+//							fLexer.ungetToken(last_tok);
+//							fLexer.ungetToken(tok);
+//							throw new SVSkipToNextFileException();
+//						} else if (tok.isKW(end_kw)) {
+//							System.out.println("Found end token: " + tok.getImage());
+//							fLexer.ungetToken(tok);
+//							break;
+//						}
+//						last_tok = tok;
+//					}
+//				} else {
+//					throw e;
+//				}
 			} finally {
 				func.setEndLocation(fLexer.getStartLocation());
 				leave_type_scope(func);
 			}
 
 			end = fLexer.getStartLocation();
-			if  (type == KW.TASK) {
-				fLexer.readKeyword(KW.ENDTASK);
-			} else {
-				fLexer.readKeyword(KW.ENDFUNCTION);
-			}
+			fLexer.readKeyword(end_kw);
 
 			if (fLexer.peekOperator(OP.COLON)) {
 				fLexer.eatToken();
@@ -207,7 +232,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		if (end == -1) {
 			end = fLexer.getStartLocation();
 		}
-		
+	
 		func.setEndLocation(end);
 		if (fDebugEn) {
 			debug("<-- " + type + " " + func.getName());

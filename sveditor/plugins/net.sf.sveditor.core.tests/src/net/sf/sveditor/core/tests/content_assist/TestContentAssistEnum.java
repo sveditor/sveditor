@@ -48,7 +48,7 @@ public class TestContentAssistEnum extends SVCoreTestCaseBase {
 	}
 
 	public void testContentAssistPkgEnumeratorAssign() {
-		SVCorePlugin.getDefault().enableDebug(true);
+		SVCorePlugin.getDefault().enableDebug(false);
 		String doc =
 			"class foobar;\n" +
 			"endclass\n" +

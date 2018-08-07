@@ -22,5 +22,12 @@ public class SVDBPackageDecl extends SVDBScopeItem {
 	public SVDBPackageDecl(String name) {
 		super(name, SVDBItemType.PackageDecl);
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_package_decl(this);
+	}
+	
+	
 	
 }

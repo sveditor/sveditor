@@ -124,5 +124,22 @@ public class TestParseCovergroups extends TestCase {
 
 		ParserTests.runTestStrDoc(getName(), doc, new String[] {"c","foobar"});
 	}
-	
+
+	public void testCrossWithExpr() throws SVParseException {
+	    SVCorePlugin.getDefault().enableDebug(true);
+	    String doc =
+			"class c;\n" +
+			"  covergroup foo;\n" +
+			"    IRQ_number_cvp__Isnon_Secure_cvp__cross: cross IRQ_number_cvp, Isnon_Secure_cvp {\n" + 
+			"        ignore_bins ignore_x_values_higher_than_y = IRQ_number_cvp__Isnon_Secure_cvp__cross with (IRQ_number_cvp < 32) iff (i==32);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    IRQ_number_cvp__IsPriveleged_cvp__cross: cross IRQ_number_cvp, IsPriveleged_cvp {   \n" + 
+			"        ignore_bins ignore_x_values_higher_than_y = IRQ_number_cvp__IsPriveleged_cvp__cross with (IRQ_number_cvp < 32) iff (i==32);\n" + 
+			"    }\n" +
+			"  endgroup\n" +
+			"endclass\n"
+			;
+		ParserTests.runTestStrDoc(getName(), doc, new String[] {"c","foo"});
+	}
 }

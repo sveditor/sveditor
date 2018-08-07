@@ -220,6 +220,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 					fLexer.eatToken();
 
 					parent.addChildItem(defparam);
+					declaration(defparam);
 
 					while (fLexer.peek() != null) {
 						long is = fLexer.getStartLocation();
@@ -362,6 +363,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 		SVDBVarDeclItem pi;
 		
 		parent.addChildItem(p);
+		declaration(p);
 		
 		while (true) {
 			pi = new SVDBVarDeclItem(param_name);
@@ -650,6 +652,7 @@ public class SVModIfcBodyItemParser extends SVParserBase {
 			inst.setLocation(start);
 			
 			parent.addChildItem(inst);
+			declaration(inst);
 
 			while (fLexer.peek() != null) {
 				// it's a module

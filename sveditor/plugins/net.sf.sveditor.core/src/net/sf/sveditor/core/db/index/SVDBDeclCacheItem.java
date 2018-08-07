@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLang;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
@@ -52,6 +53,12 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	public List<Integer>				fScope;
 
 	public SVDBItemType					fType;
+
+	// Tracks the language that this item belongs to. 
+	// This is import to allow content assist, for example,
+	// to not provide the user SystemVerilog proposals while
+	// editing a VHDL file
+	public SVDBLang						fLanguage;
 	
 	// Specifies whether this item is actually located in the FileTree view of the file.
 	// This will be the case for pre-processor items
@@ -285,6 +292,10 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	
 	private ISVDBItemBase findSVDBItem(SVDBFileTree ft) {
 		ISVDBItemBase ret;
+		
+		if (ft.getSVDBFile() == null) {
+			System.out.println("SVDBFile for " + ft.getFilePath() + " is null");
+		}
 		
 		if ((ret = findSVDBItem(ft.getSVDBFile())) != null) {
 			return ret;
