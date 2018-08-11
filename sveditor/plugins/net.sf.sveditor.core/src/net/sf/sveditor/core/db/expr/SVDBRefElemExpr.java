@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBRefElemExpr extends SVDBExpr {
@@ -13,6 +14,10 @@ public class SVDBRefElemExpr extends SVDBExpr {
 	public SVDBRefElemExpr() {
 		super(SVDBItemType.RefElemExpr);
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_ref_elem_expr(this);
+	}
 
 }

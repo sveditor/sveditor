@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceCycleDelayExpr extends SVDBExpr {
@@ -47,4 +48,8 @@ public class SVDBSequenceCycleDelayExpr extends SVDBExpr {
 		return fRhs;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_sequence_cycle_delay_expr(this);
+	}
 }

@@ -23,6 +23,7 @@ import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import net.sf.sveditor.core.tests.SVDBMapFileSystemProvider;
 
 public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	

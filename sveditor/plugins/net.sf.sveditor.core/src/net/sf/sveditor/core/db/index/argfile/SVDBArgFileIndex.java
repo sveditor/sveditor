@@ -33,6 +33,7 @@ import net.sf.sveditor.core.builder.SafeSVBuilderOutput;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBArgFile;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
@@ -1598,6 +1599,23 @@ public class SVDBArgFileIndex implements
 		}
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		synchronized (fBuildData) {
+			List<String> files = fBuildData.getFileList(
+					FILE_ATTR_SRC_FILE+FILE_ATTR_ROOT_FILE);
+			
+			// Iterate through files, then contents
+			for (String file : files) {
+				SVDBFile svdb_f = fBuildData.getFile(
+						new NullProgressMonitor(), file);
+				svdb_f.accept(v);
+			}
+		}
+	}
+
+
+
 	private ISVPreProcFileMapper fReadOnlyFileMapper = new ISVPreProcFileMapper() {
 		
 		public int mapFilePathToId(String path, boolean add) {

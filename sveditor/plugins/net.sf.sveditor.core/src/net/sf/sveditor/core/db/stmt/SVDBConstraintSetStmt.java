@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBConstraintSetStmt extends SVDBStmt {
@@ -37,4 +38,8 @@ public class SVDBConstraintSetStmt extends SVDBStmt {
 		return (SVDBConstraintSetStmt)super.duplicate();
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_constraint_set_stmt(this);
+	}
 }

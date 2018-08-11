@@ -32,6 +32,10 @@ public class SVDBInclude extends SVDBItem {
 	public void init(SVDBItemBase other) {
 		super.init(other);
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_include(this);
+	}
 
 }

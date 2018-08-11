@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -56,4 +57,9 @@ public class SVDBCondExpr extends SVDBExpr {
 		fRhs = (SVDBExpr)ce.fRhs.duplicate();
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_cond_expr(this);
+	}
+	
 }

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBNamedArgExpr extends SVDBExpr {
@@ -37,5 +38,11 @@ public class SVDBNamedArgExpr extends SVDBExpr {
 	public SVDBExpr getExpr() {
 		return fExpr;
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_named_arg_expr(this);
+	}
+	
 
 }

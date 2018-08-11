@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -51,6 +52,11 @@ public class SVDBConstraintDistListItem extends SVDBStmt {
 	
 	public SVDBConstraintDistListItem duplicate() {
 		return (SVDBConstraintDistListItem)super.duplicate();
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_constraint_dist_list_item(this);
 	}
 
 }

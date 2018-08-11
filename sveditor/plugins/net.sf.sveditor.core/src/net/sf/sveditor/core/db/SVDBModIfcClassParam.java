@@ -52,6 +52,11 @@ public class SVDBModIfcClassParam extends SVDBItem {
 		
 		fDefault = ((SVDBModIfcClassParam)other).fDefault;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_mod_ifc_class_param(this);
+	}
 
 	/*
 	@Override

@@ -12,12 +12,18 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBContinueStmt extends SVDBStmt {
 	
 	public SVDBContinueStmt() {
 		super(SVDBItemType.ContinueStmt);
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_continue_stmt(this);
 	}
 
 }

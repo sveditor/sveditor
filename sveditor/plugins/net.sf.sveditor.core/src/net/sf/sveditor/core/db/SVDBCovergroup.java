@@ -59,4 +59,9 @@ public class SVDBCovergroup extends SVDBModIfcDecl {
 		super.init(other);
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_covergroup(this);
+	}
+	
 }

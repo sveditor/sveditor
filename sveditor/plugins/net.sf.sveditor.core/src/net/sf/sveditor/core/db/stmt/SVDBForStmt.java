@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBForStmt extends SVDBBodyStmt {
@@ -24,7 +25,7 @@ public class SVDBForStmt extends SVDBBodyStmt {
 		super(SVDBItemType.ForStmt);
 	}
 	
-	public SVDBStmt getInitExpr() {
+	public SVDBStmt getInitStmt() {
 		return fInitExpr;
 	}
 	
@@ -111,5 +112,9 @@ public class SVDBForStmt extends SVDBBodyStmt {
 		
 		return ret;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_for_stmt(this);
+	}
 }

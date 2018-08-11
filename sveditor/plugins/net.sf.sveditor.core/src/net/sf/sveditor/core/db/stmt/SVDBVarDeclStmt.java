@@ -19,6 +19,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.IFieldItemAttr;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -131,4 +132,9 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBCh
 		return false;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_var_decl_stmt(this);
+	}
+	
 }

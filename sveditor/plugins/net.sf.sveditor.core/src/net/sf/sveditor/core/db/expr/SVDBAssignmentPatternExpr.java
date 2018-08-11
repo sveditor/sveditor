@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -41,5 +42,12 @@ public class SVDBAssignmentPatternExpr extends SVDBExpr {
 	public void init(SVDBItemBase other) {
 		
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assignment_pattern_expr(this);
+	}
+	
+	
 
 }

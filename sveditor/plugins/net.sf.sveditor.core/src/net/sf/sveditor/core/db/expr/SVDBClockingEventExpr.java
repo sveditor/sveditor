@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBClockingEventExpr extends SVDBExpr {
@@ -45,4 +46,10 @@ public class SVDBClockingEventExpr extends SVDBExpr {
 		return fEventType;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_clocking_event_expr(this);
+	}
+
+	
 }

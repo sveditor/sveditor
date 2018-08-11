@@ -100,4 +100,8 @@ public class SVDBCoverpointBins extends SVDBItem {
 		fWith = expr;
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_coverpoint_bins(this);
+	}
 }

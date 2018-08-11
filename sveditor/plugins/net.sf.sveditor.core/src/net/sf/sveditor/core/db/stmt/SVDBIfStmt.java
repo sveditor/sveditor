@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.stmt;
 import net.sf.sveditor.core.db.ISVDBAddChildItem;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -92,5 +93,9 @@ public class SVDBIfStmt extends SVDBStmt implements ISVDBAddChildItem {
 
 		super.init(other);
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_if_stmt(this);
+	}
 }

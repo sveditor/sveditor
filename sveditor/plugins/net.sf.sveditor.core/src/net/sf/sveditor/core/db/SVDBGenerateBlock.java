@@ -23,4 +23,9 @@ public class SVDBGenerateBlock extends SVDBScopeItem {
 		super(name, SVDBItemType.GenerateBlock);
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_generate_block(this);
+	}
+	
 }

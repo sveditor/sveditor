@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBForkStmt extends SVDBBlockStmt {
@@ -35,4 +36,8 @@ public class SVDBForkStmt extends SVDBBlockStmt {
 		fJoinType = join_type;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_fork_stmt(this);
+	}
 }

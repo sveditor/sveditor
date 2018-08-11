@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBPropertySpecExpr extends SVDBExpr {
@@ -45,5 +46,10 @@ public class SVDBPropertySpecExpr extends SVDBExpr {
 	
 	public void setDisableExpr(SVDBExpr expr) {
 		fDisableExpr = expr;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_property_spec_expr(this);
 	}
 }

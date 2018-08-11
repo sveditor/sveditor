@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -29,7 +30,10 @@ public class SVDBForeachStmt extends SVDBBodyStmt {
 	public SVDBExpr getCond() {
 		return fCond;
 	}
-	
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_foreach_stmt(this);
+	}
 
 }

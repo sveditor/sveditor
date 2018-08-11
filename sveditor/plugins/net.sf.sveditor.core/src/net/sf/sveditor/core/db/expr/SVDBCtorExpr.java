@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCtorExpr extends SVDBExpr {
@@ -61,6 +62,11 @@ public class SVDBCtorExpr extends SVDBExpr {
 	
 	public List<SVDBExpr> getArgs() {
 		return fArgs;
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_ctor_expr(this);
 	}
 	
 }

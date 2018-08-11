@@ -26,6 +26,7 @@ import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.SVFileUtils;
 import net.sf.sveditor.core.StringIterableIterator;
 import net.sf.sveditor.core.Tuple;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -767,6 +768,16 @@ public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBInde
 		Set<ISVDBIndexOperationRunner> already_searched = new HashSet<ISVDBIndexOperationRunner>();
 	
 		execOp(monitor, already_searched, op, sync);
+	}
+	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		for (List<ISVDBIndex> index_l : getFileSearchOrder()) {
+			for (ISVDBIndex index : index_l) {
+				index.accept(v);
+			}
+		}
 	}
 
 	private void execOp(

@@ -75,12 +75,17 @@ public class SVDBOverrideFilesystemProvider implements ISVDBFileSystemProvider {
 
 	@Override
 	public String resolvePath(String path, String fmt) {
+		// TODO: this doesn't see right
 		return path;
 	}
 
 	@Override
 	public boolean fileExists(String path) {
-		return fFileMap.containsKey(path);
+		if (fFileMap.containsKey(path)) {
+			return true;
+		} else {
+			return fFSProvider.fileExists(path);
+		}
 	}
 
 	@Override
@@ -91,7 +96,8 @@ public class SVDBOverrideFilesystemProvider implements ISVDBFileSystemProvider {
 				return true;
 			}
 		}
-		return false;
+		
+		return fFSProvider.isDir(path);
 	}
 
 	@Override
@@ -113,14 +119,18 @@ public class SVDBOverrideFilesystemProvider implements ISVDBFileSystemProvider {
 		if (fFileMap.containsKey(path)) {
 			return fFileMap.get(path).getContents();
 		} else {
-			return null;
+			return fFSProvider.openStream(path);
 		}
 	}
 
 	@Override
 	public OutputStream openStreamWrite(String path) {
-		// TODO Auto-generated method stub
-		return null;
+		if (fFileMap.containsKey(path)) {
+			// TBD: error
+			return null;
+		} else {
+			return fFSProvider.openStreamWrite(path);
+		}
 	}
 
 	@Override
@@ -141,20 +151,18 @@ public class SVDBOverrideFilesystemProvider implements ISVDBFileSystemProvider {
 			// TODO:
 			return 0;
 		} else {
-			return -1;
+			return fFSProvider.getLastModifiedTime(path);
 		}
 	}
 
 	@Override
 	public void addFileSystemChangeListener(ISVDBFileSystemChangeListener l) {
-		// TODO Auto-generated method stub
-
+		fFSProvider.addFileSystemChangeListener(l);
 	}
 
 	@Override
 	public void removeFileSystemChangeListener(ISVDBFileSystemChangeListener l) {
-		// TODO Auto-generated method stub
-
+		fFSProvider.removeFileSystemChangeListener(l);
 	}
 
 }

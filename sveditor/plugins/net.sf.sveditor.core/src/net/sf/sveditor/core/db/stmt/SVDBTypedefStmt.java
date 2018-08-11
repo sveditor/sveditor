@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 
@@ -76,5 +77,9 @@ public class SVDBTypedefStmt extends SVDBStmt implements ISVDBNamedItem {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_typedef_stmt(this);
+	}
 }

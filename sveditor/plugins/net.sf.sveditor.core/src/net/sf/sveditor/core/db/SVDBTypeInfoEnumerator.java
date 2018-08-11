@@ -20,4 +20,10 @@ public class SVDBTypeInfoEnumerator extends SVDBTypeInfo {
 	public SVDBExpr getExpr() {
 		return fExpr;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_enumerator(this);
+	}
+	
 }

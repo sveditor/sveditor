@@ -65,6 +65,11 @@ public class SVDBMacroDef extends SVDBItem implements ISVDBChildItem {
 		fParams.addAll(m.fParams);
 		fDef = m.fDef;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_macro_def(this);
+	}
 
 	/*
 	@Override

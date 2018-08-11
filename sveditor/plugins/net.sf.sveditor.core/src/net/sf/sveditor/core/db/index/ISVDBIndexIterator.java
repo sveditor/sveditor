@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.index;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.refs.ISVDBRefFinder;
 
 
@@ -33,4 +34,5 @@ public interface ISVDBIndexIterator extends
 	ISVDBItemIterator 		getItemIterator(IProgressMonitor monitor);
 	 */
 
+	void accept(ISVDBVisitor v);
 }

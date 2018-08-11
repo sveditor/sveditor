@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SVDBChildParent extends SVDBChildItem implements ISVDBChildParent {
+public abstract class SVDBChildParent extends SVDBChildItem implements ISVDBChildParent {
 	public List<ISVDBChildItem>			fItems;
 	
 	public SVDBChildParent(SVDBItemType type) {

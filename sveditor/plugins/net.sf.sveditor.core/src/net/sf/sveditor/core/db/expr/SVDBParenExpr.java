@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 
@@ -39,5 +40,12 @@ public class SVDBParenExpr extends SVDBExpr {
 	public SVDBParenExpr duplicate() {
 		return (SVDBParenExpr)super.duplicate();
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		// TODO Auto-generated method stub
+		super.accept(v);
+	}
+	
 
 }

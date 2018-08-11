@@ -58,4 +58,9 @@ public class SVDBTypeInfoUnion extends SVDBTypeInfo implements ISVDBScopeItem {
 	public void addItem(ISVDBItemBase item) {
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_union(this);
+	}
+	
 }

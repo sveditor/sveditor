@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssignmentPatternRepeatExpr extends SVDBAssignmentPatternExpr {
@@ -33,4 +34,10 @@ public class SVDBAssignmentPatternRepeatExpr extends SVDBAssignmentPatternExpr {
 	public SVDBExpr getRepeatExpr() {
 		return fRepeatExpr;
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assignment_pattern_repeat_expr(this);
+	}
+	
 }

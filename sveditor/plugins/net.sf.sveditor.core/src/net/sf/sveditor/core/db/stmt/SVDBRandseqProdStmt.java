@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -57,7 +58,11 @@ public class SVDBRandseqProdStmt extends SVDBStmt {
 	public List<SVDBParamPortDecl> getTfPortList() {
 		return fPortList;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_randseq_prod_stmt(this);
+	}
 
 
 

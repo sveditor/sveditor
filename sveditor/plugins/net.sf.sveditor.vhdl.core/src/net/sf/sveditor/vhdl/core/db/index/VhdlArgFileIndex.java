@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.core.builder.ISVBuilderOutput;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBMarker;
@@ -299,4 +300,10 @@ public class VhdlArgFileIndex implements ISVDBIndex {
 		return false;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBInsideExpr extends SVDBExpr {
@@ -43,4 +44,9 @@ public class SVDBInsideExpr extends SVDBExpr {
 		return (SVDBInsideExpr)super.duplicate();
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_inside_expr(this);
+	}
+	
 }

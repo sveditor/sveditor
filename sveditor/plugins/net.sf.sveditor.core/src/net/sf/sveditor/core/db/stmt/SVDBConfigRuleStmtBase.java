@@ -7,7 +7,7 @@ import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
-public class SVDBConfigRuleStmtBase extends SVDBStmt {
+public abstract class SVDBConfigRuleStmtBase extends SVDBStmt {
 	public boolean					fIsLibList;
 	public List<SVDBExpr>			fLibUseList;
 	public SVDBExpr					fLibCellId;
@@ -20,6 +20,14 @@ public class SVDBConfigRuleStmtBase extends SVDBStmt {
 	
 	public void addLib(SVDBExpr lib) {
 		fLibUseList.add(lib);
+	}
+	
+	public List<SVDBExpr> getLibUseList() {
+		return fLibUseList;
+	}
+	
+	public SVDBExpr getLibCellId() {
+		return fLibCellId;
 	}
 	
 	public void setLibCellId(SVDBExpr id) {

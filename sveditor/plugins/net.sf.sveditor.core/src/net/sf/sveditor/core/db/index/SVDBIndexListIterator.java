@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.sveditor.core.StringIterableIterator;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBMarker;
 import net.sf.sveditor.core.db.refs.ISVDBRefSearchSpec;
@@ -202,4 +203,12 @@ public class SVDBIndexListIterator implements ISVDBIndexIterator {
 		}
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		for (ISVDBIndexIterator index_it : fIndexIteratorList) {
+			index_it.accept(v);
+		}
+	}
+
+	
 }

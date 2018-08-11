@@ -17,6 +17,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -95,4 +96,8 @@ public class SVDBVarDeclItem extends SVDBStmt implements ISVDBNamedItem {
 		return false;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_var_decl_item(this);
+	}
 }

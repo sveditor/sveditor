@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCoverBinsExpr extends SVCoverageExpr {
@@ -74,6 +75,11 @@ public class SVDBCoverBinsExpr extends SVCoverageExpr {
 	
 	public SVDBCoverBinsExpr duplicate() {
 		return (SVDBCoverBinsExpr)super.duplicate();
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_cover_bins_expr(this);
 	}
 	
 

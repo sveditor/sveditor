@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 
@@ -38,4 +39,10 @@ public class SVDBSequenceDistExpr extends SVDBExpr {
 	public void setDistExpr(SVDBConstraintDistListStmt dist) {
 		fDistExpr = dist;
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_sequence_dist_expr(this);
+	}
+	
 }

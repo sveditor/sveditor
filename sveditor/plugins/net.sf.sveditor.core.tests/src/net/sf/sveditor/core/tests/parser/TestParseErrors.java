@@ -16,9 +16,9 @@ import net.sf.sveditor.core.db.index.ISVDBIndex;
 import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import net.sf.sveditor.core.tests.SVDBMapFileSystemProvider;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.index.IndexTests;
-import net.sf.sveditor.core.tests.preproc.SVDBMapFileSystemProvider;
 
 public class TestParseErrors extends SVCoreTestCaseBase {
 	

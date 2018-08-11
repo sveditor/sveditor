@@ -55,6 +55,11 @@ public class SVDBCoverpoint extends SVDBScopeItem {
 		
 		fTarget = other_i.fTarget;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_coverpoint(this);
+	}
 
 /*
 	@Override

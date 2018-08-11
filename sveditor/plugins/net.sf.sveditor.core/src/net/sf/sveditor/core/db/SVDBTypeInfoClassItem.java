@@ -53,4 +53,10 @@ public class SVDBTypeInfoClassItem extends SVDBTypeInfo {
 			fParamAssign = item.fParamAssign.duplicate();
 		}
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_class_item(this);
+	}
+	
 }

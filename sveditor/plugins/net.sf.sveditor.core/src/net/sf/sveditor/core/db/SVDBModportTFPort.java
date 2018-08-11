@@ -35,5 +35,10 @@ public class SVDBModportTFPort extends SVDBChildItem {
 	public SVDBTask getPrototype() {
 		return fTFPrototype;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_tf_port(this);
+	}
 
 }

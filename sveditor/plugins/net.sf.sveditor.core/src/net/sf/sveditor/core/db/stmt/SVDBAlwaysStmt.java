@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBItemBase;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr;
 import net.sf.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
@@ -43,6 +44,10 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	
 	public AlwaysType getAlwaysType() {
 		return fAlwaysType;
+	}
+	
+	public SVDBClockingEventExpr getAlwaysEvent() {
+		return fAlwaysEventExprType;
 	}
 	
 	public ClockingEventType getAlwaysEventType() {
@@ -91,5 +96,9 @@ public class SVDBAlwaysStmt extends SVDBBodyStmt {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_always_stmt(this);
+	}
 }

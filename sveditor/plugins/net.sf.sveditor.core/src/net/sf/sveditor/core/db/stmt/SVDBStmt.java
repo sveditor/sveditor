@@ -16,7 +16,7 @@ import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.SVDBChildItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 
-public class SVDBStmt extends SVDBChildItem {
+public abstract class SVDBStmt extends SVDBChildItem {
 	
 	protected SVDBStmt(SVDBItemType type) {
 		super(type);

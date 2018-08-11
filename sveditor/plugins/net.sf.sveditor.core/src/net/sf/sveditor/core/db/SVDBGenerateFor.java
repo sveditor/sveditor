@@ -17,5 +17,10 @@ public class SVDBGenerateFor extends SVDBChildItem {
 	public SVDBGenerateFor() {
 		super(SVDBItemType.GenerateFor);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_generate_for(this);
+	}
 
 }

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -49,5 +50,10 @@ public class SVDBCastExpr extends SVDBExpr {
 		fCastType = (SVDBExpr)ce.fCastType.duplicate();
 		fExpr     = (SVDBExpr)ce.fExpr.duplicate();
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_cast_expr(this);
+	}
+
 }

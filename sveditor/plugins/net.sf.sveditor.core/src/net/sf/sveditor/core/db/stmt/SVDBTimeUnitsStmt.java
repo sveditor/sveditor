@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBTimeUnitsStmt extends SVDBStmt {
@@ -37,5 +38,9 @@ public class SVDBTimeUnitsStmt extends SVDBStmt {
 	public void setPrecision(String Precision) {
 		fPrecision = Precision;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_time_units_stmt(this);
+	}
 }

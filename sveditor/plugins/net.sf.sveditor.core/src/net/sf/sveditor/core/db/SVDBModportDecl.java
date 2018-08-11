@@ -47,5 +47,10 @@ public class SVDBModportDecl extends SVDBChildItem implements ISVDBChildParent {
 		item.setParent(this);
 		fModportItemList.add(item);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_decl(this);
+	}
 
 }

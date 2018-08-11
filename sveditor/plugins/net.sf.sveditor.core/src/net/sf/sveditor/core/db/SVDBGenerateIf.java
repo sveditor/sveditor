@@ -65,6 +65,11 @@ public class SVDBGenerateIf extends SVDBChildItem implements ISVDBAddChildItem {
 		}
 		return (ci);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_generate_if(this);
+	}
 
 	
 }

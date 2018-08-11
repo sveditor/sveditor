@@ -40,4 +40,8 @@ public class SVDBParamValueAssign extends SVDBItem {
 		return fType;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_param_value_assign(this);
+	}
 }

@@ -80,6 +80,11 @@ public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 		}
 		return false;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_task(this);
+	}
 
 	
 }

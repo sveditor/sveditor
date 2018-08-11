@@ -10,6 +10,7 @@ import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBFileTree;
 import net.sf.sveditor.core.db.SVDBItemType;
@@ -470,5 +471,13 @@ public class SVDBFileOverrideIndex
 			fSuperIterator.execOp(monitor, op, sync);
 		}
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		if (fIndex != null) {
+			fIndex.accept(v);
+		}
+	}
+	
 	
 }

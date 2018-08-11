@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCoverStmt extends SVDBAssertStmt {
@@ -19,6 +20,10 @@ public class SVDBCoverStmt extends SVDBAssertStmt {
 	public SVDBCoverStmt() {
 		super(SVDBItemType.CoverStmt);
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_cover_stmt(this);
+	}
 
 }

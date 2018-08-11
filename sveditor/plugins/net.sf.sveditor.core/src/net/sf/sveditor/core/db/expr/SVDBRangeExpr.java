@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 
@@ -42,4 +43,8 @@ public class SVDBRangeExpr extends SVDBExpr {
 		return (SVDBRangeExpr)super.duplicate();
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_range_expr(this);
+	}
 }

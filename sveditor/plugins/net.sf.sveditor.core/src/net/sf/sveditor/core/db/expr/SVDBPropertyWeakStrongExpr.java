@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBPropertyWeakStrongExpr extends SVDBExpr {
@@ -39,4 +40,8 @@ public class SVDBPropertyWeakStrongExpr extends SVDBExpr {
 		return fExpr;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_property_weak_strong_expr(this);
+	}
 }

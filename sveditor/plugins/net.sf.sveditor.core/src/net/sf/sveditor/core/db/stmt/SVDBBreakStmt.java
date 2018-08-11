@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBBreakStmt extends SVDBStmt {
@@ -20,4 +21,8 @@ public class SVDBBreakStmt extends SVDBStmt {
 		super(SVDBItemType.BreakStmt);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_break_stmt(this);
+	}
 }

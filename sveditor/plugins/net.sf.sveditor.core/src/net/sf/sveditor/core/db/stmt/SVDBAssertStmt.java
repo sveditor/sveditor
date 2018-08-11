@@ -12,13 +12,14 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssertStmt extends SVDBStmt {
 	public SVDBExpr				fExpr;
 	public SVDBExpr				fDelay;
-	public SVDBActionBlockStmt		fActionBlock;
+	public SVDBActionBlockStmt	fActionBlock;
 	public String				fName;
 	
 	public SVDBAssertStmt() {
@@ -60,6 +61,10 @@ public class SVDBAssertStmt extends SVDBStmt {
 	public void setName(String name) {
 		fName = name;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assert_stmt(this);
+	}
 
 }

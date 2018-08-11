@@ -19,6 +19,7 @@ import java.util.List;
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.core.db.ISVDBScopeItem;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
@@ -131,5 +132,9 @@ public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 		return ret;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_block_stmt(this);
+	}
 	
 }

@@ -1,5 +1,6 @@
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBPropertyIfStmt extends SVDBExpr {
@@ -33,5 +34,10 @@ public class SVDBPropertyIfStmt extends SVDBExpr {
 	
 	public SVDBExpr getElseExpr() {
 		return fElseExpr;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_property_if_stmt(this);
 	}
 }

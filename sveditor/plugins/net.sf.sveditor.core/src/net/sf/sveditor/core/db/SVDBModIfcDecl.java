@@ -73,6 +73,11 @@ public class SVDBModIfcDecl extends SVDBScopeItem {
 		fPorts.clear();
 		fPorts.addAll(o.fPorts);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_mod_ifc_decl(this);
+	}
 
 	/*
 	@Override

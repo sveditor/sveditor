@@ -248,8 +248,8 @@ public class SVDBFileRefFinder {
 				
 				case ForStmt: {
 					SVDBForStmt f_stmt = (SVDBForStmt)stmt;
-					if (f_stmt.getInitExpr() != null) {
-						visitStmt(f_stmt.getInitExpr());
+					if (f_stmt.getInitStmt() != null) {
+						visitStmt(f_stmt.getInitStmt());
 					}
 					if (f_stmt.getTestExpr() != null) {
 						visitStmt(f_stmt.getTestExpr());

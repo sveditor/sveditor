@@ -113,4 +113,10 @@ public class SVDBTypeInfoBuiltin extends SVDBTypeInfo {
 		setVectorDim(o.getVectorDim());
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_builtin(this);
+	}
+	
+
 }

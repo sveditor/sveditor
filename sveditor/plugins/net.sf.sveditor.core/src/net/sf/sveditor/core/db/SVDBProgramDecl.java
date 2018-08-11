@@ -22,4 +22,9 @@ public class SVDBProgramDecl extends SVDBModIfcDecl {
 		super(name, SVDBItemType.ProgramDecl);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_program_decl(this);
+	}
+	
 }

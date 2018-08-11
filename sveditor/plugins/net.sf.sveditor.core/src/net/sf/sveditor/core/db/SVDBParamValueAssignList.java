@@ -96,4 +96,9 @@ public class SVDBParamValueAssignList extends SVDBItem implements ISVDBEndLocati
 		return false;
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_param_value_assign_list(this);
+	}
+	
 }

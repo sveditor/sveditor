@@ -39,4 +39,9 @@ public class SVDBTypeInfoEnum extends SVDBTypeInfo {
 	public String toString() {
 		return getName();
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_enum(this);
+	}
 }

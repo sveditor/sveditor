@@ -42,4 +42,9 @@ public class SVDBTypeInfoFwdDecl extends SVDBTypeInfo {
 		return (SVDBTypeInfoFwdDecl)super.duplicate(); 
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_fwd_decl(this);
+	}
+	
 }

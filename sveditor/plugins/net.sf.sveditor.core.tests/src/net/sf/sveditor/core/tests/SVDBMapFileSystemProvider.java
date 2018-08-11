@@ -1,5 +1,7 @@
-package net.sf.sveditor.core.tests.preproc;
+package net.sf.sveditor.core.tests;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -11,6 +13,21 @@ import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 
 public class SVDBMapFileSystemProvider implements ISVDBFileSystemProvider {
 	private Map<String, String>			fFileMap;
+	
+	private static class OutStream extends OutputStream {
+		public ByteArrayOutputStream 	fBOS;
+		public String					fPath;
+		
+		public OutStream(String path) {
+			fBOS = new ByteArrayOutputStream();
+			fPath = path;
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			fBOS.write(b);
+		}
+	}
 	
 	public SVDBMapFileSystemProvider(Map<String, String> fmap) {
 		fFileMap = fmap;
@@ -65,14 +82,22 @@ public class SVDBMapFileSystemProvider implements ISVDBFileSystemProvider {
 
 	@Override
 	public OutputStream openStreamWrite(String path) {
-		return null;
+		return new OutStream(path);
 	}
 
 	@Override
 	public void closeStream(InputStream in) { }
 
 	@Override
-	public void closeStream(OutputStream in) { }
+	public void closeStream(OutputStream out) { 
+		if (out instanceof OutStream) {
+			OutStream os = (OutStream)out;
+			if (fFileMap.containsKey(os.fPath)) {
+				fFileMap.remove(os.fPath);
+			}
+			fFileMap.put(os.fPath, os.fBOS.toString());
+		}
+	}
 
 	@Override
 	public long getLastModifiedTime(String path) {

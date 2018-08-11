@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -37,6 +38,11 @@ public class SVDBConstraintForeachStmt extends SVDBStmt {
 	
 	public SVDBStmt getStmt() {
 		return fStmt;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_constraint_foreach_stmt(this);
 	}
 
 }

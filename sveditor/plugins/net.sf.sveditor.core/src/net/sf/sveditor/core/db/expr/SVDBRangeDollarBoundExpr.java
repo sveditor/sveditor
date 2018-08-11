@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBRangeDollarBoundExpr extends SVDBExpr {
@@ -20,4 +21,8 @@ public class SVDBRangeDollarBoundExpr extends SVDBExpr {
 		super(SVDBItemType.RangeDollarBoundExpr);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_range_dollar_bound_expr(this);
+	}
 }

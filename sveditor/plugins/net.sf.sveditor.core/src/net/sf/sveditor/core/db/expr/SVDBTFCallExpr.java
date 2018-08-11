@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.expr;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 
@@ -61,5 +62,10 @@ public class SVDBTFCallExpr extends SVDBExpr {
 	
 	public SVDBTFCallExpr duplicate() {
 		return (SVDBTFCallExpr)super.duplicate();
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_tf_call_expr(this);
 	}
 }

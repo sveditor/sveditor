@@ -72,4 +72,9 @@ public class SVDBModIfcInst extends SVDBFieldItem implements ISVDBChildParent {
 		return (SVDBModIfcInst)super.duplicate();
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_mod_ifc_inst(this);
+	}
+	
 }
