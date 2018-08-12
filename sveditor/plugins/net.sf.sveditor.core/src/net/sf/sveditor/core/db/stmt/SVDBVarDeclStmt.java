@@ -106,6 +106,10 @@ public class SVDBVarDeclStmt extends SVDBStmt implements IFieldItemAttr, ISVDBCh
 			}
 		};
 	}
+	
+	public List<SVDBVarDeclItem> getVarList() {
+		return fVarList;
+	}
 
 	public SVDBVarDeclStmt duplicate() {
 		return (SVDBVarDeclStmt)super.duplicate();

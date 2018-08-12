@@ -765,10 +765,8 @@ public class SVDBVisitorBase implements ISVDBVisitor {
 			f.getReturnType().accept(this);
 		}
 		
-		for (SVDBParamPortDecl p : f.getParams()) {
-			p.accept(this);
-		}
-
+		f.getParams().accept(this);;
+		
 		// Visit the function body
 		visit_scope(f);
 	}
@@ -1235,9 +1233,7 @@ public class SVDBVisitorBase implements ISVDBVisitor {
 	
 	@Override
 	public void visit_task(SVDBTask t) {
-		for (SVDBParamPortDecl p : t.getParams()) {
-			p.accept(this);
-		}
+		t.getParams().accept(this);
 		visit_scope(t);
 	}
 	
@@ -1251,6 +1247,13 @@ public class SVDBVisitorBase implements ISVDBVisitor {
 		}
 		if (e.getWithExpr() != null) {
 			e.getWithExpr().accept(this);
+		}
+	}
+	
+	@Override
+	public void visit_tf_param_list(SVDBTFParamList p) {
+		for (SVDBParamPortDecl param : p.getParams()) {
+			param.accept(this);
 		}
 	}
 	

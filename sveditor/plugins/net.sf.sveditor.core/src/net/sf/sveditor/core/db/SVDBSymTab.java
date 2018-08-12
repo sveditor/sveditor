@@ -18,9 +18,29 @@ public class SVDBSymTab {
 	public String				fNames[];
 	public Integer				fRefs[];
 	
+	public static int mkRef(int index, int subindex) {
+		return (index << 10) | (subindex & 0x3FF);
+	}
+	
+	public static int getIndex(int ref) {
+		return (ref >> 10);
+	}
+	
+	public static int getSubindex(int ref) {
+		int subindex = (ref & 0x3FF);
+		if ((subindex & 0x200) != 0) {
+			subindex = -1;
+		}
+		return subindex;
+	}
+	
 	public SVDBSymTab() { }
 	
-	public SVDBSymTab(Map<String, Integer> symtab) { 
+	public SVDBSymTab(
+			String			names[],
+			Integer			refs[]) {
+		fNames = names;
+		fRefs = refs;
 	}
 	
 	public String [] getNames() {
@@ -39,4 +59,29 @@ public class SVDBSymTab {
 		fRefs = refs.toArray(new Integer[refs.size()]);
 	}
 
+	public ISVDBChildItem get(ISVDBChildParent p, int idx) {
+		ISVDBChildItem ret = null;
+		int index = getIndex(fRefs[idx]);
+		int subindex = getSubindex(fRefs[idx]);
+	
+		for (ISVDBChildItem c : p.getChildren()) {
+			if (index == 0) {
+				ret = c;
+				break;
+			}
+			index--;
+		}
+		
+		if (subindex != -1) {
+			for (ISVDBChildItem c : ((ISVDBChildParent)ret).getChildren()) {
+				if (subindex == 0) {
+					ret = c;
+					break;
+				}
+				subindex--;
+			}
+		}
+	
+		return ret;
+	}
 }

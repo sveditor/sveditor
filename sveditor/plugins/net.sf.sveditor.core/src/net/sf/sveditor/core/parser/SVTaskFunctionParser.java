@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTFParamList;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -159,7 +160,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 		} else {
 			func = new SVDBTask(tf_name, SVDBItemType.Task);
 		}
-		func.setParams(params);
+		func.setParams(new SVDBTFParamList(params));
 		func.setAttr(qualifiers);
 		func.setLocation(start);
 		

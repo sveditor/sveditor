@@ -190,7 +190,7 @@ public class DocCommentAdder implements IDocCommentAdder {
 				sb.append(" * Function description needed" + fLineDelimiter);
 				sb.append(" * " + fLineDelimiter);
 				sb.append(" * Parameters:" + fLineDelimiter);
-				for (SVDBParamPortDecl pp : ((SVDBFunction) child).getParams()) {
+				for (SVDBParamPortDecl pp : ((SVDBFunction) child).getParams().getParams()) {
 					sb.append(GetParamPortString(pp));
 				}
 				sb.append(" * " + fLineDelimiter);
@@ -211,7 +211,7 @@ public class DocCommentAdder implements IDocCommentAdder {
 				sb.append(" * Task description needed" + fLineDelimiter);
 				sb.append(" * " + fLineDelimiter);
 				sb.append(" * Parameters:" + fLineDelimiter);
-				for (SVDBParamPortDecl pp : ((SVDBTask) child).getParams()) {
+				for (SVDBParamPortDecl pp : ((SVDBTask) child).getParams().getParams()) {
 					sb.append(GetParamPortString(pp));
 				}
 				sb.append(" */" + fLineDelimiter);

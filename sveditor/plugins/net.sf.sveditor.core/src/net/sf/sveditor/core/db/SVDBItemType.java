@@ -30,6 +30,7 @@ public enum SVDBItemType {
 	Bind,
 	Task,
 	Function,
+	TFParamList,
 	ModIfcInst,
 	ModIfcInstItem,
 	ModportDecl,

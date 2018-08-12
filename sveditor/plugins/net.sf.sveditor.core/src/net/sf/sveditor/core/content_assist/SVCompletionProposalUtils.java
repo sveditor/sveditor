@@ -19,6 +19,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBMacroDef;
 import net.sf.sveditor.core.db.SVDBMacroDefParam;
 import net.sf.sveditor.core.db.SVDBModIfcDecl;
+import net.sf.sveditor.core.db.SVDBTFParamList;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
@@ -121,8 +122,9 @@ public class SVCompletionProposalUtils {
 		
 		ArrayList<String> all_ports = new ArrayList<String> ();
 		ArrayList<String> all_types = new ArrayList<String> ();
-		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPortDecl param = tf.getParams().get(i);
+		SVDBTFParamList params = tf.getParams();
+		for (int i=0; i<params.getParams().size(); i++) {
+			SVDBParamPortDecl param = params.getParams().get(i);
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				all_ports.add(vi.getName());

@@ -404,6 +404,8 @@ public interface ISVDBVisitor {
 	
 	void visit_tf_call_expr(SVDBTFCallExpr e);
 	
+	void visit_tf_param_list(SVDBTFParamList p);
+	
 	void visit_time_precision_stmt(SVDBTimePrecisionStmt s);
 	
 	void visit_time_units_stmt(SVDBTimeUnitsStmt s);

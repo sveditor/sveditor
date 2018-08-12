@@ -42,6 +42,7 @@ import net.sf.sveditor.core.db.SVDBModportPortsDecl;
 import net.sf.sveditor.core.db.SVDBModportSimplePort;
 import net.sf.sveditor.core.db.SVDBModportSimplePortsDecl;
 import net.sf.sveditor.core.db.SVDBPackageDecl;
+import net.sf.sveditor.core.db.SVDBTFParamList;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
@@ -757,7 +758,8 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		if (item.getType() == SVDBItemType.Task || item.getType() == SVDBItemType.Function) {
 			// task/function
 			SVDBTask tf = (SVDBTask)item;
-			for (SVDBParamPortDecl p : tf.getParams()) {
+			SVDBTFParamList params = tf.getParams();
+			for (SVDBParamPortDecl p : params.getParams()) {
 				for (ISVDBChildItem pi : p.getChildren()) {
 					if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
 						SVCompletionProposal prop = addProposal(pi, ctxt.fLeaf, 0,

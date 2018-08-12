@@ -179,7 +179,7 @@ public class SVDBFindByNameInClassHierarchy {
 			SVDBItemType	...	types) {
 		boolean matches = (types.length == 0);
 
-		for (SVDBParamPortDecl it : scope.getParams()) {
+		for (SVDBParamPortDecl it : scope.getParams().getParams()) {
 			for (SVDBItemType type : types) {
 				if (it.getType() == type) {
 					matches = true;

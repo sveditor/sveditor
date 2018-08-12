@@ -150,7 +150,7 @@ public class SVDBIndexSearcher {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams().getParams()) {
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
@@ -222,7 +222,7 @@ public class SVDBIndexSearcher {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (ISVDBItemBase it : ((SVDBTask)context).getParams()) {
+				for (ISVDBItemBase it : ((SVDBTask)context).getParams().getParams()) {
 					if (SVDBItem.getName(it).equals(name)) {
 						ret.add(it);
 						
