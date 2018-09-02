@@ -2,33 +2,14 @@ package net.sf.sveditor.ui.console;
 
 import java.io.File;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.debug.ui.console.FileLink;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.PatternMatchEvent;
-import org.eclipse.ui.console.TextConsole;
 
 import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.ui.script.launch.ExternalPathHyperlink;
 
-public class WorkspacePathPatternMatcher implements IPatternMatchListener {
-	private TextConsole			fConsole;
-
-	@Override
-	public void connect(TextConsole console) {
-		fConsole = console;
-	}
-
-	@Override
-	public void disconnect() {
-		// TODO Auto-generated method stub
-
-	}
+public class WorkspacePathPatternMatcher extends SVPatternMatcherBase {
 	
 	@Override
 	public void matchFound(PatternMatchEvent event) {
@@ -129,16 +110,9 @@ public class WorkspacePathPatternMatcher implements IPatternMatchListener {
 			// Eclipse sometimes returns a file (that doesn't exist) for
 			// a directory path. We only want to hyperlink 'real' files.
 			if (file != null && file.exists()) {
-				FileLink link = new FileLink(file, null, -1, -1, lineno);
-				try {
-					fConsole.addHyperlink(link, event.getOffset(), content.length());
-				} catch (BadLocationException e) {}
+				addIFileLink(file, lineno, event.getOffset(), content.length());
 			} else if (efile != null && efile.isFile()) {
-				IFileStore fs = EFS.getLocalFileSystem().getStore(new Path(efile.getAbsolutePath()));
-				ExternalPathHyperlink link = new ExternalPathHyperlink(fs, null, -1, -1, lineno);
-				try {
-					fConsole.addHyperlink(link, event.getOffset(), content.length());
-				} catch (BadLocationException e) {}
+				addFSFileLink(efile, lineno, event.getOffset(), content.length());
 			}
 		}
 	}

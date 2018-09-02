@@ -29,11 +29,13 @@ Require-Bundle: org.eclipse.ui,
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: net.sf.sveditor.ui,
+ net.sf.sveditor.ui.console,
  net.sf.sveditor.ui.doc,
  net.sf.sveditor.ui.editor,
  net.sf.sveditor.ui.editor.actions,
  net.sf.sveditor.ui.editor.outline,
  net.sf.sveditor.ui.explorer,
  net.sf.sveditor.ui.pref,
+ net.sf.sveditor.ui.script.launch,
  net.sf.sveditor.ui.svcp
 

@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
+import net.sf.sveditor.ui.tests.console.ConsoleTests;
 import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
 import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
 import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
@@ -33,6 +34,7 @@ public class UiReleaseTests extends TestSuite {
 		addTest(new TestSuite(TestAutoIndent.class));
 //		addTest(new TestSuite(TestIndexAssociation.class));
 //		addTest(new TestSuite(TestOutlineViewOperations.class));
+		addTest(ConsoleTests.suite());
 		addTest(new TestSuite(TestOverrideMethods.class));
 		addTest(new TestSuite(TestUserLevelOperations.class));
 		
