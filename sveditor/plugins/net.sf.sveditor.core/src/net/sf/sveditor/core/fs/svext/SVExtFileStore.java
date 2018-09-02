@@ -72,6 +72,10 @@ public class SVExtFileStore extends FileStore {
 		fInfo.setDirectory(is_dir);
 		fInfo.setExists(true);
 		fInfo.setLength(EFS.NONE);
+
+		if (fDebugEn) {
+			fLog.debug("SVExtFileStore: path=" + path + " name=" + name + " file=" + file);
+		}
 	}
 	
 	public Map<String, SVExtFileStore> getChildren() {
@@ -138,6 +142,9 @@ public class SVExtFileStore extends FileStore {
 	@Override
 	public InputStream openInputStream(int options, IProgressMonitor monitor) throws CoreException {
 		InputStream in = null;
+		if (fDebugEn) {
+			fLog.debug("openInputStream: " + fFile);
+		}
 		if (fFile != null && fFile.isFile()) {
 			try {
 				in = new FileInputStream(fFile);
@@ -170,7 +177,20 @@ public class SVExtFileStore extends FileStore {
 		} catch (URISyntaxException e) { 
 			e.printStackTrace();
 		}
+		if (fDebugEn) {
+			fLog.debug("toURI: file=" + fFile + " uri=" + uri);
+		}
 		return uri;
 	}
+
+//	@Override
+//	public File toLocalFile(int options, IProgressMonitor monitor) throws CoreException {
+//		// TODO Auto-generated method stub
+//		File ret = super.toLocalFile(options, monitor);
+////		System.out.println("toLocalFile: options=" + options + " " + fFile + "(" + ret + ")");
+//		return ret;
+//	}
+	
+	
 
 }

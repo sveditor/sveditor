@@ -475,10 +475,10 @@ public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider,
 									}
 								} else if (uri.getScheme().equals("file")) {
 									if (uri.getScheme().equals("file")) {
-										if (SVFileUtils.isWin() && uri.getHost().length() == 1) {
-											path = uri.getHost() + ":" + uri.getPath();
+										if (SVFileUtils.isWin() && uri.getAuthority().length() == 1) {
+											path = uri.getAuthority() + ":" + uri.getPath();
 										} else {
-											path = uri.getHost() + uri.getPath();
+											path = uri.getAuthority() + uri.getPath();
 										}
 									}
 								} else {

@@ -25,6 +25,7 @@ import org.eclipse.jface.text.rules.IPartitionTokenScanner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
+import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 
 public class SVDocumentSetupParticipant implements IDocumentSetupParticipant {
@@ -54,9 +55,9 @@ public class SVDocumentSetupParticipant implements IDocumentSetupParticipant {
 		
 		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 		
+		rules.add(new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'));
 		rules.add(new EndOfLineRule("//", slc));
 		rules.add(new CCommentRule(mlc));
-		//rules.add(new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'));
 
 		IPredicateRule rulesArr[] = rules.toArray(new IPredicateRule[rules.size()]);
 		scanner.setDefaultReturnToken(new Token(IDocument.DEFAULT_CONTENT_TYPE));

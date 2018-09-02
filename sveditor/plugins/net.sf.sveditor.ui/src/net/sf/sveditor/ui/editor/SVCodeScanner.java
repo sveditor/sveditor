@@ -74,10 +74,10 @@ public class SVCodeScanner extends RuleBasedScanner {
 		
 		List<IRule> rules = new ArrayList<IRule>();
 		
+	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
 		rules.add(new EndOfLineRule("//", slc));
 	    rules.add(new MultiLineRule("/*", "*/", mlc, (char) 0, true));
 
-	    rules.add(new SingleLineRule("\"", "\"", str, '\\'));
 	    rules.add(new SingleLineRule("${", "}", svt_params));
 	    
 /*

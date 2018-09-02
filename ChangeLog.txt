@@ -1,15 +1,37 @@
 
+------------------------------------------------------------------------------
+-- 2.1.5 Release --
+
+- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+------------------------------------------------------------------------------
+-- 2.1.4 Release --
+
+- #(520) - Correct issue wih coverpoint 'X with' expression 
+
+- #(nobug) - Correct a conflict between the string and single-line comment 
+  highlighters that caused a comment embedded in a string to not be 
+  displayed correctly
 
 ------------------------------------------------------------------------------
 -- 2.1.3 Release --
-- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+
+- #(nobug) - Correct a Linux-specific issue with support for external files.
+
+- #(519) Preferences bug with "Save Actions" 
+
+- #(518) Macro Content Assist not formatting code
+
 
 ------------------------------------------------------------------------------
 -- 2.1.2 Release --
 
 - #(519) Preferences bug with "Save Actions" 
 
-- #(518) Macro Content Assist not formatting code
+- #(enh) - Automatically link files referenced by the filelist into the
+           project. This allows the "open resource" operation and file 
+           search to see external files. There's more work to be done here,
+           but initial functionality is in place.
 
 - #(520) Parse error when soft constraints are used in an inline constraint
 

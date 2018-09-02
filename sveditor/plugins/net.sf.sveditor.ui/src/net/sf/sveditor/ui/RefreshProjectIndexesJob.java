@@ -49,7 +49,9 @@ public class RefreshProjectIndexesJob extends Job {
 						index_list_1.add(i);
 					}
 				}
-				SVUiPlugin.getDefault().refreshIndexList(index_list_1);
+				if (SVUiPlugin.getDefault() != null) {
+					SVUiPlugin.getDefault().refreshIndexList(index_list_1);
+				}
 			}
 		}
 

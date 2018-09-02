@@ -37,8 +37,8 @@ public class SVPartitionScanner extends RuleBasedPartitionScanner {
 		List<IPredicateRule> rules = new ArrayList<IPredicateRule>();
 		
 		rules.add(new CCommentRule(mlc));
-		rules.add(new EndOfLineRule("//", slc));
 		rules.add(new SingleLineRule("\"", "\"", Token.UNDEFINED, '\\'));
+		rules.add(new EndOfLineRule("//", slc));
 		
 		IPredicateRule rulesArr[] = rules.toArray(new IPredicateRule[rules.size()]);
 		setPredicateRules(rulesArr);
