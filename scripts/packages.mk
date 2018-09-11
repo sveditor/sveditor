@@ -5,9 +5,11 @@ PACKAGES_DIR := $(SCRIPTS_DIR)/../packages
 ifneq (1,$(RULES))
 mirror_ftp?=ftp://ftp.osuosl.org/pub/eclipse
 
-eclipse_build_version=4.6.3
+#eclipse_build_version=4.7.3a
+eclipse_build_version=4.8
 eclipse_build_repo=http://download.eclipse.org/releases/neon
-eclipse_build_drop=R-$(eclipse_build_version)-201703010400
+#eclipse_build_drop=R-$(eclipse_build_version)-201803300640
+eclipse_build_drop=R-$(eclipse_build_version)-201806110500
 eclipse_build_release=$(mirror_ftp)/eclipse/downloads/drops4/$(eclipse_build_drop)
 eclipse_build_linux_tgz=eclipse-SDK-$(eclipse_build_version)-linux-gtk.tar.gz
 eclipse_build_linux_x86_64_tgz=eclipse-SDK-$(eclipse_build_version)-linux-gtk-x86_64.tar.gz
@@ -15,10 +17,14 @@ eclipse_build_win32_zip=eclipse-SDK-$(eclipse_build_version)-win32.zip
 eclipse_build_win32_x86_64_zip=eclipse-SDK-$(eclipse_build_version)-win32-x86_64.zip
 
 # TODO: condition on platform
-ifeq ($(platform),win64)
-  eclipse_build_pkg := $(PACKAGES_DIR)/$(eclipse_build_win32_x86_64_zip)
-else
-  eclipse_build_pkg := $(PACKAGES_DIR)/$(eclipse_build_win32_zip)
+ifeq ($(platform),linux_x86_64)
+   eclipse_build_pkg := $(PACKAGES_DIR)/$(eclipse_build_linux_x86_64_tgz)
+else # Not Windows
+  ifeq ($(platform),win64)
+    eclipse_build_pkg := $(PACKAGES_DIR)/$(eclipse_build_win32_x86_64_zip)
+  else
+    eclipse_build_pkg := $(PACKAGES_DIR)/$(eclipse_build_win32_zip)
+  endif
 endif
 
 PACKAGES += $(eclipse_build_pkg)
@@ -68,6 +74,10 @@ else
 $(PACKAGES_DIR)/$(eclipse_build_win32_x86_64_zip) :
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
 	$(WGET) -O $@ $(eclipse_build_release)/$(eclipse_build_win32_x86_64_zip)
+
+$(PACKAGES_DIR)/$(eclipse_build_linux_x86_64_tgz) :
+	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi
+	$(WGET) -O $@ $(eclipse_build_release)/$(eclipse_build_linux_x86_64_tgz)
 
 $(PACKAGES_DIR)/$(zest_zip) :
 	$(Q)if test ! -d `dirname $@`; then mkdir -p `dirname $@`; fi

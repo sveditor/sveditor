@@ -58,6 +58,11 @@ else
     endif
   else
     LAUNCHER_JAR=$(wildcard $(BUILD_DIR)/eclipse/plugins/org.eclipse.equinox.launcher_*.jar)
+    os:=linux
+    swt_os=linux
+    swt_ws=gtk
+    swt_arch=x86_64
+    platform=linux_x86_64
     BUILD_DIR_A=$(BUILD_DIR)
     SCRIPTS_DIR_A=$(SCRIPTS_DIR)
   endif
@@ -88,6 +93,20 @@ $(BUILD_DIR)/eclipse.init : $(BUILD_DIR)/fetch-packages
 		-installIU org.eclipse.draw2d.feature.group \
 		-installIU org.eclipse.zest.feature.group
 	touch $@
+else # Not Windows
+$(BUILD_DIR)/eclipse.init : $(BUILD_DIR)/fetch-packages
+	if test ! -d $(BUILD_DIR); then mkdir -p $(BUILD_DIR); fi
+	rm -rf $(BUILD_DIR)/eclipse 
+	cd $(BUILD_DIR) ; tar xvzf $(eclipse_build_pkg) 
+	rm -rf $(BUILD_DIR)/gef 
+	mkdir -p $(BUILD_DIR)/gef
+	cd $(BUILD_DIR)/gef ; unzip $(PACKAGES_DIR)/$(zest_zip)
+	$(INSTALL_IU) -repository 'file:/$(BUILD_DIR_A)/gef' -tag AddZEST \
+		-destination $(BUILD_DIR_A)/eclipse \
+		-installIU org.eclipse.gef.feature.group \
+		-installIU org.eclipse.draw2d.feature.group \
+		-installIU org.eclipse.zest.feature.group
+	touch $@
 endif
 
 
@@ -96,6 +115,7 @@ $(BUILD_DIR)/build_$(version) : $(BUILD_DIR)/eclipse.init
 	rm -rf $(BUILD_DIR)/plugin_build
 	mkdir -p $(BUILD_DIR)/plugin_build
 	$(ANT) -buildfile $(SCRIPTS_DIR_A)/build.xml  \
+		-Dbuild.compiler=javac1.7 \
 		-DbuildDirectory=$(BUILD_DIR_A)/plugin_build \
 		-DbuildResult=$(BUILD_DIR_A)/result \
 		-Dos=$(swt_os) -Dws=$(swt_ws) -Darch=$(swt_arch) \

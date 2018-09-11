@@ -138,6 +138,9 @@ public class GenericPathPatternMatcher extends SVPatternMatcherBase {
 				if (path.charAt(0) == '"' && path.length() > 1) {
 					path = path.substring(1, path.length()-1);
 				}
+			
+				// Perform any resolution (eg resolve relative paths)
+				path = resolvePath(path);
 				
 				IFile file = SVFileUtils.findWorkspaceFile(path);
 				File efile = SVFileUtils.getFile(path);
@@ -151,6 +154,11 @@ public class GenericPathPatternMatcher extends SVPatternMatcherBase {
 				}
 			}
 		}
+	}
+	
+	protected String resolvePath(String path) {
+		// By default, no resolution is needed
+		return path;
 	}
 
 	@Override
