@@ -19,8 +19,21 @@ public class SVDBAlias extends SVDBStmt {
 		fLvalue = expr;
 	}
 	
+	public SVDBExpr getLvalue() {
+		return fLvalue;
+	}
+	
 	public void addAlias(SVDBExpr expr) {
 		fAliases.add(expr);
 	}
+	
+	public List<SVDBExpr> getAliases() {
+		return fAliases;
+	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_alias(this);
+	}
+	
 }

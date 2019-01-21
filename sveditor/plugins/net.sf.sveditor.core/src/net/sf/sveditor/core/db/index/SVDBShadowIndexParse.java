@@ -16,6 +16,7 @@ import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.preproc.SVPreProcFileTreeBuilder;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.preproc.SVStringPreProcessor;
@@ -44,6 +45,7 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 			String 					path, 
 			List<SVDBMarker> 		markers) {
 		SVPreProcessor preproc = new SVPreProcessor(path, in, null, fileMapper);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder(preproc);
 		preproc.setMacroProvider(new MacroProvider());
 		
 		SVPreProcOutput pp_out = preproc.preprocess();
@@ -55,11 +57,11 @@ public class SVDBShadowIndexParse implements ISVDBIndexParse {
 		SVDBFile file = parser.parse(language_level, pp_out, path, markers);
 		
 		// Merge in markers from the pre-processor view
-		for (SVDBMarker m : pp_out.getFileTree().fMarkers) {
+		for (SVDBMarker m : ft_builder.getFileTree().fMarkers) {
 			markers.add(m);
 		}
 			
-		SVDBFileTree ft = pp_out.getFileTree();
+		SVDBFileTree ft = ft_builder.getFileTree();
 		return new Tuple<SVDBFile, SVDBFile>(ft.getSVDBFile(), file);
 	}
 	

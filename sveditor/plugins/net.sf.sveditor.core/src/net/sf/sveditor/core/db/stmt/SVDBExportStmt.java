@@ -18,6 +18,7 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBExportStmt extends SVDBStmt implements ISVDBChildParent {
@@ -42,4 +43,8 @@ public class SVDBExportStmt extends SVDBStmt implements ISVDBChildParent {
 		};
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_export_stmt(this);
+	}
 }

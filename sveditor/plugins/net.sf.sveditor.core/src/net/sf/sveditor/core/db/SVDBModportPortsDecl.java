@@ -15,7 +15,7 @@ package net.sf.sveditor.core.db;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SVDBModportPortsDecl extends SVDBChildItem implements ISVDBAddChildItem {
+public abstract class SVDBModportPortsDecl extends SVDBChildItem implements ISVDBAddChildItem {
 	public List<ISVDBChildItem>			fPorts;
 	
 	protected SVDBModportPortsDecl(SVDBItemType type) {

@@ -527,7 +527,7 @@ public class SVDBElemIterator {
 		if (tf.getType() == SVDBItemType.Function) {
 			visit(((SVDBFunction)tf).getReturnType());
 		}
-		tf_param_port_list(tf.getParams());
+		tf_param_port_list(tf.getParams().getParams());
 		
 		fStack.pop();
 	}

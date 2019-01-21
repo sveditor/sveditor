@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBLabeledStmt extends SVDBBodyStmt {
@@ -28,5 +29,9 @@ public class SVDBLabeledStmt extends SVDBBodyStmt {
 	public void setLabel(String label) {
 		fLabel = label;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_labeled_stmt(this);
+	}
 }

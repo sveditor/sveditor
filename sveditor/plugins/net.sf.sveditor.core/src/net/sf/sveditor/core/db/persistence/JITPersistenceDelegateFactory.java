@@ -242,6 +242,9 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		mv.visitLookupSwitchInsn(dflt, indexes, labels);
 		for (SVDBItemType t : SVDBItemType.values()) {
 			Class c = fTypeClassMap.get(t);
+			if (c == null) {
+				throw new RuntimeException("Error: no class for SVDBItemType: " + t);
+			}
 			mv.visitLabel(labels[t.ordinal()]);
 			
 			mv.visitVarInsn(ALOAD, THIS_VAR);

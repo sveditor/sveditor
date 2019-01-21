@@ -24,6 +24,7 @@ import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.db.SVDBScopeItem;
+import net.sf.sveditor.core.db.SVDBTFParamList;
 import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
@@ -159,13 +160,14 @@ public class SVTaskFunctionParser extends SVParserBase {
 		} else {
 			func = new SVDBTask(tf_name, SVDBItemType.Task);
 		}
-		func.setParams(params);
+		func.setParams(new SVDBTFParamList(params));
 		func.setAttr(qualifiers);
 		func.setLocation(start);
-	
+		
 		debug("TFParse: addChildItem: " + SVDBItem.getName(func) +
 				" " + SVDBItem.getName((ISVDBItemBase)parent));
 		parent.addChildItem(func);
+		declaration(func);
 		
 		KW end_kw = (type == KW.TASK)?KW.ENDTASK:KW.ENDFUNCTION;
 		
@@ -176,6 +178,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 				((qualifiers & SVDBFieldItem.FieldAttr_DPI) == 0)) {
 			// Parse the body
 			try {
+				enter_type_scope(func);
 				parsers().tfBodyParser().parse(func, is_ansi);
 			} catch (SVParseException e) {
 				if (fDebugEn) {
@@ -208,6 +211,7 @@ public class SVTaskFunctionParser extends SVParserBase {
 //				}
 			} finally {
 				func.setEndLocation(fLexer.getStartLocation());
+				leave_type_scope(func);
 			}
 
 			end = fLexer.getStartLocation();
@@ -221,6 +225,9 @@ public class SVTaskFunctionParser extends SVParserBase {
 					// TODO: endfunction label must match function name
 				}
 			}
+		} else {
+			enter_type_scope(func);
+			leave_type_scope(func);
 		}
 		
 		if (end == -1) {

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -56,6 +57,11 @@ public class SVDBArrayAccessExpr extends SVDBExpr {
 		fLhs = aa.fLhs;
 		fLow = aa.fLow;
 		fHigh = aa.fHigh;
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_array_access_expr(this);
 	}
 	
 }

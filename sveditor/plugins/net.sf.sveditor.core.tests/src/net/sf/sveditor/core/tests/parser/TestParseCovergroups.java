@@ -126,7 +126,7 @@ public class TestParseCovergroups extends TestCase {
 	}
 
 	public void testCrossWithExpr() throws SVParseException {
-	    SVCorePlugin.getDefault().enableDebug(true);
+	    SVCorePlugin.getDefault().enableDebug(false);
 	    String doc =
 			"class c;\n" +
 			"  covergroup foo;\n" +

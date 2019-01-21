@@ -91,6 +91,7 @@ import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
 import net.sf.sveditor.core.preproc.ISVPreProcessor;
 import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import net.sf.sveditor.core.preproc.SVPreProcFileTreeBuilder;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 
@@ -612,6 +613,7 @@ public class SVDBArgFileIndex implements
 				
 				SVPreProcessor preproc = new SVPreProcessor(
 						path, in, build_data, build_data);
+				SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder(preproc);
 
 				fFileSystemProvider.closeStream(in);
 				
@@ -639,7 +641,7 @@ public class SVDBArgFileIndex implements
 				SVPreProcOutput pp_out = preproc.preprocess();
 				pp_out.setFileChangeListener(
 						new SVBuilderPreProcTracker(out, build_data));
-				SVDBFileTree ft = pp_out.getFileTree();
+				SVDBFileTree ft = ft_builder.getFileTree();
 				
 				// Collect include files
 				List<String> included_files = new ArrayList<String>();
@@ -1456,6 +1458,7 @@ public class SVDBArgFileIndex implements
 			// may not be ideal
 			SVPreProcessor preproc = new SVPreProcessor(
 					r_path, in, fBuildData, fReadOnlyFileMapper);
+			SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder(preproc);
 
 			// TODO: add macros from FT
 			List<SVDBMacroDef> incoming_macros = 
@@ -1476,7 +1479,7 @@ public class SVDBArgFileIndex implements
 			SVParser f = new SVParser();
 			f.setFileMapper(fReadOnlyFileMapper);
 			
-			SVDBFileTree ft = out.getFileTree();
+			SVDBFileTree ft = ft_builder.getFileTree();
 			if (ft != null && ft.fMarkers != null) {
 				for (SVDBMarker m : ft.fMarkers) {
 					markers.add(m);

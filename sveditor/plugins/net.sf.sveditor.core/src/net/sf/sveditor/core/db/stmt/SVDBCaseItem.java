@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.stmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -33,6 +34,10 @@ public class SVDBCaseItem extends SVDBBodyStmt {
 	public void addExpr(SVDBExpr expr) {
 		fCaseExprList.add(expr);
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_case_item(this);
+	}
 
 }

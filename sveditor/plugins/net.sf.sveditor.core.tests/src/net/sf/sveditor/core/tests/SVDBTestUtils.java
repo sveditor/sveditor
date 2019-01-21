@@ -50,6 +50,7 @@ import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import net.sf.sveditor.core.preproc.SVPreProcFileTreeBuilder;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.scanner.IPreProcMacroProvider;
@@ -259,17 +260,19 @@ public class SVDBTestUtils {
 			String 					filename,
 			List<SVDBMarker>		markers) {
 		SVPreProcessor pp = new SVPreProcessor(filename, content_i, null, null);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder();
+		pp.addListener(ft_builder);
 		
 		SVPreProcOutput pp_out = pp.preprocess();
 
-		collectMarkers(markers, pp.getFileTree());
+		collectMarkers(markers, ft_builder.getFileTree());
 	
 		if (log != null) {
 			log.debug("Content (SVPreProc):");
 			log.debug(pp_out.toString());
 		}
 		
-		SVDBFile pp_file = pp.getFileTree().getSVDBFile();
+		SVDBFile pp_file = ft_builder.getFileTree().getSVDBFile();
 		
 		TestCase.assertNotNull(pp_file);
 		

@@ -121,8 +121,8 @@ public class SVCompletionProposalUtils {
 		
 		ArrayList<String> all_ports = new ArrayList<String> ();
 		ArrayList<String> all_types = new ArrayList<String> ();
-		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPortDecl param = tf.getParams().get(i);
+		for (int i=0; i<tf.getParams().getParams().size(); i++) {
+			SVDBParamPortDecl param = tf.getParams().getParams().get(i);
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				all_ports.add(vi.getName());

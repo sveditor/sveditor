@@ -47,4 +47,9 @@ public class SVDBTypeInfoBuiltinNet extends SVDBTypeInfo {
 		
 		return ret;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_builtin_net(this);
+	}
 }

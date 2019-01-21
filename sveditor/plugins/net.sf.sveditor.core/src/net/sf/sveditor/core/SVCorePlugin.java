@@ -21,8 +21,10 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -39,6 +41,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
+import org.eclipse.core.runtime.content.IContentTypeManager.ContentTypeChangeEvent;
+import org.eclipse.core.runtime.content.IContentTypeManager.IContentTypeChangeListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -125,6 +129,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	private ISVBuilderOutputListener		fBuilderOutputListener = new CoreBuilderOutputListener();
 	private ISVBuildProcessListener			fBuildProcessListener = new CoreBuildProcessListener();
 	private ISVDBIndex						fBuiltinLib;
+	private ContentTypeFileExtProvider		fFileExtProvider;
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
@@ -399,6 +404,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 			fIndexRegistry.close();
 		}
 		
+		if (fFileExtProvider != null) {
+			fFileExtProvider.dispose();
+		}
+		
 		fResourceChangeListener.dispose();
 
 		LogFactory.getDefault().removeLogListener(this);
@@ -521,7 +530,14 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	public IFileExtProvider getFileExtProvider() {
+		if (fFileExtProvider == null) {
+			fFileExtProvider = new ContentTypeFileExtProvider();
+		}
+		return fFileExtProvider;
+	}
+	
 	public List<String> getDefaultSVExts() {
 		IContentTypeManager mgr = Platform.getContentTypeManager();
 		List<String> ret = new ArrayList<String>();
@@ -540,7 +556,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		
 		return ret;
 	}
-	
+
 	public Map<String, IContentType> getContentTypes() {
 		Map<String, IContentType> ret = new HashMap<String, IContentType>();
 		IContentTypeManager mgr = Platform.getContentTypeManager();

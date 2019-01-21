@@ -12,13 +12,14 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 
 public class SVDBFieldAccessExpr extends SVDBExpr {
 	public SVDBExpr 					fExpr;
 	public boolean						fStaticRef;
-	public SVDBExpr					fLeaf;
+	public SVDBExpr						fLeaf;
 
 	public SVDBFieldAccessExpr() {
 		this(null, false, null);
@@ -47,4 +48,10 @@ public class SVDBFieldAccessExpr extends SVDBExpr {
 	public SVDBFieldAccessExpr duplicate() {
 		return (SVDBFieldAccessExpr)super.duplicate();
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_field_access_expr(this);
+	}
+	
 }

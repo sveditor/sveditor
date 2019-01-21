@@ -21,5 +21,10 @@ public class SVDBTypeInfoModuleIfc extends SVDBTypeInfoUserDef {
 	public SVDBTypeInfoModuleIfc(String name) {
 		super(name, SVDBItemType.TypeInfoModuleIfc);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_module_ifc(this);
+	}
 
 }

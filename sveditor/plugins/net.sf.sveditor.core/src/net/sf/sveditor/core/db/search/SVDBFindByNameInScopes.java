@@ -198,7 +198,7 @@ public class SVDBFindByNameInScopes {
 			
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType().isElemOf(SVDBItemType.Function, SVDBItemType.Task)) {
-				for (SVDBParamPortDecl p : ((SVDBTask)context).getParams()) {
+				for (SVDBParamPortDecl p : ((SVDBTask)context).getParams().getParams()) {
 					for (ISVDBChildItem pi : p.getChildren()) {
 						fLog.debug("check param \"" + SVDBItem.getName(pi) + "\"");
 						if (fMatcher.match((ISVDBNamedItem)pi, name)) {

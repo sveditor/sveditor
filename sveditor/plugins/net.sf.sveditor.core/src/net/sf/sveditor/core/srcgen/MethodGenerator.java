@@ -62,8 +62,8 @@ public class MethodGenerator {
 		new_tf.append(tf.getName());
 		new_tf.append("(");
 		
-		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPortDecl p = tf.getParams().get(i);
+		for (int i=0; i<tf.getParams().getParams().size(); i++) {
+			SVDBParamPortDecl p = tf.getParams().getParams().get(i);
 			SVDBTypeInfo ti = p.getTypeInfo();
 			
 			if ((p.getDir() & SVDBParamPortDecl.Direction_Const) != 0) {
@@ -114,7 +114,7 @@ public class MethodGenerator {
 			}
 		}
 
-		if (tf.getParams().size() > 0) {
+		if (tf.getParams().getParams().size() > 0) {
 			new_tf.setLength(new_tf.length()-2);
 		}
 		

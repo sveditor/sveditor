@@ -12,12 +12,18 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBNullExpr extends SVDBExpr {
 	
 	public SVDBNullExpr() {
 		super(SVDBItemType.NullExpr);
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_null_expr(this);
 	}
 	
 }

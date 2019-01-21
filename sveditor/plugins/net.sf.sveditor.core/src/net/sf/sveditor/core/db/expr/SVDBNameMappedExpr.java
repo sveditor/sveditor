@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBNameMappedExpr extends SVDBExpr {
@@ -42,4 +43,9 @@ public class SVDBNameMappedExpr extends SVDBExpr {
 		return fExpr;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_name_mapped_expr(this);
+	}
+	
 }

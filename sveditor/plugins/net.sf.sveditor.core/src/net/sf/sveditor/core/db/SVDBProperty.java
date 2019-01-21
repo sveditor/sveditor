@@ -46,4 +46,9 @@ public class SVDBProperty extends SVDBScopeItem {
 	public List<SVDBParamPortDecl> getPropertyPortList() {
 		return fPortList;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_property(this);
+	}
 }

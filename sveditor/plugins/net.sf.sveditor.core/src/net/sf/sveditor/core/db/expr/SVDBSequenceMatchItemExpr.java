@@ -15,6 +15,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceMatchItemExpr extends SVDBExpr {
@@ -49,5 +50,10 @@ public class SVDBSequenceMatchItemExpr extends SVDBExpr {
 	
 	public SVDBExpr getSequenceAbbrev() {
 		return fSequenceAbbrev;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_sequence_match_item_expr(this);
 	}
 }

@@ -98,4 +98,9 @@ public class SVDBTypeInfoUserDef extends SVDBTypeInfo {
 		return (SVDBTypeInfoUserDef)super.duplicate();
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_user_def(this);
+	}
+	
 }

@@ -11,6 +11,8 @@ import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsole;
 
+import net.sf.sveditor.core.log.LogFactory;
+import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.script.launch.ILogMessageScanner;
 import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
 import net.sf.sveditor.core.script.launch.ScriptMessage;
@@ -60,18 +62,19 @@ public class TestPathPatternMatcher extends SVCoreTestCaseBase {
 	}
 	
 	private static class TestGenericPathPathMatcher extends GenericPathPatternMatcher {
+		private LogHandle			fLog = LogFactory.getLogHandle("TestGenericPathPathMatcher");
 		public List<FileInfo> 		fFileInfo = new ArrayList<FileInfo>();
 
 		@Override
 		protected void addIFileLink(IFile file, int lineno, int offset, int length) {
-			System.out.println("addIFileLink: " + file);
+			fLog.debug("addIFileLink: " + file);
 			// TODO Auto-generated method stub
 //			super.addIFileLink(file, lineno, offset, length);
 		}
 
 		@Override
 		protected void addFSFileLink(File file, int lineno, int offset, int length) {
-			System.out.println("addFSFileLink: " + file);
+			fLog.debug("addFSFileLink: " + file);
 			fFileInfo.add(new FileInfo(file.getAbsolutePath(), lineno));
 			// TODO Auto-generated method stub
 //			super.addFSFileLink(file, lineno, offset, length);

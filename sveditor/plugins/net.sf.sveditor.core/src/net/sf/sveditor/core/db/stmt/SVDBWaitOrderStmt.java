@@ -12,12 +12,18 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBWaitOrderStmt extends SVDBBodyStmt {
 	
 	public SVDBWaitOrderStmt() {
 		super(SVDBItemType.WaitOrderStmt);
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_wait_order_stmt(this);
 	}
 
 }

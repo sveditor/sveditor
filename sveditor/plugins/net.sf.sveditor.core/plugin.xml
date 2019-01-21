@@ -15,7 +15,7 @@
             priority="normal">
       </content-type>
       <content-type
-            base-type="net.sf.sveditor.core.verilog"
+            base-type="org.eclipse.core.runtime.text"
             file-extensions="sv, svh, svp, svi"
             id="systemverilog"
             name="SystemVerilog"
@@ -42,6 +42,24 @@
             id="verilogams"
             name="VerilogAMS"
             priority="normal">
+      </content-type>
+      <content-type
+            base-type="net.sf.sveditor.core.verilog"
+            file-extensions="v, vl, vlog, v95"
+            id="verilog-rootfiles"
+            name="Verilog Root Files"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="net.sf.sveditor.core.systemverilog"
+            file-extensions="sv"
+            id="systemverilog-rootfiles"
+            name="SystemVerilog Root Files"
+            priority="normal">
+         <property
+               default="true"
+               name="net.sf.sveditor.core.svfile">
+         </property>
       </content-type>
    </extension>
    <extension

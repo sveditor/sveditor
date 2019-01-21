@@ -50,4 +50,9 @@ public class SVDBModportSimplePort extends SVDBChildItem implements ISVDBNamedIt
 	public String getName() {
 		return fPortId;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_simple_port(this);
+	}
 }

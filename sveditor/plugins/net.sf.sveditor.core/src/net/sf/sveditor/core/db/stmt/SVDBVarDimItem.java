@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
@@ -96,5 +97,10 @@ public class SVDBVarDimItem extends SVDBStmt {
 		ret += "]";
 		
 		return ret;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_var_dim_item(this);
 	}
 }

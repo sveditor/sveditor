@@ -45,4 +45,8 @@ public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
 		return fArrayDim;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_mod_ifc_inst_item(this);
+	}
 }

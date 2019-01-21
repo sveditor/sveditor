@@ -14,6 +14,7 @@ import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
 import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
 import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
+import net.sf.sveditor.core.preproc.SVPreProcFileTreeBuilder;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -629,10 +630,11 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder(preproc);
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", ft_builder.getFileTree());
 		
 //		String out = output.toString().trim();
 		String out = TestPreProc2.trimLines(output.toString());
@@ -655,11 +657,13 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder();
+		preproc.addListener(ft_builder);
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		collect_markers(markers, preproc.getFileTree());
+		collect_markers(markers, ft_builder.getFileTree());
 		
 		for (SVDBMarker m : markers) {
 			fLog.debug("Marker: " + m.getMessage());
@@ -667,7 +671,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		assertEquals(0, markers.size());
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", ft_builder.getFileTree());
 		
 		String out = TestPreProc2.trimLines(output.toString());
 		exp = TestPreProc2.trimLines(exp);
@@ -699,11 +703,13 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder();
+		preproc.addListener(ft_builder);
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		collect_markers(markers, preproc.getFileTree());
+		collect_markers(markers, ft_builder.getFileTree());
 		
 		for (SVDBMarker m : markers) {
 			fLog.debug("Marker: " + m.getMessage());
@@ -711,7 +717,7 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		
 		assertEquals(0, markers.size());
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", ft_builder.getFileTree());
 		
 		String out = trimLines(output.toString());
 		exp = trimLines(exp);
@@ -765,15 +771,17 @@ public class TestPreProc2 extends SVCoreTestCaseBase {
 		SVPreProcessor preproc = new SVPreProcessor(
 				getName(), new StringInputStream(doc), 
 				inc_provider, null);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder();
+		preproc.addListener(ft_builder);
 	
 		SVPreProcOutput output = preproc.preprocess();
 		
-		printFileTree("", output.getFileTree());
+		printFileTree("", ft_builder.getFileTree());
 
 		fLog.debug("Output:\n" + output.toString());
 		
 		List<SVDBMarker> markers = new ArrayList<SVDBMarker>();
-		collectMarkers(markers, preproc.getFileTree());
+		collectMarkers(markers, ft_builder.getFileTree());
 	
 		for (int i=0; i<markers.size(); i++) {
 			SVDBMarker m = markers.get(i);

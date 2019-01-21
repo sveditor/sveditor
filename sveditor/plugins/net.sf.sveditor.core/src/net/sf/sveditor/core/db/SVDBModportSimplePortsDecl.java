@@ -54,5 +54,10 @@ public class SVDBModportSimplePortsDecl extends SVDBModportPortsDecl {
 	public void addPort(SVDBModportSimplePort port) {
 		fPortList.add(port);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_simple_ports_decl(this);
+	}
 
 }

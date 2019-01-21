@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import net.sf.sveditor.core.BundleUtils;
 import net.sf.sveditor.core.SVCorePlugin;
 
 import org.eclipse.core.runtime.Plugin;
@@ -95,6 +96,9 @@ public class SVCoreTestsPlugin extends Plugin {
 	public static SVCoreTestsPlugin getDefault() {
 		return plugin;
 	}
-	
+
+	public static BundleUtils getBundleUtils() {
+		return new BundleUtils(getDefault().getBundle());
+	}
 
 }

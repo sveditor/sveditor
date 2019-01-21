@@ -40,5 +40,10 @@ public class SVDBModportTFPortsDecl extends SVDBModportPortsDecl {
 	public ImpExpType getImpExpType() {
 		return fImpExpType;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_tf_ports_decl(this);
+	}
 
 }

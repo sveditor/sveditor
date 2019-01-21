@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBNullStmt extends SVDBStmt {
@@ -20,4 +21,8 @@ public class SVDBNullStmt extends SVDBStmt {
 		super(SVDBItemType.NullStmt);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_null_stmt(this);
+	}
 }

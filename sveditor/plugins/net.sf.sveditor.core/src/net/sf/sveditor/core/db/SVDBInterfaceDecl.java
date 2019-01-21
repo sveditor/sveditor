@@ -22,4 +22,8 @@ public class SVDBInterfaceDecl extends SVDBModIfcDecl {
 		super(name, SVDBItemType.InterfaceDecl);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_interface_decl(this);
+	}
 }

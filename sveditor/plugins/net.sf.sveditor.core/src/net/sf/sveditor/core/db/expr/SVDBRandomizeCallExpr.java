@@ -14,6 +14,7 @@ package net.sf.sveditor.core.db.expr;
 
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBStmt;
 
@@ -34,5 +35,9 @@ public class SVDBRandomizeCallExpr extends SVDBTFCallExpr {
 	public SVDBStmt getWithBlock() {
 		return fWithBlock;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_randomize_call_expr(this);
+	}
 }

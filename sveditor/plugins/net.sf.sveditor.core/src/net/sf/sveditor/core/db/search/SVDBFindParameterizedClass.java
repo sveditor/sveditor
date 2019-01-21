@@ -175,7 +175,7 @@ public class SVDBFindParameterizedClass {
 			}
 		}
 		
-		for (SVDBParamPortDecl p : tf.getParams()) {
+		for (SVDBParamPortDecl p : tf.getParams().getParams()) {
 			if (param_map.containsKey(p.getTypeInfo().getName())) {
 				p.getTypeInfo().setName(
 						param_map.get(p.getTypeInfo().getName()));

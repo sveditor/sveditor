@@ -16,14 +16,14 @@ import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 
 
 
-public class SVDBItemBase implements ISVDBItemBase {
+public abstract class SVDBItemBase implements ISVDBItemBase {
 	
 	@SVDBDoNotSaveAttr
 	public SVDBItemType			fType;
 	
 	public long					fLocation;
 	
-	public SVDBItemBase(SVDBItemType type) {
+	protected SVDBItemBase(SVDBItemType type) {
 		fType = type;
 		fLocation = -1;
 	}
@@ -80,6 +80,11 @@ public class SVDBItemBase implements ISVDBItemBase {
 		}
 		
 		return ret;
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		System.out.println("WARN: accept method not implemented for " + getClass());
 	}
 	
 }

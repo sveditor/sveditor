@@ -52,5 +52,10 @@ public class SVDBGenerateRegion extends SVDBChildItem implements ISVDBScopeItem 
 			fGenerateItems.add((ISVDBChildItem)item);
 		}
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_generate_region(this);
+	}
 
 }

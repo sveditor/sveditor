@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBTypeInfo;
@@ -83,6 +84,11 @@ public class SVDBParamPortDecl extends SVDBVarDeclStmt {
 			return super.equals(obj);
 		}
 		return false;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_param_port_decl(this);
 	}
 	
 }

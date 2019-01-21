@@ -106,4 +106,9 @@ public class SVDBMarker extends SVDBItemBase {
 		return false;
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_marker(this);
+	}
+	
 }

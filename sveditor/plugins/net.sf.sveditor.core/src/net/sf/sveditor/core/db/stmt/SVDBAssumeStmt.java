@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssumeStmt extends SVDBAssertStmt {
@@ -20,4 +21,8 @@ public class SVDBAssumeStmt extends SVDBAssertStmt {
 		super(SVDBItemType.AssumeStmt);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assume_stmt(this);
+	}
 }

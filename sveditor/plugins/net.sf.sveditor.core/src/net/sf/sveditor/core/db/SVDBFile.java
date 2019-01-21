@@ -56,4 +56,11 @@ public class SVDBFile extends SVDBScopeItem {
 	public void clearChildren() {
 		fItems.clear();
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_file(this);
+	}
+	
+	
 }

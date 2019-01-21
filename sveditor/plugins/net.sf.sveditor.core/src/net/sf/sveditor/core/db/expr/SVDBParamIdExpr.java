@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.SVDBParamValueAssignList;
 
@@ -32,6 +33,11 @@ public class SVDBParamIdExpr extends SVDBIdentifierExpr {
 	
 	public void setParamExpr(SVDBParamValueAssignList plist) {
 		fParamExpr = plist;
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_param_id_expr(this);
 	}
 	
 }

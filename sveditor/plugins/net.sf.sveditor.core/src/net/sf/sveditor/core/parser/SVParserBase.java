@@ -111,6 +111,11 @@ public class SVParserBase implements ISVParser, ILogLevelListener {
 	}
 
 	@Override
+	public void declaration(ISVDBItemBase item) {
+		fParser.declaration(item);
+	}
+
+	@Override
 	public void leave_type_scope(ISVDBItemBase item) {
 		fParser.leave_type_scope(item);
 	}

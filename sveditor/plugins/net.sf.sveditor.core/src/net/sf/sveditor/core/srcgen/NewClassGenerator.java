@@ -117,8 +117,8 @@ public class NewClassGenerator {
 			
 			if (new_func != null) {
 				if (new_func.getParams() != null && 
-						new_func.getParams().size() > 0) {
-					List<SVDBParamPortDecl> params = new_func.getParams();
+						new_func.getParams().getParams().size() > 0) {
+					List<SVDBParamPortDecl> params = new_func.getParams().getParams();
 					template += "\n";
 					template += "function new(";
 					

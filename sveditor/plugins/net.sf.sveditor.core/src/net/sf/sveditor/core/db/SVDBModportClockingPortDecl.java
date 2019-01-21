@@ -26,5 +26,10 @@ public class SVDBModportClockingPortDecl extends SVDBModportPortsDecl {
 	public String getClockingId() {
 		return fClockingId;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_clocking_port_decl(this);
+	}
 
 }

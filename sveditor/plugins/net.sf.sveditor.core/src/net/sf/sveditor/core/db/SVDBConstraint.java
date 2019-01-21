@@ -41,6 +41,11 @@ public class SVDBConstraint extends SVDBScopeItem {
 		};
 	}
 	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_constraint(this);
+	}
+	
 	/*
 	@Override
 	public boolean equals(Object obj) {

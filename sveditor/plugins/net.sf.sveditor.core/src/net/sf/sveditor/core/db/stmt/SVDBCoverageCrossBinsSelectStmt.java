@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -67,4 +68,8 @@ public class SVDBCoverageCrossBinsSelectStmt extends SVDBStmt {
 		fIffExpr = iff;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_coverage_cross_bins_select_stmt(this);
+	}
 }

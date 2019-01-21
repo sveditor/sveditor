@@ -12,13 +12,10 @@
 
 package net.sf.sveditor.core.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
-	public List<SVDBParamPortDecl>			fParams;
+	public SVDBTFParamList					fParams;
 	public int								fAttr;
 	
 	public SVDBTask() {
@@ -27,7 +24,7 @@ public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 	
 	public SVDBTask(String name, SVDBItemType type) {
 		super(name, type);
-		fParams = new ArrayList<SVDBParamPortDecl>();
+		fParams = new SVDBTFParamList();
 	}
 
 	public void setAttr(int attr) {
@@ -39,29 +36,26 @@ public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 	}
 	
 	public void addParam(SVDBParamPortDecl p) {
-		p.setParent(this);
-		fParams.add(p);
+		fParams.addChildItem(p);
 	}
 	
-	public List<SVDBParamPortDecl> getParams() {
+	public SVDBTFParamList getParams() {
 		return fParams;
 	}
 	
-	public void setParams(List<SVDBParamPortDecl> params) {
+	public void setParams(SVDBTFParamList params) {
 		fParams = params;
-		for (SVDBParamPortDecl p : params) {
-			p.setParent(this);
-		}
+		fParams.setParent(this);
 	}
 	
 	public void init(SVDBItemBase other) {
 		super.init(other);
 
 		fAttr = ((SVDBTask)other).fAttr;
-		fParams.clear();
-		for (SVDBParamPortDecl p : ((SVDBTask)other).fParams) {
-			fParams.add((SVDBParamPortDecl)p.duplicate());
-		}
+//		fParams.clear();
+//		for (SVDBParamPortDecl p : ((SVDBTask)other).fParams) {
+//			fParams.add((SVDBParamPortDecl)p.duplicate());
+//		}
 	}
 
 	@Override
@@ -79,6 +73,11 @@ public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 			return ret;
 		}
 		return false;
+	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_task(this);
 	}
 
 	

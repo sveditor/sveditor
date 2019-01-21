@@ -57,4 +57,9 @@ public class SVDBSequence extends SVDBScopeItem {
 	public List<SVDBVarDeclStmt> getVarDeclList() {
 		return fVarDeclList;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_sequence(this);
+	}
 }

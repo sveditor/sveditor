@@ -22,5 +22,10 @@ public class SVDBMacroDefParam extends SVDBChildItem implements ISVDBNamedItem {
 	public String getValue() {
 		return fValue;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_macro_def_param(this);
+	}
 
 }

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBCoverpointExpr extends SVCoverageExpr {
@@ -80,4 +81,9 @@ public class SVDBCoverpointExpr extends SVCoverageExpr {
 		return (SVDBCoverpointExpr)super.duplicate();
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_coverpoint_expr(this);
+	}
+	
 }

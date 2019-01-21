@@ -91,8 +91,7 @@ public class SVModIfcProgDeclParser extends SVParserBase {
 		module.setLocation(start);
 		
 		parent.addChildItem(module);
-		
-		
+
 		if (type != SVDBItemType.ProgramDecl) {
 			// May have imports prior to the port declaration
 			while (fLexer.peekKeyword(KW.IMPORT)) {

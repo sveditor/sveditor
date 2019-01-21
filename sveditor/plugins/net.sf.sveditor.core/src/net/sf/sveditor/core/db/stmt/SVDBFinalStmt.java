@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBFinalStmt extends SVDBBodyStmt {
@@ -20,4 +21,9 @@ public class SVDBFinalStmt extends SVDBBodyStmt {
 		super(SVDBItemType.FinalStmt);
 	}
 
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_final_stmt(this);
+	}
 }

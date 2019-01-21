@@ -75,6 +75,12 @@ public class TestClassItems extends TestCase {
 			public void error(String msg) {}
 			
 			public void debug(String msg, Exception e) {}
+			
+			@Override
+			public void declaration(ISVDBItemBase item) {
+				// TODO Auto-generated method stub
+				
+			}
 
 			public SVParserConfig getConfig() {
 				return null;

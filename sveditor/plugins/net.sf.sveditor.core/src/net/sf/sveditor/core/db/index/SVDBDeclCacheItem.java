@@ -12,7 +12,10 @@
 
 package net.sf.sveditor.core.db.index;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 import net.sf.sveditor.core.db.ISVDBChildItem;
 import net.sf.sveditor.core.db.ISVDBChildParent;
@@ -21,9 +24,11 @@ import net.sf.sveditor.core.db.ISVDBNamedItem;
 import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.core.db.SVDBItem;
 import net.sf.sveditor.core.db.SVDBItemType;
+import net.sf.sveditor.core.db.SVDBLang;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnum;
 import net.sf.sveditor.core.db.SVDBTypeInfoEnumerator;
 import net.sf.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import net.sf.sveditor.core.db.index.cache.ISVDBDeclCacheInt;
 import net.sf.sveditor.core.db.stmt.SVDBImportItem;
 import net.sf.sveditor.core.db.stmt.SVDBImportStmt;
 import net.sf.sveditor.core.db.stmt.SVDBTypedefStmt;
@@ -32,21 +37,39 @@ import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;
 
-import org.eclipse.core.runtime.NullProgressMonitor;
-
 public class SVDBDeclCacheItem implements ISVDBNamedItem {
+	
 	// TODO: should change this to a file id
+	// TODO: Old Index
 	public String						fFileName;
+
+	// New Index
+	public int							fRootFileId;
+	public int							fFileId;
 	
 	@SVDBDoNotSaveAttr
-	private ISVDBDeclCache				fParent;
+	private ISVDBDeclCacheInt			fParent;
+	@SVDBDoNotSaveAttr
+	private ISVDBDeclCache				fParentOld;
 	
 	public String						fName;
 
-	// Used to store base-class list
+	// TODO: Old Index (Used to store base-class list)
 	public List<String>					fExtList;
+
+	// New Index
+	// List of indexes into the root-file declaration
+	// cache, specifying the containing scope (if any)
+	// of this type
+	public List<Integer>				fScope;
 	
 	public SVDBItemType					fType;
+	
+	// Tracks the language that this item belongs to. 
+	// This is import to allow content assist, for example,
+	// to not provide the user SystemVerilog proposals while
+	// editing a VHDL file
+	public SVDBLang						fLanguage;
 	
 	// Specifies whether this item is actually located in the FileTree view of the file.
 	// This will be the case for pre-processor items
@@ -57,22 +80,46 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	
 	public SVDBDeclCacheItem() {
 	}
-	
+
+	@Deprecated
 	public SVDBDeclCacheItem(
 			ISVDBDeclCache 		parent, 
 			String 				filename, 
 			String 				name, 
 			SVDBItemType 		type,
 			boolean				is_ft_item) {
-		fParent = parent;
+		fParentOld = parent;
 		fFileName = filename;
 		fName = name;
 		fType = type;
 		fIsFileTreeItem = is_ft_item;
 	}
+
+	public SVDBDeclCacheItem(
+			ISVDBDeclCacheInt	parent,
+			int					rootfile_id,
+			int					file_id,
+			List<Integer>		scope,
+			String				name,
+			SVDBItemType		type,
+			boolean				is_ft_item) {
+		fParent = parent;
+		fParentOld = parent.getDeclCache();
+		fRootFileId = rootfile_id;
+		fFileId = file_id;
+		fScope = new ArrayList<Integer>(scope);
+		fName = name;
+		fType = type;
+		fIsFileTreeItem = is_ft_item;
+	}
+	
+	public void init(ISVDBDeclCacheInt parent) {
+		fParent = parent;
+		fParentOld = parent.getDeclCache();
+	}
 	
 	public void init(ISVDBDeclCache parent) {
-		fParent = parent;
+		fParentOld = parent;
 	}
 	
 	public String getFilename() {
@@ -95,12 +142,13 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		return fIsFileTreeItem;
 	}
 	
-	public void setParent(ISVDBDeclCache parent) {
+	public void setParent(ISVDBDeclCacheInt parent) {
 		fParent = parent;
+		fParentOld = parent.getDeclCache();
 	}
 	
 	public ISVDBDeclCache getParent() {
-		return fParent ;
+		return fParentOld;
 	}
 	
 	public SVDBItemType getType() {
@@ -114,8 +162,8 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 	public ISVDBItemBase getSVDBItem() {
 		ISVDBItemBase ret = null;
 		
-		if(fParent != null) {
-			SVDBFile file = fParent.getDeclFile(new NullProgressMonitor(), this);
+		if(fParentOld != null) {
+			SVDBFile file = fParentOld.getDeclFile(new NullProgressMonitor(), this);
 			
 			if (file != null) {
 				ret = findSVDBItem(file);
@@ -136,7 +184,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 				}
 				Exception e = null;
 				try { throw new Exception(); } catch (Exception e2) { e = e2; }
-				fLog.debug("Error: Failed to file=" + fFileName + " in cache " +
+				fLog.debug("Error: Failed to find file=" + fFileName + " in cache " +
 						"while looking for item name=" + fName + " type=" + 
 						fType + " (isFileTreeItem=" + fIsFileTreeItem + ")", e);
 			}
@@ -220,7 +268,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		if (fParent == null) {
 			return null ;
 		} else {
-			return fParent.getDeclFile(new NullProgressMonitor(), this);
+			return fParentOld.getDeclFile(new NullProgressMonitor(), this);
 		}
 	}
 	
@@ -228,7 +276,7 @@ public class SVDBDeclCacheItem implements ISVDBNamedItem {
 		if (fParent == null) {
 			return null ;
 		} else {
-			return fParent.getDeclFilePP(new NullProgressMonitor(), this);
+			return fParent.getDeclCache().getDeclFilePP(new NullProgressMonitor(), this);
 		}
 	}
 }

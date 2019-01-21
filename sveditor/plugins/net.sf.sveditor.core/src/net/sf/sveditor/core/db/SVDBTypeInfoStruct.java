@@ -86,4 +86,9 @@ public class SVDBTypeInfoStruct extends SVDBTypeInfo implements ISVDBScopeItem {
 	public SVDBTypeInfoStruct duplicate() {
 		return (SVDBTypeInfoStruct)super.duplicate();
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_struct(this);
+	}
 }

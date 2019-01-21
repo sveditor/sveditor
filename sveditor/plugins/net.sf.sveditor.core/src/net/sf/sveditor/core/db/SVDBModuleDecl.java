@@ -22,5 +22,9 @@ public class SVDBModuleDecl extends SVDBModIfcDecl {
 		super(name, SVDBItemType.ModuleDecl);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_mod_ifc_decl(this);
+	}
 }
 

@@ -16,11 +16,11 @@ import java.util.List;
 
 import net.sf.sveditor.core.db.stmt.SVDBVarDimItem;
 
-public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
+public abstract class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 	public static final int				TypeAttr_Vectored			= (1 << 6);
 	public List<SVDBVarDimItem>				fArrayDim;
 	
-	public SVDBTypeInfo(String typename, SVDBItemType data_type) {
+	protected SVDBTypeInfo(String typename, SVDBItemType data_type) {
 		super(typename, data_type);
 		fLocation = -1;
 	}

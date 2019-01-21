@@ -82,7 +82,7 @@ public class SVDBFindVarsByNameInScopes {
 			// Next, search the parameters, if we're in a function/task scope
 			if (context.getType() == SVDBItemType.Function || 
 					context.getType() == SVDBItemType.Task) {
-				for (SVDBParamPortDecl it : ((SVDBTask)context).getParams()) {
+				for (SVDBParamPortDecl it : ((SVDBTask)context).getParams().getParams()) {
 					boolean stop = false;
 					for (ISVDBChildItem c : it.getChildren()) {
 						SVDBVarDeclItem vi = (SVDBVarDeclItem)c;

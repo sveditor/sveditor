@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -47,4 +48,8 @@ public class SVDBProceduralContAssignStmt extends SVDBStmt {
 		return fExpr;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_procedural_cont_assign_stmt(this);
+	}
 }

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBWaitForkStmt extends SVDBWaitStmt {
@@ -20,4 +21,8 @@ public class SVDBWaitForkStmt extends SVDBWaitStmt {
 		super(SVDBItemType.WaitForkStmt);
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_wait_fork_stmt(this);
+	}
 }

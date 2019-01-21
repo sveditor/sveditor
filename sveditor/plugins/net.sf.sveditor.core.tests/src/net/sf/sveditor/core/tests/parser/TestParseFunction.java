@@ -309,11 +309,11 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTask func = parse_tf(content, "testParamListFunction");
 		
-		ISVDBChildItem c = func.getParams().get(1).getChildren().iterator().next();
+		ISVDBChildItem c = func.getParams().getParams().get(1).getChildren().iterator().next();
 				
 		assertEquals("bar", SVDBItem.getName(c));
 		assertEquals(SVDBParamPortDecl.Direction_Ref,
-				func.getParams().get(1).getDir());
+				func.getParams().getParams().get(1).getDir());
 	}
 
 	public void testParamListFunctionWithPkg() throws SVParseException {
@@ -336,11 +336,11 @@ public class TestParseFunction extends TestCase {
 		
 		SVDBTask func = parse_tf(content, "testParamListFunction");
 		
-		ISVDBChildItem c = func.getParams().get(1).getChildren().iterator().next();
+		ISVDBChildItem c = func.getParams().getParams().get(1).getChildren().iterator().next();
 				
 		assertEquals("bar", SVDBItem.getName(c));
 		assertEquals(SVDBParamPortDecl.Direction_Ref,
-				func.getParams().get(1).getDir());
+				func.getParams().getParams().get(1).getDir());
 	}
 
 }

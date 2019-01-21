@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBAssociativeArrayElemAssignExpr extends SVDBExpr {
@@ -37,5 +38,11 @@ public class SVDBAssociativeArrayElemAssignExpr extends SVDBExpr {
 	public SVDBExpr getValue() {
 		return fValue;
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_associative_array_elem_assign_expr(this);
+	}
+
 
 }

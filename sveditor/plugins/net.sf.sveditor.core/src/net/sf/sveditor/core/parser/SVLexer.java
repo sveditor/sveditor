@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import com.sun.org.apache.xpath.internal.compiler.Keywords;
-
 import net.sf.sveditor.core.db.SVDBLocation;
 import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.log.LogHandle;

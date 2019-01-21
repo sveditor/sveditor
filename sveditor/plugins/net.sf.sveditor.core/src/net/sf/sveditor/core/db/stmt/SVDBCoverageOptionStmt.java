@@ -13,6 +13,7 @@
 package net.sf.sveditor.core.db.stmt;
 
 import net.sf.sveditor.core.db.ISVDBNamedItem;
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -50,6 +51,10 @@ public class SVDBCoverageOptionStmt extends SVDBStmt implements ISVDBNamedItem {
 	public SVDBExpr getExpr() {
 		return fExpr;
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_coverage_option_stmt(this);
+	}
 
 }

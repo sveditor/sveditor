@@ -14,7 +14,7 @@ package net.sf.sveditor.core.db;
 
 import net.sf.sveditor.core.db.attr.SVDBParentAttr;
 
-public class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
+public abstract class SVDBChildItem extends SVDBItemBase implements ISVDBChildItem {
 	@SVDBParentAttr
 	public ISVDBChildItem 			fParent;
 	

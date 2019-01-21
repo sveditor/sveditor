@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.stmt.SVDBBodyStmt;
 
@@ -15,6 +16,10 @@ public class SVDBPropertyCaseItem extends SVDBBodyStmt {
 		fExprList = new ArrayList<SVDBExpr>();
 	}
 	
+	public List<SVDBExpr> getExprList() {
+		return fExprList;
+	}
+	
 	public void addExpr(SVDBExpr expr) {
 		fExprList.add(expr);
 	}
@@ -25,6 +30,11 @@ public class SVDBPropertyCaseItem extends SVDBBodyStmt {
 	
 	public SVDBExpr getStmt() {
 		return fStmt;
+	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_property_case_item(this);
 	}
 	
 }

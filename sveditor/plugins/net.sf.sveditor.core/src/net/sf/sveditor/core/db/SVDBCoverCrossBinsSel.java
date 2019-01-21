@@ -34,5 +34,10 @@ public class SVDBCoverCrossBinsSel extends SVDBItem {
 	public SVDBExpr getSelectExpr() {
 		return fSelectExpr;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_cover_cross_bin_sel(this);
+	}
 
 }

@@ -247,6 +247,7 @@ public class SVDBFileRefFinder {
 				 */
 				
 				case ForStmt: {
+					/* TODO:
 					SVDBForStmt f_stmt = (SVDBForStmt)stmt;
 					if (f_stmt.getInitExpr() != null) {
 						visitStmt(f_stmt.getInitExpr());
@@ -257,6 +258,7 @@ public class SVDBFileRefFinder {
 					if (f_stmt.getIncrStmt() != null) {
 						visitStmt(f_stmt.getIncrStmt());
 					}
+					 */
 					} break;
 					
 				case IfStmt: {

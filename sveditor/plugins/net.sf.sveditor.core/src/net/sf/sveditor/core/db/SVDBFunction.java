@@ -45,5 +45,10 @@ public class SVDBFunction extends SVDBTask {
 		SVDBFunction o = (SVDBFunction)other;
 		fRetType = o.fRetType.duplicate(); 
 	}
-	
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_function_decl(this);
+	}
+
 }

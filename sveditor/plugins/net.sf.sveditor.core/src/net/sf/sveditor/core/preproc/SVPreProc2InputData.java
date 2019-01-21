@@ -13,9 +13,10 @@ import net.sf.sveditor.core.db.SVDBUnprocessedRegion;
 public class SVPreProc2InputData {
 
 	private SVPreProcessor		fPreProc;
-	private PreProcEvent		fBeginEv;
+	private SVPreProcEvent		fBeginEv;
 	private InputStream 		fInput;
 	private String 				fFilename;
+	private SVDBFileTree		fFileTree;
 	private int 				fFileId;
 	private int 				fLineno;
 	private int 				fLinepos;
@@ -25,7 +26,6 @@ public class SVPreProc2InputData {
 	private int 				fUngetCh2;
 	private boolean 			fIncPos;
 	private Map<String, String> fRefMacros;
-	private SVDBFileTree 		fFileTree;
 	private SVDBUnprocessedRegion fUnprocessedRegion;
 
 	SVPreProc2InputData(
@@ -54,11 +54,11 @@ public class SVPreProc2InputData {
 		fUngetCh2 = -1;
 	}
 	
-	public PreProcEvent getBeginEv() {
+	public SVPreProcEvent getBeginEv() {
 		return fBeginEv;
 	}
 	
-	public void setBeginEv(PreProcEvent ev) {
+	public void setBeginEv(SVPreProcEvent ev) {
 		fBeginEv = ev;
 	}
 	
@@ -172,17 +172,6 @@ public class SVPreProc2InputData {
 		}		
 	}
 	
-	void addReferencedMacro(String macro, SVDBMacroDef def) {
-		if (fFileTree != null) {
-			fFileTree.fReferencedMacros.remove(macro);
-			if (def == null) {
-				fFileTree.fReferencedMacros.put(macro, null);
-			} else {
-				fFileTree.fReferencedMacros.put(macro, def.getDef());
-			}
-		}
-	}
-	
 	void update_unprocessed_region(long loc, boolean enabled_pre, boolean enabled_post) {
 		if (enabled_pre && !enabled_post) {
 			// Entering an unprocessed region
@@ -192,7 +181,8 @@ public class SVPreProc2InputData {
 			// Leaving an unprocessed region
 			SVDBUnprocessedRegion r = fUnprocessedRegion;
 			fUnprocessedRegion = null;
-		
+
+			// TODO: handle differently for new indexes
 			if (r != null && fFileTree != null) {
 				r.setEndLocation(loc);
 				fFileTree.getSVDBFile().addChildItem(r);
@@ -205,6 +195,8 @@ public class SVPreProc2InputData {
 			// TODO: mark error
 			// we fell off the end of the file with an ifdef active
 			fUnprocessedRegion.setEndLocation(getLocation());
+
+			// TODO: handle differently for new indexes
 			if (fFileTree != null) {
 				fFileTree.getSVDBFile().addChildItem(fUnprocessedRegion);
 			}

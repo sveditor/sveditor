@@ -751,7 +751,7 @@ public abstract class AbstractCompletionProcessor implements ILogLevel {
 		if (item.getType() == SVDBItemType.Task || item.getType() == SVDBItemType.Function) {
 			// task/function
 			SVDBTask tf = (SVDBTask)item;
-			for (SVDBParamPortDecl p : tf.getParams()) {
+			for (SVDBParamPortDecl p : tf.getParams().getParams()) {
 				for (ISVDBChildItem pi : p.getChildren()) {
 					if (matcher.match((ISVDBNamedItem)pi, ctxt.fLeaf)) {
 						SVCompletionProposal prop = addProposal(pi, ctxt.fLeaf, 0,

@@ -91,6 +91,12 @@ public class SVExprUtilsParser implements ISVParser {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+
+	@Override
+	public void declaration(ISVDBItemBase item) {
+		// TODO:
+	}
 
 	public SVParsers parsers() {
 		return fParsers;

@@ -34,5 +34,10 @@ public class SVDBModportItem extends SVDBItem {
 	public void addPorts(SVDBModportPortsDecl p) {
 		fPorts.add(p);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_modport_item(this);
+	}
 
 }

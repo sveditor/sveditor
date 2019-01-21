@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -72,4 +73,10 @@ public class SVDBAssignExpr extends SVDBExpr {
 		fOp  = ae.fOp;
 		fRhs = ae.fRhs;
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assign_expr(this);
+	}
+	
 }

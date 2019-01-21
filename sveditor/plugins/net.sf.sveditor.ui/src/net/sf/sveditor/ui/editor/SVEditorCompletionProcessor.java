@@ -385,8 +385,8 @@ public class SVEditorCompletionProcessor extends AbstractCompletionProcessor
 		
 		ArrayList<String> all_types = new ArrayList<String> ();
 		ArrayList<String> all_ports = new ArrayList<String> ();
-		for (int i=0; i<tf.getParams().size(); i++) {
-			SVDBParamPortDecl param = tf.getParams().get(i);
+		for (int i=0; i<tf.getParams().getParams().size(); i++) {
+			SVDBParamPortDecl param = tf.getParams().getParams().get(i);
 			for (ISVDBChildItem c : param.getChildren()) {
 				SVDBVarDeclItem vi = (SVDBVarDeclItem)c;
 				all_ports.add(vi.getName());
@@ -444,7 +444,7 @@ public class SVEditorCompletionProcessor extends AbstractCompletionProcessor
 
 		Template t = new Template(d.toString(), 
 				(cls_name != null)?cls_name:"", "CONTEXT",
-				template_str, (tf.getParams().size() == 0));
+				template_str, (tf.getParams().getParams().size() == 0));
 		
 		return new SVTemplateProposal(t, ctxt,
 				new Region(replacementOffset, replacementLength), 

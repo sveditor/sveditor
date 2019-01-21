@@ -57,6 +57,11 @@ public class SVDBCoverpointCross extends SVDBScopeItem {
 		fCoverpointList.clear();
 		fCoverpointList.addAll(other_i.fCoverpointList);
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_coverpoint_cross(this);
+	}
 
 
 	/*

@@ -27,4 +27,8 @@ public class SVDBDocComment extends SVDBItem {
 		return fRawComment ;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_doc_comment(this);
+	}
 }

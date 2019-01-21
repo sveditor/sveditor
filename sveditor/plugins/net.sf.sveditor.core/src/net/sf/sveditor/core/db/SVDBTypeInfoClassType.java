@@ -44,5 +44,13 @@ public class SVDBTypeInfoClassType extends SVDBTypeInfoClassItem {
 		// Set the leaf information to the new class-item info
 		init_class_item(item);
 	}
+	
+	public List<SVDBTypeInfoClassItem> getTypeInfo() {
+		return fTypeInfo;
+	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_type_info_class_type(this);
+	}
 }

@@ -25,4 +25,9 @@ public class SVDBAssignItem extends SVDBChildItem {
 	public SVDBExpr getRHS() {
 		return fRHS;
 	}
+	
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assign_item(this);
+	}
 }

@@ -30,6 +30,7 @@ import net.sf.sveditor.core.parser.ISVTokenListener;
 import net.sf.sveditor.core.parser.SVLanguageLevel;
 import net.sf.sveditor.core.parser.SVParser;
 import net.sf.sveditor.core.parser.SVToken;
+import net.sf.sveditor.core.preproc.SVPreProcFileTreeBuilder;
 import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.preproc.SVPreProcessor;
 
@@ -234,6 +235,8 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 		
 		// Propagate defines to the pre-processor
 		SVPreProcessor pp = new SVPreProcessor(path, in, build_data, build_data);
+		SVPreProcFileTreeBuilder ft_builder = new SVPreProcFileTreeBuilder();
+		pp.addListener(ft_builder);
 		pp.setIndexStats(build_data.getIndexStats());
 
 		// Pass in defines
@@ -253,7 +256,7 @@ public class SVDBArgFileBuildUtils implements ILogLevel {
 					(end-start) + "ms");
 		}
 		
-		SVDBFileTree ft = pp_out.getFileTree();
+		SVDBFileTree ft = ft_builder.getFileTree();
 		
 		// Add a mapping between root file and included files
 		List<String> included_files = new ArrayList<String>();

@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.stmt;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 import net.sf.sveditor.core.db.expr.SVDBExpr;
 
@@ -30,4 +31,8 @@ public class SVDBReturnStmt extends SVDBStmt {
 		return fReturnExpr;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_return_stmt(this);
+	}
 }

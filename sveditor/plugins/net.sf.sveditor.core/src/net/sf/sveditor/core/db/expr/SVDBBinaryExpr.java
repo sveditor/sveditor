@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemBase;
 import net.sf.sveditor.core.db.SVDBItemType;
 
@@ -60,4 +61,10 @@ public class SVDBBinaryExpr extends SVDBExpr {
 		fRhs = (SVDBExpr)be.fRhs.duplicate();
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_binary_expr(this);
+	}
+
+	
 }

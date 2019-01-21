@@ -3,6 +3,7 @@ package net.sf.sveditor.core.db.expr;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBOpenRangeListExpr extends SVDBExpr {
@@ -17,4 +18,9 @@ public class SVDBOpenRangeListExpr extends SVDBExpr {
 		return fRangeList;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_open_range_list_expr(this);
+	}
+	
 }

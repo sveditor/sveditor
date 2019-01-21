@@ -69,4 +69,10 @@ public class SVDBAssign extends SVDBStmt implements ISVDBAddChildItem {
 	public SVDBAssign duplicate() {
 		return (SVDBAssign)SVDBItemUtils.duplicate(this);
 	}
+
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_assign(this);
+	}
+	
 }

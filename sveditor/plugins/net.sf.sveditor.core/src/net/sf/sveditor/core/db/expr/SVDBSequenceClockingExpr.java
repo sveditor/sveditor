@@ -12,6 +12,7 @@
 
 package net.sf.sveditor.core.db.expr;
 
+import net.sf.sveditor.core.db.ISVDBVisitor;
 import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBSequenceClockingExpr extends SVDBExpr {
@@ -38,4 +39,8 @@ public class SVDBSequenceClockingExpr extends SVDBExpr {
 		return fSequenceExpr;
 	}
 
+	@Override
+	public void accept(ISVDBVisitor v) {
+		v.visit_sequence_clocking_expr(this);
+	}
 }
