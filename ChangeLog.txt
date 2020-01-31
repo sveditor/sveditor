@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------
 -- 2.1.6 Release --
 
-- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+- #(nobug) - Recognize (and ignore) the `uselib directive
 
 ------------------------------------------------------------------------------
 -- 2.1.5 Release --

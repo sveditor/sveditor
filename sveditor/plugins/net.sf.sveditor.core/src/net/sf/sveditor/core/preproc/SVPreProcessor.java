@@ -103,6 +103,7 @@ public class SVPreProcessor extends AbstractTextScanner
 		fIgnoredDirectives.add("endcelldefine");
 		fIgnoredDirectives.add("protect");
 		fIgnoredDirectives.add("endprotect");
+		fIgnoredDirectives.add("uselib");
 		// Ignored for now
 		fIgnoredDirectives.add("line");
 		fIgnoredDirectives.add("nounconnected_drive");
