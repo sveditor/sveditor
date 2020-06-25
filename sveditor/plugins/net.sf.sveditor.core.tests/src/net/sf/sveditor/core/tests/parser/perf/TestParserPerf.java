@@ -59,7 +59,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		super.setUp();
 
 		SVCorePlugin.testInit();
-		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
+//		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
 		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
@@ -301,7 +301,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 	public void testManyIfdefs() {
 	
 		SVCorePlugin.testInit();
-		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
+//		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
 		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);

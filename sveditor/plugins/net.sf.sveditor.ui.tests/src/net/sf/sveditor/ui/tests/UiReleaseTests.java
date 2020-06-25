@@ -23,7 +23,6 @@ import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
 import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
 import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
-import net.sf.sveditor.vhdl.ui.tests.VhdlUiReleaseTests;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -37,8 +36,6 @@ public class UiReleaseTests extends TestSuite {
 		addTest(ConsoleTests.suite());
 		addTest(new TestSuite(TestOverrideMethods.class));
 		addTest(new TestSuite(TestUserLevelOperations.class));
-		
-		addTest(VhdlUiReleaseTests.suite());
 	}
 	
 	@Override
