@@ -126,6 +126,7 @@ public class TemplatePathsPage implements ISVProjectPropsPage,
 	}
 
 	public Image getIcon() {
+//FIXME: missed image for Eclipse HDT
 		return SVUiPlugin.getImage(
 				"net.sf.sveditor.svt.ui", "/icons/eview16/generate_template_class.gif");
 	}

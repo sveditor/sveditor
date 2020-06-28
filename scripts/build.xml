@@ -206,7 +206,7 @@
 
         <copy todir="${basedir}/../archive_tmp">
             <fileset dir="${srcdir}/features/${feature.id}">
-                <include name="category.xml"/>
+                <include name="misplaced_category.xml"/>
             </fileset>
             <filterset begintoken="1" endtoken="3">
                 <filter token=".2." value="${feature.version}"/>
@@ -237,7 +237,7 @@
             <arg value="-metadataRepository"/>
             <arg value="file:/${repository}"/>
             <arg value="-categoryDefinition"/>
-            <arg value="file:/${basedir}/../archive_tmp/category.xml"/>
+            <arg value="file:/${basedir}/../archive_tmp/misplaced_category.xml"/>
             <arg value="-categoryQualifier"/>
         </java>
 

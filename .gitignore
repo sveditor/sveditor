@@ -1,3 +1,6 @@
+#Maven
+target/
+#FIXME: review and rework entries below
 *.html
 *.class
 sveditor/plugins/net.sf.sveditor.doc.dev/api_docs/resources/*.gif

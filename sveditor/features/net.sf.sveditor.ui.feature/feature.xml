@@ -120,12 +120,12 @@ This Agreement is governed by the laws of the State of New York and the intellec
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
+<!-- not planned for Eclipse HDT
    <plugin
          id="net.sf.sveditor.vhdl.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
+-->
 </feature>
