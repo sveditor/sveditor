@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<!--
+	Copyright (c) 2020 Alexander Fedorov and others
+
+	This program and the accompanying materials are made available under the
+	terms of the Eclipse Public License 2.0 which is available at
+	https://www.eclipse.org/legal/epl-2.0/.
+
+	SPDX-License-Identifier: EPL-2.0
+
+	Contributors:
+		Alexander Fedorov - initial API and implementation
+-->
+<target name="org.eclipse.passage.target" sequenceNumber="87">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.eclipse.license.feature.group" version="0.0.0"/>
+			<repository location="https://download.eclipse.org/cbi/updates/license/"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.eclipse.equinox.executable.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.sdk.feature.group" version="0.0.0"/>
+			<repository location="https://download.eclipse.org/eclipse/updates/4.12/R-4.12-201906051800/"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.eclipse.draw2d.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.zest.feature.group" version="0.0.0"/>
+			<repository location="http://download.eclipse.org/tools/gef/updates/legacy/releases/4.0.0_gef-master_1952/"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="com.fasterxml.jackson.core.jackson-annotations" version="0.0.0"/>
+			<unit id="com.fasterxml.jackson.core.jackson-annotations.source" version="0.0.0"/>
+			<unit id="com.fasterxml.jackson.core.jackson-core" version="0.0.0"/>
+			<unit id="com.fasterxml.jackson.core.jackson-core.source" version="0.0.0"/>
+			<unit id="com.fasterxml.jackson.core.jackson-databind" version="0.0.0"/>
+			<unit id="com.fasterxml.jackson.core.jackson-databind.source" version="0.0.0"/>
+			<unit id="com.github.oshi.oshi-core" version="0.0.0"/>
+			<unit id="com.github.oshi.oshi-core.source" version="0.0.0"/>
+			<unit id="com.sun.jna" version="0.0.0"/>
+			<unit id="com.sun.jna.source" version="0.0.0"/>
+			<unit id="com.sun.jna.platform" version="0.0.0"/>
+			<unit id="com.sun.jna.platform.source" version="0.0.0"/>
+			<unit id="javax.activation" version="0.0.0"/>
+			<unit id="javax.mail" version="0.0.0"/>
+			<unit id="org.apache.commons.csv" version="0.0.0"/>
+			<unit id="org.bouncycastle.bcpg" version="0.0.0"/>
+			<unit id="org.bouncycastle.bcpg.source" version="0.0.0"/>
+			<unit id="org.bouncycastle.bcpkix" version="0.0.0"/>
+			<unit id="org.bouncycastle.bcpkix.source" version="0.0.0"/>
+			<unit id="org.bouncycastle.bcprov" version="0.0.0"/>
+			<unit id="org.bouncycastle.bcprov.source" version="0.0.0"/>
+			<unit id="org.junit" version="0.0.0"/>
+			<unit id="org.mockito" version="0.0.0"/>
+			<unit id="org.slf4j.api" version="0.0.0"/>
+			<unit id="org.slf4j.api.source" version="0.0.0"/>
+			<repository location="https://download.eclipse.org/tools/orbit/downloads/2020-06/"/>
+		</location>
+	</locations>
+</target>

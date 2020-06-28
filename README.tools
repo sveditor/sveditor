@@ -1,3 +1,7 @@
+How to build
+```
+mvn clean verify
+```
 
 Release Environment Variables
 - SF_USERNAME

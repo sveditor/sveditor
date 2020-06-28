@@ -19,9 +19,10 @@
     url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.doc.dev_1.2.3.jar/download"/>
    <archive path="plugins/net.sf.sveditor.doc.user_1.2.3.jar"
     url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.doc.user_1.2.3.jar/download"/>
+<!-- not planned for Eclipse HDT
    <archive path="plugins/net.sf.sveditor.core.uvm.templates_1.2.3.jar"
     url="https://sourceforge.net/projects/sveditor/files/@frs_update_site_dir@/1.2.3/plugins/net.sf.sveditor.core.uvm.templates_1.2.3.jar/download"/>
-
+-->
 
 <!-- END: Release 1.2.3 -->
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (c) 2020 Alexander Fedorov and others
+
+	This program and the accompanying materials are made available under the
+	terms of the Eclipse Public License 2.0 which is available at
+	https://www.eclipse.org/legal/epl-2.0/.
+
+	SPDX-License-Identifier: EPL-2.0
+
+	Contributors:
+		Alexander Fedorov - initial API and implementation
+-->
+<site>
+	<category-def
+		name="org.eclipse.hdt.category"
+		label="Eclipse HDT"
+	>
+		<description>
+			Eclipse HDL Development Tools
+		</description>
+	</category-def>
+	<feature
+		id="net.sf.sveditor">
+		<category name="org.eclipse.hdt.category" />
+	</feature>
+
+	<category-def
+		name="org.eclipse.hdt.category.source"
+		label="Eclipse HDT Developer Resources"
+	>
+		<description>
+			Eclipse HDL Development Tools
+		</description>
+	</category-def>
+	<feature
+		id="net.sf.sveditor.source">
+		<category name="org.eclipse.hdt.category.source" />
+	</feature>
+</site>
