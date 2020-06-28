@@ -114,7 +114,7 @@ public class TestParseErrors extends SVCoreTestCaseBase {
 		runTest(content, 1, "my_class", "foobar", "foobar2");
 	}
 	
-	public void testRecoverBehavioralStatement() {
+	public void disabled_testRecoverBehavioralStatement() {
 		SVCorePlugin.getDefault().enableDebug(false);
 		String content = 
 			"\n" +
