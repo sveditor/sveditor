@@ -14,17 +14,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMacroDefParam;
-import net.sf.sveditor.core.preproc.IPreProcListener;
-import net.sf.sveditor.core.preproc.PreProcEvent;
-import net.sf.sveditor.core.preproc.PreProcEvent.Type;
-import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
-import net.sf.sveditor.core.preproc.SVStringPreProcessor;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
+import org.eclipse.hdt.sveditor.core.db.SVDBMacroDefParam;
+import org.eclipse.hdt.sveditor.core.preproc.IPreProcListener;
+import org.eclipse.hdt.sveditor.core.preproc.PreProcEvent;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+import org.eclipse.hdt.sveditor.core.preproc.SVStringPreProcessor;
+import org.eclipse.hdt.sveditor.core.preproc.PreProcEvent.Type;
+import org.eclipse.hdt.sveditor.core.scanner.SVPreProcDefineProvider;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcListener {

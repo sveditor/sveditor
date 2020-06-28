@@ -17,9 +17,9 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
 

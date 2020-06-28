@@ -13,14 +13,14 @@ package net.sf.sveditor.ui.wizards.imp.compilation.args;
 
 import java.io.InputStream;
 
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;

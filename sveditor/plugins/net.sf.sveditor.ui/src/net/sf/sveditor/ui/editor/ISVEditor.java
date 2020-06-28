@@ -15,9 +15,8 @@
 
 package net.sf.sveditor.ui.editor;
 
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 

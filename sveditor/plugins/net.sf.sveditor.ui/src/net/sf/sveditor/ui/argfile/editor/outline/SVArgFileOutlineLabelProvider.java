@@ -10,15 +10,15 @@
  */
 package net.sf.sveditor.ui.argfile.editor.outline;
 
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFilePath;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 

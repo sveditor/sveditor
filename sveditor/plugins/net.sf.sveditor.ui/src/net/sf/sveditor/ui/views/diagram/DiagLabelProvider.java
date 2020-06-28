@@ -16,19 +16,19 @@ package net.sf.sveditor.ui.views.diagram;
 
 import java.util.HashSet;
 
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBFunction;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.diagrams.DiagConnection;
-import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.views.diagram.figures.UMLClassFigure;
 
 import org.eclipse.draw2d.ConnectionRouter;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.eclipse.hdt.sveditor.core.diagrams.DiagConnection;
+import org.eclipse.hdt.sveditor.core.diagrams.DiagNode;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.zest.core.viewers.EntityConnectionData;

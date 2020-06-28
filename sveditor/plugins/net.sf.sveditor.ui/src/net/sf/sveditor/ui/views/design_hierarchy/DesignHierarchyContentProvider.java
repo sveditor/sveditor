@@ -10,10 +10,9 @@
  */
 package net.sf.sveditor.ui.views.design_hierarchy;
 
-import net.sf.sveditor.core.design_hierarchy.DesignHierarchyContentProviderBase;
-import net.sf.sveditor.core.design_hierarchy.DesignHierarchyNode;
-
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyContentProviderBase;
+import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

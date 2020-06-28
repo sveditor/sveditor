@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
 
 
 

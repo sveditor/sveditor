@@ -13,21 +13,21 @@ package net.sf.sveditor.core.tests.open_decl;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBOverrideFilesystemProvider;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
+import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclResult;
+import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
+import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBOverrideFilesystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.open_decl.OpenDeclResult;
-import net.sf.sveditor.core.open_decl.OpenDeclUtils;
-import net.sf.sveditor.core.scanutils.IBIDITextScanner;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TestStringUtils;
 public class TestOpenMethod extends SVCoreTestCaseBase { 

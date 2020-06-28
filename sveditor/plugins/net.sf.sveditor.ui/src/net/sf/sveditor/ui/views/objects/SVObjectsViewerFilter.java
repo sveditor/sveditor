@@ -16,8 +16,7 @@
 
 package net.sf.sveditor.ui.views.objects;
 
-import net.sf.sveditor.core.objects.ObjectsTreeNode;
-
+import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 

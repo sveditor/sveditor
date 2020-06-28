@@ -14,11 +14,6 @@
 
 package net.sf.sveditor.ui.views.diagram.contributions;
 
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.diagrams.ClassDiagModelFactory;
-import net.sf.sveditor.core.diagrams.DiagModel;
-import net.sf.sveditor.core.diagrams.IDiagModelFactory;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.views.diagram.SVDiagramView;
 
@@ -26,6 +21,11 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.diagrams.ClassDiagModelFactory;
+import org.eclipse.hdt.sveditor.core.diagrams.DiagModel;
+import org.eclipse.hdt.sveditor.core.diagrams.IDiagModelFactory;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;

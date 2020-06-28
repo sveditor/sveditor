@@ -18,11 +18,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.scanner.SVCharacter;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;

@@ -17,10 +17,10 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class FindReferencesAction extends TextEditorAction {

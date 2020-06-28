@@ -26,18 +26,17 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.builder.SVBuilderProcess;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.log.ILogLevel;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionListenerAction;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonMenuConstants;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.builder.SVBuilderProcess;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 
 public class RebuildSvIndexAction extends CommonActionProvider implements ILogLevel {
 

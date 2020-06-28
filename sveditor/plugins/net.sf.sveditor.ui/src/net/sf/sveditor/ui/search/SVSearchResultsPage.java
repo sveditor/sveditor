@@ -15,11 +15,11 @@
 
 package net.sf.sveditor.ui.search;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;

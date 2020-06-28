@@ -15,11 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.TestIndexCacheFactory;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
@@ -28,6 +23,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;

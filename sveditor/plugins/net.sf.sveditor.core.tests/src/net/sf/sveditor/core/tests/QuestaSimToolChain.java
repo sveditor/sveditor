@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class QuestaSimToolChain implements ISimToolchain {
 	private boolean				fValid;

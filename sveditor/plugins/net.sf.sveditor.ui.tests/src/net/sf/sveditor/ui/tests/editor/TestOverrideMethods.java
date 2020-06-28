@@ -17,20 +17,20 @@ package net.sf.sveditor.ui.tests.editor;
 
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBTypeInfoClassType;
-import net.sf.sveditor.core.srcgen.OverrideMethodsFinder;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.ui.editor.actions.IOverrideMethodsTargetProvider;
 import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncImpl;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
+import org.eclipse.hdt.sveditor.core.srcgen.OverrideMethodsFinder;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;

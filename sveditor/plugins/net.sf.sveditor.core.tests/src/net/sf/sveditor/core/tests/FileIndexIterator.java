@@ -18,18 +18,17 @@ package net.sf.sveditor.core.tests;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileBuildDataUtils;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileBuildDataUtils;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 
 public class FileIndexIterator extends SVDBArgFileIndex {
 	

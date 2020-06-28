@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
 
 public class TestArgFileVariableProvider implements
 		ISVArgFileVariableProvider {

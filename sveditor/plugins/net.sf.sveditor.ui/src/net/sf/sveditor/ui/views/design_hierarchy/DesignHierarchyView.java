@@ -10,8 +10,6 @@
  */
 package net.sf.sveditor.ui.views.design_hierarchy;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.SVUiPlugin;
 
@@ -20,6 +18,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;

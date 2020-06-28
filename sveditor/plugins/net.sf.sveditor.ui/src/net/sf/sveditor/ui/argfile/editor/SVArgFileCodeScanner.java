@@ -18,11 +18,11 @@ package net.sf.sveditor.ui.argfile.editor;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.svf_scanner.SVFScanner;
 import net.sf.sveditor.ui.editor.CCommentRule;
 import net.sf.sveditor.ui.editor.SLCommentRule;
 import net.sf.sveditor.ui.editor.SVEditorColors;
 
+import org.eclipse.hdt.sveditor.core.svf_scanner.SVFScanner;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;

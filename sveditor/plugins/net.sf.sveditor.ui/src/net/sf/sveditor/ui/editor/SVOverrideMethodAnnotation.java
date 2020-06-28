@@ -10,9 +10,9 @@
  */
 package net.sf.sveditor.ui.editor;
 
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
 import org.eclipse.jface.text.source.Annotation;
 
 public class SVOverrideMethodAnnotation extends Annotation {

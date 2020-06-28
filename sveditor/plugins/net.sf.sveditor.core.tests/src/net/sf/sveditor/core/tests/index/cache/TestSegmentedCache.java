@@ -19,15 +19,15 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCache;
-import net.sf.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestSegmentedCache extends SVCoreTestCaseBase {

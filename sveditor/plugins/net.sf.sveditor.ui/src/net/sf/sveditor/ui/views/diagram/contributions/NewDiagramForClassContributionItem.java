@@ -16,14 +16,14 @@ package net.sf.sveditor.ui.views.diagram.contributions;
 
 import java.util.Collections;
 
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.diagrams.DiagNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.views.diagram.SVDiagramView;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.diagrams.DiagNode;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;

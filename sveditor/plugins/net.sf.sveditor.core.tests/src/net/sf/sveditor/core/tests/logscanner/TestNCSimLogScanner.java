@@ -10,11 +10,12 @@
  */
 package net.sf.sveditor.core.tests.logscanner;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.script.launch.LogMessageScannerMgr;
-import net.sf.sveditor.core.script.launch.NCSimLogMessageScanner;
-import net.sf.sveditor.core.script.launch.ScriptMessage;
-import net.sf.sveditor.core.script.launch.ScriptMessage.MessageType;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
+import org.eclipse.hdt.sveditor.core.script.launch.NCSimLogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage.MessageType;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestNCSimLogScanner extends SVCoreTestCaseBase {

@@ -21,15 +21,15 @@ import java.net.URL;
 import java.util.Enumeration;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
+import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 import org.osgi.framework.Bundle;
 
 public class NoHangIndentTests extends TestCase {

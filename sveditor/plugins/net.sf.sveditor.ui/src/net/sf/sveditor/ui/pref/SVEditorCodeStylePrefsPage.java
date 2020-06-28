@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.sveditor.core.XMLTransformUtils;
-import net.sf.sveditor.core.parser.SVParserConfig;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.hdt.sveditor.core.XMLTransformUtils;
+import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;

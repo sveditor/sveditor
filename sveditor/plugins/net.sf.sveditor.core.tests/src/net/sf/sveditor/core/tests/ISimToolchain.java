@@ -12,7 +12,7 @@ package net.sf.sveditor.core.tests;
 
 import java.io.File;
 
-import net.sf.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public interface ISimToolchain {
 	

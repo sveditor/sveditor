@@ -18,26 +18,27 @@ package net.sf.sveditor.core.tests.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoBuiltin;
+import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoBuiltinNet;
+import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoUserDef;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.SVDBTypeInfoBuiltin;
-import net.sf.sveditor.core.db.SVDBTypeInfoBuiltinNet;
-import net.sf.sveditor.core.db.SVDBTypeInfoUserDef;
-import net.sf.sveditor.core.db.stmt.SVDBParamPortDecl;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVLanguageLevel;
-import net.sf.sveditor.core.parser.SVParseException;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleBodyItems extends TestCase {

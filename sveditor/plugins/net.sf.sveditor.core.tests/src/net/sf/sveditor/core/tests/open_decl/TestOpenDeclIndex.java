@@ -21,20 +21,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBChildParent;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.open_decl.OpenDeclUtils;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -47,6 +33,20 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
 public class TestOpenDeclIndex extends SVCoreTestCaseBase {
 

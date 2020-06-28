@@ -15,12 +15,6 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
@@ -30,6 +24,12 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 
 public class TestCrossIndexReferences extends SVCoreTestCaseBase {
 	

@@ -17,10 +17,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.parser.SVLanguageLevel;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.SVDBTestUtils;

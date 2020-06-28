@@ -18,14 +18,13 @@ package net.sf.sveditor.ui.prop_pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVProjectNature;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVProjectNature;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

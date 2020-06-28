@@ -14,6 +14,15 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.Position;
@@ -27,15 +36,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.ui.sv.viewer.SystemVerilogInsertLineViewer;
 
 public class NewSVClassWizardAddToPackagePage extends WizardPage {

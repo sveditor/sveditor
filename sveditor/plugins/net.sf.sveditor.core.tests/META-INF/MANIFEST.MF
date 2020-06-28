@@ -1,15 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests Plug-in
-Bundle-SymbolicName: net.sf.sveditor.core.tests;singleton:=true
+Bundle-SymbolicName: org.eclipse.hdt.sveditor.core.tests;singleton:=true
 Bundle-Version: 1.2.3
 Bundle-Activator: net.sf.sveditor.core.tests.SVCoreTestsPlugin
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
- net.sf.sveditor.core,
+ org.eclipse.hdt.sveditor.core,
  org.apache.ant,
  org.eclipse.core.resources,
- net.sf.sveditor.extjar
+ org.eclipse.hdt.sveditor.extjar
 Eclipse-LazyStart: true
 Export-Package: net.sf.sveditor.core.tests,
  net.sf.sveditor.core.tests.constraint_parser,

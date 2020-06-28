@@ -22,29 +22,29 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBMarker.MarkerType;
-import net.sf.sveditor.core.db.index.ISVDBDeclCache;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexInt;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
-import net.sf.sveditor.core.db.index.ISVDBIndexOperationRunner;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import net.sf.sveditor.core.log.LogHandle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexInt;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperationRunner;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class IndexTestUtils {
 	

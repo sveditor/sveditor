@@ -18,19 +18,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.hdt.sveditor.core.db.SVDBDocComment;
+import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
+import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
+import org.eclipse.hdt.sveditor.core.docs.IDocCommentParser;
+import org.eclipse.hdt.sveditor.core.docs.IDocTopicManager;
+import org.eclipse.hdt.sveditor.core.docs.html.HTMLFromNDMarkup;
+import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
+import org.eclipse.hdt.sveditor.core.log.ILogLevel;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
 import org.osgi.framework.Bundle;
 
-import net.sf.sveditor.core.db.SVDBDocComment;
-import net.sf.sveditor.core.docs.DocCommentParser;
-import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.IDocCommentParser;
-import net.sf.sveditor.core.docs.IDocTopicManager;
-import net.sf.sveditor.core.docs.html.HTMLFromNDMarkup;
-import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {

@@ -17,27 +17,28 @@ package net.sf.sveditor.core.tests.hierarchy;
 
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedClass;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedPackage;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
+import org.eclipse.hdt.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
+import org.eclipse.hdt.sveditor.core.hierarchy.HierarchyTreeNode;
+import org.eclipse.hdt.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
+import org.eclipse.hdt.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
+import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
-import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
-import net.sf.sveditor.core.db.search.SVDBFindNamedPackage;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
-import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
-import net.sf.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
-import net.sf.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
-import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 

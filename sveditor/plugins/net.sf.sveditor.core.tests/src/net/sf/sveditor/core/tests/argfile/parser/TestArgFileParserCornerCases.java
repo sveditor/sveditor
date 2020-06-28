@@ -10,11 +10,12 @@
  */
 package net.sf.sveditor.core.tests.argfile.parser;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
-import net.sf.sveditor.core.parser.SVParseException;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileStmt;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+
 import junit.framework.TestCase;
 
 public class TestArgFileParserCornerCases extends TestCase {

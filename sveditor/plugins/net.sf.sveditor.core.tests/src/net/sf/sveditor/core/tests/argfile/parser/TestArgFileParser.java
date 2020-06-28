@@ -14,23 +14,24 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileStmt;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVParseException;
-import net.sf.sveditor.core.scanutils.ITextScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 
 public class TestArgFileParser extends TestCase {

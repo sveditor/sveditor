@@ -21,7 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import net.sf.sveditor.core.StringInputStream;
+
+import org.eclipse.hdt.sveditor.core.StringInputStream;
 
 public class TextTagPosUtils {
 	private ByteArrayOutputStream			fStrippedData;

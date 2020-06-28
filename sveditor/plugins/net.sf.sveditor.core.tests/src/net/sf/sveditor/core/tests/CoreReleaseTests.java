@@ -18,13 +18,14 @@ package net.sf.sveditor.core.tests;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.log.ILogHandle;
+import org.eclipse.hdt.sveditor.core.log.ILogListener;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.log.ILogHandle;
-import net.sf.sveditor.core.log.ILogListener;
-import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.core.tests.argfile.content_assist.ArgFileContentAssistTests;
 import net.sf.sveditor.core.tests.argfile.creator.TestArgFileCreator;
 import net.sf.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;

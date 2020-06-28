@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/net.sf.sveditor.core"/>
+<listEntry value="/org.eclipse.hdt.sveditor.core/src/org/eclipse/hdt/sveditor/core/parser/MkOperatorParser.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
+<listEntry value="1"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.sf.sveditor.core.parser.MkOperatorParser"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.hdt.sveditor.core.parser.MkOperatorParser"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="src/net/sf/sveditor/core/parser/SVOperatorLexer.java"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="net.sf.sveditor.core"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.eclipse.hdt.sveditor.core"/>
 </launchConfiguration>

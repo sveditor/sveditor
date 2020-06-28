@@ -13,10 +13,11 @@ package net.sf.sveditor.core.tests.index.persistence;
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestSVDBFileSystem extends SVCoreTestCaseBase {

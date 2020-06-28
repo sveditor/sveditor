@@ -14,17 +14,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBDocComment;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.search.SVDBFindDocComment;
-import net.sf.sveditor.core.db.search.SVDBFindNamedClass;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.FileIndexIterator;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -32,6 +21,17 @@ import net.sf.sveditor.core.tests.SVDBTestUtils;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBDocComment;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDocComment;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedClass;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class TestFindDocComments extends SVCoreTestCaseBase {
 	

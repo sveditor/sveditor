@@ -10,7 +10,8 @@
  */
 package net.sf.sveditor.core.tests.db;
 
-import net.sf.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestSVDBLocation extends SVCoreTestCaseBase {

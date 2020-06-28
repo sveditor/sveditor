@@ -16,12 +16,12 @@
 
 package net.sf.sveditor.ui.views.objects;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.objects.ObjectsTreeNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVEditorUtil;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;

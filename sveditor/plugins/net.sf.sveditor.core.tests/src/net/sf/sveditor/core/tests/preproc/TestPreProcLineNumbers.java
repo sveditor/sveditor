@@ -16,22 +16,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
+import org.eclipse.hdt.sveditor.core.db.ISVDBEndLocation;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBChildParent;
-import net.sf.sveditor.core.db.ISVDBEndLocation;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcLineNumbers extends SVCoreTestCaseBase {

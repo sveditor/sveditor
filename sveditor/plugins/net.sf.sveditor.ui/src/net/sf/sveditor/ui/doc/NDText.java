@@ -15,11 +15,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.docs.DocCommentParser;
-import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.html.HTMLFromNDMarkup;
-import net.sf.sveditor.core.docs.model.DocTopic;
-
+import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
+import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
+import org.eclipse.hdt.sveditor.core.docs.html.HTMLFromNDMarkup;
+import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;

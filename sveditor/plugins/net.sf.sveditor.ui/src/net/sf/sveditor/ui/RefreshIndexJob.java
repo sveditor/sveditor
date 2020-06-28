@@ -18,16 +18,15 @@ package net.sf.sveditor.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.log.ILogLevel;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.log.ILogLevel;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class RefreshIndexJob extends Job implements ILogLevel {
 	private List<ISVDBIndex>			fIndexRebuildList;

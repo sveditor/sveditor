@@ -13,19 +13,19 @@
  ****************************************************************************/
 package net.sf.sveditor.ui.editor;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVDefaultIndenter2;
-import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.log.ILogHandle;
-import net.sf.sveditor.core.log.ILogLevelListener;
-import net.sf.sveditor.core.log.ILogListener;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
+import org.eclipse.hdt.sveditor.core.indent.SVDefaultIndenter2;
+import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
+import org.eclipse.hdt.sveditor.core.log.ILogHandle;
+import org.eclipse.hdt.sveditor.core.log.ILogLevelListener;
+import org.eclipse.hdt.sveditor.core.log.ILogListener;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;

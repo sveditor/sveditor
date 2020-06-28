@@ -15,9 +15,9 @@
 
 package net.sf.sveditor.ui.editor;
 
-import net.sf.sveditor.core.scanutils.IBIDITextScanner;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;

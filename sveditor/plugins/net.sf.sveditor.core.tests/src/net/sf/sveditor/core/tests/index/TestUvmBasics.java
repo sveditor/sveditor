@@ -23,23 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexInt;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBIndexStats;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.ops.SVDBFindDeclOp;
-import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
-import net.sf.sveditor.core.db.search.ISVDBFindNameMatcher;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.ISVPreProcessor;
-import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -50,6 +33,23 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexInt;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexStats;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.index.ops.SVDBFindDeclOp;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBFileRefCollector;
+import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcessor;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
 
 public class TestUvmBasics extends SVCoreTestCaseBase {
 	

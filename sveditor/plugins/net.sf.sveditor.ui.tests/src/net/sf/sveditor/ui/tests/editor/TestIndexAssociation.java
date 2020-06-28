@@ -18,12 +18,6 @@ package net.sf.sveditor.ui.tests.editor;
 import java.io.File;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.SVDBFileOverrideIndex;
-import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.editor.SVEditor;
@@ -31,6 +25,12 @@ import net.sf.sveditor.ui.editor.SVEditor;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFileOverrideIndex;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
 import org.eclipse.jface.text.BadLocationException;
 
 public class TestIndexAssociation extends SVEditorTestCaseBase {

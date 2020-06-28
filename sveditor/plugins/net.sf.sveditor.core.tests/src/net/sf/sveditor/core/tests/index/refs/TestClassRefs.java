@@ -13,20 +13,6 @@ package net.sf.sveditor.core.tests.index.refs;
 import java.io.File;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.ops.SVDBFindClassExtensionsOp;
-import net.sf.sveditor.core.db.refs.SVDBFindReferencesOp;
-import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
-import net.sf.sveditor.core.db.refs.SVDBRefSearchSpecClassFieldRefsByName;
-import net.sf.sveditor.core.db.search.SVDBFindByName;
-import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -34,6 +20,20 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.index.ops.SVDBFindClassExtensionsOp;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBFindReferencesOp;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefCollectorVisitor;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefSearchSpecClassFieldRefsByName;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByName;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
 
 public class TestClassRefs extends SVCoreTestCaseBase {
 

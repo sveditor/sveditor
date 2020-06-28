@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class OverrideTaskFuncAction extends TextEditorAction 

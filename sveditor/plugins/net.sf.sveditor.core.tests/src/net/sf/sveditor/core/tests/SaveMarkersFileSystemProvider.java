@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemChangeListener;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
 
 public class SaveMarkersFileSystemProvider implements ISVDBFileSystemProvider {
 	private ISVDBFileSystemProvider			fFSProvider;

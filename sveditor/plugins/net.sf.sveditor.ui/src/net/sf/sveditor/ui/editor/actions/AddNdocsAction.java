@@ -17,6 +17,10 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.docs.DocCommentAdder;
+import org.eclipse.hdt.sveditor.core.docs.IDocCommentAdder;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextUtilities;
@@ -28,10 +32,6 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 //       - If they are NDOC compliant ... skip
 //       - If not, assume that the comment is the "description field" and insert it there
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.docs.DocCommentAdder;
-import net.sf.sveditor.core.docs.IDocCommentAdder;
 import net.sf.sveditor.ui.editor.SVEditor;
 
 public class AddNdocsAction extends TextEditorAction {

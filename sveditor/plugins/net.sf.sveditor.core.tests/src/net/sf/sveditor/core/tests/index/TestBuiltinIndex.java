@@ -15,14 +15,14 @@
 
 package net.sf.sveditor.core.tests.index;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
+import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 
 public class TestBuiltinIndex extends SVCoreTestCaseBase {
 	

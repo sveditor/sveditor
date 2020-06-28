@@ -16,6 +16,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
+import org.eclipse.hdt.sveditor.core.preproc.PreProcEvent;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelFactory;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelNode;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -39,12 +45,6 @@ import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
-import net.sf.sveditor.core.preproc.PreProcEvent;
-import net.sf.sveditor.core.preproc.SVPreProcModelFactory;
-import net.sf.sveditor.core.preproc.SVPreProcModelNode;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.editor.SVDocumentSetupParticipant;
 import net.sf.sveditor.ui.editor.SVEditor;

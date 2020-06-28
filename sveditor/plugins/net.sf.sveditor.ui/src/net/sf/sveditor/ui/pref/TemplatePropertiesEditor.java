@@ -16,9 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.XMLTransformUtils;
-
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.XMLTransformUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.resource.JFaceResources;

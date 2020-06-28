@@ -17,13 +17,13 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVIndentScanner;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
+import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;

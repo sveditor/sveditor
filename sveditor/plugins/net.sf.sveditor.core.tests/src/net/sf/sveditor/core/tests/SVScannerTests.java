@@ -18,20 +18,21 @@ package net.sf.sveditor.core.tests;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBUtil;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBFileFactory;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.SVDBUtil;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVLanguageLevel;
 
 public class SVScannerTests extends TestCase {
 	

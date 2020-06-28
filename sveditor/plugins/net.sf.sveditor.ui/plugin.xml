@@ -1831,7 +1831,7 @@ endpackage
       </launchDelegate>
    </extension>
    <extension
-         point="net.sf.sveditor.ui.svScriptPatternMatchers">
+         point="org.eclipse.hdt.sveditor.ui.svScriptPatternMatchers">
       <patternMatcher
             class="net.sf.sveditor.ui.script.launch.GenericPathPatternMatcher"
             name="Generic Path Matcher">

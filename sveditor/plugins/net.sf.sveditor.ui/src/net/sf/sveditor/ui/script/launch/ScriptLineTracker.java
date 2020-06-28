@@ -18,19 +18,18 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.script.launch.BuildScriptLauncherConstants;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageListener;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
+import org.eclipse.hdt.sveditor.core.script.launch.SVScriptProblem;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessageScannerDescriptor;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessageScannerRegistry;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage.MessageType;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
-
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.script.launch.BuildScriptLauncherConstants;
-import net.sf.sveditor.core.script.launch.ILogMessageListener;
-import net.sf.sveditor.core.script.launch.ILogMessageScanner;
-import net.sf.sveditor.core.script.launch.LogMessageScannerMgr;
-import net.sf.sveditor.core.script.launch.SVScriptProblem;
-import net.sf.sveditor.core.script.launch.ScriptMessage;
-import net.sf.sveditor.core.script.launch.ScriptMessageScannerDescriptor;
-import net.sf.sveditor.core.script.launch.ScriptMessageScannerRegistry;
-import net.sf.sveditor.core.script.launch.ScriptMessage.MessageType;
 
 public class ScriptLineTracker implements IConsoleLineTracker {
 	

@@ -10,7 +10,8 @@
  */
 package net.sf.sveditor.core.tests.index.argfile2;
 
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileParser;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileParser;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestExternalIndex extends SVCoreTestCaseBase {

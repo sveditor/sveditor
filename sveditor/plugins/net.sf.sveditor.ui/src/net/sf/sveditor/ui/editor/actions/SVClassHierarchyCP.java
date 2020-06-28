@@ -18,14 +18,13 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.utils.SVDBIndexSearcher;
-import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
-
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
+import org.eclipse.hdt.sveditor.core.db.utils.SVDBIndexSearcher;
+import org.eclipse.hdt.sveditor.core.db.utils.SVDBSearchUtils;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

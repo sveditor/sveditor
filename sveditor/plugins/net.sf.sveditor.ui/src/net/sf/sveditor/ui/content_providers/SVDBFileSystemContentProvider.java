@@ -12,8 +12,7 @@ package net.sf.sveditor.ui.content_providers;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

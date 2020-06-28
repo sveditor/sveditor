@@ -13,8 +13,9 @@ package net.sf.sveditor.core.tests.job_mgr;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.job_mgr.IJob;
-import net.sf.sveditor.core.job_mgr.JobMgr;
+import org.eclipse.hdt.sveditor.core.job_mgr.IJob;
+import org.eclipse.hdt.sveditor.core.job_mgr.JobMgr;
+
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 

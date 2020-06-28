@@ -17,8 +17,8 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTask;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
 
 public interface IOverrideMethodsTargetProvider {
 

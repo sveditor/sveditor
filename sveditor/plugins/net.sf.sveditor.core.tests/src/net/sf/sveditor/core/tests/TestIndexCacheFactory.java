@@ -18,11 +18,12 @@ package net.sf.sveditor.core.tests;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.eclipse.hdt.sveditor.core.db.index.cache.InMemoryIndexCache;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.InMemoryIndexCache;
 
 public class TestIndexCacheFactory implements ISVDBIndexCacheMgr {
 	private ISVDBIndexCacheMgr		fCacheImpl;

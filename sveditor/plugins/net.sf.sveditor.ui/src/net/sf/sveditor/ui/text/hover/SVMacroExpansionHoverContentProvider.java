@@ -10,9 +10,10 @@
  */
 package net.sf.sveditor.ui.text.hover;
 
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
+
 import net.sf.sveditor.ui.editor.SVEditor;
 
 public class SVMacroExpansionHoverContentProvider extends

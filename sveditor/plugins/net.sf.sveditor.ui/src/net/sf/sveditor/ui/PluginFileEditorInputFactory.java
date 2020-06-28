@@ -22,10 +22,9 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.hdt.sveditor.core.fs.plugin.PluginFileStore;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
-
-import net.sf.sveditor.core.fs.plugin.PluginFileStore;
 
 public class PluginFileEditorInputFactory implements IElementFactory {
 	

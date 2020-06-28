@@ -15,12 +15,12 @@
 
 package net.sf.sveditor.ui.tests.editor;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.indent.SVDefaultIndenter2;
+import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 import org.eclipse.jface.text.BadLocationException;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.SVDefaultIndenter2;
-import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 import net.sf.sveditor.core.tests.indent.IndentTests;

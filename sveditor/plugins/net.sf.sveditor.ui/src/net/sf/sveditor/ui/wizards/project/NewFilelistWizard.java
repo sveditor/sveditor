@@ -12,11 +12,11 @@ package net.sf.sveditor.ui.wizards.project;
 
 import java.io.File;
 
-import net.sf.sveditor.core.db.index.SVDBScopedFileSystemProvider;
 import net.sf.sveditor.ui.content_providers.SVDBFileSystemContentProvider;
 import net.sf.sveditor.ui.content_providers.SVDBFileSystemLabelProvider;
 import net.sf.sveditor.ui.wizards.new_filelist.NewFileListWizardAddFilesPage;
 
+import org.eclipse.hdt.sveditor.core.db.index.SVDBScopedFileSystemProvider;
 import org.eclipse.jface.wizard.Wizard;
 
 public class NewFilelistWizard extends Wizard {

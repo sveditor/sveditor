@@ -18,13 +18,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.SVDBIndexUtil;
-import net.sf.sveditor.core.docs.DocCommentAdder;
-import net.sf.sveditor.core.docs.IDocCommentAdder;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -32,6 +25,12 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexUtil;
+import org.eclipse.hdt.sveditor.core.docs.DocCommentAdder;
+import org.eclipse.hdt.sveditor.core.docs.IDocCommentAdder;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;

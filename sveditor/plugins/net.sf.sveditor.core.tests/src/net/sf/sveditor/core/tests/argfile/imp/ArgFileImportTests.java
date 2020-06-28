@@ -15,8 +15,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.BundleUtils;
-import net.sf.sveditor.core.argcollector.BaseArgCollector;
+import org.eclipse.hdt.sveditor.core.BundleUtils;
+import org.eclipse.hdt.sveditor.core.argcollector.BaseArgCollector;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 

@@ -15,8 +15,9 @@
 
 package net.sf.sveditor.core.tests.parser;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.parser.SVParseException;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+
 import junit.framework.TestCase;
 
 public class TestParseBind extends TestCase {

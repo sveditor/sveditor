@@ -14,13 +14,13 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexUtil;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.SVDBIndexUtil;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;

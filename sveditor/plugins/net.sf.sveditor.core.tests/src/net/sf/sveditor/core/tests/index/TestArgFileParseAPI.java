@@ -14,23 +14,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBMarker;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.core.utils.OverrideTaskFuncFinder;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.eclipse.hdt.sveditor.core.utils.OverrideTaskFuncFinder;
 
 public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 	

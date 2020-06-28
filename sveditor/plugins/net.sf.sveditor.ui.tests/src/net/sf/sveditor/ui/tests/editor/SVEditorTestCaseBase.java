@@ -10,7 +10,6 @@
  */
 package net.sf.sveditor.ui.tests.editor;
 
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
@@ -19,6 +18,7 @@ import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
 import net.sf.sveditor.ui.tests.utils.editor.EditorTestCaseBase;
 
+import org.eclipse.hdt.sveditor.core.Tuple;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;

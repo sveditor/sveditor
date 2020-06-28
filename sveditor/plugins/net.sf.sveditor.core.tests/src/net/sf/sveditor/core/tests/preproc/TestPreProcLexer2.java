@@ -14,18 +14,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import net.sf.sveditor.core.parser.SVLexer;
-import net.sf.sveditor.core.parser.SVToken;
-import net.sf.sveditor.core.preproc.ISVPreProcFileMapper;
-import net.sf.sveditor.core.preproc.ISVPreProcIncFileProvider;
-import net.sf.sveditor.core.preproc.SVPathPreProcIncFileProvider;
-import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.parser.SVLexer;
+import org.eclipse.hdt.sveditor.core.parser.SVToken;
+import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcIncFileProvider;
+import org.eclipse.hdt.sveditor.core.preproc.SVPathPreProcIncFileProvider;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 

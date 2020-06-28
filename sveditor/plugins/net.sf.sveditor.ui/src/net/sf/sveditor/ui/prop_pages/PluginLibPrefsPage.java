@@ -18,12 +18,12 @@ package net.sf.sveditor.ui.prop_pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import net.sf.sveditor.core.db.project.SVDBPath;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBPath;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;

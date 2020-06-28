@@ -10,13 +10,14 @@
  */
 package net.sf.sveditor.core.tests.argfile.open_decl;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprScanner;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.argfile.parser.SVArgFileExprContext;
-import net.sf.sveditor.core.argfile.parser.SVArgFileExprScanner;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 
 public class TestArgFileOpenPathDecl extends TestCase {
 	

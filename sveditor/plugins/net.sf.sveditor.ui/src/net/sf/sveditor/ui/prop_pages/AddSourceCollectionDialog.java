@@ -16,10 +16,10 @@
 package net.sf.sveditor.ui.prop_pages;
 
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;

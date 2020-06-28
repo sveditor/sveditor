@@ -10,12 +10,11 @@
  */
 package net.sf.sveditor.ui.wizards.imp.compilation.args;
 
-import net.sf.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
-import net.sf.sveditor.core.argfile.filter.ArgFileFilterDuplicates;
-import net.sf.sveditor.core.argfile.filter.ArgFileFilterList;
-import net.sf.sveditor.core.argfile.filter.ArgFileFilterOptionsFirst;
-import net.sf.sveditor.core.argfile.filter.StringArgFileFilter;
-
+import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
+import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterDuplicates;
+import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterList;
+import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterOptionsFirst;
+import org.eclipse.hdt.sveditor.core.argfile.filter.StringArgFileFilter;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;

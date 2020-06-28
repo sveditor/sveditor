@@ -15,9 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutputListener;
 import org.eclipse.swt.widgets.Display;
 
-import net.sf.sveditor.core.builder.ISVBuilderOutputListener;
 import net.sf.sveditor.ui.console.SVConsole;
 import net.sf.sveditor.ui.console.SVEMessageConsole;
 

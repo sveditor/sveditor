@@ -18,7 +18,6 @@ package net.sf.sveditor.ui.tests;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
 import net.sf.sveditor.ui.editor.SVDocumentPartitions;
 import net.sf.sveditor.ui.tests.console.ConsoleTests;
@@ -27,6 +26,7 @@ import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
 import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
 import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 

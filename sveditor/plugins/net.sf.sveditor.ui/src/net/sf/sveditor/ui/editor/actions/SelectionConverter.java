@@ -16,16 +16,16 @@ package net.sf.sveditor.ui.editor.actions ;
 
 import java.util.List;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
-import net.sf.sveditor.core.db.search.SVDBFindNamedPackage;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.expr_utils.SVExprScanner;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedPackage;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;

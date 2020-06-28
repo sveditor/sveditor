@@ -12,9 +12,9 @@ package net.sf.sveditor.core.tests;
 
 import java.util.Map;
 
-import net.sf.sveditor.core.ISVProjectBuilderListener;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.ISVProjectBuilderListener;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class ProjectBuildMonitor implements ISVProjectBuilderListener {
 	private Object					fSemaphore = new Object();

@@ -16,16 +16,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.argfile.creator.SVArgFileCreator;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
 import net.sf.sveditor.ui.ResourceSelCheckboxMgr;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.argfile.creator.SVArgFileCreator;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;

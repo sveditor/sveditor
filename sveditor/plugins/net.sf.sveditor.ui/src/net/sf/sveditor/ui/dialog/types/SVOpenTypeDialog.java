@@ -13,9 +13,6 @@ package net.sf.sveditor.ui.dialog.types;
 import java.util.Comparator;
 import java.util.List;
 
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.SVDBAllTypeMatcher;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
@@ -24,6 +21,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBAllTypeMatcher;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;

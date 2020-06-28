@@ -18,13 +18,12 @@ package net.sf.sveditor.ui.explorer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
 import org.eclipse.jface.viewers.TreeViewer;
-
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
 
 public class ProjectPathsData implements IProjectPathsData {
 	private SVDBProjectData					fProjectData;

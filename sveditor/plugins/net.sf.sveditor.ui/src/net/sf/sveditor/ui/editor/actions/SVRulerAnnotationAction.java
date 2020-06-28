@@ -13,11 +13,11 @@ package net.sf.sveditor.ui.editor.actions;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.db.SVDBTask;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.SVOverrideMethodAnnotation;
 
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;

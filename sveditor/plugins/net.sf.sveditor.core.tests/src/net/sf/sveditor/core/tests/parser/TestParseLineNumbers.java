@@ -15,14 +15,15 @@
 
 package net.sf.sveditor.core.tests.parser;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.eclipse.hdt.sveditor.core.db.SVDBUtil;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.db.SVDBUtil;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseLineNumbers extends TestCase {

@@ -15,9 +15,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemChangeListener;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemChangeListener;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
 
 public class SVDBMapFileSystemProvider implements ISVDBFileSystemProvider {
 	private Map<String, String>			fFileMap;

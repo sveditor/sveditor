@@ -17,16 +17,16 @@ import java.util.List;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFindIncFileUtils;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIncFileInfo;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
 
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBFindIncFileUtils;
-import net.sf.sveditor.core.db.index.SVDBIncFileInfo;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 

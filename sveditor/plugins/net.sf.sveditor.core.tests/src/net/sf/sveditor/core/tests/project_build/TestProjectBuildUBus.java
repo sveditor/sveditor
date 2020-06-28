@@ -15,22 +15,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBFileSystemProvider;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-import net.sf.sveditor.core.db.search.SVDBSearchResult;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.open_decl.OpenDeclResult;
-import net.sf.sveditor.core.open_decl.OpenDeclUtils;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
@@ -43,6 +27,22 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchResult;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
+import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclResult;
+import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
 public class TestProjectBuildUBus extends SVCoreTestCaseBase {
 

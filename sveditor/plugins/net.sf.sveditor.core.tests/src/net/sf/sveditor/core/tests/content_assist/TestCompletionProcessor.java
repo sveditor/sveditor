@@ -15,12 +15,12 @@
 
 package net.sf.sveditor.core.tests.content_assist;
 
-import net.sf.sveditor.core.content_assist.AbstractCompletionProcessor;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.ISVStringPreProcessor;
+import org.eclipse.hdt.sveditor.core.content_assist.AbstractCompletionProcessor;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
 
 public class TestCompletionProcessor extends AbstractCompletionProcessor {
 	

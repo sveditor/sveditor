@@ -16,12 +16,12 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.ui.console.IConsole;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScannerMgr;
 import org.eclipse.ui.console.IPatternMatchListener;
 
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.script.launch.ILogMessageScanner;
-import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
 import net.sf.sveditor.ui.SVUiPlugin;
 import net.sf.sveditor.ui.console.SVEMessageConsole;
 

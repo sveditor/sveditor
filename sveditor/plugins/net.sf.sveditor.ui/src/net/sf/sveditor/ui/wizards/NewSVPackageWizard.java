@@ -15,12 +15,12 @@
 
 package net.sf.sveditor.ui.wizards;
 
-import net.sf.sveditor.core.srcgen.NewPackageGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.hdt.sveditor.core.srcgen.NewPackageGenerator;
 
 public class NewSVPackageWizard extends AbstractNewSVItemFileWizard {
 	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVPackageWizard";

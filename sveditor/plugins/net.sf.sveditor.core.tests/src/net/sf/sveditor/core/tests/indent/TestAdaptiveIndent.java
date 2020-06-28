@@ -15,13 +15,14 @@
 
 package net.sf.sveditor.core.tests.indent;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
+import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class TestAdaptiveIndent extends TestCase {
 	

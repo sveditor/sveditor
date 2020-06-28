@@ -10,8 +10,8 @@
  */
 package net.sf.sveditor.core.tests.argfile.content_assist;
 
-import net.sf.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;
-import net.sf.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class TestArgFileCompletionProcessor extends AbstractArgFileCompletionProcessor {
 	

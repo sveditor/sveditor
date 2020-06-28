@@ -13,9 +13,8 @@ package net.sf.sveditor.ui.prop_pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

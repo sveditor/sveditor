@@ -10,16 +10,16 @@
  */
 package net.sf.sveditor.ui.views.design_hierarchy;
 
-import net.sf.sveditor.core.db.SVDBModIfcDecl;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
-import net.sf.sveditor.core.db.SVDBModuleDecl;
-import net.sf.sveditor.core.db.SVDBProgramDecl;
-import net.sf.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBProgramDecl;
+import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 

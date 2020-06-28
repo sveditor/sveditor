@@ -10,7 +10,7 @@
  */
 package net.sf.sveditor.ui.wizards.project;
 
-import net.sf.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.Tuple;
 
 public interface INewFilelistWizardPathValidator {
 

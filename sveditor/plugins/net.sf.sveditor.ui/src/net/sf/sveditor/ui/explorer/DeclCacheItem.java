@@ -11,8 +11,7 @@
 package net.sf.sveditor.ui.explorer;
 
 import org.eclipse.core.runtime.IAdaptable;
-
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class DeclCacheItem implements IProjectPathsData, IAdaptable {
 	private IProjectPathsData		fParent;

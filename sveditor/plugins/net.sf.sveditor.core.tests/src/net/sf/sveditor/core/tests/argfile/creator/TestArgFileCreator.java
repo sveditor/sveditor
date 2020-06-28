@@ -16,9 +16,9 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.argfile.creator.SVArgFileCreator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
 
-import net.sf.sveditor.core.argfile.creator.SVArgFileCreator;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;

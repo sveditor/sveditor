@@ -18,18 +18,18 @@ package net.sf.sveditor.core.tests.scanner;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBFileTree;
-import net.sf.sveditor.core.db.SVDBPreProcObserver;
-import net.sf.sveditor.core.db.index.SVDBFileTreeUtils;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.preproc.SVPreProcDirectiveScanner;
-import net.sf.sveditor.core.scanner.FileContextSearchMacroProvider;
-import net.sf.sveditor.core.scanner.SVPreProcDefineProvider;
 
 import org.apache.tools.ant.filters.StringInputStream;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
+import org.eclipse.hdt.sveditor.core.db.SVDBPreProcObserver;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFileTreeUtils;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import org.eclipse.hdt.sveditor.core.scanner.FileContextSearchMacroProvider;
+import org.eclipse.hdt.sveditor.core.scanner.SVPreProcDefineProvider;
 
 public class PreProcMacroTests extends TestCase {
 	

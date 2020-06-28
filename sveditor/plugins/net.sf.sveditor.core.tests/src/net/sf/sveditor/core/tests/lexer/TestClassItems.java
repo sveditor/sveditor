@@ -15,18 +15,19 @@
 
 package net.sf.sveditor.core.tests.lexer;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.log.ILogHandle;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.parser.ISVParser;
+import org.eclipse.hdt.sveditor.core.parser.SVLexer;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
+import org.eclipse.hdt.sveditor.core.parser.SVParsers;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.log.ILogHandle;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.ISVParser;
-import net.sf.sveditor.core.parser.SVLexer;
-import net.sf.sveditor.core.parser.SVParseException;
-import net.sf.sveditor.core.parser.SVParserConfig;
-import net.sf.sveditor.core.parser.SVParsers;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 
 public class TestClassItems extends TestCase {
 	

@@ -18,11 +18,11 @@ package net.sf.sveditor.ui.prop_pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;

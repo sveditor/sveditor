@@ -16,10 +16,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.core.Tuple;
 import net.sf.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;

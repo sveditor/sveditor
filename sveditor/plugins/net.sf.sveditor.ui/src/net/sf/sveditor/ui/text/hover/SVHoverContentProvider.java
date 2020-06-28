@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
 import org.osgi.framework.Bundle;
 

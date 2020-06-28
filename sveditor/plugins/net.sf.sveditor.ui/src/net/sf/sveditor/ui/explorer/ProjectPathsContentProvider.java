@@ -19,21 +19,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.eclipse.hdt.sveditor.core.db.project.ISVDBProjectSettingsListener;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.dirtree.SVDBDirTreeNode;
+import org.eclipse.hdt.sveditor.core.job_mgr.IJob;
+import org.eclipse.hdt.sveditor.core.job_mgr.IJobMgr;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Display;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
-import net.sf.sveditor.core.db.project.ISVDBProjectSettingsListener;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.dirtree.SVDBDirTreeNode;
-import net.sf.sveditor.core.job_mgr.IJob;
-import net.sf.sveditor.core.job_mgr.IJobMgr;
 
 public class ProjectPathsContentProvider implements 
 		ISVDBProjectSettingsListener, ISVDBIndexChangeListener, 

@@ -15,16 +15,17 @@
 
 package net.sf.sveditor.core.tests.srcgen;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.eclipse.hdt.sveditor.core.parser.SVParser;
+import org.eclipse.hdt.sveditor.core.srcgen.MethodGenerator;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.db.SVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBTask;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVParser;
-import net.sf.sveditor.core.parser.SVParseException;
-import net.sf.sveditor.core.srcgen.MethodGenerator;
 import net.sf.sveditor.core.tests.indent.IndentComparator;
 
 public class TestMethodGenerator extends TestCase {

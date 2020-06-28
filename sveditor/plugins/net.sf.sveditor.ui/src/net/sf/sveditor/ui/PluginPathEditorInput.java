@@ -22,13 +22,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.hdt.sveditor.core.fs.plugin.PluginFileStore;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.editors.text.ILocationProvider;
 import org.eclipse.ui.editors.text.ILocationProviderExtension;
 import org.eclipse.ui.ide.FileStoreEditorInput;
-
-import net.sf.sveditor.core.fs.plugin.PluginFileStore;
 
 public class PluginPathEditorInput extends FileStoreEditorInput {
 	PluginFileStore				fFileStore;

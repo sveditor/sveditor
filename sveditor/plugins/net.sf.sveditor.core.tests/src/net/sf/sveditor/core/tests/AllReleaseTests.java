@@ -31,7 +31,7 @@ public class AllReleaseTests extends TestSuite {
 		IExtensionRegistry e_rgy = Platform.getExtensionRegistry();
 		
 		IExtensionPoint ep = e_rgy.getExtensionPoint(
-				"net.sf.sveditor.core.tests", "releaseTests");
+				"org.eclipse.hdt.sveditor.core.tests", "releaseTests");
 		
 		for (IExtension ext : ep.getExtensions()) {
 			for (IConfigurationElement el : ext.getConfigurationElements()) {

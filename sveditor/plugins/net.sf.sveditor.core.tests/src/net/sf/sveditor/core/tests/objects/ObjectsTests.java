@@ -19,15 +19,6 @@ import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-import net.sf.sveditor.core.objects.ObjectsTreeFactory;
-import net.sf.sveditor.core.objects.ObjectsTreeNode;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -35,6 +26,15 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeFactory;
+import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
 
 public class ObjectsTests extends SVCoreTestCaseBase {
 	

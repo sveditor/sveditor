@@ -13,23 +13,23 @@ package net.sf.sveditor.ui.text.hover;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBNamedItem;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBClassDecl;
-import net.sf.sveditor.core.db.SVDBInterfaceDecl;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBMacroDef;
-import net.sf.sveditor.core.db.SVDBMacroDefParam;
-import net.sf.sveditor.core.db.SVDBModIfcClassParam;
-import net.sf.sveditor.core.db.SVDBModuleDecl;
-import net.sf.sveditor.core.db.SVDBProgramDecl;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclItem;
-import net.sf.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBInterfaceDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
+import org.eclipse.hdt.sveditor.core.db.SVDBMacroDefParam;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcClassParam;
+import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
+import org.eclipse.hdt.sveditor.core.db.SVDBProgramDecl;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class SVDeclarationInfoHoverContentProvider extends
 		SVHoverContentProvider {

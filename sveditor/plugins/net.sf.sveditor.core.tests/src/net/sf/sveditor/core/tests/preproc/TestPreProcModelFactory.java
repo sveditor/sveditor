@@ -10,12 +10,13 @@
  */
 package net.sf.sveditor.core.tests.preproc;
 
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.preproc.SVPreProcModelFactory;
-import net.sf.sveditor.core.preproc.SVPreProcModelNode;
-import net.sf.sveditor.core.preproc.SVPreProcOutput;
-import net.sf.sveditor.core.preproc.SVPreProcessor;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelFactory;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelNode;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcModelFactory extends SVCoreTestCaseBase {

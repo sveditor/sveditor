@@ -18,12 +18,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
-import net.sf.sveditor.core.Tuple;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.Tuple;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IURIEditorInput;

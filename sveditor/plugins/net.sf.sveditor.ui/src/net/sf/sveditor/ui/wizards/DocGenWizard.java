@@ -18,19 +18,18 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
-import net.sf.sveditor.core.docs.DocGenConfig;
-import net.sf.sveditor.core.docs.IDocWriter;
-import net.sf.sveditor.core.docs.html.HTMLDocWriter;
-import net.sf.sveditor.core.docs.model.DocModel;
-import net.sf.sveditor.core.docs.model.DocModelFactory;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
+import org.eclipse.hdt.sveditor.core.docs.IDocWriter;
+import org.eclipse.hdt.sveditor.core.docs.html.HTMLDocWriter;
+import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
+import org.eclipse.hdt.sveditor.core.docs.model.DocModelFactory;
+import org.eclipse.hdt.sveditor.core.log.ILogLevel;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Display;

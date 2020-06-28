@@ -18,7 +18,7 @@ package net.sf.sveditor.ui.explorer;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
 
 public class LibIndexPath implements IProjectPathsData {
 	public static final String			TYPE_LIB_PATH       = "LIB_PATH";

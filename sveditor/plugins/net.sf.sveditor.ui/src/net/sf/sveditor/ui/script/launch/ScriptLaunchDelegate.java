@@ -29,13 +29,12 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
-
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
-import net.sf.sveditor.core.script.launch.BuildScriptLauncherConstants;
-import net.sf.sveditor.core.script.launch.SVScriptProblem;
-import net.sf.sveditor.core.script.launch.ScriptRunner;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.BuildScriptLauncherConstants;
+import org.eclipse.hdt.sveditor.core.script.launch.SVScriptProblem;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptRunner;
 
 public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 

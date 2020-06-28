@@ -10,11 +10,12 @@
  */
 package net.sf.sveditor.core.tests.argfile.parser;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.argfile.parser.SVArgFileExprContext;
-import net.sf.sveditor.core.argfile.parser.SVArgFileExprScanner;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 

@@ -15,8 +15,9 @@
 
 package net.sf.sveditor.core.tests;
 
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBIndexValidator extends TestCase {
 	public static final int					ExpectErrors = (1 << 0);

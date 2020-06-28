@@ -13,13 +13,6 @@ package net.sf.sveditor.ui.tests.editor;
 import java.io.File;
 import java.util.Map;
 
-import net.sf.sveditor.core.ISVProjectBuilderListener;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.builder.SVProjectBuilder;
-import net.sf.sveditor.core.db.index.SVDBIndexUtil;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.ProjectBuildMonitor;
 import net.sf.sveditor.core.tests.utils.TestUtils;
@@ -32,6 +25,13 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.hdt.sveditor.core.ISVProjectBuilderListener;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.builder.SVProjectBuilder;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexUtil;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 
 
 public class TestIncrProjectChanges extends SVEditorTestCaseBase {

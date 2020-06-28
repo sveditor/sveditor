@@ -17,11 +17,12 @@ package net.sf.sveditor.core.tests.index.persistence;
 
 import java.util.Stack;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SVDBItemTestComparator {
 	private Stack<ISVDBScopeItem>			fScopeStack;

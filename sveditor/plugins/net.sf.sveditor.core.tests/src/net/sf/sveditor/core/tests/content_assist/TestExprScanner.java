@@ -10,11 +10,12 @@
  */
 package net.sf.sveditor.core.tests.content_assist;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.expr_utils.SVExprContext;
-import net.sf.sveditor.core.expr_utils.SVExprScanner;
-import net.sf.sveditor.core.scanutils.IBIDITextScanner;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
+import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestExprScanner extends SVCoreTestCaseBase {

@@ -15,9 +15,9 @@
 
 package net.sf.sveditor.ui.views.hierarchy;
 
-import net.sf.sveditor.core.hierarchy.HierarchyTreeNode;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
+import org.eclipse.hdt.sveditor.core.hierarchy.HierarchyTreeNode;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 

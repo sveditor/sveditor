@@ -13,8 +13,9 @@ package net.sf.sveditor.core.tests.index.external;
 
 import java.io.File;
 
-import net.sf.sveditor.core.BundleUtils;
-import net.sf.sveditor.core.db.index.external.ExternalIndexerRunner;
+import org.eclipse.hdt.sveditor.core.BundleUtils;
+import org.eclipse.hdt.sveditor.core.db.index.external.ExternalIndexerRunner;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.TestUtils;

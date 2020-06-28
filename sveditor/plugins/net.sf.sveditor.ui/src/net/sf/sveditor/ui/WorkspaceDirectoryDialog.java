@@ -15,10 +15,9 @@
 
 package net.sf.sveditor.ui;
 
-import net.sf.sveditor.core.SVFileUtils;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;

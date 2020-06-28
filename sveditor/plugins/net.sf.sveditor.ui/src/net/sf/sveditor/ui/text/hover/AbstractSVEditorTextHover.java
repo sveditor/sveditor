@@ -15,11 +15,11 @@
  *******************************************************************************/
 package net.sf.sveditor.ui.text.hover;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.editor.actions.SelectionConverter;
 import net.sf.sveditor.ui.text.SVWordFinder;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;

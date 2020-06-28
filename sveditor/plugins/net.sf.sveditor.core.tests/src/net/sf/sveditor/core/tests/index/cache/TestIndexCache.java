@@ -23,27 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBItemIterator;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.index.cache.ISVDBIndexCache;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import net.sf.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
-import net.sf.sveditor.core.db.project.SVProjectFileWrapper;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.CoreReleaseTests;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -53,6 +32,27 @@ import sun.awt.DisplayChangedListener;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBItemIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.eclipse.hdt.sveditor.core.db.persistence.DBFormatException;
+import org.eclipse.hdt.sveditor.core.db.persistence.DBWriteException;
+import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
+import org.eclipse.hdt.sveditor.core.db.persistence.IDBWriter;
+import org.eclipse.hdt.sveditor.core.db.persistence.SVDBPersistenceRW;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class TestIndexCache extends SVCoreTestCaseBase {
 	

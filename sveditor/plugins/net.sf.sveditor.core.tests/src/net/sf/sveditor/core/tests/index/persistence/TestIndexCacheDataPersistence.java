@@ -22,15 +22,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.persistence.DBFormatException;
+import org.eclipse.hdt.sveditor.core.db.persistence.DBWriteException;
+import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
+import org.eclipse.hdt.sveditor.core.db.persistence.IDBWriter;
+import org.eclipse.hdt.sveditor.core.db.persistence.SVDBPersistenceRW;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.persistence.DBFormatException;
-import net.sf.sveditor.core.db.persistence.DBWriteException;
-import net.sf.sveditor.core.db.persistence.IDBReader;
-import net.sf.sveditor.core.db.persistence.IDBWriter;
-import net.sf.sveditor.core.db.persistence.SVDBPersistenceRW;
 
 public class TestIndexCacheDataPersistence extends TestCase {
 	

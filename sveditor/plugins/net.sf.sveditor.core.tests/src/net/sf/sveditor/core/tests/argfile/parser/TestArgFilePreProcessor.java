@@ -10,16 +10,17 @@
  */
 package net.sf.sveditor.core.tests.argfile.parser;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileStmt;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import net.sf.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFilePathStmt;
-import net.sf.sveditor.core.db.argfile.SVDBArgFileStmt;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
-import net.sf.sveditor.core.parser.SVParseException;
 
 public class TestArgFilePreProcessor extends TestCase {
 	

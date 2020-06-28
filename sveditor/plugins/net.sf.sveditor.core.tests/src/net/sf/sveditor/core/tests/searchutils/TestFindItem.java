@@ -10,14 +10,15 @@
  */
 package net.sf.sveditor.core.tests.searchutils;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
-import net.sf.sveditor.core.db.SVDBModIfcInstItem;
-import net.sf.sveditor.core.db.utils.SVDBSearchUtils;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
+import org.eclipse.hdt.sveditor.core.db.utils.SVDBSearchUtils;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVDBTestUtils;
 

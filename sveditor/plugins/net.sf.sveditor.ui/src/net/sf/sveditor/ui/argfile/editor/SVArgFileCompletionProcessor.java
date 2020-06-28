@@ -13,14 +13,14 @@ package net.sf.sveditor.ui.argfile.editor;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;
-import net.sf.sveditor.core.argfile.content_assist.SVArgFileCompletionProposal;
-import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.log.LogFactory;
 import net.sf.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
 
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;
+import org.eclipse.hdt.sveditor.core.argfile.content_assist.SVArgFileCompletionProposal;
+import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;

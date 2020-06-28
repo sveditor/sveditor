@@ -10,10 +10,11 @@
  */
 package net.sf.sveditor.core.tests.indent;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.indent.ISVIndenter;
-import net.sf.sveditor.core.indent.SVIndentScanner;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
+import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestIndentBehavioralStmts extends SVCoreTestCaseBase {

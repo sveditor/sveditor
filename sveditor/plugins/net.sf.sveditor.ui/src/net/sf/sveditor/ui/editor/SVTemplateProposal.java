@@ -10,12 +10,12 @@
  */
 package net.sf.sveditor.ui.editor;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.docs.DocUtil;
 import net.sf.sveditor.ui.SVDBIconUtils;
 import net.sf.sveditor.ui.doc.DocUtilUi;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.docs.DocUtil;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;

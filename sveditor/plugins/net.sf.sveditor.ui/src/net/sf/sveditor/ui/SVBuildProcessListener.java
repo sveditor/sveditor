@@ -17,9 +17,9 @@ import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.Launch;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamMonitor;
+import org.eclipse.hdt.sveditor.core.builder.ISVBuildProcessListener;
+import org.eclipse.hdt.sveditor.core.builder.SVBuilderProcess;
 
-import net.sf.sveditor.core.builder.ISVBuildProcessListener;
-import net.sf.sveditor.core.builder.SVBuilderProcess;
 import net.sf.sveditor.ui.console.SVConsoleManager;
 import net.sf.sveditor.ui.console.SVGlobalConsole;
 import net.sf.sveditor.ui.console.SVProcessConsole;

@@ -10,7 +10,8 @@
  */
 package net.sf.sveditor.core.tests.primitives;
 
-import net.sf.sveditor.core.scanutils.StringTextScanner;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+
 import junit.framework.TestCase;
 
 public class TestStringTextScanner extends TestCase {

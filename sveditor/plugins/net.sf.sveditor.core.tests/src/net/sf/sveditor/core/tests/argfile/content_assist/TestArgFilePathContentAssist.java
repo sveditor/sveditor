@@ -14,13 +14,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.StringInputStream;
-import net.sf.sveditor.core.argfile.content_assist.SVArgFileCompletionProposal;
-import net.sf.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import net.sf.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.scanutils.StringBIDITextScanner;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.TextTagPosUtils;
 import net.sf.sveditor.core.tests.argfile.TestArgFileVariableProvider;
@@ -29,6 +22,13 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.eclipse.hdt.sveditor.core.argfile.content_assist.SVArgFileCompletionProposal;
+import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
 public class TestArgFilePathContentAssist extends SVCoreTestCaseBase {
 

@@ -16,19 +16,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.ILineListener;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.argcollector.BaseArgCollector;
-import net.sf.sveditor.core.argfile.parser.SVArgFileLexer;
-import net.sf.sveditor.core.argfile.parser.SVArgFileToken;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.scanutils.StringTextScanner;
 import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.hdt.sveditor.core.ILineListener;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.argcollector.BaseArgCollector;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileToken;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;

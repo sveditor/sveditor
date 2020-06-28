@@ -16,14 +16,14 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.ui.console.FileLink;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScannerMgr;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsole;
 
-import net.sf.sveditor.core.script.launch.ILogMessageScanner;
-import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
-import net.sf.sveditor.core.script.launch.ScriptMessage;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.utils.TestUtils;
 import net.sf.sveditor.ui.script.launch.GenericPathPatternMatcher;

@@ -20,6 +20,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.parser.ISVKeywords;
+import org.eclipse.hdt.sveditor.core.parser.SVOperators;
+import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
+import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;
@@ -30,12 +35,6 @@ import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
-
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.parser.ISVKeywords;
-import net.sf.sveditor.core.parser.SVOperators;
-import net.sf.sveditor.core.scanner.SVCharacter;
-import net.sf.sveditor.core.scanner.SVKeywords;
 
 public class SVCodeScanner extends RuleBasedScanner {
 	

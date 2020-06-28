@@ -14,10 +14,9 @@ import java.io.File;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.PatternMatchEvent;
-
-import net.sf.sveditor.core.SVFileUtils;
 
 public class WorkspacePathPatternMatcher extends SVPatternMatcherBase {
 	

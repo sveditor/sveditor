@@ -17,11 +17,12 @@ package net.sf.sveditor.core.tests.constraint_parser;
 
 import java.util.List;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBConstraint;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.ISVDBScopeItem;
-import net.sf.sveditor.core.db.SVDBConstraint;
-import net.sf.sveditor.core.db.SVDBItemType;
 
 public class SmokeTest extends TestCase {
 	

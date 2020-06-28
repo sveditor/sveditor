@@ -10,9 +10,8 @@
  */
 package net.sf.sveditor.ui.editor.outline;
 
-import net.sf.sveditor.core.db.index.SVDBFilePath;
-
-import net.sf.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFilePath;
 
 public class SVOutlineContent {
 	private SVDBFile				fFile;

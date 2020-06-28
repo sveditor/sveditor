@@ -13,11 +13,11 @@ package net.sf.sveditor.ui.editor.outline;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.index.SVDBFilePath;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBFilePath;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

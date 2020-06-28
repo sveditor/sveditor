@@ -15,6 +15,7 @@
 package net.sf.sveditor.ui.editor;
 
 
+import org.eclipse.hdt.sveditor.core.docs.DocCommentAdder;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
@@ -23,8 +24,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextUtilities;
-
-import net.sf.sveditor.core.docs.DocCommentAdder;
 
 public class SVMultiLineCommentAutoIndentStrategy extends
 		DefaultIndentLineAutoEditStrategy {

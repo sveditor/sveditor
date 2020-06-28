@@ -15,11 +15,6 @@
 
 package net.sf.sveditor.ui.wizards;
 
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.SVDBLocation;
-import net.sf.sveditor.core.db.SVDBPackageDecl;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.srcgen.NewClassGenerator;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 import java.io.InputStream;
@@ -30,6 +25,11 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.srcgen.NewClassGenerator;
 import org.eclipse.jface.wizard.IWizardPage;
 
 public class NewSVClassWizard extends AbstractNewSVItemFileWizard {

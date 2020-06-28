@@ -22,26 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.db.ISVDBChildItem;
-import net.sf.sveditor.core.db.SVDBFile;
-import net.sf.sveditor.core.db.SVDBItem;
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.SVDBModIfcInst;
-import net.sf.sveditor.core.db.SVDBModuleDecl;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.refs.SVDBFileRefCollector;
-import net.sf.sveditor.core.db.refs.SVDBRefCacheItem;
-import net.sf.sveditor.core.db.refs.SVDBRefCollectorVisitor;
-import net.sf.sveditor.core.db.refs.SVDBRefItem;
-import net.sf.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
-import net.sf.sveditor.core.db.search.SVDBFindByNameMatcher;
-import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -50,6 +30,26 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
+import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBFileRefCollector;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefCacheItem;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefCollectorVisitor;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefItem;
+import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByTypeMatcher;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 public class TestIndexFileRefs extends SVCoreTestCaseBase {
 

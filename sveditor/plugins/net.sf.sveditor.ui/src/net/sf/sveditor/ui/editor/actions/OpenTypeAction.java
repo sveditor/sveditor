@@ -12,12 +12,12 @@ package net.sf.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.dialog.types.SVOpenTypeDialog;
 import net.sf.sveditor.ui.editor.SVEditor;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PartInitException;

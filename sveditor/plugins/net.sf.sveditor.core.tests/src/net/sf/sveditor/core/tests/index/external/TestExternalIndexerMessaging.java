@@ -14,8 +14,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import org.eclipse.hdt.sveditor.core.db.index.external.ExternalIndexerMsg;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.db.index.external.ExternalIndexerMsg;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestExternalIndexerMessaging extends SVCoreTestCaseBase {

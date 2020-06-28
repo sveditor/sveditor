@@ -21,15 +21,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBSourceCollection;
+import org.eclipse.hdt.sveditor.core.fileset.AbstractSVFileMatcher;
+import org.eclipse.hdt.sveditor.core.fileset.SVFileSet;
+import org.eclipse.hdt.sveditor.core.fileset.SVFilesystemFileMatcher;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.project.SVDBSourceCollection;
-import net.sf.sveditor.core.fileset.AbstractSVFileMatcher;
-import net.sf.sveditor.core.fileset.SVFileSet;
-import net.sf.sveditor.core.fileset.SVFilesystemFileMatcher;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
 import net.sf.sveditor.core.tests.utils.BundleUtils;
 import net.sf.sveditor.core.tests.utils.TestUtils;

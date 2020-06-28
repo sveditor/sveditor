@@ -10,8 +10,9 @@
  */
 package net.sf.sveditor.core.tests.logscanner;
 
-import net.sf.sveditor.core.script.launch.LogMessageScannerMgr;
-import net.sf.sveditor.core.script.launch.MakefileLogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
+import org.eclipse.hdt.sveditor.core.script.launch.MakefileLogMessageScanner;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestMakefileLogScanner extends SVCoreTestCaseBase {

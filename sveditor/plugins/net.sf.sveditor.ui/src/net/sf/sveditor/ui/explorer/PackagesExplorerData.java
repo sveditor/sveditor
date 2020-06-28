@@ -13,11 +13,10 @@ package net.sf.sveditor.ui.explorer;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-
-import net.sf.sveditor.core.db.SVDBItemType;
-import net.sf.sveditor.core.db.index.ISVDBIndexIterator;
-import net.sf.sveditor.core.db.index.SVDBDeclCacheItem;
-import net.sf.sveditor.core.db.search.SVDBFindByTypeMatcher;
+import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByTypeMatcher;
 
 public class PackagesExplorerData extends DeferredProjectDataProvider {
 

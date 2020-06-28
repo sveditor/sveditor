@@ -17,18 +17,6 @@ package net.sf.sveditor.core.tests.index;
 
 import java.io.File;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.Tuple;
-import net.sf.sveditor.core.db.index.ISVDBIndex;
-import net.sf.sveditor.core.db.index.ISVDBIndexInt;
-import net.sf.sveditor.core.db.index.ISVDBIndexOperation;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.index.SVDBIndexRegistry;
-import net.sf.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import net.sf.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import net.sf.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
-import net.sf.sveditor.core.preproc.ISVPreProcessor;
-import net.sf.sveditor.core.preproc.SVPreProcOutput;
 import net.sf.sveditor.core.tests.IndexTestUtils;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
@@ -39,6 +27,18 @@ import net.sf.sveditor.core.tests.utils.TestUtils;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.Tuple;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexInt;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
+import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
+import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcessor;
+import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
 
 public class TestVmmBasics extends SVCoreTestCaseBase {
 

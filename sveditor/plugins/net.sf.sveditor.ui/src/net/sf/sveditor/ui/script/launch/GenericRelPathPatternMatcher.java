@@ -10,12 +10,11 @@
  */
 package net.sf.sveditor.ui.script.launch;
 
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScannerMgr;
 import org.eclipse.ui.console.TextConsole;
-
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import net.sf.sveditor.core.script.launch.ILogMessageScanner;
-import net.sf.sveditor.core.script.launch.ILogMessageScannerMgr;
 
 public class GenericRelPathPatternMatcher extends GenericPathPatternMatcher implements ILogMessageScanner {
 	private ILogMessageScannerMgr		fMgr;

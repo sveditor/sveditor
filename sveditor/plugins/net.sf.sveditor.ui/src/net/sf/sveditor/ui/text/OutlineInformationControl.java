@@ -1,28 +1,12 @@
 package net.sf.sveditor.ui.text;
 
-/*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
- *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * https://www.eclipse.org/legal/epl-2.0/.
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Armond Paiva - repurposed from JDT for SVEditor Objects Quick View
- *     Armond Paiva - repurposed from Objects Quick View to Outline Quick View
- *******************************************************************************/
-
-import net.sf.sveditor.core.db.ISVDBItemBase;
-import net.sf.sveditor.core.db.SVDBFile;
 import net.sf.sveditor.ui.editor.SVEditor;
 import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
 import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
 import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
 
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;

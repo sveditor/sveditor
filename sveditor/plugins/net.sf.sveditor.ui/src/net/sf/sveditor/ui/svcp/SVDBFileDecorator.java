@@ -21,6 +21,14 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
+import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -30,14 +38,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import net.sf.sveditor.core.SVCorePlugin;
-import net.sf.sveditor.core.SVFileUtils;
-import net.sf.sveditor.core.db.index.ISVDBDeclCache;
-import net.sf.sveditor.core.db.index.ISVDBIndexChangeListener;
-import net.sf.sveditor.core.db.index.SVDBIndexChangeEvent;
-import net.sf.sveditor.core.db.index.SVDBIndexCollection;
-import net.sf.sveditor.core.db.project.SVDBProjectData;
-import net.sf.sveditor.core.db.project.SVDBProjectManager;
 import net.sf.sveditor.ui.SVUiPlugin;
 
 public class SVDBFileDecorator implements ILightweightLabelDecorator {

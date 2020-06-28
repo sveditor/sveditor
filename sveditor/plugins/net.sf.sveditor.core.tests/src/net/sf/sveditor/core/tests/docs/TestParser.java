@@ -19,15 +19,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
+import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
+import org.eclipse.hdt.sveditor.core.docs.IDocCommentParser;
+import org.eclipse.hdt.sveditor.core.docs.IDocTopicManager;
+import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
+import org.eclipse.hdt.sveditor.core.log.ILogLevel;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
+
 import junit.framework.TestCase;
-import net.sf.sveditor.core.docs.DocCommentParser;
-import net.sf.sveditor.core.docs.DocTopicManager;
-import net.sf.sveditor.core.docs.IDocCommentParser;
-import net.sf.sveditor.core.docs.IDocTopicManager;
-import net.sf.sveditor.core.docs.model.DocTopic;
-import net.sf.sveditor.core.log.ILogLevel;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 
 public class TestParser extends TestCase {
 	

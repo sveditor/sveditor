@@ -10,7 +10,8 @@
  */
 package net.sf.sveditor.core.tests.parser;
 
-import net.sf.sveditor.core.SVCorePlugin;
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+
 import junit.framework.TestCase;
 
 public class TestParseConfigurations extends TestCase {

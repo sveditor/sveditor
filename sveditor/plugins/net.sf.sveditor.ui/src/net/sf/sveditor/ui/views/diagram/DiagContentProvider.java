@@ -14,8 +14,7 @@
 
 package net.sf.sveditor.ui.views.diagram;
 
-import net.sf.sveditor.core.diagrams.DiagNode;
-
+import org.eclipse.hdt.sveditor.core.diagrams.DiagNode;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.zest.core.viewers.IGraphEntityContentProvider;
 

@@ -10,10 +10,11 @@
  */
 package net.sf.sveditor.core.tests.logscanner;
 
-import net.sf.sveditor.core.script.launch.GccLogMessageScanner;
-import net.sf.sveditor.core.script.launch.LogMessageScannerMgr;
-import net.sf.sveditor.core.script.launch.MakefileLogMessageScanner;
-import net.sf.sveditor.core.script.launch.ScriptMessage;
+import org.eclipse.hdt.sveditor.core.script.launch.GccLogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
+import org.eclipse.hdt.sveditor.core.script.launch.MakefileLogMessageScanner;
+import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
+
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestGccLogScanner extends SVCoreTestCaseBase {

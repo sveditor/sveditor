@@ -15,10 +15,8 @@
 
 package net.sf.sveditor.ui.editor;
 
-import net.sf.sveditor.core.db.ISVDBItemBase;
-
 import org.eclipse.core.runtime.Assert;
-
+import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.hyperlink.IHyperlink;

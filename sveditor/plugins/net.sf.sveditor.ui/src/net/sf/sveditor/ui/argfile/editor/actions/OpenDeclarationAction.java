@@ -17,13 +17,13 @@ package net.sf.sveditor.ui.argfile.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
-import net.sf.sveditor.core.log.LogFactory;
-import net.sf.sveditor.core.log.LogHandle;
 import net.sf.sveditor.ui.SVEditorUtil;
 import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;
 import net.sf.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
 
+import org.eclipse.hdt.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
+import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;

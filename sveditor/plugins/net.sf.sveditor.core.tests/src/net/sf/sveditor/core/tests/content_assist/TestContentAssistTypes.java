@@ -10,8 +10,10 @@
  */
 package net.sf.sveditor.core.tests.content_assist;
 
-import net.sf.sveditor.core.SVCorePlugin;
 import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+
+import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+
 import junit.framework.TestCase;
 
 public class TestContentAssistTypes extends SVCoreTestCaseBase {

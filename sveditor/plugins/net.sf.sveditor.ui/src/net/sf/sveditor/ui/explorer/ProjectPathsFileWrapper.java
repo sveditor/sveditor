@@ -15,9 +15,8 @@
 
 package net.sf.sveditor.ui.explorer;
 
-import net.sf.sveditor.core.db.SVDBFile;
-
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.hdt.sveditor.core.db.SVDBFile;
 
 public class ProjectPathsFileWrapper implements IAdaptable {
 	private SVDBFile				fFile;
