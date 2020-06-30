@@ -21,7 +21,7 @@
 		</description>
 	</category-def>
 	<feature
-		id="net.sf.sveditor">
+		id="org.eclipse.hdt.sveditor">
 		<category name="org.eclipse.hdt.category" />
 	</feature>
 
@@ -34,7 +34,7 @@
 		</description>
 	</category-def>
 	<feature
-		id="net.sf.sveditor.source">
+		id="org.eclipse.hdt.sveditor.source">
 		<category name="org.eclipse.hdt.category.source" />
 	</feature>
 </site>

@@ -29,18 +29,18 @@
 	</parent>
 
 	<modules>
-		<module>../../sveditor/plugins/net.sf.sveditor.extjar</module>
-		<module>../../sveditor/plugins/net.sf.sveditor.core</module>
-		<module>../../sveditor/plugins/net.sf.sveditor.batch.core</module>
-		<module>../../sveditor/features/net.sf.sveditor.core.feature</module>	
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.extjar</module>
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.core</module>
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.batch.core</module>
+		<module>../../sveditor/features/org.eclipse.hdt.sveditor.core.feature</module>	
 
-		<module>../../sveditor/plugins/net.sf.sveditor.batch.ui</module>
-		<module>../../sveditor/plugins/net.sf.sveditor.ui</module>
-		<module>../../sveditor/features/net.sf.sveditor.ui.feature</module>	
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.batch.ui</module>
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.ui</module>
+		<module>../../sveditor/features/org.eclipse.hdt.sveditor.ui.feature</module>	
 
-		<module>../../sveditor/plugins/net.sf.sveditor.doc.dev</module>
-		<module>../../sveditor/plugins/net.sf.sveditor.doc.user</module>
-		<module>../../sveditor/features/net.sf.sveditor</module>	
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.doc.dev</module>
+		<module>../../sveditor/plugins/org.eclipse.hdt.sveditor.doc.user</module>
+		<module>../../sveditor/features/org.eclipse.hdt.sveditor</module>	
 
 		<module>../../releng/org.eclipse.hdt.repository</module>
 	</modules>
