@@ -106,14 +106,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <update label="SVEditor Updates" url="http://sveditor.sourceforge.net/update"/>
    </url>
 
-   <includes
-         id="org.eclipse.hdt.sveditor.core.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.hdt.sveditor.ui.feature"
-         version="0.0.0"/>
-
    <plugin
          id="org.eclipse.hdt.sveditor.doc.dev"
          download-size="0"
