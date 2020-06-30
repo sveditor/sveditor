@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.constraint_parser;
+package org.eclipse.hdt.sveditor.core.tests.constraint_parser;
 
 import java.util.List;
 

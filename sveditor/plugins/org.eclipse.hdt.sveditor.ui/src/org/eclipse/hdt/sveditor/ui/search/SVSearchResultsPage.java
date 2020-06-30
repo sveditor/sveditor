@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.search;
+package org.eclipse.hdt.sveditor.ui.search;
 
-import net.sf.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;

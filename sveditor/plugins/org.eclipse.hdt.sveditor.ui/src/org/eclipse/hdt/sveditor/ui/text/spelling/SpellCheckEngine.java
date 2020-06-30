@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package net.sf.sveditor.ui.text.spelling;
+package org.eclipse.hdt.sveditor.ui.text.spelling;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,13 +28,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.text.spelling.engine.DefaultSpellChecker;
-import net.sf.sveditor.ui.text.spelling.engine.ISpellCheckEngine;
-import net.sf.sveditor.ui.text.spelling.engine.ISpellChecker;
-import net.sf.sveditor.ui.text.spelling.engine.ISpellDictionary;
-import net.sf.sveditor.ui.text.spelling.engine.LocaleSensitiveSpellDictionary;
-import net.sf.sveditor.ui.text.spelling.engine.PersistentSpellDictionary;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.DefaultSpellChecker;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellCheckEngine;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellChecker;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellDictionary;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.LocaleSensitiveSpellDictionary;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.PersistentSpellDictionary;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;

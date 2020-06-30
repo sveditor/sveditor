@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.tests.docs;
+package org.eclipse.hdt.sveditor.core.tests.docs;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -183,7 +183,7 @@ public class TestModelFactory extends SVCoreTestCaseBase {
                         fLog.debug(ILogLevel.LEVEL_OFF, "| | If the differences are expected, check them in as golden") ;
                         fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
                         fLog.debug(ILogLevel.LEVEL_OFF, "| | <from-your-repo-root> cp " + modelDumpPathAct + " "
-                                                                                                                + "sveditor/plugins/net.sf.sveditor.core.tests" 
+                                                                                                                + "sveditor/plugins/org.eclipse.hdt.sveditor.core.tests" 
                                                                                                                 + testBundleDir 
                                                                                                                 + "/model_dump_exp.txt") ;
                         fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;

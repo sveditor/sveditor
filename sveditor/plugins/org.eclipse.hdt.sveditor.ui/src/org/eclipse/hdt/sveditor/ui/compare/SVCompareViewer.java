@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.compare;
+package org.eclipse.hdt.sveditor.ui.compare;
 
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
-import net.sf.sveditor.ui.editor.SVDocumentSetupParticipant;
-import net.sf.sveditor.ui.editor.SVSourceViewerConfiguration;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentSetupParticipant;
+import org.eclipse.hdt.sveditor.ui.editor.SVSourceViewerConfiguration;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.contentmergeviewer.TextMergeViewer;

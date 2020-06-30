@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.preproc;
+package org.eclipse.hdt.sveditor.core.tests.preproc;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

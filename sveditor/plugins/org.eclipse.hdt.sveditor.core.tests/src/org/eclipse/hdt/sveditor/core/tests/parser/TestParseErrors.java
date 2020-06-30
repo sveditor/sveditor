@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.parser;
+package org.eclipse.hdt.sveditor.core.tests.parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +25,10 @@ import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
 import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.index.IndexTests;
-import net.sf.sveditor.core.tests.preproc.SVDBMapFileSystemProvider;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.index.IndexTests;
+import org.eclipse.hdt.sveditor.core.tests.preproc.SVDBMapFileSystemProvider;
 
 public class TestParseErrors extends SVCoreTestCaseBase {
 	

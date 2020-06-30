@@ -1,4 +1,4 @@
-package net.sf.sveditor.ui.doc;
+package org.eclipse.hdt.sveditor.ui.doc;
 
 /*******************************************************************************
  * Copyright (c) 2000, 2012 IBM Corporation and others.

@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.prop_pages;
+package org.eclipse.hdt.sveditor.ui.prop_pages;
 
-import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.Dialog;

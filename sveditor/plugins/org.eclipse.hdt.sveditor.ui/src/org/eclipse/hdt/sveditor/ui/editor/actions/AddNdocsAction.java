@@ -12,7 +12,7 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -32,7 +32,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 //       - If they are NDOC compliant ... skip
 //       - If not, assume that the comment is the "description field" and insert it there
 
-import net.sf.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
 
 public class AddNdocsAction extends TextEditorAction {
 	private SVEditor fEditor;

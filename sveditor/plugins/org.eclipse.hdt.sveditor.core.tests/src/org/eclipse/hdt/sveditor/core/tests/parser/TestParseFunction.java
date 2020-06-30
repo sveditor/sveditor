@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.parser;
+package org.eclipse.hdt.sveditor.core.tests.parser;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.StringInputStream;

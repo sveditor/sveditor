@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.parser.ams;
+package org.eclipse.hdt.sveditor.core.tests.parser.ams;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,10 +22,10 @@ import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
 import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
 import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
 
 public class TestDesignersGuideExamples extends SVCoreTestCaseBase {
 	

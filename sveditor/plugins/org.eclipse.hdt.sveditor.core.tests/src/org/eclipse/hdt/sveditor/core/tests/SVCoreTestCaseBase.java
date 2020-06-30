@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests;
+package org.eclipse.hdt.sveditor.core.tests;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;

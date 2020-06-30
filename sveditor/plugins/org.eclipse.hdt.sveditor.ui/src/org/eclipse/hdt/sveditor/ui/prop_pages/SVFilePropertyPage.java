@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.prop_pages;
+package org.eclipse.hdt.sveditor.ui.prop_pages;
 
 import java.util.List;
 

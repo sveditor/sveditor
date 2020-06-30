@@ -12,12 +12,12 @@
  *     Armond Paiva - initial contributor
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram.contributions;
+package org.eclipse.hdt.sveditor.ui.views.diagram.contributions;
 
 import java.util.Collections;
 
-import net.sf.sveditor.ui.SVDBIconUtils;
-import net.sf.sveditor.ui.views.diagram.SVDiagramView;
+import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
+import org.eclipse.hdt.sveditor.ui.views.diagram.SVDiagramView;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;

@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.editor;
+package org.eclipse.hdt.sveditor.ui.tests.editor;
 
 import java.util.List;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TextTagPosUtils;
-import net.sf.sveditor.core.tests.indent.IndentComparator;
-import net.sf.sveditor.ui.editor.actions.IOverrideMethodsTargetProvider;
-import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncImpl;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
+import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
+import org.eclipse.hdt.sveditor.ui.editor.actions.IOverrideMethodsTargetProvider;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OverrideTaskFuncImpl;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;

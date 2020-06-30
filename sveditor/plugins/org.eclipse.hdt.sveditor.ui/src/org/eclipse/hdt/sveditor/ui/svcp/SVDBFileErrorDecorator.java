@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.svcp;
+package org.eclipse.hdt.sveditor.ui.svcp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;

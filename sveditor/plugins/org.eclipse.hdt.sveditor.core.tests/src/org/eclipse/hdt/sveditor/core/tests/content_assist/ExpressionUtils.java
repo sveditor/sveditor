@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.content_assist;
 
 import org.eclipse.hdt.sveditor.core.StringInputStream;
 import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
@@ -21,7 +21,7 @@ import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.TextTagPosUtils;
+import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
 
 public class ExpressionUtils extends TestCase {
 	

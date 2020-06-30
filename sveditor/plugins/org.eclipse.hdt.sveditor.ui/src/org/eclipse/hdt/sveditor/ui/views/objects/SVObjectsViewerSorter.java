@@ -14,7 +14,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.views.objects;
+package org.eclipse.hdt.sveditor.ui.views.objects;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;

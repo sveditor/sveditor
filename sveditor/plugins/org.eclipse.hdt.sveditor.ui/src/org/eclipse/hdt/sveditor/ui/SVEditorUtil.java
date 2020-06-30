@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import java.io.File;
 import java.net.URI;
 
-import net.sf.sveditor.ui.argfile.editor.SVArgFileEditor;
-import net.sf.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;

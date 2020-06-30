@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
@@ -27,8 +27,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.MoveLinesAction;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 public class SVMoveLinesAction extends MoveLinesAction implements IDocumentListener {
 	private ITextViewer fTextViewer;

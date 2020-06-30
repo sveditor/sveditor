@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.jface.text.IDocument;

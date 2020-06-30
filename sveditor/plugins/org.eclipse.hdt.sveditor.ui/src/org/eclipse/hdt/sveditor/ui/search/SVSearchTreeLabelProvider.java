@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.search;
+package org.eclipse.hdt.sveditor.ui.search;
 
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.jface.viewers.StyledString;
 

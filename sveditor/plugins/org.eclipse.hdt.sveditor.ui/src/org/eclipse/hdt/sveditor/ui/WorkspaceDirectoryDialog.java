@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.ResourcesPlugin;

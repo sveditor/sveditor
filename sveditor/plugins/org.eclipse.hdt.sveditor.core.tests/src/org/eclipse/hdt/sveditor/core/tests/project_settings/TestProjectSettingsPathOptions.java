@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.project_settings;
+package org.eclipse.hdt.sveditor.core.tests.project_settings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,12 +17,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.IndexTestUtils;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
+import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;

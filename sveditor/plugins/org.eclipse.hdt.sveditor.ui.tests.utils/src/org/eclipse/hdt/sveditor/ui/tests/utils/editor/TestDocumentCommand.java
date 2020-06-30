@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.utils.editor;
+package org.eclipse.hdt.sveditor.ui.tests.utils.editor;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;

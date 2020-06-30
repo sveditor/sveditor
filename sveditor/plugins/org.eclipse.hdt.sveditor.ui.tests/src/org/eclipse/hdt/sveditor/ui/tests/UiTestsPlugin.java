@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests;
+package org.eclipse.hdt.sveditor.ui.tests;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -24,7 +24,7 @@ import org.osgi.framework.BundleContext;
 public class UiTestsPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "net.sf.sveditor.ui.tests";
+	public static final String PLUGIN_ID = "org.eclipse.hdt.sveditor.ui.tests";
 
 	// The shared instance
 	private static UiTestsPlugin plugin;

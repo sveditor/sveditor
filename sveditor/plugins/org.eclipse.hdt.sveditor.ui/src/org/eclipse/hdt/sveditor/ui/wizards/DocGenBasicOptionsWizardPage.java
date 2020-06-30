@@ -12,9 +12,9 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;

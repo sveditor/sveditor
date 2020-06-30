@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argfile.parser;
+package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
 
 import java.io.InputStream;
 import java.util.ArrayList;

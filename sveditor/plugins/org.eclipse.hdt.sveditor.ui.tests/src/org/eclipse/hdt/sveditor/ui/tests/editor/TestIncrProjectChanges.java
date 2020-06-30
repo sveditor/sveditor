@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.tests.editor;
+package org.eclipse.hdt.sveditor.ui.tests.editor;
 
 import java.io.File;
 import java.util.Map;
 
-import net.sf.sveditor.core.tests.IndexTestUtils;
-import net.sf.sveditor.core.tests.ProjectBuildMonitor;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.ProjectBuildMonitor;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.ICommand;

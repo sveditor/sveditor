@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.dialog.types;
+package org.eclipse.hdt.sveditor.ui.dialog.types;
 
 import java.util.Comparator;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;

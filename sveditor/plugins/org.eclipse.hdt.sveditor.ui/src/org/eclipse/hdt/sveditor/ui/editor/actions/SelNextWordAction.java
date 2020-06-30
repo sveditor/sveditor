@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
 import org.eclipse.jface.text.BadLocationException;

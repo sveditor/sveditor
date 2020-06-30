@@ -4,7 +4,7 @@
 <includePaths/>
 <buildPaths/>
 <pluginPaths>
-<pluginPath path="net.sf.sveditor.sv_builtin"/>
+<pluginPath path="org.eclipse.hdt.sveditor.sv_builtin"/>
 </pluginPaths>
 <libraryPaths/>
 <argFilePaths/>

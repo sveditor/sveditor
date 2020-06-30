@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.svcp;
+package org.eclipse.hdt.sveditor.ui.svcp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 public class SVDBFileDecorator implements ILightweightLabelDecorator {
 	private List<ILabelProviderListener>					fListeners;

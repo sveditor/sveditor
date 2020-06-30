@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.svcp;
+package org.eclipse.hdt.sveditor.ui.svcp;
 
-import net.sf.sveditor.ui.SVDBIconUtils;
+import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
 
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;

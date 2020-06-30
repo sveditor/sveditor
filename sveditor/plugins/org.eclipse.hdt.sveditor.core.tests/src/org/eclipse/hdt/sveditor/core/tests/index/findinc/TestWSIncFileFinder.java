@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.index.findinc;
+package org.eclipse.hdt.sveditor.core.tests.index.findinc;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,8 +27,8 @@ import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
 import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestWSIncFileFinder extends SVCoreTestCaseBase {
 	

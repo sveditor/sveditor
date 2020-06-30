@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests;
+package org.eclipse.hdt.sveditor.core.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

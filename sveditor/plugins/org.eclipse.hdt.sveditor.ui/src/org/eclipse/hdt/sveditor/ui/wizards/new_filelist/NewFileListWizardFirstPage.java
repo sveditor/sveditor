@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.new_filelist;
+package org.eclipse.hdt.sveditor.ui.wizards.new_filelist;
 
 import java.util.List;
 
-import net.sf.sveditor.ui.WorkspaceDirectoryTreeViewer;
+import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryTreeViewer;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;

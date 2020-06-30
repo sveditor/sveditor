@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.wizards ;
+package org.eclipse.hdt.sveditor.ui.wizards ;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;

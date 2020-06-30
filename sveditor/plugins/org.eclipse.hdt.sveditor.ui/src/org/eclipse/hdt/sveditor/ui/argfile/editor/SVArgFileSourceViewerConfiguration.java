@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.argfile.editor;
+package org.eclipse.hdt.sveditor.ui.argfile.editor;
 
-import net.sf.sveditor.ui.editor.SVCodeScanner;
-import net.sf.sveditor.ui.editor.SVEditorColors;
-import net.sf.sveditor.ui.editor.SVPresentationReconciler;
+import org.eclipse.hdt.sveditor.ui.editor.SVCodeScanner;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditorColors;
+import org.eclipse.hdt.sveditor.ui.editor.SVPresentationReconciler;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextAttribute;

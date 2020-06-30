@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.scanutils;
+package org.eclipse.hdt.sveditor.ui.scanutils;
 
 import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;

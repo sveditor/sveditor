@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.index;
+package org.eclipse.hdt.sveditor.core.tests.index;
 
 import java.io.File;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestThreadedSourceCollectionIndex extends TestCase {
 	private File			fTmpDir;

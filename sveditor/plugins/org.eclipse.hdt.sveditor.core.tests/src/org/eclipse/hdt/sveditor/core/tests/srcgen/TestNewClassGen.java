@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.srcgen;
+package org.eclipse.hdt.sveditor.core.tests.srcgen;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +33,10 @@ import org.eclipse.hdt.sveditor.core.srcgen.NewClassGenerator;
 import org.eclipse.hdt.sveditor.core.tagproc.DefaultTemplateParameterProvider;
 import org.eclipse.hdt.sveditor.core.tagproc.TagProcessor;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.indent.IndentComparator;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestNewClassGen extends SVCoreTestCaseBase {
 	

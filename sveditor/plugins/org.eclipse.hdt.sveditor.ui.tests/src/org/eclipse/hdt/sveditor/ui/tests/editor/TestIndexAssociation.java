@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.editor;
+package org.eclipse.hdt.sveditor.ui.tests.editor;
 
 import java.io.File;
 import java.util.List;
 
-import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;

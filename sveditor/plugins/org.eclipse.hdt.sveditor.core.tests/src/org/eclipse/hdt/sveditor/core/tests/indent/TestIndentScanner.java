@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.indent;
+package org.eclipse.hdt.sveditor.core.tests.indent;
 
 import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
 import org.eclipse.hdt.sveditor.core.indent.SVIndentToken;

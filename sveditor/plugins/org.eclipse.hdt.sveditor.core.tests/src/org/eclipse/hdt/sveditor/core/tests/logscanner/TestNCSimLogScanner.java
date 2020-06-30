@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.logscanner;
+package org.eclipse.hdt.sveditor.core.tests.logscanner;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
@@ -16,7 +16,7 @@ import org.eclipse.hdt.sveditor.core.script.launch.NCSimLogMessageScanner;
 import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
 import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage.MessageType;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestNCSimLogScanner extends SVCoreTestCaseBase {
 	private LogMessageScannerMgr		fScannerMgr;

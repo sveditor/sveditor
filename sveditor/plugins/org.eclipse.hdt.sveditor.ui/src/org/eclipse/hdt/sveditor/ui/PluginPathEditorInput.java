@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import java.net.URI;
 

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.new_filelist;
+package org.eclipse.hdt.sveditor.ui.wizards.new_filelist;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.ui.ResourceSelCheckboxMgr;
+import org.eclipse.hdt.sveditor.ui.ResourceSelCheckboxMgr;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;

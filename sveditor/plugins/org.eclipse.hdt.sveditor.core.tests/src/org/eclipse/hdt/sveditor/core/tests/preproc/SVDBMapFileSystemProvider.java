@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.preproc;
+package org.eclipse.hdt.sveditor.core.tests.preproc;
 
 import java.io.InputStream;
 import java.io.OutputStream;

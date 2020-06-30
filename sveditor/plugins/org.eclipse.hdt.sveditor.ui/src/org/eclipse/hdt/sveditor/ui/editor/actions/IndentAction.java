@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;

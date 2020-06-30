@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.open_decl;
+package org.eclipse.hdt.sveditor.core.tests.open_decl;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
-import net.sf.sveditor.core.tests.UVMExampleTestCaseBase;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.UVMExampleTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;

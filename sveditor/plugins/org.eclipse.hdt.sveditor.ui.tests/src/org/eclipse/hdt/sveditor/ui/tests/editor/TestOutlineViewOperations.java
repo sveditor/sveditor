@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.editor;
+package org.eclipse.hdt.sveditor.ui.tests.editor;
 
-import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
-import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlineContent;
+import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlinePage;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;

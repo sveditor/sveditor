@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.explorer;
+package org.eclipse.hdt.sveditor.ui.explorer;
 
 import java.util.List;
 

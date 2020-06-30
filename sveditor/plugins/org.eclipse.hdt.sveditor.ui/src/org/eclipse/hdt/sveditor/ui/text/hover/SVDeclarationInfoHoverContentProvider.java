@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.text.hover;
+package org.eclipse.hdt.sveditor.ui.text.hover;
 
 import java.util.HashSet;
 import java.util.Set;

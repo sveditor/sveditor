@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
-import net.sf.sveditor.ui.wizards.NewSVClassWizard;
-import net.sf.sveditor.ui.wizards.NewSVInterfaceWizard;
-import net.sf.sveditor.ui.wizards.NewSVModuleWizard;
-import net.sf.sveditor.ui.wizards.NewSVPackageWizard;
-import net.sf.sveditor.ui.wizards.project.NewSVEProjectWizard;
+import org.eclipse.hdt.sveditor.ui.wizards.NewSVClassWizard;
+import org.eclipse.hdt.sveditor.ui.wizards.NewSVInterfaceWizard;
+import org.eclipse.hdt.sveditor.ui.wizards.NewSVModuleWizard;
+import org.eclipse.hdt.sveditor.ui.wizards.NewSVPackageWizard;
+import org.eclipse.hdt.sveditor.ui.wizards.project.NewSVEProjectWizard;
 
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.ui.IFolderLayout;
@@ -55,7 +55,7 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
         defineActions(layout);
         defineLayout(layout);
         
-        layout.addActionSet("net.sf.sveditor.ui.svOpenActions");
+        layout.addActionSet("org.eclipse.hdt.sveditor.ui.svOpenActions");
     }
 
     
@@ -74,7 +74,7 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
 //        layout.addNewWizardShortcut(NewSVPackageWizard.ID);
 //        // TODO: This should probably be contributed via an extension point
 //        layout.addNewWizardShortcut(
-//        		"net.sf.sveditor.svt.ui.svMethodologyClass");
+//        		"org.eclipse.hdt.sveditor.svt.ui.svMethodologyClass");
         
         // Add "show views".
         layout.addShowViewShortcut(ProjectExplorer.VIEW_ID);
@@ -84,7 +84,7 @@ public class SVPerspectiveFactory implements IPerspectiveFactory {
         layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_PROGRESS_VIEW);
         layout.addShowViewShortcut(IPageLayout.ID_TASK_LIST);
-        layout.addShowViewShortcut("net.sf.sveditor.ui.designHierarchy");
+        layout.addShowViewShortcut("org.eclipse.hdt.sveditor.ui.designHierarchy");
 
         layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
         

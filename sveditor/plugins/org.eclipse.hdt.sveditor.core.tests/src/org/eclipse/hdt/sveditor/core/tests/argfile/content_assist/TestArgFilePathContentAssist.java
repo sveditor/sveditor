@@ -8,16 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argfile.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.argfile.content_assist;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TextTagPosUtils;
-import net.sf.sveditor.core.tests.argfile.TestArgFileVariableProvider;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
+import org.eclipse.hdt.sveditor.core.tests.argfile.TestArgFileVariableProvider;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;

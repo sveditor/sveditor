@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;

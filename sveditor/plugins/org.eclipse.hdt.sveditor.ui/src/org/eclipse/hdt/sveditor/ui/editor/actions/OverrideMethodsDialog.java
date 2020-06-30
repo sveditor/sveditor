@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
 import org.eclipse.hdt.sveditor.core.db.SVDBItem;

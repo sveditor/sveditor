@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;

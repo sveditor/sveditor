@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.index;
+package org.eclipse.hdt.sveditor.core.tests.index;
 
-import net.sf.sveditor.core.tests.IndexTestUtils;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;

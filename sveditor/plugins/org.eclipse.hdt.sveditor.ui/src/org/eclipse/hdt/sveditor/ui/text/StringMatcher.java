@@ -14,7 +14,7 @@
  *     Armond Paiva - repurposed from JDT for use in SVEditor quick views
  *******************************************************************************/
 
-package net.sf.sveditor.ui.text;
+package org.eclipse.hdt.sveditor.ui.text;
 
 import java.util.Vector;
 

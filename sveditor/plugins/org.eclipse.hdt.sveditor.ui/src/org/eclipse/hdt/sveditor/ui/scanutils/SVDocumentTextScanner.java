@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.scanutils;
+package org.eclipse.hdt.sveditor.ui.scanutils;
 
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
 
 import org.eclipse.jface.text.IDocument;
 

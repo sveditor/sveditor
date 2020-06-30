@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.search;
+package org.eclipse.hdt.sveditor.ui.search;
 
 import java.util.List;
 

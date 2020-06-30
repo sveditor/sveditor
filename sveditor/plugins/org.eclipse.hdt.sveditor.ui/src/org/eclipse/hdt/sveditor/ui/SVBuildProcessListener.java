@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.DebugPlugin;
@@ -20,9 +20,9 @@ import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.hdt.sveditor.core.builder.ISVBuildProcessListener;
 import org.eclipse.hdt.sveditor.core.builder.SVBuilderProcess;
 
-import net.sf.sveditor.ui.console.SVConsoleManager;
-import net.sf.sveditor.ui.console.SVGlobalConsole;
-import net.sf.sveditor.ui.console.SVProcessConsole;
+import org.eclipse.hdt.sveditor.ui.console.SVConsoleManager;
+import org.eclipse.hdt.sveditor.ui.console.SVGlobalConsole;
+import org.eclipse.hdt.sveditor.ui.console.SVProcessConsole;
 
 public class SVBuildProcessListener implements ISVBuildProcessListener {
 	private SVGlobalConsole			fGlobalBuildConsole;

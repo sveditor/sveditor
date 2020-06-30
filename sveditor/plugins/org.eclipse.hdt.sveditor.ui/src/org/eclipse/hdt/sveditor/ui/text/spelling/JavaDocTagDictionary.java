@@ -11,11 +11,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package net.sf.sveditor.ui.text.spelling;
+package org.eclipse.hdt.sveditor.ui.text.spelling;
 
 import java.net.URL;
 
-import net.sf.sveditor.ui.text.spelling.engine.AbstractSpellDictionary;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.AbstractSpellDictionary;
 
 
 /**

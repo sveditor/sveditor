@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.Iterator;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.SVOverrideMethodAnnotation;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVOverrideMethodAnnotation;
 
 import org.eclipse.hdt.sveditor.core.db.SVDBTask;
 import org.eclipse.jface.text.BadLocationException;

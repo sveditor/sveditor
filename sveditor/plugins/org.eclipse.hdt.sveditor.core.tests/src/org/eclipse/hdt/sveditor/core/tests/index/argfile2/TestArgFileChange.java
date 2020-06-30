@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.index.argfile2;
+package org.eclipse.hdt.sveditor.core.tests.index.argfile2;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,9 +31,9 @@ import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
 import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.hdt.sveditor.core.job_mgr.IJobMgr;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.index.IndexTests;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.index.IndexTests;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestArgFileChange extends SVCoreTestCaseBase {
 	private List<Integer>		fEvents = new ArrayList<Integer>();

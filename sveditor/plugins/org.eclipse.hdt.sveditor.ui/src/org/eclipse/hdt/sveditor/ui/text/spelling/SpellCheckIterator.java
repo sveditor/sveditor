@@ -11,13 +11,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package net.sf.sveditor.ui.text.spelling;
+package org.eclipse.hdt.sveditor.ui.text.spelling;
 
 import java.util.LinkedList;
 import java.util.Locale;
 
-import net.sf.sveditor.ui.text.spelling.engine.DefaultSpellChecker;
-import net.sf.sveditor.ui.text.spelling.engine.ISpellCheckIterator;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.DefaultSpellChecker;
+import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellCheckIterator;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;

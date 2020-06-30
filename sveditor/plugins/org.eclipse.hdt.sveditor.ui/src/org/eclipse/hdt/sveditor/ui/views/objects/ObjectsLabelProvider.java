@@ -14,9 +14,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.views.objects;
+package org.eclipse.hdt.sveditor.ui.views.objects;
 
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.viewers.StyledString;

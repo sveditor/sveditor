@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.argfile.editor;
+package org.eclipse.hdt.sveditor.ui.argfile.editor;
 
 
 public interface SVArgFileDocumentPartitions {

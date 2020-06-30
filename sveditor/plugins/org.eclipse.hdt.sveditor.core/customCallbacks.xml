@@ -9,8 +9,8 @@
 			srcdir="${basedir}/src" destdir="${basedir}/bin"
 			includes="**/parser/MkOperatorParser.java" includeantruntime="true">
 		</javac>
-		<java classpath="${basedir}/bin" classname="net.sf.sveditor.core.parser.MkOperatorParser">
-			<arg value="${basedir}/src/net/sf/sveditor/core/parser/SVOperatorLexer.java"/>
+		<java classpath="${basedir}/bin" classname="org.eclipse.hdt.sveditor.core.parser.MkOperatorParser">
+			<arg value="${basedir}/src/org/eclipse/hdt/sveditor/core/parser/SVOperatorLexer.java"/>
 		</java>
 		-->
 	</target>

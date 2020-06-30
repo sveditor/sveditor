@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argfile.imp;
+package org.eclipse.hdt.sveditor.core.tests.argfile.imp;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +18,8 @@ import java.util.List;
 import org.eclipse.hdt.sveditor.core.BundleUtils;
 import org.eclipse.hdt.sveditor.core.argcollector.BaseArgCollector;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
 
 public class ArgFileImportTests extends SVCoreTestCaseBase {
 	

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.texteditor.ResourceMarkerAnnotationModel;

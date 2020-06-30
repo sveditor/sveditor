@@ -12,15 +12,15 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import org.eclipse.hdt.sveditor.core.log.LogHandle;

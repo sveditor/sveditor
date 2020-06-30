@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package net.sf.sveditor.ui.text.spelling.engine;
+package org.eclipse.hdt.sveditor.ui.text.spelling.engine;
 
 /**
  * Interface of hashers to compute the phonetic hash for a word.

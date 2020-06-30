@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argfile.parser;
+package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestArgFileParser extends TestCase {
 	private File				fTmpDir;

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,34 +140,34 @@ import org.eclipse.ui.texteditor.ResourceMarkerAnnotationModel;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.actions.AddBlockCommentAction;
-import net.sf.sveditor.ui.editor.actions.AddNdocsAction;
-import net.sf.sveditor.ui.editor.actions.FindReferencesAction;
-import net.sf.sveditor.ui.editor.actions.GoToNextPrevElementAction;
-import net.sf.sveditor.ui.editor.actions.GotoMatchingBracketAction;
-import net.sf.sveditor.ui.editor.actions.IndentAction;
-import net.sf.sveditor.ui.editor.actions.NextWordAction;
-import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
-import net.sf.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
-import net.sf.sveditor.ui.editor.actions.OpenMacroExpansionAction;
-import net.sf.sveditor.ui.editor.actions.OpenObjectsViewAction;
-import net.sf.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
-import net.sf.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
-import net.sf.sveditor.ui.editor.actions.OpenQuickOutlineAction;
-import net.sf.sveditor.ui.editor.actions.OpenTypeAction;
-import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
-import net.sf.sveditor.ui.editor.actions.OverrideTaskFuncAction;
-import net.sf.sveditor.ui.editor.actions.PrevWordAction;
-import net.sf.sveditor.ui.editor.actions.RemoveBlockCommentAction;
-import net.sf.sveditor.ui.editor.actions.SVMoveLinesAction;
-import net.sf.sveditor.ui.editor.actions.SVRulerAnnotationAction;
-import net.sf.sveditor.ui.editor.actions.SelNextWordAction;
-import net.sf.sveditor.ui.editor.actions.SelPrevWordAction;
-import net.sf.sveditor.ui.editor.actions.SelectEnclosingElementAction;
-import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
-import net.sf.sveditor.ui.editor.outline.SVOutlinePage;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.editor.actions.AddBlockCommentAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.AddNdocsAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.FindReferencesAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.GoToNextPrevElementAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.GotoMatchingBracketAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.IndentAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.NextWordAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenDeclarationAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenMacroExpansionAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenObjectsViewAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenQuickOutlineAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenTypeAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OverrideTaskFuncAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.PrevWordAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.RemoveBlockCommentAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.SVMoveLinesAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.SVRulerAnnotationAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.SelNextWordAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.SelPrevWordAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.SelectEnclosingElementAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.ToggleCommentAction;
+import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlinePage;
+import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
 
 /**
  * @author C08381
@@ -1075,11 +1075,11 @@ public class SVEditor extends TextEditor
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				Activator.PLUGIN_ID + ".source.menu");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
-				"net.sf.sveditor.ui.source.menu.as");
+				"org.eclipse.hdt.sveditor.ui.source.menu.as");
 		 */
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT, 
-				"net.sf.sveditor.ui.override.tf");
+				"org.eclipse.hdt.sveditor.ui.override.tf");
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeAction");
@@ -1100,11 +1100,11 @@ public class SVEditor extends TextEditor
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT,
-				"net.sf.sveditor.ui.source.menu");
+				"org.eclipse.hdt.sveditor.ui.source.menu");
 		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
-				"net.sf.sveditor.ui.source.menu.as");
+				"org.eclipse.hdt.sveditor.ui.source.menu.as");
 		
 		IMenuManager editMenu = menu.findMenuUsingPath(
 				IWorkbenchActionConstants.M_EDIT);
@@ -1455,7 +1455,7 @@ public class SVEditor extends TextEditor
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
 			
-			if (ann.getType().equals("net.sf.sveditor.ui.disabledRegion")) {
+			if (ann.getType().equals("org.eclipse.hdt.sveditor.ui.disabledRegion")) {
 				remove_ann.add(ann);
 			}
 		}		
@@ -1835,7 +1835,7 @@ public class SVEditor extends TextEditor
 		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
-			if (ann.getType().equals("net.sf.sveditor.ui.occurrences")) {
+			if (ann.getType().equals("org.eclipse.hdt.sveditor.ui.occurrences")) {
 				remove_ann.add(ann);
 			}
 		}		
@@ -1868,7 +1868,7 @@ public class SVEditor extends TextEditor
 					
 					if (region != null) {
 						Annotation ann = new Annotation(
-								"net.sf.sveditor.ui.occurrences",
+								"org.eclipse.hdt.sveditor.ui.occurrences",
 								false, "");
 						Position position = new Position(region.getOffset(), region.getLength());
 						add_ann.put(ann, position);

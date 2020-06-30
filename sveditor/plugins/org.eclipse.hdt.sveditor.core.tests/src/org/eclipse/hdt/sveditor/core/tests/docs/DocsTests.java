@@ -13,7 +13,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.core.tests.docs ;
+package org.eclipse.hdt.sveditor.core.tests.docs ;
 
 import junit.framework.TestSuite ;
 

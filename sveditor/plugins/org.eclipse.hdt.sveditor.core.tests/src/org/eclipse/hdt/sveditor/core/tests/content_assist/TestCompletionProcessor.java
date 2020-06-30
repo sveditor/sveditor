@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.content_assist;
 
 import org.eclipse.hdt.sveditor.core.content_assist.AbstractCompletionProcessor;
 import org.eclipse.hdt.sveditor.core.db.SVDBFile;

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.views.design_hierarchy;
+package org.eclipse.hdt.sveditor.ui.views.design_hierarchy;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyContentProviderBase;

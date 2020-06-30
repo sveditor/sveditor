@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.scanner;
+package org.eclipse.hdt.sveditor.core.tests.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ import org.eclipse.hdt.sveditor.core.db.SVDBFile;
 import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class ProgramBlockTests extends TestCase {
 	

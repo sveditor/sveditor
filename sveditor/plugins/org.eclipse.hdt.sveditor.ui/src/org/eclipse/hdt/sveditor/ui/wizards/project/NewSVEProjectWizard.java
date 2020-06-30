@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.project;
+package org.eclipse.hdt.sveditor.ui.wizards.project;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;

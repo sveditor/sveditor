@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.checker;
+package org.eclipse.hdt.sveditor.core.tests.checker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class CheckerTests extends TestSuite {
 	

@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.content_assist;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestContentAssistModule extends SVCoreTestCaseBase {
 	

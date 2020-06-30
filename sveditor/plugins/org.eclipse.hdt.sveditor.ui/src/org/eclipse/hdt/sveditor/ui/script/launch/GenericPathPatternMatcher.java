@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.script.launch;
+package org.eclipse.hdt.sveditor.ui.script.launch;
 
 import java.io.File;
 
@@ -17,7 +17,7 @@ import org.eclipse.hdt.sveditor.core.SVFileUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.PatternMatchEvent;
 
-import net.sf.sveditor.ui.console.SVPatternMatcherBase;
+import org.eclipse.hdt.sveditor.ui.console.SVPatternMatcherBase;
 
 public class GenericPathPatternMatcher extends SVPatternMatcherBase {
 	

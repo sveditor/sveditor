@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.parser;
+package org.eclipse.hdt.sveditor.core.tests.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,8 +30,8 @@ import org.eclipse.hdt.sveditor.core.parser.SVParseException;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class ParserTests extends TestSuite {
 	

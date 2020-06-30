@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.pref;
+package org.eclipse.hdt.sveditor.ui.pref;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.ui.texteditor.templates.TemplatePreferencePage;
 

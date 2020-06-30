@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.argfile.editor.outline;
+package org.eclipse.hdt.sveditor.ui.argfile.editor.outline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeContentProvider;
 
 import org.eclipse.hdt.sveditor.core.Tuple;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;

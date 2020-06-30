@@ -43,9 +43,9 @@ public class MkOperatorParser implements ISVOperators {
 		
 		String ind = "";
 		
-		fPS.println(ind + "package net.sf.sveditor.core.parser;");
+		fPS.println(ind + "package org.eclipse.hdt.sveditor.core.parser;");
 		fPS.println();
-		fPS.println("import net.sf.sveditor.core.scanutils.ITextScanner;");
+		fPS.println("import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;");
 		fPS.println();
 		
 		fPS.println(ind + "class SVOperatorLexer implements ISVOperators {");

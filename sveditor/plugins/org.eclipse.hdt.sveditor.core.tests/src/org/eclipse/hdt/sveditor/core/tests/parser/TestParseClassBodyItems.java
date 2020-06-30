@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.parser;
+package org.eclipse.hdt.sveditor.core.tests.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ import org.eclipse.hdt.sveditor.core.parser.SVParseException;
 import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseClassBodyItems extends TestCase {
 	

@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.explorer;
+package org.eclipse.hdt.sveditor.ui.tests.explorer;
 
 import java.io.File;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;

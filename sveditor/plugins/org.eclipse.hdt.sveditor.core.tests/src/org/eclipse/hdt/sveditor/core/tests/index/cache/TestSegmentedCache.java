@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.index.cache;
+package org.eclipse.hdt.sveditor.core.tests.index.cache;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
 import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestSegmentedCache extends SVCoreTestCaseBase {
 	

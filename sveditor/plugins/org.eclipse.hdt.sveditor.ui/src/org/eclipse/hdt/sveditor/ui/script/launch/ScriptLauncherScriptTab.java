@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.script.launch;
+package org.eclipse.hdt.sveditor.ui.script.launch;
 
 import java.io.File;
 
-import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
-import net.sf.sveditor.ui.WorkspaceFileDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;

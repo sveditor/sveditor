@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.editor;
+package org.eclipse.hdt.sveditor.ui.tests.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.ui.editor.ISVEditor;
-import net.sf.sveditor.ui.tests.UiReleaseTests;
-import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
+import org.eclipse.hdt.sveditor.ui.editor.ISVEditor;
+import org.eclipse.hdt.sveditor.ui.tests.UiReleaseTests;
+import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.StringInputStream;

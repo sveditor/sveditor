@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.search;
+package org.eclipse.hdt.sveditor.ui.search;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;

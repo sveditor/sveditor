@@ -1,8 +1,8 @@
-package net.sf.sveditor.ui.text;
+package org.eclipse.hdt.sveditor.ui.text;
 
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.views.objects.ObjectsLabelProvider;
-import net.sf.sveditor.ui.views.objects.ObjectsViewContentProvider;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.views.objects.ObjectsLabelProvider;
+import org.eclipse.hdt.sveditor.ui.views.objects.ObjectsViewContentProvider;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
@@ -193,7 +193,7 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 
 	@Override
 	protected String getId() {
-		return "net.sf.sveditor.ui.text.QuickObjects"; //$NON-NLS-1$
+		return "org.eclipse.hdt.sveditor.ui.text.QuickObjects"; //$NON-NLS-1$
 	}
 
 	/**

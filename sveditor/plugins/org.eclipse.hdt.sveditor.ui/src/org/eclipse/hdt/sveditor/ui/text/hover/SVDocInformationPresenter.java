@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.text.hover;
+package org.eclipse.hdt.sveditor.ui.text.hover;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-import net.sf.sveditor.ui.doc.HTML2TextReader;
+import org.eclipse.hdt.sveditor.ui.doc.HTML2TextReader;
 
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.TextPresentation;

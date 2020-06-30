@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.views;
+package org.eclipse.hdt.sveditor.ui.views;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,10 +45,10 @@ import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
-import net.sf.sveditor.ui.editor.SVDocumentSetupParticipant;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentSetupParticipant;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 
 public class MacroExpansionView extends ViewPart {

@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.parser.db;
+package org.eclipse.hdt.sveditor.core.tests.parser.db;
 
 import org.eclipse.hdt.sveditor.core.db.SVDBFile;
 import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
 import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseModuleDB extends SVCoreTestCaseBase {
 	

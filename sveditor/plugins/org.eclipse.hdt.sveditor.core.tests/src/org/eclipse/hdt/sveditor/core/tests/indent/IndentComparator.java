@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.indent;
+package org.eclipse.hdt.sveditor.core.tests.indent;
 
 import java.util.ArrayList;
 import java.util.List;

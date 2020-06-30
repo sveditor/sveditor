@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argfile.parser;
+package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;

@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.imp.compilation.args;
+package org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args;
 
 
 import java.io.InputStream;
 
-import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;

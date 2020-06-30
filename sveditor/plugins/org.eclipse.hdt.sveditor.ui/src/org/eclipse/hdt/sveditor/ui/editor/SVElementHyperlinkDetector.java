@@ -12,17 +12,17 @@
  *     IBM Corporation - initial API and implementation
  *     Armond Paiva - repurposed from JDT for use in SVEditor
  *******************************************************************************/
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.actions.OpenDeclarationAction;
-import net.sf.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
-import net.sf.sveditor.ui.editor.actions.SelectionConverter;
-import net.sf.sveditor.ui.text.SVWordFinder;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenDeclarationAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
+import org.eclipse.hdt.sveditor.ui.editor.actions.SelectionConverter;
+import org.eclipse.hdt.sveditor.ui.text.SVWordFinder;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.hdt.sveditor.core.log.ILogLevel;

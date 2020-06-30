@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.indent;
+package org.eclipse.hdt.sveditor.core.tests.indent;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
 import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestIndentBehavioralStmts extends SVCoreTestCaseBase {
 

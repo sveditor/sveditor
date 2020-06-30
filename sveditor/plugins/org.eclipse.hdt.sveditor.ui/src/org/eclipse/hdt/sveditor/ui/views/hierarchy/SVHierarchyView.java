@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.views.hierarchy;
+package org.eclipse.hdt.sveditor.ui.views.hierarchy;
 
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeContentProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import java.util.List;
 

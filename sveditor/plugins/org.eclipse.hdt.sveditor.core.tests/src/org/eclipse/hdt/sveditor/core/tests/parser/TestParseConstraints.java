@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.parser;
+package org.eclipse.hdt.sveditor.core.tests.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,8 @@ import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
 import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseConstraints extends SVCoreTestCaseBase {
 	

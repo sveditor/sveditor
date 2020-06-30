@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ui Plug-in
 Bundle-SymbolicName: org.eclipse.hdt.sveditor.ui;singleton:=true
 Bundle-Version: 1.2.3
-Bundle-Activator: net.sf.sveditor.ui.SVUiPlugin
+Bundle-Activator: org.eclipse.hdt.sveditor.ui.SVUiPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.editors,
@@ -28,14 +28,14 @@ Require-Bundle: org.eclipse.ui,
  com.ibm.icu
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: net.sf.sveditor.ui,
- net.sf.sveditor.ui.console,
- net.sf.sveditor.ui.doc,
- net.sf.sveditor.ui.editor,
- net.sf.sveditor.ui.editor.actions,
- net.sf.sveditor.ui.editor.outline,
- net.sf.sveditor.ui.explorer,
- net.sf.sveditor.ui.pref,
- net.sf.sveditor.ui.script.launch,
- net.sf.sveditor.ui.svcp
+Export-Package: org.eclipse.hdt.sveditor.ui,
+ org.eclipse.hdt.sveditor.ui.console,
+ org.eclipse.hdt.sveditor.ui.doc,
+ org.eclipse.hdt.sveditor.ui.editor,
+ org.eclipse.hdt.sveditor.ui.editor.actions,
+ org.eclipse.hdt.sveditor.ui.editor.outline,
+ org.eclipse.hdt.sveditor.ui.explorer,
+ org.eclipse.hdt.sveditor.ui.pref,
+ org.eclipse.hdt.sveditor.ui.script.launch,
+ org.eclipse.hdt.sveditor.ui.svcp
 

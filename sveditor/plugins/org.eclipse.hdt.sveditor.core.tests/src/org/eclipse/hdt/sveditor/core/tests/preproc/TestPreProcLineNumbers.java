@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.preproc;
+package org.eclipse.hdt.sveditor.core.tests.preproc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild
 import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
 import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	

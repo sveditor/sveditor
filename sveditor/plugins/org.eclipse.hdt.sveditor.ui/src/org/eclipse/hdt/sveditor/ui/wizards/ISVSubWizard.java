@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 import java.util.Map;
 

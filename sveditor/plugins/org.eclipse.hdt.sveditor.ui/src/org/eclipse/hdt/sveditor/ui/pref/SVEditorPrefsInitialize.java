@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.pref;
+package org.eclipse.hdt.sveditor.ui.pref;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.text.spelling.PreferenceConstants;
-import net.sf.sveditor.ui.text.spelling.SpellCheckEngine;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.text.spelling.PreferenceConstants;
+import org.eclipse.hdt.sveditor.ui.text.spelling.SpellCheckEngine;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.hdt.sveditor.core.XMLTransformUtils;

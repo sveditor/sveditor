@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.prop_pages;
+package org.eclipse.hdt.sveditor.ui.prop_pages;
 
 
-import net.sf.sveditor.ui.WorkspaceFileDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;

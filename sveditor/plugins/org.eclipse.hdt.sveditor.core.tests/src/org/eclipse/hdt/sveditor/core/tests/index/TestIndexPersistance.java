@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.index;
+package org.eclipse.hdt.sveditor.core.tests.index;
 
 import java.io.File;
 import java.io.InputStream;
@@ -35,12 +35,12 @@ import org.eclipse.hdt.sveditor.core.log.ILogLevel;
 import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
-import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.IndexTestUtils;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
+import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
 	private int				fRebuildCount;

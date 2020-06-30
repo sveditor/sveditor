@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.project;
+package org.eclipse.hdt.sveditor.ui.wizards.project;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.ui.WorkspaceFileDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.hdt.sveditor.core.Tuple;

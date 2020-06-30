@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.argfile.editor;
+package org.eclipse.hdt.sveditor.ui.argfile.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
 
 import org.eclipse.hdt.sveditor.core.Tuple;
 import org.eclipse.hdt.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;

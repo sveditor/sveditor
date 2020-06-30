@@ -1,9 +1,9 @@
-package net.sf.sveditor.ui.text;
+package org.eclipse.hdt.sveditor.ui.text;
 
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.views.hierarchy.HierarchyTreeContentProvider;
-import net.sf.sveditor.ui.views.hierarchy.HierarchyTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.views.hierarchy.HierarchyTreeContentProvider;
+import org.eclipse.hdt.sveditor.ui.views.hierarchy.HierarchyTreeLabelProvider;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
@@ -137,7 +137,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 
 	@Override
 	protected String getId() {
-		return "net.sf.sveditor.ui.text.QuickOutline"; //$NON-NLS-1$
+		return "org.eclipse.hdt.sveditor.ui.text.QuickOutline"; //$NON-NLS-1$
 	}
 
 	/**

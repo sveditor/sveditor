@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.text.hover;
+package org.eclipse.hdt.sveditor.ui.text.hover;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.SVColorManager;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.editor.SVColorManager;
+import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;

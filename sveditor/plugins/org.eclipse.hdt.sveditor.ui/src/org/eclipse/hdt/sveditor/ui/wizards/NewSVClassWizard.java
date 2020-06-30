@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import java.io.InputStream;
 import java.io.OutputStream;

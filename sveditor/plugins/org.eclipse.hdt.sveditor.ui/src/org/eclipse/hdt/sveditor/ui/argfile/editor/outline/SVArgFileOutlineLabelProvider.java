@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.argfile.editor.outline;
+package org.eclipse.hdt.sveditor.ui.argfile.editor.outline;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.hdt.sveditor.core.SVFileUtils;
 import org.eclipse.hdt.sveditor.core.Tuple;

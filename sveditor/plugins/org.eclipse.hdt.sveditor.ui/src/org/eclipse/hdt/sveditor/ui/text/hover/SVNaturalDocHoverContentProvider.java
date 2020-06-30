@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.text.hover;
+package org.eclipse.hdt.sveditor.ui.text.hover;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
 import org.osgi.framework.Bundle;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {
 	private SVDBDocComment			fComment;

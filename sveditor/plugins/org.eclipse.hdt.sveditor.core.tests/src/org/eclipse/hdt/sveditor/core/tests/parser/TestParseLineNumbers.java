@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.parser;
+package org.eclipse.hdt.sveditor.core.tests.parser;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
@@ -24,7 +24,7 @@ import org.eclipse.hdt.sveditor.core.db.SVDBTask;
 import org.eclipse.hdt.sveditor.core.db.SVDBUtil;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseLineNumbers extends TestCase {
 	

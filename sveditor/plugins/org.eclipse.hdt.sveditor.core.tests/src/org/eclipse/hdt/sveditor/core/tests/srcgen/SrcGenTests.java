@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.srcgen;
+package org.eclipse.hdt.sveditor.core.tests.srcgen;
 
 import java.io.File;
 
@@ -26,7 +26,7 @@ import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class SrcGenTests extends TestSuite {
 	

@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor.outline;
+package org.eclipse.hdt.sveditor.ui.editor.outline;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVDBIconUtils;
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
-import net.sf.sveditor.ui.svcp.SVDBDefaultContentFilter;
-import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
+import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.eclipse.hdt.sveditor.ui.svcp.SVDBDefaultContentFilter;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeContentProvider;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.hdt.sveditor.core.Tuple;

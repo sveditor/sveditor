@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.utils;
+package org.eclipse.hdt.sveditor.core.tests.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;

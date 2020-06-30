@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.lexer;
+package org.eclipse.hdt.sveditor.core.tests.lexer;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.hdt.sveditor.core.db.SVDBLocation;

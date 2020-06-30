@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests;
+package org.eclipse.hdt.sveditor.core.tests;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,33 +26,33 @@ import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.argfile.content_assist.ArgFileContentAssistTests;
-import net.sf.sveditor.core.tests.argfile.creator.TestArgFileCreator;
-import net.sf.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;
-import net.sf.sveditor.core.tests.argfile.parser.ArgFileParserTests;
-import net.sf.sveditor.core.tests.content_assist.ContentAssistTests;
-import net.sf.sveditor.core.tests.db.SVDBTests;
-import net.sf.sveditor.core.tests.docs.DocsTests;
-import net.sf.sveditor.core.tests.fileset.FileSetTests;
-import net.sf.sveditor.core.tests.hierarchy.HierarchyTests;
-import net.sf.sveditor.core.tests.indent.IndentTests;
-import net.sf.sveditor.core.tests.index.IndexTests;
-import net.sf.sveditor.core.tests.index.argfile2.ArgFileIndex2Tests;
-import net.sf.sveditor.core.tests.index.cache.IndexCacheTests;
-import net.sf.sveditor.core.tests.index.persistence.PersistenceTests;
-import net.sf.sveditor.core.tests.index.refs.IndexRefTests;
-import net.sf.sveditor.core.tests.job_mgr.JobMgrTests;
-import net.sf.sveditor.core.tests.logscanner.LogScannerTests;
-import net.sf.sveditor.core.tests.open_decl.OpenDeclTests;
-import net.sf.sveditor.core.tests.parser.ParserTests;
-import net.sf.sveditor.core.tests.parser.ams.ParserAMSTests;
-import net.sf.sveditor.core.tests.parser.db.ParserDBTests;
-import net.sf.sveditor.core.tests.preproc.PreProcTests;
-import net.sf.sveditor.core.tests.primitives.PrimitivesTests;
-import net.sf.sveditor.core.tests.project_settings.ProjectSettingsTests;
-import net.sf.sveditor.core.tests.scanner.PreProcMacroTests;
-import net.sf.sveditor.core.tests.searchutils.SearchUtilsTests;
-import net.sf.sveditor.core.tests.srcgen.SrcGenTests;
+import org.eclipse.hdt.sveditor.core.tests.argfile.content_assist.ArgFileContentAssistTests;
+import org.eclipse.hdt.sveditor.core.tests.argfile.creator.TestArgFileCreator;
+import org.eclipse.hdt.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;
+import org.eclipse.hdt.sveditor.core.tests.argfile.parser.ArgFileParserTests;
+import org.eclipse.hdt.sveditor.core.tests.content_assist.ContentAssistTests;
+import org.eclipse.hdt.sveditor.core.tests.db.SVDBTests;
+import org.eclipse.hdt.sveditor.core.tests.docs.DocsTests;
+import org.eclipse.hdt.sveditor.core.tests.fileset.FileSetTests;
+import org.eclipse.hdt.sveditor.core.tests.hierarchy.HierarchyTests;
+import org.eclipse.hdt.sveditor.core.tests.indent.IndentTests;
+import org.eclipse.hdt.sveditor.core.tests.index.IndexTests;
+import org.eclipse.hdt.sveditor.core.tests.index.argfile2.ArgFileIndex2Tests;
+import org.eclipse.hdt.sveditor.core.tests.index.cache.IndexCacheTests;
+import org.eclipse.hdt.sveditor.core.tests.index.persistence.PersistenceTests;
+import org.eclipse.hdt.sveditor.core.tests.index.refs.IndexRefTests;
+import org.eclipse.hdt.sveditor.core.tests.job_mgr.JobMgrTests;
+import org.eclipse.hdt.sveditor.core.tests.logscanner.LogScannerTests;
+import org.eclipse.hdt.sveditor.core.tests.open_decl.OpenDeclTests;
+import org.eclipse.hdt.sveditor.core.tests.parser.ParserTests;
+import org.eclipse.hdt.sveditor.core.tests.parser.ams.ParserAMSTests;
+import org.eclipse.hdt.sveditor.core.tests.parser.db.ParserDBTests;
+import org.eclipse.hdt.sveditor.core.tests.preproc.PreProcTests;
+import org.eclipse.hdt.sveditor.core.tests.primitives.PrimitivesTests;
+import org.eclipse.hdt.sveditor.core.tests.project_settings.ProjectSettingsTests;
+import org.eclipse.hdt.sveditor.core.tests.scanner.PreProcMacroTests;
+import org.eclipse.hdt.sveditor.core.tests.searchutils.SearchUtilsTests;
+import org.eclipse.hdt.sveditor.core.tests.srcgen.SrcGenTests;
 
 public class CoreReleaseTests extends TestSuite {
 	

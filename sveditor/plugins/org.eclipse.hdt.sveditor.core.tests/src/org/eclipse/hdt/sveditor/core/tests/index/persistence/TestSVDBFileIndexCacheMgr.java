@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.index.persistence;
+package org.eclipse.hdt.sveditor.core.tests.index.persistence;
 
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;

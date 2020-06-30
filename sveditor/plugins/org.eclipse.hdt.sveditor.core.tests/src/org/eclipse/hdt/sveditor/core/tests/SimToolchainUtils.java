@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests;
+package org.eclipse.hdt.sveditor.core.tests;
 
 import java.util.HashMap;
 import java.util.Map;

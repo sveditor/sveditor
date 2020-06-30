@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards.imp.compilation.args;
+package org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args;
 
-import net.sf.sveditor.ui.WorkspaceFileDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.window.Window;

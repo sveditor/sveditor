@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
-import net.sf.sveditor.ui.SVDBIconUtils;
-import net.sf.sveditor.ui.doc.DocUtilUi;
+import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
+import org.eclipse.hdt.sveditor.ui.doc.DocUtilUi;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;

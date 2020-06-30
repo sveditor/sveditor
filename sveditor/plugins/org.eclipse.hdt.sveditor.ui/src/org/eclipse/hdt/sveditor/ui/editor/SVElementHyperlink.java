@@ -13,7 +13,7 @@
  *     Armond Paiva - repurposed from JDT for use in SVEditor
  *******************************************************************************/
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;

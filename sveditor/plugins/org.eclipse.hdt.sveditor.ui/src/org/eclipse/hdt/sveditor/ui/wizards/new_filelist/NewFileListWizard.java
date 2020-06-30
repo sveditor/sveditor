@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.new_filelist;
+package org.eclipse.hdt.sveditor.ui.wizards.new_filelist;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;

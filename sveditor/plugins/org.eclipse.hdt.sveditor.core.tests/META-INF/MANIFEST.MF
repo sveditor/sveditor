@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests Plug-in
 Bundle-SymbolicName: org.eclipse.hdt.sveditor.core.tests;singleton:=true
 Bundle-Version: 1.2.3
-Bundle-Activator: net.sf.sveditor.core.tests.SVCoreTestsPlugin
+Bundle-Activator: org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin
 Require-Bundle: org.eclipse.core.runtime,
  org.junit,
  org.eclipse.hdt.sveditor.core,
@@ -11,14 +11,14 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
  org.eclipse.hdt.sveditor.extjar
 Eclipse-LazyStart: true
-Export-Package: net.sf.sveditor.core.tests,
- net.sf.sveditor.core.tests.constraint_parser,
- net.sf.sveditor.core.tests.content_assist,
- net.sf.sveditor.core.tests.indent,
- net.sf.sveditor.core.tests.index,
- net.sf.sveditor.core.tests.index.libIndex,
- net.sf.sveditor.core.tests.index.persistence,
- net.sf.sveditor.core.tests.scanner,
- net.sf.sveditor.core.tests.utils
+Export-Package: org.eclipse.hdt.sveditor.core.tests,
+ org.eclipse.hdt.sveditor.core.tests.constraint_parser,
+ org.eclipse.hdt.sveditor.core.tests.content_assist,
+ org.eclipse.hdt.sveditor.core.tests.indent,
+ org.eclipse.hdt.sveditor.core.tests.index,
+ org.eclipse.hdt.sveditor.core.tests.index.libIndex,
+ org.eclipse.hdt.sveditor.core.tests.index.persistence,
+ org.eclipse.hdt.sveditor.core.tests.scanner,
+ org.eclipse.hdt.sveditor.core.tests.utils
 Bundle-ClassPath: libs/commons-compress-1.10.jar,
  .

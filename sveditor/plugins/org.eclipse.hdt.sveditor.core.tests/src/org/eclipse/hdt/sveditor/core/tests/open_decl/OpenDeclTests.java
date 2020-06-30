@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.open_decl;
+package org.eclipse.hdt.sveditor.core.tests.open_decl;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
 import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
 
-import net.sf.sveditor.core.tests.FileIndexIterator;
+import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 

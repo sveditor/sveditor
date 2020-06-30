@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.content_assist;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,10 +52,10 @@ import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TextTagPosUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class ContentAssistTests extends TestCase {
 	

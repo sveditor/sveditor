@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.docs;
+package org.eclipse.hdt.sveditor.core.tests.docs;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.Tuple;
@@ -22,7 +22,7 @@ import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestCleaner extends TestCase {
 	

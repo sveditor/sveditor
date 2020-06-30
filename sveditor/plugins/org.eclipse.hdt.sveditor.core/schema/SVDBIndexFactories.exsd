@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="net.sf.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.hdt.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="net.sf.sveditor.core" id="SVDBIndexFactories" name="SVDB Index Factory extension point"/>
+         <meta.schema plugin="org.eclipse.hdt.sveditor.core" id="SVDBIndexFactories" name="SVDB Index Factory extension point"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -65,7 +65,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn=":net.sf.sveditor.core.db.index.ISVDBIndexFactory"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexFactory"/>
                </appinfo>
             </annotation>
          </attribute>

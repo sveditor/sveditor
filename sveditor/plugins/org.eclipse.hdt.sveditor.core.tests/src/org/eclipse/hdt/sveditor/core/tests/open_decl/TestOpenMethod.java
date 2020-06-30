@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.open_decl;
+package org.eclipse.hdt.sveditor.core.tests.open_decl;
 
 import java.util.List;
 
@@ -28,8 +28,8 @@ import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
 import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TestStringUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.TestStringUtils;
 public class TestOpenMethod extends SVCoreTestCaseBase { 
 	
 	public void testExternFieldBehaveBlock() {

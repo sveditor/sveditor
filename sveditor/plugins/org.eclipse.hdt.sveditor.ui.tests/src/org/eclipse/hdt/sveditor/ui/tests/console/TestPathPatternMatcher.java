@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.tests.console;
+package org.eclipse.hdt.sveditor.ui.tests.console;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,10 +24,10 @@ import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsole;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.ui.script.launch.GenericPathPatternMatcher;
-import net.sf.sveditor.ui.script.launch.GenericRelPathPatternMatcher;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.ui.script.launch.GenericPathPatternMatcher;
+import org.eclipse.hdt.sveditor.ui.script.launch.GenericRelPathPatternMatcher;
 
 public class TestPathPatternMatcher extends SVCoreTestCaseBase {
 

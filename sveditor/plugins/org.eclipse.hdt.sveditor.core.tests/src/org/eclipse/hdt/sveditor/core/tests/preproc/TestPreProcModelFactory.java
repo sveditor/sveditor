@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.preproc;
+package org.eclipse.hdt.sveditor.core.tests.preproc;
 
 import org.eclipse.hdt.sveditor.core.StringInputStream;
 import org.eclipse.hdt.sveditor.core.Tuple;
@@ -17,7 +17,7 @@ import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelNode;
 import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
 import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcModelFactory extends SVCoreTestCaseBase {
 	

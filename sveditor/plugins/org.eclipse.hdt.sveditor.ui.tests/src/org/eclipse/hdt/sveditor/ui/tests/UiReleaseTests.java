@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests;
+package org.eclipse.hdt.sveditor.ui.tests;
 
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-import net.sf.sveditor.ui.editor.SVAutoIndentStrategy;
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
-import net.sf.sveditor.ui.tests.console.ConsoleTests;
-import net.sf.sveditor.ui.tests.editor.TestAutoIndent;
-import net.sf.sveditor.ui.tests.editor.TestOverrideMethods;
-import net.sf.sveditor.ui.tests.editor.TestUserLevelOperations;
-import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.eclipse.hdt.sveditor.ui.editor.SVAutoIndentStrategy;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
+import org.eclipse.hdt.sveditor.ui.tests.console.ConsoleTests;
+import org.eclipse.hdt.sveditor.ui.tests.editor.TestAutoIndent;
+import org.eclipse.hdt.sveditor.ui.tests.editor.TestOverrideMethods;
+import org.eclipse.hdt.sveditor.ui.tests.editor.TestUserLevelOperations;
+import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.jface.text.Document;

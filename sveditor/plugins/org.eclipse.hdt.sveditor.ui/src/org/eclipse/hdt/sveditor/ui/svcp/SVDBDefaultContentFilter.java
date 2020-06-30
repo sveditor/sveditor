@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.svcp;
+package org.eclipse.hdt.sveditor.ui.svcp;
 
 import org.eclipse.hdt.sveditor.core.db.SVDBAssign;
 import org.eclipse.hdt.sveditor.core.db.SVDBConstraint;

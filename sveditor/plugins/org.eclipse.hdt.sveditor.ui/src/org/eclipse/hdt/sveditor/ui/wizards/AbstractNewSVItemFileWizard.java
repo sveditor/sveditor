@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;

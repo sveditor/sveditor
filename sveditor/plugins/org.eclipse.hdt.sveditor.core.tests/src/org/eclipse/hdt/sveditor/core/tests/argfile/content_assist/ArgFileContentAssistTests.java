@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argfile.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.argfile.content_assist;
 
 import junit.framework.TestSuite;
 

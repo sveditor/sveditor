@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 import java.util.ResourceBundle;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -66,46 +66,46 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fOpenDeclarationAction = new RetargetTextEditorAction(
 				bundle, "OpenDeclaration.");
 		fOpenDeclarationAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.declaration");
+				"org.eclipse.hdt.sveditor.ui.editor.open.declaration");
 
 		fOpenMacroExpansionAction = new RetargetTextEditorAction(
 				bundle, "OpenMacroExpansion.");
 		fOpenMacroExpansionAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.macro.expansion");
+				"org.eclipse.hdt.sveditor.ui.editor.open.macro.expansion");
 		
 		fFindReferencesAction = new RetargetTextEditorAction(
 				bundle, "FindReferences.");
 		fFindReferencesAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.find.references");
+				"org.eclipse.hdt.sveditor.ui.editor.find.references");
 		
 		fOpenTypeAction = new RetargetTextEditorAction(
 				bundle, "OpenType.");
 		fOpenTypeAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.type");
+				"org.eclipse.hdt.sveditor.ui.editor.open.type");
 
 		fOpenTypeHierarchyAction = new RetargetTextEditorAction(
 				bundle, "OpenTypeHierarchy.");
 		fOpenTypeHierarchyAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.type.hierarchy");
+				"org.eclipse.hdt.sveditor.ui.editor.open.type.hierarchy");
 
 		fOpenObjectsAction = new RetargetTextEditorAction(
 				bundle, "OpenObjects.");
 		fOpenObjectsAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.objects");
+				"org.eclipse.hdt.sveditor.ui.editor.open.objects");
 
 		fOpenQuickObjectsAction = new RetargetTextEditorAction(
 				bundle, "OpenQuickObjects.");
 		fOpenQuickObjectsAction.setActionDefinitionId(
-				"net.sf.sveditor.ui.editor.open.quick.objects");
+				"org.eclipse.hdt.sveditor.ui.editor.open.quick.objects");
 
 		fIndentAction = new RetargetTextEditorAction(bundle, "Indent.");
-		fIndentAction.setActionDefinitionId("net.sf.sveditor.ui.indent");
+		fIndentAction.setActionDefinitionId("org.eclipse.hdt.sveditor.ui.indent");
 		
 		fAddBlockCommentAction = new RetargetTextEditorAction(bundle, "AddBlockComment.");
-		fAddBlockCommentAction.setActionDefinitionId("net.sf.sveditor.ui.AddBlockComment");
+		fAddBlockCommentAction.setActionDefinitionId("org.eclipse.hdt.sveditor.ui.AddBlockComment");
 		
 		fRemoveBlockCommentAction = new RetargetTextEditorAction(bundle, "RemoveBlockComment.");
-		fRemoveBlockCommentAction.setActionDefinitionId("net.sf.sveditor.ui.RemoveBlockComment");
+		fRemoveBlockCommentAction.setActionDefinitionId("org.eclipse.hdt.sveditor.ui.RemoveBlockComment");
 		
 		fToggleCommentAction = new RetargetTextEditorAction(bundle, "ToggleComment.");
 		fToggleCommentAction.setActionDefinitionId(SVUiPlugin.PLUGIN_ID + ".ToggleComment");
@@ -123,7 +123,7 @@ public class SVActionContributor extends TextEditorActionContributor {
 		fSelPrevWordAction.setActionDefinitionId(ITextEditorActionDefinitionIds.SELECT_WORD_PREVIOUS);
 		
 		fOpenSuperMethodAction = new RetargetTextEditorAction(bundle, "OpenSuperMethodAction.");
-		fOpenSuperMethodAction.setActionDefinitionId("net.sf.sveditor.ui.open.super.method");
+		fOpenSuperMethodAction.setActionDefinitionId("org.eclipse.hdt.sveditor.ui.open.super.method");
 		
 	}
 

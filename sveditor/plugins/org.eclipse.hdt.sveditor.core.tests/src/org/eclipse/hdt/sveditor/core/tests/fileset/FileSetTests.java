@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.fileset;
+package org.eclipse.hdt.sveditor.core.tests.fileset;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,9 +31,9 @@ import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import org.eclipse.hdt.sveditor.core.log.LogHandle;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class FileSetTests extends TestCase {
 	private File			fTmpDir;

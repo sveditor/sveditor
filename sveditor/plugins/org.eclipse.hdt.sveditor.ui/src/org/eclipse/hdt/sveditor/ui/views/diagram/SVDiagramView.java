@@ -12,15 +12,15 @@
  *     Armond Paiva - initial contributor
  ****************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram;
+package org.eclipse.hdt.sveditor.ui.views.diagram;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.sveditor.ui.SVDBIconUtils;
-import net.sf.sveditor.ui.SVEditorUtil;
-import net.sf.sveditor.ui.views.diagram.contributions.NewDiagramForClassContributionItem;
-import net.sf.sveditor.ui.views.diagram.contributions.NewDiagramForClassHandler;
+import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.views.diagram.contributions.NewDiagramForClassContributionItem;
+import org.eclipse.hdt.sveditor.ui.views.diagram.contributions.NewDiagramForClassHandler;
 
 import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;

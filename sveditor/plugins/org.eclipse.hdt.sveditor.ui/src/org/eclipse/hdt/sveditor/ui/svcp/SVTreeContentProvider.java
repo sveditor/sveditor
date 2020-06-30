@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.svcp;
+package org.eclipse.hdt.sveditor.ui.svcp;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
-import net.sf.sveditor.ui.editor.outline.SVOutlineContent;
+import org.eclipse.hdt.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
+import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlineContent;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
 import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;

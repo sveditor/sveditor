@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.srcgen;
+package org.eclipse.hdt.sveditor.core.tests.srcgen;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.StringInputStream;
@@ -26,7 +26,7 @@ import org.eclipse.hdt.sveditor.core.parser.SVParser;
 import org.eclipse.hdt.sveditor.core.srcgen.MethodGenerator;
 
 import junit.framework.TestCase;
-import net.sf.sveditor.core.tests.indent.IndentComparator;
+import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
 
 public class TestMethodGenerator extends TestCase {
 	

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,8 +18,8 @@ import java.util.Map;
 import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutputListener;
 import org.eclipse.swt.widgets.Display;
 
-import net.sf.sveditor.ui.console.SVConsole;
-import net.sf.sveditor.ui.console.SVEMessageConsole;
+import org.eclipse.hdt.sveditor.ui.console.SVConsole;
+import org.eclipse.hdt.sveditor.ui.console.SVEMessageConsole;
 
 public class SVBuildConsoleListener 
 	implements ISVBuilderOutputListener, Runnable {

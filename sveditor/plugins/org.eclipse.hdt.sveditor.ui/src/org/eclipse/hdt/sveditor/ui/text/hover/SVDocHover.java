@@ -14,13 +14,13 @@
  *     Armond Paiva - repurposed from JDT for use in sveditor
  *******************************************************************************/
 
-package net.sf.sveditor.ui.text.hover;
+package org.eclipse.hdt.sveditor.ui.text.hover;
 
 import java.util.List;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.hdt.sveditor.core.Tuple;

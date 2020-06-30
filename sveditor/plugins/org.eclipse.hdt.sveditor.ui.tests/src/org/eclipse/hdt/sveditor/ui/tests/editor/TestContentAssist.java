@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.tests.editor;
+package org.eclipse.hdt.sveditor.ui.tests.editor;
 
-import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.utils.TestUtils;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.editor.SVSourceViewerConfiguration;
-import net.sf.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVSourceViewerConfiguration;
+import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;

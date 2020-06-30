@@ -82,7 +82,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 			
 	/* (non-Javadoc)
-	* @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
+	* @see org.eclipse.hdt.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
 	public CommentType isDocCommentOrTaskTag(String comment, Tuple<String, String> info) {
 		boolean has_colon = (comment.indexOf(':') != -1);
@@ -187,7 +187,7 @@ public class DocCommentParser implements IDocCommentParser {
 	}
 
 	/* (non-Javadoc)
-	* @see net.sf.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
+	* @see org.eclipse.hdt.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
 	public static String extractBody(String comment) {
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;

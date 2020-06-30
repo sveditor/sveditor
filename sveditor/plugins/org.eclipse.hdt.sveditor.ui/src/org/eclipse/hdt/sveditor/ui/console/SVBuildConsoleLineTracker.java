@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.console;
+package org.eclipse.hdt.sveditor.ui.console;
 
 import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
 import org.eclipse.jface.text.IRegion;
 
-import net.sf.sveditor.ui.script.launch.GenericPathPatternMatcher;
+import org.eclipse.hdt.sveditor.ui.script.launch.GenericPathPatternMatcher;
 
 public class SVBuildConsoleLineTracker implements IConsoleLineTracker {
 	private GenericPathPatternMatcher		fPathMatcher;

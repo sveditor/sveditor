@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.script.launch;
+package org.eclipse.hdt.sveditor.ui.script.launch;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -22,8 +22,8 @@ import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
 import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScannerMgr;
 import org.eclipse.ui.console.IPatternMatchListener;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.console.SVEMessageConsole;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.console.SVEMessageConsole;
 
 public class ScriptConsolePatternMatcherFactory {
 	

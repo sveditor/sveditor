@@ -6,12 +6,12 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>net.sf.sveditor.core.SVProjectBuilder</name>
+			<name>org.eclipse.hdt.sveditor.core.SVProjectBuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>net.sf.sveditor.core.SVNature</nature>
+		<nature>org.eclipse.hdt.sveditor.core.SVNature</nature>
 	</natures>
 </projectDescription>

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 import java.io.InputStream;
 import java.util.List;
@@ -36,7 +36,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import net.sf.sveditor.ui.sv.viewer.SystemVerilogInsertLineViewer;
+import org.eclipse.hdt.sveditor.ui.sv.viewer.SystemVerilogInsertLineViewer;
 
 public class NewSVClassWizardAddToPackagePage extends WizardPage {
 	private NewSVClassWizard					fParent;

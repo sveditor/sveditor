@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.text.hover;
+package org.eclipse.hdt.sveditor.ui.text.hover;
 
 import org.eclipse.hdt.sveditor.core.StringInputStream;
 import org.eclipse.hdt.sveditor.core.log.LogFactory;
 import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
 
-import net.sf.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
 
 public class SVMacroExpansionHoverContentProvider extends
 		SVHoverContentProvider {

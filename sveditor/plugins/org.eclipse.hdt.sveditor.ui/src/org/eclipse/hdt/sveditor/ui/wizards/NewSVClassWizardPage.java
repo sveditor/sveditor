@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 
-import net.sf.sveditor.ui.editor.outline.SVOutlineLabelProvider;
+import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlineLabelProvider;
 
 import java.util.List;
 

@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package net.sf.sveditor.ui.text.spelling.engine;
+package org.eclipse.hdt.sveditor.ui.text.spelling.engine;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,8 +33,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.text.spelling.PreferenceConstants;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.text.spelling.PreferenceConstants;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;

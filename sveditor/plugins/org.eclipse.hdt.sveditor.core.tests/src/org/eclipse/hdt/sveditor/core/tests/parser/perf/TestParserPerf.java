@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.parser.perf;
+package org.eclipse.hdt.sveditor.core.tests.parser.perf;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,9 +24,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.TestIndexCacheFactory;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.TestIndexCacheFactory;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
@@ -64,7 +64,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		SVCorePlugin.testInit();
 //		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
-		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -86,7 +86,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		});
 		 */
 		
-		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -147,7 +147,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 //		LogFactory.getDefault().setLogLevel(null, 10);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -228,7 +228,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 //		LogFactory.getDefault().setLogLevel(null, 10);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -306,7 +306,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		SVCorePlugin.testInit();
 //		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
-		String cls_path = "net/sf/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();

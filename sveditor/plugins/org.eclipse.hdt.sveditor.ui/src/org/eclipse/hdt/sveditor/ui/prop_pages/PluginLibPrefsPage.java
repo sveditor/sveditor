@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.prop_pages;
+package org.eclipse.hdt.sveditor.ui.prop_pages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
@@ -50,7 +50,7 @@ public class PluginLibPrefsPage implements ISVProjectPropsPage,
 		fPluginLibs = new ArrayList<SVDBPluginLibDescriptor>(
 				SVCorePlugin.getDefault().getPluginLibList());
 		for (int i=0; i<fPluginLibs.size(); i++) {
-			if (fPluginLibs.get(i).getId().equals("net.sf.sveditor.sv_builtin")) {
+			if (fPluginLibs.get(i).getId().equals("org.eclipse.hdt.sveditor.sv_builtin")) {
 				fPluginLibs.remove(i);
 				break;
 			}

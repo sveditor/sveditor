@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.hdt.sveditor.core.tests.releaseTests">
       <releaseTestSuite
-            class="net.sf.sveditor.ui.tests.UiReleaseTests">
+            class="org.eclipse.hdt.sveditor.ui.tests.UiReleaseTests">
       </releaseTestSuite>
    </extension>
 

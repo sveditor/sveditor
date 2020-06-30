@@ -12,7 +12,7 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.editor;
+package org.eclipse.hdt.sveditor.ui.editor;
 
 
 import org.eclipse.hdt.sveditor.core.docs.DocCommentAdder;

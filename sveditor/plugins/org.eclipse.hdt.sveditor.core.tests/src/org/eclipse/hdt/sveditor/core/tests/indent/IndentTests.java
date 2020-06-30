@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.indent;
+package org.eclipse.hdt.sveditor.core.tests.indent;
 
 import java.io.ByteArrayOutputStream;
 
@@ -26,9 +26,9 @@ import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
 
 public class IndentTests extends SVCoreTestCaseBase {
 	

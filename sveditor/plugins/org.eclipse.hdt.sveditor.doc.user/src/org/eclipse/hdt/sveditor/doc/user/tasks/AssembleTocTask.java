@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.doc.user.tasks;
+package org.eclipse.hdt.sveditor.doc.user.tasks;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

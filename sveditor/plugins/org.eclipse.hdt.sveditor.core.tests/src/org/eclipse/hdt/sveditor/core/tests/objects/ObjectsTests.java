@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.objects;
+package org.eclipse.hdt.sveditor.core.tests.objects;
 
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.CoreReleaseTests;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;

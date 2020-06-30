@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.argcollector;
+package org.eclipse.hdt.sveditor.core.tests.argcollector;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,9 +30,9 @@ import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
 import org.eclipse.hdt.sveditor.core.parser.SVParseException;
 import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVCoreTestsPlugin;
-import net.sf.sveditor.core.tests.utils.BundleUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
 
 public class TestArgCollectorBasics extends SVCoreTestCaseBase {
 	

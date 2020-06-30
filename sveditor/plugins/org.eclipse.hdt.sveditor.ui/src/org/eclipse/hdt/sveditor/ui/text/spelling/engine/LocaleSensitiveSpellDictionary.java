@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package net.sf.sveditor.ui.text.spelling.engine;
+package org.eclipse.hdt.sveditor.ui.text.spelling.engine;
 
 import java.net.MalformedURLException;
 import java.net.URL;

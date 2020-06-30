@@ -12,7 +12,7 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.editor.actions;
+package org.eclipse.hdt.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
@@ -28,7 +28,7 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-import net.sf.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
 
 public class GoToNextPrevElementAction extends TextEditorAction {
 	private SVEditor fEditor;

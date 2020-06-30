@@ -1,9 +1,9 @@
-package net.sf.sveditor.ui.text;
+package org.eclipse.hdt.sveditor.ui.text;
 
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import net.sf.sveditor.ui.svcp.SVTreeContentProvider;
-import net.sf.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeContentProvider;
+import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.hdt.sveditor.core.db.SVDBFile;
@@ -105,7 +105,7 @@ public class OutlineInformationControl extends AbstractInformationControl {
 
 	@Override
 	protected String getId() {
-		return "net.sf.sveditor.ui.text.QuickOutline"; //$NON-NLS-1$
+		return "org.eclipse.hdt.sveditor.ui.text.QuickOutline"; //$NON-NLS-1$
 	}
 
 	/**

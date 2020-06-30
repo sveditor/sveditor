@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.index.persistence;
+package org.eclipse.hdt.sveditor.core.tests.index.persistence;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
 import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
 import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestSVDBFileSystem extends SVCoreTestCaseBase {
 

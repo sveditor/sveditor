@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.argfile.editor;
+package org.eclipse.hdt.sveditor.ui.argfile.editor;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,10 +75,10 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import net.sf.sveditor.ui.SVUiPlugin;
-import net.sf.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
-import net.sf.sveditor.ui.argfile.editor.outline.SVArgFileOutlinePage;
-import net.sf.sveditor.ui.editor.actions.ToggleCommentAction;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.eclipse.hdt.sveditor.ui.argfile.editor.actions.OpenDeclarationAction;
+import org.eclipse.hdt.sveditor.ui.argfile.editor.outline.SVArgFileOutlinePage;
+import org.eclipse.hdt.sveditor.ui.editor.actions.ToggleCommentAction;
 
 public class SVArgFileEditor extends TextEditor 
 		implements ILogLevel, IPathVariableChangeListener {

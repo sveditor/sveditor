@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.script.launch;
+package org.eclipse.hdt.sveditor.ui.script.launch;
 
 import org.eclipse.hdt.sveditor.core.SVFileUtils;
 import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;

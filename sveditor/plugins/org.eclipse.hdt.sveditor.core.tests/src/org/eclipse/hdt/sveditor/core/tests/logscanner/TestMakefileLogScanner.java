@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.logscanner;
+package org.eclipse.hdt.sveditor.core.tests.logscanner;
 
 import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
 import org.eclipse.hdt.sveditor.core.script.launch.MakefileLogMessageScanner;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestMakefileLogScanner extends SVCoreTestCaseBase {
 	private LogMessageScannerMgr		fScannerMgr;

@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 import org.eclipse.swt.widgets.Composite;
 
-import net.sf.sveditor.ui.sv.viewer.SystemVerilogViewer;
+import org.eclipse.hdt.sveditor.ui.sv.viewer.SystemVerilogViewer;
 
 public class InsertLineSvViewer extends SystemVerilogViewer {
 	

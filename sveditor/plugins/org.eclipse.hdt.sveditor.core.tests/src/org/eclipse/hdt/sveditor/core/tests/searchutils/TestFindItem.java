@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.searchutils;
+package org.eclipse.hdt.sveditor.core.tests.searchutils;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
@@ -19,8 +19,8 @@ import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
 import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
 import org.eclipse.hdt.sveditor.core.db.utils.SVDBSearchUtils;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestFindItem extends SVCoreTestCaseBase {
 	

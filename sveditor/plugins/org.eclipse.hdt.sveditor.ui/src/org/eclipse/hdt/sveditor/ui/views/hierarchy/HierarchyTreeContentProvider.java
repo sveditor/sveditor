@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.views.hierarchy;
+package org.eclipse.hdt.sveditor.ui.views.hierarchy;
 
 import org.eclipse.hdt.sveditor.core.hierarchy.HierarchyTreeNode;
 import org.eclipse.jface.viewers.ITreeContentProvider;

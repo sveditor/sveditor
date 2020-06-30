@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.views;
+package org.eclipse.hdt.sveditor.ui.views;
 
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.IDocument;
@@ -22,8 +22,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 
-import net.sf.sveditor.ui.editor.SVCodeScanner;
-import net.sf.sveditor.ui.editor.SVDocumentPartitions;
+import org.eclipse.hdt.sveditor.ui.editor.SVCodeScanner;
+import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
 
 public class MacroExpansionSourceViewerConfiguration extends TextSourceViewerConfiguration {
 	

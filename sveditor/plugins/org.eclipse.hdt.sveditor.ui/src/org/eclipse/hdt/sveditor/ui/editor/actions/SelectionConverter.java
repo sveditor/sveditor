@@ -12,12 +12,12 @@
  *     IBM Corporation - initial API and implementation
  *     Armond Paiva - repurposed for use in SVEditor
  *******************************************************************************/
-package net.sf.sveditor.ui.editor.actions ;
+package org.eclipse.hdt.sveditor.ui.editor.actions ;
 
 import java.util.List;
 
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
 import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;

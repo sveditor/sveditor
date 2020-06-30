@@ -14,10 +14,10 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.views.objects;
+package org.eclipse.hdt.sveditor.ui.views.objects;
 
-import net.sf.sveditor.ui.SVDBIconUtils;
-import net.sf.sveditor.ui.SVEditorUtil;
+import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
+import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.db.SVDBItemType;

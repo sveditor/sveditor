@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.explorer;
+package org.eclipse.hdt.sveditor.ui.explorer;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.hdt.sveditor.core.db.SVDBFile;

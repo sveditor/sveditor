@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.content_providers;
+package org.eclipse.hdt.sveditor.ui.content_providers;
 
 import java.util.List;
 

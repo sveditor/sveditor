@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import java.net.URI;
 
@@ -28,7 +28,7 @@ import org.eclipse.ui.IMemento;
 
 public class PluginFileEditorInputFactory implements IElementFactory {
 	
-	public static final String		ID = "net.sf.sveditor.ui.PluginFileEditorInputFactory";
+	public static final String		ID = "org.eclipse.hdt.sveditor.ui.PluginFileEditorInputFactory";
 	
 	static void saveState(IMemento memento, PluginPathEditorInput input) {
 		memento.putString("plugin_path", input.getURI().toString());

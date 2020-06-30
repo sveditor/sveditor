@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.pref;
+package org.eclipse.hdt.sveditor.ui.pref;
 
 import org.eclipse.jface.preference.ColorFieldEditor;
 import org.eclipse.swt.SWT;

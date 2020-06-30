@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.scanner;
+package org.eclipse.hdt.sveditor.core.tests.scanner;
 
 import java.io.InputStream;
 

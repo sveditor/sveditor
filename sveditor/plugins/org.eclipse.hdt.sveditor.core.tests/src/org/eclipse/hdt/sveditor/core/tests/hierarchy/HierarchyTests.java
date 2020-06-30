@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.hierarchy;
+package org.eclipse.hdt.sveditor.core.tests.hierarchy;
 
 import java.util.List;
 
@@ -39,8 +39,8 @@ import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.sf.sveditor.core.tests.IndexTestUtils;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class HierarchyTests extends SVCoreTestCaseBase {
 	

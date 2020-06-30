@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.preproc;
+package org.eclipse.hdt.sveditor.core.tests.preproc;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,8 +27,8 @@ import org.eclipse.hdt.sveditor.core.preproc.SVPathPreProcIncFileProvider;
 import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
 import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.utils.TestUtils;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
 
 public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 	

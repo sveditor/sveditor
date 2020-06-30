@@ -13,8 +13,8 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.pref;
-import net.sf.sveditor.ui.SVUiPlugin;
+package org.eclipse.hdt.sveditor.ui.pref;
+import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;

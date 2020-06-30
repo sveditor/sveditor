@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.core.tests.open_decl;
+package org.eclipse.hdt.sveditor.core.tests.open_decl;
 
 import java.util.List;
 
@@ -31,9 +31,9 @@ import org.eclipse.hdt.sveditor.core.log.LogHandle;
 import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
 import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
-import net.sf.sveditor.core.tests.FileIndexIterator;
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
-import net.sf.sveditor.core.tests.SVDBTestUtils;
+import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
 
 public class TestOpenClass extends SVCoreTestCaseBase {
 	

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.doc;
+package org.eclipse.hdt.sveditor.ui.doc;
 
 import java.io.IOException;
 import java.io.StringReader;

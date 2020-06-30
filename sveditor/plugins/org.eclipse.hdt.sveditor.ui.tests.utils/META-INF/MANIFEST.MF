@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Common UI Test Utils
 Bundle-SymbolicName: org.eclipse.hdt.sveditor.ui.tests.utils
 Bundle-Version: 1.2.3
-Bundle-Activator: net.sf.sveditor.ui.tests.utils.Activator
+Bundle-Activator: org.eclipse.hdt.sveditor.ui.tests.utils.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jface.text,
@@ -14,4 +14,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.hdt.sveditor.core.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: net.sf.sveditor.ui.tests.utils.editor
+Export-Package: org.eclipse.hdt.sveditor.ui.tests.utils.editor

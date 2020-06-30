@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.ui.wizards.project;
+package org.eclipse.hdt.sveditor.ui.wizards.project;
 
 import java.io.File;
 

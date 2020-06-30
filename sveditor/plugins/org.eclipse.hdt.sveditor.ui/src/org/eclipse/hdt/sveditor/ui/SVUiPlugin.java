@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui;
+package org.eclipse.hdt.sveditor.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,9 +59,9 @@ import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 
-import net.sf.sveditor.ui.console.SVEMessageConsole;
-import net.sf.sveditor.ui.editor.SVEditor;
-import net.sf.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.eclipse.hdt.sveditor.ui.console.SVEMessageConsole;
+import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -77,7 +77,7 @@ public class SVUiPlugin extends AbstractUIPlugin
 	}
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "net.sf.sveditor.ui";
+	public static final String PLUGIN_ID = "org.eclipse.hdt.sveditor.ui";
 
 	// The shared instance
 	private static SVUiPlugin 					fPlugin;
@@ -87,8 +87,8 @@ public class SVUiPlugin extends AbstractUIPlugin
 	private ContributionContextTypeRegistry		fContextRegistry;
 	private TemplateStore						fTemplateStore;
 	private boolean								fDebugConsole;
-	public static final String					CUSTOM_TEMPLATES_KEY = "net.sf.sveditor.customtemplates";
-	public static final String					SV_TEMPLATE_CONTEXT = "net.sf.sveditor.ui.svTemplateContext";
+	public static final String					CUSTOM_TEMPLATES_KEY = "org.eclipse.hdt.sveditor.customtemplates";
+	public static final String					SV_TEMPLATE_CONTEXT = "org.eclipse.hdt.sveditor.ui.svTemplateContext";
 	
 	// Preference override for testing. Sets the number of spaces a  
 	// tab is equivalent to

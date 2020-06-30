@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.preproc;
+package org.eclipse.hdt.sveditor.core.tests.preproc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.eclipse.hdt.sveditor.core.preproc.SVStringPreProcessor;
 import org.eclipse.hdt.sveditor.core.preproc.PreProcEvent.Type;
 import org.eclipse.hdt.sveditor.core.scanner.SVPreProcDefineProvider;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcListener extends SVCoreTestCaseBase implements IPreProcListener {
 	private List<PreProcEvent>	fEvents = new ArrayList<PreProcEvent>();

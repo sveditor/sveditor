@@ -12,7 +12,7 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package net.sf.sveditor.ui.explorer;
+package org.eclipse.hdt.sveditor.ui.explorer;
 
 import java.io.InputStream;
 import java.util.ArrayList;

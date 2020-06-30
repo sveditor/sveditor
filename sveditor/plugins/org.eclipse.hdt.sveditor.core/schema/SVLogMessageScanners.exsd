@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="net.sf.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.hdt.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="net.sf.sveditor.core" id="SVLogMessageScanner" name="Log Message Scanner"/>
+         <meta.schema plugin="org.eclipse.hdt.sveditor.core" id="SVLogMessageScanner" name="Log Message Scanner"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]
@@ -86,7 +86,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":net.sf.sveditor.core.script.launch.ILogMessageScanner"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner"/>
                </appInfo>
             </annotation>
          </attribute>

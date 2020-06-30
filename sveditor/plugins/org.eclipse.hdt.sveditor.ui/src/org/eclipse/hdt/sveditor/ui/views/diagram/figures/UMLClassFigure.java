@@ -14,7 +14,7 @@
  * 
  ******************************************************************************/
 
-package net.sf.sveditor.ui.views.diagram.figures;
+package org.eclipse.hdt.sveditor.ui.views.diagram.figures;
 
 
 import org.eclipse.draw2d.ColorConstants;

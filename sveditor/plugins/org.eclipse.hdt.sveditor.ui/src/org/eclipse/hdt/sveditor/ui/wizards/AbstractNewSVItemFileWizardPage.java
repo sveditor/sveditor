@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package net.sf.sveditor.ui.wizards;
+package org.eclipse.hdt.sveditor.ui.wizards;
 
 
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.sveditor.ui.WorkspaceDirectoryDialog;
+import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;

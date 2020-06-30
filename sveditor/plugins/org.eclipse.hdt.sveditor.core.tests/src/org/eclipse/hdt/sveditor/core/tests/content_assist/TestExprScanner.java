@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package net.sf.sveditor.core.tests.content_assist;
+package org.eclipse.hdt.sveditor.core.tests.content_assist;
 
 import org.eclipse.hdt.sveditor.core.SVCorePlugin;
 import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
@@ -16,7 +16,7 @@ import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
 
-import net.sf.sveditor.core.tests.SVCoreTestCaseBase;
+import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestExprScanner extends SVCoreTestCaseBase {
 	
