@@ -9,6 +9,8 @@
 
 - #(enh - 138) - Match file paths in the console with a format "path", line
 
+- #(529) Specify blocks don't parse correctly for min:typ:max timing data
+
 ------------------------------------------------------------------------------
 -- 2.1.4 Release --
 
