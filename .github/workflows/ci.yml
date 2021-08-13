@@ -9,7 +9,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
@@ -28,5 +28,21 @@ jobs:
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
+    - name: Git global config
+      run: |
+              git config --global user.name 'SVEditor Github Actions'
+              git config --global user.email 'sveditor@users.noreply.github.com'
     - name: Build with Maven
-      run: mvn clean verify --no-transfer-progress -U -Pcoverage
+      run: |
+              mvn clean verify --no-transfer-progress -U -Pcoverage
+    - name: Prepare to push update
+      run: |
+              branch=`git rev-parse --abbrev-ref HEAD`
+              if test "$branch" = "master"; then
+                  echo "releasing"
+                  git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
+              else 
+                  echo "on branch $branch"
+              fi
+
+
