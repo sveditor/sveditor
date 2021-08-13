@@ -34,13 +34,26 @@ jobs:
               git config --global user.email 'sveditor@users.noreply.github.com'
     - name: Build with Maven
       run: |
+              version=`grep -w 'version' etc/sveditor.info  | grep -v '#' | sed -e 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/'`
+              echo "Version: $version"
+             
+              # Update versions in files
+              for file in `find sveditor -name '*.xml'; find sveditor -name '*.MF'`; do
+                  sed -i -e "s%1.2.3%$version%g" $file
+              done
+
               mvn clean verify --no-transfer-progress -U -Pcoverage
-    - name: Prepare to push update
-      run: |
+
               branch=`git rev-parse --abbrev-ref HEAD`
               if test "$branch" = "master" || true; then
                   echo "releasing"
                   git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
+                  rm -rf sveditor.github.io/update
+                  cp -r ./releng/org.sveditor.repository/target/repository sveditor.github.io/update
+                  cd sveditor.github.io
+                  git add update
+                  git commit -s -m "Release version ${version}"
+                  git push
               else 
                   echo "on branch $branch"
               fi
