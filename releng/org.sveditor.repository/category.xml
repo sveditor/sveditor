@@ -13,7 +13,7 @@
 -->
 <site>
 	<category-def
-		name="org.eclipse.hdt.category"
+		name="org.sveditor.category"
 		label="Eclipse HDT"
 	>
 		<description>
@@ -22,11 +22,11 @@
 	</category-def>
 	<feature
 		id="org.sveditor">
-		<category name="org.eclipse.hdt.category" />
+		<category name="org.sveditor.category" />
 	</feature>
 
 	<category-def
-		name="org.eclipse.hdt.category.source"
+		name="org.sveditor.category.source"
 		label="Eclipse HDT Developer Resources"
 	>
 		<description>
@@ -35,6 +35,6 @@
 	</category-def>
 	<feature
 		id="org.sveditor.source">
-		<category name="org.eclipse.hdt.category.source" />
+		<category name="org.sveditor.category.source" />
 	</feature>
 </site>

@@ -18,14 +18,14 @@
 >
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>org.eclipse.hdt.aggregator</artifactId>
+	<artifactId>org.sveditor.aggregator</artifactId>
 	<packaging>pom</packaging>
 
 	<parent>
-		<groupId>org.eclipse.hdt</groupId>
-		<artifactId>org.eclipse.hdt.parent</artifactId>
+		<groupId>org.sveditor</groupId>
+		<artifactId>org.sveditor.parent</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
-		<relativePath>../../releng/org.eclipse.hdt.parent</relativePath>
+		<relativePath>../../releng/org.sveditor.parent</relativePath>
 	</parent>
 
 	<modules>
@@ -38,7 +38,7 @@
 		<module>../../sveditor/plugins/org.sveditor.doc.user</module>
 		<module>../../sveditor/features/org.sveditor</module>	
 
-		<module>../../releng/org.eclipse.hdt.repository</module>
+		<module>../../releng/org.sveditor.repository</module>
 	</modules>
 
 </project>

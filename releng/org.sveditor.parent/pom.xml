@@ -18,8 +18,8 @@
 >
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.eclipse.hdt</groupId>
-	<artifactId>org.eclipse.hdt.parent</artifactId>
+	<groupId>org.sveditor</groupId>
+	<artifactId>org.sveditor.parent</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -163,8 +163,8 @@
 				<configuration>
 					<target>
 						<artifact>
-							<groupId>org.eclipse.hdt</groupId>
-							<artifactId>org.eclipse.hdt.target</artifactId>
+							<groupId>org.sveditor</groupId>
+							<artifactId>org.sveditor.target</artifactId>
 							<version>${project.parent.version}</version>
 						</artifact>
 					</target>
