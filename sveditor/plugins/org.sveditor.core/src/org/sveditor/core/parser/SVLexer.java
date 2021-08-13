@@ -28,8 +28,6 @@ import org.sveditor.core.log.LogHandle;
 import org.sveditor.core.scanner.SVCharacter;
 import org.sveditor.core.scanutils.ITextScanner;
 
-import com.sun.org.apache.xpath.internal.compiler.Keywords;
-
 public class SVLexer extends SVToken implements ISVKeywords, ISVOperators {
 	public enum Context {
 		Default,

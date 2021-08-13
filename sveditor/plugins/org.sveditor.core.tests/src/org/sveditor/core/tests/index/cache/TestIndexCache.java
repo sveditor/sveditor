@@ -28,7 +28,6 @@ import org.sveditor.core.tests.SVCoreTestCaseBase;
 import org.sveditor.core.tests.SVCoreTestsPlugin;
 import org.sveditor.core.tests.utils.BundleUtils;
 import org.sveditor.core.tests.utils.TestUtils;
-import sun.awt.DisplayChangedListener;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
