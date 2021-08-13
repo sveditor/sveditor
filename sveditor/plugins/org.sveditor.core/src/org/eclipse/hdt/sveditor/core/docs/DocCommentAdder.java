@@ -12,32 +12,32 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs;
+package org.sveditor.core.docs;
 
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBDocComment;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBProgramDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDocComment;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBDocComment;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFunction;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBModIfcDecl;
+import org.sveditor.core.db.SVDBPackageDecl;
+import org.sveditor.core.db.SVDBProgramDecl;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.search.SVDBFindDocComment;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.ITextScanner;
 
 // TODO: Check for comments above this:
 //       - If they are NDOC compliant ... skip

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.doc.dev;
+package org.sveditor.doc.dev;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

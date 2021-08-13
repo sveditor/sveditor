@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.argfile;
+package org.sveditor.core.db.index.argfile;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,34 +20,34 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileParser;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePreProcessor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBArgFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerKind;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogLevelListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.svf_scanner.SVFScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.argfile.parser.SVArgFileParser;
+import org.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
+import org.sveditor.core.argfile.parser.SVArgFilePreProcessor;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBArgFile;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBMarker.MarkerKind;
+import org.sveditor.core.db.SVDBMarker.MarkerType;
+import org.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogLevelListener;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.svf_scanner.SVFScanner;
 
 public class SVDBArgFileParser implements ILogLevelListener {
 	private boolean						fDebugEn;

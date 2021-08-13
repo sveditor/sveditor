@@ -13,36 +13,36 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBParamValueAssignList;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoBuiltin;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoEnum;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoEnumerator;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoFwdDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoStruct;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoUnion;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoUserDef;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBLiteralExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBRangeExpr;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBTypedefStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem.DimType;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBParamValueAssignList;
+import org.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.SVDBTypeInfoBuiltin;
+import org.sveditor.core.db.SVDBTypeInfoClassItem;
+import org.sveditor.core.db.SVDBTypeInfoClassType;
+import org.sveditor.core.db.SVDBTypeInfoEnum;
+import org.sveditor.core.db.SVDBTypeInfoEnumerator;
+import org.sveditor.core.db.SVDBTypeInfoFwdDecl;
+import org.sveditor.core.db.SVDBTypeInfoStruct;
+import org.sveditor.core.db.SVDBTypeInfoUnion;
+import org.sveditor.core.db.SVDBTypeInfoUserDef;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.db.expr.SVDBLiteralExpr;
+import org.sveditor.core.db.expr.SVDBRangeExpr;
+import org.sveditor.core.db.stmt.SVDBTypedefStmt;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.db.stmt.SVDBVarDimItem;
+import org.sveditor.core.db.stmt.SVDBVarDimItem.DimType;
+import org.sveditor.core.scanner.SVKeywords;
 
 public class SVDataTypeParser extends SVParserBase {
 //	public static final Set<String>			IntegerAtomType;

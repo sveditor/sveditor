@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index.persistence;
+package org.sveditor.core.tests.index.persistence;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

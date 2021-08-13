@@ -14,12 +14,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;

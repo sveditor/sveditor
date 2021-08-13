@@ -3,7 +3,7 @@
 <plugin>
    <extension-point id="releaseTests" name="releaseTests" schema="schema/releaseTests.exsd"/>
    <extension
-         point="org.eclipse.hdt.sveditor.core.SVLibraries">
+         point="org.sveditor.core.SVLibraries">
       <SVLibrary
             default="false"
             id="org.ovmworld.ovm"
@@ -18,9 +18,9 @@
       </SVLibrary>
    </extension>
    <extension
-         point="org.eclipse.hdt.sveditor.core.tests.releaseTests">
+         point="org.sveditor.core.tests.releaseTests">
       <releaseTestSuite
-            class="org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests">
+            class="org.sveditor.core.tests.CoreReleaseTests">
       </releaseTestSuite>
    </extension>
 

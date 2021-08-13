@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.preproc;
+package org.sveditor.core.preproc;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.scanner.IPreProcMacroProvider;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.scanner.IPreProcMacroProvider;
 
 public class SVStringPreProcessor implements ISVStringPreProcessor, IPreProcMacroProvider {
 

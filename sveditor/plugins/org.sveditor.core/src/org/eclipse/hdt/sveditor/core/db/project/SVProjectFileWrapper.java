@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.project;
+package org.sveditor.core.db.project;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,7 +29,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
+import org.sveditor.core.Tuple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

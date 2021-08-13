@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.SVDBTask;
 import org.eclipse.jface.text.source.Annotation;
 
 public class SVOverrideMethodAnnotation extends Annotation {

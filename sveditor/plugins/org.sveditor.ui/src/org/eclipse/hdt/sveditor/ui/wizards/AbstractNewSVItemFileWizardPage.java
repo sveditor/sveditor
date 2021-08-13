@@ -13,22 +13,22 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.wizards;
+package org.sveditor.ui.wizards;
 
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
+import org.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.scanner.SVCharacter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;

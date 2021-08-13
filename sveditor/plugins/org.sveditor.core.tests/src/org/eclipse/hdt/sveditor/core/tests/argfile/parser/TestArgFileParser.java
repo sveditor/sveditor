@@ -8,31 +8,31 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
+package org.sveditor.core.tests.argfile.parser;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileStmt;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileStmt;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestArgFileParser extends TestCase {
 	private File				fTmpDir;

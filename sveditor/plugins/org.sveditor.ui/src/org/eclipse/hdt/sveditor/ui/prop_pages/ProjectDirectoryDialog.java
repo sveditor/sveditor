@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.prop_pages;
+package org.sveditor.ui.prop_pages;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;

@@ -13,16 +13,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoUserDef;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBModIfcInstItem;
+import org.sveditor.core.db.SVDBTypeInfoUserDef;
+import org.sveditor.core.db.stmt.SVDBVarDimItem;
+import org.sveditor.core.scanner.SVKeywords;
 
 public class SVGateInstantiationParser extends SVParserBase {
 	

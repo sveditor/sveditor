@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.script.launch;
+package org.sveditor.core.script.launch;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +20,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.ILineListener;
-import org.eclipse.hdt.sveditor.core.InputStreamLineReader;
+import org.sveditor.core.ILineListener;
+import org.sveditor.core.InputStreamLineReader;
 
 public class ScriptRunner {
 

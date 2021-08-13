@@ -13,7 +13,7 @@
  *     
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.model;
+package org.sveditor.core.docs.model;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SymbolTable {
 	

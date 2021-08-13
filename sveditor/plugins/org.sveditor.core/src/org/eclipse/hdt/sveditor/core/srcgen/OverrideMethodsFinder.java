@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.srcgen;
+package org.sveditor.core.srcgen;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -21,18 +21,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindSuperClass;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import org.sveditor.core.db.search.SVDBFindSuperClass;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class OverrideMethodsFinder implements ILogLevel {
 	

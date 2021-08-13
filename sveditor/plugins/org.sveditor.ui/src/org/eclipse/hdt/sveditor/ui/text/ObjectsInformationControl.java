@@ -1,12 +1,12 @@
-package org.eclipse.hdt.sveditor.ui.text;
+package org.sveditor.ui.text;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.views.objects.ObjectsLabelProvider;
-import org.eclipse.hdt.sveditor.ui.views.objects.ObjectsViewContentProvider;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.views.objects.ObjectsLabelProvider;
+import org.sveditor.ui.views.objects.ObjectsViewContentProvider;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -193,7 +193,7 @@ public class ObjectsInformationControl extends AbstractInformationControl {
 
 	@Override
 	protected String getId() {
-		return "org.eclipse.hdt.sveditor.ui.text.QuickObjects"; //$NON-NLS-1$
+		return "org.sveditor.ui.text.QuickObjects"; //$NON-NLS-1$
 	}
 
 	/**

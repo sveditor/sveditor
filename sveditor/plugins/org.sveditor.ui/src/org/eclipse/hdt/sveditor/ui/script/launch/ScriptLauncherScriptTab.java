@@ -8,19 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.script.launch;
+package org.sveditor.ui.script.launch;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
-import org.eclipse.hdt.sveditor.ui.WorkspaceFileDialog;
+import org.sveditor.ui.WorkspaceDirectoryDialog;
+import org.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.script.launch.BuildScriptLauncherConstants;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.script.launch.BuildScriptLauncherConstants;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;

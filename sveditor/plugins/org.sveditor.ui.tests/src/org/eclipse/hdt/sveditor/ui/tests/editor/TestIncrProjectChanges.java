@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
 import java.io.File;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
-import org.eclipse.hdt.sveditor.core.tests.ProjectBuildMonitor;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.IndexTestUtils;
+import org.sveditor.core.tests.ProjectBuildMonitor;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IBuildConfiguration;
 import org.eclipse.core.resources.ICommand;
@@ -25,13 +25,13 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.ISVProjectBuilderListener;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.builder.SVProjectBuilder;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexUtil;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.ISVProjectBuilderListener;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.builder.SVProjectBuilder;
+import org.sveditor.core.db.index.SVDBIndexUtil;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
 
 
 public class TestIncrProjectChanges extends SVEditorTestCaseBase {

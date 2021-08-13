@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.plugin;
+package org.sveditor.core.db.index.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBFileSystemChangeListener;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 

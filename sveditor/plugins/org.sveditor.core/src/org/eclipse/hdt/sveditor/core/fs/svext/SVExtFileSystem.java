@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.fs.svext;
+package org.sveditor.core.fs.svext;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -20,9 +20,9 @@ import org.eclipse.core.filesystem.provider.FileSystem;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.project.SVDBProjectData;
 
 public class SVExtFileSystem extends FileSystem {
 	public static final String			EXT_SRC_DIRNAME = "External SV Files";

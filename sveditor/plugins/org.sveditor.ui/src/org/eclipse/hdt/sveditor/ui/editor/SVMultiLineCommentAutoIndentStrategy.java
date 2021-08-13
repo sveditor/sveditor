@@ -12,10 +12,10 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 
-import org.eclipse.hdt.sveditor.core.docs.DocCommentAdder;
+import org.sveditor.core.docs.DocCommentAdder;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;

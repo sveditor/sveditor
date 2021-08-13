@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.project;
+package org.sveditor.ui.wizards.project;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;

@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBItemType;
 
 public class SVDBFindClassDefaultNameMatcher implements ISVDBFindNameMatcher {
 

@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.views.design_hierarchy;
+package org.sveditor.ui.views.design_hierarchy;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyContentProviderBase;
-import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyNode;
+import org.sveditor.core.design_hierarchy.DesignHierarchyContentProviderBase;
+import org.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
-import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.editor.SVSourceViewerConfiguration;
-import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.sveditor.core.tests.CoreReleaseTests;
+import org.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.SVSourceViewerConfiguration;
+import org.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;

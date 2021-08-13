@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogListener;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogListener;
 
 public class ExternalIndexerClient implements ILogListener {
 	private Socket						fSock;

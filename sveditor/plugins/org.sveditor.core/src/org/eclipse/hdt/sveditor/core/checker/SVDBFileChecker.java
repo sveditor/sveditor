@@ -8,20 +8,20 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.checker;
+package org.sveditor.core.checker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBMarkerMgr;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.index.ISVDBMarkerMgr;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
 
 public class SVDBFileChecker implements ISVDBChecker, ISVDBCheckErrorReporter {
 	private ISVDBMarkerMgr								fMarkerMgr;

@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.util.regex.Pattern;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBItemType;
 
 public class SVDBContentAssistIncludeNameMatcher extends SVDBFindContentAssistNameMatcher {
 	private static Pattern					fWinPathPattern;

@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutput;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexBuilder;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlanner;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.builder.ISVBuilderOutput;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.builder.ISVDBIndexBuilder;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlanner;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 public interface ISVDBIndex extends 
 	ISVDBIndexIterator, ISVDBDeclCache,

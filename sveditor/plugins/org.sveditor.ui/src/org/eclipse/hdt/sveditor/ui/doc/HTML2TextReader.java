@@ -12,7 +12,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.doc;
+package org.sveditor.ui.doc;
 
 import java.io.IOException;
 import java.io.PushbackReader;

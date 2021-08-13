@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.scanutils;
+package org.sveditor.ui.scanutils;
 
-import org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileDocumentPartitions;
+import org.sveditor.ui.argfile.editor.SVArgFileDocumentPartitions;
 
 import org.eclipse.jface.text.IDocument;
 

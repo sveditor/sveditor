@@ -13,22 +13,22 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class FileContextSearchMacroProvider implements IPreProcMacroProvider {
 	private Map<String, SVDBMacroDef>	fMacroCache;

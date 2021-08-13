@@ -13,27 +13,27 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBFindByNameInClassHierarchy {
 	private ISVDBIndexIterator				fIndexIterator;

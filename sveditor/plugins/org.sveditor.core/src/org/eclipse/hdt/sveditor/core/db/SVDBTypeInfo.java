@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem;
+import org.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class SVDBTypeInfo extends SVDBItem implements ISVDBNamedItem {
 	public static final int				TypeAttr_Vectored			= (1 << 6);

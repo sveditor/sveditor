@@ -1,4 +1,4 @@
-package org.eclipse.hdt.sveditor.ui.text;
+package org.sveditor.ui.text;
 
 /*******************************************************************************
  * Copyright (c) 2000, 2011 IBM Corporation and others.

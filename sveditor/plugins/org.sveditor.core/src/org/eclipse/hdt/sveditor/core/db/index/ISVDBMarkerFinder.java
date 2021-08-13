@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBMarker;
 
 public interface ISVDBMarkerFinder {
 

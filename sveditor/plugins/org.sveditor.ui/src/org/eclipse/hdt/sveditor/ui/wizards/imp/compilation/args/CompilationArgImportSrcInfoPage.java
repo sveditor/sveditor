@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args;
+package org.sveditor.ui.wizards.imp.compilation.args;
 
 
 import java.io.File;
@@ -16,19 +16,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
+import org.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.ILineListener;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.argcollector.BaseArgCollector;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileToken;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.ILineListener;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.argcollector.BaseArgCollector;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.argfile.parser.SVArgFileToken;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.scanutils.StringTextScanner;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;

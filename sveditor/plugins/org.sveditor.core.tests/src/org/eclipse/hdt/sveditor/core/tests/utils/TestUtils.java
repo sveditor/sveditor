@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.utils;
+package org.sveditor.core.tests.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -39,7 +39,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
 
 import org.eclipse.core.internal.events.BuildCommand;
 import org.eclipse.core.resources.ICommand;
@@ -59,14 +59,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVProjectNature;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.builder.SVProjectBuilder;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVProjectNature;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.builder.SVProjectBuilder;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
 import org.osgi.framework.Bundle;
 
 public class TestUtils {

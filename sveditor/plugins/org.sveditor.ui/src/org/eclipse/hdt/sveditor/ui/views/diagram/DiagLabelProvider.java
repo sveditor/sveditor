@@ -12,23 +12,23 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.views.diagram;
+package org.sveditor.ui.views.diagram;
 
 import java.util.HashSet;
 
-import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
-import org.eclipse.hdt.sveditor.ui.views.diagram.figures.UMLClassFigure;
+import org.sveditor.ui.SVDBIconUtils;
+import org.sveditor.ui.views.diagram.figures.UMLClassFigure;
 
 import org.eclipse.draw2d.ConnectionRouter;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.diagrams.DiagConnection;
-import org.eclipse.hdt.sveditor.core.diagrams.DiagNode;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBFunction;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.diagrams.DiagConnection;
+import org.sveditor.core.diagrams.DiagNode;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.zest.core.viewers.EntityConnectionData;

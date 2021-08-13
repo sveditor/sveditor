@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.index.ISVDBIndex;
 
 public class SVDBFile extends SVDBScopeItem {
 	@SVDBDoNotSaveAttr

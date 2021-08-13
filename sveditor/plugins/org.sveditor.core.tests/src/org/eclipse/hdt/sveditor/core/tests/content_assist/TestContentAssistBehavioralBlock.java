@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.content_assist;
+package org.sveditor.core.tests.content_assist;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVCorePlugin;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestContentAssistBehavioralBlock extends SVCoreTestCaseBase {
 	

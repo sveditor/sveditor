@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.IFieldItemAttr;
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBExportItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBExportStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportStmt;
+import org.sveditor.core.db.IFieldItemAttr;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.stmt.SVDBExportItem;
+import org.sveditor.core.db.stmt.SVDBExportStmt;
+import org.sveditor.core.db.stmt.SVDBImportItem;
+import org.sveditor.core.db.stmt.SVDBImportStmt;
 
 /**
  * Handles both package imports and import DPI statements

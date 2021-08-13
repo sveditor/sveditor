@@ -14,12 +14,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.objects;
+package org.sveditor.core.objects;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class ObjectsTreeNode {
 	

@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBStmt;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBRandomizeCallExpr extends SVDBTFCallExpr {
 	public SVDBStmt				fWithBlock;

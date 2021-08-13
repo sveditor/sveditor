@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.content.IContentType;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.parser.ISVKeywords;
-import org.eclipse.hdt.sveditor.core.parser.SVOperators;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.parser.ISVKeywords;
+import org.sveditor.core.parser.SVOperators;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanner.SVKeywords;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;

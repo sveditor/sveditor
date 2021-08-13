@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.console;
+package org.sveditor.ui.console;
 
 import java.io.File;
 
@@ -21,7 +21,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.IPatternMatchListener;
 import org.eclipse.ui.console.TextConsole;
 
-import org.eclipse.hdt.sveditor.ui.script.launch.ExternalPathHyperlink;
+import org.sveditor.ui.script.launch.ExternalPathHyperlink;
 
 public abstract class SVPatternMatcherBase implements IPatternMatchListener {
 	protected TextConsole			fConsole;

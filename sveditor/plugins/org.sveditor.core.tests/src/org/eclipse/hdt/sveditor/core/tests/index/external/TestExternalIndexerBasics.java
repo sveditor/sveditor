@@ -8,17 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index.external;
+package org.sveditor.core.tests.index.external;
 
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.BundleUtils;
-import org.eclipse.hdt.sveditor.core.db.index.external.ExternalIndexerRunner;
+import org.sveditor.core.BundleUtils;
+import org.sveditor.core.db.index.external.ExternalIndexerRunner;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestExternalIndexerBasics extends SVCoreTestCaseBase {
 	

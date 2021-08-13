@@ -8,19 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args;
+package org.sveditor.ui.wizards.imp.compilation.args;
 
 
 import java.io.InputStream;
 
-import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryDialog;
+import org.sveditor.ui.WorkspaceDirectoryDialog;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;

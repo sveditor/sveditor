@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.script.launch;
+package org.sveditor.ui.script.launch;
 
 import java.util.ArrayList;
 import java.util.List;

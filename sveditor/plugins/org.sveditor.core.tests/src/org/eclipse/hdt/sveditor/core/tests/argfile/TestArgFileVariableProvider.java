@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile;
+package org.sveditor.core.tests.argfile;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
 
 public class TestArgFileVariableProvider implements
 		ISVArgFileVariableProvider {

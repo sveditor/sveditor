@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.design_hierarchy;
+package org.sveditor.core.design_hierarchy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,25 +22,25 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVProjectNature;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBFindReferencesOp;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefMayContainVisitor;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByTypeMatcher;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVProjectNature;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModIfcDecl;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBModIfcInstItem;
+import org.sveditor.core.db.SVDBModuleDecl;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.refs.SVDBFindReferencesOp;
+import org.sveditor.core.db.refs.SVDBRefMayContainVisitor;
+import org.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
+import org.sveditor.core.db.refs.ISVDBRefSearchSpec.NameMatchType;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.db.search.SVDBFindByTypeMatcher;
 
 public class DesignHierarchyContentProviderBase {
 	

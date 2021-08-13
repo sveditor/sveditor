@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.job_mgr;
+package org.sveditor.core.job_mgr;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index;
+package org.sveditor.core.tests.index;
 
 import java.io.File;
 import java.io.InputStream;
@@ -22,25 +22,25 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent.Type;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexChangeEvent.Type;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
-import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
-import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.CoreReleaseTests;
+import org.sveditor.core.tests.IndexTestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestIndexPersistance extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
 	private int				fRebuildCount;

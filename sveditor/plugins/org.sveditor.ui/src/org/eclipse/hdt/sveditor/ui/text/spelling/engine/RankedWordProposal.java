@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.text.spelling.engine;
+package org.sveditor.ui.text.spelling.engine;
 
 /**
  * Ranked word proposal for quick fix and content assist.

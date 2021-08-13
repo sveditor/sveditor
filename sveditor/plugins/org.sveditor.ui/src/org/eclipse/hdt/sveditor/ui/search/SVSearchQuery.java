@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.search;
+package org.sveditor.ui.search;
 
 import java.util.List;
 
@@ -21,9 +21,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchEngine;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchSpecification;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.search.SVDBSearchEngine;
+import org.sveditor.core.db.search.SVDBSearchSpecification;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;

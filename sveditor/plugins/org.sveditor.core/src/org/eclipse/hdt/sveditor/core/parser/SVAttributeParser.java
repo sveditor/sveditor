@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.ISVDBAddChildItem;
 
 public class SVAttributeParser extends SVParserBase {
 	

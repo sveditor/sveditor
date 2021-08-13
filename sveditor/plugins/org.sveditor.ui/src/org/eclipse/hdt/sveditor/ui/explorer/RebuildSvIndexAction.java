@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +26,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.builder.SVBuilderProcess;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.builder.SVBuilderProcess;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.actions.SelectionListenerAction;

@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.scanner;
+package org.sveditor.core.tests.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.ISVDBFileFactory;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.sveditor.core.tests.SVDBTestUtils;
 
 public class ProgramBlockTests extends TestCase {
 	

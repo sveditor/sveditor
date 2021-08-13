@@ -13,24 +13,24 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.open_decl.OpenDeclUtils;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;

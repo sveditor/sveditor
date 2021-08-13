@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.srcgen;
+package org.sveditor.core.tests.srcgen;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,20 +23,20 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.srcgen.NewClassGenerator;
-import org.eclipse.hdt.sveditor.core.tagproc.DefaultTemplateParameterProvider;
-import org.eclipse.hdt.sveditor.core.tagproc.TagProcessor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.srcgen.NewClassGenerator;
+import org.sveditor.core.tagproc.DefaultTemplateParameterProvider;
+import org.sveditor.core.tagproc.TagProcessor;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.indent.IndentComparator;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestNewClassGen extends SVCoreTestCaseBase {
 	

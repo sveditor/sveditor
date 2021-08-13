@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
 
 public class SVDBFindReferencesOp implements ISVDBIndexOperation {
 	private ISVDBRefSearchSpec		fSearchSpec;

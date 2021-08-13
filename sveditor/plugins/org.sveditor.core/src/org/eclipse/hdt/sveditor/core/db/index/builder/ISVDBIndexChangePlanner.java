@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.builder;
+package org.sveditor.core.db.index.builder;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
 
 public interface ISVDBIndexChangePlanner {
 	

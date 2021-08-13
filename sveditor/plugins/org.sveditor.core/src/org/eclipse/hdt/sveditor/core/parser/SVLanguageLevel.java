@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVCorePlugin;
 
 public enum SVLanguageLevel {
 	Verilog2005,

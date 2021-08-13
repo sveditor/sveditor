@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndex;
 
 public class SVDBSearchResult<T> {
 	private T						fItem;

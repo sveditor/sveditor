@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile.open_decl;
+package org.sveditor.core.tests.argfile.open_decl;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprScanner;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.argfile.parser.SVArgFileExprContext;
+import org.sveditor.core.argfile.parser.SVArgFileExprScanner;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.StringBIDITextScanner;
 
 import junit.framework.TestCase;
 

@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdapterFactory;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectData;
 
 public class SVProjectDataAdapter implements IAdapterFactory {
 

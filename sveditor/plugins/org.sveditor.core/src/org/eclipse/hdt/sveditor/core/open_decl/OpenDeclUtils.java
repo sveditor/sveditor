@@ -13,38 +13,38 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.open_decl;
+package org.sveditor.core.open_decl;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoModuleIfc;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.utils.SVDBSearchUtils;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVContentAssistExprVisitor;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprUtilsParser;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBModIfcInstItem;
+import org.sveditor.core.db.SVDBTypeInfoModuleIfc;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import org.sveditor.core.db.utils.SVDBSearchUtils;
+import org.sveditor.core.expr_utils.SVContentAssistExprVisitor;
+import org.sveditor.core.expr_utils.SVExprContext;
+import org.sveditor.core.expr_utils.SVExprScanner;
+import org.sveditor.core.expr_utils.SVExprUtilsParser;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 
 public class OpenDeclUtils {
 

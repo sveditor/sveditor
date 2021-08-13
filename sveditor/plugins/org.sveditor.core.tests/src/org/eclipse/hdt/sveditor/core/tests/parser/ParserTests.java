@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.parser;
+package org.sveditor.core.tests.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,17 +21,17 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVParseException;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.SVDBTestUtils;
 
 public class ParserTests extends TestSuite {
 	

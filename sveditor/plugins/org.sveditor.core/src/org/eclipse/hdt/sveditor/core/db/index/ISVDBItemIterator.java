@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
 
 public interface ISVDBItemIterator {
 	

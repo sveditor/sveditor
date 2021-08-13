@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.argfile;
+package org.sveditor.core.db.argfile;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBItemType;
 
 public class SVDBArgFileSrcLibPathStmt extends SVDBArgFileStmt {
 	public String				fSrcLibPath;

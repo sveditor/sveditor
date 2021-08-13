@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.model;
+package org.sveditor.core.docs.model;
 
 public interface IDocTopic {
 

@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
 
 public class ExternalIndexBuildJob extends Thread implements ISVDBIndexBuildJob {
 

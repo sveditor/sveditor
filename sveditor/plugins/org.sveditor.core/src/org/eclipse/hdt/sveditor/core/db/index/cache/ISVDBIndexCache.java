@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.cache;
+package org.sveditor.core.db.index.cache;
 
 import java.io.File;
 import java.util.List;
@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMarker;
 
 public interface ISVDBIndexCache {
 	

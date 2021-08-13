@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.job_mgr;
+package org.sveditor.core.tests.job_mgr;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.job_mgr.IJob;
-import org.eclipse.hdt.sveditor.core.job_mgr.JobMgr;
+import org.sveditor.core.job_mgr.IJob;
+import org.sveditor.core.job_mgr.JobMgr;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.argfile.editor;
+package org.sveditor.ui.argfile.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.editor.CCommentRule;
-import org.eclipse.hdt.sveditor.ui.editor.SLCommentRule;
+import org.sveditor.ui.editor.CCommentRule;
+import org.sveditor.ui.editor.SLCommentRule;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;

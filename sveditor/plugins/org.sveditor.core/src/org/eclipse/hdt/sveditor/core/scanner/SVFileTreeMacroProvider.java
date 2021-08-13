@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,19 +24,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVFileTreeMacroProvider implements IPreProcMacroProvider, ILogLevel {
 	private ISVDBIndexCache					fIndexCache;

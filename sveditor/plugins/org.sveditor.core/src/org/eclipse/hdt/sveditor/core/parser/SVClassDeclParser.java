@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.IFieldItemAttr;
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBFieldItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException.Kind;
+import org.sveditor.core.db.IFieldItemAttr;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBFieldItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBTypeInfoClassType;
+import org.sveditor.core.parser.SVParseException.Kind;
 
 public class SVClassDeclParser extends SVParserBase {
 	

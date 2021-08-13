@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.utils;
+package org.sveditor.core.db.utils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,18 +24,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBStmt;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBIndexSearcher {
 	private Map<ISVDBIndex, Set<String>>	fIndexMap;

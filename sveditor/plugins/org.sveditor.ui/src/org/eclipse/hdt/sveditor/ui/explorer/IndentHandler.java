@@ -12,7 +12,7 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 import java.io.InputStream;
 
@@ -23,11 +23,11 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
-import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.indent.ISVIndenter;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;

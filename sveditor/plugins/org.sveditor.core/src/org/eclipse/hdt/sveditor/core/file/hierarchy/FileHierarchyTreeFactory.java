@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.file.hierarchy;
+package org.sveditor.core.file.hierarchy;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class FileHierarchyTreeFactory {
 	private ISVDBIndexIterator				fIndexIt;

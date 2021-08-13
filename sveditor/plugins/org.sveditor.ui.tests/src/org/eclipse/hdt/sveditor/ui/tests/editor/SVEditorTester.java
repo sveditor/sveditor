@@ -13,24 +13,24 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
-import org.eclipse.hdt.sveditor.ui.editor.ISVEditor;
-import org.eclipse.hdt.sveditor.ui.tests.UiReleaseTests;
-import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.sveditor.core.tests.FileIndexIterator;
+import org.sveditor.ui.editor.ISVEditor;
+import org.sveditor.ui.tests.UiReleaseTests;
+import org.sveditor.ui.tests.utils.editor.AutoEditTester;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.ISVDBFileFactory;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;

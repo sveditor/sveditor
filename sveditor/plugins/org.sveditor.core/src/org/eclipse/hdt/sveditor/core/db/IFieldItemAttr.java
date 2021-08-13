@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 public interface IFieldItemAttr {
 	int	FieldAttr_Local     		= (1 << 0);

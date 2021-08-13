@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 public interface ISVDBProjectRefProvider {
 	

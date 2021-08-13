@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 public interface IProjectPathsData {
 	

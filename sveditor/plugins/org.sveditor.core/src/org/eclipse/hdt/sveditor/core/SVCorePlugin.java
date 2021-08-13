@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,41 +42,41 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.content.IContentTypeManager;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileEnvVarProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePathVariableProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
-import org.eclipse.hdt.sveditor.core.builder.CoreBuildProcessListener;
-import org.eclipse.hdt.sveditor.core.builder.CoreBuilderOutputListener;
-import org.eclipse.hdt.sveditor.core.builder.ISVBuildProcessListener;
-import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutputListener;
-import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexBuilder;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBSourceCollection;
-import org.eclipse.hdt.sveditor.core.fileset.SVFileSet;
-import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
-import org.eclipse.hdt.sveditor.core.indent.SVDefaultIndenter2;
-import org.eclipse.hdt.sveditor.core.job_mgr.IJobMgr;
-import org.eclipse.hdt.sveditor.core.job_mgr.JobMgr;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.ILogListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
-import org.eclipse.hdt.sveditor.core.scanner.IPreProcMacroProvider;
+import org.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.sveditor.core.argfile.parser.SVArgFileEnvVarProvider;
+import org.sveditor.core.argfile.parser.SVArgFilePathVariableProvider;
+import org.sveditor.core.argfile.parser.SVArgFileProjectRsrcVarProvider;
+import org.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
+import org.sveditor.core.builder.CoreBuildProcessListener;
+import org.sveditor.core.builder.CoreBuilderOutputListener;
+import org.sveditor.core.builder.ISVBuildProcessListener;
+import org.sveditor.core.builder.ISVBuilderOutputListener;
+import org.sveditor.core.db.ISVDBFileFactory;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.builder.SVDBIndexBuilder;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVDBSourceCollection;
+import org.sveditor.core.fileset.SVFileSet;
+import org.sveditor.core.indent.ISVIndenter;
+import org.sveditor.core.indent.SVDefaultIndenter2;
+import org.sveditor.core.job_mgr.IJobMgr;
+import org.sveditor.core.job_mgr.JobMgr;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.ILogListener;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.scanner.IPreProcMacroProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -87,8 +87,8 @@ import org.osgi.framework.Version;
 public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.hdt.sveditor.core";
-	public static final String SV_BUILTIN_LIBRARY = "org.eclipse.hdt.sveditor.sv_builtin";
+	public static final String PLUGIN_ID = "org.sveditor.core";
+	public static final String SV_BUILTIN_LIBRARY = "org.sveditor.sv_builtin";
 	public static final String SV_PROBLEM = PLUGIN_ID + ".svProblem";
 	public static final String SV_TASK = PLUGIN_ID + ".task";
 
@@ -130,11 +130,11 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	static {
 		fPersistenceClassPkgList = new ArrayList<String>();
-		fPersistenceClassPkgList.add("org.eclipse.hdt.sveditor.core.db");
-		fPersistenceClassPkgList.add("org.eclipse.hdt.sveditor.core.db.expr");
-		fPersistenceClassPkgList.add("org.eclipse.hdt.sveditor.core.db.stmt");
-		fPersistenceClassPkgList.add("org.eclipse.hdt.sveditor.core.db.argfile");
-		fPersistenceClassPkgList.add("org.eclipse.hdt.sveditor.core.db.vhdl");
+		fPersistenceClassPkgList.add("org.sveditor.core.db");
+		fPersistenceClassPkgList.add("org.sveditor.core.db.expr");
+		fPersistenceClassPkgList.add("org.sveditor.core.db.stmt");
+		fPersistenceClassPkgList.add("org.sveditor.core.db.argfile");
+		fPersistenceClassPkgList.add("org.sveditor.core.db.vhdl");
 	}
 	
 	/**
@@ -233,7 +233,7 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 		if (fBuiltinLib == null) {
 			SVDBPluginLibDescriptor desc = null;
 			for (SVDBPluginLibDescriptor d : getPluginLibList()) {
-				if (d.getId().equals("org.eclipse.hdt.sveditor.sv_builtin")) {
+				if (d.getId().equals("org.sveditor.sv_builtin")) {
 					desc = d;
 					break;
 				}
@@ -735,10 +735,10 @@ public class SVCorePlugin extends Plugin implements ILogListener {
 	
 	public static String[] getPersistencePkgs() {
 		return new String[] {
-			"org.eclipse.hdt.sveditor.core.db.", 
-			"org.eclipse.hdt.sveditor.core.db.stmt.",
-			"org.eclipse.hdt.sveditor.core.db.expr.",
-			"org.eclipse.hdt.sveditor.core.db.argfile."
+			"org.sveditor.core.db.", 
+			"org.sveditor.core.db.stmt.",
+			"org.sveditor.core.db.expr.",
+			"org.sveditor.core.db.argfile."
 		};
 	}
 	

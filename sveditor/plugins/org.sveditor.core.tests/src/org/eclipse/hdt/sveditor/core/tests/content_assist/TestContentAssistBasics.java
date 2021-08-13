@@ -13,20 +13,20 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.content_assist;
+package org.sveditor.core.tests.content_assist;
 
 import java.io.File;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestContentAssistBasics extends SVCoreTestCaseBase {
 	

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

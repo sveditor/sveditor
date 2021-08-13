@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.tests.docs;
+package org.sveditor.core.tests.docs;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,25 +24,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindPackageMatcher;
-import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModelFactory;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.db.search.SVDBFindPackageMatcher;
+import org.sveditor.core.docs.DocGenConfig;
+import org.sveditor.core.docs.model.DocModel;
+import org.sveditor.core.docs.model.DocModelFactory;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 import difflib.Delta;
 import difflib.DiffUtils;
@@ -183,7 +183,7 @@ public class TestModelFactory extends SVCoreTestCaseBase {
                         fLog.debug(ILogLevel.LEVEL_OFF, "| | If the differences are expected, check them in as golden") ;
                         fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;
                         fLog.debug(ILogLevel.LEVEL_OFF, "| | <from-your-repo-root> cp " + modelDumpPathAct + " "
-                                                                                                                + "sveditor/plugins/org.eclipse.hdt.sveditor.core.tests" 
+                                                                                                                + "sveditor/plugins/org.sveditor.core.tests" 
                                                                                                                 + testBundleDir 
                                                                                                                 + "/model_dump_exp.txt") ;
                         fLog.debug(ILogLevel.LEVEL_OFF, "| +--------------------------------------------------------------------") ;

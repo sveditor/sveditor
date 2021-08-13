@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.views.design_hierarchy;
+package org.sveditor.ui.views.design_hierarchy;
 
-import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVDBIconUtils;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBProgramDecl;
-import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyNode;
+import org.sveditor.core.db.SVDBModIfcDecl;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBModIfcInstItem;
+import org.sveditor.core.db.SVDBModuleDecl;
+import org.sveditor.core.db.SVDBProgramDecl;
+import org.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 

@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.filter;
+package org.sveditor.core.argfile.filter;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.argfile.SVDBArgFilePathStmt;
 
 /**
  * Filters C++ files out of the argument file

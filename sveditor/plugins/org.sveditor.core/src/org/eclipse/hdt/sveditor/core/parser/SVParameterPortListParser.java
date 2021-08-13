@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcClassParam;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.SVDBModIfcClassParam;
+import org.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.expr.SVDBExpr;
 
 public class SVParameterPortListParser extends SVParserBase {
 	

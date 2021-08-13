@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 public class DBWriteException extends Exception {
 	

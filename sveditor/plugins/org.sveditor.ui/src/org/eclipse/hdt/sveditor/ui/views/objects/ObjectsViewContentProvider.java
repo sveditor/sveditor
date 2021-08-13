@@ -14,14 +14,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.views.objects;
+package org.sveditor.ui.views.objects;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeFactory;
-import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.objects.ObjectsTreeFactory;
+import org.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

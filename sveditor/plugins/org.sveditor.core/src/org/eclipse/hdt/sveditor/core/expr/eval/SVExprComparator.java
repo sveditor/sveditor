@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr.eval;
+package org.sveditor.core.expr.eval;
 
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
 
 public class SVExprComparator {
 	

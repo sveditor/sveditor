@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import java.io.IOException;
 import java.io.InputStream;

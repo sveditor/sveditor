@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.open_decl;
+package org.sveditor.core.open_decl;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
 
 public class OpenDeclResult {
 

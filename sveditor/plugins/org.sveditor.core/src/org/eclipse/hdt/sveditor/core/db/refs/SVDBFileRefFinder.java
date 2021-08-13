@@ -13,43 +13,43 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBInclude;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoUserDef;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBAssignExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBFieldAccessExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBTFCallExpr;
-import org.eclipse.hdt.sveditor.core.db.stmt.ISVDBBodyStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBActionBlockStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAssignStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBBlockStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBCaseItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBCaseStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBDoWhileStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBExprStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBForStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBIfStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBRepeatStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBReturnStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBWaitStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBWhileStmt;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBInclude;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBTypeInfoClassType;
+import org.sveditor.core.db.SVDBTypeInfoUserDef;
+import org.sveditor.core.db.expr.SVDBAssignExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBFieldAccessExpr;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.db.expr.SVDBTFCallExpr;
+import org.sveditor.core.db.stmt.ISVDBBodyStmt;
+import org.sveditor.core.db.stmt.SVDBActionBlockStmt;
+import org.sveditor.core.db.stmt.SVDBAssignStmt;
+import org.sveditor.core.db.stmt.SVDBBlockStmt;
+import org.sveditor.core.db.stmt.SVDBCaseItem;
+import org.sveditor.core.db.stmt.SVDBCaseStmt;
+import org.sveditor.core.db.stmt.SVDBDoWhileStmt;
+import org.sveditor.core.db.stmt.SVDBExprStmt;
+import org.sveditor.core.db.stmt.SVDBForStmt;
+import org.sveditor.core.db.stmt.SVDBIfStmt;
+import org.sveditor.core.db.stmt.SVDBImportItem;
+import org.sveditor.core.db.stmt.SVDBImportStmt;
+import org.sveditor.core.db.stmt.SVDBRepeatStmt;
+import org.sveditor.core.db.stmt.SVDBReturnStmt;
+import org.sveditor.core.db.stmt.SVDBStmt;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.db.stmt.SVDBWaitStmt;
+import org.sveditor.core.db.stmt.SVDBWhileStmt;
 
 public class SVDBFileRefFinder {
 //	protected SVDBFile					fFile;

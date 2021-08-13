@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.attr.SVDBParentAttr;
 
 @SuppressWarnings("rawtypes")
 public class SVDBItemUtils {

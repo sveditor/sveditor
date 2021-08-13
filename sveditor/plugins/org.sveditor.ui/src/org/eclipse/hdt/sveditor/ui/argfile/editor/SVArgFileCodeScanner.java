@@ -13,16 +13,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.argfile.editor;
+package org.sveditor.ui.argfile.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.editor.CCommentRule;
-import org.eclipse.hdt.sveditor.ui.editor.SLCommentRule;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditorColors;
+import org.sveditor.ui.editor.CCommentRule;
+import org.sveditor.ui.editor.SLCommentRule;
+import org.sveditor.ui.editor.SVEditorColors;
 
-import org.eclipse.hdt.sveditor.core.svf_scanner.SVFScanner;
+import org.sveditor.core.svf_scanner.SVFScanner;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IRule;

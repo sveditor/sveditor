@@ -13,21 +13,21 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.project.ISVDBProjectSettingsListener;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.dirtree.SVDBDirTreeNode;
-import org.eclipse.hdt.sveditor.core.job_mgr.IJob;
-import org.eclipse.hdt.sveditor.core.job_mgr.IJobMgr;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.sveditor.core.db.project.ISVDBProjectSettingsListener;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.dirtree.SVDBDirTreeNode;
+import org.sveditor.core.job_mgr.IJob;
+import org.sveditor.core.job_mgr.IJobMgr;
 import org.eclipse.jface.viewers.IElementComparer;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;

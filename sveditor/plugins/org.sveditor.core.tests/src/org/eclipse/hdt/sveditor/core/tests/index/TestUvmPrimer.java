@@ -13,20 +13,20 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index;
+package org.sveditor.core.tests.index;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.IndexTestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
 
 public class TestUvmPrimer extends SVCoreTestCaseBase {
 	

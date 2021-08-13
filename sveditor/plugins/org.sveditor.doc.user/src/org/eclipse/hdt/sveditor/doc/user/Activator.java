@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.doc.user;
+package org.sveditor.doc.user;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;

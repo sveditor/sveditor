@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
 
 public class SVDBConcatenationExpr extends SVDBExpr {
 	public List<SVDBExpr>			fElems;

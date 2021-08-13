@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBItemType;
 
 public class SVDBOpenDeclarationIncludeNameMatcher extends
 		SVDBFindDefaultNameMatcher {

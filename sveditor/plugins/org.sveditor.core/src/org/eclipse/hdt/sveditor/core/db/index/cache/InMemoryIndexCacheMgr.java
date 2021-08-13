@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.cache;
+package org.sveditor.core.db.index.cache;
 
 import java.util.List;
 

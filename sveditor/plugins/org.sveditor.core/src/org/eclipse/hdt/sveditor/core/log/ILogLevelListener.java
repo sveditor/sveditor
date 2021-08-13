@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.log;
+package org.sveditor.core.log;
 
 public interface ILogLevelListener extends ILogLevel {
 	

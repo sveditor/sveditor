@@ -13,49 +13,49 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.content_assist;
+package org.sveditor.core.tests.content_assist;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.content_assist.SVCompletionProposal;
-import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFileOverrideIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
-import org.eclipse.hdt.sveditor.core.preproc.SVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
-import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.content_assist.SVCompletionProposal;
+import org.sveditor.core.db.ISVDBFileFactory;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBFileOverrideIndex;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.preproc.SVPreProcOutput;
+import org.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.preproc.SVStringPreProcessor;
+import org.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.scanutils.StringBIDITextScanner;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.FileIndexIterator;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.TextTagPosUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class ContentAssistTests extends TestCase {
 	

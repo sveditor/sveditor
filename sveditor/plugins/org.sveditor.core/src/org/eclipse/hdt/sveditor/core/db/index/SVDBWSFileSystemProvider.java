@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,10 +42,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.SVMarkers;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.SVMarkers;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBWSFileSystemProvider implements ISVDBFileSystemProvider, 
 		IResourceChangeListener, IResourceDeltaVisitor {

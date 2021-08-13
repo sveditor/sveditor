@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index;
+package org.sveditor.core.tests.index;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,16 +21,16 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.eclipse.hdt.sveditor.core.tests.objects.ObjectsTests;
+import org.sveditor.core.tests.objects.ObjectsTests;
 
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindDefaultNameMatcher;
 
 public class IndexTests extends TestSuite {
 	

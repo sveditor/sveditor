@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.scanutils.AbstractTextScanner;
+import org.sveditor.core.scanutils.ScanLocation;
 
 public class SVArgFilePreProcOutput extends AbstractTextScanner {
 	private StringBuilder				fText;

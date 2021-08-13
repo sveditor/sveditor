@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVDBTask extends SVDBScopeItem implements IFieldItemAttr {
 	public List<SVDBParamPortDecl>			fParams;

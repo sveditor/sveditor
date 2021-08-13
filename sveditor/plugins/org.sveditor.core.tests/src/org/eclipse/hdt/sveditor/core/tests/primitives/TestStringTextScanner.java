@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.primitives;
+package org.sveditor.core.tests.primitives;
 
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 import junit.framework.TestCase;
 

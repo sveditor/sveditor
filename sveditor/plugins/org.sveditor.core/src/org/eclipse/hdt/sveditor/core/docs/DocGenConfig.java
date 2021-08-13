@@ -12,14 +12,14 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs;
+package org.sveditor.core.docs;
 
 import java.io.File;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class DocGenConfig {
 	

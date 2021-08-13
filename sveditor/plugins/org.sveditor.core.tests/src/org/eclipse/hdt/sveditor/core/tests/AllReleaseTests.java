@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -31,7 +31,7 @@ public class AllReleaseTests extends TestSuite {
 		IExtensionRegistry e_rgy = Platform.getExtensionRegistry();
 		
 		IExtensionPoint ep = e_rgy.getExtensionPoint(
-				"org.eclipse.hdt.sveditor.core.tests", "releaseTests");
+				"org.sveditor.core.tests", "releaseTests");
 		
 		for (IExtension ext : ep.getExtensions()) {
 			for (IConfigurationElement el : ext.getConfigurationElements()) {

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.preproc;
+package org.sveditor.core.tests.preproc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,23 +16,23 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBEndLocation;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBEndLocation;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestPreProcLineNumbers extends SVCoreTestCaseBase {
 	

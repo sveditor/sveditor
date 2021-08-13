@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBItemType;
 
 @SuppressWarnings("rawtypes")
 public abstract class SVDBPersistenceRWDelegateBase extends SVDBPersistenceRWBase 

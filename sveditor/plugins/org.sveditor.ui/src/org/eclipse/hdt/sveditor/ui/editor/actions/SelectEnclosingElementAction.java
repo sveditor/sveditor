@@ -12,18 +12,18 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.editor.SVDocumentPartitions;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;

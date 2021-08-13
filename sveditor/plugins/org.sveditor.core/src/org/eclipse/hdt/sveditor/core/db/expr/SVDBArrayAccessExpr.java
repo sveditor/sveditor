@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
 
 public class SVDBArrayAccessExpr extends SVDBExpr {
 	public SVDBExpr				fLhs;

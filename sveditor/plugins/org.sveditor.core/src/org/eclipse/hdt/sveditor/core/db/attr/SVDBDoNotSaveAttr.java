@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.attr;
+package org.sveditor.core.db.attr;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

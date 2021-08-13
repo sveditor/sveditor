@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.scanutils.ScanLocation;
 
 
 public interface ISVScanner {

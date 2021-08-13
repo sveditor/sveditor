@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTypeInfoClassType;
 
 
 public class BuiltinClassConstants {

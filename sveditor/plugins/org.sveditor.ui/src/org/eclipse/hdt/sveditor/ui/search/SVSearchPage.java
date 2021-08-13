@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.search;
+package org.sveditor.ui.search;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -26,16 +26,16 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexListIterator;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchSpecification;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchType;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchUsage;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBIndexListIterator;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.search.SVDBSearchSpecification;
+import org.sveditor.core.db.search.SVDBSearchType;
+import org.sveditor.core.db.search.SVDBSearchUsage;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.IDialogSettings;

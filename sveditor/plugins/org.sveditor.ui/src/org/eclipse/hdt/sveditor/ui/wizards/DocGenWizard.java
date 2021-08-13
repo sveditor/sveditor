@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.wizards ;
+package org.sveditor.ui.wizards ;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -22,14 +22,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
-import org.eclipse.hdt.sveditor.core.docs.IDocWriter;
-import org.eclipse.hdt.sveditor.core.docs.html.HTMLDocWriter;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModelFactory;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.docs.DocGenConfig;
+import org.sveditor.core.docs.IDocWriter;
+import org.sveditor.core.docs.html.HTMLDocWriter;
+import org.sveditor.core.docs.model.DocModel;
+import org.sveditor.core.docs.model.DocModelFactory;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Display;

@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.preproc;
+package org.sveditor.core.preproc;
 
 import java.io.InputStream;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTreeMacroList;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFileTreeMacroList;
 
 public interface ISVPreProcIncFileProvider {
 

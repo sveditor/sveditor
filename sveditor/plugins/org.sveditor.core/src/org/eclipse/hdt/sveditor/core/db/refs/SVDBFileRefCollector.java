@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBLocation;
 
 /**
  * Builds an index of the identifier references present in a given

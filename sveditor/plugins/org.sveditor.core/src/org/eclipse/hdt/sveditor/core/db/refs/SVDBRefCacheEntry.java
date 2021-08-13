@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 
 public class SVDBRefCacheEntry {
 	

@@ -8,29 +8,29 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index;
+package org.sveditor.core.tests.index;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
-import org.eclipse.hdt.sveditor.core.utils.OverrideTaskFuncFinder;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.utils.OverrideTaskFuncFinder;
 
 public class TestArgFileParseAPI extends SVCoreTestCaseBase {
 	

@@ -12,7 +12,7 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.diagrams;
+package org.sveditor.core.diagrams;
 
 import java.util.ArrayList;
 import java.util.HashMap;

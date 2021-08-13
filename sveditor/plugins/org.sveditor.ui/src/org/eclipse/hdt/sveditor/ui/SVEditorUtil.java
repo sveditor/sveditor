@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui;
+package org.sveditor.ui;
 
 import java.io.File;
 import java.net.URI;
 
-import org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileEditor;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.argfile.editor.SVArgFileEditor;
+import org.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -29,13 +29,13 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.fs.plugin.PluginFileStore;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.fs.plugin.PluginFileStore;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;

@@ -13,21 +13,21 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.preproc;
+package org.sveditor.core.tests.preproc;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.sveditor.core.tests.SVDBTestUtils;
 
 public class TestConditionalEval extends TestCase {
 	

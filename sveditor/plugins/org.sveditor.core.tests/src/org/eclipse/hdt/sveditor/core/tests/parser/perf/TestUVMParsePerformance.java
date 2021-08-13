@@ -8,26 +8,26 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.parser.perf;
+package org.sveditor.core.tests.parser.perf;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexStats;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBIndexStats;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
 
 public class TestUVMParsePerformance extends SVCoreTestCaseBase {
 

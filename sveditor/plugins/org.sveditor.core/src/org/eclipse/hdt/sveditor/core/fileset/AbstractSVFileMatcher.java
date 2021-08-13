@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.fileset;
+package org.sveditor.core.fileset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.log.LogHandle;
 
 
 public abstract class AbstractSVFileMatcher {

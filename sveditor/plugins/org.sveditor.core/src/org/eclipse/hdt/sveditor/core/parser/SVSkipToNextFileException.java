@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 public class SVSkipToNextFileException extends RuntimeException {
 	

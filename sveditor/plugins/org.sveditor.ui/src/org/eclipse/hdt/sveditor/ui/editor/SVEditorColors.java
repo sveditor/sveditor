@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;

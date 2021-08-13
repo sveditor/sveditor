@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.parser;
+package org.sveditor.core.tests.parser;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVCorePlugin;
 
 import junit.framework.TestCase;
 

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.argfile;
+package org.sveditor.core.db.index.argfile;
 
 import java.io.File;
 import java.io.InputStream;
@@ -21,22 +21,22 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTreeMacroList;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexStats;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcIncFileProvider;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBFileTreeMacroList;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBDeclCache;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBIndexStats;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.preproc.ISVPreProcIncFileProvider;
 
 /**
  * Collects data used during index parsing. A new instance of this class is

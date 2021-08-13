@@ -13,20 +13,20 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.tests.explorer;
+package org.sveditor.ui.tests.explorer;
 
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 
 public class TestExplorer extends TestCase {
 	private File 						fTmpDir;

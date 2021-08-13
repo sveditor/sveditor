@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 public class SVArgFileDefaultOptionProvider extends SVArgFileOptionProviderList {
 	

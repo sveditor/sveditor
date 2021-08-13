@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBStmt;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.stmt.SVDBStmt;
 
 public class SVDBAlias extends SVDBStmt {
 	public SVDBExpr				fLvalue;

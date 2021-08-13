@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBLocation;
 
 /**
  * Reference matcher driven by a reference finder. The task of 

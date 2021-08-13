@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.hdt.sveditor"
+      id="org.sveditor"
       label="SVEditor"
       version="1.2.3">
 
@@ -107,34 +107,34 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </url>
 
    <plugin
-         id="org.eclipse.hdt.sveditor.doc.dev"
+         id="org.sveditor.doc.dev"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.hdt.sveditor.doc.user"
+         id="org.sveditor.doc.user"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.hdt.sveditor.core"
+         id="org.sveditor.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.hdt.sveditor.extjar"
+         id="org.sveditor.extjar"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.eclipse.hdt.sveditor.ui"
+         id="org.sveditor.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

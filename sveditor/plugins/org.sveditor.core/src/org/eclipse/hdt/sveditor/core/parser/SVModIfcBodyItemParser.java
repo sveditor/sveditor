@@ -13,52 +13,52 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBAlias;
-import org.eclipse.hdt.sveditor.core.db.SVDBAssign;
-import org.eclipse.hdt.sveditor.core.db.SVDBAssignItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBBind;
-import org.eclipse.hdt.sveditor.core.db.SVDBFieldItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportClockingPortDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportPortsDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportSimplePort;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportSimplePortsDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportTFPort;
-import org.eclipse.hdt.sveditor.core.db.SVDBModportTFPortsDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBParamValueAssignList;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoBuiltin;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoBuiltinNet;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoModuleIfc;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAlwaysStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAnalogStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBBodyStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBDefParamItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBDefParamStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBFinalStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBInitialStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBNullStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBTimePrecisionStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBTimeUnitsStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBAlias;
+import org.sveditor.core.db.SVDBAssign;
+import org.sveditor.core.db.SVDBAssignItem;
+import org.sveditor.core.db.SVDBBind;
+import org.sveditor.core.db.SVDBFieldItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBModIfcInstItem;
+import org.sveditor.core.db.SVDBModportClockingPortDecl;
+import org.sveditor.core.db.SVDBModportDecl;
+import org.sveditor.core.db.SVDBModportItem;
+import org.sveditor.core.db.SVDBModportPortsDecl;
+import org.sveditor.core.db.SVDBModportSimplePort;
+import org.sveditor.core.db.SVDBModportSimplePortsDecl;
+import org.sveditor.core.db.SVDBModportTFPort;
+import org.sveditor.core.db.SVDBModportTFPortsDecl;
+import org.sveditor.core.db.SVDBParamValueAssignList;
+import org.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.SVDBTypeInfoBuiltin;
+import org.sveditor.core.db.SVDBTypeInfoBuiltinNet;
+import org.sveditor.core.db.SVDBTypeInfoModuleIfc;
+import org.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
+import org.sveditor.core.db.stmt.SVDBAlwaysStmt;
+import org.sveditor.core.db.stmt.SVDBAnalogStmt;
+import org.sveditor.core.db.stmt.SVDBBodyStmt;
+import org.sveditor.core.db.stmt.SVDBDefParamItem;
+import org.sveditor.core.db.stmt.SVDBDefParamStmt;
+import org.sveditor.core.db.stmt.SVDBFinalStmt;
+import org.sveditor.core.db.stmt.SVDBInitialStmt;
+import org.sveditor.core.db.stmt.SVDBNullStmt;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBTimePrecisionStmt;
+import org.sveditor.core.db.stmt.SVDBTimeUnitsStmt;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.db.stmt.SVDBVarDimItem;
+import org.sveditor.core.db.stmt.SVDBAlwaysStmt.AlwaysType;
+import org.sveditor.core.scanner.SVKeywords;
 
 public class SVModIfcBodyItemParser extends SVParserBase {
 	

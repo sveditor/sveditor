@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.svcp;
+package org.sveditor.ui.svcp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,14 +21,14 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.index.ISVDBDeclCache;
+import org.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 public class SVDBFileDecorator implements ILightweightLabelDecorator {
 	private List<ILabelProviderListener>					fListeners;

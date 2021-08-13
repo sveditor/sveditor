@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 
 public interface ISVDBIndexFactory {

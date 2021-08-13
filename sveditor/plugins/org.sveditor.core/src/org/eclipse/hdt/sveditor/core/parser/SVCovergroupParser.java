@@ -13,28 +13,28 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBCovergroup;
-import org.eclipse.hdt.sveditor.core.db.SVDBCoverpoint;
-import org.eclipse.hdt.sveditor.core.db.SVDBCoverpointBins;
-import org.eclipse.hdt.sveditor.core.db.SVDBCoverpointCross;
-import org.eclipse.hdt.sveditor.core.db.SVDBCovergroup.BinsKW;
-import org.eclipse.hdt.sveditor.core.db.SVDBCoverpointBins.BinsType;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBBinaryExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBCrossBinsSelectConditionExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBFieldAccessExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBParenExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBUnaryExpr;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBCoverageCrossBinsSelectStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBCovergroup;
+import org.sveditor.core.db.SVDBCoverpoint;
+import org.sveditor.core.db.SVDBCoverpointBins;
+import org.sveditor.core.db.SVDBCoverpointCross;
+import org.sveditor.core.db.SVDBCovergroup.BinsKW;
+import org.sveditor.core.db.SVDBCoverpointBins.BinsType;
+import org.sveditor.core.db.expr.SVDBBinaryExpr;
+import org.sveditor.core.db.expr.SVDBCrossBinsSelectConditionExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBFieldAccessExpr;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.db.expr.SVDBParenExpr;
+import org.sveditor.core.db.expr.SVDBUnaryExpr;
+import org.sveditor.core.db.stmt.SVDBCoverageCrossBinsSelectStmt;
+import org.sveditor.core.db.stmt.SVDBCoverageOptionStmt;
 
 public class SVCovergroupParser extends SVParserBase {
 	

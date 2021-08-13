@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.text.spelling.engine;
+package org.sveditor.ui.text.spelling.engine;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.ui.text.spelling.PreferenceConstants;
+import org.sveditor.ui.text.spelling.PreferenceConstants;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.IPreferenceStore;

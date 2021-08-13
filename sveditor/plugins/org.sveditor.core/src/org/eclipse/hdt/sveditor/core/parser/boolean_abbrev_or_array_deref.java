@@ -13,34 +13,34 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBArrayAccessExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBBinaryExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBClockedPropertyExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBCycleDelayExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBFirstMatchExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBLiteralExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBPropertyCaseItem;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBPropertyCaseStmt;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBPropertyIfStmt;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBPropertySpecExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBPropertyWeakStrongExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBRangeExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBSequenceClockingExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBSequenceCycleDelayExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBSequenceDistExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBSequenceMatchItemExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBSequenceRepetitionExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBUnaryExpr;
-import org.eclipse.hdt.sveditor.core.parser.ISVKeywords.KW;
-import org.eclipse.hdt.sveditor.core.parser.ISVOperators.OP;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.expr.SVDBArrayAccessExpr;
+import org.sveditor.core.db.expr.SVDBBinaryExpr;
+import org.sveditor.core.db.expr.SVDBClockedPropertyExpr;
+import org.sveditor.core.db.expr.SVDBCycleDelayExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBFirstMatchExpr;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.db.expr.SVDBLiteralExpr;
+import org.sveditor.core.db.expr.SVDBPropertyCaseItem;
+import org.sveditor.core.db.expr.SVDBPropertyCaseStmt;
+import org.sveditor.core.db.expr.SVDBPropertyIfStmt;
+import org.sveditor.core.db.expr.SVDBPropertySpecExpr;
+import org.sveditor.core.db.expr.SVDBPropertyWeakStrongExpr;
+import org.sveditor.core.db.expr.SVDBRangeExpr;
+import org.sveditor.core.db.expr.SVDBSequenceClockingExpr;
+import org.sveditor.core.db.expr.SVDBSequenceCycleDelayExpr;
+import org.sveditor.core.db.expr.SVDBSequenceDistExpr;
+import org.sveditor.core.db.expr.SVDBSequenceMatchItemExpr;
+import org.sveditor.core.db.expr.SVDBSequenceRepetitionExpr;
+import org.sveditor.core.db.expr.SVDBUnaryExpr;
+import org.sveditor.core.parser.ISVKeywords.KW;
+import org.sveditor.core.parser.ISVOperators.OP;
 
 public class boolean_abbrev_or_array_deref extends SVParserBase {
 	

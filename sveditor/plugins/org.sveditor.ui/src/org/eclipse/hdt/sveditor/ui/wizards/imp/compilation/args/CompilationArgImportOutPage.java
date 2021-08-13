@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args;
+package org.sveditor.ui.wizards.imp.compilation.args;
 
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterDuplicates;
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterList;
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterOptionsFirst;
-import org.eclipse.hdt.sveditor.core.argfile.filter.StringArgFileFilter;
+import org.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
+import org.sveditor.core.argfile.filter.ArgFileFilterDuplicates;
+import org.sveditor.core.argfile.filter.ArgFileFilterList;
+import org.sveditor.core.argfile.filter.ArgFileFilterOptionsFirst;
+import org.sveditor.core.argfile.filter.StringArgFileFilter;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.preproc;
+package org.sveditor.core.preproc;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,16 +22,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.IDocCommentParser;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanner.IDefineProvider;
-import org.eclipse.hdt.sveditor.core.scanner.ISVPreProcScannerObserver;
-import org.eclipse.hdt.sveditor.core.scanner.ISVScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.docs.DocCommentParser;
+import org.sveditor.core.docs.IDocCommentParser;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanner.IDefineProvider;
+import org.sveditor.core.scanner.ISVPreProcScannerObserver;
+import org.sveditor.core.scanner.ISVScanner;
+import org.sveditor.core.scanutils.AbstractTextScanner;
+import org.sveditor.core.scanutils.ScanLocation;
 
 public class SVPreProcDirectiveScanner extends AbstractTextScanner 
 	implements ISVScanner {

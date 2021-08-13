@@ -13,16 +13,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVExprUtils {
 	

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index.cache;
+package org.sveditor.core.tests.index.cache;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,36 +23,36 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.CoreReleaseTests;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 import sun.awt.DisplayChangedListener;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBItemIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBFormatException;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBWriteException;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBWriter;
-import org.eclipse.hdt.sveditor.core.db.persistence.SVDBPersistenceRW;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBItemIterator;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCacheMgr;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.sveditor.core.db.persistence.DBFormatException;
+import org.sveditor.core.db.persistence.DBWriteException;
+import org.sveditor.core.db.persistence.IDBReader;
+import org.sveditor.core.db.persistence.IDBWriter;
+import org.sveditor.core.db.persistence.SVDBPersistenceRW;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class TestIndexCache extends SVCoreTestCaseBase {
 	

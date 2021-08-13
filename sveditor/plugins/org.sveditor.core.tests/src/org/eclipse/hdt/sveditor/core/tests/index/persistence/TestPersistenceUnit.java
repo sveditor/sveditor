@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index.persistence;
+package org.sveditor.core.tests.index.persistence;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,15 +22,15 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBFormatException;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBWriteException;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBWriter;
-import org.eclipse.hdt.sveditor.core.db.persistence.SVDBPersistenceRW;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefCacheEntry;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefType;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import org.sveditor.core.db.persistence.DBFormatException;
+import org.sveditor.core.db.persistence.DBWriteException;
+import org.sveditor.core.db.persistence.IDBReader;
+import org.sveditor.core.db.persistence.IDBWriter;
+import org.sveditor.core.db.persistence.SVDBPersistenceRW;
+import org.sveditor.core.db.refs.SVDBRefCacheEntry;
+import org.sveditor.core.db.refs.SVDBRefType;
 
 import junit.framework.TestCase;
 
@@ -93,9 +93,9 @@ public class TestPersistenceUnit extends TestCase {
 			ClassLoader cl = getClass().getClassLoader();
 			String key = "SVDB" + type.name();
 			Class cls = null;
-			for (String pref : new String [] {"org.eclipse.hdt.sveditor.core.db.", 
-					"org.eclipse.hdt.sveditor.core.db.stmt.",
-			"org.eclipse.hdt.sveditor.core.db.expr."}) {
+			for (String pref : new String [] {"org.sveditor.core.db.", 
+					"org.sveditor.core.db.stmt.",
+			"org.sveditor.core.db.expr."}) {
 				try {
 					cls = cl.loadClass(pref + key);
 				} catch (ClassNotFoundException e) { }
@@ -113,9 +113,9 @@ public class TestPersistenceUnit extends TestCase {
 			ClassLoader cl = getClass().getClassLoader();
 			String key = "SVDB" + type.name();
 			Class cls = null;
-			for (String pref : new String [] {"org.eclipse.hdt.sveditor.core.db.", 
-					"org.eclipse.hdt.sveditor.core.db.stmt.",
-			"org.eclipse.hdt.sveditor.core.db.expr."}) {
+			for (String pref : new String [] {"org.sveditor.core.db.", 
+					"org.sveditor.core.db.stmt.",
+			"org.sveditor.core.db.expr."}) {
 				try {
 					cls = cl.loadClass(pref + key);
 				} catch (ClassNotFoundException e) { }
@@ -146,9 +146,9 @@ public class TestPersistenceUnit extends TestCase {
 			ClassLoader cl = getClass().getClassLoader();
 			String key = "SVDB" + type.name();
 			Class cls = null;
-			for (String pref : new String [] {"org.eclipse.hdt.sveditor.core.db.", 
-					"org.eclipse.hdt.sveditor.core.db.stmt.",
-			"org.eclipse.hdt.sveditor.core.db.expr."}) {
+			for (String pref : new String [] {"org.sveditor.core.db.", 
+					"org.sveditor.core.db.stmt.",
+			"org.sveditor.core.db.expr."}) {
 				try {
 					cls = cl.loadClass(pref + key);
 				} catch (ClassNotFoundException e) { }
@@ -188,8 +188,8 @@ public class TestPersistenceUnit extends TestCase {
 			ClassLoader cl = getClass().getClassLoader();
 			String key = "SVDB" + type.name();
 			Class cls = null;
-			for (String pref : new String [] {"org.eclipse.hdt.sveditor.core.db.", 
-					"org.eclipse.hdt.sveditor.core.db.stmt.", "org.eclipse.hdt.sveditor.core.db.expr."}) {
+			for (String pref : new String [] {"org.sveditor.core.db.", 
+					"org.sveditor.core.db.stmt.", "org.sveditor.core.db.expr."}) {
 				try {
 					cls = cl.loadClass(pref + key);
 				} catch (ClassNotFoundException e) { }

@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanutils;
+package org.sveditor.core.scanutils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanner.SVCharacter;
 
 
 public abstract class AbstractTextScanner implements ITextScanner {

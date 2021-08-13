@@ -8,17 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.project_build;
+package org.sveditor.core.tests.project_build;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,22 +27,22 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchResult;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
-import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclResult;
-import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
-import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.db.search.SVDBSearchResult;
+import org.sveditor.core.expr_utils.SVExprContext;
+import org.sveditor.core.open_decl.OpenDeclResult;
+import org.sveditor.core.open_decl.OpenDeclUtils;
+import org.sveditor.core.scanutils.StringBIDITextScanner;
 
 public class TestProjectBuildUBus extends SVCoreTestCaseBase {
 

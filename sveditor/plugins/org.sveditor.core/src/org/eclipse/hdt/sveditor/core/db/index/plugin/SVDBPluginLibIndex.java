@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.plugin;
+package org.sveditor.core.db.index.plugin;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.log.LogFactory;
 
 public class SVDBPluginLibIndex extends SVDBArgFileIndex {
 	

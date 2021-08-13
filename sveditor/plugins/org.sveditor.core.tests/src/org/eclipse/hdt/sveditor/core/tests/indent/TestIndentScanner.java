@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.indent;
+package org.sveditor.core.tests.indent;
 
-import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
-import org.eclipse.hdt.sveditor.core.indent.SVIndentToken;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.indent.SVIndentToken;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 import junit.framework.TestCase;
 

@@ -8,16 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
+package org.sveditor.core.tests.argfile.parser;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.StringBIDITextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.argfile.parser.SVArgFileExprContext;
+import org.sveditor.core.argfile.parser.SVArgFileExprScanner;
+import org.sveditor.core.scanutils.StringBIDITextScanner;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.TextTagPosUtils;
 
 public class TestArgFileExprScanner extends SVCoreTestCaseBase {
 

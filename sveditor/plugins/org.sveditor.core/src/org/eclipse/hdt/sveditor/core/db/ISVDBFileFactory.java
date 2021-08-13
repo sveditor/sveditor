@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.io.InputStream;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVLanguageLevel;
 
 public interface ISVDBFileFactory {
 	

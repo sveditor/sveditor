@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
 
 
 

@@ -13,22 +13,22 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.svcp;
+package org.sveditor.ui.svcp;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
-import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlineContent;
+import org.sveditor.ui.argfile.editor.outline.SVArgFileOutlineContent;
+import org.sveditor.ui.editor.outline.SVOutlineContent;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

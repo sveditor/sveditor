@@ -12,18 +12,18 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.html ;
+package org.sveditor.core.docs.html ;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.hdt.sveditor.core.docs.model.DocFile;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.docs.model.SymbolTableEntry;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.docs.model.DocFile;
+import org.sveditor.core.docs.model.DocModel;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.docs.model.SymbolTableEntry;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 
 

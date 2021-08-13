@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.hdt.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.sveditor.core" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.hdt.sveditor.core" id="SVMethodologyTemplates" name="SVEditor Methodology Templates"/>
+         <meta.schema plugin="org.sveditor.core" id="SVMethodologyTemplates" name="SVEditor Methodology Templates"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]

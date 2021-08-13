@@ -8,17 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.editor.SVAutoIndentStrategy;
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlinePage;
-import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
-import org.eclipse.hdt.sveditor.ui.tests.utils.editor.EditorTestCaseBase;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.editor.SVAutoIndentStrategy;
+import org.sveditor.ui.editor.SVDocumentPartitions;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.outline.SVOutlinePage;
+import org.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.sveditor.ui.tests.utils.editor.EditorTestCaseBase;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
+import org.sveditor.core.Tuple;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;

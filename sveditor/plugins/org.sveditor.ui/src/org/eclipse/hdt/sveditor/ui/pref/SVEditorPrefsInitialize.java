@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.pref;
+package org.sveditor.ui.pref;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.text.spelling.PreferenceConstants;
-import org.eclipse.hdt.sveditor.ui.text.spelling.SpellCheckEngine;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.text.spelling.PreferenceConstants;
+import org.sveditor.ui.text.spelling.SpellCheckEngine;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.hdt.sveditor.core.XMLTransformUtils;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.XMLTransformUtils;
+import org.sveditor.core.parser.SVParserConfig;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.SWT;

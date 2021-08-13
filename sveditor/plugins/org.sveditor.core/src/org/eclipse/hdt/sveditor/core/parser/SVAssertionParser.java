@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBActionBlockStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAssertStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAssumeStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBCoverStmt;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.stmt.SVDBActionBlockStmt;
+import org.sveditor.core.db.stmt.SVDBAssertStmt;
+import org.sveditor.core.db.stmt.SVDBAssumeStmt;
+import org.sveditor.core.db.stmt.SVDBCoverStmt;
 
 public class SVAssertionParser extends SVParserBase {
 	

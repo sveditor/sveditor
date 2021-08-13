@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.ops;
+package org.sveditor.core.db.index.ops;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +19,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.SVMarkers;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.SVMarkers;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
 
 public class SVDBClearMarkersOp implements ISVDBIndexOperation {
 

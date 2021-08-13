@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.dirtree.SVDBDirTreeFactory;
-import org.eclipse.hdt.sveditor.core.dirtree.SVDBDirTreeNode;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.dirtree.SVDBDirTreeFactory;
+import org.sveditor.core.dirtree.SVDBDirTreeNode;
 
 public class ProjectPathsIndexEntry implements IProjectPathsData {
 	private String					fType;

@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr.eval;
+package org.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBBinaryExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBLiteralExpr;
+import org.sveditor.core.db.expr.SVDBBinaryExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.db.expr.SVDBLiteralExpr;
 
 public class SVIntegerExprEvaluator {
 	private IValueProvider			fValueProvider;

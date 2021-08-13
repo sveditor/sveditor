@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.scanutils.ITextScanner;
 
 public class SVProceduralBlockParser {
 	

@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBParamValueAssign;
-import org.eclipse.hdt.sveditor.core.db.SVDBParamValueAssignList;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBNullExpr;
+import org.sveditor.core.db.SVDBParamValueAssign;
+import org.sveditor.core.db.SVDBParamValueAssignList;
+import org.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBNullExpr;
 
 public class SVParameterValueAssignmentParser extends SVParserBase {
 	

@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.InMemoryIndexCache;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.db.index.cache.InMemoryIndexCache;
 
 import junit.framework.TestCase;
 

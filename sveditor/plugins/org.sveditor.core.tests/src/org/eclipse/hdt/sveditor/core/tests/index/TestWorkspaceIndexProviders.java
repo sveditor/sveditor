@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index;
+package org.sveditor.core.tests.index;
 
 import junit.framework.TestCase;
 

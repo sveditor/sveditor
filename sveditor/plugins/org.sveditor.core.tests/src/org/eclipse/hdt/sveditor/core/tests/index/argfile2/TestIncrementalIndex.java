@@ -8,39 +8,39 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index.argfile2;
+package org.sveditor.core.tests.index.argfile2;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.IndexTestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.BundleUtils;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.BundleUtils;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
 
 public class TestIncrementalIndex extends SVCoreTestCaseBase implements ISVDBIndexChangeListener {
 	private int						m_index_update;

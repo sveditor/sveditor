@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.views.design_hierarchy;
+package org.sveditor.ui.views.design_hierarchy;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.design_hierarchy.DesignHierarchyNode;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.design_hierarchy.DesignHierarchyNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;

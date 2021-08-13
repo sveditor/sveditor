@@ -13,26 +13,26 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.wizards;
+package org.sveditor.ui.wizards;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByName;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindSuperClass;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.search.SVDBFindByName;
+import org.sveditor.core.db.search.SVDBFindContentAssistNameMatcher;
+import org.sveditor.core.db.search.SVDBFindSuperClass;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;

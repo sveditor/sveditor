@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui;
+package org.sveditor.ui;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.sveditor.core.SVFileUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;

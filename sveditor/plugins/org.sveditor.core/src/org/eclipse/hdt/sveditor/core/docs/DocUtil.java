@@ -8,23 +8,23 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.docs;
+package org.sveditor.core.docs;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBDocComment;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindDocComment;
-import org.eclipse.hdt.sveditor.core.docs.html.HTMLFromNDMarkup;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBDocComment;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.search.SVDBFindDocComment;
+import org.sveditor.core.docs.html.HTMLFromNDMarkup;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class DocUtil {
 	

@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBScopeItem;
 
 public interface ISVDBFileContextIndexSearcher extends ISVDBIndexSearcher {
 

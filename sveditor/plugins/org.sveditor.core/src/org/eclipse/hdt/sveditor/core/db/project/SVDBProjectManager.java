@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.project;
+package org.sveditor.core.db.project;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,26 +42,26 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.ISVProjectDelayedOp;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVMarkers;
-import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutput;
-import org.eclipse.hdt.sveditor.core.builder.SafeSVBuilderOutput;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexStatsProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexStats;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
-import org.eclipse.hdt.sveditor.core.db.index.ops.SVDBClearMarkersOp;
-import org.eclipse.hdt.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.ISVProjectDelayedOp;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVMarkers;
+import org.sveditor.core.builder.ISVBuilderOutput;
+import org.sveditor.core.builder.SafeSVBuilderOutput;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexStatsProvider;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexStats;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import org.sveditor.core.db.index.ops.SVDBClearMarkersOp;
+import org.sveditor.core.db.index.ops.SVDBPropagateMarkersOp;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBProjectManager implements 
 		IResourceChangeListener, IPathVariableChangeListener,

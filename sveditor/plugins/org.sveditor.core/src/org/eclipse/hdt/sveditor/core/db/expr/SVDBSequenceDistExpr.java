@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
 
 public class SVDBSequenceDistExpr extends SVDBExpr {
 	public SVDBExpr					fExpr;

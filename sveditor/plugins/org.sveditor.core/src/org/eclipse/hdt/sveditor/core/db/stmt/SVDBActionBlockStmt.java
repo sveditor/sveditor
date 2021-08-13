@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.stmt;
+package org.sveditor.core.db.stmt;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 
 public class SVDBActionBlockStmt extends SVDBStmt implements ISVDBAddChildItem {
 	@SVDBDoNotSaveAttr

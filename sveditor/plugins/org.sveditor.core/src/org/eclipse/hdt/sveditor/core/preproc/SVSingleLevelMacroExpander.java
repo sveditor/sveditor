@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.preproc;
+package org.sveditor.core.preproc;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDefParam;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMacroDefParam;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.AbstractTextScanner;
+import org.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 public class SVSingleLevelMacroExpander {
 	

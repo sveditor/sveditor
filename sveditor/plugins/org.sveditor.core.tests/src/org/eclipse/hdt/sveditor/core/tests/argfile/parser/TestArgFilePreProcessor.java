@@ -8,17 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
+package org.sveditor.core.tests.argfile.parser;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileStmt;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
+import org.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileStmt;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
 
 import junit.framework.TestCase;
 

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.parser.perf;
+package org.sveditor.core.tests.parser.perf;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,34 +24,34 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.TestIndexCacheFactory;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.TestIndexCacheFactory;
+import org.sveditor.core.tests.utils.TestUtils;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexStats;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndex;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
-import org.eclipse.hdt.sveditor.core.parser.SVLexer;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.preproc.SVPathPreProcIncFileProvider;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.SVDBIndexStats;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndex;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVLexer;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.preproc.SVPathPreProcIncFileProvider;
+import org.sveditor.core.preproc.SVPreProcOutput;
+import org.sveditor.core.preproc.SVPreProcessor;
 
 public class TestParserPerf extends SVCoreTestCaseBase {
 	
@@ -64,7 +64,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		SVCorePlugin.testInit();
 //		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
-		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org.sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -86,7 +86,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		});
 		 */
 		
-		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org.sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -147,7 +147,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 //		LogFactory.getDefault().setLogLevel(null, 10);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org.sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -228,7 +228,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 //		LogFactory.getDefault().setLogLevel(null, 10);
 		SVCorePlugin.getDefault().enableDebug(false);
 		
-		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org.sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();
@@ -306,7 +306,7 @@ public class TestParserPerf extends SVCoreTestCaseBase {
 		SVCorePlugin.testInit();
 //		SVCorePlugin.getDefault().setDebugLevel(ILogLevel.LEVEL_MID);
 		
-		String cls_path = "org/eclipse/hdt/sveditor/core/tests/CoreReleaseTests.class";
+		String cls_path = "org.sveditor/core/tests/CoreReleaseTests.class";
 		URL plugin_class = getClass().getClassLoader().getResource(cls_path);
 		System.out.println("plugin_class: " + plugin_class.toExternalForm());
 		String path = plugin_class.toExternalForm();

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,17 +22,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDefParam;
-import org.eclipse.hdt.sveditor.core.db.utils.SVDBItemPrint;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.preproc.IPreProcListener;
-import org.eclipse.hdt.sveditor.core.preproc.PreProcEvent;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMacroDefParam;
+import org.sveditor.core.db.utils.SVDBItemPrint;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.preproc.IPreProcListener;
+import org.sveditor.core.preproc.PreProcEvent;
+import org.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 public class SVPreProcDefineProvider implements IDefineProvider {
 	private static final boolean		fDebugEn				= false;

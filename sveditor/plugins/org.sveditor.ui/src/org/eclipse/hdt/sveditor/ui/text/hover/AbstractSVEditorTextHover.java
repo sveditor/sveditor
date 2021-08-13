@@ -13,13 +13,13 @@
  *     Brock Janiczak <brockj@tpg.com.au> - [implementation] Streams not being closed in Javadoc views - https://bugs.eclipse.org/bugs/show_bug.cgi?id=214854
  *     Armond Paiva - repurposed from JDT for use in SVEditor
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.text.hover;
+package org.sveditor.ui.text.hover;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SelectionConverter;
-import org.eclipse.hdt.sveditor.ui.text.SVWordFinder;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.actions.SelectionConverter;
+import org.sveditor.ui.text.SVWordFinder;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.project;
+package org.sveditor.core.db.project;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.ISVProjectDelayedOp;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVProjectNature;
-import org.eclipse.hdt.sveditor.core.builder.SVBuilderProcess;
+import org.sveditor.core.ISVProjectDelayedOp;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVProjectNature;
+import org.sveditor.core.builder.SVBuilderProcess;
 
 public class SVDBInitProjectsJob extends Job implements ISVProjectDelayedOp {
 	private List<IProject>				fProjects;

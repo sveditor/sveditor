@@ -13,24 +13,24 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.parser;
+package org.sveditor.core.tests.parser;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.SVDBUtil;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.SVDBUtil;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.parser.SVParserConfig;
 
 import junit.framework.TestCase;
 

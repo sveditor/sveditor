@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBCovergroup.BinsKW;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.SVDBCovergroup.BinsKW;
+import org.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBCoverpointBins extends SVDBItem {
 	public enum BinsType {

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.creator;
+package org.sveditor.core.argfile.creator;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,16 +18,16 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTreeMacroList;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcIncFileProvider;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFileTreeMacroList;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.preproc.ISVPreProcIncFileProvider;
+import org.sveditor.core.preproc.SVPreProcessor;
 
 /**
  * Creates an argument file by locating files 

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.scanutils;
+package org.sveditor.core.scanutils;
 
 public class ScanUtils {
 	

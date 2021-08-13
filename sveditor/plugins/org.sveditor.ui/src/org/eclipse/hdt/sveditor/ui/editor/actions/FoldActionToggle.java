@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.Iterator;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;

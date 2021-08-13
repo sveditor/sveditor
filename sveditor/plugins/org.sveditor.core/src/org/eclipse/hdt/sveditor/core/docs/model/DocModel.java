@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.model;
+package org.sveditor.core.docs.model;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.IDocTopicManager;
+import org.sveditor.core.docs.DocTopicManager;
+import org.sveditor.core.docs.IDocTopicManager;
 
 /**
  * Model representation of the documentation set.

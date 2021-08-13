@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.index.ISVDBDeclCache;
 
 public class SVDBSubClassRefFinder {
 	

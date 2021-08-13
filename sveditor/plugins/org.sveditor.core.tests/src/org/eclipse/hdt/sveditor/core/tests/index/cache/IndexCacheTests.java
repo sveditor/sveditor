@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index.cache;
+package org.sveditor.core.tests.index.cache;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;

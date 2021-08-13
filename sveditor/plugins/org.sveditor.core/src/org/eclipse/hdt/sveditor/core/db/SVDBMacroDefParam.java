@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 public class SVDBMacroDefParam extends SVDBChildItem implements ISVDBNamedItem {
 	

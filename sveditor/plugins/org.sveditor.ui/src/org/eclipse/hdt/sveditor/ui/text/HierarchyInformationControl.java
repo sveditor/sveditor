@@ -1,16 +1,16 @@
-package org.eclipse.hdt.sveditor.ui.text;
+package org.sveditor.ui.text;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.views.hierarchy.HierarchyTreeContentProvider;
-import org.eclipse.hdt.sveditor.ui.views.hierarchy.HierarchyTreeLabelProvider;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.views.hierarchy.HierarchyTreeContentProvider;
+import org.sveditor.ui.views.hierarchy.HierarchyTreeLabelProvider;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
-import org.eclipse.hdt.sveditor.core.hierarchy.HierarchyTreeNode;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
+import org.sveditor.core.hierarchy.HierarchyTreeNode;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;
@@ -137,7 +137,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 
 	@Override
 	protected String getId() {
-		return "org.eclipse.hdt.sveditor.ui.text.QuickOutline"; //$NON-NLS-1$
+		return "org.sveditor.ui.text.QuickOutline"; //$NON-NLS-1$
 	}
 
 	/**

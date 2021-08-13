@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.log.LogHandle;
 
 public interface ISimToolchain {
 	

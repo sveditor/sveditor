@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.obfuscator;
+package org.sveditor.core.obfuscator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,18 +18,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVOperators;
-import org.eclipse.hdt.sveditor.core.scanner.IDefineProvider;
-import org.eclipse.hdt.sveditor.core.scanner.ISVPreProcScannerObserver;
-import org.eclipse.hdt.sveditor.core.scanner.ISVScanner;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
-import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVOperators;
+import org.sveditor.core.scanner.IDefineProvider;
+import org.sveditor.core.scanner.ISVPreProcScannerObserver;
+import org.sveditor.core.scanner.ISVScanner;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.scanutils.AbstractTextScanner;
+import org.sveditor.core.scanutils.ScanLocation;
 public class SVObfuscator {
 	private List<String>					fInputPaths;
 	private List<String>					fIncdirPaths;

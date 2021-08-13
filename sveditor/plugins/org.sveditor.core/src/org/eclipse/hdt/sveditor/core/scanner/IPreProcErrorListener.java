@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
 public interface IPreProcErrorListener {
 	

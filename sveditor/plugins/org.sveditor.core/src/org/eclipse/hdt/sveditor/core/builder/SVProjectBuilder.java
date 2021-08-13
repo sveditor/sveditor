@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.builder;
+package org.sveditor.core.builder;
 
 import java.util.Map;
 
@@ -16,16 +16,16 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVProjectBuilder extends IncrementalProjectBuilder implements ILogLevel {
 	private LogHandle							fLog;
 	
-	public static final String BUILDER_ID = "org.eclipse.hdt.sveditor.core.SVProjectBuilder";
+	public static final String BUILDER_ID = "org.sveditor.core.SVProjectBuilder";
 
 	public SVProjectBuilder() {
 		// TODO Auto-generated constructor stub

@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBModportSimplePort extends SVDBChildItem implements ISVDBNamedItem {
 	public boolean				fIsMapped;

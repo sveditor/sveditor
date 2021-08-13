@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.html;
+package org.sveditor.core.docs.html;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,14 +21,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicType;
-import org.eclipse.hdt.sveditor.core.docs.model.DocIndex;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.docs.DocGenConfig;
+import org.sveditor.core.docs.DocTopicType;
+import org.sveditor.core.docs.model.DocIndex;
+import org.sveditor.core.docs.model.DocModel;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 @SuppressWarnings("unused")
 public class HTMLIndexFactory {

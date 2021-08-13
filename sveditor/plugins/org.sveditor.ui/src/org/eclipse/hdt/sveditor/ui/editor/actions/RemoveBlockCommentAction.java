@@ -12,14 +12,14 @@
  *     Eclipse CDT -- initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.SVDocumentPartitions;
+import org.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;

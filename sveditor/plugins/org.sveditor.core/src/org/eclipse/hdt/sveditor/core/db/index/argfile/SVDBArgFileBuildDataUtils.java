@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.argfile;
+package org.sveditor.core.db.index.argfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,43 +20,43 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTreeMacroList;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoEnum;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoEnumerator;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFileTreeUtils;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBFileRefCollector;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBFileRefFinder;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBTypedefStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBFileTreeMacroList;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBPackageDecl;
+import org.sveditor.core.db.SVDBTypeInfoEnum;
+import org.sveditor.core.db.SVDBTypeInfoEnumerator;
+import org.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.sveditor.core.db.index.ISVDBDeclCache;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBFileTreeUtils;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache.FileType;
+import org.sveditor.core.db.refs.SVDBFileRefCollector;
+import org.sveditor.core.db.refs.SVDBFileRefFinder;
+import org.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.sveditor.core.db.stmt.SVDBImportItem;
+import org.sveditor.core.db.stmt.SVDBImportStmt;
+import org.sveditor.core.db.stmt.SVDBTypedefStmt;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBArgFileBuildDataUtils implements ILogLevel {
 	

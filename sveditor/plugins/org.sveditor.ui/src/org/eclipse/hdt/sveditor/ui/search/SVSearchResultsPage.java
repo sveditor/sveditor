@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.search;
+package org.sveditor.ui.search;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.SVEditorUtil;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;

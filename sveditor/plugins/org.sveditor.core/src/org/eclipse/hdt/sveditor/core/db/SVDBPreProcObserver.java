@@ -13,16 +13,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.scanner.ISVPreProcScannerObserver;
-import org.eclipse.hdt.sveditor.core.scanner.ISVScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.scanner.ISVPreProcScannerObserver;
+import org.sveditor.core.scanner.ISVScanner;
+import org.sveditor.core.scanutils.ScanLocation;
 
 public class SVDBPreProcObserver implements ISVPreProcScannerObserver {
 	private List<SVDBFile>              fFileList;

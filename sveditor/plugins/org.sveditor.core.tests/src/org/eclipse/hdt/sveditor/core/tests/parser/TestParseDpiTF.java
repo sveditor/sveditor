@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.parser;
+package org.sveditor.core.tests.parser;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.parser.SVParseException;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVDBTestUtils;
 
 public class TestParseDpiTF extends SVCoreTestCaseBase {
 	

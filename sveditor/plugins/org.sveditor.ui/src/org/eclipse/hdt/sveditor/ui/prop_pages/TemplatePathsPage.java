@@ -13,16 +13,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.prop_pages;
+package org.sveditor.ui.prop_pages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBPath;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.db.project.SVDBPath;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -131,7 +131,7 @@ public class TemplatePathsPage implements ISVProjectPropsPage,
 	public Image getIcon() {
 //FIXME: missed image for Eclipse HDT
 		return SVUiPlugin.getImage(
-				"org.eclipse.hdt.sveditor.svt.ui", "/icons/eview16/generate_template_class.gif");
+				"org.sveditor.svt.ui", "/icons/eview16/generate_template_class.gif");
 	}
 
 	public String getName() {

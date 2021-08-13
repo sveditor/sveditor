@@ -13,16 +13,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.index;
+package org.sveditor.core.tests.index;
 
-import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.IndexTestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
 
 public class TestBuiltinIndex extends SVCoreTestCaseBase {
 	

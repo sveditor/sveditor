@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcessor;
+import org.sveditor.core.preproc.ISVPreProcessor;
 
 public interface ISVDBIndexInt extends ISVDBIndex {
 	

@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBAssignItem extends SVDBChildItem {
 	public SVDBExpr				fLHS;

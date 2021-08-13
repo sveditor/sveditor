@@ -8,19 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.new_filelist;
+package org.sveditor.ui.wizards.new_filelist;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.WorkspaceDirectoryTreeViewer;
+import org.sveditor.ui.WorkspaceDirectoryTreeViewer;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;

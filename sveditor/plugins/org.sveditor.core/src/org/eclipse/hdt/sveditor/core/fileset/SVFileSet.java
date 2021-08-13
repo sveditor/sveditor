@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.fileset;
+package org.sveditor.core.fileset;
 
 import java.util.ArrayList;
 import java.util.List;

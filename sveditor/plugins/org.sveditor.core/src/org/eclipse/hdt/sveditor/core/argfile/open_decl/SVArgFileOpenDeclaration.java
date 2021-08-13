@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.open_decl;
+package org.sveditor.core.argfile.open_decl;
 
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileDefaultOptionProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprScanner;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.argfile.parser.SVArgFileDefaultOptionProvider;
+import org.sveditor.core.argfile.parser.SVArgFileExprContext;
+import org.sveditor.core.argfile.parser.SVArgFileExprScanner;
+import org.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 
 public class SVArgFileOpenDeclaration {
 

@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.argfile.editor.outline;
+package org.sveditor.ui.argfile.editor.outline;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFilePath;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.index.SVDBFilePath;
 
 public class SVArgFileOutlineContent {
 	private SVDBFile				fFile;

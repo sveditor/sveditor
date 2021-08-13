@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.ISVProjectBuilderListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.ISVProjectBuilderListener;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class ProjectBuildMonitor implements ISVProjectBuilderListener {
 	private Object					fSemaphore = new Object();

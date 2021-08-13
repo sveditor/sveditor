@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.parser.ISVKeywords;
+import org.sveditor.core.parser.ISVKeywords;
 
 public class SVKeywords implements ISVKeywords {
 	

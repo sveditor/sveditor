@@ -13,46 +13,46 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogListener;
+import org.sveditor.core.log.LogFactory;
 
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
-import org.eclipse.hdt.sveditor.core.tests.argfile.content_assist.ArgFileContentAssistTests;
-import org.eclipse.hdt.sveditor.core.tests.argfile.creator.TestArgFileCreator;
-import org.eclipse.hdt.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;
-import org.eclipse.hdt.sveditor.core.tests.argfile.parser.ArgFileParserTests;
-import org.eclipse.hdt.sveditor.core.tests.content_assist.ContentAssistTests;
-import org.eclipse.hdt.sveditor.core.tests.db.SVDBTests;
-import org.eclipse.hdt.sveditor.core.tests.docs.DocsTests;
-import org.eclipse.hdt.sveditor.core.tests.fileset.FileSetTests;
-import org.eclipse.hdt.sveditor.core.tests.hierarchy.HierarchyTests;
-import org.eclipse.hdt.sveditor.core.tests.indent.IndentTests;
-import org.eclipse.hdt.sveditor.core.tests.index.IndexTests;
-import org.eclipse.hdt.sveditor.core.tests.index.argfile2.ArgFileIndex2Tests;
-import org.eclipse.hdt.sveditor.core.tests.index.cache.IndexCacheTests;
-import org.eclipse.hdt.sveditor.core.tests.index.persistence.PersistenceTests;
-import org.eclipse.hdt.sveditor.core.tests.index.refs.IndexRefTests;
-import org.eclipse.hdt.sveditor.core.tests.job_mgr.JobMgrTests;
-import org.eclipse.hdt.sveditor.core.tests.logscanner.LogScannerTests;
-import org.eclipse.hdt.sveditor.core.tests.open_decl.OpenDeclTests;
-import org.eclipse.hdt.sveditor.core.tests.parser.ParserTests;
-import org.eclipse.hdt.sveditor.core.tests.parser.ams.ParserAMSTests;
-import org.eclipse.hdt.sveditor.core.tests.parser.db.ParserDBTests;
-import org.eclipse.hdt.sveditor.core.tests.preproc.PreProcTests;
-import org.eclipse.hdt.sveditor.core.tests.primitives.PrimitivesTests;
-import org.eclipse.hdt.sveditor.core.tests.project_settings.ProjectSettingsTests;
-import org.eclipse.hdt.sveditor.core.tests.scanner.PreProcMacroTests;
-import org.eclipse.hdt.sveditor.core.tests.searchutils.SearchUtilsTests;
-import org.eclipse.hdt.sveditor.core.tests.srcgen.SrcGenTests;
+import org.sveditor.core.tests.argfile.content_assist.ArgFileContentAssistTests;
+import org.sveditor.core.tests.argfile.creator.TestArgFileCreator;
+import org.sveditor.core.tests.argfile.open_decl.ArgFileOpenDeclTests;
+import org.sveditor.core.tests.argfile.parser.ArgFileParserTests;
+import org.sveditor.core.tests.content_assist.ContentAssistTests;
+import org.sveditor.core.tests.db.SVDBTests;
+import org.sveditor.core.tests.docs.DocsTests;
+import org.sveditor.core.tests.fileset.FileSetTests;
+import org.sveditor.core.tests.hierarchy.HierarchyTests;
+import org.sveditor.core.tests.indent.IndentTests;
+import org.sveditor.core.tests.index.IndexTests;
+import org.sveditor.core.tests.index.argfile2.ArgFileIndex2Tests;
+import org.sveditor.core.tests.index.cache.IndexCacheTests;
+import org.sveditor.core.tests.index.persistence.PersistenceTests;
+import org.sveditor.core.tests.index.refs.IndexRefTests;
+import org.sveditor.core.tests.job_mgr.JobMgrTests;
+import org.sveditor.core.tests.logscanner.LogScannerTests;
+import org.sveditor.core.tests.open_decl.OpenDeclTests;
+import org.sveditor.core.tests.parser.ParserTests;
+import org.sveditor.core.tests.parser.ams.ParserAMSTests;
+import org.sveditor.core.tests.parser.db.ParserDBTests;
+import org.sveditor.core.tests.preproc.PreProcTests;
+import org.sveditor.core.tests.primitives.PrimitivesTests;
+import org.sveditor.core.tests.project_settings.ProjectSettingsTests;
+import org.sveditor.core.tests.scanner.PreProcMacroTests;
+import org.sveditor.core.tests.searchutils.SearchUtilsTests;
+import org.sveditor.core.tests.srcgen.SrcGenTests;
 
 public class CoreReleaseTests extends TestSuite {
 	

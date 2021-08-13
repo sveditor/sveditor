@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.argfile;
+package org.sveditor.core.db.index.argfile;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -21,26 +21,26 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutput;
-import org.eclipse.hdt.sveditor.core.builder.SVBuilderPreProcTracker;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFileTreeUtils;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.ILogLevelListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.ISVTokenListener;
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVToken;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.builder.ISVBuilderOutput;
+import org.sveditor.core.builder.SVBuilderPreProcTracker;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBDeclCache;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.SVDBFileTreeUtils;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.ILogLevelListener;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.ISVTokenListener;
+import org.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.parser.SVToken;
+import org.sveditor.core.preproc.SVPreProcOutput;
+import org.sveditor.core.preproc.SVPreProcessor;
 
 public class SVDBArgFileBuildUtils implements ILogLevel {
 	private static boolean				fDebugEn;

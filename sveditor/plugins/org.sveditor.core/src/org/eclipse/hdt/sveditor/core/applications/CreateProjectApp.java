@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.applications;
+package org.sveditor.core.applications;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,10 +23,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
 
 public class CreateProjectApp implements IApplication {
 
@@ -149,7 +149,7 @@ public class CreateProjectApp implements IApplication {
 	}
 	
 	private void printHelp() {
-		System.out.println("org.eclipse.hdt.sveditor.create_project [options] <project_path>");
+		System.out.println("org.sveditor.create_project [options] <project_path>");
 		System.out.println("Options:");
 		System.out.println("  -f <argument_file>     - Adds the specified argument file to the project");
 		System.out.println("  -name <name>           - Specifies the project name");

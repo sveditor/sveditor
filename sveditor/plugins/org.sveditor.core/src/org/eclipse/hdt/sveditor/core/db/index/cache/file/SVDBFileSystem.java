@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.cache.file;
+package org.sveditor.core.db.index.cache.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +16,11 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogLevelListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogLevelListener;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBFileSystem implements ILogLevelListener {
 	private static final int			VALID_MAGIC_NUMBER = 0xA5A5EAEA;

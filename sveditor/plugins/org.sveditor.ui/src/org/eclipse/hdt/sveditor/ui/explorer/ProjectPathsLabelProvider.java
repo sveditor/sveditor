@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
-import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.sveditor.ui.SVDBIconUtils;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.svcp.SVTreeLabelProvider;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.dirtree.SVDBDirTreeNode;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.dirtree.SVDBDirTreeNode;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.ops;
+package org.sveditor.core.db.index.ops;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,17 +16,17 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperationRunner;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBContainerDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefVisitor;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefItem;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefSearchSpecClassExtension;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.db.index.ISVDBIndexOperationRunner;
+import org.sveditor.core.db.index.SVDBContainerDeclCacheItem;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.refs.ISVDBRefSearchSpec;
+import org.sveditor.core.db.refs.ISVDBRefVisitor;
+import org.sveditor.core.db.refs.SVDBRefItem;
+import org.sveditor.core.db.refs.SVDBRefSearchSpecClassExtension;
 
 public class SVDBFindClassExtensionsOp implements ISVDBIndexOperation, ISVDBRefVisitor {
 	private SVDBClassDecl					fCls;

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.builder;
+package org.sveditor.core.builder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -27,19 +27,19 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRefresh;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVBuilderProcess extends Process 
 	implements ILogLevel, ISVBuilderOutput {

@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *     Armond Paiva - repurposed from JDT for use in SVEditor
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.text;
+package org.sveditor.ui.text;
 
 
 import com.ibm.icu.text.UTF16;

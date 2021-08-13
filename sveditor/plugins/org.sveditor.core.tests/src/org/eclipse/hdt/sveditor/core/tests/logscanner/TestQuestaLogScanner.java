@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.logscanner;
+package org.sveditor.core.tests.logscanner;
 
-import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
-import org.eclipse.hdt.sveditor.core.script.launch.QuestaLogMessageScanner;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
+import org.sveditor.core.script.launch.LogMessageScannerMgr;
+import org.sveditor.core.script.launch.QuestaLogMessageScanner;
+import org.sveditor.core.script.launch.ScriptMessage;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestQuestaLogScanner extends SVCoreTestCaseBase {
 	private LogMessageScannerMgr		fScannerMgr;

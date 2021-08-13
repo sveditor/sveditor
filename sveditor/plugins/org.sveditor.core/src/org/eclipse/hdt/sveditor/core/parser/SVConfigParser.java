@@ -8,16 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBConfigDecl;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConfigCellClauseStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConfigDefaultClauseStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConfigDesignStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConfigInstClauseStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConfigRuleStmtBase;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBConfigDecl;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.stmt.SVDBConfigCellClauseStmt;
+import org.sveditor.core.db.stmt.SVDBConfigDefaultClauseStmt;
+import org.sveditor.core.db.stmt.SVDBConfigDesignStmt;
+import org.sveditor.core.db.stmt.SVDBConfigInstClauseStmt;
+import org.sveditor.core.db.stmt.SVDBConfigRuleStmtBase;
 
 public class SVConfigParser extends SVParserBase {
 

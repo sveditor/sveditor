@@ -8,30 +8,30 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerKind;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileForceSvStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBMarker.MarkerKind;
+import org.sveditor.core.db.SVDBMarker.MarkerType;
+import org.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileForceSvStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileMfcuStmt;
+import org.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileSrcLibFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
 
 public class SVArgFileParser {
 	private SVArgFileOptionProviderList			fOptionProviders;

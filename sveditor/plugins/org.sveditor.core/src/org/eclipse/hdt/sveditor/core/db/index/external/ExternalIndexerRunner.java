@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.osgi.framework.Bundle;
 
 public class ExternalIndexerRunner {
@@ -242,7 +242,7 @@ public class ExternalIndexerRunner {
 		}
 		addPath(cp, plugin_cp.getAbsolutePath());
 		
-		String ext_plugin = getPluginLocation(Platform.getBundle("org.eclipse.hdt.sveditor.extjar"));
+		String ext_plugin = getPluginLocation(Platform.getBundle("org.sveditor.extjar"));
 		addPath(cp, ext_plugin + "/asm-4.0.jar");
 		addPath(cp, ext_plugin + "/asm-commons-4.0.jar");
 		

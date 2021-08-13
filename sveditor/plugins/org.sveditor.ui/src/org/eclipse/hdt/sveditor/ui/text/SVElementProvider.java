@@ -15,12 +15,12 @@
  *     Armond Paiva - repurposed for use in SVEditor
  *******************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.text;
+package org.sveditor.ui.text;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SelectionConverter;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.actions.SelectionConverter;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBItemBase;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;

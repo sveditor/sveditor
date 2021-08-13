@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 public interface IDBPersistenceTypes {
 	int					TYPE_INT_8 			= 0;

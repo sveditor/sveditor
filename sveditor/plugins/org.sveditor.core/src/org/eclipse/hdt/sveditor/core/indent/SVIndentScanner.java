@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.indent;
+package org.sveditor.core.indent;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.ITextScanner;
 
 public class SVIndentScanner implements ISVIndentScanner {
 	private ITextScanner				fScanner;

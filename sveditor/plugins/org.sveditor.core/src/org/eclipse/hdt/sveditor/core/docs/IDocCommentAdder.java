@@ -12,11 +12,11 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs;
+package org.sveditor.core.docs;
 
 import java.util.ArrayList;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
+import org.sveditor.core.Tuple;
 
 public interface IDocCommentAdder {
 	

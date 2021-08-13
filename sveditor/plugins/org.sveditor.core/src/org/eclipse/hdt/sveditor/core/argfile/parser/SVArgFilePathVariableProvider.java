@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IPathVariableManager;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.scanner.SVCharacter;
 
 public class SVArgFilePathVariableProvider implements
 		ISVArgFileVariableProvider {

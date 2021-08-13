@@ -14,14 +14,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.views.objects;
+package org.sveditor.ui.views.objects;
 
-import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.SVDBIconUtils;
+import org.sveditor.ui.SVEditorUtil;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;

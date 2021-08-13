@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.script.launch;
+package org.sveditor.core.script.launch;
 
 public interface ILogMessageScannerMgr {
 	

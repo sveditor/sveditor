@@ -14,22 +14,22 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.objects;
+package org.sveditor.core.objects;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindClassMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindInterfaceMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindModuleMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindPackageMatcher;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindClassMatcher;
+import org.sveditor.core.db.search.SVDBFindInterfaceMatcher;
+import org.sveditor.core.db.search.SVDBFindModuleMatcher;
+import org.sveditor.core.db.search.SVDBFindPackageMatcher;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 
 public class ObjectsTreeFactory {

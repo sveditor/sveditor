@@ -12,7 +12,7 @@
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla <b.muskalla@gmx.net> - [spell checking][implementation] PersistentSpellDictionary closes wrong stream - https://bugs.eclipse.org/bugs/show_bug.cgi?id=236421
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.text.spelling.engine;
+package org.sveditor.ui.text.spelling.engine;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

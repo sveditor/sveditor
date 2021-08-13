@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.script.launch;
+package org.sveditor.core.script.launch;
 
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 public class MakefileLogMessageScanner implements ILogMessageScanner {
 	private ILogMessageScannerMgr		fMgr;

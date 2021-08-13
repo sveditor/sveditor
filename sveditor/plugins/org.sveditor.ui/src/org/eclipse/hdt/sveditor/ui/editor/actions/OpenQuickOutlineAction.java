@@ -14,11 +14,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.ui.texteditor.TextEditorAction;
 

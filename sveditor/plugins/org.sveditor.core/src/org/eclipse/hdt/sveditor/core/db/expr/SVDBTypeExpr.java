@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTypeInfo;
 
 public class SVDBTypeExpr extends SVDBExpr {
 	public SVDBTypeInfo			fTypeInfo;

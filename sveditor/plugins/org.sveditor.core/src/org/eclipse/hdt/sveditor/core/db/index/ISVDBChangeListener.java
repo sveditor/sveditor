@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
 
 public interface ISVDBChangeListener {
 	

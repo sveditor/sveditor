@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.hierarchy;
+package org.sveditor.core.tests.hierarchy;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVCorePlugin;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestModuleHierarchy extends SVCoreTestCaseBase {
 

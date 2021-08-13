@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBTask;
 
 public interface IOverrideMethodsTargetProvider {
 

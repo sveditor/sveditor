@@ -8,27 +8,27 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.preproc;
+package org.sveditor.core.tests.preproc;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.parser.SVLexer;
-import org.eclipse.hdt.sveditor.core.parser.SVToken;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcIncFileProvider;
-import org.eclipse.hdt.sveditor.core.preproc.SVPathPreProcIncFileProvider;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.sveditor.core.parser.SVLexer;
+import org.sveditor.core.parser.SVToken;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.preproc.ISVPreProcIncFileProvider;
+import org.sveditor.core.preproc.SVPathPreProcIncFileProvider;
+import org.sveditor.core.preproc.SVPreProcOutput;
+import org.sveditor.core.preproc.SVPreProcessor;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestPreProcLexer2 extends SVCoreTestCaseBase {
 	

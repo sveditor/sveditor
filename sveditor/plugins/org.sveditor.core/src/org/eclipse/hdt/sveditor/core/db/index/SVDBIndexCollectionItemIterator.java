@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFile;
 
 public class SVDBIndexCollectionItemIterator /* implements ISVDBItemIterator */ {
 	List<ISVDBIndex>			fIndexList;

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.refs;
+package org.sveditor.core.db.refs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.parser.ISVTokenListener;
-import org.eclipse.hdt.sveditor.core.parser.SVToken;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.parser.ISVTokenListener;
+import org.sveditor.core.parser.SVToken;
 
 public class SVDBLexerListenerRefCollector implements ISVTokenListener {
 	

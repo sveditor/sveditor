@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.job_mgr;
+package org.sveditor.core.job_mgr;
 
 public class SVJobException extends Exception {
 	

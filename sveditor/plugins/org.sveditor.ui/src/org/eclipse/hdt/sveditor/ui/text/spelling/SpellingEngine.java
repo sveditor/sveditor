@@ -11,13 +11,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.text.spelling;
+package org.sveditor.ui.text.spelling;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellCheckEngine;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellChecker;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellEvent;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellEventListener;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.text.spelling.engine.ISpellCheckEngine;
+import org.sveditor.ui.text.spelling.engine.ISpellChecker;
+import org.sveditor.ui.text.spelling.engine.ISpellEvent;
+import org.sveditor.ui.text.spelling.engine.ISpellEventListener;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;

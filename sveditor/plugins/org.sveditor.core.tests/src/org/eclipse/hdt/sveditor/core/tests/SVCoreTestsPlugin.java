@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
 import org.eclipse.core.runtime.Plugin;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVCorePlugin;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -29,7 +29,7 @@ import org.osgi.framework.BundleContext;
 public class SVCoreTestsPlugin extends Plugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.hdt.sveditor.core.tests";
+	public static final String PLUGIN_ID = "org.sveditor.core.tests";
 	
 	public static final String OVM_LIBRARY_ID = "org.ovmworld.ovm";
 	public static final String VMM_LIBRARY_ID = "org.vmmcentral.vmm";

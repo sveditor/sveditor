@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.scanutils;
+package org.sveditor.ui.scanutils;
 
-import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.scanutils.AbstractTextScanner;
+import org.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.scanutils.ScanLocation;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPartitioningException;
 import org.eclipse.jface.text.IDocument;

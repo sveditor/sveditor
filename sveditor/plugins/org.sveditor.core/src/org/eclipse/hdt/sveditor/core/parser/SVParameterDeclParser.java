@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcClassParam;
+import org.sveditor.core.db.SVDBModIfcClassParam;
 
 public class SVParameterDeclParser extends SVParserBase {
 	// private SVExprParser				fExprParser;

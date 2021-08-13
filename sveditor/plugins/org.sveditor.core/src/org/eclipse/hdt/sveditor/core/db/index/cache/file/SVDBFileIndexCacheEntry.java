@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.cache.file;
+package org.sveditor.core.db.index.cache.file;
 
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -16,9 +16,9 @@ import java.lang.ref.SoftReference;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMarker;
 
 
 public class SVDBFileIndexCacheEntry {

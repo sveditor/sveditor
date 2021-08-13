@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.prop_pages;
+package org.sveditor.ui.prop_pages;
 
-import org.eclipse.hdt.sveditor.ui.WorkspaceFileDialog;
+import org.sveditor.ui.WorkspaceFileDialog;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;

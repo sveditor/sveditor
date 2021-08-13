@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.sveditor.core.StringInputStream;
 
 public class SVDBOverrideFilesystemProvider implements ISVDBFileSystemProvider {
 	

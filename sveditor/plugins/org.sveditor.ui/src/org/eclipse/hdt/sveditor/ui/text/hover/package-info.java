@@ -16,4 +16,4 @@
  * @author armond
  *
  */
-package org.eclipse.hdt.sveditor.ui.text.hover ;
+package org.sveditor.ui.text.hover ;

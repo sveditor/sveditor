@@ -12,9 +12,9 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.views.diagram;
+package org.sveditor.ui.views.diagram;
 
-import org.eclipse.hdt.sveditor.core.diagrams.DiagNode;
+import org.sveditor.core.diagrams.DiagNode;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.zest.core.viewers.IGraphEntityContentProvider;
 

@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFieldItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBInterfaceDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBProgramDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBFieldItem;
+import org.sveditor.core.db.SVDBInterfaceDecl;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModIfcDecl;
+import org.sveditor.core.db.SVDBModuleDecl;
+import org.sveditor.core.db.SVDBProgramDecl;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
 
 public class SVModIfcProgDeclParser extends SVParserBase {
 	

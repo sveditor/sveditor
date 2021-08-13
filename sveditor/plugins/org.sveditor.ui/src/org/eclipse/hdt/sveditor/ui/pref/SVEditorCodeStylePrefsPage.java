@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.pref;
+package org.sveditor.ui.pref;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
-import org.eclipse.hdt.sveditor.core.XMLTransformUtils;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.XMLTransformUtils;
+import org.sveditor.core.parser.SVParserConfig;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;

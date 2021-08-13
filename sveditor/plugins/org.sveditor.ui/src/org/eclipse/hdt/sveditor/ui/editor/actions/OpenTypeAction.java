@@ -8,16 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.dialog.types.SVOpenTypeDialog;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.dialog.types.SVOpenTypeDialog;
+import org.sveditor.ui.editor.SVEditor;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PartInitException;

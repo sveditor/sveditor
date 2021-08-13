@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui;
+package org.sveditor.ui;
 
 import java.net.URI;
 
@@ -22,13 +22,13 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.hdt.sveditor.core.fs.plugin.PluginFileStore;
+import org.sveditor.core.fs.plugin.PluginFileStore;
 import org.eclipse.ui.IElementFactory;
 import org.eclipse.ui.IMemento;
 
 public class PluginFileEditorInputFactory implements IElementFactory {
 	
-	public static final String		ID = "org.eclipse.hdt.sveditor.ui.PluginFileEditorInputFactory";
+	public static final String		ID = "org.sveditor.ui.PluginFileEditorInputFactory";
 	
 	static void saveState(IMemento memento, PluginPathEditorInput input) {
 		memento.putString("plugin_path", input.getURI().toString());

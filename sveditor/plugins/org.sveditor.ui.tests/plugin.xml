@@ -2,9 +2,9 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.hdt.sveditor.core.tests.releaseTests">
+         point="org.sveditor.core.tests.releaseTests">
       <releaseTestSuite
-            class="org.eclipse.hdt.sveditor.ui.tests.UiReleaseTests">
+            class="org.sveditor.ui.tests.UiReleaseTests">
       </releaseTestSuite>
    </extension>
 

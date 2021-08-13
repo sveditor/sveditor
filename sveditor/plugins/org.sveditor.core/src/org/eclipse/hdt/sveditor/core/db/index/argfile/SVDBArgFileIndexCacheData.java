@@ -13,17 +13,17 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.argfile;
+package org.sveditor.core.db.index.argfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBDeclCache;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBRootFileCacheData;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.index.ISVDBDeclCache;
+import org.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import org.sveditor.core.db.index.SVDBRootFileCacheData;
 
 /**
  * Collects data about an index that should be saved in the cache.

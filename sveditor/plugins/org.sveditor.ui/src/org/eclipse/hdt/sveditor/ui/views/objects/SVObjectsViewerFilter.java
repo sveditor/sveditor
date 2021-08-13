@@ -14,9 +14,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.views.objects;
+package org.sveditor.ui.views.objects;
 
-import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
+import org.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 

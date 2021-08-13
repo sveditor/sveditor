@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argcollector;
+package org.sveditor.core.argcollector;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,11 +17,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.EnvUtils;
-import org.eclipse.hdt.sveditor.core.ILineListener;
-import org.eclipse.hdt.sveditor.core.InputStreamLineReader;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.sveditor.core.EnvUtils;
+import org.sveditor.core.ILineListener;
+import org.sveditor.core.InputStreamLineReader;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
 
 public class BaseArgCollector implements IArgCollector {
 

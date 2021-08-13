@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.job_mgr;
+package org.sveditor.core.job_mgr;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.job_mgr.JobMgrWorkerThread.ThreadState;
+import org.sveditor.core.job_mgr.JobMgrWorkerThread.ThreadState;
 
 public class JobMgr implements IJobMgr {
 	

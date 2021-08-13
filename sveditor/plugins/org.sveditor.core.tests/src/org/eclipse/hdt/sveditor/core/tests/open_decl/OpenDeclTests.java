@@ -13,22 +13,22 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.open_decl;
+package org.sveditor.core.tests.open_decl;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.open_decl.OpenDeclUtils;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.open_decl.OpenDeclUtils;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 
-import org.eclipse.hdt.sveditor.core.tests.FileIndexIterator;
+import org.sveditor.core.tests.FileIndexIterator;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 

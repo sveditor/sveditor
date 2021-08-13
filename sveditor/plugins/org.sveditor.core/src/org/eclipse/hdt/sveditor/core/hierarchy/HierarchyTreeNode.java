@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.hierarchy;
+package org.sveditor.core.hierarchy;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class HierarchyTreeNode {
 	

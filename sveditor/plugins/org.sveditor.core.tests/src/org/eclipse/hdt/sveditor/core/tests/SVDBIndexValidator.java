@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
 
 import junit.framework.TestCase;
 

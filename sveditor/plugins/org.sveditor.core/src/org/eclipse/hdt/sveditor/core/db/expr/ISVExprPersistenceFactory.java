@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBFormatException;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.persistence.DBFormatException;
+import org.sveditor.core.db.persistence.IDBReader;
 
 public interface ISVExprPersistenceFactory {
 	

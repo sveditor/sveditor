@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.tests.utils;
+package org.sveditor.ui.tests.utils;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -19,7 +19,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.hdt.sveditor.ui.tests.utils"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.sveditor.ui.tests.utils"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;

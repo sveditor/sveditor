@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBLocation;
 
 import java.util.Set;
 

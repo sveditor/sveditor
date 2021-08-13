@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.fileset;
+package org.sveditor.core.fileset;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogFactory;
 
 public class SVWorkspaceFileMatcher extends AbstractSVFileMatcher {
 	

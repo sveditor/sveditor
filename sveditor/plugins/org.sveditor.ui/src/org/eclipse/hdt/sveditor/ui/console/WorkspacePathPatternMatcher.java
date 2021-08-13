@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.console;
+package org.sveditor.ui.console;
 
 import java.io.File;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.sveditor.core.SVFileUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.PatternMatchEvent;
 

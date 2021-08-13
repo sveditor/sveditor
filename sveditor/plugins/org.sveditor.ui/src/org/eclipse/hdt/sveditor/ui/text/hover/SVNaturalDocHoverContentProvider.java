@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.text.hover;
+package org.sveditor.ui.text.hover;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,20 +18,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.hdt.sveditor.core.db.SVDBDocComment;
-import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.IDocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.IDocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.html.HTMLFromNDMarkup;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.SVDBDocComment;
+import org.sveditor.core.docs.DocCommentParser;
+import org.sveditor.core.docs.DocTopicManager;
+import org.sveditor.core.docs.IDocCommentParser;
+import org.sveditor.core.docs.IDocTopicManager;
+import org.sveditor.core.docs.html.HTMLFromNDMarkup;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
 import org.osgi.framework.Bundle;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 public class SVNaturalDocHoverContentProvider extends SVHoverContentProvider {
 	private SVDBDocComment			fComment;

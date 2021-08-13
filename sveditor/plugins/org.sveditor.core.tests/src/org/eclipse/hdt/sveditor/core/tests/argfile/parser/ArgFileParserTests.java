@@ -8,33 +8,33 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile.parser;
+package org.sveditor.core.tests.argfile.parser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileParser;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFilePreProcessor;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFilePathStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
-import org.eclipse.hdt.sveditor.core.db.argfile.SVDBArgFileStmt;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.argfile.parser.SVArgFileParser;
+import org.sveditor.core.argfile.parser.SVArgFilePreProcOutput;
+import org.sveditor.core.argfile.parser.SVArgFilePreProcessor;
+import org.sveditor.core.argfile.parser.SVArgFileVariableProviderList;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.argfile.SVDBArgFileDefineStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncDirStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileIncFileStmt;
+import org.sveditor.core.db.argfile.SVDBArgFilePathStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileSrcLibPathStmt;
+import org.sveditor.core.db.argfile.SVDBArgFileStmt;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

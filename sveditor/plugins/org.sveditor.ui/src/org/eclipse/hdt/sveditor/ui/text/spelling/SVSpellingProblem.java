@@ -11,17 +11,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.text.spelling;
+package org.sveditor.ui.text.spelling;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellCheckEngine;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellChecker;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellEvent;
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.RankedWordProposal;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.text.spelling.engine.ISpellCheckEngine;
+import org.sveditor.ui.text.spelling.engine.ISpellChecker;
+import org.sveditor.ui.text.spelling.engine.ISpellEvent;
+import org.sveditor.ui.text.spelling.engine.RankedWordProposal;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.preference.IPreferenceStore;

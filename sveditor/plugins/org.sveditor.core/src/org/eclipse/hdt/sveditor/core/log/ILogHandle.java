@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.log;
+package org.sveditor.core.log;
 
 public interface ILogHandle extends ILogLevel {
 	String				LOG_CAT_DEFAULT = "DEFAULT";

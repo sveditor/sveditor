@@ -15,29 +15,29 @@
             priority="normal">
       </content-type>
       <content-type
-            base-type="org.eclipse.hdt.sveditor.core.verilog"
+            base-type="org.sveditor.core.verilog"
             file-extensions="sv, svh, svp, svi"
             id="systemverilog"
             name="SystemVerilog"
             priority="normal">
          <property
                default="true"
-               name="org.eclipse.hdt.sveditor.core.svfile">
+               name="org.sveditor.core.svfile">
          </property>
       </content-type>
       <content-type
             base-type="org.eclipse.core.runtime.text"
             file-extensions="f, F, args, irunargs, flist"
-            id="org.eclipse.hdt.sveditor.core.argfile"
+            id="org.sveditor.core.argfile"
             name="SystemVerilog Argument File"
             priority="normal">
          <property
                default="true"
-               name="org.eclipse.hdt.sveditor.core.sv_argfile">
+               name="org.sveditor.core.sv_argfile">
          </property>
       </content-type>
       <content-type
-            base-type="org.eclipse.hdt.sveditor.core.verilog"
+            base-type="org.sveditor.core.verilog"
             file-extensions="va, vams"
             id="verilogams"
             name="VerilogAMS"
@@ -50,18 +50,18 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.eclipse.hdt.sveditor.core.SVProjectNature">
+               class="org.sveditor.core.SVProjectNature">
          </run>
       </runtime>
       <builder
-            id="org.eclipse.hdt.sveditor.core.SVProjectBuilder">
+            id="org.sveditor.core.SVProjectBuilder">
       </builder>
    </extension>
    <extension
-         point="org.eclipse.hdt.sveditor.core.SVLibraries">
+         point="org.sveditor.core.SVLibraries">
       <SVLibrary
             default="false"
-            id="org.eclipse.hdt.sveditor.sv_builtin"
+            id="org.sveditor.sv_builtin"
             name="SystemVerilog Builtin Types"
             path="sv_builtin/sv_builtin.f">
          <description>
@@ -74,32 +74,32 @@
       <filesystem
             scheme="plugin">
          <run
-               class="org.eclipse.hdt.sveditor.core.fs.plugin.PluginFilesystem">
+               class="org.sveditor.core.fs.plugin.PluginFilesystem">
          </run>
       </filesystem>
    </extension>
    <extension
-         point="org.eclipse.hdt.sveditor.core.SVDBIndexFactories">
+         point="org.sveditor.core.SVDBIndexFactories">
       <SVDBIndexFactory
-            class="org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory"
-            id="org.eclipse.hdt.sveditor.pluginLibIndex">
+            class="org.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory"
+            id="org.sveditor.pluginLibIndex">
       </SVDBIndexFactory>
       <SVDBIndexFactory
-            class="org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory"
-            id="org.eclipse.hdt.sveditor.argFileIndex">
+            class="org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory"
+            id="org.sveditor.argFileIndex">
       </SVDBIndexFactory>
       <SVDBIndexFactory
-            class="org.eclipse.hdt.sveditor.core.db.index.old.SVDBShadowIndexFactory"
-            id="org.eclipse.hdt.sveditor.shadowIndex">
+            class="org.sveditor.core.db.index.old.SVDBShadowIndexFactory"
+            id="org.sveditor.shadowIndex">
       </SVDBIndexFactory>
    </extension>
    <extension
          point="org.eclipse.core.runtime.adapters">
       <factory
             adaptableType="org.eclipse.core.resources.IProject"
-            class="org.eclipse.hdt.sveditor.core.SVProjectDataAdapter">
+            class="org.sveditor.core.SVProjectDataAdapter">
          <adapter
-               type="org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData">
+               type="org.sveditor.core.db.project.SVDBProjectData">
          </adapter>
       </factory>
    </extension>
@@ -113,7 +113,7 @@
             isConfigurable="false"
             supportsConfigurations="false">
          <run
-               class="org.eclipse.hdt.sveditor.core.builder.SVProjectBuilder">
+               class="org.sveditor.core.builder.SVProjectBuilder">
          </run>
       </builder>
    </extension>
@@ -161,7 +161,7 @@
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            id="org.eclipse.hdt.sveditor.core.buildScriptLaunchType"
+            id="org.sveditor.core.buildScriptLaunchType"
             modes="run"
             name="SVEditor Build Script">
       </launchConfigurationType>
@@ -193,34 +193,34 @@
       </attribute>
    </extension>
    <extension
-         point="org.eclipse.hdt.sveditor.core.SVLogMessageScanners">
+         point="org.sveditor.core.SVLogMessageScanners">
       <LogMessageScanner
-            class="org.eclipse.hdt.sveditor.core.script.launch.QuestaLogMessageScanner"
-            id="org.eclipse.hdt.sveditor.core.questaLogMessageScanner"
+            class="org.sveditor.core.script.launch.QuestaLogMessageScanner"
+            id="org.sveditor.core.questaLogMessageScanner"
             name="Questa Log Scanner"
             type="general">
       </LogMessageScanner>
       <LogMessageScanner
-            class="org.eclipse.hdt.sveditor.core.script.launch.VerilatorLogMessageScanner"
-            id="org.eclipse.hdt.sveditor.core.verilatorLogScanner"
+            class="org.sveditor.core.script.launch.VerilatorLogMessageScanner"
+            id="org.sveditor.core.verilatorLogScanner"
             name="Verilator Log Scanner"
             type="build">
       </LogMessageScanner>
       <LogMessageScanner
-            class="org.eclipse.hdt.sveditor.core.script.launch.MakefileLogMessageScanner"
-            id="org.eclipse.hdt.sveditor.core.makeLogScanner"
+            class="org.sveditor.core.script.launch.MakefileLogMessageScanner"
+            id="org.sveditor.core.makeLogScanner"
             name="Make Log Scanner"
             type="build">
       </LogMessageScanner>
       <LogMessageScanner
-            class="org.eclipse.hdt.sveditor.core.script.launch.GccLogMessageScanner"
-            id="org.eclipse.hdt.sveditor.core.gccLogScanner"
+            class="org.sveditor.core.script.launch.GccLogMessageScanner"
+            id="org.sveditor.core.gccLogScanner"
             name="GCC Log Scanner"
             type="build">
       </LogMessageScanner>
       <LogMessageScanner
-            class="org.eclipse.hdt.sveditor.core.script.launch.NCSimLogMessageScanner"
-            id="org.eclipse.hdt.sveditor.core.ncsimLogScanner"
+            class="org.sveditor.core.script.launch.NCSimLogMessageScanner"
+            id="org.sveditor.core.ncsimLogScanner"
             name="NCSim Log Scanner"
             type="build">
       </LogMessageScanner>
@@ -230,7 +230,7 @@
          name="SVE Script SV Problem"
          point="org.eclipse.core.resources.markers">
       <super
-            type="org.eclipse.hdt.sveditor.core.svScriptProblem">
+            type="org.sveditor.core.svScriptProblem">
       </super>
    </extension>
    <extension
@@ -238,11 +238,11 @@
          name="SVE Script GCC Problem"
          point="org.eclipse.core.resources.markers">
       <super
-            type="org.eclipse.hdt.sveditor.core.svScriptProblem">
+            type="org.sveditor.core.svScriptProblem">
       </super>
    </extension>
    <extension
-         id="org.eclipse.hdt.sveditor.create_project"
+         id="org.sveditor.create_project"
          name="SVEditor Create Project"
          point="org.eclipse.core.runtime.applications">
       <application
@@ -250,7 +250,7 @@
             thread="main"
             visible="true">
          <run
-               class="org.eclipse.hdt.sveditor.core.applications.CreateProjectApp">
+               class="org.sveditor.core.applications.CreateProjectApp">
          </run>
       </application>
    </extension>
@@ -259,7 +259,7 @@
       <filesystem
             scheme="svext">
          <run
-               class="org.eclipse.hdt.sveditor.core.fs.svext.SVExtFileSystem">
+               class="org.sveditor.core.fs.svext.SVExtFileSystem">
          </run>
       </filesystem>
    </extension>

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.pref;
+package org.sveditor.ui.pref;
 
 import java.util.HashSet;
 import java.util.Set;

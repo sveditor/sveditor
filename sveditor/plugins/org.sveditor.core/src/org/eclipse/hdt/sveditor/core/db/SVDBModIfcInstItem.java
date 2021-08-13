@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem;
+import org.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class SVDBModIfcInstItem extends SVDBItem implements ISVDBChildItem {
 	public SVDBParamValueAssignList		fPortMap;

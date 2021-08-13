@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 public class SVDBInterfaceDecl extends SVDBModIfcDecl {
 	

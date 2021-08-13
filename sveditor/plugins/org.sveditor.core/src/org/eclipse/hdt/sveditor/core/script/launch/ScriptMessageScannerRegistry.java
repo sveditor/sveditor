@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.script.launch;
+package org.sveditor.core.script.launch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessageScannerDescriptor.ScannerType;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.script.launch.ScriptMessageScannerDescriptor.ScannerType;
 
 public class ScriptMessageScannerRegistry {
 	private List<ScriptMessageScannerDescriptor>		fDescriptors;

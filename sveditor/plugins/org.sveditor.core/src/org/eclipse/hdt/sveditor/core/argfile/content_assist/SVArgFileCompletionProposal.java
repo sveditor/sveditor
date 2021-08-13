@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.content_assist;
+package org.sveditor.core.argfile.content_assist;
 
 
 public class SVArgFileCompletionProposal {

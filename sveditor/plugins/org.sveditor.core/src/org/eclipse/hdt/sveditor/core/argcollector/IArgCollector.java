@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argcollector;
+package org.sveditor.core.argcollector;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.ILineListener;
+import org.sveditor.core.ILineListener;
 
 public interface IArgCollector {
 	

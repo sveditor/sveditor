@@ -8,21 +8,21 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.ops;
+package org.sveditor.core.db.index.ops;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperationRunner;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.db.index.ISVDBIndexOperationRunner;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 public class SVDBFindMacroOp implements ISVDBIndexOperation {
 	private String						fMacro;

@@ -12,9 +12,9 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.text.spelling;
+package org.sveditor.ui.text.spelling;
 
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.ISpellChecker;
+import org.sveditor.ui.text.spelling.engine.ISpellChecker;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.text.IDocument;

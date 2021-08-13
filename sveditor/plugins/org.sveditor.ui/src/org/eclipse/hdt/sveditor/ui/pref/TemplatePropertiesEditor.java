@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.pref;
+package org.sveditor.ui.pref;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.XMLTransformUtils;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.XMLTransformUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.ListEditor;
 import org.eclipse.jface.resource.JFaceResources;

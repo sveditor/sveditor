@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.plugin;
+package org.sveditor.core.db.index.plugin;
 
 public class SVDBPluginLibDescriptor {
 	

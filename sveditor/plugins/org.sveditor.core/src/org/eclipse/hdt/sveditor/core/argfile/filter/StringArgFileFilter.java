@@ -8,19 +8,19 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.filter;
+package org.sveditor.core.argfile.filter;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileParser;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.argfile.parser.SVArgFileParser;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 public class StringArgFileFilter {
 	private String				fBaseLocation;

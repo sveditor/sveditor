@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr_utils;
+package org.sveditor.core.expr_utils;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBItemBase;
 
 public interface ISVItemResolver {
 	

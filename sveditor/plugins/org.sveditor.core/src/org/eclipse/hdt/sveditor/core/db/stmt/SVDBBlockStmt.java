@@ -13,17 +13,17 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.stmt;
+package org.sveditor.core.db.stmt;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBBlockStmt extends SVDBStmt implements ISVDBScopeItem {
 	@SVDBParentAttr

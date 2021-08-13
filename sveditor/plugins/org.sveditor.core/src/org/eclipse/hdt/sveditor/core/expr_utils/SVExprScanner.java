@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr_utils;
+package org.sveditor.core.expr_utils;
 
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext.ContextType;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.expr_utils.SVExprContext.ContextType;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 
 public class SVExprScanner {
 

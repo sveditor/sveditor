@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBFileTree extends SVDBItemBase implements ISVDBChildItem {
 	@SVDBDoNotSaveAttr

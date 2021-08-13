@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndex;
 
 public class LibIndexPath implements IProjectPathsData {
 	public static final String			TYPE_LIB_PATH       = "LIB_PATH";

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index.cache;
+package org.sveditor.core.tests.index.cache;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,16 +19,16 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCache;
+import org.sveditor.core.db.index.cache.delegating.SVDBSegmentedIndexCacheMgr;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCache;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestSegmentedCache extends SVCoreTestCaseBase {
 	

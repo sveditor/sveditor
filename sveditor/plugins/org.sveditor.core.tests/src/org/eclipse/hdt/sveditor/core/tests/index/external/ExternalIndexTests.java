@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index.external;
+package org.sveditor.core.tests.index.external;
 
 import junit.framework.TestSuite;
 

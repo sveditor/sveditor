@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBGenerateBlock;
-import org.eclipse.hdt.sveditor.core.db.SVDBGenerateIf;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBGenerateBlock;
+import org.sveditor.core.db.SVDBGenerateIf;
 
 public class SVGenerateBlockParser extends SVParserBase {
 	

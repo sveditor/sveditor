@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.checker;
+package org.sveditor.core.checker;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBItemBase;
 
 public interface ISVDBCheckVisitor {
 	

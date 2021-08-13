@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import org.eclipse.jface.text.source.DefaultCharacterPairMatcher;
 

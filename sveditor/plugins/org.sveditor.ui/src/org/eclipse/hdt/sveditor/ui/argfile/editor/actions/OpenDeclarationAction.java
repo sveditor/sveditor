@@ -13,17 +13,17 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.argfile.editor.actions;
+package org.sveditor.ui.argfile.editor.actions;
 
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileEditor;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.argfile.editor.SVArgFileEditor;
+import org.sveditor.ui.scanutils.SVArgFileDocumentTextScanner;
 
-import org.eclipse.hdt.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.argfile.open_decl.SVArgFileOpenDeclaration;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;

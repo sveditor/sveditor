@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.hierarchy;
+package org.sveditor.core.hierarchy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,16 +16,16 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByTypeMatcher;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportStmt;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBPackageDecl;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.db.search.SVDBFindByTypeMatcher;
+import org.sveditor.core.db.stmt.SVDBImportItem;
+import org.sveditor.core.db.stmt.SVDBImportStmt;
 
 public class PackageHierarchyTreeFactory {
 	private ISVDBIndexIterator			fIndexIt;

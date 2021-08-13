@@ -14,16 +14,16 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.docs.html;
+package org.sveditor.core.docs.html;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.db.IFieldItemAttr;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.IFieldItemAttr;
+import org.sveditor.core.docs.DocTopicManager;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class HTMLIconUtils implements IHTMLIcons {
 	

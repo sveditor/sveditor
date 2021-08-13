@@ -13,20 +13,20 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.srcgen;
+package org.sveditor.core.tests.srcgen;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.srcgen.MethodGenerator;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.srcgen.MethodGenerator;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
+import org.sveditor.core.tests.indent.IndentComparator;
 
 public class TestMethodGenerator extends TestCase {
 	

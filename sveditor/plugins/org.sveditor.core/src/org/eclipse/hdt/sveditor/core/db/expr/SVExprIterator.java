@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintDistListItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintDistListItem;
+import org.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
 
 
 public class SVExprIterator {

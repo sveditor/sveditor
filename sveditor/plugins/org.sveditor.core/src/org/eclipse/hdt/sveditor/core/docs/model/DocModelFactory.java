@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.model;
+package org.sveditor.core.docs.model;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,29 +20,29 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBDocComment;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.docs.DocCommentCleaner;
-import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
-import org.eclipse.hdt.sveditor.core.docs.DocKeywordInfo;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicType;
-import org.eclipse.hdt.sveditor.core.docs.IDocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.IDocTopicManager;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBDocComment;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFunction;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModIfcDecl;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.docs.DocCommentCleaner;
+import org.sveditor.core.docs.DocCommentParser;
+import org.sveditor.core.docs.DocGenConfig;
+import org.sveditor.core.docs.DocKeywordInfo;
+import org.sveditor.core.docs.DocTopicType;
+import org.sveditor.core.docs.IDocCommentParser;
+import org.sveditor.core.docs.IDocTopicManager;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 
 /**

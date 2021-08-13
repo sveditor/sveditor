@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFile;
 
 public interface ISVDBPreProcIndexSearcher {
 	

@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 public class SVMarkers {
 	
-	public static final String				TYPE_PROBLEM = "org.eclipse.hdt.sveditor.core.problem";
-	public static final String				TYPE_TASK = "org.eclipse.hdt.sveditor.core.task";
+	public static final String				TYPE_PROBLEM = "org.sveditor.core.problem";
+	public static final String				TYPE_TASK = "org.sveditor.core.task";
 
 }

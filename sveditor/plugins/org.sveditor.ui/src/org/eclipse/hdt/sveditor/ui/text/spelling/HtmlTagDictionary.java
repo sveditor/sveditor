@@ -12,11 +12,11 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.text.spelling;
+package org.sveditor.ui.text.spelling;
 
 import java.net.URL;
 
-import org.eclipse.hdt.sveditor.ui.text.spelling.engine.AbstractSpellDictionary;
+import org.sveditor.ui.text.spelling.engine.AbstractSpellDictionary;
 
 /**
  * Dictionary for html tags.

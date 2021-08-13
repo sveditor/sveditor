@@ -14,26 +14,26 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.views.diagram.SVDiagramView;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.views.diagram.SVDiagramView;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
-import org.eclipse.hdt.sveditor.core.diagrams.ClassDiagModelFactory;
-import org.eclipse.hdt.sveditor.core.diagrams.DiagModel;
-import org.eclipse.hdt.sveditor.core.diagrams.IDiagModelFactory;
-import org.eclipse.hdt.sveditor.core.diagrams.ModuleDiagModelFactory;
-import org.eclipse.hdt.sveditor.core.diagrams.PackageClassDiagModelFactory;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModuleDecl;
+import org.sveditor.core.db.SVDBPackageDecl;
+import org.sveditor.core.diagrams.ClassDiagModelFactory;
+import org.sveditor.core.diagrams.DiagModel;
+import org.sveditor.core.diagrams.IDiagModelFactory;
+import org.sveditor.core.diagrams.ModuleDiagModelFactory;
+import org.sveditor.core.diagrams.PackageClassDiagModelFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;

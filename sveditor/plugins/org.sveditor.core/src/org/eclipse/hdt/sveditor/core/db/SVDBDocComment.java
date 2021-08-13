@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 public class SVDBDocComment extends SVDBItem {
 	

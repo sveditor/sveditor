@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.job_mgr;
+package org.sveditor.core.job_mgr;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -8,31 +8,31 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argcollector;
+package org.sveditor.core.tests.argcollector;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SystemOutLineListener;
-import org.eclipse.hdt.sveditor.core.argcollector.ArgCollectorFactory;
-import org.eclipse.hdt.sveditor.core.argcollector.IArgCollector;
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileFilterList;
-import org.eclipse.hdt.sveditor.core.argfile.filter.ArgFileWriter;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileParser;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SystemOutLineListener;
+import org.sveditor.core.argcollector.ArgCollectorFactory;
+import org.sveditor.core.argcollector.IArgCollector;
+import org.sveditor.core.argfile.filter.ArgFileFilterCppFiles;
+import org.sveditor.core.argfile.filter.ArgFileFilterList;
+import org.sveditor.core.argfile.filter.ArgFileWriter;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.argfile.parser.SVArgFileParser;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.scanutils.StringTextScanner;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
 
 public class TestArgCollectorBasics extends SVCoreTestCaseBase {
 	

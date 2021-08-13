@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.cache.delegating;
+package org.sveditor.core.db.index.cache.delegating;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,19 +16,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgrInt;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBWriteException;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBWriter;
-import org.eclipse.hdt.sveditor.core.db.persistence.SVDBPersistenceRW;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgrInt;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
+import org.sveditor.core.db.persistence.DBWriteException;
+import org.sveditor.core.db.persistence.IDBReader;
+import org.sveditor.core.db.persistence.IDBWriter;
+import org.sveditor.core.db.persistence.SVDBPersistenceRW;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBSegmentedIndexCacheMgr implements ISVDBIndexCacheMgrInt {
 	

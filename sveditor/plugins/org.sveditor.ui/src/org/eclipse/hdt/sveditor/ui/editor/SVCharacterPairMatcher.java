@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;

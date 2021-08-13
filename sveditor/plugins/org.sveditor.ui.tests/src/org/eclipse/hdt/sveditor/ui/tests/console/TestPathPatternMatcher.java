@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.tests.console;
+package org.sveditor.ui.tests.console;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,18 +16,18 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.debug.ui.console.FileLink;
-import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
-import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScannerMgr;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
+import org.sveditor.core.script.launch.ILogMessageScanner;
+import org.sveditor.core.script.launch.ILogMessageScannerMgr;
+import org.sveditor.core.script.launch.ScriptMessage;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ui.console.IConsoleDocumentPartitioner;
 import org.eclipse.ui.console.IHyperlink;
 import org.eclipse.ui.console.TextConsole;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
-import org.eclipse.hdt.sveditor.ui.script.launch.GenericPathPatternMatcher;
-import org.eclipse.hdt.sveditor.ui.script.launch.GenericRelPathPatternMatcher;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.ui.script.launch.GenericPathPatternMatcher;
+import org.sveditor.ui.script.launch.GenericRelPathPatternMatcher;
 
 public class TestPathPatternMatcher extends SVCoreTestCaseBase {
 

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.old;
+package org.sveditor.core.db.index.old;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

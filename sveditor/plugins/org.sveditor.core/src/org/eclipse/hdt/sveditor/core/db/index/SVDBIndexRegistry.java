@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,18 +35,18 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexBuilder;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.InMemoryIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.builder.SVDBIndexBuilder;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanType;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.db.index.cache.InMemoryIndexCache;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibIndexFactory;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 /**
  * Central storage for leaf indexes. Provides a central place to locate

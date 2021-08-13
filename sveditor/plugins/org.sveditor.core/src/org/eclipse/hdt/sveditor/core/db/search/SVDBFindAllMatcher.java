@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.ISVDBNamedItem;
 
 public class SVDBFindAllMatcher implements ISVDBFindNameMatcher {
 	

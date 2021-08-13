@@ -8,16 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.preproc;
+package org.sveditor.core.tests.preproc;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.index.ISVDBFileSystemChangeListener;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
 
 public class SVDBMapFileSystemProvider implements ISVDBFileSystemProvider {
 	private Map<String, String>			fFileMap;

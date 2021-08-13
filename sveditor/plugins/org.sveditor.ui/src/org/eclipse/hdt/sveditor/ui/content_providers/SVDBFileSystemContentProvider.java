@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.content_providers;
+package org.sveditor.ui.content_providers;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.project;
+package org.sveditor.ui.wizards.project;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.ui.content_providers.SVDBFileSystemContentProvider;
-import org.eclipse.hdt.sveditor.ui.content_providers.SVDBFileSystemLabelProvider;
-import org.eclipse.hdt.sveditor.ui.wizards.new_filelist.NewFileListWizardAddFilesPage;
+import org.sveditor.ui.content_providers.SVDBFileSystemContentProvider;
+import org.sveditor.ui.content_providers.SVDBFileSystemLabelProvider;
+import org.sveditor.ui.wizards.new_filelist.NewFileListWizardAddFilesPage;
 
-import org.eclipse.hdt.sveditor.core.db.index.SVDBScopedFileSystemProvider;
+import org.sveditor.core.db.index.SVDBScopedFileSystemProvider;
 import org.eclipse.jface.wizard.Wizard;
 
 public class NewFilelistWizard extends Wizard {

@@ -12,17 +12,17 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.diagrams ;
+package org.sveditor.core.diagrams ;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFunction;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class DiagNode {
 	

@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBIdentifierExpr;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogLevelListener;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.expr.SVDBIdentifierExpr;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogLevelListener;
 
 
 

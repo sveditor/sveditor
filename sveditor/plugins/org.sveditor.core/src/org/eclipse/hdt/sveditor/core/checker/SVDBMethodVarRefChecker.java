@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.checker;
+package org.sveditor.core.checker;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVContentAssistExprVisitor;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFunction;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.expr_utils.SVContentAssistExprVisitor;
 
 public class SVDBMethodVarRefChecker implements ISVDBCheckVisitor {
 

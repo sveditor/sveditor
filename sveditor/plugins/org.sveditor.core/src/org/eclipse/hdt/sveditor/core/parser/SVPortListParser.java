@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoBuiltin;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.SVDBTypeInfoBuiltin;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class SVPortListParser extends SVParserBase {
 	

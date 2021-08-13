@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.sveditor.core.StringInputStream;
 
 public class TextTagPosUtils {
 	private ByteArrayOutputStream			fStrippedData;

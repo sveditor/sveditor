@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 @SuppressWarnings({"unchecked","rawtypes"})
 public class SVDBDefaultPersistenceRW extends SVDBPersistenceRWDelegateBase {

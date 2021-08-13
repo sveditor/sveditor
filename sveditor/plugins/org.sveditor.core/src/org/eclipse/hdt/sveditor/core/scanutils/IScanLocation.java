@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanutils;
+package org.sveditor.core.scanutils;
 
 public interface IScanLocation {
 

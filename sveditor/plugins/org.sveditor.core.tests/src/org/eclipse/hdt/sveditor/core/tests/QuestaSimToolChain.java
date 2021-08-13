@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.log.LogHandle;
 
 public class QuestaSimToolChain implements ISimToolchain {
 	private boolean				fValid;

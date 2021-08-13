@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.content_assist;
+package org.sveditor.core.content_assist;
 
 import java.util.ArrayList;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDefParam;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMacroDefParam;
+import org.sveditor.core.db.SVDBModIfcDecl;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
 
 public class SVCompletionProposalUtils {
 	// TODO: Need to have these parameters come from some sort of configuration file

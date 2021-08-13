@@ -13,7 +13,7 @@
  * 		Armond Paiva - Repurposed for use in SVEditor 
  ******************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.views.diagram.figures;
+package org.sveditor.ui.views.diagram.figures;
 
 import org.eclipse.draw2d.AbstractBorder;
 import org.eclipse.draw2d.Figure;

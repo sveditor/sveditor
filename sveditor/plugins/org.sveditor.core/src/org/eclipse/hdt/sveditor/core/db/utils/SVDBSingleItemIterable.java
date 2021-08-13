@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.utils;
+package org.sveditor.core.db.utils;
 
 import java.util.Iterator;
 

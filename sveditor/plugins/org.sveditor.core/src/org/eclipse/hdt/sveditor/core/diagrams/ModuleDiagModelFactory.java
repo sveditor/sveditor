@@ -13,10 +13,10 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.diagrams;
+package org.sveditor.core.diagrams;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.SVDBModuleDecl;
+import org.sveditor.core.db.index.ISVDBIndex;
 
 public class ModuleDiagModelFactory extends AbstractDiagModelFactory {
 	

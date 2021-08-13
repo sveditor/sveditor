@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 public class SVArgFileExprContext {
 	public enum ContextType {

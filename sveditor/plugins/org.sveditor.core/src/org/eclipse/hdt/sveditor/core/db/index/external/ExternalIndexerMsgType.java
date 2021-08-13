@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 public enum ExternalIndexerMsgType {
 

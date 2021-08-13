@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr.eval;
+package org.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.evaluator;
+package org.sveditor.core.evaluator;
 
 public interface ISVEvalContext {
 	

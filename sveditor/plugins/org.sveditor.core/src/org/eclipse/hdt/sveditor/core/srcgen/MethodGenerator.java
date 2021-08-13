@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.srcgen;
+package org.sveditor.core.srcgen;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBNamedItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFieldItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFunction;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDimItem;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBNamedItem;
+import org.sveditor.core.db.SVDBFieldItem;
+import org.sveditor.core.db.SVDBFunction;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDimItem;
 
 public class MethodGenerator {
 	

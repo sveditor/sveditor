@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.content_assist;
+package org.sveditor.core.content_assist;
 
 public enum SVCompletionProposalType {
 	

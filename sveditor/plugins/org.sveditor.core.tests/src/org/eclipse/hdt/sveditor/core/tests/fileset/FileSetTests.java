@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.fileset;
+package org.sveditor.core.tests.fileset;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,19 +21,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBSourceCollection;
-import org.eclipse.hdt.sveditor.core.fileset.AbstractSVFileMatcher;
-import org.eclipse.hdt.sveditor.core.fileset.SVFileSet;
-import org.eclipse.hdt.sveditor.core.fileset.SVFilesystemFileMatcher;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.project.SVDBSourceCollection;
+import org.sveditor.core.fileset.AbstractSVFileMatcher;
+import org.sveditor.core.fileset.SVFileSet;
+import org.sveditor.core.fileset.SVFilesystemFileMatcher;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 import junit.framework.TestCase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class FileSetTests extends TestCase {
 	private File			fTmpDir;

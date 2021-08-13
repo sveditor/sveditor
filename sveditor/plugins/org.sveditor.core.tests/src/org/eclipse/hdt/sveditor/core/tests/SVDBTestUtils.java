@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests;
+package org.sveditor.core.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,39 +22,39 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBBind;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInst;
-import org.eclipse.hdt.sveditor.core.db.SVDBModIfcInstItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBPreProcObserver;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
-import org.eclipse.hdt.sveditor.core.db.index.old.InputStreamCopier;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBAssertStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBImportStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcDirectiveScanner;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
-import org.eclipse.hdt.sveditor.core.scanner.IPreProcMacroProvider;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBFileFactory;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBBind;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBModIfcInst;
+import org.sveditor.core.db.SVDBModIfcInstItem;
+import org.sveditor.core.db.SVDBPreProcObserver;
+import org.sveditor.core.db.SVDBMarker.MarkerType;
+import org.sveditor.core.db.index.old.InputStreamCopier;
+import org.sveditor.core.db.stmt.SVDBAssertStmt;
+import org.sveditor.core.db.stmt.SVDBImportItem;
+import org.sveditor.core.db.stmt.SVDBImportStmt;
+import org.sveditor.core.db.stmt.SVDBVarDeclItem;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.preproc.SVPreProcDirectiveScanner;
+import org.sveditor.core.preproc.SVPreProcOutput;
+import org.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.scanner.IPreProcMacroProvider;
 
 import junit.framework.TestCase;
 

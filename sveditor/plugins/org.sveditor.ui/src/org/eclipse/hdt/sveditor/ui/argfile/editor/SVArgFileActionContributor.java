@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.argfile.editor;
+package org.sveditor.ui.argfile.editor;
 
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
@@ -35,7 +35,7 @@ public class SVArgFileActionContributor extends TextEditorActionContributor {
 		fOpenDeclarationAction = new RetargetTextEditorAction(
 				bundle, "ArgFileOpenFile.");
 		fOpenDeclarationAction.setActionDefinitionId(
-				"org.eclipse.hdt.sveditor.ui.argfile.editor.open.file");
+				"org.sveditor.ui.argfile.editor.open.file");
 		
 		fToggleCommentAction = new RetargetTextEditorAction(
 				bundle, "ArgFileToggleComment.");

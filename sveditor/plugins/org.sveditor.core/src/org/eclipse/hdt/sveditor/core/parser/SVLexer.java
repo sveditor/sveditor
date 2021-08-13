@@ -12,7 +12,7 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,11 +22,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanutils.ITextScanner;
 
 import com.sun.org.apache.xpath.internal.compiler.Keywords;
 

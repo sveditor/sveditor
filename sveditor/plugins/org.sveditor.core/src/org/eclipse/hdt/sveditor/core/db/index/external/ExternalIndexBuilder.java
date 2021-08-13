@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexBuilder;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlanner;
+import org.sveditor.core.db.index.builder.ISVDBIndexBuildJob;
+import org.sveditor.core.db.index.builder.ISVDBIndexBuilder;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlanner;
 
 public class ExternalIndexBuilder implements ISVDBIndexBuilder {
 	private List<ExternalIndexBuildJob>				fBuildQueue;

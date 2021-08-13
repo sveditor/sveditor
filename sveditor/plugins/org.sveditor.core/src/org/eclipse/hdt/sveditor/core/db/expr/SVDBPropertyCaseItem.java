@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.expr;
+package org.sveditor.core.db.expr;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBBodyStmt;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.stmt.SVDBBodyStmt;
 
 public class SVDBPropertyCaseItem extends SVDBBodyStmt {
 	public List<SVDBExpr>				fExprList;

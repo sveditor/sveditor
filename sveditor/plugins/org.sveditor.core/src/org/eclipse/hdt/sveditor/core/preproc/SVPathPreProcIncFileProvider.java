@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.preproc;
+package org.sveditor.core.preproc;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTreeMacroList;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFileTreeMacroList;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
 
 public class SVPathPreProcIncFileProvider implements ISVPreProcIncFileProvider {
 	private List<String>				fIncDirs;

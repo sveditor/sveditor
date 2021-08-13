@@ -12,17 +12,17 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 import java.util.List;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.ISVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.ISVParser;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.scanutils.ITextScanner;
 
 public class SVArgFileLexer extends SVArgFileToken {
 	private ITextScanner 				fScanner;

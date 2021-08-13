@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.argfile;
+package org.sveditor.core.db.index.argfile;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexConfig;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexFactory;
+import org.sveditor.core.db.index.SVDBIndexConfig;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 public class SVDBArgFileIndexFactory implements ISVDBIndexFactory {
 	
-	public static final String	TYPE = "org.eclipse.hdt.sveditor.argFileIndex";
+	public static final String	TYPE = "org.sveditor.argFileIndex";
 	
 	public ISVDBIndex createSVDBIndex(
 			String 					projectName, 

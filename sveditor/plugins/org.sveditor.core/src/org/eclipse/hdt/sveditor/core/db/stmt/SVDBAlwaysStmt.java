@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.stmt;
+package org.sveditor.core.db.stmt;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBClockingEventExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.expr.SVDBClockingEventExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBClockingEventExpr.ClockingEventType;
 
 public class SVDBAlwaysStmt extends SVDBBodyStmt {
 	

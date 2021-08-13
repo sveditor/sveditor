@@ -13,14 +13,14 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.wizards;
+package org.sveditor.ui.wizards;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.srcgen.NewPackageGenerator;
+import org.sveditor.core.srcgen.NewPackageGenerator;
 
 public class NewSVPackageWizard extends AbstractNewSVItemFileWizard {
 	public static final String				ID = SVUiPlugin.PLUGIN_ID + ".newSVPackageWizard";

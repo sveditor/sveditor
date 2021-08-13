@@ -5,59 +5,59 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.eclipse.hdt.sveditor.ui.editor.SVEditor"
-            contributorClass="org.eclipse.hdt.sveditor.ui.editor.SVActionContributor"
+            class="org.sveditor.ui.editor.SVEditor"
+            contributorClass="org.sveditor.ui.editor.SVActionContributor"
             default="true"
             icon="icons/vlog_16_16.gif"
-            id="org.eclipse.hdt.sveditor.ui.editor"
+            id="org.sveditor.ui.editor"
             name="SystemVerilog Editor">
          <contentTypeBinding
-               contentTypeId="org.eclipse.hdt.sveditor.core.systemverilog">
+               contentTypeId="org.sveditor.core.systemverilog">
          </contentTypeBinding>
          <contentTypeBinding
-               contentTypeId="org.eclipse.hdt.sveditor.core.verilog">
+               contentTypeId="org.sveditor.core.verilog">
          </contentTypeBinding>
          <contentTypeBinding
-               contentTypeId="org.eclipse.hdt.sveditor.core.verilogams">
+               contentTypeId="org.sveditor.core.verilogams">
          </contentTypeBinding>
       </editor>
 
       <editor
-            class="org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileEditor"
-            contributorClass="org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileActionContributor"
+            class="org.sveditor.ui.argfile.editor.SVArgFileEditor"
+            contributorClass="org.sveditor.ui.argfile.editor.SVArgFileActionContributor"
             default="true"
             icon="icons/eview16/configs.gif"
-            id="org.eclipse.hdt.sveditor.ui.argfile.editor"
+            id="org.sveditor.ui.argfile.editor"
             name="SystemVerilog Argument File Editor">
          <contentTypeBinding
-               contentTypeId="org.eclipse.hdt.sveditor.core.argfile">
+               contentTypeId="org.sveditor.core.argfile">
          </contentTypeBinding>
       </editor>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="org.eclipse.hdt.sveditor.ui.editor.SVDocumentSetupParticipant"
-            contentTypeId="org.eclipse.hdt.sveditor.core.systemverilog">
+            class="org.sveditor.ui.editor.SVDocumentSetupParticipant"
+            contentTypeId="org.sveditor.core.systemverilog">
       </participant>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileDocSetupParticipant"
-            contentTypeId="org.eclipse.hdt.sveditor.core.argfile">
+            class="org.sveditor.ui.argfile.editor.SVArgFileDocSetupParticipant"
+            contentTypeId="org.sveditor.core.argfile">
       </participant>
    </extension>
    <extension
-         id="org.eclipse.hdt.sveditor.ui.SVNavigatorContent"
+         id="org.sveditor.ui.SVNavigatorContent"
          name="SystemVerilog Navigator Content"
          point="org.eclipse.ui.navigator.navigatorContent">
       <navigatorContent
             activeByDefault="true"
-            contentProvider="org.eclipse.hdt.sveditor.ui.explorer.SVFileNavigatorContentProvider"
+            contentProvider="org.sveditor.ui.explorer.SVFileNavigatorContentProvider"
             icon="icons/vlog_16_16.gif"
-            id="org.eclipse.hdt.sveditor.ui.svFileNavigatorContent"
-            labelProvider="org.eclipse.hdt.sveditor.ui.explorer.SVExplorerDecoratingLabelProvider"
+            id="org.sveditor.ui.svFileNavigatorContent"
+            labelProvider="org.sveditor.ui.explorer.SVExplorerDecoratingLabelProvider"
             name="SystemVerilog File"
             priority="normal"
             providesSaveables="false">
@@ -96,23 +96,23 @@
                   </or>
                </and>
                <instanceof
-                     value="org.eclipse.hdt.sveditor.core.db.SVDBItem">
+                     value="org.sveditor.core.db.SVDBItem">
                </instanceof>
             </or>
          </triggerPoints>
          <commonSorter
-               class="org.eclipse.hdt.sveditor.ui.explorer.SVFileSorter">
+               class="org.sveditor.ui.explorer.SVFileSorter">
          </commonSorter>
          <possibleChildren>
             <instanceof
-                  value="org.eclipse.hdt.sveditor.core.db.SVDBItem">
+                  value="org.sveditor.core.db.SVDBItem">
             </instanceof>
          </possibleChildren>
       </navigatorContent>
 <!--
       <actionProvider
-            class="org.eclipse.hdt.sveditor.ui.explorer.AddSystemVerilogNatureAction"
-            id="org.eclipse.hdt.sveditor.ui.explorer.AddSystemVerilogNatureAction">
+            class="org.sveditor.ui.explorer.AddSystemVerilogNatureAction"
+            id="org.sveditor.ui.explorer.AddSystemVerilogNatureAction">
          <enablement>
             <and>
                <instanceof
@@ -122,7 +122,7 @@
                   <test
                         forcePluginActivation="true"
                         property="org.eclipse.core.resources.projectNature"
-                        value="org.eclipse.hdt.sveditor.core.SVNature">
+                        value="org.sveditor.core.SVNature">
                   </test>
                </not>
             </and>
@@ -130,22 +130,22 @@
       </actionProvider>
  -->
       <actionProvider
-            class="org.eclipse.hdt.sveditor.ui.explorer.OpenSVDBItem"
-            id="org.eclipse.hdt.sveditor.ui.explorer.OpenSVDBItem">
+            class="org.sveditor.ui.explorer.OpenSVDBItem"
+            id="org.sveditor.ui.explorer.OpenSVDBItem">
          <enablement>
             <or>
                <adapt
-                     type="org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem">
+                     type="org.sveditor.core.db.index.SVDBDeclCacheItem">
                </adapt>
                <adapt
-                     type="org.eclipse.hdt.sveditor.core.db.ISVDBItemBase">
+                     type="org.sveditor.core.db.ISVDBItemBase">
                </adapt>
             </or>
          </enablement>
       </actionProvider>
       <actionProvider
-            class="org.eclipse.hdt.sveditor.ui.explorer.RebuildSvIndexAction"
-            id="org.eclipse.hdt.sveditor.ui.explorer.RebuildSvIndexAction">
+            class="org.sveditor.ui.explorer.RebuildSvIndexAction"
+            id="org.sveditor.ui.explorer.RebuildSvIndexAction">
          <enablement>
             <or>
                <adapt
@@ -155,36 +155,36 @@
          </enablement>
       </actionProvider>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.newSVClassWizard">
+            wizardId="org.sveditor.ui.newSVClassWizard">
          <enablement>
             <adapt
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.newSVInterfaceWizard">
+            wizardId="org.sveditor.ui.newSVInterfaceWizard">
          <enablement>
             <adapt
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.newSVModuleWizard">
+            wizardId="org.sveditor.ui.newSVModuleWizard">
          <enablement>
             <adapt
                   type="org.eclipse.core.resources.IContainer">
             </adapt></enablement>
       </commonWizard>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.newSVPackageWizard">
+            wizardId="org.sveditor.ui.newSVPackageWizard">
          <enablement>
             <adapt
                   type="org.eclipse.core.resources.IContainer">
@@ -193,26 +193,26 @@
       <navigatorContent
             activeByDefault="true"
             appearsBefore="org.eclipse.ui.navigator.resourceContent"
-            contentProvider="org.eclipse.hdt.sveditor.ui.explorer.ProjectPathsContentProvider"
+            contentProvider="org.sveditor.ui.explorer.ProjectPathsContentProvider"
             icon="icons/edecl16/package.gif"
-            id="org.eclipse.hdt.sveditor.ui.projectPathsContent"
-            labelProvider="org.eclipse.hdt.sveditor.ui.explorer.ProjectPathsLabelProvider"
+            id="org.sveditor.ui.projectPathsContent"
+            labelProvider="org.sveditor.ui.explorer.ProjectPathsLabelProvider"
             name="SV Contents"
             priority="high"
             providesSaveables="false">
          <triggerPoints>
             <or>
                <adapt
-                     type="org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData">
+                     type="org.sveditor.core.db.project.SVDBProjectData">
                </adapt>
                <instanceof
-                     value="org.eclipse.hdt.sveditor.core.db.SVDBItem">
+                     value="org.sveditor.core.db.SVDBItem">
                </instanceof>
             </or>
          </triggerPoints>
          <override
                policy="InvokeAlwaysRegardlessOfSuppressedExt"
-               suppressedExtensionId="org.eclipse.hdt.sveditor.ui.svFileNavigatorContent">
+               suppressedExtensionId="org.sveditor.ui.svFileNavigatorContent">
          </override>
          <!--
          <override
@@ -222,26 +222,26 @@
           -->
       </navigatorContent>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.svMethodologyClassWizard">
+            wizardId="org.sveditor.ui.svMethodologyClassWizard">
          <enablement></enablement>
       </commonWizard>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.newSVFilelist">
+            wizardId="org.sveditor.ui.newSVFilelist">
          <enablement></enablement>
       </commonWizard>
       <commonWizard
-            menuGroupId="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            menuGroupId="org.sveditor.ui.newSVWizards"
             type="new"
-            wizardId="org.eclipse.hdt.sveditor.ui.newSVEProject">
+            wizardId="org.sveditor.ui.newSVEProject">
          <enablement></enablement>
       </commonWizard>
    </extension>
    <extension
-         id="org.eclipse.hdt.sveditor.ui.SVNavigatorContentBinding"
+         id="org.sveditor.ui.SVNavigatorContentBinding"
          name="SystemVerilog Navigator Content Binding"
          point="org.eclipse.ui.navigator.viewer">
       <viewerContentBinding
@@ -249,11 +249,11 @@
          <includes>
             <contentExtension
                   isRoot="false"
-                  pattern="org.eclipse.hdt.sveditor.ui.svFileNavigatorContent">
+                  pattern="org.sveditor.ui.svFileNavigatorContent">
             </contentExtension>
             <contentExtension
                   isRoot="false"
-                  pattern="org.eclipse.hdt.sveditor.ui.projectPathsContent">
+                  pattern="org.sveditor.ui.projectPathsContent">
             </contentExtension>
          </includes>
       </viewerContentBinding>
@@ -261,7 +261,7 @@
             viewerId="org.eclipse.ui.navigator.ProjectExplorer">
          <includes>
             <actionExtension
-                  pattern="org.eclipse.hdt.sveditor.ui.*">
+                  pattern="org.sveditor.ui.*">
             </actionExtension>
          </includes>
       </viewerActionBinding>
@@ -269,8 +269,8 @@
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            class="org.eclipse.hdt.sveditor.ui.prop_pages.SVProjectProps"
-            id="org.eclipse.hdt.sveditor.ui.SVPropPage"
+            class="org.sveditor.ui.prop_pages.SVProjectProps"
+            id="org.sveditor.ui.SVPropPage"
             name="SystemVerilog Project Properties">
          <enabledWhen>
             <adapt
@@ -284,15 +284,15 @@
                <test
                      forcePluginActivation="true"
                      property="org.eclipse.core.resources.projectNature"
-                     value="org.eclipse.hdt.sveditor.core.SVNature">
+                     value="org.sveditor.core.SVNature">
                </test>
             </adapt>
          </enabledWhen>
              -->
       </page>
       <page
-            class="org.eclipse.hdt.sveditor.ui.prop_pages.SVFilePropertyPage"
-            id="org.eclipse.hdt.sveditor.ui.SVEditorInfo"
+            class="org.sveditor.ui.prop_pages.SVFilePropertyPage"
+            id="org.sveditor.ui.SVEditorInfo"
             name="SVEditor Info">
          <enabledWhen>
             <and>
@@ -303,7 +303,7 @@
                   args="contentTypeId"
                   forcePluginActivation="true"
                   property="org.eclipse.core.resources.filePropertyTester"
-                  value="org.eclipse.hdt.sveditor.core.systemverilog">
+                  value="org.sveditor.core.systemverilog">
     	        </test>
             </and>
          </enabledWhen>
@@ -316,231 +316,231 @@
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Declaration"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.declaration"
+            id="org.sveditor.ui.editor.open.declaration"
             name="Open Declaration">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Find References"
-            id="org.eclipse.hdt.sveditor.ui.editor.find.references"
+            id="org.sveditor.ui.editor.find.references"
             name="Find References">
       </command>
       <command
-            id="org.eclipse.hdt.sveditor.ui.override.tf.command"
+            id="org.sveditor.ui.override.tf.command"
             name="Override Tasks/Functions">
       </command>
       <command
             description="Indent Source"
-            id="org.eclipse.hdt.sveditor.ui.indent"
+            id="org.sveditor.ui.indent"
             name="Indent">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.type.hierarchy"
+            id="org.sveditor.ui.editor.open.type.hierarchy"
             name="Open Type Hierarchy">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open the Objects view if not already visible"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.objects"
+            id="org.sveditor.ui.editor.open.objects"
             name="Open Objects">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Opens the Quick Objects"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.quick.objects"
+            id="org.sveditor.ui.editor.open.quick.objects"
             name="Open Quick Objects">
       </command>
       <command
-            id="org.eclipse.hdt.sveditor.ui.AddBlockComment"
+            id="org.sveditor.ui.AddBlockComment"
             name="Add Block Comment">
       </command>
       <command
-            id="org.eclipse.hdt.sveditor.ui.RemoveBlockComment"
+            id="org.sveditor.ui.RemoveBlockComment"
             name="Remove Block Comment">
       </command>
       <command
-            id="org.eclipse.hdt.sveditor.ui.ToggleComment"
+            id="org.sveditor.ui.ToggleComment"
             name="Toggle Comment">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open the Quick Outline"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.quick.outline"
+            id="org.sveditor.ui.editor.open.quick.outline"
             name="Open Quick Outline">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open the Quick Type Hierarchy"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.quick.hierarchy"
+            id="org.sveditor.ui.editor.open.quick.hierarchy"
             name="Open Quick Type Hierarchy">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Diagram for Selection"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.diag.selection"
+            id="org.sveditor.ui.editor.open.diag.selection"
             name="Open Diagram for Selection">
       </command>
       <category
             description="Commands related to SVEditor document generation"
-            id="org.eclipse.hdt.sveditor.ui.docs"
+            id="org.sveditor.ui.docs"
             name="Documents">
       </category>
       <command
-            categoryId="org.eclipse.hdt.sveditor.ui.docs"
-            defaultHandler="org.eclipse.hdt.sveditor.ui.handlers.DocsGenerateHandler"
-            id="org.eclipse.hdt.sveditor.ui.docs.generate"
+            categoryId="org.sveditor.ui.docs"
+            defaultHandler="org.sveditor.ui.handlers.DocsGenerateHandler"
+            id="org.sveditor.ui.docs.generate"
             name="Generate Docs">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Type"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.type"
+            id="org.sveditor.ui.editor.open.type"
             name="Open Type">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.open.super.method"
+            id="org.sveditor.ui.open.super.method"
             name="Open Super Method">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.gotoMatchingBracket"
+            id="org.sveditor.ui.gotoMatchingBracket"
             name="Go to Matching Bracket"
             description="Moves the cursor to the matching bracket">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.SelectEnclosingElement"
+            id="org.sveditor.ui.SelectEnclosingElement"
             name="Select Enclosing Element"
             description="Expand selection to include enclosing element">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.GoToNextElement"
+            id="org.sveditor.ui.GoToNextElement"
             name="Go to Next Member"
             description="Move the caret to the next member of the translation unit">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.GoToPrevElement"
+            id="org.sveditor.ui.GoToPrevElement"
             name="Go to Previous Member"
             description="Move the caret to the previous member of the translation unit">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.AddNdocsAction"
+            id="org.sveditor.ui.AddNdocsAction"
             name="Add Natural Docs Comment"
             description="Add a Natural Docs comment stub to the member element">
       </command>
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open Macro Expansion"
-            id="org.eclipse.hdt.sveditor.ui.editor.open.macro.expansion"
+            id="org.sveditor.ui.editor.open.macro.expansion"
             name="Open Macro Expansion">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.declaration"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.declaration"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.indent"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.indent"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+I">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.type.hierarchy"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.type.hierarchy"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F4">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.quick.objects"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.quick.objects"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+SHIFT+O">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.indent"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.indent"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+SHIFT+F">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.AddBlockComment"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.AddBlockComment"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+/">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.RemoveBlockComment"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.RemoveBlockComment"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+\">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.ToggleComment"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.ToggleComment"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+/">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.quick.outline"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.quick.outline"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+O">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.quick.hierarchy"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.quick.hierarchy"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+T">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.diag.selection"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.diag.selection"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+D">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.editor.open.type"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.editor.open.type"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+SHIFT+T">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.gotoMatchingBracket"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.gotoMatchingBracket"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+P">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.SelectEnclosingElement"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.SelectEnclosingElement"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+ALT+ARROW_UP">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.GoToNextElement"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.GoToNextElement"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+ARROW_DOWN">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.GoToPrevElement"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.GoToPrevElement"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+CTRL+ARROW_UP">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.AddNdocsAction"
-            contextId="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            commandId="org.sveditor.ui.AddNdocsAction"
+            contextId="org.sveditor.ui.svEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="SHIFT+ALT+J">
       </key>
@@ -548,104 +548,104 @@
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            id="org.eclipse.hdt.sveditor.ui.svOpenActions"
+            id="org.sveditor.ui.svOpenActions"
             label="SV Open Actions"
             visible="false">
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.declaration"
-               id="org.eclipse.hdt.sveditor.ui.svOpenEditorAction"
+               definitionId="org.sveditor.ui.editor.open.declaration"
+               id="org.sveditor.ui.svOpenEditorAction"
                label="Open Declaration"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.find.references"
-               id="org.eclipse.hdt.sveditor.ui.svFindReferencesAction"
+               definitionId="org.sveditor.ui.editor.find.references"
+               id="org.sveditor.ui.svFindReferencesAction"
                label="Find References"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.indent"
-               id="org.eclipse.hdt.sveditor.ui.svIndentEditorAction"
+               definitionId="org.sveditor.ui.indent"
+               id="org.sveditor.ui.svIndentEditorAction"
                label="Indent"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.override.tf.command"
-               id="org.eclipse.hdt.sveditor.ui.override.tf"
+               definitionId="org.sveditor.ui.override.tf.command"
+               id="org.sveditor.ui.override.tf"
                label="Override Tasks/Functions"
-               menubarPath="org.eclipse.hdt.sveditor.ui.source.menu/editGroup"
+               menubarPath="org.sveditor.ui.source.menu/editGroup"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.type.hierarchy"
-               id="org.eclipse.hdt.sveditor.ui.svOpenTypeHierarchyAction"
+               definitionId="org.sveditor.ui.editor.open.type.hierarchy"
+               id="org.sveditor.ui.svOpenTypeHierarchyAction"
                label="Open Type Hierarchy"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.objects"
-               id="org.eclipse.hdt.sveditor.ui.svOpenObjectsAction"
+               definitionId="org.sveditor.ui.editor.open.objects"
+               id="org.sveditor.ui.svOpenObjectsAction"
                label="Open Objects"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.quick.objects"
-               id="org.eclipse.hdt.sveditor.ui.svOpenQuickObjectsAction"
+               definitionId="org.sveditor.ui.editor.open.quick.objects"
+               id="org.sveditor.ui.svOpenQuickObjectsAction"
                label="Open Quick Objects"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.quick.outline"
-               id="org.eclipse.hdt.sveditor.ui.svOpenQuickOutlineAction"
+               definitionId="org.sveditor.ui.editor.open.quick.outline"
+               id="org.sveditor.ui.svOpenQuickOutlineAction"
                label="Open Quick Outline"
                retarget="true">
          </action>
          <action
-               id="org.eclipse.hdt.sveditor.ui.svAddBlockCommentAction"
+               id="org.sveditor.ui.svAddBlockCommentAction"
                label="Add Block Comment"
                retarget="true">
          </action>
          <action
-               id="org.eclipse.hdt.sveditor.ui.svRemoveBlockCommentAction"
+               id="org.sveditor.ui.svRemoveBlockCommentAction"
                label="Remove Block Comment"
                retarget="true">
          </action>
          <action
-               id="org.eclipse.hdt.sveditor.ui.svToggleCommentAction"
+               id="org.sveditor.ui.svToggleCommentAction"
                label="Toggle Comment"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.quick.hierarchy"
-               id="org.eclipse.hdt.sveditor.ui.svOpenQuickHierarchyAction"
+               definitionId="org.sveditor.ui.editor.open.quick.hierarchy"
+               id="org.sveditor.ui.svOpenQuickHierarchyAction"
                label="Open Quick Type Hierarchy"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.diag.selection"
-               id="org.eclipse.hdt.sveditor.ui.svOpenDiagForSelectionAction"
+               definitionId="org.sveditor.ui.editor.open.diag.selection"
+               id="org.sveditor.ui.svOpenDiagForSelectionAction"
                label="Open Diag for Selection"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.type"
-               id="org.eclipse.hdt.sveditor.ui.svOpenTypeAction"
+               definitionId="org.sveditor.ui.editor.open.type"
+               id="org.sveditor.ui.svOpenTypeAction"
                label="Open Type"
                retarget="true">
          </action>
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.editor.open.macro.expansion"
-               id="org.eclipse.hdt.sveditor.ui.svOpenMacroExpansion"
+               definitionId="org.sveditor.ui.editor.open.macro.expansion"
+               id="org.sveditor.ui.svOpenMacroExpansion"
                label="Open Macro Expansion"
                retarget="true">
          </action>
       </actionSet>
       <actionSet
-            id="org.eclipse.hdt.sveditor.ui.source.menu.as"
+            id="org.sveditor.ui.source.menu.as"
             label="Source Menu"
             visible="true">
          <menu
-               id="org.eclipse.hdt.sveditor.ui.source.menu"
+               id="org.sveditor.ui.source.menu"
                label="Source"
                path="edit">
             <separator
@@ -657,29 +657,29 @@
          </menu>
       </actionSet>
       <actionSet
-            id="org.eclipse.hdt.sveditor.ui.svSearchActionSet"
+            id="org.sveditor.ui.svSearchActionSet"
             label="SystemVerilog Search"
             visible="false">
          <action
-               class="org.eclipse.hdt.sveditor.ui.search.OpenSVSearchAction"
-               id="org.eclipse.hdt.sveditor.ui.svOpenSearchPage"
+               class="org.sveditor.ui.search.OpenSVSearchAction"
+               id="org.sveditor.ui.svOpenSearchPage"
                label="SystemVerilog..."
                menubarPath="org.eclipse.search.menu/dialogGroup"
                style="push">
          </action>
       </actionSet>
       <actionSet
-            id="org.eclipse.hdt.sveditor.ui.svArgFileActions"
+            id="org.sveditor.ui.svArgFileActions"
             label="SV ArgFile Actions"
             visible="false">
          <action
-               definitionId="org.eclipse.hdt.sveditor.ui.argfile.editor.open.file"
-               id="org.eclipse.hdt.sveditor.ui.svArgFileOpenFile"
+               definitionId="org.sveditor.ui.argfile.editor.open.file"
+               id="org.sveditor.ui.svArgFileOpenFile"
                label="Open File"
                retarget="true">
          </action>
          <action
-               id="org.eclipse.hdt.sveditor.ui.svArgFileToggleComment"
+               id="org.sveditor.ui.svArgFileToggleComment"
                label="Toggle Comment"
                retarget="true">
          </action>
@@ -688,12 +688,12 @@
    <extension
          point="org.eclipse.ui.contexts">
       <context
-            id="org.eclipse.hdt.sveditor.ui.svEditorContext"
+            id="org.sveditor.ui.svEditorContext"
             name="SVEditor Context"
             parentId="org.eclipse.ui.textEditorScope">
       </context>
       <context
-            id="org.eclipse.hdt.sveditor.ui.svArgFileEditorContext"
+            id="org.sveditor.ui.svArgFileEditorContext"
             name="SVArgFileEditor Context"
             parentId="org.eclipse.ui.textEditorScope">
       </context>
@@ -702,10 +702,10 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            category="org.eclipse.hdt.sveditor.ui.viewCategory"
-            class="org.eclipse.hdt.sveditor.ui.views.hierarchy.SVHierarchyView"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.hierarchy.SVHierarchyView"
             icon="icons/eview16/class_hi.gif"
-            id="org.eclipse.hdt.sveditor.ui.hierarchyView"
+            id="org.sveditor.ui.hierarchyView"
             name="Hierarchy"
             restorable="true">
          <description>
@@ -713,15 +713,15 @@
          </description>
       </view>
       <category
-            id="org.eclipse.hdt.sveditor.ui.viewCategory"
+            id="org.sveditor.ui.viewCategory"
             name="SVEditor">
       </category>
       <view
             allowMultiple="false"
-            category="org.eclipse.hdt.sveditor.ui.viewCategory"
-            class="org.eclipse.hdt.sveditor.ui.views.objects.SVObjectsView"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.objects.SVObjectsView"
             icon="icons/eview16/class_hi.gif"
-            id="org.eclipse.hdt.sveditor.ui.objectsView"
+            id="org.sveditor.ui.objectsView"
             name="Objects"
             restorable="true">
          <description>
@@ -730,10 +730,10 @@
       </view>
       <view
             allowMultiple="false"
-            category="org.eclipse.hdt.sveditor.ui.viewCategory"
-            class="org.eclipse.hdt.sveditor.ui.views.diagram.SVDiagramView"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.diagram.SVDiagramView"
             icon="icons/eview16/class_hi.gif"
-            id="org.eclipse.hdt.sveditor.ui.diagramView"
+            id="org.sveditor.ui.diagramView"
             name="Diagram"
             restorable="false">
          <description>
@@ -741,10 +741,10 @@
          </description>
       </view>
       <view
-            category="org.eclipse.hdt.sveditor.ui.viewCategory"
-            class="org.eclipse.hdt.sveditor.ui.views.MacroExpansionView"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.MacroExpansionView"
             icon="icons/edecl16/define_obj.gif"
-            id="org.eclipse.hdt.sveditor.ui.macroExpansionView"
+            id="org.sveditor.ui.macroExpansionView"
             name="Macro Expansion View"
             restorable="true">
       </view>
@@ -754,149 +754,149 @@
    <extension
          point="org.eclipse.ui.elementFactories">
       <factory
-            class="org.eclipse.hdt.sveditor.ui.PluginFileEditorInputFactory"
-            id="org.eclipse.hdt.sveditor.ui.PluginFileEditorInputFactory">
+            class="org.sveditor.ui.PluginFileEditorInputFactory"
+            id="org.sveditor.ui.PluginFileEditorInputFactory">
       </factory>
    </extension>
    <extension point="org.eclipse.ui.preferencePages">
       <page
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorPrefsPage"
+            id="org.sveditor.ui.page1"
             name="SVEditor">
       </page>
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorSaveActionsPrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.svEditorSaveActionsPrefsPage"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorSaveActionsPrefsPage"
+            id="org.sveditor.ui.svEditorSaveActionsPrefsPage"
             name="Save Actions">
       </page>
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVTemplatePrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.svEditorTemplates"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVTemplatePrefsPage"
+            id="org.sveditor.ui.svEditorTemplates"
             name="Code Templates">
       </page>
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVContentAssistPrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.contentAssist"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVContentAssistPrefsPage"
+            id="org.sveditor.ui.contentAssist"
             name="Content Assist">
       </page>
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.svTemplateProperties"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
+            id="org.sveditor.ui.svTemplateProperties"
             name="SV Template Properties">
       </page>         
 
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorIndexPrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.indexPreferences"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorIndexPrefsPage"
+            id="org.sveditor.ui.indexPreferences"
             name="Index Preferences">
       </page>
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorCodeStylePrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.svEditorCodeStylePrefs"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorCodeStylePrefsPage"
+            id="org.sveditor.ui.svEditorCodeStylePrefs"
             name="Code Style Preferences">
       </page>
       <page
-            category="org.eclipse.hdt.sveditor.ui.page1"
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorFoldingPrefsPage"
-            id="org.eclipse.hdt.sveditor.ui.sveditorFoldingPrefs"
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorFoldingPrefsPage"
+            id="org.sveditor.ui.sveditorFoldingPrefs"
             name="Folding">
       </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsInitialize">
+            class="org.sveditor.ui.pref.SVEditorPrefsInitialize">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="org.eclipse.hdt.sveditor.ui.svPerspective">
+            targetID="org.sveditor.ui.svPerspective">
          <view
-               id="org.eclipse.hdt.sveditor.ui.hierarchyView"
+               id="org.sveditor.ui.hierarchyView"
                minimized="false"
                relationship="stack"
                relative="org.eclipse.ui.navigator.ProjectExplorer">
          </view>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.newSVEProject">
+               id="org.sveditor.ui.newSVEProject">
          </newWizardShortcut>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.newSVClassWizard">
+               id="org.sveditor.ui.newSVClassWizard">
          </newWizardShortcut>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.newSVInterfaceWizard">
+               id="org.sveditor.ui.newSVInterfaceWizard">
          </newWizardShortcut>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.newSVModuleWizard">
+               id="org.sveditor.ui.newSVModuleWizard">
          </newWizardShortcut>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.newSVPackageWizard">
+               id="org.sveditor.ui.newSVPackageWizard">
          </newWizardShortcut>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.svMethodologyClassWizard">
+               id="org.sveditor.ui.svMethodologyClassWizard">
          </newWizardShortcut>
          <newWizardShortcut
-               id="org.eclipse.hdt.sveditor.ui.newSVFilelist">
+               id="org.sveditor.ui.newSVFilelist">
          </newWizardShortcut>
       </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
       <category
-            id="org.eclipse.hdt.sveditor.ui.svNewWizards"
+            id="org.sveditor.ui.svNewWizards"
             name="SVEditor">
       </category>
       <wizard
             canFinishEarly="false"
-            category="org.eclipse.hdt.sveditor.ui.svNewWizards"
-            class="org.eclipse.hdt.sveditor.ui.wizards.NewSVClassWizard"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVClassWizard"
             icon="icons/edecl16/class_obj.gif"
-            id="org.eclipse.hdt.sveditor.ui.newSVClassWizard"
+            id="org.sveditor.ui.newSVClassWizard"
             name="SystemVerilog Class"
             project="false">
       </wizard>
 
       <wizard
             canFinishEarly="false"
-            category="org.eclipse.hdt.sveditor.ui.svNewWizards"
-            class="org.eclipse.hdt.sveditor.ui.wizards.NewSVPackageWizard"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVPackageWizard"
             icon="icons/edecl16/package.gif"
-            id="org.eclipse.hdt.sveditor.ui.newSVPackageWizard"
+            id="org.sveditor.ui.newSVPackageWizard"
             name="SystemVerilog Package"
             project="false">
       </wizard>
       <wizard
             canFinishEarly="false"
-            category="org.eclipse.hdt.sveditor.ui.svNewWizards"
-            class="org.eclipse.hdt.sveditor.ui.wizards.NewSVInterfaceWizard"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVInterfaceWizard"
             icon="icons/edecl16/int_obj.gif"
-            id="org.eclipse.hdt.sveditor.ui.newSVInterfaceWizard"
+            id="org.sveditor.ui.newSVInterfaceWizard"
             name="SystemVerilog Interface"
             project="false">
       </wizard>
       <wizard
             canFinishEarly="false"
-            category="org.eclipse.hdt.sveditor.ui.svNewWizards"
-            class="org.eclipse.hdt.sveditor.ui.wizards.NewSVModuleWizard"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVModuleWizard"
             icon="icons/edecl16/module_obj.gif"
-            id="org.eclipse.hdt.sveditor.ui.newSVModuleWizard"
+            id="org.sveditor.ui.newSVModuleWizard"
             name="SystemVerilog Module"
             project="false">
       </wizard>
       <wizard
             canFinishEarly="true"
-            category="org.eclipse.hdt.sveditor.ui.svNewWizards"
-            class="org.eclipse.hdt.sveditor.ui.wizards.new_filelist.NewFileListWizard"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.new_filelist.NewFileListWizard"
             hasPages="true"
             icon="icons/eview16/configs.gif"
-            id="org.eclipse.hdt.sveditor.ui.newSVFilelist"
+            id="org.sveditor.ui.newSVFilelist"
             name="SystemVerilog Filelist"
             project="false">
          <description>
@@ -905,11 +905,11 @@
       </wizard>
       <wizard
             canFinishEarly="true"
-            category="org.eclipse.hdt.sveditor.ui.svNewWizards"
-            class="org.eclipse.hdt.sveditor.ui.wizards.project.NewSVEProjectWizard"
-            finalPerspective="org.eclipse.hdt.sveditor.ui.svPerspective"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.project.NewSVEProjectWizard"
+            finalPerspective="org.sveditor.ui.svPerspective"
             icon="icons/vlog_16_16.gif"
-            id="org.eclipse.hdt.sveditor.ui.newSVEProject"
+            id="org.sveditor.ui.newSVEProject"
             name="SVE Project"
             project="true">
       </wizard>      
@@ -917,27 +917,27 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.eclipse.hdt.sveditor.ui.SVPerspectiveFactory"
+            class="org.sveditor.ui.SVPerspectiveFactory"
             fixed="false"
             icon="icons/eview16/svperspective.gif"
-            id="org.eclipse.hdt.sveditor.ui.svPerspective"
+            id="org.sveditor.ui.svPerspective"
             name="SystemVerilog">
       </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
       <group
-            id="org.eclipse.hdt.sveditor.ui.newSVWizards"
+            id="org.sveditor.ui.newSVWizards"
             separatorsVisible="true">
       </group>
       <menuContribution
             allPopups="false"
             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
          <toolbar
-               id="org.eclipse.hdt.sveditor.ui.toolbars.docs"
+               id="org.sveditor.ui.toolbars.docs"
                label="Docs">
             <command
-                  commandId="org.eclipse.hdt.sveditor.ui.docs.generate"
+                  commandId="org.sveditor.ui.docs.generate"
                   icon="icons/edecl16/generate_obj.gif"
                   style="push">
             </command>
@@ -947,7 +947,7 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
 	         <command
-	               commandId="org.eclipse.hdt.sveditor.ui.addFilelistToProject"
+	               commandId="org.sveditor.ui.addFilelistToProject"
 	               label="Add Argument File to Project"
 	               style="push">
 	            <visibleWhen
@@ -958,7 +958,7 @@
 	                        type="org.eclipse.core.resources.IFile">
 	                     <test
 	                           property="org.eclipse.core.resources.contentTypeId"
-	                           value="org.eclipse.hdt.sveditor.core.argfile">
+	                           value="org.sveditor.core.argfile">
 	                     </test>
 	                  </adapt>
 	               </iterate>
@@ -966,10 +966,10 @@
 	         </command>
 	         <menu 
 	            label = "&amp;Source"
-	            commandId="org.eclipse.hdt.sveditor.ui.explorer.source"
+	            commandId="org.sveditor.ui.explorer.source"
 	            >
                 <command
-                   commandId="org.eclipse.hdt.sveditor.ui.explorer.source.format"
+                   commandId="org.sveditor.ui.explorer.source.format"
                    label="&amp;Format"
                    style="push">
                    <visibleWhen
@@ -980,14 +980,14 @@
                                type="org.eclipse.core.resources.IFile">
                             <test
                                   property="org.eclipse.core.resources.contentTypeId"
-                                  value="org.eclipse.hdt.sveditor.core.systemverilog">
+                                  value="org.sveditor.core.systemverilog">
                             </test>
                          </adapt>
                       </iterate>
                    </visibleWhen>
                 </command>
                 <command
-                   commandId="org.eclipse.hdt.sveditor.ui.explorer.source.addndocs"
+                   commandId="org.sveditor.ui.explorer.source.addndocs"
                    label="&amp;Add NaturalDocs"
                    style="push">
                    <visibleWhen
@@ -998,7 +998,7 @@
                                type="org.eclipse.core.resources.IFile">
                             <test
                                   property="org.eclipse.core.resources.contentTypeId"
-                                  value="org.eclipse.hdt.sveditor.core.systemverilog">
+                                  value="org.sveditor.core.systemverilog">
                             </test>
                          </adapt>
                       </iterate>
@@ -1011,10 +1011,10 @@
          point="org.eclipse.search.searchPages">
       <page
             canSearchEnclosingProjects="true"
-            class="org.eclipse.hdt.sveditor.ui.search.SVSearchPage"
+            class="org.sveditor.ui.search.SVSearchPage"
             enabled="true"
             icon="icons/eview16/svperspective.gif"
-            id="org.eclipse.hdt.sveditor.ui.searchPage"
+            id="org.sveditor.ui.searchPage"
             label="SystemVerilog Search"
             showScopeSection="true">
       </page>
@@ -1022,22 +1022,22 @@
    <extension
          point="org.eclipse.ui.editors.templates">
       <contextType
-            class="org.eclipse.hdt.sveditor.ui.editor.SVTemplateContextType"
-            id="org.eclipse.hdt.sveditor.ui.svTemplateContext"
+            class="org.sveditor.ui.editor.SVTemplateContextType"
+            id="org.sveditor.ui.svTemplateContext"
             name="SystemVerilog Template Context">
       </contextType>
       <resolver
-            class="org.eclipse.hdt.sveditor.ui.editor.SVContextTemplateVariableResolver"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
+            class="org.sveditor.ui.editor.SVContextTemplateVariableResolver"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
             type="src">
       </resolver>
       <!--
       <template
             autoinsert="false"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
             description="Iterate over an array with a temporary variable"
             icon="icons/template.gif"
-            id="org.eclipse.hdt.sveditor.ui.svForLoop"
+            id="org.sveditor.ui.svForLoop"
             name="for">
          <pattern>
             for (int ${index}; ${condition}; ${increment}) begin
@@ -1047,9 +1047,9 @@ end
       </template>
       <template
             autoinsert="false"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
             icon="icons/template.gif"
-            id="org.eclipse.hdt.sveditor.ui.template1"
+            id="org.sveditor.ui.template1"
             name="class">
          <pattern>
             class ${name} extends ${superclass};
@@ -1062,9 +1062,9 @@ endclass
    <extension
          point="org.eclipse.search.searchResultViewPages">
       <viewPage
-            class="org.eclipse.hdt.sveditor.ui.search.SVSearchResultsPage"
-            id="org.eclipse.hdt.sveditor.ui.searchResultsPage"
-            searchResultClass="org.eclipse.hdt.sveditor.ui.search.SVSearchResult">
+            class="org.sveditor.ui.search.SVSearchResultsPage"
+            id="org.sveditor.ui.searchResultsPage"
+            searchResultClass="org.sveditor.ui.search.SVSearchResult">
       </viewPage>
    </extension>
    <extension
@@ -1072,23 +1072,23 @@ endclass
       <perspectiveExtension
             targetID="*">
          <actionSet
-               id="org.eclipse.hdt.sveditor.ui.svSearchActionSet">
+               id="org.sveditor.ui.svSearchActionSet">
          </actionSet>
          <actionSet
-               id="org.eclipse.hdt.sveditor.ui.navigationActionSet">
+               id="org.sveditor.ui.navigationActionSet">
          </actionSet>
       </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.compare.contentMergeViewers">
       <contentTypeBinding
-            contentMergeViewerId="org.eclipse.hdt.sveditor.ui.compareMergeViewer"
-            contentTypeId="org.eclipse.hdt.sveditor.core.systemverilog">
+            contentMergeViewerId="org.sveditor.ui.compareMergeViewer"
+            contentTypeId="org.sveditor.core.systemverilog">
       </contentTypeBinding>
       <viewer
-            class="org.eclipse.hdt.sveditor.ui.compare.SVCompareViewerCreator"
+            class="org.sveditor.ui.compare.SVCompareViewerCreator"
             extensions="sv,svh,v,vl"
-            id="org.eclipse.hdt.sveditor.ui.compareMergeViewer"
+            id="org.sveditor.ui.compareMergeViewer"
             label="SVEditor Merge Viewer">
       </viewer>
    </extension>
@@ -1096,8 +1096,8 @@ endclass
          point="org.eclipse.ui.decorators">
          <!--
       <decorator
-            class="org.eclipse.hdt.sveditor.ui.explorer.ProblemLabelDecorator"
-            id="org.eclipse.hdt.sveditor.ui.svErrorDecorator"
+            class="org.sveditor.ui.explorer.ProblemLabelDecorator"
+            id="org.sveditor.ui.svErrorDecorator"
             label="SV Error Decorator"
             lightweight="true"
             location="BOTTOM_LEFT"
@@ -1115,8 +1115,8 @@ endclass
       </decorator>
         -->
       <decorator
-            class="org.eclipse.hdt.sveditor.ui.svcp.SVDBFileDecorator"
-            id="org.eclipse.hdt.sveditor.ui.svIndexFileDecorator"
+            class="org.sveditor.ui.svcp.SVDBFileDecorator"
+            id="org.sveditor.ui.svIndexFileDecorator"
             label="SV Index File Decorator"
             lightweight="true"
             location="TOP_LEFT"
@@ -1136,8 +1136,8 @@ endclass
          </enablement>
       </decorator>
       <decorator
-            class="org.eclipse.hdt.sveditor.ui.svcp.SVDBFileErrorDecorator"
-            id="org.eclipse.hdt.sveditor.ui.svIndexErrorDecorator"
+            class="org.sveditor.ui.svcp.SVDBFileErrorDecorator"
+            id="org.sveditor.ui.svIndexErrorDecorator"
             label="SV Index Error Decorator"
             lightweight="true"
             location="BOTTOM_LEFT"
@@ -1160,24 +1160,24 @@ endclass
    <extension
          point="org.eclipse.compare.contentViewers">
       <viewer
-            class="org.eclipse.hdt.sveditor.ui.compare.ViewerCreator"
-            id="org.eclipse.hdt.sveditor.ui.compareViewer">
+            class="org.sveditor.ui.compare.ViewerCreator"
+            id="org.sveditor.ui.compareViewer">
       </viewer>
       <contentTypeBinding
-            contentTypeId="org.eclipse.hdt.sveditor.core.systemverilog"
-            contentViewerId="org.eclipse.hdt.sveditor.ui.compareViewer">
+            contentTypeId="org.sveditor.core.systemverilog"
+            contentViewerId="org.sveditor.ui.compareViewer">
       </contentTypeBinding>
    </extension>
    <extension
          point="org.eclipse.ui.preferenceTransfer">
       <transfer
             icon="icons/eview16/svperspective.gif"
-            id="org.eclipse.hdt.sveditor.ui.svEditSettingsTransfer"
+            id="org.sveditor.ui.svEditSettingsTransfer"
             name="SVEditor Edit Settings">
          <mapping
                scope="instance">
             <entry
-                  node="org.eclipse.hdt.sveditor.ui">
+                  node="org.sveditor.ui">
                <key
                      match="prefix"
                      name="EditSettings.">
@@ -1190,7 +1190,7 @@ endclass
       </transfer>
       <transfer
             icon="icons/eview16/svperspective.gif"
-            id="org.eclipse.hdt.sveditor.ui.svLinkedResourcesSettingsTransfer"
+            id="org.sveditor.ui.svLinkedResourcesSettingsTransfer"
             name="SVEditor Linked Resource Settings">
          <mapping
                scope="instance">
@@ -1208,12 +1208,12 @@ endclass
       </transfer>
       <transfer
             icon="icons/eview16/svperspective.gif"
-            id="org.eclipse.hdt.sveditor.ui.svTemplateSettingsTransfer"
+            id="org.sveditor.ui.svTemplateSettingsTransfer"
             name="SVEditor Template Settings">
          <mapping
                scope="instance">
             <entry
-                  node="org.eclipse.hdt.sveditor.ui">
+                  node="org.sveditor.ui">
                <key
                      match="prefix"
                      name="TemplateSettings.">
@@ -1226,27 +1226,27 @@ endclass
       </transfer>
       <transfer
             icon="icons/eview16/svperspective.gif"
-            id="org.eclipse.hdt.sveditor.ui.svCodeTemplateSettingsTransfer"
+            id="org.sveditor.ui.svCodeTemplateSettingsTransfer"
             name="SVEditor Code Templates Settings">
          <mapping
                scope="instance">
             <entry
-                  node="org.eclipse.hdt.sveditor.ui">
+                  node="org.sveditor.ui">
                <key
-                     name="org.eclipse.hdt.sveditor.customtemplates">
+                     name="org.sveditor.customtemplates">
                </key>
             </entry>
             <entry
-                  node="org.eclipse.hdt.sveditor.ui">
+                  node="org.sveditor.ui">
                <key
                      match="prefix"
-                     name="org.eclipse.hdt.sveditor.customtemplates">
+                     name="org.sveditor.customtemplates">
                </key>
             </entry>
             <entry
-                  node="org.eclipse.hdt.sveditor.ui">
+                  node="org.sveditor.ui">
                <key
-                     name="org.eclipse.hdt.sveditor.customtemplates">
+                     name="org.sveditor.customtemplates">
                </key>
             </entry>
          </mapping>
@@ -1255,14 +1255,14 @@ endclass
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.argfile.editor.open.file"
-            contextId="org.eclipse.hdt.sveditor.ui.svArgFileEditorContext"
+            commandId="org.sveditor.ui.argfile.editor.open.file"
+            contextId="org.sveditor.ui.svArgFileEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F3">
       </key>
       <key
-            commandId="org.eclipse.hdt.sveditor.ui.ArgFileToggleComment"
-            contextId="org.eclipse.hdt.sveditor.ui.svArgFileEditorContext"
+            commandId="org.sveditor.ui.ArgFileToggleComment"
+            contextId="org.sveditor.ui.svArgFileEditorContext"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="CTRL+/">
       </key>
@@ -1272,45 +1272,45 @@ endclass
       <command
             categoryId="org.eclipse.ui.category.navigate"
             description="Open File"
-            id="org.eclipse.hdt.sveditor.ui.argfile.editor.open.file"
+            id="org.sveditor.ui.argfile.editor.open.file"
             name="Open File">
       </command>
       <command
             description="Toggle Comment"
-            id="org.eclipse.hdt.sveditor.ui.argfile.editor.toggle.comment"
+            id="org.sveditor.ui.argfile.editor.toggle.comment"
             name="Toggle Comment">
       </command>
       <command
-            id="org.eclipse.hdt.sveditor.ui.ArgFileToggleComment"
+            id="org.sveditor.ui.ArgFileToggleComment"
             name="Toggle Comment">
       </command>
       <command
-            id="org.eclipse.hdt.sveditor.ui.addFilelistToProject"
+            id="org.sveditor.ui.addFilelistToProject"
             name="Add Filelist to Project">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.themes">
       <themeElementCategory
-            id="org.eclipse.hdt.sveditor.ui.presentation"
+            id="org.sveditor.ui.presentation"
             label="SVEditor">
       </themeElementCategory>
       <fontDefinition
-            categoryId="org.eclipse.hdt.sveditor.ui.presentation"
+            categoryId="org.sveditor.ui.presentation"
             defaultsTo="org.eclipse.jface.textfont"
-            id="org.eclipse.hdt.sveditor.ui.editor.svTextFont"
+            id="org.sveditor.ui.editor.svTextFont"
             label="label">
       </fontDefinition>
       <colorDefinition
-            categoryId="org.eclipse.hdt.sveditor.ui.presentation"
-            id="org.eclipse.hdt.sveditor.ui.docHoverBackgroundColor"
+            categoryId="org.sveditor.ui.presentation"
+            id="org.sveditor.ui.docHoverBackgroundColor"
             isEditable="true"
             label="Doc Hover background color"
             value="#ffffc0">
       </colorDefinition>
       <colorDefinition
-            categoryId="org.eclipse.hdt.sveditor.ui.presentation"
-            id="org.eclipse.hdt.sveditor.ui.docHoverForegroundColor"
+            categoryId="org.sveditor.ui.presentation"
+            id="org.sveditor.ui.docHoverForegroundColor"
             isEditable="true"
             label="Doc Hover foreground color"
             value="#000000">
@@ -1319,7 +1319,7 @@ endclass
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
-            annotationType="org.eclipse.hdt.sveditor.ui.occurrences"
+            annotationType="org.sveditor.ui.occurrences"
             colorPreferenceKey="occurrenceIndicationColor"
             colorPreferenceValue="212,212,212"
             contributesToHeader="false"
@@ -1343,7 +1343,7 @@ endclass
             verticalRulerPreferenceValue="false">
       </specification>
       <specification
-            annotationType="org.eclipse.hdt.sveditor.ui.disabledRegion"
+            annotationType="org.sveditor.ui.disabledRegion"
             colorPreferenceKey="disabledRegionColorPrefKey"
             colorPreferenceValue="224,224,224"
             highlightPreferenceKey="disabledRegionHighlightPrefKey"
@@ -1367,7 +1367,7 @@ endclass
             verticalRulerPreferenceValue="false">
       </specification>
       <specification
-            annotationType="org.eclipse.hdt.sveditor.ui.methodOverride"
+            annotationType="org.sveditor.ui.methodOverride"
             colorPreferenceKey="svMethodOverrideColorPreferenceKey"
             colorPreferenceValue="244,244,244"
             contributesToHeader="false"
@@ -1390,52 +1390,52 @@ endclass
    <extension
          point="org.eclipse.ui.editors.annotationTypes">
       <type
-            name="org.eclipse.hdt.sveditor.ui.occurrences">
+            name="org.sveditor.ui.occurrences">
       </type>
       <type
-            name="org.eclipse.hdt.sveditor.ui.disabledRegion">
+            name="org.sveditor.ui.disabledRegion">
       </type>
       <type
-            name="org.eclipse.hdt.sveditor.ui.methodOverride">
+            name="org.sveditor.ui.methodOverride">
       </type>
    </extension>
    <extension
          point="org.eclipse.core.filebuffers.annotationModelCreation">
       <factory
-            class="org.eclipse.hdt.sveditor.ui.argfile.editor.SVArgFileAnnotationModelFactory"
-            contentTypeId="org.eclipse.hdt.sveditor.core.argfile">
+            class="org.sveditor.ui.argfile.editor.SVArgFileAnnotationModelFactory"
+            contentTypeId="org.sveditor.core.argfile">
       </factory>
       <factory
-            class="org.eclipse.hdt.sveditor.ui.editor.SVEditorAnnotationModelFactory"
-            contentTypeId="org.eclipse.hdt.sveditor.core.systemverilog">
+            class="org.sveditor.ui.editor.SVEditorAnnotationModelFactory"
+            contentTypeId="org.sveditor.core.systemverilog">
       </factory>
    </extension>
    <extension
          point="org.eclipse.ui.importWizards">
       <category
-            id="org.eclipse.hdt.sveditor.ui.importWizardCategory"
+            id="org.sveditor.ui.importWizardCategory"
             name="SVEditor">
       </category>
       <wizard
-            category="org.eclipse.hdt.sveditor.ui.importWizardCategory"
-            class="org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportWizard"
-            id="org.eclipse.hdt.sveditor.ui.compilationArgWizard"
+            category="org.sveditor.ui.importWizardCategory"
+            class="org.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportWizard"
+            id="org.sveditor.ui.compilationArgWizard"
             name="Compilation Arguments">
          <description>
             Creates a filelist (argument file) by running a compilation command and capturing the paths and arguments specified to vendor tools such as vlog, ncvlog, and vcs
          </description>
       </wizard>
       <wizard
-            category="org.eclipse.hdt.sveditor.ui.importWizardCategory"
-            class="org.eclipse.hdt.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportDumpFileWizard"
-            id="org.eclipse.hdt.sveditor.ui.compilationArgDumpFileWizard"
+            category="org.sveditor.ui.importWizardCategory"
+            class="org.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportDumpFileWizard"
+            id="org.sveditor.ui.compilationArgDumpFileWizard"
             name="Compilation Arguments Dumpfile">
       </wizard>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
       <target
-            id="org.eclipse.hdt.sveditor.ui.svCode"
+            id="org.sveditor.ui.svCode"
             name="SystemVerilog Editor">
             <context type="org.eclipse.ui.texteditor.ITextEditor"/>
       </target>
@@ -1443,18 +1443,18 @@ endclass
    <extension
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
       <hyperlinkDetector
-            class="org.eclipse.hdt.sveditor.ui.editor.SVElementHyperlinkDetector"
-            id="org.eclipse.hdt.sveditor.ui.editor.SVElementHyperlinkDetector"
+            class="org.sveditor.ui.editor.SVElementHyperlinkDetector"
+            id="org.sveditor.ui.editor.SVElementHyperlinkDetector"
             name="SystemVerilog Elements"
-            targetId="org.eclipse.hdt.sveditor.ui.svCode">
+            targetId="org.sveditor.ui.svCode">
       </hyperlinkDetector>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.spellingEngine">
       <engine
-            class="org.eclipse.hdt.sveditor.ui.text.spelling.DefaultSpellingEngine"
+            class="org.sveditor.ui.text.spelling.DefaultSpellingEngine"
             default="true"
-            id="org.eclipse.hdt.sveditor.ui.svSpellingEngine"
+            id="org.sveditor.ui.svSpellingEngine"
             label="SystemVerilog Engine">
       </engine>
    </extension>
@@ -1463,34 +1463,34 @@ endclass
          <!--
       <image
             icon="icons/vlog_16_16.gif"
-            id="org.eclipse.hdt.sveditor.ui.SVProjectNatureImage"
-            natureId="org.eclipse.hdt.sveditor.core.SVNature">
+            id="org.sveditor.ui.SVProjectNatureImage"
+            natureId="org.sveditor.core.SVNature">
       </image>
           -->
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="org.eclipse.hdt.sveditor.ui.script.launch.ScriptLaunchTabGroup"
-            id="org.eclipse.hdt.sveditor.ui.buildScriptLaunchTabGroup"
-            type="org.eclipse.hdt.sveditor.core.buildScriptLaunchType">
+            class="org.sveditor.ui.script.launch.ScriptLaunchTabGroup"
+            id="org.sveditor.ui.buildScriptLaunchTabGroup"
+            type="org.sveditor.core.buildScriptLaunchType">
       </launchConfigurationTabGroup>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            configTypeID="org.eclipse.hdt.sveditor.core.buildScriptLaunchType"
+            configTypeID="org.sveditor.core.buildScriptLaunchType"
             icon="icons/eview16/builder.gif"
-            id="org.eclipse.hdt.sveditor.ui.buildScriptTypeImage">
+            id="org.sveditor.ui.buildScriptTypeImage">
       </launchConfigurationTypeImage>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
-            category="org.eclipse.hdt.sveditor.ui.viewCategory"
-            class="org.eclipse.hdt.sveditor.ui.views.design_hierarchy.DesignHierarchyView"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.design_hierarchy.DesignHierarchyView"
             icon="icons/eview16/class_hi.gif"
-            id="org.eclipse.hdt.sveditor.ui.designHierarchy"
+            id="org.sveditor.ui.designHierarchy"
             name="Design Hierarchy"
             restorable="true">
       </view>
@@ -1499,8 +1499,8 @@ endclass
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.always1"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.always1"
             description="Always @ Event Instantiation"
             name="always @">
          <pattern>
@@ -1514,8 +1514,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.alwaysff"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.alwaysff"
             description="Always Flop Instantiation"
             name="always_ff">
          <pattern>
@@ -1534,8 +1534,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.alwayslt"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.alwayslt"
             description="Always Latch Instantiation"
             name="always_latch">
          <pattern>
@@ -1554,8 +1554,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.alwayscomb"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.alwayscomb"
             description="Always Comb Instantiation"
             name="always_comb">
          <pattern>
@@ -1569,8 +1569,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.function"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.function"
             description="Function Instantiation"
             name="function">
          <pattern>
@@ -1584,8 +1584,8 @@ endfunction
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.task"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.task"
             description="Task Instantiation"
             name="task">
          <pattern>
@@ -1599,8 +1599,8 @@ endtask
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.if"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.if"
             description="If Instantiation"
             name="if">
          <pattern>
@@ -1614,8 +1614,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.assert"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.assert"
             description="Assert Instantiation"
             name="assert">
          <pattern>
@@ -1629,8 +1629,8 @@ else
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.else"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.else"
             description="Else Instantiation"
             name="else">
          <pattern>
@@ -1644,8 +1644,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.for"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.for"
             description="For Loop Instantiation"
             name="for">
          <pattern>
@@ -1659,8 +1659,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.while"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.while"
             description="While Instantiation"
             name="while">
          <pattern>
@@ -1674,8 +1674,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.do"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.do"
             description="Do-While Instantiation"
             name="do">
          <pattern>
@@ -1689,8 +1689,8 @@ end while (${condition});
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.case"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.case"
             description="Case Instantiation"
             name="case">
          <pattern>
@@ -1708,8 +1708,8 @@ endcase
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.casex"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.casex"
             description="Casex Instantiation"
             name="casex">
          <pattern>
@@ -1727,8 +1727,8 @@ endcase
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.casez"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.casez"
             description="Casez Instantiation"
             name="casez">
          <pattern>
@@ -1746,8 +1746,8 @@ endcase
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.initial"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.initial"
             description="Initial Block Instantiation"
             name="initial">
          <pattern>
@@ -1761,8 +1761,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.final"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.final"
             description="Final Block Instantiation"
             name="final">
          <pattern>
@@ -1776,8 +1776,8 @@ end
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.module"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.module"
             description="Module Instantiation"
             name="module">
          <pattern>
@@ -1795,8 +1795,8 @@ endmodule
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.class"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.class"
             description="Generic Class Instantiation"
             name="class">
          <pattern>
@@ -1809,8 +1809,8 @@ endclass
          point="org.eclipse.ui.editors.templates">
       <template
             autoinsert="true"
-            contextTypeId="org.eclipse.hdt.sveditor.ui.svTemplateContext"
-            id="org.eclipse.hdt.sveditor.ui.package"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.package"
             description="Generic package Instantiation"
             name="package">
          <pattern>
@@ -1823,78 +1823,78 @@ endpackage
    <extension
          point="org.eclipse.debug.core.launchDelegates">
       <launchDelegate
-            delegate="org.eclipse.hdt.sveditor.ui.script.launch.ScriptLaunchDelegate"
-            id="org.eclipse.hdt.sveditor.core.buildScriptLaunchDelegate"
+            delegate="org.sveditor.ui.script.launch.ScriptLaunchDelegate"
+            id="org.sveditor.core.buildScriptLaunchDelegate"
             modes="run"
             name="SVEditor Build Script"
-            type="org.eclipse.hdt.sveditor.core.buildScriptLaunchType">
+            type="org.sveditor.core.buildScriptLaunchType">
       </launchDelegate>
    </extension>
    <extension
-         point="org.eclipse.hdt.sveditor.ui.svScriptPatternMatchers">
+         point="org.sveditor.ui.svScriptPatternMatchers">
       <patternMatcher
-            class="org.eclipse.hdt.sveditor.ui.script.launch.GenericPathPatternMatcher"
+            class="org.sveditor.ui.script.launch.GenericPathPatternMatcher"
             name="Generic Path Matcher">
       </patternMatcher>
       <patternMatcher
-            class="org.eclipse.hdt.sveditor.ui.script.launch.GenericRelPathPatternMatcher"
+            class="org.sveditor.ui.script.launch.GenericRelPathPatternMatcher"
             name="Generic Relative Path Matcher">
       </patternMatcher>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="org.eclipse.hdt.sveditor.ui.editor.actions.FoldActionCollapse"
+            class="org.sveditor.ui.editor.actions.FoldActionCollapse"
             commandId="org.eclipse.ui.edit.text.folding.collapse">
          <activeWhen>
             <with
                   variable="activeEditorId">
                <equals
-                     value="org.eclipse.hdt.sveditor.ui.editor">
+                     value="org.sveditor.ui.editor">
                </equals>
             </with>
          </activeWhen>
       </handler>
       <handler
-            class="org.eclipse.hdt.sveditor.ui.editor.actions.FoldActionExpand"
+            class="org.sveditor.ui.editor.actions.FoldActionExpand"
             commandId="org.eclipse.ui.edit.text.folding.expand">
          <activeWhen>
             <with
                   variable="activeEditorId">
                <equals
-                     value="org.eclipse.hdt.sveditor.ui.editor">
+                     value="org.sveditor.ui.editor">
                </equals>
             </with>
          </activeWhen>
       </handler>
       <handler
-            class="org.eclipse.hdt.sveditor.ui.editor.actions.FoldActionToggle"
+            class="org.sveditor.ui.editor.actions.FoldActionToggle"
             commandId="org.eclipse.ui.edit.text.folding.toggle">
          <activeWhen>
             <with
                   variable="activeEditorId">
                <equals
-                     value="org.eclipse.hdt.sveditor.ui.editor">
+                     value="org.sveditor.ui.editor">
                </equals>
             </with>
          </activeWhen>
       </handler>
       <handler
-            commandId="org.eclipse.hdt.sveditor.ui.addFilelistToProject">
+            commandId="org.sveditor.ui.addFilelistToProject">
          <class
-               class="org.eclipse.hdt.sveditor.ui.explorer.AddArgFileToProjectHandler">
+               class="org.sveditor.ui.explorer.AddArgFileToProjectHandler">
          </class>
       </handler>
       <handler
-            commandId="org.eclipse.hdt.sveditor.ui.explorer.source.format">
+            commandId="org.sveditor.ui.explorer.source.format">
          <class
-            class="org.eclipse.hdt.sveditor.ui.explorer.IndentHandler">
+            class="org.sveditor.ui.explorer.IndentHandler">
          </class>
       </handler>
       <handler
-            commandId="org.eclipse.hdt.sveditor.ui.explorer.source.addndocs">
+            commandId="org.sveditor.ui.explorer.source.addndocs">
          <class
-            class="org.eclipse.hdt.sveditor.ui.explorer.AddNdocsHandler">
+            class="org.sveditor.ui.explorer.AddNdocsHandler">
          </class>
       </handler>
    </extension>
@@ -1902,20 +1902,20 @@ endpackage
          point="org.eclipse.ui.commands">
       <command
             categoryId="org.eclipse.ui.category.navigate"
-            id="org.eclipse.hdt.sveditor.ui.navigate.open.type"
+            id="org.sveditor.ui.navigate.open.type"
             name="Open Type">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            id="org.eclipse.hdt.sveditor.ui.navigationActionSet"
+            id="org.sveditor.ui.navigationActionSet"
             label="Navigation Actions"
             visible="false">
          <action
-               class="org.eclipse.hdt.sveditor.ui.OpenTypeAction"
-               definitionId="org.eclipse.hdt.sveditor.ui.navigate.open.type"
-               id="org.eclipse.hdt.sveditor.ui.action1"
+               class="org.sveditor.ui.OpenTypeAction"
+               definitionId="org.sveditor.ui.navigate.open.type"
+               id="org.sveditor.ui.action1"
                label="Open Type"
                style="push">
          </action>
@@ -1924,21 +1924,21 @@ endpackage
    <extension
          point="org.eclipse.debug.ui.consoleLineTrackers">
       <consoleLineTracker
-            class="org.eclipse.hdt.sveditor.ui.script.launch.ScriptLineTracker"
-            id="org.eclipse.hdt.sveditor.ui.sveScriptLineTracker"
+            class="org.sveditor.ui.script.launch.ScriptLineTracker"
+            id="org.sveditor.ui.sveScriptLineTracker"
             processType="sve.script">
       </consoleLineTracker>
       <consoleLineTracker
-            class="org.eclipse.hdt.sveditor.ui.console.SVBuildConsoleLineTracker"
-            id="org.eclipse.hdt.sveditor.ui.svBuildConsoleLineTracker"
+            class="org.sveditor.ui.console.SVBuildConsoleLineTracker"
+            id="org.sveditor.ui.svBuildConsoleLineTracker"
             processType="sve.build">
       </consoleLineTracker>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.eclipse.hdt.sveditor.ui.index.launch.SVIndexLaunchDelegate"
-            id="org.eclipse.hdt.sveditor.ui.indexBuildLaunchConfiguration"
+            delegate="org.sveditor.ui.index.launch.SVIndexLaunchDelegate"
+            id="org.sveditor.ui.indexBuildLaunchConfiguration"
             modes="run"
             name="SystemVerilog Index Build"
             public="false">
@@ -1947,8 +1947,8 @@ endpackage
    <extension
          point="org.eclipse.debug.ui.consoleColorProviders">
       <consoleColorProvider
-            class="org.eclipse.hdt.sveditor.ui.console.SVBuildConsoleColorProvider"
-            id="org.eclipse.hdt.sveditor.ui.buildConsoleColorProvider"
+            class="org.sveditor.ui.console.SVBuildConsoleColorProvider"
+            id="org.sveditor.ui.buildConsoleColorProvider"
             processType="sve.build">
       </consoleColorProvider>
    </extension>

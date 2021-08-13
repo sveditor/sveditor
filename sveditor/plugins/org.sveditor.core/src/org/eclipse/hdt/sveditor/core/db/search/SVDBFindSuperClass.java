@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBTypeInfoClassType;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBFindSuperClass {
 	

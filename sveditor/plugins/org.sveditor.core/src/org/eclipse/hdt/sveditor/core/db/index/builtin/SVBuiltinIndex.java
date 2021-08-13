@@ -8,33 +8,33 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.builtin;
+package org.sveditor.core.db.index.builtin;
 
 import java.io.InputStream;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.builder.ISVBuilderOutput;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFilePath;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIncFileInfo;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexConfig;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexBuilder;
-import org.eclipse.hdt.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefVisitor;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.builder.ISVBuilderOutput;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBFilePath;
+import org.sveditor.core.db.index.SVDBIncFileInfo;
+import org.sveditor.core.db.index.SVDBIndexConfig;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import org.sveditor.core.db.index.builder.ISVDBIndexBuilder;
+import org.sveditor.core.db.index.builder.ISVDBIndexChangePlan;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.refs.ISVDBRefSearchSpec;
+import org.sveditor.core.db.refs.ISVDBRefVisitor;
+import org.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
 
 public class SVBuiltinIndex implements ISVDBIndex {
 

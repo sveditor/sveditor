@@ -12,11 +12,11 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs;
+package org.sveditor.core.docs;
 
 import java.io.File;
 
-import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
+import org.sveditor.core.docs.model.DocModel;
 
 public interface IDocWriter {
 	

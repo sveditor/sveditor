@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.content_assist;
+package org.sveditor.core.argfile.content_assist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,18 +16,18 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileDefaultOptionProvider;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprScanner;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileUtils;
-import org.eclipse.hdt.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext.ContextType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.argfile.parser.ISVArgFileVariableProvider;
+import org.sveditor.core.argfile.parser.SVArgFileDefaultOptionProvider;
+import org.sveditor.core.argfile.parser.SVArgFileExprContext;
+import org.sveditor.core.argfile.parser.SVArgFileExprScanner;
+import org.sveditor.core.argfile.parser.SVArgFileUtils;
+import org.sveditor.core.argfile.parser.ISVArgFileOptionProvider.OptionType;
+import org.sveditor.core.argfile.parser.SVArgFileExprContext.ContextType;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 
 public class AbstractArgFileCompletionProcessor implements ILogLevel {
 	protected List<SVArgFileCompletionProposal>			fProposals;

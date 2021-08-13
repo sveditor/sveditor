@@ -13,24 +13,24 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedPackage;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
-import org.eclipse.hdt.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
-import org.eclipse.hdt.sveditor.core.hierarchy.HierarchyTreeNode;
-import org.eclipse.hdt.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
-import org.eclipse.hdt.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import org.sveditor.core.db.search.SVDBFindNamedPackage;
+import org.sveditor.core.expr_utils.SVExprContext;
+import org.sveditor.core.expr_utils.SVExprScanner;
+import org.sveditor.core.hierarchy.ClassHierarchyTreeFactory;
+import org.sveditor.core.hierarchy.HierarchyTreeNode;
+import org.sveditor.core.hierarchy.ModuleHierarchyTreeFactory;
+import org.sveditor.core.hierarchy.PackageHierarchyTreeFactory;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
@@ -41,10 +41,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
-import org.eclipse.hdt.sveditor.ui.views.hierarchy.SVHierarchyView;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.views.hierarchy.SVHierarchyView;
 
 public class OpenTypeHierarchyAction extends TextEditorAction {
 	private IWorkbench				fWorkbench;

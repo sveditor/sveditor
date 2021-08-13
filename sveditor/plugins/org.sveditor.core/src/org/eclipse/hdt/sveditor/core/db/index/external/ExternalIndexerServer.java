@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexBuildData;
 
 public class ExternalIndexerServer extends Thread {
 	private ServerSocket				fServerSock;

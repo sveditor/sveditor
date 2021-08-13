@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.argfile.content_assist;
+package org.sveditor.core.tests.argfile.content_assist;
 
-import org.eclipse.hdt.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.argfile.content_assist.AbstractArgFileCompletionProcessor;
+import org.sveditor.core.log.LogHandle;
 
 public class TestArgFileCompletionProcessor extends AbstractArgFileCompletionProcessor {
 	

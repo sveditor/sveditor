@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.filter;
+package org.sveditor.core.argfile.filter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFile;
 
 public class ArgFileFilterList implements IArgFileFilter {
 	private List<IArgFileFilter>		fFilterList;

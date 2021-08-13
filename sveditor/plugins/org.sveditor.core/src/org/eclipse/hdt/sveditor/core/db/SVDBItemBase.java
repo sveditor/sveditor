@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
 
 
 

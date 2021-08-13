@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.script.launch;
+package org.sveditor.ui.script.launch;
 
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBWSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
-import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScannerMgr;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.index.SVDBWSFileSystemProvider;
+import org.sveditor.core.script.launch.ILogMessageScanner;
+import org.sveditor.core.script.launch.ILogMessageScannerMgr;
 import org.eclipse.ui.console.TextConsole;
 
 public class GenericRelPathPatternMatcher extends GenericPathPatternMatcher implements ILogMessageScanner {

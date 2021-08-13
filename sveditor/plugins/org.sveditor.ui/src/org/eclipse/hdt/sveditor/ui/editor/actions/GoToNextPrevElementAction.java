@@ -12,15 +12,15 @@
  *     Steven Dawson - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -28,7 +28,7 @@ import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.SVEditor;
 
 public class GoToNextPrevElementAction extends TextEditorAction {
 	private SVEditor fEditor;

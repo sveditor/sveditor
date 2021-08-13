@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.fileset;
+package org.sveditor.core.fileset;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogFactory;
 
 public class SVFilesystemFileMatcher extends AbstractSVFileMatcher {
 	

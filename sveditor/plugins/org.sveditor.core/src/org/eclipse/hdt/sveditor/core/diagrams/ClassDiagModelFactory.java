@@ -13,13 +13,13 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.diagrams;
+package org.sveditor.core.diagrams;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindSuperClass;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.search.SVDBFindSuperClass;
 
 public class ClassDiagModelFactory extends AbstractDiagModelFactory {
 	

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.sv.viewer;
+package org.sveditor.ui.sv.viewer;
 
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.resource.JFaceResources;
@@ -30,9 +30,9 @@ import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVCodeScanner;
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentSetupParticipant;
+import org.sveditor.ui.editor.SVCodeScanner;
+import org.sveditor.ui.editor.SVDocumentPartitions;
+import org.sveditor.ui.editor.SVDocumentSetupParticipant;
 
 public class SystemVerilogViewer extends SourceViewer {
 	protected Document							fDocument;

@@ -13,18 +13,18 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.expr_utils.SVExprContext;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;

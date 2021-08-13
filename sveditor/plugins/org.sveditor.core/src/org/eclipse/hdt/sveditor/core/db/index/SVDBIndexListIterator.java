@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,12 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.StringIterableIterator;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefVisitor;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.sveditor.core.StringIterableIterator;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.refs.ISVDBRefSearchSpec;
+import org.sveditor.core.db.refs.ISVDBRefVisitor;
+import org.sveditor.core.db.search.ISVDBFindNameMatcher;
 
 /**
  * Implements an item iterator that operates on a list of index iterators

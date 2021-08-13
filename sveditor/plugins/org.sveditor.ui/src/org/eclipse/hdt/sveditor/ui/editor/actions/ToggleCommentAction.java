@@ -11,7 +11,7 @@
  * Contributors:
  *     Eclipse CDT -- initial implementation
  ****************************************************************************/
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.HashMap;
 import java.util.Map;

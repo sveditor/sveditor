@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.vhdl.parser;
+package org.sveditor.core.vhdl.parser;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.indent.SVDefaultIndenter2;
-import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.indent.SVDefaultIndenter2;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.scanutils.StringTextScanner;
 import org.eclipse.jface.text.BadLocationException;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
-import org.eclipse.hdt.sveditor.core.tests.indent.IndentTests;
-import org.eclipse.hdt.sveditor.ui.tests.UiReleaseTests;
-import org.eclipse.hdt.sveditor.ui.tests.utils.editor.AutoEditTester;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.indent.IndentComparator;
+import org.sveditor.core.tests.indent.IndentTests;
+import org.sveditor.ui.tests.UiReleaseTests;
+import org.sveditor.ui.tests.utils.editor.AutoEditTester;
 
 public class TestAutoIndent extends SVCoreTestCaseBase {
 	

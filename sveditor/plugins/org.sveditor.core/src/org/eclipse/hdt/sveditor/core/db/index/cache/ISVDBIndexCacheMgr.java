@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.cache;
+package org.sveditor.core.db.index.cache;
 
 import java.util.List;
 

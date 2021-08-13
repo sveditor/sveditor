@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.hdt.sveditor_1.2.3.jar" id="org.eclipse.hdt.sveditor" version="1.2.3">
-      <category name="org.eclipse.hdt.sveditor.feature.group"/>
+   <feature url="features/org.sveditor_1.2.3.jar" id="org.sveditor" version="1.2.3">
+      <category name="org.sveditor.feature.group"/>
    </feature>
-   <category-def name="org.eclipse.hdt.sveditor.feature.group" label="SVEditor Feature">
+   <category-def name="org.sveditor.feature.group" label="SVEditor Feature">
       <description>
          SVEditor provides a development environment for SystemVerilog designs and testbenches
       </description>

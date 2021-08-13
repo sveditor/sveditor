@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.stmt;
+package org.sveditor.core.db.stmt;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfo;
+import org.sveditor.core.db.SVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBTypeInfo;
 
 public class SVDBParamPortDecl extends SVDBVarDeclStmt {
 	public static final int			Direction_Ref     = (1 << 19);

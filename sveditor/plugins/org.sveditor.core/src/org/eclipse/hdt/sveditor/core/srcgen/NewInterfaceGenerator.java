@@ -13,21 +13,21 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.srcgen;
+package org.sveditor.core.srcgen;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
-import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
-import org.eclipse.hdt.sveditor.core.tagproc.TagProcessor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.indent.ISVIndenter;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.tagproc.TagProcessor;
 
 public class NewInterfaceGenerator {
 	private TagProcessor		fTagProc;

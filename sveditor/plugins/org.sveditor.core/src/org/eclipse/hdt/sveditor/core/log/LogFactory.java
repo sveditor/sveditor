@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.log;
+package org.sveditor.core.log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

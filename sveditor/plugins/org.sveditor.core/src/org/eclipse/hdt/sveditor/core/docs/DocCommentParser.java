@@ -27,7 +27,7 @@
  *	
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs;
+package org.sveditor.core.docs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class DocCommentParser implements IDocCommentParser {
 	
@@ -82,7 +82,7 @@ public class DocCommentParser implements IDocCommentParser {
 	
 			
 	/* (non-Javadoc)
-	* @see org.eclipse.hdt.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
+	* @see org.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
 	public CommentType isDocCommentOrTaskTag(String comment, Tuple<String, String> info) {
 		boolean has_colon = (comment.indexOf(':') != -1);
@@ -187,7 +187,7 @@ public class DocCommentParser implements IDocCommentParser {
 	}
 
 	/* (non-Javadoc)
-	* @see org.eclipse.hdt.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
+	* @see org.sveditor.core.docs.IDocCommentParser#isDocComment(java.lang.String)
 	*/
 	public static String extractBody(String comment) {
 		String lines[] = DocCommentCleaner.splitCommentIntoLines(comment) ;

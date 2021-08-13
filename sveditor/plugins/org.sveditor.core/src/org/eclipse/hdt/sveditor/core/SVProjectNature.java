@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,14 +27,14 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.builder.SVProjectBuilder;
-import org.eclipse.hdt.sveditor.core.fs.svext.SVExtFileSystem;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.builder.SVProjectBuilder;
+import org.sveditor.core.fs.svext.SVExtFileSystem;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVProjectNature implements IProjectNature, ILogLevel {
-	public static final String		NATURE_ID = "org.eclipse.hdt.sveditor.core.SVNature";
+	public static final String		NATURE_ID = "org.sveditor.core.SVNature";
 	
 	private IProject				fProject;
 

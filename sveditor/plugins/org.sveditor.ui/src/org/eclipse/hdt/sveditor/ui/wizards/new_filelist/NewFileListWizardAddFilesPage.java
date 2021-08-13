@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.wizards.new_filelist;
+package org.sveditor.ui.wizards.new_filelist;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -16,16 +16,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.ui.ResourceSelCheckboxMgr;
+import org.sveditor.ui.ResourceSelCheckboxMgr;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.argfile.creator.SVArgFileCreator;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.argfile.creator.SVArgFileCreator;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ILabelProvider;

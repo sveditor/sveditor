@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,46 +39,46 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.StringInputStream;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildParent;
-import org.eclipse.hdt.sveditor.core.db.ISVDBEndLocation;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.SVDBUnprocessedRegion;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexChangeListener;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexParse;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFileOverrideIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFilePath;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBShadowIndexParse;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import org.eclipse.hdt.sveditor.core.db.project.ISVDBProjectSettingsListener;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectData;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
-import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
-import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
-import org.eclipse.hdt.sveditor.core.utils.OverrideTaskFuncFinder;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBChildParent;
+import org.sveditor.core.db.ISVDBEndLocation;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.SVDBUnprocessedRegion;
+import org.sveditor.core.db.SVDBMarker.MarkerType;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexChangeListener;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.ISVDBIndexParse;
+import org.sveditor.core.db.index.SVDBFileOverrideIndex;
+import org.sveditor.core.db.index.SVDBFilePath;
+import org.sveditor.core.db.index.SVDBIndexChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.SVDBShadowIncludeFilesFinder;
+import org.sveditor.core.db.index.SVDBShadowIndexParse;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import org.sveditor.core.db.project.ISVDBProjectSettingsListener;
+import org.sveditor.core.db.project.SVDBProjectData;
+import org.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.indent.ISVIndenter;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.utils.OverrideTaskFuncFinder;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -140,34 +140,34 @@ import org.eclipse.ui.texteditor.ResourceMarkerAnnotationModel;
 import org.eclipse.ui.texteditor.TextOperationAction;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.editor.actions.AddBlockCommentAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.AddNdocsAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.FindReferencesAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.GoToNextPrevElementAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.GotoMatchingBracketAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.IndentAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.NextWordAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenDeclarationAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenMacroExpansionAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenObjectsViewAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenQuickOutlineAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenTypeAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OverrideTaskFuncAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.PrevWordAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.RemoveBlockCommentAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SVMoveLinesAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SVRulerAnnotationAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SelNextWordAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SelPrevWordAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SelectEnclosingElementAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.ToggleCommentAction;
-import org.eclipse.hdt.sveditor.ui.editor.outline.SVOutlinePage;
-import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.editor.actions.AddBlockCommentAction;
+import org.sveditor.ui.editor.actions.AddNdocsAction;
+import org.sveditor.ui.editor.actions.FindReferencesAction;
+import org.sveditor.ui.editor.actions.GoToNextPrevElementAction;
+import org.sveditor.ui.editor.actions.GotoMatchingBracketAction;
+import org.sveditor.ui.editor.actions.IndentAction;
+import org.sveditor.ui.editor.actions.NextWordAction;
+import org.sveditor.ui.editor.actions.OpenDeclarationAction;
+import org.sveditor.ui.editor.actions.OpenDiagForSelectionAction;
+import org.sveditor.ui.editor.actions.OpenMacroExpansionAction;
+import org.sveditor.ui.editor.actions.OpenObjectsViewAction;
+import org.sveditor.ui.editor.actions.OpenQuickHierarchyAction;
+import org.sveditor.ui.editor.actions.OpenQuickObjectsViewAction;
+import org.sveditor.ui.editor.actions.OpenQuickOutlineAction;
+import org.sveditor.ui.editor.actions.OpenTypeAction;
+import org.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
+import org.sveditor.ui.editor.actions.OverrideTaskFuncAction;
+import org.sveditor.ui.editor.actions.PrevWordAction;
+import org.sveditor.ui.editor.actions.RemoveBlockCommentAction;
+import org.sveditor.ui.editor.actions.SVMoveLinesAction;
+import org.sveditor.ui.editor.actions.SVRulerAnnotationAction;
+import org.sveditor.ui.editor.actions.SelNextWordAction;
+import org.sveditor.ui.editor.actions.SelPrevWordAction;
+import org.sveditor.ui.editor.actions.SelectEnclosingElementAction;
+import org.sveditor.ui.editor.actions.ToggleCommentAction;
+import org.sveditor.ui.editor.outline.SVOutlinePage;
+import org.sveditor.ui.pref.SVEditorPrefsConstants;
 
 /**
  * @author C08381
@@ -1075,11 +1075,11 @@ public class SVEditor extends TextEditor
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
 				Activator.PLUGIN_ID + ".source.menu");
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
-				"org.eclipse.hdt.sveditor.ui.source.menu.as");
+				"org.sveditor.ui.source.menu.as");
 		 */
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT, 
-				"org.eclipse.hdt.sveditor.ui.override.tf");
+				"org.sveditor.ui.override.tf");
 		
 		addAction(menu, ITextEditorActionConstants.GROUP_EDIT,
 				SVUiPlugin.PLUGIN_ID + ".svOpenTypeAction");
@@ -1100,11 +1100,11 @@ public class SVEditor extends TextEditor
 				SVUiPlugin.PLUGIN_ID + ".svFindReferencesAction");
 		
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT,
-				"org.eclipse.hdt.sveditor.ui.source.menu");
+				"org.sveditor.ui.source.menu");
 		
 		/*
 		addGroup(menu, ITextEditorActionConstants.GROUP_EDIT, 
-				"org.eclipse.hdt.sveditor.ui.source.menu.as");
+				"org.sveditor.ui.source.menu.as");
 		
 		IMenuManager editMenu = menu.findMenuUsingPath(
 				IWorkbenchActionConstants.M_EDIT);
@@ -1455,7 +1455,7 @@ public class SVEditor extends TextEditor
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
 			
-			if (ann.getType().equals("org.eclipse.hdt.sveditor.ui.disabledRegion")) {
+			if (ann.getType().equals("org.sveditor.ui.disabledRegion")) {
 				remove_ann.add(ann);
 			}
 		}		
@@ -1835,7 +1835,7 @@ public class SVEditor extends TextEditor
 		Iterator<Annotation> ann_it = ann_model.getAnnotationIterator();
 		while (ann_it.hasNext()) {
 			Annotation ann = ann_it.next();
-			if (ann.getType().equals("org.eclipse.hdt.sveditor.ui.occurrences")) {
+			if (ann.getType().equals("org.sveditor.ui.occurrences")) {
 				remove_ann.add(ann);
 			}
 		}		
@@ -1868,7 +1868,7 @@ public class SVEditor extends TextEditor
 					
 					if (region != null) {
 						Annotation ann = new Annotation(
-								"org.eclipse.hdt.sveditor.ui.occurrences",
+								"org.sveditor.ui.occurrences",
 								false, "");
 						Position position = new Position(region.getOffset(), region.getLength());
 						add_ann.put(ann, position);

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.docs.html;
+package org.sveditor.core.docs.html;
 
 public interface IHTMLIcons {
 	

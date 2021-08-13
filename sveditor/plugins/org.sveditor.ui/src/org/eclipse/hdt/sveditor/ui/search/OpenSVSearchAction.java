@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.search;
+package org.sveditor.ui.search;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -22,7 +22,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 public class OpenSVSearchAction implements IWorkbenchWindowActionDelegate {
-	private static final String		SV_SEARCH_PAGE_ID = "org.eclipse.hdt.sveditor.ui.searchPage";
+	private static final String		SV_SEARCH_PAGE_ID = "org.sveditor.ui.searchPage";
 	
 	private IWorkbenchWindow			fWindow;
 

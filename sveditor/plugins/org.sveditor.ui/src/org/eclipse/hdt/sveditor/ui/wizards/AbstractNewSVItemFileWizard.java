@@ -13,15 +13,15 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.wizards;
+package org.sveditor.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.pref.SVEditorPrefsConstants;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -29,13 +29,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.XMLTransformUtils;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexCollection;
-import org.eclipse.hdt.sveditor.core.tagproc.DynamicTemplateParameterProvider;
-import org.eclipse.hdt.sveditor.core.tagproc.TagProcessor;
-import org.eclipse.hdt.sveditor.core.tagproc.TemplateParameterProvider;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.XMLTransformUtils;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBIndexCollection;
+import org.sveditor.core.tagproc.DynamicTemplateParameterProvider;
+import org.sveditor.core.tagproc.TagProcessor;
+import org.sveditor.core.tagproc.TemplateParameterProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.templates.TemplateTranslator;

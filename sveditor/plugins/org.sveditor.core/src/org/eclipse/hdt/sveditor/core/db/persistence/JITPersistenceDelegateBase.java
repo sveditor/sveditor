@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBItemType;
 
 @SuppressWarnings("rawtypes")
 public abstract class JITPersistenceDelegateBase extends SVDBPersistenceRWDelegateBase {

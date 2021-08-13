@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.diagrams ;
+package org.sveditor.core.diagrams ;
 	
 public class DiagConnection {
 	

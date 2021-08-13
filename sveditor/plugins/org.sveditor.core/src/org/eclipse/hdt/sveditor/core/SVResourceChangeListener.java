@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core;
+package org.sveditor.core;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,10 +23,10 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexRegistry;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBProjectManager;
+import org.sveditor.core.db.index.SVDBIndexRegistry;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent;
+import org.sveditor.core.db.index.SVDBIndexResourceChangeEvent.Type;
+import org.sveditor.core.db.project.SVDBProjectManager;
 
 public class SVResourceChangeListener implements IResourceChangeListener {
 	private SVDBProjectManager				fProjectMgr;

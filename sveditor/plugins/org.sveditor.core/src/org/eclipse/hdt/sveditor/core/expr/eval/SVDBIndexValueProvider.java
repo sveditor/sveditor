@@ -13,11 +13,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr.eval;
+package org.sveditor.core.expr.eval;
 
 import java.math.BigInteger;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class SVDBIndexValueProvider implements IValueProvider {
 	

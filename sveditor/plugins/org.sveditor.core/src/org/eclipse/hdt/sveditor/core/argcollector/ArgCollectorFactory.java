@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argcollector;
+package org.sveditor.core.argcollector;
 
 public class ArgCollectorFactory {
 	

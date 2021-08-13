@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.views;
+package org.sveditor.ui.views;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,12 +16,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.preproc.PreProcEvent;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelFactory;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcModelNode;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.preproc.PreProcEvent;
+import org.sveditor.core.preproc.SVPreProcModelFactory;
+import org.sveditor.core.preproc.SVPreProcModelNode;
+import org.sveditor.core.preproc.SVPreProcessor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -45,10 +45,10 @@ import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.DefaultMarkerAnnotationAccess;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentPartitions;
-import org.eclipse.hdt.sveditor.ui.editor.SVDocumentSetupParticipant;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.editor.SVDocumentPartitions;
+import org.sveditor.ui.editor.SVDocumentSetupParticipant;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
 
 
 public class MacroExpansionView extends ViewPart {

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.indent;
+package org.sveditor.core.indent;
 
 public class SVIndentLoopStmt {
 

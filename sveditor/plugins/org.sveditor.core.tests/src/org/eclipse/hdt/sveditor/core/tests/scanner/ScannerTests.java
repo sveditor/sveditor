@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.scanner;
+package org.sveditor.core.tests.scanner;
 
 import junit.framework.TestSuite;
 

@@ -8,14 +8,14 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.script.launch;
+package org.sveditor.core.script.launch;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage.MessageType;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.db.index.ISVDBFileSystemProvider;
+import org.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.script.launch.ScriptMessage.MessageType;
 
 public class VerilatorLogMessageScanner implements ILogMessageScanner {
 	private ILogMessageScannerMgr		fMgr;

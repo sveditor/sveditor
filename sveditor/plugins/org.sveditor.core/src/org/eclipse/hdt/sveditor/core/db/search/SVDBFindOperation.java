@@ -8,16 +8,16 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.search;
+package org.sveditor.core.db.search;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperationRunner;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.db.index.ISVDBIndexOperationRunner;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
 
 public class SVDBFindOperation implements ISVDBIndexOperation {
 	private List<SVDBDeclCacheItem>				fResult;

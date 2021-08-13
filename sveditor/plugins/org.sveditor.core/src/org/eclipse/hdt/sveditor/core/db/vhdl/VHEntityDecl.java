@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.vhdl;
+package org.sveditor.core.db.vhdl;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBScopeItem;
 
 public class VHEntityDecl extends SVDBScopeItem {
 	

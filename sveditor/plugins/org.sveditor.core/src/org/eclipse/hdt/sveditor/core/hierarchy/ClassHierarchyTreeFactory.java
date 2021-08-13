@@ -13,17 +13,17 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.hierarchy;
+package org.sveditor.core.hierarchy;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.ops.SVDBFindClassExtensionsOp;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindSuperClass;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.ops.SVDBFindClassExtensionsOp;
+import org.sveditor.core.db.search.SVDBFindSuperClass;
 
 public class ClassHierarchyTreeFactory {
 	private ISVDBIndexIterator				fIndexIt;

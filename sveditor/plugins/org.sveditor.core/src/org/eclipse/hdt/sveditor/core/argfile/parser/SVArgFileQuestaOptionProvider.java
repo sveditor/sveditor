@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
+import org.sveditor.core.Tuple;
 
 public class SVArgFileQuestaOptionProvider implements ISVArgFileOptionProvider {
 	

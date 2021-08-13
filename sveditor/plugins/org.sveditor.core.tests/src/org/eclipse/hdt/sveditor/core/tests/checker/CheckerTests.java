@@ -8,28 +8,28 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.checker;
+package org.sveditor.core.tests.checker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.checker.ISVDBCheckErrorReporter;
-import org.eclipse.hdt.sveditor.core.checker.ISVDBChecker;
-import org.eclipse.hdt.sveditor.core.checker.SVDBFileCheckerFactory;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBUtil;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBMarkerMgr;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.checker.ISVDBCheckErrorReporter;
+import org.sveditor.core.checker.ISVDBChecker;
+import org.sveditor.core.checker.SVDBFileCheckerFactory;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBUtil;
+import org.sveditor.core.db.index.ISVDBMarkerMgr;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.eclipse.hdt.sveditor.core.tests.SVDBTestUtils;
+import org.sveditor.core.tests.SVDBTestUtils;
 
 public class CheckerTests extends TestSuite {
 	

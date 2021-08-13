@@ -12,15 +12,15 @@
  *     Armond Paiva - initial contributor
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.views.diagram;
+package org.sveditor.ui.views.diagram;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.ui.SVDBIconUtils;
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.views.diagram.contributions.NewDiagramForClassContributionItem;
-import org.eclipse.hdt.sveditor.ui.views.diagram.contributions.NewDiagramForClassHandler;
+import org.sveditor.ui.SVDBIconUtils;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.views.diagram.contributions.NewDiagramForClassContributionItem;
+import org.sveditor.ui.views.diagram.contributions.NewDiagramForClassHandler;
 
 import org.eclipse.draw2d.FanRouter;
 import org.eclipse.draw2d.Graphics;
@@ -29,10 +29,10 @@ import org.eclipse.draw2d.ManhattanConnectionRouter;
 import org.eclipse.draw2d.SWTGraphics;
 import org.eclipse.draw2d.ScalableFigure;
 import org.eclipse.draw2d.geometry.Rectangle;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.diagrams.DiagModel;
-import org.eclipse.hdt.sveditor.core.diagrams.DiagNode;
-import org.eclipse.hdt.sveditor.core.diagrams.IDiagModelFactory;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.diagrams.DiagModel;
+import org.sveditor.core.diagrams.DiagNode;
+import org.sveditor.core.diagrams.IDiagModelFactory;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;

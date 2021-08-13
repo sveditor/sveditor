@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.cache.delegating;
+package org.sveditor.core.db.index.cache.delegating;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,21 +21,21 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBFormatException;
-import org.eclipse.hdt.sveditor.core.db.persistence.DBWriteException;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBReader;
-import org.eclipse.hdt.sveditor.core.db.persistence.IDBWriter;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.db.index.cache.ISVDBIndexCacheMgr;
+import org.sveditor.core.db.index.cache.file.SVDBFileIndexCacheEntry;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
+import org.sveditor.core.db.persistence.DBFormatException;
+import org.sveditor.core.db.persistence.DBWriteException;
+import org.sveditor.core.db.persistence.IDBReader;
+import org.sveditor.core.db.persistence.IDBWriter;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 public class SVDBSegmentedIndexCache implements ISVDBIndexCache {
 	private static final int										FILE_ID    = 0;

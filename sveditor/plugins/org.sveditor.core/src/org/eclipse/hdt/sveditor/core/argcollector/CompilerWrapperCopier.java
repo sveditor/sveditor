@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.argcollector;
+package org.sveditor.core.argcollector;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.hdt.sveditor.core.BundleUtils;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
+import org.sveditor.core.BundleUtils;
+import org.sveditor.core.SVCorePlugin;
 
 public class CompilerWrapperCopier {
 	

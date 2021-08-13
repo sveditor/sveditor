@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBVarDeclStmt;
+import org.sveditor.core.db.stmt.SVDBVarDeclStmt;
 
 public class SVDBTypeInfoUnion extends SVDBTypeInfo implements ISVDBScopeItem {
 	public long								fEndLocation;

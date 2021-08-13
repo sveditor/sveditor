@@ -12,14 +12,14 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs ;
+package org.sveditor.core.docs ;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.core.docs.DocTopicType.ScopeType;
+import org.sveditor.core.docs.DocTopicType.ScopeType;
 
 public class DocTopicManager implements IDocTopicManager {
 	

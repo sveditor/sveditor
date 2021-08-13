@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.parser.ams;
+package org.sveditor.core.tests.parser.ams;
 
 import junit.framework.TestSuite;
 

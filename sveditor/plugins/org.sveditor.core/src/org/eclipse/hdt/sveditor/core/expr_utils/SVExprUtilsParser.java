@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr_utils;
+package org.sveditor.core.expr_utils;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.ISVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVLexer;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
-import org.eclipse.hdt.sveditor.core.parser.SVParsers;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.ISVParser;
+import org.sveditor.core.parser.SVLexer;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.parser.SVParsers;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 public class SVExprUtilsParser implements ISVParser {
 	private SVLexer			fLexer;

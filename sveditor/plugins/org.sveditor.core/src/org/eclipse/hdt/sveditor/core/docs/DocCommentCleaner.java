@@ -27,13 +27,13 @@
  *	
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs ;
+package org.sveditor.core.docs ;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 /**
  * Removes any extraneous formatting and whitespace from the comment.  Eliminates 

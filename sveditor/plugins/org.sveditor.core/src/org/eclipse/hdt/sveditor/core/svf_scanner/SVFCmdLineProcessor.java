@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.svf_scanner;
+package org.sveditor.core.svf_scanner;
 
 import java.util.HashMap;
 import java.util.Map;

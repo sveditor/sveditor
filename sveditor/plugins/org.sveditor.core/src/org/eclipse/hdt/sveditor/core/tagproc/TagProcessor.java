@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tagproc;
+package org.sveditor.core.tagproc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.StringInputStream;
+import org.sveditor.core.StringInputStream;
 
 public class TagProcessor {
 	private TemplateParameterProvider				fBase;

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,9 +43,9 @@ public class MkOperatorParser implements ISVOperators {
 		
 		String ind = "";
 		
-		fPS.println(ind + "package org.eclipse.hdt.sveditor.core.parser;");
+		fPS.println(ind + "package org.sveditor.core.parser;");
 		fPS.println();
-		fPS.println("import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;");
+		fPS.println("import org.sveditor.core.scanutils.ITextScanner;");
 		fPS.println();
 		
 		fPS.println(ind + "class SVOperatorLexer implements ISVOperators {");

@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.editor.SVEditor;
 
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanner.SVCharacter;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.texteditor.TextEditorAction;
 

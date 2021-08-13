@@ -12,21 +12,21 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
-import org.eclipse.hdt.sveditor.ui.text.HierarchyInformationControl;
-import org.eclipse.hdt.sveditor.ui.text.ObjectsInformationControl;
-import org.eclipse.hdt.sveditor.ui.text.OutlineInformationControl;
-import org.eclipse.hdt.sveditor.ui.text.SVEditorProvider;
-import org.eclipse.hdt.sveditor.ui.text.SVElementProvider;
-import org.eclipse.hdt.sveditor.ui.text.hover.ISVEditorTextHover;
-import org.eclipse.hdt.sveditor.ui.text.hover.SVDocHover;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.sveditor.ui.text.HierarchyInformationControl;
+import org.sveditor.ui.text.ObjectsInformationControl;
+import org.sveditor.ui.text.OutlineInformationControl;
+import org.sveditor.ui.text.SVEditorProvider;
+import org.sveditor.ui.text.SVElementProvider;
+import org.sveditor.ui.text.hover.ISVEditorTextHover;
+import org.sveditor.ui.text.hover.SVDocHover;
 
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -376,7 +376,7 @@ public class SVSourceViewerConfiguration extends TextSourceViewerConfiguration {
 	@Override
 	protected Map<String, IAdaptable> getHyperlinkDetectorTargets(ISourceViewer sourceViewer) {
 		Map<String, IAdaptable> targets = super.getHyperlinkDetectorTargets(sourceViewer);
-		targets.put("org.eclipse.hdt.sveditor.ui.svCode", fEditor); //$NON-NLS-1$
+		targets.put("org.sveditor.ui.svCode", fEditor); //$NON-NLS-1$
 		return targets;
 	}
 

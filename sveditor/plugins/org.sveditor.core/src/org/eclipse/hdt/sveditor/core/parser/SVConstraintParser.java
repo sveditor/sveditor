@@ -13,27 +13,27 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBAddChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBConstraint;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBLiteralExpr;
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBOpenRangeListExpr;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintDistListItem;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintForeachStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintIfStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintImplStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintSetStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBConstraintUniqueStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBExprStmt;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBStmt;
-import org.eclipse.hdt.sveditor.core.parser.SVLexer.Context;
+import org.sveditor.core.db.ISVDBAddChildItem;
+import org.sveditor.core.db.SVDBConstraint;
+import org.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBLiteralExpr;
+import org.sveditor.core.db.expr.SVDBOpenRangeListExpr;
+import org.sveditor.core.db.stmt.SVDBConstraintDistListItem;
+import org.sveditor.core.db.stmt.SVDBConstraintDistListStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintForeachStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintIfStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintImplStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintSetStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintSolveBeforeStmt;
+import org.sveditor.core.db.stmt.SVDBConstraintUniqueStmt;
+import org.sveditor.core.db.stmt.SVDBExprStmt;
+import org.sveditor.core.db.stmt.SVDBStmt;
+import org.sveditor.core.parser.SVLexer.Context;
 
 public class SVConstraintParser extends SVParserBase {
 	private List<SVToken>					fTmpTokenList;

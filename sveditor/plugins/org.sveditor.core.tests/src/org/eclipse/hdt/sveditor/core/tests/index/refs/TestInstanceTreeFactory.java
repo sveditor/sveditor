@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index.refs;
+package org.sveditor.core.tests.index.refs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,24 +16,24 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBModuleDecl;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBInstanceTreeFactory;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBInstanceTreeNode;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefCollectorVisitor;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByTypeMatcher;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBModuleDecl;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexFactory;
+import org.sveditor.core.db.refs.SVDBInstanceTreeFactory;
+import org.sveditor.core.db.refs.SVDBInstanceTreeNode;
+import org.sveditor.core.db.refs.SVDBRefCollectorVisitor;
+import org.sveditor.core.db.refs.SVDBRefSearchSpecModIfcRefsByName;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.db.search.SVDBFindByTypeMatcher;
 
-import org.eclipse.hdt.sveditor.core.tests.IndexTestUtils;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestsPlugin;
-import org.eclipse.hdt.sveditor.core.tests.utils.BundleUtils;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.core.tests.IndexTestUtils;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestsPlugin;
+import org.sveditor.core.tests.utils.BundleUtils;
+import org.sveditor.core.tests.utils.TestUtils;
 
 public class TestInstanceTreeFactory extends SVCoreTestCaseBase {
 

@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.search;
+package org.sveditor.core.tests.search;
 
 import junit.framework.TestCase;
 

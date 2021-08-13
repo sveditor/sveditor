@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.persistence;
+package org.sveditor.core.db.persistence;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -26,20 +26,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBDoNotSaveAttr;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBBaseIndexCacheData;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBRootFileCacheData;
-import org.eclipse.hdt.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
-import org.eclipse.hdt.sveditor.core.db.refs.SVDBRefCacheEntry;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.attr.SVDBDoNotSaveAttr;
+import org.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.db.index.SVDBBaseIndexCacheData;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBRootFileCacheData;
+import org.sveditor.core.db.index.argfile.SVDBArgFileIndexCacheData;
+import org.sveditor.core.db.refs.SVDBRefCacheEntry;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -56,15 +56,15 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 	private Set<Class<?>>								fClassSet;
 	private static final String						fBaseClass = getClassName(JITPersistenceDelegateBase.class);
 	private static final String						fPersistenceDelegateParentClass = getClassName(ISVDBPersistenceRWDelegateParent.class);
-	private static final String	fChildItem = "org/eclipse/hdt/sveditor/core/db/ISVDBChildItem";
-	private static final String fDBFormatException = "org/eclipse/hdt/sveditor/core/db/persistence/DBFormatException";
-	private static final String fDBWriteException = "org/eclipse/hdt/sveditor/core/db/persistence/DBWriteException";
+	private static final String	fChildItem = "org.sveditor/core/db/ISVDBChildItem";
+	private static final String fDBFormatException = "org.sveditor/core/db/persistence/DBFormatException";
+	private static final String fDBWriteException = "org.sveditor/core/db/persistence/DBWriteException";
 	private static final String WRITE_ENUM_TYPE_SIG = "(Ljava/lang/Class;Ljava/lang/Enum;)V";
 	private static final String READ_ENUM_TYPE_SIG = "(Ljava/lang/Class;)Ljava/lang/Enum;";
 	private static final String WRITE_STRING_SIG   = "(Ljava/lang/String;)V";
 	private static final String READ_STRING_SIG   = "()Ljava/lang/String;";
-	private static final String WRITE_LOCATION_SIG   = "(Lorg/eclipse/hdt/sveditor/core/db/SVDBLocation;)V";
-	private static final String READ_LOCATION_SIG   = "()Lorg/eclipse/hdt/sveditor/core/db/SVDBLocation;";
+	private static final String WRITE_LOCATION_SIG   = "(Lorg.sveditor/core/db/SVDBLocation;)V";
+	private static final String READ_LOCATION_SIG   = "()Lorg.sveditor/core/db/SVDBLocation;";
 	private static final String READ_LIST_SIG       = "()Ljava/util/List;";
 	private static final String WRITE_LIST_SIG      = "(Ljava/util/List;)V";
 	private static final String READ_SET_SIG       = "()Ljava/util/Set;";
@@ -76,8 +76,8 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 	private static final String READ_LONG_SIG = "()J";
 	private static final String WRITE_BOOL_SIG = "(Z)V";
 	private static final String READ_BOOL_SIG = "()Z";
-	private static final String WRITE_ITEM_SIG = "(Lorg/eclipse/hdt/sveditor/core/db/ISVDBItemBase;)V";
-	private static final String READ_ITEM_SIG = "(L" + getClassName(ISVDBChildItem.class) + ";)Lorg/eclipse/hdt/sveditor/core/db/ISVDBItemBase;";
+	private static final String WRITE_ITEM_SIG = "(Lorg.sveditor/core/db/ISVDBItemBase;)V";
+	private static final String READ_ITEM_SIG = "(L" + getClassName(ISVDBChildItem.class) + ";)Lorg.sveditor/core/db/ISVDBItemBase;";
 	private static final String WRITE_MAP_SIG = "(Ljava/util/Map;)V";
 	private static final String READ_MAP_SIG  = "()Ljava/util/Map;";
 	private boolean										fDebugEn = false;
@@ -115,7 +115,7 @@ public class JITPersistenceDelegateFactory implements Opcodes {
 		fTypeClassMap	= new HashMap<SVDBItemType, Class>();
 		fClassList		= new ArrayList<Class<?>>();
 		fClassSet		= new HashSet<Class<?>>();
-		fTargetPkg = "org.eclipse.hdt.sveditor.core.db.persistence";
+		fTargetPkg = "org.sveditor.core.db.persistence";
 		fTargetPkgList = SVCorePlugin.getPersistenceClassPkgList();
 
 		fClassList.add(SVDBFile.class);

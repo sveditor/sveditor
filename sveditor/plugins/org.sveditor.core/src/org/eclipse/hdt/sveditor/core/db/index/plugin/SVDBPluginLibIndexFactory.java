@@ -13,17 +13,17 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index.plugin;
+package org.sveditor.core.db.index.plugin;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexFactory;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBIndexConfig;
-import org.eclipse.hdt.sveditor.core.db.index.cache.ISVDBIndexCache;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexFactory;
+import org.sveditor.core.db.index.SVDBIndexConfig;
+import org.sveditor.core.db.index.cache.ISVDBIndexCache;
 
 public class SVDBPluginLibIndexFactory implements ISVDBIndexFactory {
 	
-	public static final String			TYPE = "org.eclipse.hdt.sveditor.pluginLibIndex"; 
+	public static final String			TYPE = "org.sveditor.pluginLibIndex"; 
 
 	public ISVDBIndex createSVDBIndex(
 			String 					project, 

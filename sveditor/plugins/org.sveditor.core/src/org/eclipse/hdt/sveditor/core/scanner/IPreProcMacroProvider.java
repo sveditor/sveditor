@@ -13,9 +13,9 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.scanner;
+package org.sveditor.core.scanner;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMacroDef;
 
 public interface IPreProcMacroProvider {
 	

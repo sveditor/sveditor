@@ -13,27 +13,27 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.editor.actions;
+package org.sveditor.ui.editor.actions;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.editor.ISVEditor;
-import org.eclipse.hdt.sveditor.ui.pref.SVEditorPrefsConstants;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.editor.ISVEditor;
+import org.sveditor.ui.pref.SVEditorPrefsConstants;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.utils.SVDBSearchUtils;
-import org.eclipse.hdt.sveditor.core.indent.ISVIndenter;
-import org.eclipse.hdt.sveditor.core.indent.SVIndentScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.IRandomAccessTextScanner;
-import org.eclipse.hdt.sveditor.core.srcgen.MethodGenerator;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.utils.SVDBSearchUtils;
+import org.sveditor.core.indent.ISVIndenter;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.scanutils.IRandomAccessTextScanner;
+import org.sveditor.core.srcgen.MethodGenerator;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;

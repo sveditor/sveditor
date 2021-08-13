@@ -13,17 +13,17 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.prop_pages;
+package org.sveditor.ui.prop_pages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.SVUiPlugin;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
-import org.eclipse.hdt.sveditor.core.db.project.SVDBPath;
-import org.eclipse.hdt.sveditor.core.db.project.SVProjectFileWrapper;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.plugin.SVDBPluginLibDescriptor;
+import org.sveditor.core.db.project.SVDBPath;
+import org.sveditor.core.db.project.SVProjectFileWrapper;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -50,7 +50,7 @@ public class PluginLibPrefsPage implements ISVProjectPropsPage,
 		fPluginLibs = new ArrayList<SVDBPluginLibDescriptor>(
 				SVCorePlugin.getDefault().getPluginLibList());
 		for (int i=0; i<fPluginLibs.size(); i++) {
-			if (fPluginLibs.get(i).getId().equals("org.eclipse.hdt.sveditor.sv_builtin")) {
+			if (fPluginLibs.get(i).getId().equals("org.sveditor.sv_builtin")) {
 				fPluginLibs.remove(i);
 				break;
 			}

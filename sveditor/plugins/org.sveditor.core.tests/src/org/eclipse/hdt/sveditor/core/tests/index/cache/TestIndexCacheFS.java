@@ -8,18 +8,18 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.index.cache;
+package org.sveditor.core.tests.index.cache;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystem;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
-import org.eclipse.hdt.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystem;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystemDataInput;
+import org.sveditor.core.db.index.cache.file.SVDBFileSystemDataOutput;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class TestIndexCacheFS extends SVCoreTestCaseBase {
 	

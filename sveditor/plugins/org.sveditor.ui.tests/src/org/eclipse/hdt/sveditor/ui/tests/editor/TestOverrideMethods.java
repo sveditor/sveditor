@@ -13,24 +13,24 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
-import org.eclipse.hdt.sveditor.core.tests.TextTagPosUtils;
-import org.eclipse.hdt.sveditor.core.tests.indent.IndentComparator;
-import org.eclipse.hdt.sveditor.ui.editor.actions.IOverrideMethodsTargetProvider;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OverrideTaskFuncImpl;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.TextTagPosUtils;
+import org.sveditor.core.tests.indent.IndentComparator;
+import org.sveditor.ui.editor.actions.IOverrideMethodsTargetProvider;
+import org.sveditor.ui.editor.actions.OverrideTaskFuncImpl;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBClassDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBTask;
-import org.eclipse.hdt.sveditor.core.db.SVDBTypeInfoClassType;
-import org.eclipse.hdt.sveditor.core.srcgen.OverrideMethodsFinder;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBClassDecl;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBTask;
+import org.sveditor.core.db.SVDBTypeInfoClassType;
+import org.sveditor.core.srcgen.OverrideMethodsFinder;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;

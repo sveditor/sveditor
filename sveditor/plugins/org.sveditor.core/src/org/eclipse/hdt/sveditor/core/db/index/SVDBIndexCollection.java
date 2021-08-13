@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,23 +24,23 @@ import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.StringIterableIterator;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefSearchSpec;
-import org.eclipse.hdt.sveditor.core.db.refs.ISVDBRefVisitor;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBFindNameMatcher;
-import org.eclipse.hdt.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBSearchResult;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.StringIterableIterator;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.builder.SVDBIndexChangePlanRebuild;
+import org.sveditor.core.db.refs.ISVDBRefSearchSpec;
+import org.sveditor.core.db.refs.ISVDBRefVisitor;
+import org.sveditor.core.db.search.ISVDBFindNameMatcher;
+import org.sveditor.core.db.search.ISVDBPreProcIndexSearcher;
+import org.sveditor.core.db.search.SVDBSearchResult;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
 
 public class SVDBIndexCollection implements ISVDBPreProcIndexSearcher, ISVDBIndexIterator,
 		ISVDBIndexOperationRunner, ISVDBIndexParse, ILogLevel {

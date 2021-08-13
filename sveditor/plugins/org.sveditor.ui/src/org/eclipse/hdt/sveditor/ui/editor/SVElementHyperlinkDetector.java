@@ -12,22 +12,22 @@
  *     IBM Corporation - initial API and implementation
  *     Armond Paiva - repurposed from JDT for use in SVEditor
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.editor;
+package org.sveditor.ui.editor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.eclipse.hdt.sveditor.ui.SVUiPlugin;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenDeclarationAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
-import org.eclipse.hdt.sveditor.ui.editor.actions.SelectionConverter;
-import org.eclipse.hdt.sveditor.ui.text.SVWordFinder;
+import org.sveditor.ui.SVUiPlugin;
+import org.sveditor.ui.editor.actions.OpenDeclarationAction;
+import org.sveditor.ui.editor.actions.OpenTypeHierarchyAction;
+import org.sveditor.ui.editor.actions.SelectionConverter;
+import org.sveditor.ui.text.SVWordFinder;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;

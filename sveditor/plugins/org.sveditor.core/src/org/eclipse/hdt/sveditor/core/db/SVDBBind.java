@@ -13,12 +13,12 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.db;
+package org.sveditor.core.db;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.expr.SVDBExpr;
+import org.sveditor.core.db.expr.SVDBExpr;
 
 public class SVDBBind extends SVDBChildItem implements ISVDBAddChildItem, ISVDBNamedItem {
 	public SVDBExpr			fTargetTypeName;

@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.preproc;
+package org.sveditor.core.preproc;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.scanutils.AbstractTextScanner;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.scanutils.AbstractTextScanner;
 
 public class SVPreProcOutput extends AbstractTextScanner {
 	

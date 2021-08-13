@@ -13,10 +13,10 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.explorer;
+package org.sveditor.ui.explorer;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFile;
 
 public class ProjectPathsFileWrapper implements IAdaptable {
 	private SVDBFile				fFile;

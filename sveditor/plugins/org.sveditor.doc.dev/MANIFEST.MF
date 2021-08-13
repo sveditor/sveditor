@@ -1,15 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core
-Bundle-SymbolicName: org.eclipse.hdt.sveditor.svt.core
+Bundle-SymbolicName: org.sveditor.svt.core
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.hdt.sveditor.svt.core.Activator
+Bundle-Activator: org.sveditor.svt.core.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.hdt.sveditor.core,
+ org.sveditor.core,
  org.eclipse.core.resources;bundle-version="3.8.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: org.eclipse.hdt.sveditor.core.templates,
- org.eclipse.hdt.sveditor.core.text,
- org.eclipse.hdt.sveditor.svt.core
+Export-Package: org.sveditor.core.templates,
+ org.sveditor.core.text,
+ org.sveditor.svt.core

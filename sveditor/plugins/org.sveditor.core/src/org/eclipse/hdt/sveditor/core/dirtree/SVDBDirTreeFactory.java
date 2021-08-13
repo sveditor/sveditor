@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.dirtree;
+package org.sveditor.core.dirtree;
 
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
+import org.sveditor.core.SVFileUtils;
 
 public class SVDBDirTreeFactory {
 	

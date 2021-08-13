@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.script.launch;
+package org.sveditor.core.script.launch;
 
-import org.eclipse.hdt.sveditor.core.ILineListener;
+import org.sveditor.core.ILineListener;
 
 public interface ILogMessageScanner extends ILineListener {
 	

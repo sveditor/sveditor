@@ -8,13 +8,13 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.external;
+package org.sveditor.core.db.index.external;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFSFileSystemProvider;
+import org.sveditor.core.db.index.SVDBFSFileSystemProvider;
 
 public class ExternalIndexFilesystemProvider extends SVDBFSFileSystemProvider {
 	

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index;
+package org.sveditor.core.db.index;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -17,20 +17,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBFileTree;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.index.ops.SVDBFindMacroOp;
-import org.eclipse.hdt.sveditor.core.parser.SVLanguageLevel;
-import org.eclipse.hdt.sveditor.core.parser.SVParser;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
-import org.eclipse.hdt.sveditor.core.preproc.ISVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcOutput;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
-import org.eclipse.hdt.sveditor.core.preproc.SVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.scanner.IPreProcMacroProvider;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBFileTree;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.index.ops.SVDBFindMacroOp;
+import org.sveditor.core.parser.SVLanguageLevel;
+import org.sveditor.core.parser.SVParser;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.preproc.ISVStringPreProcessor;
+import org.sveditor.core.preproc.SVPreProcOutput;
+import org.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.preproc.SVStringPreProcessor;
+import org.sveditor.core.scanner.IPreProcMacroProvider;
 
 /**
  * This class is responsible for parsing file content when the 

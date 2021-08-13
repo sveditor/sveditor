@@ -13,19 +13,19 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.tests.lexer;
+package org.sveditor.core.tests.lexer;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.parser.ISVParser;
-import org.eclipse.hdt.sveditor.core.parser.SVLexer;
-import org.eclipse.hdt.sveditor.core.parser.SVParseException;
-import org.eclipse.hdt.sveditor.core.parser.SVParserConfig;
-import org.eclipse.hdt.sveditor.core.parser.SVParsers;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.parser.ISVParser;
+import org.sveditor.core.parser.SVLexer;
+import org.sveditor.core.parser.SVParseException;
+import org.sveditor.core.parser.SVParserConfig;
+import org.sveditor.core.parser.SVParsers;
+import org.sveditor.core.scanutils.StringTextScanner;
 
 import junit.framework.TestCase;
 

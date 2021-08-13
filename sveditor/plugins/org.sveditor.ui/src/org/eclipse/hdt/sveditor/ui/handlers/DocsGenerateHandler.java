@@ -12,9 +12,9 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.handlers;
+package org.sveditor.ui.handlers;
 
-import org.eclipse.hdt.sveditor.ui.wizards.DocGenWizard;
+import org.sveditor.ui.wizards.DocGenWizard;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

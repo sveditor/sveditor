@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.design_hierarchy;
+package org.sveditor.core.design_hierarchy;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
 
 public class DesignHierarchyNode {
 	private ISVDBIndexIterator		fIndexIt;

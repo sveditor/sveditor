@@ -13,26 +13,26 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.views.hierarchy;
+package org.sveditor.ui.views.hierarchy;
 
-import org.eclipse.hdt.sveditor.ui.SVEditorUtil;
-import org.eclipse.hdt.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
-import org.eclipse.hdt.sveditor.ui.svcp.SVTreeContentProvider;
-import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.sveditor.ui.SVEditorUtil;
+import org.sveditor.ui.svcp.SVDBDecoratingLabelProvider;
+import org.sveditor.ui.svcp.SVTreeContentProvider;
+import org.sveditor.ui.svcp.SVTreeLabelProvider;
 
 import java.util.List;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.internal.ui.viewers.FindElementDialog;
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
-import org.eclipse.hdt.sveditor.core.hierarchy.HierarchyTreeNode;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.SVDBItem;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBPackageDecl;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.hierarchy.HierarchyTreeNode;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IElementComparer;

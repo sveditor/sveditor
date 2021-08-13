@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.html;
+package org.sveditor.core.docs.html;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,15 +21,15 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicType;
-import org.eclipse.hdt.sveditor.core.docs.IDocWriter;
-import org.eclipse.hdt.sveditor.core.docs.model.DocFile;
-import org.eclipse.hdt.sveditor.core.docs.model.DocModel;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.docs.DocGenConfig;
+import org.sveditor.core.docs.DocTopicType;
+import org.sveditor.core.docs.IDocWriter;
+import org.sveditor.core.docs.model.DocFile;
+import org.sveditor.core.docs.model.DocModel;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 import org.osgi.framework.Bundle;
 
 public class HTMLDocWriter implements IDocWriter {

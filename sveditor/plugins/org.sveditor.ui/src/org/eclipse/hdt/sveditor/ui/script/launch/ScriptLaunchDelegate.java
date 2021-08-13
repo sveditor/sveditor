@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.script.launch;
+package org.sveditor.ui.script.launch;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,12 +29,12 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileLexer;
-import org.eclipse.hdt.sveditor.core.scanutils.StringTextScanner;
-import org.eclipse.hdt.sveditor.core.script.launch.BuildScriptLauncherConstants;
-import org.eclipse.hdt.sveditor.core.script.launch.SVScriptProblem;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptRunner;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.argfile.parser.SVArgFileLexer;
+import org.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.script.launch.BuildScriptLauncherConstants;
+import org.sveditor.core.script.launch.SVScriptProblem;
+import org.sveditor.core.script.launch.ScriptRunner;
 
 public class ScriptLaunchDelegate implements ILaunchConfigurationDelegate {
 

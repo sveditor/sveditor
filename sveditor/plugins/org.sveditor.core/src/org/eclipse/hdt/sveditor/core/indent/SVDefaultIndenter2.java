@@ -12,7 +12,7 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.indent;
+package org.sveditor.core.indent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Pattern;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 /**
  * 

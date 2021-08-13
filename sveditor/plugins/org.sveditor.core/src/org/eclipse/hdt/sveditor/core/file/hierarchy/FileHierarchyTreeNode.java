@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.file.hierarchy;
+package org.sveditor.core.file.hierarchy;
 
 public class FileHierarchyTreeNode {
 

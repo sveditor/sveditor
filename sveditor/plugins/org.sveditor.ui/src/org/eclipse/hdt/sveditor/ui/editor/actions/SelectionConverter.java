@@ -12,20 +12,20 @@
  *     IBM Corporation - initial API and implementation
  *     Armond Paiva - repurposed for use in SVEditor
  *******************************************************************************/
-package org.eclipse.hdt.sveditor.ui.editor.actions ;
+package org.sveditor.ui.editor.actions ;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
-import org.eclipse.hdt.sveditor.ui.scanutils.SVDocumentTextScanner;
+import org.sveditor.ui.editor.SVEditor;
+import org.sveditor.ui.scanutils.SVDocumentTextScanner;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindNamedPackage;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprContext;
-import org.eclipse.hdt.sveditor.core.expr_utils.SVExprScanner;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.search.SVDBFindNamedModIfcClassIfc;
+import org.sveditor.core.db.search.SVDBFindNamedPackage;
+import org.sveditor.core.expr_utils.SVExprContext;
+import org.sveditor.core.expr_utils.SVExprScanner;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;

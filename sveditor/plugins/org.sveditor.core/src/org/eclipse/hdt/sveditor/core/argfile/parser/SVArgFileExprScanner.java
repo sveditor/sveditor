@@ -13,13 +13,13 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.argfile.parser;
+package org.sveditor.core.argfile.parser;
 
-import org.eclipse.hdt.sveditor.core.argfile.parser.SVArgFileExprContext.ContextType;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.scanner.SVCharacter;
-import org.eclipse.hdt.sveditor.core.scanutils.IBIDITextScanner;
+import org.sveditor.core.argfile.parser.SVArgFileExprContext.ContextType;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanutils.IBIDITextScanner;
 
 public class SVArgFileExprScanner {
 

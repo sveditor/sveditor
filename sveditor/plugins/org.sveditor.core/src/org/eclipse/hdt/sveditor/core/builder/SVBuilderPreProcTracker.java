@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.builder;
+package org.sveditor.core.builder;
 
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcOutputFileChangeListener;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.preproc.ISVPreProcOutputFileChangeListener;
 
 public class SVBuilderPreProcTracker implements ISVPreProcOutputFileChangeListener {
 	private ISVBuilderOutput			fOut;

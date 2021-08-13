@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.prop_pages;
+package org.sveditor.ui.prop_pages;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;

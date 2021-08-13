@@ -8,17 +8,17 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.doc;
+package org.sveditor.ui.doc;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.html.HTMLFromNDMarkup;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.docs.DocCommentParser;
+import org.sveditor.core.docs.DocTopicManager;
+import org.sveditor.core.docs.html.HTMLFromNDMarkup;
+import org.sveditor.core.docs.model.DocTopic;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;

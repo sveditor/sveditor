@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.ui.script.launch;
+package org.sveditor.ui.script.launch;
 
 
 import org.eclipse.core.resources.IFile;
@@ -18,16 +18,16 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.ui.console.IConsole;
 import org.eclipse.debug.ui.console.IConsoleLineTracker;
-import org.eclipse.hdt.sveditor.core.SVFileUtils;
-import org.eclipse.hdt.sveditor.core.script.launch.BuildScriptLauncherConstants;
-import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageListener;
-import org.eclipse.hdt.sveditor.core.script.launch.ILogMessageScanner;
-import org.eclipse.hdt.sveditor.core.script.launch.LogMessageScannerMgr;
-import org.eclipse.hdt.sveditor.core.script.launch.SVScriptProblem;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessageScannerDescriptor;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessageScannerRegistry;
-import org.eclipse.hdt.sveditor.core.script.launch.ScriptMessage.MessageType;
+import org.sveditor.core.SVFileUtils;
+import org.sveditor.core.script.launch.BuildScriptLauncherConstants;
+import org.sveditor.core.script.launch.ILogMessageListener;
+import org.sveditor.core.script.launch.ILogMessageScanner;
+import org.sveditor.core.script.launch.LogMessageScannerMgr;
+import org.sveditor.core.script.launch.SVScriptProblem;
+import org.sveditor.core.script.launch.ScriptMessage;
+import org.sveditor.core.script.launch.ScriptMessageScannerDescriptor;
+import org.sveditor.core.script.launch.ScriptMessageScannerRegistry;
+import org.sveditor.core.script.launch.ScriptMessage.MessageType;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IRegion;
 

@@ -8,15 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.index.ops;
+package org.sveditor.core.db.index.ops;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexInt;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperation;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexOperationRunner;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcessor;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexInt;
+import org.sveditor.core.db.index.ISVDBIndexOperation;
+import org.sveditor.core.db.index.ISVDBIndexOperationRunner;
+import org.sveditor.core.preproc.ISVPreProcessor;
 
 public class SVDBCreatePreProcScannerOp implements ISVDBIndexOperation {
 	private String					fPath;

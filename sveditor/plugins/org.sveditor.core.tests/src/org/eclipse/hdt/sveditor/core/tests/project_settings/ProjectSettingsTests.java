@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.tests.project_settings;
+package org.sveditor.core.tests.project_settings;
 
 import junit.framework.TestSuite;
-import org.eclipse.hdt.sveditor.core.tests.SVCoreTestCaseBase;
+import org.sveditor.core.tests.SVCoreTestCaseBase;
 
 public class ProjectSettingsTests extends SVCoreTestCaseBase {
 	

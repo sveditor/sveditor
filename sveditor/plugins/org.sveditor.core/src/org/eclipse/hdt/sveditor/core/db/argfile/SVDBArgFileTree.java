@@ -8,11 +8,11 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.argfile;
+package org.sveditor.core.db.argfile;
 
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.db.SVDBItemBase;
+import org.sveditor.core.db.SVDBItemBase;
 
 public class SVDBArgFileTree extends SVDBItemBase {
 	public List<String>				fIncludedFiles;

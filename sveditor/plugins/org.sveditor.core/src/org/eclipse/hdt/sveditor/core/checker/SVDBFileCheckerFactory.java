@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.checker;
+package org.sveditor.core.checker;
 
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBMarkerMgr;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.db.index.ISVDBMarkerMgr;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
 
 public class SVDBFileCheckerFactory {
 	

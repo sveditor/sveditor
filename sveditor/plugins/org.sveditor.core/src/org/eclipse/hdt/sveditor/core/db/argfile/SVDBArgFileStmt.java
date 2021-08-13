@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.db.argfile;
+package org.sveditor.core.db.argfile;
 
-import org.eclipse.hdt.sveditor.core.db.ISVDBChildItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.attr.SVDBParentAttr;
+import org.sveditor.core.db.ISVDBChildItem;
+import org.sveditor.core.db.SVDBItemBase;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.attr.SVDBParentAttr;
 
 public class SVDBArgFileStmt extends SVDBItemBase implements ISVDBChildItem {
 	@SVDBParentAttr

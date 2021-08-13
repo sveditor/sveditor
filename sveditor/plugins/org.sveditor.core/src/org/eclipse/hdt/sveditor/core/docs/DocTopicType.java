@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs ;
+package org.sveditor.core.docs ;
 
 
 public class DocTopicType {

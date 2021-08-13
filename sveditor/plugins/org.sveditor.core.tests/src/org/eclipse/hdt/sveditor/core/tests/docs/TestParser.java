@@ -12,21 +12,21 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.tests.docs;
+package org.sveditor.core.tests.docs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.hdt.sveditor.core.docs.DocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.IDocCommentParser;
-import org.eclipse.hdt.sveditor.core.docs.IDocTopicManager;
-import org.eclipse.hdt.sveditor.core.docs.model.DocTopic;
-import org.eclipse.hdt.sveditor.core.log.ILogLevel;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
+import org.sveditor.core.docs.DocCommentParser;
+import org.sveditor.core.docs.DocTopicManager;
+import org.sveditor.core.docs.IDocCommentParser;
+import org.sveditor.core.docs.IDocTopicManager;
+import org.sveditor.core.docs.model.DocTopic;
+import org.sveditor.core.log.ILogLevel;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
 
 import junit.framework.TestCase;
 

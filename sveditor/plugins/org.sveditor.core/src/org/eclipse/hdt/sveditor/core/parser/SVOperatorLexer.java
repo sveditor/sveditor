@@ -8,9 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  */
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.scanutils.ITextScanner;
 
 class SVOperatorLexer implements ISVOperators {
   static OP operator(ITextScanner scanner) throws SVParseException {

@@ -12,7 +12,7 @@
  *     Armond Paiva - initial contributor 
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.ui.views.diagram;
+package org.sveditor.ui.views.diagram;
 
 import org.eclipse.draw2d.AbstractRouter;
 

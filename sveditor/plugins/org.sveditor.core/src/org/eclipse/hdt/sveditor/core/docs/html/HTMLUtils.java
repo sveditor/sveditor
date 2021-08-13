@@ -12,7 +12,7 @@
  *     Armond Paiva - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.docs.html;
+package org.sveditor.core.docs.html;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.docs.DocGenConfig;
-import org.eclipse.hdt.sveditor.core.docs.DocTopicType;
+import org.sveditor.core.docs.DocGenConfig;
+import org.sveditor.core.docs.DocTopicType;
 
 
 public class HTMLUtils {

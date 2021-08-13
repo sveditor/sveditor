@@ -14,11 +14,11 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.views.objects;
+package org.sveditor.ui.views.objects;
 
-import org.eclipse.hdt.sveditor.ui.svcp.SVTreeLabelProvider;
+import org.sveditor.ui.svcp.SVTreeLabelProvider;
 
-import org.eclipse.hdt.sveditor.core.objects.ObjectsTreeNode;
+import org.sveditor.core.objects.ObjectsTreeNode;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 

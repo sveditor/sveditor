@@ -13,24 +13,24 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.ui.tests.editor;
+package org.sveditor.ui.tests.editor;
 
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.hdt.sveditor.core.tests.CoreReleaseTests;
-import org.eclipse.hdt.sveditor.core.tests.utils.TestUtils;
-import org.eclipse.hdt.sveditor.ui.editor.SVEditor;
+import org.sveditor.core.tests.CoreReleaseTests;
+import org.sveditor.core.tests.utils.TestUtils;
+import org.sveditor.ui.editor.SVEditor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.hdt.sveditor.core.SVCorePlugin;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndex;
-import org.eclipse.hdt.sveditor.core.db.index.ISVDBIndexIterator;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBDeclCacheItem;
-import org.eclipse.hdt.sveditor.core.db.index.SVDBFileOverrideIndex;
-import org.eclipse.hdt.sveditor.core.db.search.SVDBFindByNameMatcher;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.db.index.ISVDBIndex;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.db.index.SVDBDeclCacheItem;
+import org.sveditor.core.db.index.SVDBFileOverrideIndex;
+import org.sveditor.core.db.search.SVDBFindByNameMatcher;
 import org.eclipse.jface.text.BadLocationException;
 
 public class TestIndexAssociation extends SVEditorTestCaseBase {

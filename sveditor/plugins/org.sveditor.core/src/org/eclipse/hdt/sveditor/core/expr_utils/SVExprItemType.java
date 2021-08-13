@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.expr_utils;
+package org.sveditor.core.expr_utils;
 
 public enum SVExprItemType {
 	SubExpr,

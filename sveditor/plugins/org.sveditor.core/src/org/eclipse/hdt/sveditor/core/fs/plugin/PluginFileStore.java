@@ -13,7 +13,7 @@
  ****************************************************************************/
 
 
-package org.eclipse.hdt.sveditor.core.fs.plugin;
+package org.sveditor.core.fs.plugin;
 
 import java.io.InputStream;
 import java.net.URI;

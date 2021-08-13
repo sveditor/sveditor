@@ -12,7 +12,7 @@
  *     Matthew Ballance - initial implementation
  ****************************************************************************/
 
-package org.eclipse.hdt.sveditor.core.parser;
+package org.sveditor.core.parser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -21,38 +21,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.hdt.sveditor.core.Tuple;
-import org.eclipse.hdt.sveditor.core.db.IFieldItemAttr;
-import org.eclipse.hdt.sveditor.core.db.ISVDBFileFactory;
-import org.eclipse.hdt.sveditor.core.db.ISVDBItemBase;
-import org.eclipse.hdt.sveditor.core.db.ISVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFieldItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBFile;
-import org.eclipse.hdt.sveditor.core.db.SVDBInclude;
-import org.eclipse.hdt.sveditor.core.db.SVDBItemType;
-import org.eclipse.hdt.sveditor.core.db.SVDBLocation;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDef;
-import org.eclipse.hdt.sveditor.core.db.SVDBMacroDefParam;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker;
-import org.eclipse.hdt.sveditor.core.db.SVDBPackageDecl;
-import org.eclipse.hdt.sveditor.core.db.SVDBScopeItem;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerKind;
-import org.eclipse.hdt.sveditor.core.db.SVDBMarker.MarkerType;
-import org.eclipse.hdt.sveditor.core.db.stmt.SVDBParamPortDecl;
-import org.eclipse.hdt.sveditor.core.log.ILogHandle;
-import org.eclipse.hdt.sveditor.core.log.ILogLevelListener;
-import org.eclipse.hdt.sveditor.core.log.LogFactory;
-import org.eclipse.hdt.sveditor.core.log.LogHandle;
-import org.eclipse.hdt.sveditor.core.preproc.ISVPreProcFileMapper;
-import org.eclipse.hdt.sveditor.core.preproc.SVPreProcessor;
-import org.eclipse.hdt.sveditor.core.preproc.SVStringPreProcessor;
-import org.eclipse.hdt.sveditor.core.scanner.IPreProcErrorListener;
-import org.eclipse.hdt.sveditor.core.scanner.IPreProcMacroProvider;
-import org.eclipse.hdt.sveditor.core.scanner.ISVPreProcScannerObserver;
-import org.eclipse.hdt.sveditor.core.scanner.ISVScanner;
-import org.eclipse.hdt.sveditor.core.scanner.SVKeywords;
-import org.eclipse.hdt.sveditor.core.scanutils.ITextScanner;
-import org.eclipse.hdt.sveditor.core.scanutils.ScanLocation;
+import org.sveditor.core.Tuple;
+import org.sveditor.core.db.IFieldItemAttr;
+import org.sveditor.core.db.ISVDBFileFactory;
+import org.sveditor.core.db.ISVDBItemBase;
+import org.sveditor.core.db.ISVDBScopeItem;
+import org.sveditor.core.db.SVDBFieldItem;
+import org.sveditor.core.db.SVDBFile;
+import org.sveditor.core.db.SVDBInclude;
+import org.sveditor.core.db.SVDBItemType;
+import org.sveditor.core.db.SVDBLocation;
+import org.sveditor.core.db.SVDBMacroDef;
+import org.sveditor.core.db.SVDBMacroDefParam;
+import org.sveditor.core.db.SVDBMarker;
+import org.sveditor.core.db.SVDBPackageDecl;
+import org.sveditor.core.db.SVDBScopeItem;
+import org.sveditor.core.db.SVDBMarker.MarkerKind;
+import org.sveditor.core.db.SVDBMarker.MarkerType;
+import org.sveditor.core.db.stmt.SVDBParamPortDecl;
+import org.sveditor.core.log.ILogHandle;
+import org.sveditor.core.log.ILogLevelListener;
+import org.sveditor.core.log.LogFactory;
+import org.sveditor.core.log.LogHandle;
+import org.sveditor.core.preproc.ISVPreProcFileMapper;
+import org.sveditor.core.preproc.SVPreProcessor;
+import org.sveditor.core.preproc.SVStringPreProcessor;
+import org.sveditor.core.scanner.IPreProcErrorListener;
+import org.sveditor.core.scanner.IPreProcMacroProvider;
+import org.sveditor.core.scanner.ISVPreProcScannerObserver;
+import org.sveditor.core.scanner.ISVScanner;
+import org.sveditor.core.scanner.SVKeywords;
+import org.sveditor.core.scanutils.ITextScanner;
+import org.sveditor.core.scanutils.ScanLocation;
 
 /**
  * Scanner for SystemVerilog files.
