@@ -38,7 +38,7 @@ jobs:
     - name: Prepare to push update
       run: |
               branch=`git rev-parse --abbrev-ref HEAD`
-              if test "$branch" = "master"; then
+              if test "$branch" = "master" || true; then
                   echo "releasing"
                   git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
               else 
