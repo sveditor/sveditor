@@ -14,10 +14,10 @@
 <site>
 	<category-def
 		name="org.sveditor.category"
-		label="Eclipse HDT"
+		label="SVEditor"
 	>
 		<description>
-			Eclipse HDL Development Tools
+			SVEditor Verilog/SystemVeriog Development Tools
 		</description>
 	</category-def>
 	<feature
@@ -27,10 +27,10 @@
 
 	<category-def
 		name="org.sveditor.category.source"
-		label="Eclipse HDT Developer Resources"
+		label="SVEditor Developer Resources"
 	>
 		<description>
-			Eclipse HDL Development Tools
+			SVEditor Verilog/SystemVerilog Development Tools
 		</description>
 	</category-def>
 	<feature

@@ -47,7 +47,9 @@ jobs:
               mvn clean verify --no-transfer-progress -U -Pcoverage
 
               branch=`git rev-parse --abbrev-ref HEAD`
-              if test "$branch" = "master" || true; then
+
+              # Only release from the main branch
+              if test "$branch" = "master"; then
                   echo "releasing"
                   git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
                   rm -rf sveditor.github.io/update
