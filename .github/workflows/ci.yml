@@ -54,6 +54,12 @@ jobs:
                   git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
                   rm -rf sveditor.github.io/update
                   cp -r ./releng/org.sveditor.repository/target/repository sveditor.github.io/update
+
+                  # Create a basic landing page for the update site
+                  echo "<h1>SVEditor Update Site</h1>" > sveditor.github.io/update/index.html
+                  echo "<pre>" >> sveditor.github.io/update/index.html
+                  cat ChangeLog.txt >> sveditor.github.io/update/index.html
+                  echo "</pre>" >> sveditor.github.io/update/index.html
                   cd sveditor.github.io
                   git add update
                   git commit -s -m "Release version ${version}"
