@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright (c) 2020 Alexander Fedorov and others
+
+	This program and the accompanying materials are made available under the
+	terms of the Eclipse Public License 2.0 which is available at
+	https://www.eclipse.org/legal/epl-2.0/.
+
+	SPDX-License-Identifier: EPL-2.0
+
+	Contributors:
+		Alexander Fedorov - initial API and implementation
+-->
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.sveditor</groupId>
+	<artifactId>org.sveditor.parent</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<qualifier.format>'v'yyyyMMdd-HHmm</qualifier.format>
+		<build.label>${unqualifiedVersion}.${buildQualifier}</build.label>
+
+		<tycho.scmUrl>scm:git:https://github.com/mballance/sveditor.git</tycho.scmUrl>
+		<tycho.version>1.5.1</tycho.version>
+		<cbi-plugins.version>1.1.8-SNAPSHOT</cbi-plugins.version>
+		<jarsigner.version>1.1.5</jarsigner.version>
+
+		<tycho-snapshot-repo.url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</tycho-snapshot-repo.url>
+		<cbi-jdt-repo.url>https://repo.eclipse.org/content/repositories/eclipse-staging/</cbi-jdt-repo.url>
+		<eclipse-repo.url>https://repo.eclipse.org/content/repositories/cbi/</eclipse-repo.url>
+		<cbi-snapshots-repo.url>https://repo.eclipse.org/content/repositories/cbi-snapshots/</cbi-snapshots-repo.url>
+
+		<eclipserun-repo>https://download.eclipse.org/eclipse/updates/4.17-I-builds/</eclipserun-repo>
+		<!-- Declaration of properties that contribute to the arg line for the tycho-surefire-plugin. 
+			The properties are declared empty by default and are overridden by automatic 
+			activation of specific configuration in modules. -->
+		<!-- any additional surefire args; to be defined by a test-plugin -->
+		<surefire.testArgLine></surefire.testArgLine>
+		<!-- platform/OS specific JVM args -->
+		<surefire.platformSystemProperties></surefire.platformSystemProperties>
+		<!-- properties related to Java modules on Java 9+ -->
+		<surefire.moduleProperties></surefire.moduleProperties>
+		<!-- system specific JVM args; if needed provided by system properties to 
+			the build command -->
+		<surefire.systemProperties></surefire.systemProperties>
+
+	</properties>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>${tycho-snapshot-repo.url}</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>cbi-jdt</id>
+			<url>${cbi-jdt-repo.url}</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>cbi-snapshots</id>
+			<url>${cbi-snapshots-repo.url}</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>eclipse</id>
+			<url>${eclipse-repo.url}</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<repositories>
+	</repositories>
+
+	<profiles>
+		<!-- Automatic profile for features that shouldn't generate sources -->
+		<profile>
+			<id>feature-no-source</id>
+			<activation>
+				<file>
+				<exists>feature-no-source.properties</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-source-feature-plugin</artifactId>
+						<version>${tycho.version}</version>
+						<executions>
+							<execution>
+								<id>source-feature</id>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>about-mappings</id>
+			<activation>
+				<file>
+					<exists>about.mappings</exists>
+				</file>
+			</activation>
+			<build>
+				<resources>
+					<resource>
+						<directory>.</directory>
+						<filtering>true</filtering>
+						<includes>
+							<include>about.mappings</include>
+						</includes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+	</profiles>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<target>
+						<artifact>
+							<groupId>org.sveditor</groupId>
+							<artifactId>org.sveditor.target</artifactId>
+							<version>${project.parent.version}</version>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-source-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<distinctSourceRoots>true</distinctSourceRoots>
+					<strictSrcIncludes>false</strictSrcIncludes>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-source</id>
+						<goals>
+							<goal>plugin-source</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-source-feature-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+					<reuseBrandingPlugin>false</reuseBrandingPlugin>
+				</configuration>
+				<executions>
+					<execution>
+						<id>source-feature</id>
+						<phase>package</phase>
+						<goals>
+							<goal>source-feature</goal>
+						</goals>
+						<configuration>
+							<excludes>
+								<plugin id="org.eclipse.passage.loc.operator" />
+								<plugin id="org.eclipse.passage.lbc.server" />
+								<plugin id="org.eclipse.passage.ldc" />
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attached-p2-metadata</id>
+						<phase>package</phase>
+						<goals>
+							<goal>p2-metadata</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-buildtimestamp-jgit</artifactId>
+						<version>${tycho.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-sourceref-jgit</artifactId>
+						<version>${tycho.version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<format>${qualifier.format}</format>
+					<timestampProvider>jgit</timestampProvider>
+					<jgit.ignore>
+						pom.xml
+						.META-INF_MANIFEST.MF
+						.polyglot.*
+						*.takari_issue_192
+					</jgit.ignore>
+					<jgit.dirtyWorkingTree>warning</jgit.dirtyWorkingTree>
+					<sourceReferences>
+						<generate>true</generate>
+					</sourceReferences>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
+					<additionalFileSets combine.children="append">
+						<fileSet>
+							<directory>${project.build.directory}</directory>
+							<includes>
+								<include>.api_description</include>
+							</includes>
+						</fileSet>
+					</additionalFileSets>
+				</configuration>
+			</plugin>
+<!-- enable after Eclipse HDT 0.1.0 release
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<executions>
+					<execution> 
+						<id>compare-attached-artifacts-with-release</id>
+						<goals>
+							<goal>compare-version-with-baselines</goal>
+						</goals>
+						<configuration>
+							<skip>${compare-version-with-baselines.skip}</skip>
+							<baselines>
+								<baseline>${released.baseline}</baseline>
+							</baselines>
+							<comparator>zip</comparator>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+-->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<argLine>${surefire.testArgLine}
+						${surefire.platformSystemProperties}
+						${surefire.systemProperties}
+						${surefire.moduleProperties}
+					</argLine>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.3.0.603</version>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.tycho.extras</groupId>
+					<artifactId>tycho-eclipserun-plugin</artifactId>
+					<version>${tycho.version}</version>
+					<configuration>
+						<executionEnvironment>JavaSE-1.8</executionEnvironment>
+						<repositories>
+							<repository>
+								<id>eclipse</id>
+								<layout>p2</layout>
+								<url>${eclipserun-repo}</url>
+							</repository>
+						</repositories>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.8</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho</groupId>
+					<artifactId>tycho-p2-plugin</artifactId>
+					<version>${tycho.version}</version>
+					<configuration>
+						<baselineMode>warn</baselineMode>
+						<baselineReplace>all</baselineReplace>
+						<baselineRepositories>
+							<repository>
+								<url>${staging.baseline}</url>
+							</repository>
+						</baselineRepositories>
+						<ignoredPatterns>
+							<pattern>META-INF/ECLIPSE_.RSA</pattern>
+							<pattern>META-INF/ECLIPSE_.SF</pattern>
+						</ignoredPatterns>
+						<generateDownloadStatsProperty>true</generateDownloadStatsProperty>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>3.1.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<resources>
+			<resource>
+				<directory>.</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>about.mappings</include>
+				</includes>
+			</resource>
+		</resources>
+
+	</build>
+
+	
+
+</project>

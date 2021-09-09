@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="releaseTests" name="releaseTests" schema="schema/releaseTests.exsd"/>
+   <extension
+         point="org.sveditor.core.SVLibraries">
+      <SVLibrary
+            default="false"
+            id="org.ovmworld.ovm"
+            name="OVM Library"
+            path="ovm/ovm.f">
+      </SVLibrary>
+      <SVLibrary
+            default="false"
+            id="org.vmmcentral.vmm"
+            name="VMM Library"
+            path="vmm/vmm.f">
+      </SVLibrary>
+   </extension>
+   <extension
+         point="org.sveditor.core.tests.releaseTests">
+      <releaseTestSuite
+            class="org.sveditor.core.tests.CoreReleaseTests">
+      </releaseTestSuite>
+   </extension>
+
+</plugin>

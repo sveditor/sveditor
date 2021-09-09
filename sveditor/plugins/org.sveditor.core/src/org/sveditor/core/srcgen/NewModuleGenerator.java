@@ -1,0 +1,91 @@
+/****************************************************************************
+ * Copyright (c) 2008-2014 Matthew Ballance and others.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * https://www.eclipse.org/legal/epl-2.0/.
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ *
+ * Contributors:
+ *     Matthew Ballance - initial implementation
+ ****************************************************************************/
+
+
+package org.sveditor.core.srcgen;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+import org.sveditor.core.SVCorePlugin;
+import org.sveditor.core.StringInputStream;
+import org.sveditor.core.db.index.ISVDBIndexIterator;
+import org.sveditor.core.indent.ISVIndenter;
+import org.sveditor.core.indent.SVIndentScanner;
+import org.sveditor.core.scanner.SVCharacter;
+import org.sveditor.core.scanutils.StringTextScanner;
+import org.sveditor.core.tagproc.TagProcessor;
+
+public class NewModuleGenerator {
+	private TagProcessor		fTagProc;
+	
+	public NewModuleGenerator(TagProcessor proc) {
+		fTagProc = proc;
+	}
+	
+	public void generate(
+			ISVDBIndexIterator	index_it,
+			final IFile			file_path,
+			String				modulename,
+			IProgressMonitor	monitor) {
+		
+		fTagProc.setTag("filename", file_path.getName());
+		fTagProc.setTag("type", "Module");
+		SubMonitor subMonitor = SubMonitor.convert(monitor, "Creating module", 100);
+		
+		String template = "${file_header}\n";
+
+		template += "/**\n";
+		template += " * Module: " + modulename + "\n";
+		template += " * \n";
+		template += " * TODO: Add module documentation\n";
+		template += " */\n";
+		template += "module " + modulename;
+
+		subMonitor.worked(25);
+		
+		template += ";\n";
+		
+		subMonitor.worked(25);
+		
+		template += "\n\n";
+		template += "endmodule\n";
+		
+		template += "\n${file_footer}\n";
+		
+		template = fTagProc.process(template);
+
+		subMonitor.subTask("Indenting content");
+		SVIndentScanner scanner = new SVIndentScanner(
+				new StringTextScanner(new StringBuilder(template)));
+		ISVIndenter indenter = SVCorePlugin.getDefault().createIndenter();
+		indenter.init(scanner);
+		final StringInputStream in = new StringInputStream(indenter.indent());
+		
+		subMonitor.worked(25);
+		
+		try {
+			if (file_path.exists()) {
+				file_path.setContents(in, true, true, new NullProgressMonitor());
+			} else {
+				file_path.create(in, true, new NullProgressMonitor());
+			}
+		} catch (CoreException e) {}
+		
+		subMonitor.done();
+	}
+	
+}

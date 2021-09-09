@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svproject>
+<defines/>
+<includePaths/>
+<buildPaths/>
+<pluginPaths>
+<pluginPath path="org.sveditor.sv_builtin"/>
+</pluginPaths>
+<libraryPaths/>
+<argFilePaths>
+<argFilePath path="${workspace_loc}/objects_p2/p2.f"/>
+</argFilePaths>
+<sourceCollections/>
+<projectRefs>
+<projectRef path="projB"/>
+</projectRefs>
+</svproject>

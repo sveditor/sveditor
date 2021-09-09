@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core
+Bundle-SymbolicName: org.sveditor.svt.core
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.sveditor.svt.core.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.sveditor.core,
+ org.eclipse.core.resources;bundle-version="3.8.1"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.sveditor.core.templates,
+ org.sveditor.core.text,
+ org.sveditor.svt.core

@@ -1,0 +1,71 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Setup Maven
+      run: echo "MAVEN_OPTS='-Xmx2048m'" > ~/.mavenrc
+    - name: Cache maven repo
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-maven-repo
+      with:
+        # maven files are stored in `~/.m2/repository` on Linux/macOS
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.sha1') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+    - name: Git global config
+      run: |
+              git config --global user.name 'SVEditor Github Actions'
+              git config --global user.email 'sveditor@users.noreply.github.com'
+    - name: Build with Maven
+      run: |
+              version_base=`grep -w 'version' etc/sveditor.info  | grep -v '#' | sed -e 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/'`
+              version_date=`date +"%Y%m%d"`
+              version="${version_base}.v${version_date}-${GITHUB_RUN_ID}"
+              echo "Version: $version"
+             
+              # Update versions in files
+              for file in `find sveditor -name '*.xml'; find sveditor -name '*.MF'`; do
+                  sed -i -e "s%1.2.3%$version%g" $file
+              done
+
+              mvn clean verify --no-transfer-progress -U -Pcoverage
+
+              branch=`git rev-parse --abbrev-ref HEAD`
+
+              # Only release from the main branch
+              if test "$branch" = "master"; then
+                  echo "releasing"
+                  git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
+                  rm -rf sveditor.github.io/update
+                  cp -r ./releng/org.sveditor.repository/target/repository sveditor.github.io/update
+
+                  # Create a basic landing page for the update site
+                  echo "<h1>SVEditor Update Site</h1>" > sveditor.github.io/update/index.html
+                  echo "<pre>" >> sveditor.github.io/update/index.html
+                  cat ChangeLog.txt >> sveditor.github.io/update/index.html
+                  echo "</pre>" >> sveditor.github.io/update/index.html
+                  cd sveditor.github.io
+                  git add update
+                  git commit -s -m "Release version ${version}"
+                  git push
+              else 
+                  echo "on branch $branch"
+              fi
+
+

@@ -1,0 +1,1955 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="svScriptPatternMatchers" name="SV Script Pattern Matchers" schema="schema/svScriptPatternMatchers.exsd"/>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.sveditor.ui.editor.SVEditor"
+            contributorClass="org.sveditor.ui.editor.SVActionContributor"
+            default="true"
+            icon="icons/vlog_16_16.gif"
+            id="org.sveditor.ui.editor"
+            name="SystemVerilog Editor">
+         <contentTypeBinding
+               contentTypeId="org.sveditor.core.systemverilog">
+         </contentTypeBinding>
+         <contentTypeBinding
+               contentTypeId="org.sveditor.core.verilog">
+         </contentTypeBinding>
+         <contentTypeBinding
+               contentTypeId="org.sveditor.core.verilogams">
+         </contentTypeBinding>
+      </editor>
+
+      <editor
+            class="org.sveditor.ui.argfile.editor.SVArgFileEditor"
+            contributorClass="org.sveditor.ui.argfile.editor.SVArgFileActionContributor"
+            default="true"
+            icon="icons/eview16/configs.gif"
+            id="org.sveditor.ui.argfile.editor"
+            name="SystemVerilog Argument File Editor">
+         <contentTypeBinding
+               contentTypeId="org.sveditor.core.argfile">
+         </contentTypeBinding>
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="org.sveditor.ui.editor.SVDocumentSetupParticipant"
+            contentTypeId="org.sveditor.core.systemverilog">
+      </participant>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="org.sveditor.ui.argfile.editor.SVArgFileDocSetupParticipant"
+            contentTypeId="org.sveditor.core.argfile">
+      </participant>
+   </extension>
+   <extension
+         id="org.sveditor.ui.SVNavigatorContent"
+         name="SystemVerilog Navigator Content"
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent
+            activeByDefault="true"
+            contentProvider="org.sveditor.ui.explorer.SVFileNavigatorContentProvider"
+            icon="icons/vlog_16_16.gif"
+            id="org.sveditor.ui.svFileNavigatorContent"
+            labelProvider="org.sveditor.ui.explorer.SVExplorerDecoratingLabelProvider"
+            name="SystemVerilog File"
+            priority="normal"
+            providesSaveables="false">
+         <triggerPoints>
+            <or>
+               <and>
+                  <instanceof
+                        value="org.eclipse.core.resources.IResource">
+                  </instanceof>
+                  <or>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="svh">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="sv">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="v">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="vlog">
+                     </test>
+                     <test
+                           forcePluginActivation="true"
+                           property="org.eclipse.core.resources.extension"
+                           value="vl">
+                     </test>
+                  </or>
+               </and>
+               <instanceof
+                     value="org.sveditor.core.db.SVDBItem">
+               </instanceof>
+            </or>
+         </triggerPoints>
+         <commonSorter
+               class="org.sveditor.ui.explorer.SVFileSorter">
+         </commonSorter>
+         <possibleChildren>
+            <instanceof
+                  value="org.sveditor.core.db.SVDBItem">
+            </instanceof>
+         </possibleChildren>
+      </navigatorContent>
+<!--
+      <actionProvider
+            class="org.sveditor.ui.explorer.AddSystemVerilogNatureAction"
+            id="org.sveditor.ui.explorer.AddSystemVerilogNatureAction">
+         <enablement>
+            <and>
+               <instanceof
+                     value="org.eclipse.core.resources.IProject">
+               </instanceof>
+               <not>
+                  <test
+                        forcePluginActivation="true"
+                        property="org.eclipse.core.resources.projectNature"
+                        value="org.sveditor.core.SVNature">
+                  </test>
+               </not>
+            </and>
+         </enablement>
+      </actionProvider>
+ -->
+      <actionProvider
+            class="org.sveditor.ui.explorer.OpenSVDBItem"
+            id="org.sveditor.ui.explorer.OpenSVDBItem">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.sveditor.core.db.index.SVDBDeclCacheItem">
+               </adapt>
+               <adapt
+                     type="org.sveditor.core.db.ISVDBItemBase">
+               </adapt>
+            </or>
+         </enablement>
+      </actionProvider>
+      <actionProvider
+            class="org.sveditor.ui.explorer.RebuildSvIndexAction"
+            id="org.sveditor.ui.explorer.RebuildSvIndexAction">
+         <enablement>
+            <or>
+               <adapt
+                     type="org.eclipse.core.resources.IResource">
+               </adapt>
+            </or>
+         </enablement>
+      </actionProvider>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.newSVClassWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.newSVInterfaceWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.newSVModuleWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.newSVPackageWizard">
+         <enablement>
+            <adapt
+                  type="org.eclipse.core.resources.IContainer">
+            </adapt></enablement>
+      </commonWizard>            
+      <navigatorContent
+            activeByDefault="true"
+            appearsBefore="org.eclipse.ui.navigator.resourceContent"
+            contentProvider="org.sveditor.ui.explorer.ProjectPathsContentProvider"
+            icon="icons/edecl16/package.gif"
+            id="org.sveditor.ui.projectPathsContent"
+            labelProvider="org.sveditor.ui.explorer.ProjectPathsLabelProvider"
+            name="SV Contents"
+            priority="high"
+            providesSaveables="false">
+         <triggerPoints>
+            <or>
+               <adapt
+                     type="org.sveditor.core.db.project.SVDBProjectData">
+               </adapt>
+               <instanceof
+                     value="org.sveditor.core.db.SVDBItem">
+               </instanceof>
+            </or>
+         </triggerPoints>
+         <override
+               policy="InvokeAlwaysRegardlessOfSuppressedExt"
+               suppressedExtensionId="org.sveditor.ui.svFileNavigatorContent">
+         </override>
+         <!--
+         <override
+               policy="InvokeAlwaysRegardlessOfSuppressedExt"
+               suppressedExtensionId="org.eclipse.ui.navigator.resourceContent">
+         </override>
+          -->
+      </navigatorContent>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.svMethodologyClassWizard">
+         <enablement></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.newSVFilelist">
+         <enablement></enablement>
+      </commonWizard>
+      <commonWizard
+            menuGroupId="org.sveditor.ui.newSVWizards"
+            type="new"
+            wizardId="org.sveditor.ui.newSVEProject">
+         <enablement></enablement>
+      </commonWizard>
+   </extension>
+   <extension
+         id="org.sveditor.ui.SVNavigatorContentBinding"
+         name="SystemVerilog Navigator Content Binding"
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <contentExtension
+                  isRoot="false"
+                  pattern="org.sveditor.ui.svFileNavigatorContent">
+            </contentExtension>
+            <contentExtension
+                  isRoot="false"
+                  pattern="org.sveditor.ui.projectPathsContent">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+      <viewerActionBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <actionExtension
+                  pattern="org.sveditor.ui.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="org.sveditor.ui.prop_pages.SVProjectProps"
+            id="org.sveditor.ui.SVPropPage"
+            name="SystemVerilog Project Properties">
+         <enabledWhen>
+            <adapt
+                  type="org.eclipse.core.resources.IProject">
+            </adapt>
+         </enabledWhen>
+            <!--
+         <enabledWhen>
+            <adapt
+                  type="org.eclipse.core.resources.IProject">
+               <test
+                     forcePluginActivation="true"
+                     property="org.eclipse.core.resources.projectNature"
+                     value="org.sveditor.core.SVNature">
+               </test>
+            </adapt>
+         </enabledWhen>
+             -->
+      </page>
+      <page
+            class="org.sveditor.ui.prop_pages.SVFilePropertyPage"
+            id="org.sveditor.ui.SVEditorInfo"
+            name="SVEditor Info">
+         <enabledWhen>
+            <and>
+               <adapt
+                     type="org.eclipse.core.resources.IFile">
+               </adapt>
+	            <test
+                  args="contentTypeId"
+                  forcePluginActivation="true"
+                  property="org.eclipse.core.resources.filePropertyTester"
+                  value="org.sveditor.core.systemverilog">
+    	        </test>
+            </and>
+         </enabledWhen>
+      </page>
+      
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+         <!-- Edit Menu Items -->
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Declaration"
+            id="org.sveditor.ui.editor.open.declaration"
+            name="Open Declaration">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Find References"
+            id="org.sveditor.ui.editor.find.references"
+            name="Find References">
+      </command>
+      <command
+            id="org.sveditor.ui.override.tf.command"
+            name="Override Tasks/Functions">
+      </command>
+      <command
+            description="Indent Source"
+            id="org.sveditor.ui.indent"
+            name="Indent">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.editor.open.type.hierarchy"
+            name="Open Type Hierarchy">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Objects view if not already visible"
+            id="org.sveditor.ui.editor.open.objects"
+            name="Open Objects">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Opens the Quick Objects"
+            id="org.sveditor.ui.editor.open.quick.objects"
+            name="Open Quick Objects">
+      </command>
+      <command
+            id="org.sveditor.ui.AddBlockComment"
+            name="Add Block Comment">
+      </command>
+      <command
+            id="org.sveditor.ui.RemoveBlockComment"
+            name="Remove Block Comment">
+      </command>
+      <command
+            id="org.sveditor.ui.ToggleComment"
+            name="Toggle Comment">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Quick Outline"
+            id="org.sveditor.ui.editor.open.quick.outline"
+            name="Open Quick Outline">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open the Quick Type Hierarchy"
+            id="org.sveditor.ui.editor.open.quick.hierarchy"
+            name="Open Quick Type Hierarchy">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Diagram for Selection"
+            id="org.sveditor.ui.editor.open.diag.selection"
+            name="Open Diagram for Selection">
+      </command>
+      <category
+            description="Commands related to SVEditor document generation"
+            id="org.sveditor.ui.docs"
+            name="Documents">
+      </category>
+      <command
+            categoryId="org.sveditor.ui.docs"
+            defaultHandler="org.sveditor.ui.handlers.DocsGenerateHandler"
+            id="org.sveditor.ui.docs.generate"
+            name="Generate Docs">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Type"
+            id="org.sveditor.ui.editor.open.type"
+            name="Open Type">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.open.super.method"
+            name="Open Super Method">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.gotoMatchingBracket"
+            name="Go to Matching Bracket"
+            description="Moves the cursor to the matching bracket">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.SelectEnclosingElement"
+            name="Select Enclosing Element"
+            description="Expand selection to include enclosing element">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.GoToNextElement"
+            name="Go to Next Member"
+            description="Move the caret to the next member of the translation unit">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.GoToPrevElement"
+            name="Go to Previous Member"
+            description="Move the caret to the previous member of the translation unit">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.AddNdocsAction"
+            name="Add Natural Docs Comment"
+            description="Add a Natural Docs comment stub to the member element">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open Macro Expansion"
+            id="org.sveditor.ui.editor.open.macro.expansion"
+            name="Open Macro Expansion">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.sveditor.ui.editor.open.declaration"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3">
+      </key>
+      <key
+            commandId="org.sveditor.ui.indent"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+I">
+      </key>
+      <key
+            commandId="org.sveditor.ui.editor.open.type.hierarchy"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F4">
+      </key>
+      <key
+            commandId="org.sveditor.ui.editor.open.quick.objects"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+O">
+      </key>
+      <key
+            commandId="org.sveditor.ui.indent"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+F">
+      </key>
+      <key
+            commandId="org.sveditor.ui.AddBlockComment"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+/">
+      </key>
+      <key
+            commandId="org.sveditor.ui.RemoveBlockComment"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+\">
+      </key>
+      <key
+            commandId="org.sveditor.ui.ToggleComment"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+/">
+      </key>
+      <key
+            commandId="org.sveditor.ui.editor.open.quick.outline"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+O">
+      </key>
+      <key
+            commandId="org.sveditor.ui.editor.open.quick.hierarchy"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+T">
+      </key>
+      <key
+            commandId="org.sveditor.ui.editor.open.diag.selection"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+D">
+      </key>
+      <key
+            commandId="org.sveditor.ui.editor.open.type"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+T">
+      </key>
+      <key
+            commandId="org.sveditor.ui.gotoMatchingBracket"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+P">
+      </key>
+      <key
+            commandId="org.sveditor.ui.SelectEnclosingElement"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+ALT+ARROW_UP">
+      </key>
+      <key
+            commandId="org.sveditor.ui.GoToNextElement"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+ARROW_DOWN">
+      </key>
+      <key
+            commandId="org.sveditor.ui.GoToPrevElement"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+CTRL+ARROW_UP">
+      </key>
+      <key
+            commandId="org.sveditor.ui.AddNdocsAction"
+            contextId="org.sveditor.ui.svEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="SHIFT+ALT+J">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.sveditor.ui.svOpenActions"
+            label="SV Open Actions"
+            visible="false">
+         <action
+               definitionId="org.sveditor.ui.editor.open.declaration"
+               id="org.sveditor.ui.svOpenEditorAction"
+               label="Open Declaration"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.find.references"
+               id="org.sveditor.ui.svFindReferencesAction"
+               label="Find References"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.indent"
+               id="org.sveditor.ui.svIndentEditorAction"
+               label="Indent"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.override.tf.command"
+               id="org.sveditor.ui.override.tf"
+               label="Override Tasks/Functions"
+               menubarPath="org.sveditor.ui.source.menu/editGroup"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.type.hierarchy"
+               id="org.sveditor.ui.svOpenTypeHierarchyAction"
+               label="Open Type Hierarchy"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.objects"
+               id="org.sveditor.ui.svOpenObjectsAction"
+               label="Open Objects"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.quick.objects"
+               id="org.sveditor.ui.svOpenQuickObjectsAction"
+               label="Open Quick Objects"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.quick.outline"
+               id="org.sveditor.ui.svOpenQuickOutlineAction"
+               label="Open Quick Outline"
+               retarget="true">
+         </action>
+         <action
+               id="org.sveditor.ui.svAddBlockCommentAction"
+               label="Add Block Comment"
+               retarget="true">
+         </action>
+         <action
+               id="org.sveditor.ui.svRemoveBlockCommentAction"
+               label="Remove Block Comment"
+               retarget="true">
+         </action>
+         <action
+               id="org.sveditor.ui.svToggleCommentAction"
+               label="Toggle Comment"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.quick.hierarchy"
+               id="org.sveditor.ui.svOpenQuickHierarchyAction"
+               label="Open Quick Type Hierarchy"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.diag.selection"
+               id="org.sveditor.ui.svOpenDiagForSelectionAction"
+               label="Open Diag for Selection"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.type"
+               id="org.sveditor.ui.svOpenTypeAction"
+               label="Open Type"
+               retarget="true">
+         </action>
+         <action
+               definitionId="org.sveditor.ui.editor.open.macro.expansion"
+               id="org.sveditor.ui.svOpenMacroExpansion"
+               label="Open Macro Expansion"
+               retarget="true">
+         </action>
+      </actionSet>
+      <actionSet
+            id="org.sveditor.ui.source.menu.as"
+            label="Source Menu"
+            visible="true">
+         <menu
+               id="org.sveditor.ui.source.menu"
+               label="Source"
+               path="edit">
+            <separator
+                  name="commentGroup">
+            </separator>
+            <separator
+                  name="editGroup">
+            </separator>
+         </menu>
+      </actionSet>
+      <actionSet
+            id="org.sveditor.ui.svSearchActionSet"
+            label="SystemVerilog Search"
+            visible="false">
+         <action
+               class="org.sveditor.ui.search.OpenSVSearchAction"
+               id="org.sveditor.ui.svOpenSearchPage"
+               label="SystemVerilog..."
+               menubarPath="org.eclipse.search.menu/dialogGroup"
+               style="push">
+         </action>
+      </actionSet>
+      <actionSet
+            id="org.sveditor.ui.svArgFileActions"
+            label="SV ArgFile Actions"
+            visible="false">
+         <action
+               definitionId="org.sveditor.ui.argfile.editor.open.file"
+               id="org.sveditor.ui.svArgFileOpenFile"
+               label="Open File"
+               retarget="true">
+         </action>
+         <action
+               id="org.sveditor.ui.svArgFileToggleComment"
+               label="Toggle Comment"
+               retarget="true">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="org.sveditor.ui.svEditorContext"
+            name="SVEditor Context"
+            parentId="org.eclipse.ui.textEditorScope">
+      </context>
+      <context
+            id="org.sveditor.ui.svArgFileEditorContext"
+            name="SVArgFileEditor Context"
+            parentId="org.eclipse.ui.textEditorScope">
+      </context>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.hierarchy.SVHierarchyView"
+            icon="icons/eview16/class_hi.gif"
+            id="org.sveditor.ui.hierarchyView"
+            name="Hierarchy"
+            restorable="true">
+         <description>
+            SystemVerilog Class Hierarchy Viewer
+         </description>
+      </view>
+      <category
+            id="org.sveditor.ui.viewCategory"
+            name="SVEditor">
+      </category>
+      <view
+            allowMultiple="false"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.objects.SVObjectsView"
+            icon="icons/eview16/class_hi.gif"
+            id="org.sveditor.ui.objectsView"
+            name="Objects"
+            restorable="true">
+         <description>
+            SystemVerilog Objects Viewer
+         </description>
+      </view>
+      <view
+            allowMultiple="false"
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.diagram.SVDiagramView"
+            icon="icons/eview16/class_hi.gif"
+            id="org.sveditor.ui.diagramView"
+            name="Diagram"
+            restorable="false">
+         <description>
+            SystemVerilog Objects Viewer
+         </description>
+      </view>
+      <view
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.MacroExpansionView"
+            icon="icons/edecl16/define_obj.gif"
+            id="org.sveditor.ui.macroExpansionView"
+            name="Macro Expansion View"
+            restorable="true">
+      </view>
+      
+      
+   </extension>
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="org.sveditor.ui.PluginFileEditorInputFactory"
+            id="org.sveditor.ui.PluginFileEditorInputFactory">
+      </factory>
+   </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.sveditor.ui.pref.SVEditorPrefsPage"
+            id="org.sveditor.ui.page1"
+            name="SVEditor">
+      </page>
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorSaveActionsPrefsPage"
+            id="org.sveditor.ui.svEditorSaveActionsPrefsPage"
+            name="Save Actions">
+      </page>
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVTemplatePrefsPage"
+            id="org.sveditor.ui.svEditorTemplates"
+            name="Code Templates">
+      </page>
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVContentAssistPrefsPage"
+            id="org.sveditor.ui.contentAssist"
+            name="Content Assist">
+      </page>
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorTemplatePropertiesPrefsPage"
+            id="org.sveditor.ui.svTemplateProperties"
+            name="SV Template Properties">
+      </page>         
+
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorIndexPrefsPage"
+            id="org.sveditor.ui.indexPreferences"
+            name="Index Preferences">
+      </page>
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorCodeStylePrefsPage"
+            id="org.sveditor.ui.svEditorCodeStylePrefs"
+            name="Code Style Preferences">
+      </page>
+      <page
+            category="org.sveditor.ui.page1"
+            class="org.sveditor.ui.pref.SVEditorFoldingPrefsPage"
+            id="org.sveditor.ui.sveditorFoldingPrefs"
+            name="Folding">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.sveditor.ui.pref.SVEditorPrefsInitialize">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.sveditor.ui.svPerspective">
+         <view
+               id="org.sveditor.ui.hierarchyView"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.navigator.ProjectExplorer">
+         </view>
+         <newWizardShortcut
+               id="org.sveditor.ui.newSVEProject">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.sveditor.ui.newSVClassWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.sveditor.ui.newSVInterfaceWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.sveditor.ui.newSVModuleWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.sveditor.ui.newSVPackageWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.sveditor.ui.svMethodologyClassWizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.sveditor.ui.newSVFilelist">
+         </newWizardShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.sveditor.ui.svNewWizards"
+            name="SVEditor">
+      </category>
+      <wizard
+            canFinishEarly="false"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVClassWizard"
+            icon="icons/edecl16/class_obj.gif"
+            id="org.sveditor.ui.newSVClassWizard"
+            name="SystemVerilog Class"
+            project="false">
+      </wizard>
+
+      <wizard
+            canFinishEarly="false"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVPackageWizard"
+            icon="icons/edecl16/package.gif"
+            id="org.sveditor.ui.newSVPackageWizard"
+            name="SystemVerilog Package"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVInterfaceWizard"
+            icon="icons/edecl16/int_obj.gif"
+            id="org.sveditor.ui.newSVInterfaceWizard"
+            name="SystemVerilog Interface"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.NewSVModuleWizard"
+            icon="icons/edecl16/module_obj.gif"
+            id="org.sveditor.ui.newSVModuleWizard"
+            name="SystemVerilog Module"
+            project="false">
+      </wizard>
+      <wizard
+            canFinishEarly="true"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.new_filelist.NewFileListWizard"
+            hasPages="true"
+            icon="icons/eview16/configs.gif"
+            id="org.sveditor.ui.newSVFilelist"
+            name="SystemVerilog Filelist"
+            project="false">
+         <description>
+            Creates a new SystemVerilog filelist (argument file). Provides the option to initialize this file from files discovered in user-specified directories
+         </description>
+      </wizard>
+      <wizard
+            canFinishEarly="true"
+            category="org.sveditor.ui.svNewWizards"
+            class="org.sveditor.ui.wizards.project.NewSVEProjectWizard"
+            finalPerspective="org.sveditor.ui.svPerspective"
+            icon="icons/vlog_16_16.gif"
+            id="org.sveditor.ui.newSVEProject"
+            name="SVE Project"
+            project="true">
+      </wizard>      
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.sveditor.ui.SVPerspectiveFactory"
+            fixed="false"
+            icon="icons/eview16/svperspective.gif"
+            id="org.sveditor.ui.svPerspective"
+            name="SystemVerilog">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <group
+            id="org.sveditor.ui.newSVWizards"
+            separatorsVisible="true">
+      </group>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.sveditor.ui.toolbars.docs"
+               label="Docs">
+            <command
+                  commandId="org.sveditor.ui.docs.generate"
+                  icon="icons/edecl16/generate_obj.gif"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+	         <command
+	               commandId="org.sveditor.ui.addFilelistToProject"
+	               label="Add Argument File to Project"
+	               style="push">
+	            <visibleWhen
+	                  checkEnabled="false">
+	               <iterate
+	                     ifEmpty="false">
+	                  <adapt
+	                        type="org.eclipse.core.resources.IFile">
+	                     <test
+	                           property="org.eclipse.core.resources.contentTypeId"
+	                           value="org.sveditor.core.argfile">
+	                     </test>
+	                  </adapt>
+	               </iterate>
+	            </visibleWhen>
+	         </command>
+	         <menu 
+	            label = "&amp;Source"
+	            commandId="org.sveditor.ui.explorer.source"
+	            >
+                <command
+                   commandId="org.sveditor.ui.explorer.source.format"
+                   label="&amp;Format"
+                   style="push">
+                   <visibleWhen
+                         checkEnabled="false">
+                      <iterate
+                            ifEmpty="false">
+                         <adapt
+                               type="org.eclipse.core.resources.IFile">
+                            <test
+                                  property="org.eclipse.core.resources.contentTypeId"
+                                  value="org.sveditor.core.systemverilog">
+                            </test>
+                         </adapt>
+                      </iterate>
+                   </visibleWhen>
+                </command>
+                <command
+                   commandId="org.sveditor.ui.explorer.source.addndocs"
+                   label="&amp;Add NaturalDocs"
+                   style="push">
+                   <visibleWhen
+                         checkEnabled="false">
+                      <iterate
+                            ifEmpty="false">
+                         <adapt
+                               type="org.eclipse.core.resources.IFile">
+                            <test
+                                  property="org.eclipse.core.resources.contentTypeId"
+                                  value="org.sveditor.core.systemverilog">
+                            </test>
+                         </adapt>
+                      </iterate>
+                   </visibleWhen>
+                </command>
+             </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            canSearchEnclosingProjects="true"
+            class="org.sveditor.ui.search.SVSearchPage"
+            enabled="true"
+            icon="icons/eview16/svperspective.gif"
+            id="org.sveditor.ui.searchPage"
+            label="SystemVerilog Search"
+            showScopeSection="true">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <contextType
+            class="org.sveditor.ui.editor.SVTemplateContextType"
+            id="org.sveditor.ui.svTemplateContext"
+            name="SystemVerilog Template Context">
+      </contextType>
+      <resolver
+            class="org.sveditor.ui.editor.SVContextTemplateVariableResolver"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            type="src">
+      </resolver>
+      <!--
+      <template
+            autoinsert="false"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            description="Iterate over an array with a temporary variable"
+            icon="icons/template.gif"
+            id="org.sveditor.ui.svForLoop"
+            name="for">
+         <pattern>
+            for (int ${index}; ${condition}; ${increment}) begin
+	${cursor}
+end
+         </pattern>
+      </template>
+      <template
+            autoinsert="false"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            icon="icons/template.gif"
+            id="org.sveditor.ui.template1"
+            name="class">
+         <pattern>
+            class ${name} extends ${superclass};
+	${cursor}
+endclass
+         </pattern>
+      </template>
+       -->
+   </extension>
+   <extension
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="org.sveditor.ui.search.SVSearchResultsPage"
+            id="org.sveditor.ui.searchResultsPage"
+            searchResultClass="org.sveditor.ui.search.SVSearchResult">
+      </viewPage>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <actionSet
+               id="org.sveditor.ui.svSearchActionSet">
+         </actionSet>
+         <actionSet
+               id="org.sveditor.ui.navigationActionSet">
+         </actionSet>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentMergeViewers">
+      <contentTypeBinding
+            contentMergeViewerId="org.sveditor.ui.compareMergeViewer"
+            contentTypeId="org.sveditor.core.systemverilog">
+      </contentTypeBinding>
+      <viewer
+            class="org.sveditor.ui.compare.SVCompareViewerCreator"
+            extensions="sv,svh,v,vl"
+            id="org.sveditor.ui.compareMergeViewer"
+            label="SVEditor Merge Viewer">
+      </viewer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+         <!--
+      <decorator
+            class="org.sveditor.ui.explorer.ProblemLabelDecorator"
+            id="org.sveditor.ui.svErrorDecorator"
+            label="SV Error Decorator"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IFile">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IFolder">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
+        -->
+      <decorator
+            class="org.sveditor.ui.svcp.SVDBFileDecorator"
+            id="org.sveditor.ui.svIndexFileDecorator"
+            label="SV Index File Decorator"
+            lightweight="true"
+            location="TOP_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IFile">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IProject">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IFolder">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
+      <decorator
+            class="org.sveditor.ui.svcp.SVDBFileErrorDecorator"
+            id="org.sveditor.ui.svIndexErrorDecorator"
+            label="SV Index Error Decorator"
+            lightweight="true"
+            location="BOTTOM_LEFT"
+            state="true">
+         <enablement>
+            <or>
+               <objectClass
+                     name="org.eclipse.core.resources.IResource">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IFolder">
+               </objectClass>
+               <objectClass
+                     name="org.eclipse.core.resources.IProject">
+               </objectClass>
+            </or>
+         </enablement>
+      </decorator>
+   </extension>
+   <extension
+         point="org.eclipse.compare.contentViewers">
+      <viewer
+            class="org.sveditor.ui.compare.ViewerCreator"
+            id="org.sveditor.ui.compareViewer">
+      </viewer>
+      <contentTypeBinding
+            contentTypeId="org.sveditor.core.systemverilog"
+            contentViewerId="org.sveditor.ui.compareViewer">
+      </contentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferenceTransfer">
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="org.sveditor.ui.svEditSettingsTransfer"
+            name="SVEditor Edit Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="org.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="EditSettings.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            SVEditor editing settings, including colors, auto-indent, and content assist
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="org.sveditor.ui.svLinkedResourcesSettingsTransfer"
+            name="SVEditor Linked Resource Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="org.eclipse.core.resources">
+               <key
+                     match="prefix"
+                     name="pathvariable.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            Global linked resource settings
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="org.sveditor.ui.svTemplateSettingsTransfer"
+            name="SVEditor Template Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="org.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="TemplateSettings.">
+               </key>
+            </entry>
+         </mapping>
+         <description>
+            SVEditor template settings, including template repository paths and template variables
+         </description>
+      </transfer>
+      <transfer
+            icon="icons/eview16/svperspective.gif"
+            id="org.sveditor.ui.svCodeTemplateSettingsTransfer"
+            name="SVEditor Code Templates Settings">
+         <mapping
+               scope="instance">
+            <entry
+                  node="org.sveditor.ui">
+               <key
+                     name="org.sveditor.customtemplates">
+               </key>
+            </entry>
+            <entry
+                  node="org.sveditor.ui">
+               <key
+                     match="prefix"
+                     name="org.sveditor.customtemplates">
+               </key>
+            </entry>
+            <entry
+                  node="org.sveditor.ui">
+               <key
+                     name="org.sveditor.customtemplates">
+               </key>
+            </entry>
+         </mapping>
+      </transfer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.sveditor.ui.argfile.editor.open.file"
+            contextId="org.sveditor.ui.svArgFileEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F3">
+      </key>
+      <key
+            commandId="org.sveditor.ui.ArgFileToggleComment"
+            contextId="org.sveditor.ui.svArgFileEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+/">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            description="Open File"
+            id="org.sveditor.ui.argfile.editor.open.file"
+            name="Open File">
+      </command>
+      <command
+            description="Toggle Comment"
+            id="org.sveditor.ui.argfile.editor.toggle.comment"
+            name="Toggle Comment">
+      </command>
+      <command
+            id="org.sveditor.ui.ArgFileToggleComment"
+            name="Toggle Comment">
+      </command>
+      <command
+            id="org.sveditor.ui.addFilelistToProject"
+            name="Add Filelist to Project">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.themes">
+      <themeElementCategory
+            id="org.sveditor.ui.presentation"
+            label="SVEditor">
+      </themeElementCategory>
+      <fontDefinition
+            categoryId="org.sveditor.ui.presentation"
+            defaultsTo="org.eclipse.jface.textfont"
+            id="org.sveditor.ui.editor.svTextFont"
+            label="label">
+      </fontDefinition>
+      <colorDefinition
+            categoryId="org.sveditor.ui.presentation"
+            id="org.sveditor.ui.docHoverBackgroundColor"
+            isEditable="true"
+            label="Doc Hover background color"
+            value="#ffffc0">
+      </colorDefinition>
+      <colorDefinition
+            categoryId="org.sveditor.ui.presentation"
+            id="org.sveditor.ui.docHoverForegroundColor"
+            isEditable="true"
+            label="Doc Hover foreground color"
+            value="#000000">
+      </colorDefinition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            annotationType="org.sveditor.ui.occurrences"
+            colorPreferenceKey="occurrenceIndicationColor"
+            colorPreferenceValue="212,212,212"
+            contributesToHeader="false"
+            highlightPreferenceKey="occurrenceHighlighting"
+            highlightPreferenceValue="true"
+            isGoToNextNavigationTarget="false"
+            isGoToNextNavigationTargetKey="isOccurrenceGoToNextNavigationTarget"
+            isGoToPreviousNavigationTarget="false"
+            isGoToPreviousNavigationTargetKey="isOccurrenceGoToPreviousNavigationTarget"
+            label="SV Mark Occurences Annotation"
+            overviewRulerPreferenceKey="occurrenceIndicationInOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            presentationLayer="4"
+            showInNextPrevDropdownToolbarAction="true"
+            showInNextPrevDropdownToolbarActionKey="showOccurrenceInNextPrevDropdownToolbarAction"
+            textPreferenceKey="occurrenceIndication"
+            textPreferenceValue="false"
+            textStylePreferenceKey="occurrenceTextStyle"
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="occurrenceIndicationInVerticalRuler"
+            verticalRulerPreferenceValue="false">
+      </specification>
+      <specification
+            annotationType="org.sveditor.ui.disabledRegion"
+            colorPreferenceKey="disabledRegionColorPrefKey"
+            colorPreferenceValue="224,224,224"
+            highlightPreferenceKey="disabledRegionHighlightPrefKey"
+            highlightPreferenceValue="true"
+            includeOnPreferencePage="true"
+            isGoToNextNavigationTarget="false"
+            isGoToNextNavigationTargetKey="disabledRegionGoToNextPrefKey"
+            isGoToPreviousNavigationTarget="false"
+            isGoToPreviousNavigationTargetKey="disabledRegionGoToPrevPrefKey"
+            label="SV Disabled Region Annotation"
+            overviewRulerPreferenceKey="disabledRegionOverviewRulerPrefKey"
+            overviewRulerPreferenceValue="false"
+            presentationLayer="1"
+            showInNextPrevDropdownToolbarAction="false"
+            showInNextPrevDropdownToolbarActionKey="disabledRegionNextPrevPrefKey"
+            textPreferenceKey="disabledRegionTextPrefKey"
+            textPreferenceValue="false"
+            textStylePreferenceKey="disabledRegionRulerPrefKey"
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="disabledRegionVerticalRulerPrefKey"
+            verticalRulerPreferenceValue="false">
+      </specification>
+      <specification
+            annotationType="org.sveditor.ui.methodOverride"
+            colorPreferenceKey="svMethodOverrideColorPreferenceKey"
+            colorPreferenceValue="244,244,244"
+            contributesToHeader="false"
+            highlightPreferenceKey="svMethodOverrideHighlightTextPreferenceKey"
+            highlightPreferenceValue="false"
+            icon="icons/obj16/over_co.gif"
+            includeOnPreferencePage="true"
+            label="SV Method Override Annotation"
+            overviewRulerPreferenceKey="svMethodOverrideOverviewRulerPreferenceKey"
+            overviewRulerPreferenceValue="false"
+            presentationLayer="1"
+            textPreferenceKey="svMethodOverrideTextPreferenceKey"
+            textPreferenceValue="false"
+            textStylePreferenceKey="svMethodOverrideTextStylePreferenceKey"
+            textStylePreferenceValue="NONE"
+            verticalRulerPreferenceKey="svMethodOverrideVerticalRulerPreferenceKey"
+            verticalRulerPreferenceValue="true">
+      </specification>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            name="org.sveditor.ui.occurrences">
+      </type>
+      <type
+            name="org.sveditor.ui.disabledRegion">
+      </type>
+      <type
+            name="org.sveditor.ui.methodOverride">
+      </type>
+   </extension>
+   <extension
+         point="org.eclipse.core.filebuffers.annotationModelCreation">
+      <factory
+            class="org.sveditor.ui.argfile.editor.SVArgFileAnnotationModelFactory"
+            contentTypeId="org.sveditor.core.argfile">
+      </factory>
+      <factory
+            class="org.sveditor.ui.editor.SVEditorAnnotationModelFactory"
+            contentTypeId="org.sveditor.core.systemverilog">
+      </factory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <category
+            id="org.sveditor.ui.importWizardCategory"
+            name="SVEditor">
+      </category>
+      <wizard
+            category="org.sveditor.ui.importWizardCategory"
+            class="org.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportWizard"
+            id="org.sveditor.ui.compilationArgWizard"
+            name="Compilation Arguments">
+         <description>
+            Creates a filelist (argument file) by running a compilation command and capturing the paths and arguments specified to vendor tools such as vlog, ncvlog, and vcs
+         </description>
+      </wizard>
+      <wizard
+            category="org.sveditor.ui.importWizardCategory"
+            class="org.sveditor.ui.wizards.imp.compilation.args.CompilationArgImportDumpFileWizard"
+            id="org.sveditor.ui.compilationArgDumpFileWizard"
+            name="Compilation Arguments Dumpfile">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            id="org.sveditor.ui.svCode"
+            name="SystemVerilog Editor">
+            <context type="org.eclipse.ui.texteditor.ITextEditor"/>
+      </target>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            class="org.sveditor.ui.editor.SVElementHyperlinkDetector"
+            id="org.sveditor.ui.editor.SVElementHyperlinkDetector"
+            name="SystemVerilog Elements"
+            targetId="org.sveditor.ui.svCode">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.spellingEngine">
+      <engine
+            class="org.sveditor.ui.text.spelling.DefaultSpellingEngine"
+            default="true"
+            id="org.sveditor.ui.svSpellingEngine"
+            label="SystemVerilog Engine">
+      </engine>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+         <!--
+      <image
+            icon="icons/vlog_16_16.gif"
+            id="org.sveditor.ui.SVProjectNatureImage"
+            natureId="org.sveditor.core.SVNature">
+      </image>
+          -->
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.sveditor.ui.script.launch.ScriptLaunchTabGroup"
+            id="org.sveditor.ui.buildScriptLaunchTabGroup"
+            type="org.sveditor.core.buildScriptLaunchType">
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="org.sveditor.core.buildScriptLaunchType"
+            icon="icons/eview16/builder.gif"
+            id="org.sveditor.ui.buildScriptTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            category="org.sveditor.ui.viewCategory"
+            class="org.sveditor.ui.views.design_hierarchy.DesignHierarchyView"
+            icon="icons/eview16/class_hi.gif"
+            id="org.sveditor.ui.designHierarchy"
+            name="Design Hierarchy"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.always1"
+            description="Always @ Event Instantiation"
+            name="always @">
+         <pattern>
+            always @(${event}) begin
+	${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.alwaysff"
+            description="Always Flop Instantiation"
+            name="always_ff">
+         <pattern>
+            always_ff @(posedge ${clk} or negedge ${reset_n}) begin
+   if (!${reset_n})  begin
+      ${flop} &lt;= 1'b0;
+   end
+   else begin
+      ${flop} &lt;= ${cursor};
+   end
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.alwayslt"
+            description="Always Latch Instantiation"
+            name="always_latch">
+         <pattern>
+            always_latch begin
+   if (!${reset_n})  begin
+      ${latch} &lt;= 1'b0;
+   end
+   else if (${clock}) begin
+      ${latch} &lt;= ${cursor};
+   end
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.alwayscomb"
+            description="Always Comb Instantiation"
+            name="always_comb">
+         <pattern>
+            always_comb begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.function"
+            description="Function Instantiation"
+            name="function">
+         <pattern>
+            function ${return_type} ${function_name} (${port_list});
+   ${cursor}
+endfunction
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.task"
+            description="Task Instantiation"
+            name="task">
+         <pattern>
+            task ${task_name} (${port_list});
+   ${cursor}
+endtask
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.if"
+            description="If Instantiation"
+            name="if">
+         <pattern>
+            if (${condition}) begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.assert"
+            description="Assert Instantiation"
+            name="assert">
+         <pattern>
+            assert (${condition}) 
+else
+   	${cursor}
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.else"
+            description="Else Instantiation"
+            name="else">
+         <pattern>
+            else begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.for"
+            description="For Loop Instantiation"
+            name="for">
+         <pattern>
+            for (${counter}=0; ${counter}&lt;${max_count}; ${counter}++) begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.while"
+            description="While Instantiation"
+            name="while">
+         <pattern>
+            while (${condition}) begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.do"
+            description="Do-While Instantiation"
+            name="do">
+         <pattern>
+            do begin
+   ${cursor}
+end while (${condition});
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.case"
+            description="Case Instantiation"
+            name="case">
+         <pattern>
+            case (${signal})
+   ${first}: begin
+      ${cursor}
+   end
+   default: begin
+   end
+endcase
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.casex"
+            description="Casex Instantiation"
+            name="casex">
+         <pattern>
+            casex (${signal})
+   ${first}: begin
+      ${cursor}
+   end
+   default: begin
+   end
+endcase
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.casez"
+            description="Casez Instantiation"
+            name="casez">
+         <pattern>
+            casez (${signal})
+   ${first}: begin
+      ${cursor}
+   end
+   default: begin
+   end
+endcase
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.initial"
+            description="Initial Block Instantiation"
+            name="initial">
+         <pattern>
+            initial begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.final"
+            description="Final Block Instantiation"
+            name="final">
+         <pattern>
+            final begin
+   ${cursor}
+end
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.module"
+            description="Module Instantiation"
+            name="module">
+         <pattern>
+            module ${module_name} #(
+            parameter ${parameter_name} = ${parameter_value}
+            ) 
+            (
+            	${port_list}
+            );
+endmodule
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.class"
+            description="Generic Class Instantiation"
+            name="class">
+         <pattern>
+            class ${class_name} extends ${base_class};
+endclass
+         </pattern>
+      </template>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <template
+            autoinsert="true"
+            contextTypeId="org.sveditor.ui.svTemplateContext"
+            id="org.sveditor.ui.package"
+            description="Generic package Instantiation"
+            name="package">
+         <pattern>
+            package ${package_name};
+endpackage
+         </pattern>
+      </template>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.core.launchDelegates">
+      <launchDelegate
+            delegate="org.sveditor.ui.script.launch.ScriptLaunchDelegate"
+            id="org.sveditor.core.buildScriptLaunchDelegate"
+            modes="run"
+            name="SVEditor Build Script"
+            type="org.sveditor.core.buildScriptLaunchType">
+      </launchDelegate>
+   </extension>
+   <extension
+         point="org.sveditor.ui.svScriptPatternMatchers">
+      <patternMatcher
+            class="org.sveditor.ui.script.launch.GenericPathPatternMatcher"
+            name="Generic Path Matcher">
+      </patternMatcher>
+      <patternMatcher
+            class="org.sveditor.ui.script.launch.GenericRelPathPatternMatcher"
+            name="Generic Relative Path Matcher">
+      </patternMatcher>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.sveditor.ui.editor.actions.FoldActionCollapse"
+            commandId="org.eclipse.ui.edit.text.folding.collapse">
+         <activeWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="org.sveditor.ui.editor">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.sveditor.ui.editor.actions.FoldActionExpand"
+            commandId="org.eclipse.ui.edit.text.folding.expand">
+         <activeWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="org.sveditor.ui.editor">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.sveditor.ui.editor.actions.FoldActionToggle"
+            commandId="org.eclipse.ui.edit.text.folding.toggle">
+         <activeWhen>
+            <with
+                  variable="activeEditorId">
+               <equals
+                     value="org.sveditor.ui.editor">
+               </equals>
+            </with>
+         </activeWhen>
+      </handler>
+      <handler
+            commandId="org.sveditor.ui.addFilelistToProject">
+         <class
+               class="org.sveditor.ui.explorer.AddArgFileToProjectHandler">
+         </class>
+      </handler>
+      <handler
+            commandId="org.sveditor.ui.explorer.source.format">
+         <class
+            class="org.sveditor.ui.explorer.IndentHandler">
+         </class>
+      </handler>
+      <handler
+            commandId="org.sveditor.ui.explorer.source.addndocs">
+         <class
+            class="org.sveditor.ui.explorer.AddNdocsHandler">
+         </class>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            id="org.sveditor.ui.navigate.open.type"
+            name="Open Type">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.sveditor.ui.navigationActionSet"
+            label="Navigation Actions"
+            visible="false">
+         <action
+               class="org.sveditor.ui.OpenTypeAction"
+               definitionId="org.sveditor.ui.navigate.open.type"
+               id="org.sveditor.ui.action1"
+               label="Open Type"
+               style="push">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.consoleLineTrackers">
+      <consoleLineTracker
+            class="org.sveditor.ui.script.launch.ScriptLineTracker"
+            id="org.sveditor.ui.sveScriptLineTracker"
+            processType="sve.script">
+      </consoleLineTracker>
+      <consoleLineTracker
+            class="org.sveditor.ui.console.SVBuildConsoleLineTracker"
+            id="org.sveditor.ui.svBuildConsoleLineTracker"
+            processType="sve.build">
+      </consoleLineTracker>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.sveditor.ui.index.launch.SVIndexLaunchDelegate"
+            id="org.sveditor.ui.indexBuildLaunchConfiguration"
+            modes="run"
+            name="SystemVerilog Index Build"
+            public="false">
+      </launchConfigurationType>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.consoleColorProviders">
+      <consoleColorProvider
+            class="org.sveditor.ui.console.SVBuildConsoleColorProvider"
+            id="org.sveditor.ui.buildConsoleColorProvider"
+            processType="sve.build">
+      </consoleColorProvider>
+   </extension>
+</plugin>

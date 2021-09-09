@@ -4,9 +4,19 @@
 - #(534) - Indenter: if without body followed by else 
 
 ------------------------------------------------------------------------------
+-- 2.1.7 Release --
+
+- #(nobug) - Migrate to Maven-based build
+
+------------------------------------------------------------------------------
+-- 2.1.6 Release --
+
+- #(nobug) - Recognize (and ignore) the `uselib directive
+
+------------------------------------------------------------------------------
 -- 2.1.5 Release --
 
-- #(enh) - Add scrollbar to New Class "Add to Package" wizard
+- #(enh - 138) - Match file paths in the console with a format "path", line
 
 ------------------------------------------------------------------------------
 -- 2.1.4 Release --

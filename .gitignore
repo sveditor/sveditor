@@ -1,10 +1,13 @@
+#Maven
+target/
+#FIXME: review and rework entries below
 *.html
 *.class
-sveditor/plugins/net.sf.sveditor.doc.dev/api_docs/resources/*.gif
-sveditor/plugins/net.sf.sveditor.doc.user/help/*
+sveditor/plugins/org.eclipse.hdt.sveditor.doc.dev/api_docs/resources/*.gif
+sveditor/plugins/org.eclipse.hdt.sveditor.doc.user/help/*
 docs/pdf/*
-sveditor/plugins/net.sf.sveditor.ui/class/net/sf/sveditor/ui/*.properties
-sveditor/plugins/net.sf.sveditor.ui/class/net/sf/sveditor/ui/text/hover/*.properties
+sveditor/plugins/org.eclipse.hdt.sveditor.ui/class/org.eclipse.hdt/sveditor/ui/*.properties
+sveditor/plugins/org.eclipse.hdt.sveditor.ui/class/org.eclipse.hdt/sveditor/ui/text/hover/*.properties
 .svproject
 stylesheet.css
 package-list
