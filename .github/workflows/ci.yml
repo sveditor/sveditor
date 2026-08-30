@@ -1,12 +1,95 @@
+# sveditor/sveditor -- GitHub Actions.
+#
+# Converted 2026-08-30 (github-coexistence-completion-plan.md, Phase 5 wave 1).
+#
+# WHAT THIS REPO WAS DOING, AND WHY NOTHING SAW IT
+# ------------------------------------------------
+# The trigger was `on: [push, pull_request]` -- every branch, no filter -- and
+# the tail of the single `build` job cloned sveditor/sveditor.github.io with
+# `https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/...`, replaced
+# its `update/` directory with a freshly built Eclipse p2 repository, committed
+# and pushed. That is a release: it writes into a different repository whose
+# whole purpose is to be served to users, at the update-site URL people have
+# configured in their IDE.
+#
+# The estate's conformance scanner reported this repo as carrying no publisher,
+# and it was right to. There was nothing to see at the YAML level:
+#
+#   * the publish was a bare `git push`, matching none of the registry markers
+#     (no twine, no npm, no docker, no deploy-pages action);
+#   * the gate was `if test "$branch" = "master"` in shell, INSIDE a run: block,
+#     invisible to anything that reads the workflow as YAML.
+#
+# Both holes have since been closed in git-sync (2026-08-30) -- `git push` and
+# `x-access-token` are publish markers now -- but the lesson stands: a gate that
+# only exists inside a run: block is a gate no tooling can verify.
+#
+# WHY THE SHELL GATE WAS NOT ENOUGH ANYWAY. `git rev-parse --abbrev-ref HEAD`
+# reports whatever the checkout left in HEAD, which for actions/checkout is a
+# detail of the checkout, not a statement about what was pushed. It is one
+# `fetch-depth` change away from meaning something different. github.ref is the
+# actual ref that triggered the run and cannot drift.
+#
+# Its counterpart is .forgejo/workflows/ci.yml. Both must exist: with
+# .forgejo/workflows/ absent the Forgejo runner falls back to running THIS file,
+# and this repo has Forgejo Actions ENABLED -- so that fallback was live.
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
-
+  gate:
+    # Release master switch. ONE file, above both platforms, decides who
+    # publishes this repo:
+    #   https://dvkit.org/.well-known/release-authority.json
+    # Generated from sync-policy.toml by `git-sync emit-release-authority`, so
+    # GitHub and Forgejo cannot drift -- there is only one copy for them to
+    # disagree about. The runner only READS it, over plain HTTPS with no
+    # credential: a workflow file is public and editable by anyone who can push.
+    #
+    # `if:` on a job cannot reference a step in its own job, so the switch is
+    # resolved here and consumed through needs.gate.outputs.authority.
+    name: Release authority
     runs-on: ubuntu-latest
+    outputs:
+      authority: ${{ steps.resolve.outputs.authority }}
+    steps:
+      - id: resolve
+        # One line on purpose: a multi-line `python3 -c` has to start at column
+        # 0, which terminates the YAML block scalar and silently corrupts the
+        # workflow.
+        run: |
+          url=https://dvkit.org/.well-known/release-authority.json
+          if ! body=$(curl -fsS --max-time 10 "$url"); then
+            # DECIDED 2026-08-30: fail CLOSED on a tag. A release blocked by a
+            # dvkit.org outage is recoverable; an update site published twice
+            # from two forges is not -- p2 consumers cache by version, so a
+            # second push under the same version is served inconsistently and
+            # forever.
+            case "$GITHUB_REF" in
+              refs/tags/v*)
+                echo "::error::release-authority switch unreachable; refusing to publish"
+                exit 1 ;;
+              *)
+                echo "authority=none" >> "$GITHUB_OUTPUT"
+                echo "switch unreachable on a non-tag ref; nothing to release"
+                exit 0 ;;
+            esac
+          fi
+          auth=$(printf '%s' "$body" | python3 -c 'import json,os,sys; d=json.load(sys.stdin); r=os.environ["GITHUB_REPOSITORY"]; print(d["repos"].get(r) or d["orgs"].get(r.split("/")[0]) or d["default"])')
+          echo "release authority for $GITHUB_REPOSITORY: $auth"
+          echo "authority=$auth" >> "$GITHUB_OUTPUT"
 
+  build:
+    # The Maven build is UNCHANGED from before the conversion, apart from the
+    # version it stamps and the removal of the release tail. Building on every
+    # push is the useful half of what this workflow did.
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -28,44 +111,119 @@ jobs:
           ${{ runner.os }}-build-${{ env.cache-name }}-
           ${{ runner.os }}-build-
           ${{ runner.os }}-
-    - name: Git global config
+
+    - name: Resolve the version
+      # A TAG BUILD KEEPS THE CLEAN NUMBER; everything else is stamped so it can
+      # never be mistaken for a release. The old scheme stamped
+      # <base>.v<date>-<run-id> on every build INCLUDING the one that published,
+      # so what shipped was never the version in etc/sveditor.info and no two
+      # builds of the same source produced the same artefact.
+      #
+      # GITHUB_RUN_ID is not unique across forges -- GitHub's is an 11-digit
+      # global counter, Forgejo's a per-repo index that restarts if the instance
+      # is rebuilt -- so the stamp carries the platform. Nothing in this repo
+      # publishes from Forgejo today, but the version scheme should not be the
+      # thing that makes it impossible.
+      id: ver
       run: |
-              git config --global user.name 'SVEditor Github Actions'
-              git config --global user.email 'sveditor@users.noreply.github.com'
+        base=$(grep -w 'version' etc/sveditor.info | grep -v '#' \
+               | sed -e 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/')
+        case "$GITHUB_REF" in
+          refs/tags/v*)
+            tag="${GITHUB_REF#refs/tags/v}"
+            if [ "$tag" != "$base" ]; then
+              echo "::error::tag v$tag does not match version $base in etc/sveditor.info"
+              exit 1
+            fi
+            version="$base"
+            echo "tag build -- version $version"
+            ;;
+          *)
+            version="${base}.v$(date +%Y%m%d)-gh${GITHUB_RUN_ID}"
+            echo "development build -- version $version"
+            ;;
+        esac
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+
     - name: Build with Maven
       run: |
-              version_base=`grep -w 'version' etc/sveditor.info  | grep -v '#' | sed -e 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/'`
-              version_date=`date +"%Y%m%d"`
-              version="${version_base}.v${version_date}-${GITHUB_RUN_ID}"
-              echo "Version: $version"
-             
-              # Update versions in files
-              for file in `find sveditor -name '*.xml'; find sveditor -name '*.MF'`; do
-                  sed -i -e "s%1.2.3%$version%g" $file
-              done
+        version='${{ steps.ver.outputs.version }}'
+        # Update versions in files
+        for file in `find sveditor -name '*.xml'; find sveditor -name '*.MF'`; do
+            sed -i -e "s%1.2.3%$version%g" $file
+        done
+        mvn clean verify --no-transfer-progress -U -Pcoverage
 
-              mvn clean verify --no-transfer-progress -U -Pcoverage
+    - name: Upload the built update site
+      uses: actions/upload-artifact@v4
+      with:
+        name: update-site
+        path: releng/org.sveditor.repository/target/repository/**
+        if-no-files-found: error
 
-              branch=`git rev-parse --abbrev-ref HEAD`
+  publish:
+    name: Publish the Eclipse update site
+    # A TAG, and the switch naming THIS forge. A push to a branch never
+    # publishes anything -- that is what makes the 5-minute sync safe.
+    #
+    # SKIPS, does not fail, when the switch names Forgejo. A red build on the
+    # dormant side every time anyone tags would train people to ignore the
+    # signal, which is worse than no signal.
+    if: startsWith(github.ref, 'refs/tags/v') && needs.gate.outputs.authority == 'github'
+    needs: [gate, build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
 
-              # Only release from the main branch
-              if test "$branch" = "master"; then
-                  echo "releasing"
-                  git clone https://x-access-token:${{ secrets.ACTIONS_TOKEN }}@github.com/sveditor/sveditor.github.io sveditor.github.io
-                  rm -rf sveditor.github.io/update
-                  cp -r ./releng/org.sveditor.repository/target/repository sveditor.github.io/update
+    - uses: actions/download-artifact@v4
+      with:
+        name: update-site
+        path: repository
 
-                  # Create a basic landing page for the update site
-                  echo "<h1>SVEditor Update Site</h1>" > sveditor.github.io/update/index.html
-                  echo "<pre>" >> sveditor.github.io/update/index.html
-                  cat ChangeLog.txt >> sveditor.github.io/update/index.html
-                  echo "</pre>" >> sveditor.github.io/update/index.html
-                  cd sveditor.github.io
-                  git add update
-                  git commit -s -m "Release version ${version}"
-                  git push
-              else 
-                  echo "on branch $branch"
-              fi
+    - name: Check the built site is real before it replaces the live one
+      # The publish step below does `rm -rf update` and puts this in its place.
+      # An empty or half-built p2 repository would therefore DELETE the live
+      # update site rather than fail, and every IDE configured against it would
+      # start reporting the site as unreadable. Refuse instead.
+      run: |
+        for f in artifacts.jar content.jar; do
+          test -s "repository/$f" \
+            || { echo "::error::repository/$f missing or empty -- refusing to replace the live update site"; exit 1; }
+        done
+        n=$(find repository/plugins -name '*.jar' 2>/dev/null | wc -l)
+        echo "plugin jars: $n"
+        [ "$n" -ge 4 ] \
+          || { echo "::error::only $n plugin jars built; refusing to call this an update site"; exit 1; }
 
-
+    - name: Publish to sveditor.github.io/update
+      # Unchanged in destination, deliberately: the update-site URL is
+      # configured inside people's IDEs, so moving it is a user-visible break
+      # and not something a co-existence change gets to decide.
+      env:
+        ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
+      run: |
+        if [ -z "$ACTIONS_TOKEN" ]; then
+          echo "::error::ACTIONS_TOKEN is not visible to this repository"
+          exit 1
+        fi
+        version="${GITHUB_REF#refs/tags/v}"
+        git config --global user.name 'SVEditor Github Actions'
+        git config --global user.email 'sveditor@users.noreply.github.com'
+        git clone "https://x-access-token:${ACTIONS_TOKEN}@github.com/sveditor/sveditor.github.io" sveditor.github.io
+        rm -rf sveditor.github.io/update
+        cp -r ./repository sveditor.github.io/update
+        # Create a basic landing page for the update site
+        echo "<h1>SVEditor Update Site</h1>" > sveditor.github.io/update/index.html
+        echo "<pre>" >> sveditor.github.io/update/index.html
+        cat ChangeLog.txt >> sveditor.github.io/update/index.html
+        echo "</pre>" >> sveditor.github.io/update/index.html
+        cd sveditor.github.io
+        git add update
+        # Idempotence net: with one switch and two possible publishers, a
+        # double-fire must be a no-op rather than a failure.
+        if git diff --cached --quiet; then
+          echo "update site is already at ${version}; nothing to push"
+          exit 0
+        fi
+        git commit -s -m "Release version ${version}"
+        git push

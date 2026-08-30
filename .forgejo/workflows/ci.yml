@@ -1,0 +1,105 @@
+# sveditor/sveditor -- Forgejo Actions.
+#
+# THIS FILE'S FIRST JOB IS TO EXIST, AND HERE THAT WAS NOT THEORETICAL.
+#
+# When .forgejo/workflows/ is absent, the Forgejo runner FALLS BACK to running
+# .github/workflows/ -- measured on this instance, not assumed. This repo has
+# Forgejo Actions ENABLED (repo_unit type 10 present, checked 2026-08-30) and
+# had no .forgejo/workflows/ directory, so that fallback was live: a push to
+# Forgejo master would have run the GitHub workflow, whose tail cloned
+# sveditor/sveditor.github.io and pushed a rebuilt Eclipse update site into it.
+#
+# It would probably have failed -- secrets.ACTIONS_TOKEN is not defined here, so
+# the clone URL would have carried an empty token -- but "probably fails" is not
+# a safety property, and the Maven build ahead of it would have run first and
+# stamped a version from Forgejo's GITHUB_RUN_ID, which is a small per-repo
+# counter that collides with nothing and means nothing.
+#
+# WHY THIS IS A CHECK AND NOT A MIRROR OF THE GITHUB BUILD
+# --------------------------------------------------------
+# The GitHub build is Maven + Tycho against JDK 8, resolving an Eclipse target
+# platform over the network. The Forgejo runner here is a single
+# catthehacker/ubuntu:act-22.04 image, and `uses:` resolves against
+# code.forgejo.org rather than github.com -- so actions/setup-java, which is how
+# that build gets a JDK at all, does not exist here. A shadow that pretended to
+# build would go red for reasons about the runner rather than the code, and
+# people would stop reading it.
+#
+# THERE IS DELIBERATELY NO PUBLISH JOB. The update site is served from
+# sveditor.github.io, the credential that writes to it is a GitHub token, and
+# sync-policy.toml records release authority for this repo as `github`. All
+# three agree, which is what distinguishes this from the peakrdl-pss
+# anti-pattern -- that one was wrong because the policy claimed GitHub while
+# only Forgejo could actually publish.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check for internal identifiers in tracked files
+      # This repo is published to git.dvkit.org, so anything committed here is
+      # public. Internal host names, tailnet addresses and CGNAT-range IPs must
+      # not appear in tracked files -- if a build ever needs one, it belongs in
+      # a repository secret, which is masked in logs.
+      run: |
+        pattern='perch-char\.ts\.net|\.ts\.net|a9550|100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]+\.[0-9]+'
+        if git grep -nIE "$pattern" -- . ':!.forgejo/workflows/ci.yml' ; then
+          echo "::error::internal identifier found in a tracked file (see matches above)"
+          exit 1
+        fi
+        echo "OK: no internal identifiers in tracked files"
+
+    - name: The version the release reads must still be readable
+      # etc/sveditor.info is parsed by a grep+sed pipeline in the GitHub build,
+      # and a tag build now REFUSES unless that version equals the tag. If the
+      # file changes shape the failure lands on the tag -- the worst moment to
+      # find out. Run the same extraction here, on every push, so it lands on
+      # the commit that broke it instead.
+      run: |
+        base=$(grep -w 'version' etc/sveditor.info | grep -v '#' \
+               | sed -e 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/')
+        if ! printf '%s' "$base" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "::error::cannot extract a version from etc/sveditor.info (got '$base')"
+          exit 1
+        fi
+        echo "OK: declared version $base"
+
+    - name: The Maven reactor must be well-formed
+      # Cheap structural check, no build: every <module> listed in the root
+      # pom.xml has to exist and carry a pom of its own. A module deleted or
+      # moved without updating the reactor fails the GitHub build several
+      # minutes in, with a message about a missing artefact rather than a
+      # missing directory.
+      run: |
+        rc=0
+        mods=$(python3 - <<'PY'
+        import re
+        s = open("pom.xml").read()
+        body = re.search(r"<modules>(.*?)</modules>", s, re.S)
+        print("\n".join(re.findall(r"<module>(.*?)</module>", body.group(1))) if body else "")
+        PY
+        )
+        if [ -z "$mods" ]; then
+          echo "::error::no <modules> in pom.xml -- the reactor build has nothing to build"
+          exit 1
+        fi
+        n=0
+        for m in $mods; do
+          n=$((n+1))
+          if [ ! -f "$m/pom.xml" ]; then
+            echo "::error::pom.xml lists module '$m' but $m/pom.xml does not exist"
+            rc=1
+          fi
+        done
+        [ "$rc" -eq 0 ] && echo "OK: all $n reactor modules present"
+        exit $rc
