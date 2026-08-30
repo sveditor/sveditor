@@ -92,15 +92,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
+      uses: actions/checkout@v4
+    - name: Set up JDK 8
+      # setup-java@v4 requires `distribution`; v1 inferred one. Temurin 8 is the
+      # closest thing to what "JDK 1.8" got in 2021.
+      uses: actions/setup-java@v4
       with:
-        java-version: 1.8
+        java-version: '8'
+        distribution: temurin
     - name: Setup Maven
       run: echo "MAVEN_OPTS='-Xmx2048m'" > ~/.mavenrc
     - name: Cache maven repo
-      uses: actions/cache@v2
+      # Bumped from v2 on 2026-08-30, and NOT cosmetically. The first time this
+      # workflow ever ran on GitHub -- the push that landed the tag gate -- the
+      # job failed during "Set up job", before a single step executed:
+      #
+      #   This request has been automatically failed because it uses a
+      #   deprecated version of `actions/cache: v2`.
+      #
+      # actions/cache v1 and v2 were retired in 2025. The pinned versions here
+      # dated from 2021 and had simply gone stale in place; nothing noticed
+      # because nothing had run.
+      uses: actions/cache@v4
       env:
         cache-name: cache-maven-repo
       with:
